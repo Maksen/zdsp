@@ -1,0 +1,1 @@
+xcopy zdsprepo\schema\*.xml zdsprepo\Copperfield\schema /S /Y

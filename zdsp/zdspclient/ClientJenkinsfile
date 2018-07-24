@@ -1,0 +1,50 @@
+pipeline {
+	agent any
+	parameters {
+        string(name: 'ServerVersion', defaultValue: '1.0.0', description: 'the serverversion must match the server side version in order to connect')
+		string(name: 'BuildVersion', defaultValue: '1', description: '')
+		choice(choices: 'Android\niOS\nWindows', description: '', name: 'Platform')
+		choice(choices: 'Staging\nLive', description: '', name: 'ServerType')
+		choice(choices: 'Debug\nRelease', description: '', name: 'Configuration')
+		choice(choices: 'yes\nno', description: '', name: 'BuildAssetBundle')
+		choice(choices: 'yes\nno', description: '', name: 'UseAssetBundle')
+		choice(choices: 'yes\nno', description: '', name: 'buildplayer')
+		choice(choices: 'yes\nno', description: '', name: 'moveassetbundle')
+		choice(choices: 'yes\nno', description: '', name: 'copygamerepo')
+		choice(choices: 'yes\nno', description: 'is this build for mycard', name: 'mycard')
+    }
+	
+	stages {
+		
+		stage('Build') {
+            steps {
+                echo "Compiling Unity"
+				dir ('D:\\Zealot\\zdsp\\zdspclient') { 
+					bat 'AutoBuildAPK.bat %ServerVersion% %BuildVersion% %Platform% %ServerType% %Configuration% %BuildAssetBundle% %UseAssetBundle% %buildplayer% %copygamerepo% %mycard%'
+				}
+				//-server version,build version,platform type,server type,debug or release,build or not build asset bundle,include asset bundle in build or not,want to build apk or not,want to copy game repo or not
+				
+            }
+        }
+		
+		stage('Moving Build') {
+            steps {
+                echo "Moving Build"
+				dir ('D:\\Zealot\\zdsp\\zdspclient') { 
+					bat 'CopyLastestBuild.bat %Platform%'
+				}
+				
+            }
+        }
+		
+		stage('Moving AssetBundle') {
+            steps {
+                echo "Moving Assetbundle"
+				dir ('D:\\Zealot\\zdsp\\zdspclient') { 
+					bat 'ZipAndMoveAB.bat %moveassetbundle% %Platform%'
+				}
+				
+            }
+        }
+    }
+}

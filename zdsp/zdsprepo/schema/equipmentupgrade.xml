@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="EquipmentUpgrade" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="upgradelvl" type="int" uitext="Upgrade Level" default="0"/>
+      <property name="rarity" type="ItemRarity" uitext="Item Rarity" default="0"/>
+      <property name="type" type="EquipmentType" uitext="Type"/>
+      <property name="successweight" type="int" uitext="Success Weight" default="0" min="0" max="999999999"/>
+      <property name="failweight" type="int" uitext="Fail Weight" default="0" min="0" max="999999999"/>
+      <property name="dropweight" type="int" uitext="Drop Weight" default="0" min="0" max="999999999"/>
+      <property name="increase" type="float" uitext="Increase" default="0.0"/>
+      <property name="buff" type="string" uitext="Buff" default="" info="Format: sideeffectid1;sideeffectid2"/>
+      <property name="generalcost" type="int" uitext="General Cost" default="0" min="0" max="999999999"/>
+      <property name="generalstone" type="int" uitext="General Stone" default="0" min="0" max="999999999"/>
+      <property name="safecost" type="int" uitext="Safe Cost" default="0" min="0" max="999999999"/>
+      <property name="safestone" type="int" uitext="Safe Stone" default="0" min="0" max="999999999"/>
+      <property name="safegemamt" type="int" uitext="Safe Gem Amount" default="0" min="0" max="999999999"/>
+    </element>
+  </data>
+
+  <data>
+    <element name="EquipmentReformGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="grpid" type="string" uitext="Group ID"/>
+      <property name="reformstep" type="int" uitext="Reform Step"/>
+      <property name="sideeffect" type="string" uitext="Side Effect"/>
+      <property name="requirement" type="string" uitext="Requirement"/>
+      <property name="cost" type="int" uitext="Cost"/>
+    </element>
+  </data>
+</magicalarea51>

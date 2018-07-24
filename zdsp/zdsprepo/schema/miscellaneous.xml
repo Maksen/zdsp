@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="GameConstant" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Key" unique="true"/>
+      <property name="value" type="string" uitext="Value"/>
+    </element>
+
+    <element name="CurrencyWallet" useexcel="true">
+      <property name="currencytype" type="CurrencyType" uitext="Currency Type"/>
+      <property name="rowindex" type="int" uitext="Row Index"/>
+      <property name="uitype" type="LinkUIType" value="LinkUIType.None" uitext="UI type"/>
+      <property name="tick" type="bool" uitext="Tick"/>
+    </element>
+  
+    <element name="ActivityOverview" useexcel="true" collectionkey="name" localizeexport="name">
+      <property name="name" type="string" uitext="Name"/>      
+      <property name="startdate" type="string" uitext="Quest Start" info="yyyy/M/d"/>
+      <property name="enddate" type="string" uitext="Quest End" info="yyyy/M/d"/>
+      <property name="week" type="string" uitext="Quest Week" default="8" info="1-Monday, 7-Sunday, 8=everyday"/>
+      <property name="starttime" type="string" uitext="Quest Start Time" info="HH:mm"/>
+      <property name="endtime" type="string" uitext="Quest End Time" info="HH:mm"/>      
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>    
+      <property name="localizedname" type="localizedstring" uitext="Quest Name"/>
+      <property name="content" type="localizedstring" uitext="Quest Content"/>
+      <property name="uitype" type="LinkUIType" value="LinkUIType.None" uitext="Quest Interface"/>
+      <property name="reqlvl" type="int" uitext="Min Lvl" default="1"/>
+      <property name="param1" type="string" uitext="Param1" default=""/>  
+    </element>
+
+    <element name="FeatureList" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+    </element>
+    
+  </data>
+</magicalarea51>

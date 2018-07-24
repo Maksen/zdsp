@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    
+	<element name="RewardList" useexcel="true">
+		<property name="name"          type="string" uitext="Name" noexport="true"/>
+		<property name="rewardgroupid" type="int"    uitext="Reward Group ID"/>
+		<property name="isexpgrade"    type="bool"   uitext="Is Exp Grade"        default="false" info="false = no scaling, true = job and level scaling "/>
+		<property name="job"           type="int"    uitext="Occupation / Job"    default="-1"     info="Refer to JobType, -1 for no job"/>
+		<property name="experience"    type="int"    uitext="Experience"          default="0"/>
+		<property name="jobexperience" type="int"    uitext="Job Experience"      default="0"/>
+		<property name="money"         type="int"    uitext="Money"               default="0"/>
+		<property name="donatept"      type="int"    uitext="Donate Points"       default="0"/>
+		<property name="guildactivept" type="int"    uitext="Guild Active Points" default="0"/>
+		<property name="itemid1"       type="int"    uitext="item id 1"           default="0"/>
+		<property name="itemcount1"    type="int"    uitext="item 1 count"        default="0"/>
+		<property name="itemid2"       type="int"    uitext="item id 2"           default="0"/>
+		<property name="itemcount2"    type="int"    uitext="item 2 count"        default="0"/>
+		<property name="itemid3"       type="int"    uitext="item id 3"           default="0"/>
+		<property name="itemcount3"    type="int"    uitext="item 3 count"        default="0"/>
+		<property name="itemid4"       type="int"    uitext="item id 4"           default="0"/>
+		<property name="itemcount4"    type="int"    uitext="item 4 count"        default="0"/>
+		<property name="itemid5"       type="int"    uitext="item id 5"           default="0"/>
+		<property name="itemcount5"    type="int"    uitext="item 5 count"        default="0"/>
+	</element>
+	
+	<element name="ExperienceRate" useexcel="true">
+		<property name="level"    type="int"   uitext="Level"/>
+		<property name="exprate"  type="float" uitext="Experience Rate"/>
+		<property name="jexprate" type="float" uitext="Job Experience Rate"/>
+	</element>
+	
+	<element name="ActivityReward" useexcel="true">
+		<property name="activitygroupid" type="int"    uitext="Activity Group ID"/>
+		<property name="score"           type="int"    uitext="Score"/>
+		<property name="rewardgroupid"   type="string" uitext="Reward Group ID"/>
+	</element>
+	
+	
+	
+	
+	<enum name="RewardType">
+      <item key="All" value="0"/>
+      <item key="Random" value="1"/>
+      <item key="Weight" value="2"/>
+    </enum>
+	
+    <element name="RewardGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="rewardids" type="string" uitext="RewardList_IDs"/>
+    </element>
+
+    <element name="RandomBoxReward" useexcel="true"  collectionkey="boxcontinued">
+      <property name="boxcontinued" type="int" uitext="Box Continued"/>
+      <property name="boxtimemin" type="int" uitext="Box Time Min"/>
+      <property name="boxtimemax" type="int" uitext="Box Time Max"/>
+      <property name="rewardgroupid" type="int" uitext="RewardGroupID"/>
+    </element>
+    
+    <element name="PrizeGuarantee" useexcel="true"  collectionkey="itemid">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="reset" type="bool" uitext="Reset" default="false"/>
+      <property name="type" type="PrizeGuaranteeType" uitext="Type"/>
+      <property name="itemid" type="int" uitext="Item ID"/>
+      <property name="prizeid1" type="ItemBase" uitext="Prize Id1" display="name"/>
+      <property name="prizecount1" type="int" uitext="Prize Count1"/>
+      <property name="threshold1" type="int" uitext="Threshold1"/>
+      <property name="prizeid2" type="ItemBase" uitext="Prize Id2" display="name"/>
+      <property name="prizecount2" type="int" uitext="Prize Count2"/>
+      <property name="threshold2" type="int" uitext="Threshold2"/>
+      <property name="prizeid3" type="ItemBase" uitext="Prize Id3" display="name"/>
+      <property name="prizecount3" type="int" uitext="Prize Count3"/>
+      <property name="threshold3" type="int" uitext="Threshold3"/>
+      <property name="prizeid4" type="ItemBase" uitext="Prize Id4" display="name"/>
+      <property name="prizecount4" type="int" uitext="Prize Count4"/>
+      <property name="threshold4" type="int" uitext="Threshold4"/>
+      <property name="prizeid5" type="ItemBase" uitext="Prize Id5" display="name"/>
+      <property name="prizecount5" type="int" uitext="Prize Count5"/>
+      <property name="threshold5" type="int" uitext="Threshold5"/>
+    </element>
+
+    <element name="DonateRewardId" useexcel="true">
+      <!--<property name="heroquality" type="HeroQuality" uitext="Hero Quality"/>-->
+      <property name="rewardlistid" type="RewardList" uitext="Reward List ID" display="name"/>
+    </element>
+    
+  </data>
+</magicalarea51>

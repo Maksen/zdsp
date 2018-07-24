@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>  
+    <enum name="BossCategory">
+      <item key="BIGBOSS" value="1"/>
+      <item key="BOSS" value="2"/>
+    </enum> 
+
+    <enum name="BossSpawnType">
+      <item key="SpawnDaily" value="1"/>
+      <item key="SpawnWeekly" value="2"/>
+      <item key="SpawnDuration" value="3"/>
+      <item key="Event" value="4"/>
+    </enum> 
+    
+    <enum name="NPCType">
+      <item key="Combat" value="0"/>
+      <item key="Static" value="1"/>
+    </enum>
+
+    <enum name="MonsterClass">
+      <item key="Normal" value="0"/>
+      <item key="Mini" value="1"/>
+      <item key="Boss" value="2"/>
+    </enum>
+
+    <element name="NPC" useexcel="true" collectionkey="archetype">
+      <property name="archetype" type="string" uitext="Archetype" unique="true"/>
+      <constant name="npctype" type="NPCType" value="NPCType.Combat"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="remark" type="string" uitext="Remarks(not exported)" default="" noexport="true"/>
+	  <property name="containerprefabpath" type="asset" uitext="Container Prefab Path" default="" assettype="prefab" />
+      <property name="modelprefabpath" type="asset" uitext="Model Prefab Path" default="" assettype="prefab"/>
+      <property name="modelmaterialpath" type="string" uitext="Model Material Path" default="" assettype="material" info="To replace original npc's material"/>   
+      <property name="modelscalex" type="float" uitext="Model Scale X" default="1.0"/>
+      <property name="modelscaley" type="float" uitext="Model Scale Y" default="1.0"/>
+      <property name="modelscalez" type="float" uitext="Model Scale Z" default="1.0"/>
+      <property name="speechbubbletext" type="string" uitext="Speech Bubble Text"/>
+      <property name="speechbubblebox" type="string" uitext="Speech Bubble Box"/>
+      <property name="speechbubbleheight" type="float" uitext="Speech Bubble Height"/>
+      <property name="speechbubbleduration" type="float" uitext="Speech Bubble Duration"/>
+      <property name="speechbubbleminint" type="float" uitext="Speech Bubble Interval(Min)"/>
+      <property name="speechbubblemaxint" type="float" uitext="Speech Bubble Interval(Max)"/>
+    </element>
+    
+    <element name="CombatNPC" inherit="NPC" useexcel="true" collectionkey="archetype">
+      <constant name="npctype" type="NPCType" value="NPCType.Combat"/>
+      <property name="monsterclass" type="MonsterClass" uitext="Monster Class"/>
+      <property name="race" type="Race" uitext="Monster Race"/>
+      <property name="element" type="Element" uitext="Element"/>
+      <property name="weakness" type="AttackStyle" uitext="AttackStyle Weakness"/>
+      <property name="movespeed" type="float" uitext="Movement Speed" default="15.0"/>
+      <property name="attackspeed" type="float" uitext="Attack Speed" default="1.0"/>
+      <property name="basicattack" type ="Skill" uitext="Basic Attack Skill" display="name"/>
+      <property name="basicattack2" type ="Skill" uitext="Basic Attack Skill 2" display="name" info="only for boss"/>
+      <property name="camp" type="int" uitext="Camp" default="0"/>
+      <property name="broadcast" type="bool" uitext="Broadcast" default="false" info="Broadcast on spawn or dead."/>
+    
+      <property name="level" type="int" uitext="Level" default="1"/>
+      <property name="healthmax" type="int" uitext="Max Health" default="200"/>
+      <property name="attack" type="int" uitext="Attack" default="20"/>
+      <property name="armor" type="int" uitext="Armor" default="0"/>
+      <property name="strength" type="int" uitext="Strength" default="1"/>
+      <property name="agility" type="int" uitext="Agility" default="1"/>
+      <property name="dexterity" type="int" uitext="Dexterity" default="1"/>
+      <property name="constitution" type="int" uitext="Constitution" default="1"/>
+      <property name="intelligence" type="int" uitext="Intelligence" default="1"/>
+      <property name="accuracy" type="int" uitext="Accuracy" default="100"/>
+      <property name="evasion" type="int" uitext="Evasion" default="0"/>
+      <property name="critical" type="int" uitext="Critical Point" default="0"/>
+      <property name="criticaldamage" type="int" uitext="Critical Damage Point" default="0"/>
+      <property name="cocritical" type="int" uitext="Cocritical Point" default="0"/>
+      <property name="cocriticaldamage" type="int" uitext="Cocritical Damage Point" default="0"/>
+      
+      <property name="immunities" type="string" uitext="CC Immunities"/>
+      <property name="dmgbyhitcount" type="bool" uitext="Damage By Hit Count" default="false" info="Monster only recieve 1 damage at a time"/>
+      <property name="recoveronreturn" type="bool" uitext="Recover On Return" default="false" info="Recover full health on return to safe point"/>
+      <property name="hpregenamt" type="int" uitext="HP Regen Amount" default ="0" info="Regen amount per interval"/>
+      <property name="hpregenamtbypercent" type="int" uitext="HP Regen Amount by Percentage" default="0" info="Regen percentage per interval"/>
+      <property name="healthregeninterval" type="float" uitext="Health Regen Interval" default="0" info="In seconds"/>
+      <property name="experience" type="int" uitext="Experience" default="0" />
+      <property name="loot" type="string" uitext="LootLink Ids" default="" info="id1;id2"/>
+      <property name="eventloot" type="string" uitext="EventLootLink ids" default="" info="id1;id2"/>
+      
+      <property name="bossai1" type="BossAI" uitext="Boss AI 1" display="name" info="For boss skill AI"/>
+      <property name="bossai2" type="BossAI" uitext="Boss AI 2" display="name" info="For boss skill AI"/>
+    </element>
+    
+    <element name="StaticNPC" inherit="NPC" useexcel="true" collectionkey="archetype">
+      <constant name="npctype" type="NPCType" value="NPCType.Static"/>
+      <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="" info="x;y;rotatey;scale"/>
+      <property name="talktext" type="string" uitext="Talk Text"/>
+      <property name="talktextalt" type="string" uitext="Talk Text(Alternate)"/>
+      <property name="talktextbox" type="string" uitext="Talk Text Box"/>
+      <property name="npcfunction" type="string" uitext="NPC Function"/>
+      <property name="questid" type="string" uitext="Quest Id"/>
+      <property name="activeonstartup" type="bool" uitext="Active On Startup" default="true"/>
+      <property name="npccycletime" type="string" uitext="NPC Cycle Time"/>
+      <property name="npcopentime" type="string" uitext="NPC Open Time"/>
+      <property name="npcclosetime" type="string" uitext="NPC Close Time"/>
+      <property name="interacttype" type="StaticNPCInteractType" uitext="NPC Interact Type"/>   
+    </element>
+      
+    <element name="RealmNPCGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="realmid" type="Realm" uitext="Realm" display="excelname"/>
+      <property name="archetypeid" type="CombatNPC" uitext="NPC" display="archetype"/>
+    </element>
+
+    <element name="SpecialBoss" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="archetypeid" type="CombatNPC" uitext="Boss Archetype" display="archetype"/>
+      <property name="location" type="Level" uitext="Location" display="unityscene"/>
+      <property name="category" type="BossCategory" uitext="Category"/>
+      <property name="sequence" type="int" uitext="Display Sequence"/>
+      <property name="spawntype" type="BossSpawnType" uitext="Spawn Type"/>
+      <property name="spawndaily" type="string" uitext="Spawn Daily" default="09:00|15:00" info="hour:minute|hour:minute"/>
+      <property name="spawnweekly" type="string" uitext="Spawn Weekly" default="3:14:00|7:14:00" info="week:hour:minute|week:hour:minute"/>
+      <property name="spawnstart" type="string" uitext="Spawn Start" default=""/>
+      <property name="spawnend" type="string" uitext="Spawn End" default=""/>
+      <property name="respawntime" type="int" uitext="Respawn Time"/>
+      <property name="displayrewardgroupid" type="int" uitext="Display Reward Group id"/>
+      <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+      <property name="modelscale" type="float" uitext="Model Scale" default="1.0"/>
+      <property name="modelposx" type="float" uitext="Model Pos X" default="0.0"/>
+      <property name="modelposy" type="float" uitext="Model Pos Y" default="0.0"/>
+      <property name="modelrotatey" type="float" uitext="Model Rotate Y" default="0.0"/>
+    </element>
+  </data>
+</magicalarea51>

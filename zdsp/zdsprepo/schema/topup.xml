@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="TopUpItemAndroid" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="uiorder" type="int" uitext="UI Order" unique="true" info="Start with 1."/>
+      <property name="icon" type="string" uitext="Icon"/>
+      <property name="doublebonus" type="bool" uitext="Double Bonus"/>
+      <property name="gold" type="int" uitext="Gold" min="1" max="999999999"/>
+      <property name="lockgold" type="int" uitext="Lock Gold" min="1" max="999999999"/>
+      <property name="vippoints" type="int" uitext="VIP Points" min="1" max="999999999"/>
+      <property name="price" type="int" uitext="Price" min="1" max="999999999"/>
+    </element>
+
+    <element name="TopUpItemApple" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="uiorder" type="int" uitext="UI Order" unique="true" info="Start with 1."/>
+      <property name="icon" type="string" uitext="Icon"/>
+      <property name="doublebonus" type="bool" uitext="Double Bonus"/>
+      <property name="gold" type="int" uitext="Gold" min="1" max="999999999"/>
+      <property name="lockgold" type="int" uitext="Lock Gold" min="1" max="999999999"/>
+      <property name="vippoints" type="int" uitext="VIP Points" min="1" max="999999999"/>
+      <property name="price" type="int" uitext="Price" min="1" max="999999999"/>
+    </element>
+
+    <element name="TopUpItemMyCard" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="uiorder" type="int" uitext="UI Order" unique="true" info="Start with 1."/>
+      <property name="icon" type="string" uitext="Icon"/>
+      <property name="doublebonus" type="bool" uitext="Double Bonus"/>
+      <property name="gold" type="int" uitext="Gold" min="1" max="999999999"/>
+      <property name="lockgold" type="int" uitext="Lock Gold" min="1" max="999999999"/>
+      <property name="vippoints" type="int" uitext="VIP Points" min="1" max="999999999"/>
+      <property name="price" type="int" uitext="Price" min="1" max="999999999"/>
+    </element>
+  </data>
+</magicalarea51>

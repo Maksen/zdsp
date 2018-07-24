@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+
+    <element name="Onsen" useexcel="true">
+      <property name ="waterid" type="int" uitext="System Generated ID"/>
+      <property name ="isActive" type="int" uitext="Is Onsen open"/>
+      <property name ="onsenID" type="int" uitext="ID of Onsen"/>
+      <property name ="onsenLV" type="int" uitext="Level of Onsen"/>
+      <property name ="upkeep" type="int" uitext="Onsen owner's upkeep"/>
+      <property name ="additionMultiplier" type="int" uitext="Multiplier for addition onsen"/>
+      <property name ="maxBuildPerUser" type="int" uitext="Max amount of Onsen per user"/>
+      <property name ="maxUser" type="int" uitext="Max amount of user per Onsen"/>
+      <property name ="lifetime" type="int" uitext="Lifetime of the onsen in minutes"/>
+      <property name ="healCeiling" type="int" uitext="Ceiling heal to combat time in minutes"/>
+      <property name ="nHealRate" type="int" uitext="Normal combat time healing rate in minutes"/>
+      <property name ="sHealRate" type="int" uitext="Special combat time healing rate in minutes"/>
+      <property name ="enterTalk" type="string" uitext="Text when entering onsen"/>
+      <property name ="goldCount" type="int" uitext="Gold gain per minute"/>
+      <property name ="goldMax" type="int" uitext="Max gold gainable"/>
+      <property name ="design" type="int" uitext="Design of onsen"/>
+    </element>
+
+
+  </data>
+</magicalarea51>

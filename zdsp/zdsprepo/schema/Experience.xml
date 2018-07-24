@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="JobCombatStats" useexcel="true">
+      <property name ="jobsect" type="JobType" uitext="JobSect"/>
+      <property name ="hp" type ="float" uitext="HP"/>
+      <property name ="attack" type ="float" uitext="Attack"/>
+      <property name ="defense" type ="float" uitext="Defense"/>
+      <property name ="critical" type ="float" uitext="Critical"/>
+      <property name ="cocritical" type ="float" uitext="CoCritical"/>
+      <property name ="criticaldamage" type ="float" uitext="Critical Damage"/>
+      <property name ="cocriticaldamage" type ="float" uitext="CoCritical Damage"/>
+      <property name ="evasion" type ="float" uitext="Evasion"/>
+      <property name ="accuracy" type ="float" uitext="Accuracy"/>
+    </element>
+	
+	  <element name="ExpReward" useexcel="true">
+	    <property name ="playerlv" type="int" uitext="Player Level"/>
+	    <property name ="expreward01" type="int" uitext="1hr Exp Reward"/>
+	    <property name ="expreward02" type="int" uitext="2hr Exp Reward"/>
+	    <property name ="expreward04" type="int" uitext="4hr Exp Reward"/>
+	    <property name ="expreward06" type="int" uitext="6hr Exp Reward"/>
+	    <property name ="expreward08" type="int" uitext="8hr Exp Reward"/>
+	    <property name ="expreward12" type="int" uitext="12hr Exp Reward"/>
+	  </element>
+  </data>
+</magicalarea51>

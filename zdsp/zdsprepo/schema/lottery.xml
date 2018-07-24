@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="LotteryMain" useexcel="true" collectionkey="gold">
+      <property name="gold" type="int" uitext="Gold" info="turn once cost tongbao"/>
+      <property name="freetime" type="int" uitext="Free Times" info="every day get freetimes"/>
+      <property name="point" type="int" uitext="Point" info="turn once to get points"/>
+      <property name="starttime" type="string" uitext="Start Time" default="" info="yyyy/MM/dd"/>
+      <property name="endtime" type="string" uitext="End Time" default="" info="yyyy/MM/dd"/>
+      <property name="focus" type="string" uitext="Focus" default="" info="set the main text"/>
+      <property name="lotteryid" type="LotteryItem" uitext="Lottery Item" display="name"/>
+      <property name="lotterypointid" type="LotteryPointReward" collection="true" uitext="Lottery PointReward" display="name"/>
+      <property name="itemid" type="int" uitext="ItemId"/>
+      <property name="itemidpoint" type="int" uitext="ItemId Point"/>
+      <property name="sortid" type="int" uitext="Sortid" default="1"/>
+      <property name="logopath" type="string" uitext="Logopath" default=""/>
+      <property name="name" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="animationid" type="int" uitext="Animationid" default="0"/>
+      <property name="ticketid" type="int" uitext="Ticketid" default="0"/>
+      <property name="currencytype" type="CurrencyType" uitext="Currency Type"/>
+      <property name="hot" type="int" uitext="Hot" default="0" min="0" max="1"/>
+      <property name="grandprize1" type="int" uitext="GrandPrize1" default="0"/>
+      <property name="grandprize2" type="int" uitext="GrandPrize2" default="0"/>
+      <property name="grandprize3" type="int" uitext="GrandPrize3" default="0"/>
+      <property name="grandprize4" type="int" uitext="GrandPrize4" default="0"/>
+    </element>
+    
+    <element name="LotteryItem" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" default=""/>
+      <property name="itemid1" type="int" uitext="ItemId1"/>
+      <property name="count1" type="int" uitext="Count1" default="0" min="0" max="999"/>
+      <property name="weight1" type="int" uitext="Weight1"/>
+      <property name="award1" type="bool" uitext="Award1" default="false"/>
+      <property name="itemid2" type="int" uitext="ItemId2"/>
+      <property name="count2" type="int" uitext="Count2" default="0" min="0" max="999"/>
+      <property name="weight2" type="int" uitext="Weight2"/>
+      <property name="award2" type="bool" uitext="Award2" default="false"/>
+      <property name="itemid3" type="int" uitext="ItemId3"/>
+      <property name="count3" type="int" uitext="Count3" default="0" min="0" max="999"/>
+      <property name="weight3" type="int" uitext="Weight3"/>
+      <property name="award3" type="bool" uitext="Award3" default="false"/>
+      <property name="itemid4" type="int" uitext="ItemId4"/>
+      <property name="count4" type="int" uitext="Count4" default="0" min="0" max="999"/>
+      <property name="weight4" type="int" uitext="Weight4"/>
+      <property name="award4" type="bool" uitext="Award4" default="false"/>
+      <property name="itemid5" type="int" uitext="ItemId5"/>
+      <property name="count5" type="int" uitext="Count5" default="0" min="0" max="999"/>
+      <property name="weight5" type="int" uitext="Weight5"/>
+      <property name="award5" type="bool" uitext="Award5" default="false"/>
+      <property name="itemid6" type="int" uitext="ItemId6"/>
+      <property name="count6" type="int" uitext="Count6" default="0" min="0" max="999"/>
+      <property name="weight6" type="int" uitext="Weight6"/>
+      <property name="award6" type="bool" uitext="Award6" default="false"/>
+      <property name="itemid7" type="int" uitext="ItemId7"/>
+      <property name="count7" type="int" uitext="Count7" default="0" min="0" max="999"/>
+      <property name="weight7" type="int" uitext="Weight7"/>
+      <property name="award7" type="bool" uitext="Award7" default="false"/>
+      <property name="itemid8" type="int" uitext="ItemId8"/>
+      <property name="count8" type="int" uitext="Count8" default="0" min="0" max="999"/>
+      <property name="weight8" type="int" uitext="Weight8"/>
+      <property name="award8" type="bool" uitext="Award8" default="false"/>
+      <property name="itemid9" type="int" uitext="ItemId9"/>
+      <property name="count9" type="int" uitext="Count9" default="0" min="0" max="999"/>
+      <property name="weight9" type="int" uitext="Weight9"/>
+      <property name="award9" type="bool" uitext="Award9" default="false"/>
+      <property name="itemid10" type="int" uitext="ItemId10"/>
+      <property name="count10" type="int" uitext="Count10" default="0" min="0" max="999"/>
+      <property name="weight10" type="int" uitext="Weight10"/>
+      <property name="award10" type="bool" uitext="Award10" default="false"/>
+    </element>
+    
+    <element name="LotteryPointReward" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" default=""/>
+      <property name="point" type="int" uitext="Point"/>
+      <property name="itemid1" type="int" uitext="ItemId1"/>
+      <property name="count1" type="int" uitext="Count1" default="0" min="0" max="999"/>
+      <property name="itemid2" type="int" uitext="ItemId2"/>
+      <property name="count2" type="int" uitext="Count2" default="0" min="0" max="999"/>
+      <property name="itemid3" type="int" uitext="ItemId3"/>
+      <property name="count3" type="int" uitext="Count3" default="0" min="0" max="999"/>
+    </element>
+  </data>
+</magicalarea51>

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+
+    <element name="ItemMallItem" useexcel="true">
+      <property name="name" type="string" uitext="Name"/>
+      <property name ="itemid" type ="int" uitext="Item Id"/>
+      <property name ="price" type ="int" uitext="Price"/>
+      <property name ="purchasecount" type ="int" uitext="Stack Count"/>
+      <property name ="limitcount" type ="int" uitext="Shopping Count"/>
+      <property name ="category" type ="ItemMallCategory" uitext="Item Category"/>
+      <property name ="shoppingtype" type ="ItemMallShoppingType" uitext="Shopping Type"/>
+      <property name ="viplevel" type ="int" uitext="VIP LV"/>
+      <property name ="uptime" type ="string" uitext="Item Up Time" info="(yyyy/MM/dd HH:mm)"/>
+      <property name ="downtime" type ="string" uitext="Item Down Time" info="(yyyy/MM/dd HH:mm)"/>
+      <property name ="sortnumber" type ="int" uitext="Sort Number"/>
+      <property name ="online" type ="bool" uitext="Item Online"/>
+      <property name ="showtime" type ="bool" uitext="showTime"/>
+      <property name ="showlimited" type ="bool" uitext="showLimited"/>
+      <property name ="showvip" type ="bool" uitext="showVIP"/>
+      <property name ="shoppingjob" type ="JobType" uitext="shoppingJob"/>
+    </element>
+
+    <element name="ShopItemMapTreasure" useexcel="true">
+      <property name ="treasuretype" type ="ItemMallShoppingType" uitext="Treasure Type"/>
+      <property name ="points" type ="int" uitext="Treasure Xenjo Poin"/>
+    </element>
+
+
+    <element name="StoreSet" useexcel="true">
+      <property name="storeorder" type ="int" uitext="StoreOrder"/>
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="LocalizedName"/>
+      <property name="heroid" type="int" uitext="HeroID" default="-1"/>
+	  <property name="shoptype" type="UIStoreLinkType" uitext="shoptype"/>
+	  <property name="openlv" type="int" uitext="openlv" default="-1"/>
+      <property name="commoditycount" type="int" uitext="CommodityCount"/>
+      <property name="refresh" type="bool" uitext="OnRefresh"/>
+      <property name="refreshtime1" type="string" uitext="RefreshTime1"/>
+      <property name="refreshtime2" type="string" uitext="RefreshTime2"/>
+      <property name="refreshtime3" type="string" uitext="RefreshTime3"/>
+      <property name="currencytype" type="CurrencyType" uitext="CurrencyType"/>
+    </element>
+
+    <element name="ProductSetting" useexcel="true">
+      <property name="itemid" type ="int" uitext="ItemID"/>
+      <property name="itemcount" type="int" uitext="ItemCount"/>
+      <property name="totalprice" type="int" uitext="TotalPrice"/>
+      <property name="storeorder" type ="int" uitext="StoreOrder"/>
+      <property name="heroid" type="int" uitext="HeroID"/>
+      <property name="shelvesnumber" type="string" uitext="ShelvesNumber" default="1;"/>
+      <property name="probability" type="int" uitext="Probability"/>
+      <property name="levelreq" type="int" uitext="Lv"/>
+    </element>
+
+    <element name="StoreRefresh" useexcel="true">
+      <property name="storeorder" type ="int" uitext="StoreOrder"/>
+      <property name="refreshtime" type ="int" uitext="RefreshTime"/>
+      <property name="refreshprice" type ="int" uitext="RefreshPrice"/>
+    </element>
+
+  </data>
+</magicalarea51>

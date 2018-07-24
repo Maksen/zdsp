@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="SkillGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>      
+      <property name="weaponsrequired" type="string" uitext="Weapons Required"/>
+      <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/> 
+      <property name="action" type="string" uitext="Skill Action" info="Animation for the action"/>
+      <!--missing-->
+      <property name="rtaction" type="string" uitext="Skill End Action" default="" info="Animation for the action end"/>
+      <!--missing-->
+      <property name="basicminrt" type="float" uitext="Basic AttackMin RT" default="0.1" info="the minimal RT , below which will not play rt action , should be smaller than Fixed RT"/>
+      <property name ="costtype" type ="string" uitext="Cost Type"/> <!--Need a new enum for this ba-->
+      <property name ="costab" type ="bool" uitext="Cost AB" info="true if it's absolute value, false if percentage"/>
+      <property name ="lvstacked" type ="bool" uitext="Level Stacked"/>
+      <property name="skilltype" type="SkillType" uitext="Skill Type" default ="0"/>
+      <property name="skillbehavior" type="SkillBehaviour" uitext="SkillBehaviour" default ="0"/>
+      <property name="targettype" type="TargetType" uitext="Target Type" default ="0"/>
+      <property name="hittype" type="HitType" uitext="Hit Type" default ="0"/>
+      <property name="threatzone" type="Threatzone" uitext="Threatzone" default ="0"/>
+      <property name="moonwalk" type="bool" uitext="Moon walk" default="false" info="Whether entity can move while skill is being cast. Only applicable to player's skills."/>
+      <property name="canturn" type="bool" uitext="Turn" default="false" info="Whether entity can rotate while skill is being cast. Only applicable to player's skills."/>   
+      <property name="proctime" type="float" uitext="Hit Time" default="0.0" info="Time since the start of skill cast for sideeffect to be applied"/>
+      <property name="repeatproc" type="bool" uitext="Repeat proc?" default="false" info="Keep procing after proctime. Repeat proc interval is specified by interval"/> <!--missing, needed-->
+     
+      <!--
+      <property name="movedist" type="float" uitext="Forward Distance" default="0" info="the distance forwarded when cast skill, move speed is this distance divided by skill duration, Only For Monster skill"/>
+      <property name="proctime" type="float" uitext="Hit Time" default="0.0" info="Time since the start of skill cast for sideeffect to be applied"/>
+      <property name="repeatproc" type="bool" uitext="Repeat proc?" default="false" info="Keep procing after proctime. Repeat proc interval is specified by interval"/>
+      <property name="cooldown" type="float" uitext="Cooldown" default="0.5"/>
+      <property name="globalcooldown" type="float" uitext="Global Cooldown" default="0.0"/>  
+      <property name="skilltype" type="SkillType" uitext="Skill Type" default ="0"/>
+      <property name="skillbehavior" type="SkillBehaviour" uitext="SkillBehaviour" default ="0"/>
+      <property name="targettype" type="TargetType" uitext="Target Type" default ="0"/>
+      <property name="hittype" type="HitType" uitext="Hit Type" default ="0"/>
+      <property name="threatzone" type="Threatzone" uitext="Threatzone" default ="0"/>
+      <property name="radius" type="float" uitext="Radius" default="0" info="the Area radius of the Skill"/>
+      <property name="range" type="float" uitext="Range" default="0" info="used as the Targeting Range for TargetedPos or SelectedTarget"/>
+      <property name="maxtargets" type="int" uitext="Max Targets" default="1"/>
+      <property name="moonwalk" type="bool" uitext="Moon walk" default="false" info="Whether entity can move while skill is being cast. Only applicable to player's skills."/>
+      <property name="canturn" type="bool" uitext="Turn" default="false" info="Whether entity can rotate while skill is being cast. Only applicable to player's skills."/>
+      <property name="dashattack" type="bool" uitext="DashAttack" default="false" info="whether the skill is a dashAttack, Only applicable to player's skills."/>
+      <property name="interruptable" type="bool" uitext="Interruptable" default="false" info="Whether skill can be interrupted while it is being cast. Only applicable to player's skills."/>
+      <property name="mpcost" type="int" uitext="mp cost" default="0" info="mp required to cast this skill."/>
+      -->
+    </element>
+
+    <element name="Skill" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="skillgroupid" type="SkillGroup" uitext="Skill Group ID" display="name"/>
+      <!--need to check the type-->
+      <property name="level" type="int" uitext="Level" default="1"/>
+      <property name="description" type="localizedstring" uitext="Description(Localized)"/>
+      <property name="cost" type="int" uitext="Cost Amount"/>
+      <property name="cooldown" type="float" uitext="Cooldown"/>
+      <property name="globalcd" type="float" uitext="Global Cooldown"/>
+      <property name="actioneffect" type="string" uitext="Skill Action Effect" info="Effect for the action" default = ""/>
+      <property name="effectgethit" type="asset" uitext="Get Hit Effect Path" default="" assettype="prefab"/>
+      <property name="offsettime" type="float" uitext="Offset Time" default ="0"/>
+      <property name="skillduration" type ="float" uitext="Skill Duration"/>
+      <property name="effect_dur" type="float" uitext="Effect Duration" default="-1" info="used to control when to stop the effect"/>
+      <property name="rtfixedduration" type="float" uitext="Fixed RT Duration" default="0.5" info="the fixed RT duration, used for Basic Attack and Skill."/>
+      <property name="rtvarduration" type="float" uitext="Variable RT" default="0" info="the Variable RT duration, used for Active Skill which can be deducted"/>
+      <property name="radius" type="float" uitext="Radius" default="0" info="the Area radius of the Skill"/>
+      <property name="range" type="float" uitext="Range" default="0" info="used as the Targeting Range for TargetedPos or SelectedTarget"/>
+      <property name="maxtargets" type="int" uitext="Max Targets" default="1"/>
+      <property name="progressskill" type="string" uitext="Progress Skill" info="Skill prerequisites"/>
+      <property name="requiredlv" type="int" uitext="Required Level"/>
+      <property name="requiredclass" type="string" uitext="Required Class"/>
+      <property name="learningsp" type="int" uitext="SP Cost for Learning"/>
+      <property name="learningcost" type="int" uitext="Money Cost for Learning"/>
+      <property name="teacheritemid" type="int" uitext="Teacher Item id" default="0"/>
+      <property name="teacheritemcount" type="int" uitext="Techer Item id count"/>
+      <property name="repeatse" type="string" uitext="Repeat SideEffect"/>
+      <property name="repeattime" type="float" uitext="Repeat Time" default="0"/>
+      <property name="chargeduration" type="float" uitext="Charge Duration" default="0" info="the duration of charge action"/>
+      <property name="chargeeffect" type="string" uitext="Charge Effect" default="0" info="the effect of charge action"/>
+      <property name="labelcount" type="int" uitext="Damage label Count" default="-1" info="used for split one damage into multiple Damage Labels"/>
+      <property name="selfsideeffect" type="SideEffect" collection="true" uitext="SideEffect OnSelf" display="name"  info="if have debuff sideEffect On Self, use this"/>
+      <property name="sideeffects" type="SideEffect" collection="true" uitext="Side Effects" display="name"/>
+    </element> 
+    
+     <element name="SkillDescriptionGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Group Name" unique="true"/>
+      <property name="description" type="localizedstring" uitext="Description"/>
+    </element>
+
+    <element name="SideEffect" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="effecttype" type="EffectType" uitext="Effect Type"/> 
+      <property name="basicskilldamageperc" type="float" uitext="Skill Affect" default="100" min="0" max="9999999" info="the basic skill damage percentage value, the min max value is additional value added to this"/>
+      <property name="max" type="float" uitext="Max" default="0" min="0" max="9999999" info="max value, used as percentage if isRelative is ticked"/>
+      <property name="min" type="float" uitext="Min" default="0" min="0" max="9999999" info="min value, used as percentage if isRelative is ticked"/>      
+      <property name="isrelative" type="bool" uitext="Is Relative" default="false" info="if true, min and max is percentage value"/>
+       <!--field regards to skill level-->
+      <property name="usereferencetable" type="bool" uitext="Use Refrence Table" default="false" info="if true, the values are relative to refrence table"/>
+      <property name="step" type="int" uitext="Step by level" default="0" min="0" max="9999999" info="the step amout for level increasement"/>      
+      <property name="increase" type="float" uitext="Increasement Amount" default="0" min="0" max="9999999" info="the increasement per step"/>      
+       <!--field regards to skill level-->
+      <property name="parameter" type="string" uitext="Parameter" default="" info="Additional parameter for use in certain sideeffects: duration for KnockUp, distance for KnockBack, number of hit For RecoverOnHit,  total Amount for ShieldSE"/>
+      <property name="duration" type="float" uitext="Duration" default="0" info="In seconds. Less than 0: Infinite until death or logout. 0 : Apply exactly 1 time. More than 0: Will stop after duration is reached."/>
+      <property name="interval" type="float" uitext="Interval" default="0" info="In seconds. This is the interval to proc when repeat proc is checked."/>     
+      <property name="criticaltype" type="CriticalType" uitext="Critical Type"/>
+      <property name="bonuscriticalchance" type="int" uitext="Bonus Critical Multiplier(%)" default="0" info="percentage value.0 - 100"/>
+      <property name="procchance" type="float" uitext="Percentage(%)" default="100" info="0 to 100, the chance of apply se"/>
+
+      <property name="persistentafterdeath" type="bool" uitext="Persistent After Death" default="false"/>
+      <property name="persistentonlogout" type="bool" uitext="Persistent On Logout" default="false"/>
+      <property name="rank" type="int" uitext="removed level" default="1" min="1" max="9999" info="used for remove sideeffect."/>
+      <property name="effectpath" type="asset" uitext="Effect Path" default="" assettype="prefab"/>
+      <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="description" type="localizedstring" uitext="Description(Localized)"/>
+      <property name="stat1" type="ActorStatsType" uitext="Affact Stats 1"/>
+      <property name="stat2" type="ActorStatsType" uitext="Affact Stats 2"/>
+      <property name="stat3" type="ActorStatsType" uitext="Affact Stats 3"/> 
+      <property name="sdg" type="SkillDescriptionGroup" uitext="SideEffect Description Group" display="name"/>
+      <property name="stackable" type="bool" uitext="Is it Stackable?" default="false"/>
+      <property name="stackcount" type="int" uitext="how much stacking?" default="9"/>
+    </element>
+
+    <element name="SideEffectGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="remarks" type="string" uitext="Remarks" noexport="true"/> 
+      <property name="sideeffects" type="SideEffect" collection="true" uitext="Side Effects" display="name" info="Sideeffects listed first has higher rank"/>
+    </element>
+   
+    <element name="NPCToSkillsLink" useexcel="true">
+      <property name="archetypeid" type="CombatNPC" uitext="NPC ID" display="archetype"/>
+      <property name="skillid" type="Skill" uitext="Skill ID" display="name"/>
+      <property name="priority" type="int" uitext="Priority" default="0"/>
+      <property name="chance" type="float" uitext="Chance(%)" default="10"/>
+    </element>
+
+    <element name="BossAI" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" unique="true"/>
+      <property name="skillid" type="Skill" uitext="Skill ID" display="name"/>
+      <property name="condition" type="AISkillCondition" uitext="skill Condition" default="9"></property>
+      <property name="conditiondata" type="float" uitext="Condition Data" description ="perctage(0-100) or absolute value" default="0.0"/>
+    </element>
+
+    <element name="ElementChart" useexcel="true">
+      <property name="elementid" type="Element" uitext="Element Name"/>
+      <property name="none" type="int" uitext="None Element"/>
+      <property name="metal" type="int" uitext="Metal Element"/>
+      <property name="wood" type="int" uitext="Wood Element"/>
+      <property name="earth" type="int" uitext="Earth Element"/>
+      <property name="water" type="int" uitext="Water Element"/>
+      <property name="fire" type="int" uitext="Fire Element"/>
+    </element>
+
+    <element name="WeaknessChart" useexcel="true">
+      <property name="attacktype" type="AttackStyle" uitext="Attack Type"/>
+      <property name="slice" type="int" uitext="Slice"/>
+      <property name="pierce" type="int" uitext="Pierce"/>
+      <property name="smash" type="int" uitext="Smash"/>
+      <property name="god" type="int" uitext="God"/>
+      <property name="normal" type="int" uitext="Normal"/>
+    </element>
+
+
+    <element name="SkillTree" useexcel ="true">
+      <property name="jobclass" type="JobType" uitext="Class Panel"/>
+      <property name="skillgroupid" type ="SkillGroup" uitext="Skill Group ID" display="name"/>
+      <property name="gridrow" type="string" uitext="Row" default="A"/>
+      <property name="gridcol" type="int" uitext="Column" default ="0"/>
+      <property name="parent" type="string" uitext="Requires" info="the required skills to unlock this skill, input using format ('row''column','row''column')"/>
+    </element>
+  </data>
+</magicalarea51>

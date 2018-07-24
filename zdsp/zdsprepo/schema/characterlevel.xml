@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+  
+	<element name="LevelUpExp" useexcel="true">
+		<property name="lvid" type="int" uitext="Level ID" unique="true"/>
+		<property name="expreq" type="int" uitext="Exp Required"/>
+	</element>
+	
+	<element name="Stats" useexcel="true">
+		<property name="lvid" type="int" uitext="Level ID" unique="true"/>
+		<property name="statspoint" type="int" uitext="Stats Awarded"/>
+	</element>
+	
+	<element name="SkillPoint" useexcel="true">
+		<property name="minlvl" type="int" uitext="from lvl" info="Minimum lvl range"/>
+		<property name="maxlvl" type="int" uitext="to lvl" info="Maximum lvl range"/>
+		<property name="expreq" type="int" uitext="Exp Required"/>
+	</element>
+	
+	<element name="ExpMonsterLvDifference" useexcel="true">
+		<property name="minlvl" type="int" uitext="Min Lv Range" info="Minimum Level. [x] smaller 0 smaller 999"/>
+		<property name="minlvlequal" type="bool" uitext="Min Lv Equal" info="Set smaller or smaller equal."/>
+		<property name="maxlvl" type="int" uitext="Max Lv Range" info="Maximum Level. -999 smaller 0 smaller [x]"/>
+		<property name="maxlvlequal" type="bool" uitext="Max Lv Equal" info="Set greater or greater equal."/>
+		<property name="exppercent" type="int" uitext="Exp Percent [%]" info="Experience Percent in CR."/>
+	</element>
+	
+  </data>
+</magicalarea51>

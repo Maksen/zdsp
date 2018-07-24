@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <enum name="LootCorrectionType">
+      <item key="Minus10" value="1"/>
+      <item key="Minus1120" value="2"/>
+      <item key="Minus2130" value="3"/>
+      <item key="Minus3140" value="4"/>
+      <item key="Minus4150" value="5"/>
+      <item key="Minus51" value="6"/>
+    </enum>
+
+    <enum name="LootType">
+      <item key="Normal" value="0"/>
+      <item key="Share" value="1"/>
+      <item key="Boss" value="2"/>
+      <item key="BigBoss" value="3"/>
+      <item key="LastHit" value="4"/>
+      <item key="Explore" value="5"/>
+    </enum>
+
+    <enum name="LootSourceType">
+      <item key="Monster" value="0"/>
+      <item key="Chest" value="1"/>
+      <item key="Both" value="2"/>
+    </enum>
+
+    <enum name="LimitItemCycle">
+      <item key="Day" value="0"/>
+      <item key="Week" value="1"/>
+      <item key="Month" value="2"/>
+      <item key="Forever" value="3"/>     
+    </enum>    
+    
+    <element name="LootCorrection" useexcel="true">
+      <property name="type" type="LootCorrectionType" uitext="Interval"/>
+      <property name="normalmonster" type="int" uitext="Normal Monster"/>
+      <property name="boss" type="int" uitext="Small Boss"/>
+    </element>
+
+    <element name="LootItemGroup" useexcel="true">
+      <property name="gid" type="int" uitext="GID"/>
+      <property name="itemid" type="int" uitext="Itemid"/>
+      <property name="currency" type="CurrencyType" uitext="Currency Type"/>
+      <property name="grouptype" type="bool" uitext="Group Type"/>
+      <property name="probability" type="int" uitext="Probability" info="百萬分之一, -1 = 100%, 0 = 0%"/>
+      <property name="weight" type="int" uitext="Weight"/>
+      <property name="ignorelv" type="bool" uitext="Ignore Lv"/>
+      <property name="ignoretime" type="bool" uitext="Ignore Time"/>
+      <property name="amt" type="string" uitext="Amount" default="1" info="support min/max"/>
+    </element>  
+    
+    <element name="LootLink" useexcel="true">
+      <property name="loottype" type="LootType" uitext="LootType"/>
+      <property name="gids" type="string" uitext="GIDs" default="" info="gid1;gid2"/>
+    </element>
+
+    <element name="EventLootLink" useexcel="true">
+      <property name="loottype" type="LootType" uitext="LootType"/>
+      <property name="gids" type="string" uitext="GIDs" default="" info="gid1;gid2"/>
+      <property name="datestart" type="string" uitext="Start Date" default="2018/01/01 00:00"/>
+      <property name="dateend" type="string" uitext="End Date" default="2018/12/31 23:59"/>
+      <property name="days" type="string" uitext="Days" default="0" info="0 means all days, 1;2"/>
+      <property name="weeks" type="string" uitext="Weeks" default="0" info="0 means all days, 1;2"/>
+      <property name="times" type="string" uitext="Times" default="00:00-24:00" info="09:00-10:00;15:00-16:00"/>
+    </element>
+
+    <element name="LimitedItem" useexcel="true">
+      <property name="itemid" type="int" uitext="Itemid"/>
+      <property name="source" type="LootSourceType" uitext="LootSource"/>
+      <property name="amt" type="int" uitext="Amount"/>
+      <property name="cycle" type="LimitItemCycle" uitext="Cycle"/>
+    </element>    
+  </data>
+</magicalarea51>

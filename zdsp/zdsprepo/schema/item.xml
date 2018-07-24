@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <enum name="ItemOriginType">      
+      <item key="UI" value="0"/>
+      <item key="Monster" value="1"/>
+      <item key="Shop" value="2"/>
+    </enum>
+      
+    <element name="ItemOrigin" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" default=""/>
+      <property name="origintype" type="ItemOriginType" uitext="Origin Type" default="0"/>
+      <property name="param" type="string" uitext="Param" default="" info="UI-uiid，Monster-archetype, Shop-archetype"/>
+    </element>
+    
+    <element name="LinkUI" useexcel="true">
+      <property name="uiid" type="int" uitext="UIID" unique="true"/>
+      <property name="localizedname" type="localizedstring" uitext="LocalizedName"/>
+      <property name="uitype" type="LinkUIType" uitext="UI Type"/>
+    </element>    
+    
+    <element name="ItemSort" useexcel="true">
+      <property name="itemsortid" type="int" uitext="Item Sort Id" unique="true"/>
+      <property name="name" type="string" uitext="Name" default=""/>
+      <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
+      <property name="sortorder" type="int" uitext="Sorting Order"/>
+    </element>
+    
+    <element name="ItemBase" useexcel="true" collectionkey="name">
+      <property name="itemid" type="int" uitext="Item ID" default="1" min="1" max="9999999"/>
+      <property name="name" type="string" uitext="Name" default="#undefined#"/>
+      <property name="localizedname" type="localizedstring" uitext="LocalizedName" default="#undefined#"/>
+      <property name="description" type="localizedstring" uitext="Description" default="#undefined#"/>
+      <constant name="itemtype" type="ItemType" value="ItemType.Invalid"/>
+      <property name="bagtype" type="BagType" uitext="Bag Type" default="0"/>
+      <property name="rarity" type="ItemRarity" uitext="Item Rarity" default="0"/>
+      <property name="requirelvl" type="int" uitext="Require Lvl" default="1" min="1" max="99999"/>
+      <property name="casttime" type="int" uitext="Cast Time" default="0"/>
+      <property name="sellprice" type="int" uitext="Sell Price" default="-1" min="-1" max="999999999"/>
+      <property name="auction" type="string" uitext="Auction" default="-1"/>
+      <property name="itemsort" type="ItemSort" uitext="Item Sort" display="name"/>
+      <property name="deposit" type="bool" uitext="Deposit" default="true"/>
+      <property name="origin" type="string" uitext="Origin" default="-1"/>
+      <property name="dailyuselimit" type="int" uitext="Daily Use Limit" default="-1"/>
+      <property name="weeklyuselimit" type="int" uitext="Weekly Use Limit" default="-1"/>
+      <property name="dailygetlimit" type="int" uitext="Daily Get Limit" default="-1"/>
+      <property name="weeklygetlimit" type="int" uitext="Weekly Get Limit" default="-1"/>
+      <property name="iconspritepath" type="asset" uitext="Icon Sprite Path" default="" assettype="sprite"/>
+      <property name="log" type="bool" uitext="Log Changes" info="Only set to true when this item is important!!!"/>
+      <property name="tickermessage" type="bool" uitext="Ticker Message" default="false"/>
+      <property name="generateuid" type="bool" uitext="Generate UID" default="false"/>
+    </element>
+    
+    <element name="PotionFood" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.PotionFood"/>
+      <property name="cdtime" type="float" uitext="Cooldown Time" default="1"/>
+      <property name="gcdtime" type="float" uitext="Global Cooldown Time" default="1"/>
+      <property name="gcdtype" type="GCDType" uitext="GCD Type"/>
+      <property name="segrpid" type="string" uitext="Side Effect Group ID" default=""/>
+    </element>
+    
+    <element name="Material" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.Material"/>
+      <property name="tooltiptype" type="ToolTipType" uitext="Tooltip Type"/>
+      <property name="mattype" type="MaterialType" uitext="Material Type"/>
+      <property name="uiid" type="int" uitext="Open UI" default="0"/>
+      <property name="reqval" type="int" uitext="Required Value" default="0"/>
+      <property name="exchitemid" type="int" uitext="Exchanged Item ID" default="1"/>
+      <property name="upgitemrate" type="float" uitext="Upgrade Item Rate" default="1"/>
+    </element>
+    
+    <element name="LuckyPick" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.LuckyPick"/>
+      <property name="luckypickgroup" type="string" uitext="LootGroup ids" default="" info="id1;id2"/>
+      <property name="currency" type="string" uitext="Currency" default="" info ="Format: 1|500;2|1000"/>
+    </element>
+    
+    <element name="Henshin" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.Henshin"/>
+      <property name="henshinname" type="localizedstring" uitext="Henshin Name (Localized)" default=""/>
+      <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+      <property name="prefabpath" type="asset" uitext="Prefab Path" default="" assettype="prefab"/>
+    </element>
+    
+    <element name="Features" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.Features"/>
+      <property name="uiid" type="int" uitext="Open UI" default="0"/>
+    </element>
+    
+    <element name="Equipment" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.Equipment"/>
+      <property name="equiptype" type="EquipmentType" uitext="Equipment Type"/>
+      <property name="partstype" type="PartsType" uitext="Parts Type"/>
+      <property name="fashionsuit" type="bool" uitext="Is Fashion Suit"/>
+      <property name="mainwepattrib" type="MainWeaponAttribute" uitext="Main Weapon Attribute"/>
+      <property name="equipclass" type="string" uitext="Class" default="-1"/>
+      <property name="basese" type="string" uitext="Base Side Effect" default="-1"/>
+      <property name="extrase" type="string" uitext="Extra Side Effect" default="-1"/>
+      <property name="upgradelimit" type="int" uitext="Upgrade Limit" default="-1"/>
+      <property name="enchant" type="bool" uitext="Enchanting" default="false"/>
+      <property name="socketspace" type="string" uitext="Socket Space" default="-1" info ="Format: 初始洞數|最大洞數|需求數量"/>
+      <property name="evolvegrp" type="string" uitext="Evolve Group" default="-1"/>
+      <property name="evolvechange" type="int" uitext="Evolve Change" default="-1"/>
+      <property name="prefabpath" type="asset" uitext="Prefab Path" default="-1" assettype="prefab"/>
+      <property name="malemeshpath" type="asset" uitext="Male Mesh Path" default="-1" assettype="mesh"/>
+      <property name="malematerialpath" type="asset" uitext="Male Material Path" default="-1" assettype="material"/>
+      <property name="femalemeshpath" type="asset" uitext="Female Mesh Path" default="-1" assettype="mesh"/>
+      <property name="femalematerialpath" type="asset" uitext="Female Material Path" default="-1" assettype="material"/>
+    </element>
+    
+    <element name="DNA" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.DNA"/>
+      <property name="dnatype" type="DNAType" uitext="DNA Type" default="0"/>
+      <property name="exp" type="int" uitext="Exp" default="0"/>
+      <property name="evotype" type="string" uitext="Evo Type" default="a"/>
+      <property name="maxlevel" type="int" uitext="Max Level" default="0"/>
+      <property name="maxstage" type="int" uitext="Max Stages" default="1"/>
+      <property name="postive" type="string" uitext="Positive" default=""/>
+      <property name="negative" type="string" uitext="Negative" default=""/>
+    </element>
+    
+    <element name="Relic" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.Relic"/>
+      <property name="relictype" type="RelicType" uitext="Relic Type" default="0"/>
+      <property name="sockability" type="string" uitext="Socket Ability" default="null"/>
+      <property name="collectability" type="string" uitext="Collect Ability" default="null"/>
+      <property name="recycle" type="bool" uitext="Recycle" default="true"/>
+    </element>
+    
+    <element name="QuestItem" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.QuestItem"/>
+      <property name="questid" type="int" uitext="Quest ID" default="0"/>
+    </element>
+    
+    <element name="HeroItem" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.MercenaryItem"/>
+      <property name="heroitemtype" type="HeroItemType" uitext="Hero Item Type"/>
+      <property name="heroid" type="string" uitext="Hero ID" default="-1" info="Format: HeroID1;HeroID2;HeroID3…"/>
+      <property name="ischangelike" type="int" uitext="Is Change Like" default="0"/>
+      <property name="liketype" type="int" uitext="Like Type" default="0"/>
+      <property name="giftexp" type="int" uitext="Gift Exp" default="0"/>
+    </element>
+    
+    <element name="InstanceItem" inherit="ItemBase">
+      <constant name="itemtype" type="ItemType" value="ItemType.InstanceItem"/>
+      <property name="coordinate" type="string" uitext="Coordinate" default="-1"/>
+    </element>
+    
+    <element name="ExtraSideEffect">
+      <property name="name" type="string" uitext="Name" default="#undefined#"/>
+      <property name="description" type="localizedstring" uitext="Description" default="#undefined#"/>
+      <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
+      <property name="reqtype" type="ESERequireType" uitext="Require Type"/>
+      <property name="requpgrade" type="string" uitext="Require Upgrade" default="-1" info="Format: 精鍊等級;精鍊等級;精鍊等級…"/>
+      <property name="reqskill" type="string" uitext="Require Skill" default="-1" info="Format: 技能ID|技能等級;技能ID|技能等級…"/>
+      <property name="reqattribute" type="string" uitext="Require Attribute" default="-1" info="Format: 屬性ID|需求數值;屬性ID|需求數值…"/>
+      <property name="requiregearset" type="string" uitext="Require Gear Set" default="-1" info="Format: 道具ID|改造階段|精鍊階段;道具ID|改造階段|精鍊階段…"/>
+    </element>
+
+    <element name="EvolveGroup">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="groupid" type="string" uitext="Group ID" default="-1"/>
+      <property name="evolvestep" type="int" uitext="Evolve Step" default="1"/>
+      <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
+      <property name="requirement" type="string" uitext="Requirement" default=""/>
+    </element>
+  </data>
+</magicalarea51>

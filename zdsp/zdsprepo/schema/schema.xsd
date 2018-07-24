@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="propertynametype">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-z0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="assettypeenum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="avatarpart" />
+      <xs:enumeration value="sprite" />
+      <xs:enumeration value="prefab" />
+      <xs:enumeration value="material" />
+      <xs:enumeration value="mesh" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="propertytype">
+    <xs:attribute name="name" type="propertynametype" use="required"/>
+    <xs:attribute name="type" type="xs:string" use="required"/>
+    <xs:attribute name="uitext" type="xs:string" use="required"/>
+    <xs:attribute name="constant" type="xs:boolean"/>
+    <xs:attribute name="info" type="xs:string"/>
+    <xs:attribute name="min" type="xs:integer"/>
+    <xs:attribute name="max" type="xs:integer"/>
+    <xs:attribute name="regex" type="xs:string"/>
+    <xs:attribute name="regexerrormsg" type="xs:string"/>
+    <xs:attribute name="default" type="xs:string"/>
+    <xs:attribute name="path" type="xs:string"/>
+    <xs:attribute name="ext" type="xs:string"/>
+    <xs:attribute name="unique" type="xs:boolean"/>
+    <xs:attribute name="collection" type="xs:boolean"/>
+    <xs:attribute name="noexport" type="xs:boolean"/>
+    <xs:attribute name="display" type="xs:string"/>
+    <xs:attribute name="assettype" type="assettypeenum"/>
+  </xs:complexType>
+
+  <xs:complexType name="enumitemtype">
+    <xs:attribute name="key" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:integer" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="enumtype">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="item" type="enumitemtype"/>
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="optiontype">
+    <xs:attribute name="uitext" type="xs:string" use="required"/>
+    <xs:attribute name="datasource" type="xs:string" use="required"/>
+    <xs:attribute name="iscustom" type="xs:boolean" use="optional"/>
+    <xs:attribute name="hidepage" type="xs:boolean" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="categorytype">
+    <xs:sequence minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="option" type="optiontype"/>
+    </xs:sequence>
+    <xs:attribute name="uitext" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="constanttype">
+    <xs:attribute name="name" type="propertynametype" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="elementtype">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="property" type="propertytype"/>
+      <xs:element name="constant" type="constanttype"/>
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="inherit" type="xs:string" use="optional"/>
+    <xs:attribute name="editorexport" type="xs:string"/>
+    <xs:attribute name="hashkey" type="xs:string" use="optional"/>  <!--exported table will by indexed by this column instead of id-->
+    <xs:attribute name="useexcel" type="xs:boolean" use="optional"/>
+    <xs:attribute name="collectionkey" type="xs:string" use="optional"/>
+    <xs:attribute name="localizeexport" type="xs:string"/>
+    <xs:attribute name="cloneable" type="xs:boolean" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="datatype">
+    <xs:choice minOccurs="1" maxOccurs="unbounded">
+      <xs:element name="enum" type="enumtype"/>
+      <xs:element name="element" type="elementtype">
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="presentationtype">
+    <xs:sequence>
+      <xs:element name="menu">
+        <xs:complexType>
+          <xs:sequence maxOccurs="unbounded">
+            <xs:element name="category" type="categorytype"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="magicalarea51">
+    <xs:complexType>
+      <xs:sequence minOccurs="0" maxOccurs="1">
+        <xs:element name="data" type="datatype" minOccurs="0"/>
+        <xs:element name="presentation" type="presentationtype" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

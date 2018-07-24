@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+
+    <enum name="LocationType">
+      <item key="Nearby" value="0"/>
+      <item key="Dungeon" value="1"/>
+      <item key="EndlessTower" value="2"/>
+      <item key="Rift" value="3"/>
+      <item key="History" value="4"/>
+      <item key="PVP" value="5"/>
+    </enum>
+    
+    <element name="PartyLocation" useexcel="true">
+      <property name="locationtype" type="LocationType" uitext="Location Type"/>
+      <property name="realmid" type="string" uitext="Realm Id" default="" info="Seperated by ;"/>
+    </element>
+
+  </data>
+</magicalarea51>

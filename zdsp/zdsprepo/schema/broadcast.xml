@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    
+    <element name="RareItemNotification" useexcel="true" collectionkey="itemid">
+      <property name="itemid" type="int" uitext="Itemid"/>
+      <property name="broadcasttype" type="int" uitext="BroadcastType"/>
+    </element>
+
+    <element name="PushNotification" useexcel="true" collectionkey="notificationid">
+	  <property name="name" type="string" uitext="Name"/>
+	  <property name="notificationid" type="int" uitext="ID"/>
+      <property name="day" type="PushNotificationType" uitext="Day"/>
+      <property name="hour" type="int" uitext="Hour" default="0" min="0" max="23"/>
+      <property name="minute" type="int" uitext="Minute" default="0" min="0" max="59"/>
+      <property name="title" type="localizedstring" uitext="Title(Localized)"/>
+      <property name="content" type="localizedstring" uitext="Content(Localized)"/>
+    </element>
+  
+  </data>
+</magicalarea51>

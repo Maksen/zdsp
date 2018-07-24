@@ -1,0 +1,32 @@
+pipeline {
+	agent any
+	parameters {
+        choice(choices: 'Debug\nRelease', description: '', name: 'Configuration')
+		choice(choices: 'yes\nno', description: '', name: 'copygamerepo')
+		string(name: 'ServerVersion', defaultValue: '1.0.0', description: '')
+		choice(choices: 'minimal\nquiet\nnormal\ndetailed\ndiagnostic', description: 'verbosity level', name: 'verbosity')
+    }
+	
+	stages {
+		
+		stage('Build') {
+            steps {
+                echo "Compiling Loadbalancing ${params.Configuration}"
+				dir ('D:\\Zealot\\zdsp\\photonserver\\src-server\\Loadbalancing') { 
+					bat 'compileserver %configuration% %verbosity%' 
+				} 
+            }
+        }
+		
+		stage('Moving binary file') {
+            steps {
+                echo "Moving file,ServerVersion: ${params.ServerVersion}"
+				dir ('D:\\Zealot\\zdsp') { 
+					bat 'JenkinsyncArtServer %ServerVersion% %copygamerepo% %Configuration%'
+				}
+            }
+        }
+		
+    }
+	
+}

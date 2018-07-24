@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>  
+  <data>
+    <enum name="QuestExtraType">
+      <item key="StoryDungeon" value="0"/>
+      <item key="DailyDungeon" value="1"/>
+      <item key="HeroLvlUpgrade" value="2"/>
+      <item key="HeroSkillUpgrade" value="3"/>
+      <item key="HeroesHouseBefriend" value="4"/>
+      <item key="HeroHouseFight" value="5"/>
+      <item key="EquipmentUpgrade" value="6"/>
+      <item key="TalentUpgrade" value="7"/>
+      <item key="GuildYoumeng" value="8"/>
+      <item key="GuildSMBoss" value="9"/>
+      <item key="GuildQuest" value="10"/>
+      <item key="GuildWishingPoolBroadcast" value="11"/>
+      <item key="GuildWishingPoolDonate" value="12"/>
+      <item key="ArenaTimes" value="13"/>
+      <item key="PvpTimes" value="14"/>
+      <item key="AlchemyTimes" value="15"/>
+      <item key="PetLevel" value="16"/>
+      <item key="LotteryTimes" value="17"/>
+      <item key="WorldBossTimes" value="18"/>
+      <item key="GoldSpent" value="19"/>
+      <item key="RandomBoxTimes" value="20"/>
+      <item key="TowerTimes" value="21"/>
+      <item key="TreasureUpgrade" value="22"/>
+      <item key="PetHouseGet" value="23"/>
+      <item key="OfflineExpGet" value="24"/>
+      <item key="TimeCityFight" value="25"/>
+      <item key="PetEngraving" value="26"/>
+      <item key="NUM_TYPES" value="27"/>
+    </enum>
+    
+    <element name="QuestExtraTask" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="iconpath" type="string" uitext="Quest Icon"/>
+      <property name="reqgold" type="int" uitext="Quest Money"/>
+      <property name="questname" type="localizedstring" uitext="Quest Name"/>
+      <property name="questtype" type="QuestExtraType" uitext="Quest Type"/>
+      <property name="questobj" type="localizedstring" uitext="Quest Object"/>
+      <property name="questcount" type="int" uitext="Quest Count"/>
+      <property name="rewardlist" type="RewardList"  uitext="Reward List" display="name"/>
+      <property name="linkui" type="LinkUIType" uitext="Interface"/>
+    </element>
+
+    <element name="QuestExtraReward" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="boxnum" type="int" uitext="Box Number"/>
+      <property name="reqpts" type="int" uitext="Active Count"/>
+      <property name="rewardlist" type="RewardList"  uitext="Reward List" display="name"/>
+    </element>
+  </data>
+</magicalarea51>

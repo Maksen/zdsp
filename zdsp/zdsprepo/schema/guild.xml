@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <enum name="GuildTechType">
+      <item key="Level" value="0"/>
+      <item key="Shop" value="1"/>
+      <item key="Quest" value="2"/>
+      <item key="Cave" value="3"/>
+      <item key="Love" value="4"/>
+      <item key="HeroHouse" value="5"/>
+      <item key="Health" value="6"/>
+      <item key="Attack" value="7"/>
+      <item key="Armor" value="8"/>
+      <item key="Accuracy" value="9"/>    
+      <item key="Evasion" value="10"/>
+      <item key="Critical" value="11"/>
+      <item key="CoCritical" value="12"/>
+      <item key="CriticalDamage" value="13"/>
+      <item key="CoCriticalDamage" value="14"/>     
+    </enum>
+    
+    <enum name="GuildRankType">
+      <item key="Leader" value="0"/>
+      <item key="Officer" value="1"/>
+      <item key="Member" value="2"/>      
+    </enum>
+
+    <enum name="GuildQuestType">
+      <item key="White" value="0"/>
+      <item key="Green" value="1"/>
+      <item key="Blue" value="2"/>
+      <item key="Purple" value="3"/>
+      <item key="Golden" value="4"/>
+    </enum>
+  
+    <element name="GuildConstant" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="value" type="int" uitext="Value"/>
+    </element>
+
+    <element name="GuildSMBoss" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="level" type="int" uitext="Level" default="1"/>
+      <property name="talentscissors" type="int" uitext="Talent Scissors" default="1"/>
+      <property name="talentstone" type="int" uitext="Talent Stone" default="1"/>
+      <property name="talentcloth" type="int" uitext="Talent Cloth" default="1"/>
+      <property name="healthmax" type="int" uitext="Max Health" default="200"/>
+      <property name="attack" type="int" uitext="Attack" default="20"/>
+      <property name="armor" type="int" uitext="Armor" default="0"/>
+      <property name="accuracy" type="int" uitext="Accuracy" default="100"/>
+      <property name="evasion" type="int" uitext="Evasion" default="0"/>
+      <property name="critical" type="int" uitext="Critical Point" default="0"/>
+      <property name="criticaldamage" type="int" uitext="Critical Damage Point" default="0"/>
+      <property name="cocritical" type="int" uitext="Cocritical Point" default="0"/>
+      <property name="cocriticaldamage" type="int" uitext="Cocritical Damage Point" default="0"/>
+      <property name="enterrewardlist" type="RewardList" uitext="Enter RewardList" display="name"/>
+      <property name="killrewardlist" type="RewardList" uitext="Kill RewardList" display="name"/>
+    </element>
+  
+    <element name="GuildTechClass" useexcel="true" collectionkey="name" localizeexport="name">
+      <property name="name" type="string" uitext="Name" />      
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="type" type="GuildTechType" uitext="Type"/>
+      <property name="description" type="localizedstring" uitext="Description"/>
+      <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>      
+    </element>  
+      
+    <element name="GuildTechLevel" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="type" type="GuildTechType" uitext="Type"/>
+      <property name="level" type="int" uitext="Tech Level" default="1"/>
+      <property name="fund" type="int" uitext="Fund Cost" default="1"/>
+      <property name="requirelv" type="int" uitext="Required Guild LV" min="1" max="9999" default="1"/>
+      <property name="stats" type="float" uitext="Stats"/>     
+    </element>
+
+    <element name="GuildDreamhouse" useexcel="true">
+      <property name="progresscnt1" type="int" uitext="Progressbar 1 Count" default="0"/>
+      <property name="rewardlist1" type="RewardList" uitext="RewardList 1" display="name"/>
+      <property name="progresscnt2" type="int" uitext="Progressbar 2 Count" default="0"/>
+      <property name="rewardlist2" type="RewardList" uitext="RewardList 2" display="name"/>
+      <property name="progresscnt3" type="int" uitext="Progressbar 3 Count" default="0"/>
+      <property name="rewardlist3" type="RewardList" uitext="RewardList 3" display="name"/>
+      <property name="progresscnt4" type="int" uitext="Progressbar 4 Count" default="0"/>
+      <property name="rewardlist4" type="RewardList" uitext="RewardList 4" display="name"/>
+      <property name="progresscnt5" type="int" uitext="Progressbar 5 Count" default="0"/>
+      <property name="rewardlist5" type="RewardList" uitext="RewardList 5" display="name"/>
+      <property name="smrewardlist1" type="RewardList" uitext="SM Reward 1" display="name"/>
+      <property name="smrewardlist2" type="RewardList" uitext="SM Reward 2" display="name"/>
+      <property name="smrewardlist3" type="RewardList" uitext="SM Reward 3" display="name"/>
+    </element> 
+ 
+    <element name="GuildQuest" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" />
+      <property name="probability" type="int" uitext="Probability" default="1"/>
+      <property name="rarity" type="GuildQuestType" uitext="Rarity" />
+      <property name="icon" type="string" uitext="Icon"/>
+      <property name="duration" type="int" uitext="Complete Time" description="duration in mins" default="60"/>
+      <property name="rewardcontribution" type="int" uitext="Contribution Count" default="0"/>
+      <property name="rewardwealth" type="int" uitext="Wealth Count" default="0"/>
+      <property name="itemid" type="string" uitext="Reward Item" default=""/>
+      <property name="itemcount" type="int" uitext="Reward Item Count" default="1"/>
+      <property name="questlevel" type="int" uitext="Quest Level" default="1"/>
+    </element>
+
+    <element name="GuildBadge" useexcel="true">
+      <property name="type" type="PositionType" uitext="Position Type"/>
+      <property name="sortorder" type="int" uitext="Order"/>
+      <property name="iconpath" type="string" uitext="Icon Path" default=""/>
+    </element>
+  </data>    
+</magicalarea51>

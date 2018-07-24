@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+
+    <enum name ="HeroRarity">
+      <item key="Rare" value="0"/>
+      <item key="Epic" value="1"/>
+      <item key="Celestial" value="2"/>
+      <item key="Legendary" value="3"/>
+    </enum>
+
+    <enum name="HeroInterestType">
+      <item key="None" value="0"/>
+      <item key="MartialArts" value="1"/>
+      <item key="Metallurgy" value="2"/>
+      <item key="Debate" value="3"/>
+      <item key="StrategicAttack" value="4"/>
+      <item key="Alcohol" value="5"/>
+      <item key="Heroism" value="6"/>
+      <item key="Lust" value="7"/>
+      <item key="Musical" value="8"/>
+      <item key="Greed" value="9"/>
+      <item key="Business" value="10"/>
+      <item key="Eloquence" value="11"/>
+      <item key="Negotiation" value="12"/>
+    </enum>
+
+    <enum name="HeroBondType">
+      <item key="None" value="0"/>
+      <item key="HeroLevel" value="1"/>
+      <item key="HeroSkill" value="2"/>
+    </enum>
+
+    <enum name="TerrainType">
+      <item key="Tavern" value="0"/>
+      <item key="TeaHouse" value="1"/>
+      <item key="Town" value="2"/>
+      <item key="Forest" value="3"/>
+      <item key="Inn" value="4"/>
+      <item key="Brothel" value="5"/>
+      <item key="Market" value="6"/>
+      <item key="Academy" value="7"/>
+      <item key="Villa" value="8"/>
+    </enum>
+
+    <enum name="ChestRequirementType">
+      <item key="None" value="0"/>
+      <item key="HeroID" value="1"/>
+      <item key="HeroInterest" value="2"/>
+      <item key="HeroTrust" value="3"/>
+    </enum>
+
+    <element name="Hero" useexcel="true" collectionkey="heroid">
+      <property name="heroid" type ="int" uitext="Hero ID" unique="true" info="must be unique"/>
+      <property name="name" type="string" uitext="Name" info="must be unique"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="description" type="localizedstring" uitext="Description(Localized)"/>
+      <property name="rarity" type="HeroRarity" uitext="Rarity"/>
+      <property name="unlockitemid" type="int" uitext="Unlock Item ID"/>
+      <property name="unlockitemcount" type="int" uitext="Unlock Item Count"/>
+      <property name="upgradeitemid" type="int" uitext="Upgrade Item ID"/>
+      <property name="upgradeitemcount" type="int" uitext="Upgrade Item Count"/>
+      <property name="basicattack" type="Skill" uitext="Basic Attack" display="name"/>
+      <property name="skill1grp" type="SkillGroup" uitext="Skill 1" display="name"/>
+      <property name="skill2grp" type="SkillGroup" uitext="Skill 2(SummonPassive)" display="name"/>
+      <property name="skill3grp" type="SkillGroup" uitext="Skill 3(Passive)" display="name"/>
+      <property name="resetskillmoney" type ="int" uitext="Reset Skill Money"/>
+      <property name="growthgroup" type="int" uitext="Growth Group"/>
+      <property name="interestgroup" type="int" uitext="Interest Group"/>
+      <property name="followdistance" type="float" uitext="FollowDistance"/>
+      <property name="movespeed" type="float" uitext="Movement Speed" default="6.0"/>
+      <property name="attackspeed" type="float" uitext="Attack Speed" default="1.0"/>
+      <property name="attackstyle" type="AttackStyle" uitext="Attack Style"/>
+      <property name="element" type="Element" uitext="Element"/>
+      <property name="weaponattrib" type="MainWeaponAttribute" uitext="Main Weapon Attribute"/>
+      <property name="weaponattack" type="int" uitext="Weapon Attack" default="1"/>
+      <property name="summonlevel" type="int" uitext="Summon Level" default="1"/>
+      <property name="t1modelpath" type="asset" uitext="T1 Model Path" default="" assettype="prefab"/>
+      <property name="t2modelpath" type="asset" uitext="T2 Model Path" default="" assettype="prefab"/>
+      <property name="t3modelpath" type="asset" uitext="T3 Model Path" default="" assettype="prefab"/>
+      <property name="t1imagepath" type="asset" uitext="T1 Image Path" default="" assettype="sprite"/>
+      <property name="t2imagepath" type="asset" uitext="T2 Image Path" default="" assettype="sprite"/>
+      <property name="t3imagepath" type="asset" uitext="T3 Image Path" default="" assettype="sprite"/>
+      <property name="modelscalex" type="float" uitext="Model Scale X" default="1.0"/>
+      <property name="modelscaley" type="float" uitext="Model Scale Y" default="1.0"/>
+      <property name="modelscalez" type="float" uitext="Model Scale Z" default="1.0"/>
+      <property name="summonaction" type="string" uitext="Summon Action Name" default=""/>
+      <property name="summonduration" type="float" uitext="Summon Duration"/>
+      <property name="summoneffect" type="asset" uitext="Summon Effect Path" default="" assettype="prefab"/>
+      <property name="unlockshow" type="asset" uitext="Unlock Show Path" default="" assettype="prefab"/>
+      <property name="lookbackshow" type="string" uitext="Look Back Show Name" default=""/>
+      <property name="exploreaction" type="string" uitext="Explore Action Name" default=""/>
+      <property name="randomitemid" type="string" uitext="Random Change Item ID" default="" info="separate by ; (bind;unbind)"/>
+      <property name="portraitpath" type="asset" uitext="Portrait Path" default="" assettype="sprite"/>
+      <property name="questid" type="string" uitext="Quest ID" default="" info="trust,questid;trust,questid"/>
+    </element>
+
+    <element name="HeroGrowth" useexcel="true">
+      <property name="growthgroup" type="int" uitext="Growth Group"/>
+      <property name="herolevel" type ="int" uitext="Hero Level"/>
+      <property name="levelupmoney" type ="int" uitext="Level Up Money"/>
+      <property name="strength" type="int" uitext="Strength" default="1"/>
+      <property name="agility" type="int" uitext="Agility" default="1"/>
+      <property name="dexterity" type="int" uitext="Dexterity" default="1"/>
+      <property name="constitution" type="int" uitext="Constitution" default="1"/>
+      <property name="intelligence" type="int" uitext="Intelligence" default="1"/>
+      <property name="attackpower" type="int" uitext="AttackPower" default="10"/>
+      <property name="accuracy" type="int" uitext="Accuracy" default="100"/>
+      <property name="critical" type="int" uitext="Critical" default="0"/>
+    </element>
+
+    <element name="HeroInterestGroup" useexcel="true">
+      <property name="interestgroup" type="int" uitext="Interest Group"/>
+      <property name="interesttype" type ="HeroInterestType" uitext="Interest Type"/>
+      <property name="probability" type="float" uitext="Probability(%)"/>
+    </element>
+
+    <element name="HeroInterest" useexcel="true">
+      <property name="interesttype" type="HeroInterestType" uitext="Interest Type"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="assigneditemid" type="string" uitext="Assigned Change Item ID" default="" info="separate by ; (bind;unbind)"/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+    </element>
+
+    <element name="HeroTrust" useexcel="true">
+      <property name="trustlevel" type="int" uitext="Trust Level"/>
+      <property name="reqtrustexp" type="int" uitext="Trust Exp Required"/>
+    </element>
+
+    <element name="HeroBondGroup" useexcel="true">
+      <property name="sequence" type="int" uitext="Sequence"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="hero1" type ="int" uitext="Hero 1"/>
+      <property name="hero2" type ="int" uitext="Hero 2"/>
+      <property name="hero3" type ="int" uitext="Hero 3"/>
+      <property name="hero4" type ="int" uitext="Hero 4"/>
+      <property name="hero5" type ="int" uitext="Hero 5"/>
+    </element>
+
+    <element name="HeroBond" useexcel="true">
+      <property name="bondgroupid" type="int" uitext="Bond Group ID"/>
+      <property name="bondlevel" type="int" uitext="Bond Level"/>
+      <property name="bondtype1" type="HeroBondType" uitext="Bond Type 1"/>
+      <property name="bondvalue1" type="int" uitext="Bond Value 1"/>
+      <property name="bondtype2" type="HeroBondType" uitext="Bond Type 2"/>
+      <property name="bondvalue2" type="int" uitext="Bond Value 2"/>
+      <property name="sideeffectgrp" type="SideEffectGroup" uitext="SideEffect Group" display="name"/>
+    </element>
+
+    <element name="ExplorationMap" useexcel="true">
+      <property name="mapid" type="int" uitext="Exploration Map ID"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="localizedsubname" type="localizedstring" uitext="Sub Name(Localized)"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Description(Localized)"/>
+      <property name="sequence" type="int" uitext="Sequence"/>
+      <property name="prevmapid" type="int" uitext="Previous Map ID"/>
+      <property name="reqherolevel" type="int" uitext="Hero Level Required"/>
+      <property name="reqherotrust" type="int" uitext="Hero Trust Required"/>
+      <property name="reqmonsterlevel" type="int" uitext="Monster Explore Level Required"/>
+      <property name="maxherocount" type="int" uitext="Allowed Hero Count"/>
+      <property name="repeatable" type="bool" uitext="Repeatable" default="false"/>
+      <property name="combattimecost" type="int" uitext="Combat Time Cost(min)" info="in min"/>
+      <property name="completetime" type="int" uitext="Complete Time(min)" info="in min"/>
+      <property name="reqitemid" type="int" uitext="Item ID Required"/>
+      <property name="reqitemcount" type="int" uitext="Item Count Required"/>
+      <property name="chestreqtype1" type="ChestRequirementType" uitext="Chest Requirement 1"/>
+      <property name="chestreqvalue1" type="int" uitext="Chest Requirement Value 1"/>
+      <property name="chestreqtype2" type="ChestRequirementType" uitext="Chest Requirement 2"/>
+      <property name="chestreqvalue2" type="int" uitext="Chest Requirement Value 2"/>
+      <property name="chestreqtype3" type="ChestRequirementType" uitext="Chest Requirement 3"/>
+      <property name="chestreqvalue3" type="int" uitext="Chest Requirement Value 3"/>
+      <property name="baseefficiency" type="int" uitext="Base Efficiency(%)"/>
+      <property name="levelrelvalue" type="int" uitext="Level Relative Value"/>
+      <property name="levelmaxefficiency" type="int" uitext="Level Max Efficiency(%)"/>
+      <property name="trustrelvalue" type="int" uitext="Trust Relative Value"/>
+      <property name="trustmaxefficiency" type="int" uitext="Trust Max Efficiency(%)"/>
+      <property name="terraintype" type="TerrainType" uitext="Terrain Type"/>
+      <property name="exploregroupid" type="int" uitext="Exploration Group"/>
+    </element>
+
+    <element name="ExplorationTarget" useexcel="true">
+      <property name="exploregroupid" type="int" uitext="Exploration Group"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+      <property name="chestitemid" type="int" uitext="Chest Item ID"/>
+      <property name="rewardgroupid" type="int" uitext="Reward Group ID"/>
+      <property name="looktarget" type="string" uitext="Look Target" default=""/>
+    </element>
+
+    <element name="TerrainEfficiency" useexcel="true">
+      <property name="terraintype" type="TerrainType" uitext="Terrain Type"/>
+      <property name="interesttype" type="HeroInterestType" uitext="Interest Type"/>
+      <property name="efficiency" type="float" uitext="Terrain Efficiency(%)"/>
+    </element>
+
+    <element name="Terrain" useexcel="true">
+      <property name="terraintype" type="TerrainType" uitext="Terrain Type"/>
+      <property name="terrainname" type="string" uitext="Name"/>
+      <property name="backgroundpath" type="asset" uitext="Background Path" default="" assettype="sprite"/>
+    </element>
+
+  </data>
+</magicalarea51>

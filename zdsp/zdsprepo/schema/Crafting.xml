@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="Crafting" useexcel="true">
+      <property name="categorytype" type="CraftingType" uitext="FemaleCategory"/>
+      <property name="ordering" type="int" uitext="Order"/>
+      <property name="crafteditemid" type="int" uitext="Composite Item ID"/>
+      <property name="craftedcount" type="int" uitext="Composite Item Count"/>
+      <property name="itemid" type="string" uitext="Items ID" info="split by ,"/>
+      <property name="itemcount" type="string" uitext="Items Count" info="split by ,"/>
+      <property name="cost" type="int" uitext="Composite Cost"/>
+      <property name ="subcategoryname" type ="CraftingCategory" uitext="Subcategory" display="subcategoryname"/>
+      <property name ="localizedname" type ="localizedstring" uitext="FemaleCategory Localized Name"/>
+    </element>
+
+    <element name="CraftingCategory" useexcel="true"  collectionkey="subcategoryname">
+      <property name ="subcategoryname" type ="string" uitext="Subcategory"/>
+      <property name ="localizedname" type ="localizedstring" uitext="Subcategory Localized Name"/>
+    </element>
+    
+  </data>
+</magicalarea51>

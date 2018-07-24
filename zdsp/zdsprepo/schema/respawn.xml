@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="Respawn">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="respawnid" type="int" uitext="Respawn ID" default="0"/>
+      <property name="siturespawn" type="bool" uitext="Situ Respawn" default="true"/>
+      <property name="deductitem" type="string" uitext="Deduct Item" default="" info="道具1;數量|道具2;數量"/>
+      <property name="deductcurrency" type="string" uitext="Deduct Currency" default="" info="貨幣ID;數量|貨幣ID;數量"/>
+      <property name="returntype" type="ReturnType" uitext="Return Type"/>
+      <property name="countdown" type="int" uitext="Countdown" default="3600" info="填入數值為秒"/>
+    </element>
+  </data>
+</magicalarea51>

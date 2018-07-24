@@ -1,0 +1,794 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <enum name="AISkillCondition">
+      <item key="SelfHpUp" value="0"/>
+      <item key="SelfHpDown" value="1"/>
+      <item key="SelfHpInterval" value="2"/>
+      <item key="TargetHpUp" value="3"/>
+      <item key="TargetHpDown" value="4"/>
+      <item key="Engage" value="5"/>
+      <item key="InrangePlayer" value="6"/>
+      <item key="TargetNegSkill" value="7"/>
+      <item key="TargetNegSE" value="8"/>
+      <item key="None" value="9"/>
+    </enum>
+
+    <enum name="NPCLootRule">      
+      <item key="LootByLasthit" value="0"/>
+      <item key="LootByDamage" value="1"/>
+    </enum>
+
+    <enum name="LootDropType">
+      <item key="SelectOne" value="0"/>
+      <item key="SelectAll" value="1"/>
+    </enum>
+
+    <enum name="Gender">
+      <item key="Male" value="0"/>
+      <item key="Female" value="1"/>
+    </enum>
+
+    <enum name="WeaponType">
+      <item key="Any" value="0"/>
+      <item key="Sword" value="1"/>
+      <item key="Blade" value="2"/>
+      <item key="Lance" value="3"/>
+      <item key="Hammer" value="4"/>
+      <item key="Fan" value="5"/>
+      <item key="Xbow" value="6"/>
+      <item key="Dagger" value="7"/>
+      <item key="Sanxian" value="8"/> 
+    </enum>
+    
+    <enum name="JobType">
+      <item key="Newbie" value="0"/>
+      <item key="Warrior" value="1"/>
+      <item key="Soldier" value="2"/>
+      <item key="Tactician" value="3"/>
+      <item key="Killer" value="4"/>
+      <item key="Samurai" value="5"/>
+      <item key="Swordsman" value="6"/>
+      <item key="Lieutenant" value="7"/>
+      <item key="SpecialForce" value="8"/>
+      <item key="Alchemist" value="9"/>
+      <item key="QigongMaster" value="10"/>
+      <item key="Assassin" value="11"/>
+      <item key="Shadow" value="12"/>
+      <item key="BladeMaster" value="13"/>
+      <item key="SwordMaster" value="14"/>
+      <item key="General" value="15"/>
+      <item key="Commando" value="16"/>
+      <item key="Strategist" value="17"/>
+      <item key="Schemer" value="18"/>
+      <item key="Executioner" value="19"/>
+      <item key="Slaughter" value="20"/>
+    </enum>
+	
+	  <enum name="CharPortraitType">
+	    <item key="None" value="0"/>
+      <item key="Knife" value="1"/>
+      <item key="Sword" value="2"/>
+      <item key="Spear" value="3"/>
+      <item key="Hammer" value="4"/>
+	    <item key="Hero" value="5"/>
+	  </enum>
+
+    <enum name="FactionType">
+      <item key="None" value="0"/>
+      <item key="Dragon" value="1"/>
+      <item key="Tiger" value="2"/>
+      <item key="Pig" value="3"/>
+      <item key="Leopard" value="4"/>
+    </enum>
+
+    <enum name="CurrencyType">
+      <item key="None" value="0"/>
+      <item key="Money" value="1"/>
+      <item key="GuildContribution" value="2"/>
+      <item key="GuildGold" value="3"/>
+      <item key="Gold" value="4"/>
+      <item key="LockGold" value="5"/>
+      <item key="LotteryTicket" value="6"/>
+      <item key="HonorValue" value="7"/>
+      <item key="BattleCoin" value="8"/>
+      <item key="Exp" value="9"/>
+      <item key="VIP" value="10"/>
+    </enum>
+    
+    <enum name="EquipmentType">
+      <item key="Weapon" value="0"/>
+      <item key="Armor" value="8"/>
+      <item key="Accessory" value="12"/>
+    </enum>
+
+    <enum name="PartsType">
+      <item key="Sword" value="0"/>
+      <item key="Blade" value="1"/>
+      <item key="Lance" value="2"/>
+      <item key="Hammer" value="3"/>
+      <item key="Fan" value="4"/>
+      <item key="Xbow" value="5"/>
+      <item key="Dagger" value="6"/>
+      <item key="Sanxian" value="7"/>
+      <item key="Helm" value="101"/>
+      <item key="Body" value="102"/>
+      <item key="Wing" value="103"/>
+      <item key="Boots" value="104"/>
+      <item key="Bathrobe" value="105"/>
+      <item key="Ring" value="201"/>
+      <item key="Jewelry" value="202"/>
+      <item key="Accessory" value="203"/>
+    </enum>
+
+    <enum name="MainWeaponAttribute">
+      <item key="Str" value="0"/>
+      <item key="Dex" value="1"/>
+      <item key="Int" value="2"/>
+    </enum>
+
+    <enum name="FashionSuitType">
+      <item key="Head" value="0"/>
+      <item key="Weapon" value="1"/>
+      <item key="Body" value="2"/>
+      <item key="Back" value="3"/>
+    </enum>
+	
+    <enum name="EquipmentAttributeType">
+      <item key="Health" value="0"/>
+      <item key="Attack" value="1"/>
+      <item key="Armor" value="2"/>
+      <!--<item key="Critical" value="3"/>
+      <item key="Cocritical" value="4"/>-->
+      <item key="CriticalDamage" value="3"/>
+      <item key="CocriticalDamage" value="4"/>
+      <item key="Evasion" value="5"/>
+      <item key="Accuracy" value="6"/>
+    </enum>
+
+    <enum name="ActorStatsType">
+      <item key="None" value="0"/>
+      <item key="Attack" value="1"/>
+      <item key="Armor" value="2"/>
+      <item key="Critical" value="3"/>
+      <item key="Cocritical" value="4"/>
+      <item key="CriticalDamage" value="5"/>
+      <item key="CocriticalDamage" value="6"/>
+      <item key="Evasion" value="7"/>
+      <item key="Accuracy" value="8"/>
+    </enum>
+    
+    <enum name="AbilityType">
+      <item key="Attack" value="0"/>
+      <item key="Armor" value="1"/>
+      <item key="Accuracy" value="2"/>
+      <item key="Evasion" value="3"/>
+      <item key="AmplifyDamage" value="4"/>
+      <item key="AbsorbDamage" value="5"/>      
+      <item key="MaxHealth" value="6"/>
+      <item key="CriticalPerfect" value="7"/>
+      <item key="LevelAttack" value="8"/>
+      <item key="LevelArmor" value="9"/>
+      <item key="Health" value="10"/>
+      <item key="HealthPct" value="11"/>
+      <item key="AttackPct" value="12"/>
+      <item key="ArmorPct" value="13"/>
+      <item key="AccuracyPct" value="14"/>
+      <item key="EvasionPct" value="15"/>
+      <item key="SkillDamage" value="16"/>
+      <item key="SkillDamageReduce" value="17"/>
+      <item key="Exdamage" value="18"/>
+      <item key="Critical" value="19"/>
+      <item key="CriticalDouble" value="20"/>
+    </enum>
+    
+    <enum name="AttackType">
+      <item key="Physical" value="0"/>
+      <item key="Magic" value="1"/>
+    </enum>
+
+    <enum name="RespawnType">
+      <item key="Spot_City_CountdownSafeZoon" value="0"/>
+      <item key="Spot_City_CountdownCity" value="1"/>
+      <item key="City_CountdownCity" value="2"/>
+      <item key="SafeZoneCost_CountdownSafeZoon" value="3"/>
+      <item key="SafeZoon_CountdownSafeZoon" value="4"/>
+      <item key="CountdownSafeZoon" value="5"/>
+      <item key="SpotCost_CountdownSafeZoon" value="6"/>
+      <item key="None" value="7"/>
+    </enum>
+
+    <enum name="CraftingType">
+      <item key="Strengthen" value="0"/>
+      <item key="Gem" value="1"/>
+      <item key="Other" value="2"/>
+    </enum>
+    
+    <enum name="SkillType">
+      <item key="BasicAttack" value="0"/>
+      <item key="Active" value="1"/>
+      <item key="Passive" value ="2"/>
+    </enum>
+
+    <enum name="SkillBehaviour">
+      <item key="Self" value="0"/>
+      <item key="Target" value="1"/>   
+      <item key="Ground" value="2"/>
+    </enum>
+
+    <!--<enum name="SkillGroupCategory">
+      <item key="DAMAGE" value="0"/>
+      <item key="REJ" value="0"/> 
+    </enum>-->
+
+    <enum name="TargetType">
+      <item key="Friendly" value="0"/>
+      <item key="Enemy" value="1"/>
+      <item key="Party" value="2"/>      
+    </enum>
+
+    <enum name="HitType">
+      <item key="Basic" value="0"/>
+      <item key="Definite" value="1"/>      
+    </enum> 
+
+    <enum name="Threatzone">
+      <item key="Single" value="0"/>
+      <item key="DegreeArc120" value="1"/>
+      <item key="DegreeArc360" value="2"/>
+      <item key="LongStream" value="3"/> 
+    </enum>    
+
+    <enum name="CriticalType">
+      <item key="Normal" value="0"/>
+      <item key="None" value="1"/>
+      <item key="Critical" value="2"/>
+    </enum>
+    
+    <enum name="EffectType">
+      <item key="Damage_NoElementDamage" value="0"/>
+      <item key="Damage_MetalDamage" value="1"/>
+      <item key="Damage_WoodDamage" value="2"/>
+      <item key="Damage_EarthDamage" value="3"/>
+      <item key="Damage_WaterDamage" value="4"/>
+      <item key="Damage_FireDamage" value="5"/>
+      <item key="Damage_DamageBasedOnWeaponElement" value="6"/>
+      <item key="Damage_PureDamage" value="7"/>
+
+      <item key="Stats_Strength"              value="50"/>
+      <item key="Stats_Agility"               value="51"/>
+      <item key="Stats_Dexterity"             value="52"/>
+      <item key="Stats_Constitution"          value="53"/>
+      <item key="Stats_Intelligence"          value="54"/>
+      <item key="Stats_AttackSpeed"           value="55"/>
+      <item key="Stats_AttackSpeed_Debuff"    value="56"/>
+      <item key="Stats_CastSpeed"             value="57"/>
+      <item key="Stats_CastSpeed_Debuff"      value="58"/>
+      <item key="Stats_MoveSpeed"             value="59"/>
+      <item key="Stats_MoveSpeed_Debuff"      value="60"/>
+      <item key="Stats_ExpBonus"              value="61"/>
+      <item key="Stats_MaxHealth"             value="62"/>
+      <item key="Stats_HealthRegen"           value="63"/>
+      <item key="Stats_MaxMana"               value="64"/>
+      <item key="Stats_ManaRegen"             value="65"/>
+      <item key="Stats_EnergyShield"          value="66"/>
+      <item key="Stats_IgnoreArmor"           value="67"/>
+      <item key="Stats_ChangeEleToNone"       value="68"/>
+      <item key="Stats_ChangeEleToMetal"      value="69"/>
+      <item key="Stats_ChangeEleToWood"       value="70"/>
+      <item key="Stats_ChangeEleToEarth"      value="71"/>
+      <item key="Stats_ChangeEleToWater"      value="72"/>
+      <item key="Stats_ChangeEleToFire"       value="73"/>
+      <item key="Stats_HeavyStand"            value="74"/>
+      <item key="Stats_SkillCostReduce"       value="75"/>
+      <item key="Stats_SkillAffectEnhance"    value="76"/>
+      <item key="Stats_HealingPoint"          value="77"/>
+      <item key="Stats_HealingPoint_Debuff"   value="78"/>
+      <item key="Stats_Effect"                value="79"/>
+      <item key="Stats_Effect_Debuff"         value="80"/>
+      <item key="Stats_HealingIncome"         value="81"/>
+      <item key="Stats_HealingIncome_Debuff"  value="82"/>
+      
+
+      <item key="Rejuvenate_HealthPotion"   value="83"/>
+      <item key="Rejuvenate_ManaPotion"     value="84"/>
+      <item key="Rejuvenate_Healing"        value="85"/>
+
+      <item key="StatsAttack_WeaponAttack"              value="86"/>
+      <item key="StatsAttack_WeaponAttack_Debuff"       value="87"/>
+      <item key="StatsAttack_AttackPower"               value="88"/>
+      <item key="StatsAttack_AttackPower_Debuff"        value="89"/>
+      <item key="StatsAttack_Accuracy"                  value="90"/>
+      <item key="StatsAttack_Accuracy_Debuff"           value="91"/>
+      <item key="StatsAttack_Critical"                  value="92"/>
+      <item key="StatsAttack_Critical_Debuff"           value="93"/>
+      <item key="StatsAttack_CriticalDamage"            value="94"/>
+      <item key="StatsAttack_CriticalDamage_Debuff"     value="95"/>
+      <item key="StatsAttack_IncSmashDamage"            value="96"/>
+      <item key="StatsAttack_IncSmashDamage_Debuff"     value="97"/>
+      <item key="StatsAttack_IncSliceDamage"            value="98"/>
+      <item key="StatsAttack_IncSliceDamage_Debuff"     value="99"/>
+      <item key="StatsAttack_IncPierceDamage"           value="100"/>
+      <item key="StatsAttack_IncPierceDamage_Debuff"    value="101"/>
+      <item key="StatsAttack_IncEleNoneDamage"          value="102"/>
+      <item key="StatsAttack_IncEleNoneDamageDebuff"    value="103"/>
+      <item key="StatsAttack_IncEleMetalDamage"         value="104"/>
+      <item key="StatsAttack_IncEleMetalDamage_Debuff"  value="105"/>
+      <item key="StatsAttack_IncEleWoodDamage"          value="106"/>
+      <item key="StatsAttack_IncEleWoodDamage_Debuff"   value="107"/>
+      <item key="StatsAttack_IncEleEarthDamage"         value="108"/>
+      <item key="StatsAttack_IncEleEarthDamage_Debuff"  value="109"/>
+      <item key="StatsAttack_IncEleWaterDamage"         value="110"/>
+      <item key="StatsAttack_IncEleWaterDamage_Debuff"  value="111"/>
+      <item key="StatsAttack_IncEleFireDamage"          value="112"/>
+      <item key="StatsAttack_IncEleFireDamage_Debuff"   value="113"/>
+      <item key="StatsAttack_VSHumanDamage"             value="114"/>
+      <item key="StatsAttack_VSHumanDamage_Debuff"      value="115"/>
+      <item key="StatsAttack_VSZombieDamage"            value="116"/>
+      <item key="StatsAttack_VSZombieDamage_Debuff"     value="117"/>
+      <item key="StatsAttack_VSVampireDamage"           value="118"/>
+      <item key="StatsAttack_VSVampireDamage_Debuff"    value="119"/>
+      <item key="StatsAttack_VSAnimalDamage"            value="120"/>
+      <item key="StatsAttack_VSAnimalDamage_Debuff"     value="121"/>
+      <item key="StatsAttack_VSPlantDamage"             value="122"/>
+      <item key="StatsAttack_VSPlantDamage_Debuff"      value="123"/>
+      <item key="StatsAttack_VSEleNoneDamage"           value="124"/>
+      <item key="StatsAttack_VSEleNoneDamage_Deduff"    value="125"/>
+      <item key="StatsAttack_VSEleMetalDamage"          value="126"/>
+      <item key="StatsAttack_VSEleMetalDamage_Debuff"   value="127"/>
+      <item key="StatsAttack_VSEleWoodDamage"           value="128"/>
+      <item key="StatsAttack_VsEleWoodDamage_Debuff"    value="129"/>
+      <item key="StatsAttack_VSEleEarthDamage"          value="130"/>
+      <item key="StatsAttack_VSEleEarthDamage_Debuff"   value="131"/>
+      <item key="StatsAttack_VSEleWaterDamage"          value="132"/>
+      <item key="StatsAttack_VSEleWaterDamage_Debuff"   value="133"/>
+      <item key="StatsAttack_VSEleFireDamage"           value="134"/>
+      <item key="StatsAttack_VSEleFireDamage_Debuff"      value="135"/>
+      <item key="StatsAttack_VSBossDamage"              value="136"/>
+      <item key="StatsAttack_IncFinalDamage"            value="137"/>
+
+      <item key="StatsDefence_Armor"                      value="138"/>
+      <item key="StatsDefence_Armor_Debuff"               value="139"/>
+      <item key="StatsDefence_Block"                      value="140"/>
+      <item key="StatsDefence_Block_Debuff"               value="141"/>
+      <item key="StatsDefence_BlockValue"                 value="142"/>
+      <item key="StatsDefence_BlockValue_Debuff"          value="143"/>
+      <item key="StatsDefence_Evasion"                    value="144"/>
+      <item key="StatsDefence_Evasion_Debuff"             value="145"/>
+      <item key="StatsDefence_CoCritical"                 value="146"/>
+      <item key="StatsDefence_CoCritical_Debuff"          value="147"/>
+      <item key="StatsDefence_IncSmashDefence"            value="148"/>
+      <item key="StatsDefence_IncSmashDefence_Debuff"     value="149"/>
+      <item key="StatsDefence_IncSliceDefence"            value="150"/>
+      <item key="StatsDefence_IncSliceDefence_Debuff"     value="151"/>
+      <item key="StatsDefence_IncPierceDefence"           value="152"/>
+      <item key="StatsDefence_IncPierceDefence_Debuff"    value="153"/>
+      <item key="StatsDefence_IncEleNoneDefence"          value="154"/>
+      <item key="StatsDefence_IncEleNoneDefence_Debuff"   value="155"/>
+      <item key="StatsDefence_IncEleMetalDefence"         value="156"/>
+      <item key="StatsDefence_IncEleMetalDefence_Debuff"  value="157"/>
+      <item key="StatsDefence_IncEleWoodDefence"          value="158"/>
+      <item key="StatsDefence_IncEleWoodDefence_Debuff"   value="159"/>
+      <item key="StatsDefence_IncEleEarthDefence"         value="160"/>
+      <item key="StatsDefence_IncEleEarthDefence_Debuff"  value="161"/>
+      <item key="StatsDefence_IncEleWaterDefence"         value="162"/>
+      <item key="StatsDefence_IncEleWaterDefence_Debuff"  value="163"/>
+      <item key="StatsDefence_IncEleFireDefence"          value="164"/>
+      <item key="StatsDefence_IncEleFireDefence_Debuff"   value="165"/>
+      <item key="StatsDefence_VSHumanDefence"             value="166"/>
+      <item key="StatsDefence_VSHumanDefence_Debuff"      value="167"/>
+      <item key="StatsDefence_VSZombieDefence"            value="168"/>
+      <item key="StatsDefence_VSZombieDefence_Debuff"     value="169"/>
+      <item key="StatsDefence_VSVampireDefence"           value="170"/>
+      <item key="StatsDefence_VsVampireDefence_Debuff"    value="171"/>
+      <item key="StatsDefence_VSAnimalDefence"            value="172"/>
+      <item key="StatsDefence_VSAnimalDefence_Debuff"     value="173"/>
+      <item key="StatsDefence_VSPlantDefence"             value="174"/>
+      <item key="StatsDefence_VSPlantDefence_Debuff"      value="175"/>
+      <item key="StatsDefence_DecreaseFinalDamage"        value="176"/>
+
+      <item key="Control_Stun"    value="177"/>
+      <item key="Control_Root"    value="178"/>
+      <item key="Control_Fear"    value="179"/>
+      <item key="Control_Silence" value="180"/>
+      <item key="Control_Taunt"   value="181"/>
+
+      
+      <item key="Immune_AllDamage"  value="182"/>
+      <item key="Immune_AllDebuff"  value="183"/>
+      <item key="Immune_AllImmune"  value="184"/>
+      <item key="Immune_Stun"       value="185"/>
+      <item key="Immune_Root"       value="186"/>
+      <item key="Immune_Fear"       value="187"/>
+      <item key="Immune_Silence"    value="188"/>
+      <item key="Immune_Taunt"      value="189"/>
+
+      <item key="Remove_AllControl"   value="190"/>
+      <item key="Remove_Stun"         value="191"/>
+      <item key="Remove_Root"         value="192"/>
+      <item key="Remove_Fear"         value="193"/>
+      <item key="Remove_Silence"      value="194"/>
+      <item key="Remove_RandomBuff"   value="195"/>
+      <item key="Remove_RandomDebuff" value="196"/>
+
+      <item key="Stealth_Stealth"       value="197"/>
+      <item key="Stealth_DetectStealth" value="198"/>
+
+      <item key="Trigger_OnNormalAttack" value="199"/>
+      
+      <item key="Enhance_IncRepeatSE" value="200"/>
+      <item key="Enhance_IncSkillAffect" value="201"/>     
+    </enum>
+        
+    <enum name="InteractiveType">
+      <item key="OpenTalent" value="0"/>
+      <item key="OpenGem" value="1"/>
+    </enum>
+    
+    <enum name="ItemRarity">
+      <item key="Common" value="0"/>
+      <item key="Uncommon" value="1"/>
+      <item key="Rare" value="2"/>
+      <item key="Epic" value="3"/>
+      <item key="Celestial" value="4"/>
+      <item key="Legendary" value="5"/>
+    </enum>
+
+    <enum name="ItemType">
+      <item key="Invalid" value="0"/>
+      <item key="PotionFood" value="1"/>
+      <item key="Material" value="2"/>
+      <item key="LuckyPick" value="3"/>
+      <item key="Henshin" value="4"/>
+      <item key="Features" value="5"/>
+      <item key="Equipment" value="6"/>
+      <item key="DNA" value="7"/>
+      <item key="Relic" value="8"/>
+      <item key="QuestItem" value="9"/>
+      <item key="MercenaryItem" value="10"/>
+      <item key="InstanceItem" value="11"/>
+      <item key="PetItem" value="12"/>
+    </enum>
+
+    <enum name="BagType">
+      <item key="Any" value="0"/>
+      <item key="Equipment" value="1"/>
+      <item key="Consumable" value="2"/>
+      <item key="Material" value="3"/>
+      <item key="DNA" value="4"/>
+      <item key="Gem" value="5"/>
+    </enum>
+
+    <enum name="MaterialType">
+      <item key="Exchange" value="0"/>
+      <item key="UpgradeItem" value="1"/>
+      <item key="Special" value="2"/>
+      <item key="Token" value="3"/>
+    </enum>
+
+    <enum name="ToolTipType">
+      <item key="Common" value="0"/>
+      <item key="Event" value="1"/>
+      <item key="Consumables" value="2"/>
+    </enum>
+
+    <enum name="GCDType">
+      <item key="Non_GDC" value="0"/>
+      <item key="HP_Recover" value="1"/>
+      <item key="MP_Recover" value="2"/>
+      <item key="Hybrid_Recover" value="3"/>
+    </enum>
+
+    <enum name="DNAType">
+      <item key="Locked" value="0"/>
+      <item key="Head" value="1"/>
+      <item key="Shoulders" value="2"/>
+      <item key="Chest" value="3"/>
+      <item key="Arms" value="4"/>
+      <item key="Body" value="5"/>
+      <item key="Legs" value="6"/>
+      <item key="Feet" value="7"/>
+    </enum>
+
+    <enum name="RelicType">
+      <item key="None" value="0"/>
+      <item key="Head" value="1"/>
+      <item key="Shoulders" value="2"/>
+      <item key="Body" value="3"/>
+      <item key="Arms" value="4"/>
+      <item key="Shoes" value="5"/>
+      <item key="Accessory" value="6"/>
+      <item key="Weapon" value="7"/>
+      <item key="SecondaryArm" value="8"/>
+    </enum>
+
+    <enum name="HeroItemType">
+      <item key="Shard" value="0"/>
+      <item key="Gift" value="1"/>
+      <item key="Onigiri" value="2"/>
+    </enum>
+
+    <enum name="ESERequireType">
+      <item key="Require_Upgrade" value="0"/>
+      <item key="Other" value="1"/>
+    </enum>
+
+    <enum name="GItemSubType">
+      <item key="None" value="0"/>
+      <item key="EquipUpgrade" value="1"/>
+      <item key="HeroItem" value="2"/>
+    </enum>
+    
+    <enum name="DialogType">
+      <item key="Common" value="0"/>
+      <item key="MainQuest" value="1"/>
+      <item key="NationQuest" value="2"/>
+      <item key="Warehouse" value="3"/>
+    </enum>
+  
+    <enum name="DirtyWordType">
+      <item key="Chat" value="0"/>
+      <item key="GameName" value="1"/>
+      <item key="BothChatName" value="2"/>
+    </enum>
+
+    <enum name="DailyEventCategoryType">
+      <item key="None" value="0"/>
+      <item key="BindGold" value="1"/>
+      <item key="BindGem" value="2"/>
+      <item key="Crystal" value="3"/>
+      <item key="SP" value="4"/>
+      <item key="Achievement" value="5"/>
+      <item key="Honor" value="6"/>
+      <item key="Prestige" value="7"/>
+      <item key="Exp" value="8"/>
+      <item key="Equipment" value="9"/>
+      <item key="GemStone" value="10"/>
+    </enum>
+
+    <enum name="DailyEventType">
+      <item key="None" value="0"/>
+      <item key="JinQianGuan" value="1"/>
+      <item key="ResourceMap" value="3"/>
+      <item key="TianMoTa" value="4"/>
+      <item key="PartyRealm" value="5"/>
+      <item key="Arena" value="6"/>
+      <item key="YiZuZhan" value="7"/>
+      <item key="GuZhanChang" value="8"/>
+      <item key="FeiLongGuBao" value="9"/>
+      <item key="WorldBoss" value="10"/>
+      <item key="QianKunShengDian" value="11"/>
+      <item key="MainLineRealm" value="12"/>
+      <item key="DailyQuest" value="13"/>
+      <item key="ActivityQuest" value="14"/>
+      <item key="NationQuest" value="15"/>
+    </enum>
+
+    <enum name="PowerUpType">
+      <item key="Title" value="0"/>
+      <item key="Rank" value="1"/>
+      <item key="Equipment" value="2"/>
+      <item key="Armor" value="4"/>
+      <item key="skills" value="5"/>
+      <item key="Secrets" value="6"/>
+    </enum>
+
+    <enum name="LotteryShopType">
+      <item key="Weapon" value="0"/>
+      <item key="Armor" value="1"/>
+      <item key="Item" value="2"/>
+    </enum>
+
+    <enum name="StoreType">
+      <item key="None" value="0"/>
+      <item key="Android" value="1"/>
+      <item key="IOS" value="2"/>
+    </enum>
+
+    <enum name="LinkUIType">
+      <item key="None" value="0"/>
+      <item key="Equipment_Upgrade" value="1"/>
+      <item key="Equipment_Reform" value="2"/>
+      <item key="Equipment_Socket" value="3"/>
+      <item key="DNA" value="4"/>
+      <item key="Shop" value="5"/>
+      <item key="Skill" value="6"/>
+      <item key="Realm" value="7"/>
+      <item key="GoTopUp" value="8"/>
+      <item key="Achievement" value="9"/>
+    </enum>    
+
+    <enum name="ItemMallCategory">
+      <item key="None" value="0"/>
+      <item key="Strengthen" value="1"/>
+      <item key="Treasure" value="2"/>
+      <item key="Prestige " value="3"/>
+      <item key="Hot" value="4"/>
+      <item key="Potion" value="5"/>
+      <item key="Fashion" value="6"/>
+      <item key="Vehicle" value="7"/>
+      <item key="Pet" value="8"/>
+      <item key="WeaponFashion" value="9"/>
+    </enum>
+    
+    <enum name="ItemMallShoppingType">
+      <item key="None" value="0"/>
+      <item key="Tortoise" value="1"/>
+      <item key="Phoenix" value="2"/>
+      <item key="Tiger" value="3"/>
+      <item key="Dragon" value="4"/>
+      <item key="Unbind" value="5"/>
+      <item key="Bind" value="6"/>
+    </enum>
+        
+    <enum name="PushNotificationType">
+      <item key="None" value="0"/>
+      <item key="Monday" value="1"/>
+      <item key="Tuesday" value="2"/>
+      <item key="Wednesday" value="3"/>
+      <item key="Thursday" value="4"/>
+      <item key="Friday" value="5"/>
+      <item key="Saturday" value="6"/>
+      <item key="Sunday" value="7"/>
+      <item key="Everyday" value="8"/>
+    </enum>
+
+    <enum name="PrizeGuaranteeType">
+      <item key="Chest" value="0"/>
+      <item key="Activity" value="1"/>
+    </enum>
+    
+    <enum name="NotificationType">
+      <item key="None" value="0"/>
+      <item key="WorldBoss" value="1"/>
+    </enum>
+	
+	  <enum name="UIStoreLinkType">
+		  <item key="NotApplicable" value="0"/>
+		  <item key="MoneyStore" value="1"/>
+		  <item key="GuildStore" value="2"/>
+		  <item key="Lottery" value="3"/>
+		  <item key="WuLing" value="4"/>
+		  <item key="WuMen" value="5"/>
+	  </enum>
+
+    <enum name="NPCStore">
+      <item key="Normal" value="0"/>
+      <item key="Random" value="1"/>
+      <item key="Barter" value="2"/>
+    </enum>
+
+    <enum name="PositionType">
+      <item key="Background" value="0"/>
+      <item key="Patten" value="1"/>
+      <item key="Frame" value="2"/>
+    </enum>
+  
+    <enum name="ReturnType">
+      <item key="ReturnCity" value="0"/>
+      <item key="ReturnSafeZone" value="1"/>
+    </enum>
+
+    <enum name="QuestType">
+      <item key="Main" value="0"/>
+      <item key="Destiny" value="1"/>
+      <item key="Sub" value="2"/>
+      <item key="Guild" value="3"/>
+      <item key="Signboard" value="4"/>
+      <item key="Event" value="5"/>
+    </enum>
+
+    <enum name="QuestRepeatType">
+      <item key="NoRpeat" value="0"/>
+      <item key="AlwaysRepeat" value="1"/>
+      <item key="OncePerDay" value="2"/>
+      <item key="OncePerWeek" value="3"/>
+    </enum>
+
+    <enum name="QuestTriggerType">
+      <item key="NPC" value="0"/>
+      <item key="Item" value="1"/>
+      <item key="Level" value="2"/>
+      <item key="Interact" value="3"/>
+      <item key="Signboard" value="4"/>
+      <item key="Hero" value="5"/>
+      <item key="SensorChip" value="6"/>
+    </enum>
+
+    <enum name="QuestDestinyType">
+      <item key="Qing" value="0"/>
+      <item key="Wei" value="1"/>
+      <item key="Zhao" value="2"/>
+      <item key="Yan" value="3"/>
+      <item key="Qi" value="4"/>
+      <item key="Chu" value="5"/>
+      <item key="Han" value="6"/>
+    </enum>
+
+    <enum name="QuestObjectiveType">
+      <item key="Kill" value="0"/>
+      <item key="Talk" value="1"/>
+      <item key="RealmComplete" value="2"/>
+      <item key="PercentageKill" value="3"/>
+      <item key="Choice" value="4"/>
+      <item key="Interact" value="5"/>
+      <item key="MultipleObj" value="6"/>
+      <item key="Empty" value="7"/>
+      <item key="QuickTalk" value="8"/>
+    </enum>
+
+    <enum name="QuestEventType">
+      <item key="Cutscene" value="0"/>
+      <item key="Playmaker" value="1"/>
+      <item key="Monster" value="2"/>
+      <item key="Teleport" value="3"/>
+      <item key="SideEffect" value="4"/>
+      <item key="Companion" value="5"/>
+      <item key="Outfit" value="6"/>
+      <item key="NPC" value="7"/>
+    </enum>
+    
+    <enum name="EventTimingType">
+      <item key="StartQuest" value="0"/>
+      <item key="CompleteObjective" value="1"/>
+      <item key="CompleteQuest" value="2"/>
+    </enum>
+    
+    <enum name="QuestInteractiveType">
+      <item key="StartQuest" value="0"/>
+      <item key="EndQuest" value="1"/>
+    </enum>
+
+    <enum name="QuestRequirementType">
+      <item key="Level" value="0"/>
+      <item key="Item" value="1"/>
+      <item key="Equipment" value="2"/>
+      <item key="Hero" value="3"/>
+      <item key="Title" value="4"/>
+      <item key="SideEffect" value="5"/>
+      <item key="Companian" value="6"/>
+      <item key="NPC" value="7"/>
+      <item key="Outfit" value="8"/>
+      <item key="Job" value="9"/>
+    </enum>
+
+    <enum name="QuestSelectionActionType">
+      <item key="Non" value="0"/>
+      <item key="Job" value="1"/>
+      <item key="ObjectiveGroup" value="2"/>
+      <item key="SubmitObjective" value="3"/>
+    </enum>
+  
+    <enum name="StaticNPCInteractType">
+      <item key="Talk" value="0"/>
+      <item key="Area" value="1"/>
+      <item key="Target" value="2"/>
+    </enum>
+  
+    <enum name="AttackStyle">
+      <item key="Slice" value="0"/>
+      <item key="Pierce" value="1"/>
+      <item key="Smash" value="2"/>
+      <item key="God" value="3"/>
+      <item key="Normal" value="4"/>
+    </enum>
+
+    <enum name="Race">
+      <item key="Human" value="0"/>
+      <item key="Zombie" value="1"/>
+      <item key="Vampire" value="2"/>
+      <item key="Animal" value="3"/>
+      <item key="Plant" value="4"/>
+    </enum>
+
+    <enum name="Element">
+      <item key="None" value="0"/>
+      <item key="Metal" value="1"/>
+      <item key="Wood" value="2"/>
+      <item key="Earth" value="3"/>
+      <item key="Water" value="4"/>
+      <item key="Fire" value="5"/>
+    </enum>
+    
+  </data>
+</magicalarea51>

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="EquipUpgrade" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <!--<property name="jobtype" type="JobType" uitext="Character"/>-->
+      <property name="equipmenttype" type="EquipmentType" uitext="EquipmentType"/>
+      <property name="upgradelevel" type="string" uitext="UpgradeLevel" default=""/>
+      <property name="surmountlevel" type="string" uitext="SurmountLevel" default=""/>
+      <property name="attributetype" type="EquipmentAttributeType" uitext="Attribute"/>
+      <property name="attributevalue" type="string" uitext="AttributesValue" default=""/>
+      <property name="upgradecost" type="string" uitext="UpgradeCost" default=""/>
+      <property name="upgradeitem" type="string" uitext="UpgradeItem" default=""/>
+      <property name="upgradecount" type="string" uitext="UpgradeCount" default=""/>
+      <property name="iconpath" type="asset" uitext="IconPath" default="" assettype="sprite"/>
+    </element>
+    
+    <element name="SurmountProbability" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="surmountlevel" type="int" uitext="SurmountLevel" default="0"/>
+      <property name="surmountchance" type="int" uitext="SurmountProbability" default="0"/>
+    </element>
+    
+    <element name="EngravingSEGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="surmountlevel" type="int" uitext="SurmountLevel" default="0"/>
+      <property name="sequence" type="int" uitext="Sequence" default="0"/>
+      <property name="probability" type="int" uitext="Probability" default="0"/>
+      <property name="sideeffectgrpid" type="string" uitext="SideeffectGroupID" default=""/>
+    </element>
+    
+    <element name="EngravingSESubGroup" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="sideeffectgrpid" type="string" uitext="SideeffectGroupID" default=""/>
+      <property name="sideeffectid" type="int" uitext="SideEffectID" default="0"/>
+      <property name="probability" type="int" uitext="Probability" default="0"/>
+      <property name="rank" type="int" uitext="Rank" default="0"/>
+    </element>
+  </data>
+</magicalarea51>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+	<data>
+		<element name="ExchangeShopItem" useexcel="true">
+			<property name="exid" type="int" uitext="exid" unique="true"/>
+			<property name="categoryid" type="int" uitext="categoryid"/>
+			<property name="sequence" type="int" uitext="sequence"/> 
+			<property name="show" type="bool" uitext="show"/> 
+			<property name="type" type="int" uitext="type"/> 
+			<property name="jobsect" type="JobType" uitext="jobsect"/>
+			
+			<property name="rewarditem_reqlevel" type="int" uitext="rewarditemlevel"/>
+			<property name="rewarditem_id" type="int" uitext="rewarditemid"/>
+			<property name="rewarditem_count" type="int" uitext="rewarditemcount"/>
+			
+			<property name="item1_id" type="int" uitext="item1_ID"/>
+			<property name="item1_count" type="int" uitext="item1_count"/>
+			<property name="item2_id" type="int" uitext="item2_ID"/>
+			<property name="item2_count" type="int" uitext="item2_count"/>
+			<property name="item3_id" type="int" uitext="item3_ID"/>
+			<property name="item3_count" type="int" uitext="item3_count"/>
+			<property name="item4_id" type="int" uitext="item4_ID"/>
+			<property name="item4_count" type="int" uitext="item4_count"/>
+			
+			<property name="daily_exchange" type="int" uitext="daily_exchange"/>
+			<property name="daily_exchange_everyday" type="bool" uitext="daily_exchange_everyday"/>
+		</element>
+
+		<element name="ExchangeShopCategory">
+			<property name="categoryid" type="int" uitext="categoryid" unique="true"/>
+			<property name="sequence" type="int" uitext="sequence"/>
+			<property name="name" type="string" uitext="name"/>
+			<property name="localizedname" type="string" uitext="localizedname"/>
+			<property name="show" type="bool" uitext="show"/>
+			<property name="opentime" type="string" uitext="opentime"/>
+			<property name="closetime" type="string" uitext="closetime"/>
+		</element>
+	</data>
+</magicalarea51>

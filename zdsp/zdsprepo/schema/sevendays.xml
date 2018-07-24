@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <enum name="Days">
+      <item key="One" value="0"/>
+      <item key="Two" value="1"/>
+      <item key="Three" value="2"/>
+      <item key="Four" value="3"/>
+      <item key="Five" value="4"/>
+      <item key="Six" value="5"/>
+      <item key="Seven" value="6"/>
+      <item key="NUM_DAYS" value="7"/>
+    </enum>
+
+    <enum name="NewServerActivityType">
+      <item key="Level" value="0"/>
+      <item key="Points" value="1"/>
+      <item key="Normalchapter" value="2"/>
+      <item key="Elitechapter" value="3"/>
+      <item key="Hellchapter" value="4"/>
+      <item key="ChapterStars" value="5"/>
+      <item key="Herototal" value="7"/>
+      <item key="Herolevel_n" value="8"/>
+      <item key="Equipupgrade_n" value="9"/>
+      <item key="Heroskilltotal_n" value="10"/>
+      <item key="Playerfighting" value="11"/>
+      <item key="Herofighting_n" value="12"/>
+      <item key="Playertalent" value="13"/>
+      <item key="Militantrank" value="14"/>
+      <item key="Herosquality_n" value="15"/>
+    </enum>
+
+    <element name="Restriction" useexcel="true" collectionkey="itemid">
+      <property name="category" type="Days" uitext="Category"/>
+      <property name="itemid" type="int" uitext="Itemid"/>
+      <property name="itemcount" type="int" uitext="Itemcount"/>
+      <property name="displaypoints" type="int" uitext="Displaypoints"/>
+      <property name="xenjopoints" type="int" uitext="Xenjopoints"/>
+      <property name="limitcount" type="int" uitext="Limitcount"/>
+    </element>
+
+    <element name="NewServerActivitySub" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Name"/>
+    </element>
+
+    <element name="NewServerActivity" useexcel="true">
+      <property name="maincategory" type="Days" uitext="Maincategory"/>
+      <property name="subcategory" type="NewServerActivitySub" uitext="Subcategory" display="name"/>
+      <property name="type" type="NewServerActivityType" uitext="Type"/>
+      <property name="name" type="localizedstring" uitext="Name"/>
+      <property name="description" type="localizedstring" uitext="Description"/>
+      <property name="count1" type="int" uitext="Count1"/>
+      <property name="count2" type="int" uitext="Count2"/>
+      <property name="rewardlist" type="RewardList" uitext="Reward List" display="name"/>
+      <property name="link" type="LinkUIType" uitext="Link UI"/>
+    </element>
+  </data>
+</magicalarea51>

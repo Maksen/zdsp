@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="Jobsect" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Jobsect Name" display="name" />
+      <property name="jobtype" type="JobType" uitext="Job Type"/>
+      <property name="malemeshpath" type="asset" uitext="Male Mesh Path" default="" assettype="mesh"/>
+      <property name="malematerialpath" type="asset" uitext="Male Material Path" default="" assettype="material"/>
+      <property name="femalemeshpath" type="asset" uitext="Female Mesh Path" default="" assettype="mesh"/>
+      <property name="femalematerialpath" type="asset" uitext="Female Material Path" default="" assettype="material"/>      
+    </element>
+
+    <element name="GenderInfo" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="gender" type="Gender" uitext="Gender"/>
+      <property name="modelpath" type="asset" uitext="Model Prefab Path" default="" assettype="prefab"/>
+      <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="" info="x;y;rotatey;scale"/>
+    </element>
+  </data>
+</magicalarea51>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <!--<enum name="Days">
+      <item key="One" value="0"/>
+      <item key="Two" value="1"/>
+      <item key="Three" value="2"/>
+      <item key="Four" value="3"/>
+      <item key="Five" value="4"/>
+      <item key="Six" value="5"/>
+      <item key="Seven" value="6"/>
+      <item key="NUM_DAYS" value="7"/>
+    </enum>
+
+    <enum name="NewServerActivityType">
+      <item key="Level" value="0"/>
+      <item key="Points" value="1"/>
+      <item key="Normalchapter" value="2"/>
+      <item key="Elitechapter" value="3"/>
+      <item key="Hellchapter" value="4"/>
+      <item key="NormalchapterStar" value="5"/>
+      <item key="ElitechapterStar" value="6"/>
+      <item key="HellchapterStar" value="7"/>
+      <item key="Herototal" value="8"/>
+      <item key="Herolevel_n" value="9"/>
+      <item key="Equipupgrade_n" value="10"/>
+      <item key="Heroskilltotal_n" value="11"/>
+      <item key="Playerfighting" value="12"/>
+      <item key="Herofighting_n" value="13"/>
+      <item key="Playertalent" value="14"/>
+      <item key="Militantrank" value="15"/>
+    </enum>-->
+
+    <element name="SignInPrize" useexcel="true" collectionkey="itemid">
+      <property name="year" type="int" uitext="Year"/>
+      <property name="month" type="int" uitext="Month"/>
+      <property name="day" type="int" uitext="Day"/>
+      <property name="itemid" type="int" uitext="ItemID"/>
+      <property name="amount" type="int" uitext="Mount"/>
+      <property name="viplevel" type="int" uitext="VIP"/>
+      <property name="viptimes" type="int" uitext="Times"/>
+    </element>
+
+    <element name="OnlinePrize" useexcel="true" collectionkey="serial">
+      <property name="serial" type="int" uitext="Serial"/>
+      <property name="itemid" type="int" uitext="ItemID"/>
+      <property name="amount" type="int" uitext="Mount"/>
+      <property name="time" type="int" uitext="Time"/>
+    </element>
+  </data>
+</magicalarea51>

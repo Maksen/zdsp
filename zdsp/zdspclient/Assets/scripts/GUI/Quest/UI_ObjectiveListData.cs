@@ -12,11 +12,16 @@ public class UI_ObjectiveListData : MonoBehaviour
     [SerializeField]
     HyperText Objective;
 
-    public void Init(string description, bool ongoing, bool completed)
+    private QuestClientController mQuestController;
+    private int mQuestId;
+
+    public void Init(string description, bool ongoing, bool completed, QuestClientController controller, int questid)
     {
+        mQuestId = questid;
         OngoingQuest.SetActive(ongoing);
         CompletedQuest.SetActive(completed);
         Objective.text = description;
+        mQuestController = controller;
         if (ongoing)
         {
             Objective.ClickedLink.AddListener(OnClickHyperlink);
@@ -25,6 +30,6 @@ public class UI_ObjectiveListData : MonoBehaviour
 
     public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
     {
-
+        mQuestController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestId);
     }
 }

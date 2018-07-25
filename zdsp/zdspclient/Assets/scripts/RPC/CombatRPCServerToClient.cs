@@ -850,7 +850,7 @@ public partial class ClientMain : MonoBehaviour
         {
             uiRankingData.RefreshRankingData(_specialBossStatus);
         }
-
+        //-------------------------------------------------------------------------------------------------------------
         GameObject dailyQuestObj = UIManager.GetWindowGameObject(WindowType.DailyQuest);
         Model_3DAvatar model_3DAvatar = dailyQuestObj.GetComponentInChildren<Model_3DAvatar>();
         UI_SpecialBoss_Detail uiSpecialBoss = dailyQuestObj.GetComponentInChildren<UI_SpecialBoss_Detail>();

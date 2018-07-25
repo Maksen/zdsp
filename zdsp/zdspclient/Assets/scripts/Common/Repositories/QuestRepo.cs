@@ -704,7 +704,11 @@ namespace Zealot.Repository
             {
                 if (!string.IsNullOrEmpty(id))
                 {
-                    result.Add(int.Parse(id));
+                    int idresult;
+                    if (int.TryParse(id, out idresult))
+                    {
+                        result.Add(idresult);
+                    }
                 }
             }
             return result;

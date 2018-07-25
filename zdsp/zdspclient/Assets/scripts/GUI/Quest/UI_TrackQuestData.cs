@@ -28,9 +28,11 @@ public class UI_TrackQuestData : MonoBehaviour
     private Dictionary<int, long> mMOEndTime;
     private Dictionary<int, long> mSOEndTime;
     private QuestClientController mQuestController;
+    private int mQuestId;
 
     public void UpdateQuestData(CurrentQuestData questData, QuestClientController questController)
     {
+        mQuestId = questData.QuestId;
         QuestJson questJson = QuestRepo.GetQuestByID(questData.QuestId);
         if (questJson != null)
         {
@@ -48,6 +50,7 @@ public class UI_TrackQuestData : MonoBehaviour
             {
                 Description.text = mDescription;
             }
+            Description.ClickedLink.AddListener(OnClickHyperlink);
             DoingQuest.SetActive(false);
             bool submitable = questController.IsQuestCanSubmit(questData.QuestId);
             CompletedQuest.SetActive(submitable);
@@ -92,5 +95,10 @@ public class UI_TrackQuestData : MonoBehaviour
                 return GUILocalizationRepo.GetLocalizedString("quest_signboard");
         }
         return "";
+    }
+
+    public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
+    {
+        mQuestController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestId);
     }
 }

@@ -76,6 +76,7 @@ namespace Zealot.Repository
             HeroRepo.Init(GameData);
             EquipmentModdingRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("others", ref heapsize);
+            RewardListRepo.Init(GameData);
             _loaded = true;
         }
 

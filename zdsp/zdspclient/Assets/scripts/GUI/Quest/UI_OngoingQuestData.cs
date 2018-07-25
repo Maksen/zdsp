@@ -70,6 +70,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         {
             Description.text = mDescription;
         }
+        Description.ClickedLink.AddListener(OnClickHyperlink);
         Level.text = questJson.minlv.ToString();
         MapName.text = questJson.subname;
         Experience.text = "0";
@@ -141,5 +142,10 @@ public class UI_OngoingQuestData : MonoBehaviour
     {
         Description.text = mController.ReplaceEndTime(mDescription, mMOEndTime, mSOEndTime);
         StartCoroutine(EndTmeCD());
+    }
+
+    public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
+    {
+        mController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestId);
     }
 }

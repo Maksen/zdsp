@@ -1850,5 +1850,10 @@ namespace Zealot.Client.Entities
 
             GameInfo.gCombat.CutsceneManager.PlayCutscene(name);
         }
+
+        public void CheckQuestTeleportAction()
+        {
+            QuestController.CheckQuestTeleportAction();
+        }
     }
 }

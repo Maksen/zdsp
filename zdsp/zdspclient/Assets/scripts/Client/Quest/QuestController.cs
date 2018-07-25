@@ -17,6 +17,20 @@ public class QuestSynStatsClient : QuestSynStats
     
 }
 
+public class QuestTeleportAction
+{
+    public QuestObjectiveType ObjectiveType;
+    public int TargetId;
+    public int QuestId;
+
+    public QuestTeleportAction(QuestObjectiveType type, int targetid, int questid)
+    {
+        ObjectiveType = type;
+        TargetId = targetid;
+        QuestId = questid;
+    }
+}
+
 public class QuestClientController
 {
     //Main Quest
@@ -62,6 +76,7 @@ public class QuestClientController
     private HUD_QuestList mQuestListHUD;
     private Dictionary<int, bool> mNpcQuestStatus;
     private Dictionary<QuestEventType, int> mQuestIdByEventType;
+    private QuestTeleportAction mTeleportAction;
 
     public QuestClientController(PlayerGhost player)
     {
@@ -106,6 +121,8 @@ public class QuestClientController
         mQuestIdByEventType.Add(QuestEventType.Companion, -1);
         mQuestIdByEventType.Add(QuestEventType.Outfit, -1);
         mQuestIdByEventType.Add(QuestEventType.NPC, -1);
+
+        mTeleportAction = null;
     }
 
     public void Init()
@@ -1192,7 +1209,6 @@ public class QuestClientController
                 {
                     int mainid = questData.MainObjective.ObjectiveIds[0];
                     QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(mainid);
-                    HyperText hyperText = new HyperText();
                     string description = "";
                     if (objectiveJson.type != QuestObjectiveType.MultipleObj)
                     {
@@ -1248,11 +1264,13 @@ public class QuestClientController
         {
             string replacement1 = "%o_" + entry.Key + "[p1]%";
             string replacement2 = "%o_" + entry.Key + "[p2]%";
-            string replacement3 = "%pc_" + entry.Key + "%";
+            string replacement3 = "%o_" + entry.Key + "[p3]%";
+            string replacement4 = "%pc_" + entry.Key + "%";
             QuestObjectiveJson objectiveJson = entry.Value;
             description = DeserializedObjectiveTarget1(description, replacement1, objectiveJson.para1, objectiveJson.type);
-            description = DeserializedObjectiveTarget2(description, replacement2, objectiveJson.para1, objectiveJson.type);
-            description = DeserializedProgressCount(description, replacement3, progress[entry.Key]);
+            description = DeserializedObjectiveTarget2(description, replacement2, objectiveJson.para2, objectiveJson.type);
+            description = DeserializedObjectiveTarget3(description, replacement3, objectiveJson.para3, objectiveJson.type);
+            description = DeserializedProgressCount(description, replacement4, progress[entry.Key]);
         }
         return description;
     }
@@ -1261,27 +1279,38 @@ public class QuestClientController
     private string DeserializedObjectiveTarget1(string description, string replacement, int param, QuestObjectiveType type)
     {
         string targetname = "";
+        bool ishyperlink = false;
         switch (type)
         {
             case QuestObjectiveType.Kill:
             case QuestObjectiveType.PercentageKill:
                 targetname = NPCRepo.GetArchetypeById(param).localizedname;
+                ishyperlink = true;
                 break;
             case QuestObjectiveType.Talk:
             case QuestObjectiveType.Choice:
-            case QuestObjectiveType.Interact:
+            case QuestObjectiveType.QuickTalk:
                 targetname = StaticNPCRepo.GetStaticNPCById(param).localizedname;
+                ishyperlink = true;
                 break;
+            case QuestObjectiveType.Interact:
             case QuestObjectiveType.RealmComplete:
-                targetname = "";
-                break;
             case QuestObjectiveType.Empty:
+            case QuestObjectiveType.MultipleObj:
                 targetname = "";
+                ishyperlink = false;
                 break;
         }
 
-        string hyperlink = GenerateHyperlink(targetname, type, param);
-        return description.Replace(replacement, hyperlink);
+        if (ishyperlink)
+        {
+            string hyperlink = GenerateHyperlink(targetname, type, param);
+            return description.Replace(replacement, hyperlink);
+        }
+        else
+        {
+            return description.Replace(replacement, targetname);
+        }       
     }
 
     private string DeserializedObjectiveTarget2(string description, string replacement, int param, QuestObjectiveType type)
@@ -1298,12 +1327,47 @@ public class QuestClientController
             case QuestObjectiveType.Talk:
             case QuestObjectiveType.Choice:
             case QuestObjectiveType.Empty:
+            case QuestObjectiveType.MultipleObj:
+            case QuestObjectiveType.QuickTalk:
                 targetname = "";
                 break;
         }
+        
+        return description.Replace(replacement, targetname);
+    }
 
-        string result = DescriptionColor(targetname, Color.black);
-        return description.Replace(replacement, result);
+    private string DeserializedObjectiveTarget3(string description, string replacement, int param, QuestObjectiveType type)
+    {
+        string targetname = "";
+        bool ishyperlink = false;
+        switch (type)
+        {
+            case QuestObjectiveType.Kill:
+            case QuestObjectiveType.PercentageKill:
+            case QuestObjectiveType.Talk:
+            case QuestObjectiveType.Choice:
+            case QuestObjectiveType.QuickTalk:
+            case QuestObjectiveType.RealmComplete:
+            case QuestObjectiveType.Empty:
+            case QuestObjectiveType.MultipleObj:
+                targetname = "";
+                ishyperlink = false;
+                break;
+            case QuestObjectiveType.Interact:
+                targetname = NPCRepo.GetArchetypeById(param).localizedname;
+                ishyperlink = true;
+                break;
+        }
+
+        if (ishyperlink)
+        {
+            string hyperlink = GenerateHyperlink(targetname, type, param);
+            return description.Replace(replacement, hyperlink);
+        }
+        else
+        {
+            return description.Replace(replacement, targetname);
+        }
     }
 
     private string DeserializedProgressCount(string description, string replacement, int progresscount)
@@ -1979,195 +2043,125 @@ public class QuestClientController
         }
         UIManager.SetWidgetActive(HUDWidgetType.ProgressBar, false);
     }
+
+    public void ProcessObjectiveHyperLink(string linkinfo, int questid)
+    {
+        string[] objectiveinfo = linkinfo.Split(';');
+        int targetid;
+        byte type;
+        int.TryParse(objectiveinfo[1], out targetid);
+        byte.TryParse(objectiveinfo[0], out type);
+        ProceedQuestObjective((QuestObjectiveType)type, targetid, questid);
+    }
+
+    private void ProceedQuestObjective(QuestObjectiveType type, int targetid, int questid)
+    {
+        QuestJson questJson = QuestRepo.GetQuestByID(questid);
+        if (questJson != null)
+        {
+            switch (type)
+            {
+                case QuestObjectiveType.Kill:
+                case QuestObjectiveType.PercentageKill:
+                    ProceedToQuestTarget(targetid, questid, questJson.teleport, false, type);
+                    break;
+                case QuestObjectiveType.Talk:
+                case QuestObjectiveType.Choice:
+                case QuestObjectiveType.Interact:
+                    ProceedToQuestTarget(targetid, questid, questJson.teleport, true, type);
+                    break;
+                case QuestObjectiveType.QuickTalk:
+                    CurrentQuestData questData = GetQuestData(questJson.type, questid);
+                    if (questData != null)
+                    {
+                        AutoProceed(questData);
+                    }
+                    break;
+            }
+        }
+    }
+
+    public void CheckQuestTeleportAction()
+    {
+        if (mTeleportAction != null)
+        {
+            ProceedQuestObjective(mTeleportAction.ObjectiveType, mTeleportAction.TargetId, mTeleportAction.QuestId);
+            mTeleportAction = null;
+        }
+    }
+
+    private void ProceedToQuestTarget(int targetid, int questid, bool teleport, bool isnpc, QuestObjectiveType type)
+    {
+        string currentlevel = SceneManager.GetActiveScene().name;
+        string targetlevel = "";
+        Vector3 targetpos = Vector3.zero;
+        bool foundtarget = false;
+        if (isnpc)
+        {
+            StaticNPCJson staticNPCJson = StaticNPCRepo.GetStaticNPCById(targetid);
+            if (staticNPCJson != null)
+            {
+                foundtarget = NPCPosMap.FindNearestStaticNPC(staticNPCJson.archetype, currentlevel, mPlayer.Position, ref targetlevel, ref targetpos);
+            }
+        }
+        else
+        {
+            NPCJson npcJson = NPCRepo.GetArchetypeById(targetid);
+            if (npcJson != null)
+            {
+                foundtarget = NPCPosMap.FindNearestMonster(npcJson.archetype, currentlevel, mPlayer.Position, ref targetlevel, ref targetpos);
+            }
+        }
+
+        if (!foundtarget)
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
+            return;
+        }
+        else
+        {
+            mPlayer.ForceIdle();
+            mPlayer.Bot.StopBot();
+
+            if (currentlevel == targetlevel)
+            {
+                if (isnpc)
+                {
+                    mPlayer.ProceedToTarget(targetpos, targetid, CallBackAction.Interact);
+                }
+                else
+                {
+                    mPlayer.PathFindToTarget(targetpos, -1, 0, false, true, () =>
+                    {
+                        if (GameSettings.AutoBotEnabled)
+                        {
+                            mPlayer.Bot.StartBot();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                if (teleport)
+                {
+                    mTeleportAction = new QuestTeleportAction(type, targetid, questid);
+                    RPCFactory.CombatRPC.OnTeleportToLevel(targetlevel);
+                }
+                else
+                {
+                    Zealot.Bot.BotController.TheDijkstra.DoRouter(currentlevel, targetlevel, out foundtarget);
+                    if (foundtarget)
+                    {
+                        Zealot.Bot.BotController.DestLevel = targetlevel;
+                        Zealot.Bot.BotController.DestMapPos = targetpos;
+                        Zealot.Bot.BotController.DestMonsterOrNPC = isnpc ? Zealot.Bot.ReachTargetAction.NPC_Interact : Zealot.Bot.ReachTargetAction.StartBot;
+                        Zealot.Bot.BotController.DestArchtypeID = isnpc ? targetid : -1;
+                        GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
+                    }
+                    else
+                        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
+                }
+            }
+        }
+    }
 }
-
-//public class QuestSynStatsClient : QuestSynStats
-//{
-//    public QuestJson mMainQuest;
-//    public QuestJson mActivityQuest;
-
-//    public void RefreshQuest()
-//    {
-//        mMainQuest = mainId > 0 ? QuestRepo.GetQuestByID(mainId) : null;
-//        mMainObjective = QuestRepo.GetQuestObjective(mainId, mainOrder);
-
-//        mActivityQuest = activityId > 0 ? QuestRepo.GetQuestByID(activityId) : null;
-//        mActivityObjective = QuestRepo.GetQuestObjective(activityId, activityOrder);
-//    }
-
-//    public bool HasMainQuestTalk(int staticnpcid)
-//    {
-//        if (!mainEnd && mMainQuest != null)
-//        {
-//            if (mainOrder == 0)
-//            {
-//                //if (staticnpcid == mMainQuest.callernpc && GameInfo.gLocalPlayer.PlayerSynStats.progressLevel >= mMainQuest.requirelv)
-//                //    return true;
-//            }
-//            else if (mMainObjective != null && mMainObjective.type == QuestObjectiveType.Talk && mMainObjective.para1 == staticnpcid)
-//                return true;
-//        }
-//        return false;
-//    }
-
-//    public bool HasActivityQuestTalk(int staticnpcid)
-//    {
-//        if (mActivityQuest != null)
-//        {
-//            if (activityOrder == 0)
-//            {               
-//                //if (staticnpcid == mActivityQuest.callernpc && GameInfo.gLocalPlayer.PlayerSynStats.progressLevel >= mActivityQuest.requirelv)
-//                //    return true;
-//            }
-//            else if (mActivityObjective != null && mActivityObjective.type == QuestObjectiveType.Talk && mActivityObjective.para1 == staticnpcid)
-//                return true;
-//        }
-//        return false;
-//    }
-
-//    public void ProceedToMainQuestTarget(PlayerGhost player)
-//    {
-//        if (mMainObjective!=null && mMainQuest!=null )
-//        {
-//            string str = string.Format("quest:{0}, order:{1}, objective:{2}", mMainQuest.id, mainOrder, mMainObjective.id);
-//            Debug.Log(str);
-//        }        
-//        if (!mainEnd)
-//            ProceedToQuestTarget(player, mMainQuest, mainOrder, mMainObjective);
-//    }
-
-//    public void ProceedToActivityQuestTarget(PlayerGhost player)
-//    {
-//        ProceedToQuestTarget(player, mActivityQuest, activityOrder, mActivityObjective);
-//    }
-
-//    private void ProceedToQuestTarget(PlayerGhost player, QuestJson questJson, int order, QuestObjectiveJson objective)
-//    {
-//        if (questJson == null)
-//            return;
-//        //if (player.PlayerSynStats.progressLevel < questJson.requirelv)
-//        //{
-//        //    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_LevelTooLow").Replace("{level}", questJson.requirelv.ToString()));
-//        //    return;
-//        //}
-//        if (!player.CanStartNewBot())
-//            return;
-//        int questid = questJson.questid;
-//        //if (order == 0)
-//        //    PathFindToTarget(questJson.callernpc, true, questid, player);
-//        //else if (objective != null)
-//        //{
-//            switch (objective.type)
-//            {
-//                case QuestObjectiveType.Kill:
-//                    PathFindToTarget(objective.para1, false, questid, player);
-//                    break;
-//                case QuestObjectiveType.Talk:
-//                    PathFindToTarget(objective.para1, true, questid, player);
-//                    break;
-//                case QuestObjectiveType.RealmComplete:
-//                    int realmid = objective.para1;
-//                    RealmJson realmJson = RealmRepo.GetInfoById(realmid);
-//                    switch (realmJson.type)
-//                    {
-//                        case RealmType.DungeonStory:
-//                        case RealmType.DungeonDailySpecial:
-//                           // UIManager.OpenWindow(WindowType.Dungeon, (window) => window.GetComponent<UI_Dungeons>().GoToSpecificRealm(realmid));
-//                            break;
-//                    }
-//                    break;
-//                case QuestObjectiveType.Item:
-//                    break;
-//            }
-//        //}
-//    }
-
-//    private void PathFindToTarget(int archetypeid, bool isnpc, int questid, PlayerGhost player)
-//    {
-//        string levelname = SceneManager.GetActiveScene().name;
-//        string level_target = "";
-//        Vector3 pos_target = Vector3.zero;
-//        if (isnpc)
-//        {
-//            StaticNPCJson staticNPCJson = StaticNPCRepo.GetStaticNPCById(archetypeid);
-//            if (staticNPCJson != null)
-//            {
-//                bool find = NPCPosMap.FindNearestStaticNPC(staticNPCJson.archetype, levelname, player.Position, ref level_target, ref pos_target);
-//                if (!find)
-//                {
-//                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
-//                    return;
-//                }                
-//                player.Bot.StopBot();
-//                if (level_target == levelname)
-//                {
-//                    player.ProceedToTarget(pos_target, archetypeid, CallBackAction.Interact);
-//                    //Debug.Log("start seeking  ");
-//                }
-//                else
-//                {
-//                    bool found = false;
-//                    Zealot.Bot.BotController.TheDijkstra.DoRouter(levelname, level_target, out found);
-//                    if (found)
-//                    {
-//                        Zealot.Bot.BotController.DestLevel = level_target;
-//                        Zealot.Bot.BotController.DestMapPos = pos_target;
-//                        Zealot.Bot.BotController.DestMonsterOrNPC = Zealot.Bot.ReachTargetAction.NPC_Interact;
-//                        Zealot.Bot.BotController.DestArchtypeID = archetypeid;
-//                        GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
-//                        //Debug.Log("start seeking with router.");
-//                    }
-//                    else
-//                        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
-//                }
-//            }
-//        }
-//        else
-//        {
-//            NPCJson npcJson = NPCRepo.GetArchetypeById(archetypeid);
-//            if (npcJson != null)
-//            {
-//                bool find = NPCPosMap.FindNearestMonster(npcJson.archetype, levelname, player.Position, ref level_target, ref pos_target);
-//                if (!find)
-//                {
-//                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
-//                    return;
-//                }
-//                player.ForceIdle();
-//                player.Bot.StopBot();
-
-//                if (level_target == levelname)
-//                {
-//                    player.PathFindToTarget(pos_target, -1, 0, false, true, () =>
-//                    {
-//                        if (GameSettings.AutoBotEnabled)
-//                            player.Bot.StartBot();
-//                    });
-//                }
-//                else
-//                {
-//                    bool found = false;
-//                    Zealot.Bot.BotController.TheDijkstra.DoRouter(levelname, level_target, out found);
-//                    if (found)
-//                    {
-//                        Zealot.Bot.BotController.DestLevel = level_target;
-//                        Zealot.Bot.BotController.DestMapPos = NPCPosMap.GetRandomSpawnerPosition(level_target, npcJson.archetype);
-//                        Zealot.Bot.BotController.DestMonsterOrNPC = Zealot.Bot.ReachTargetAction.StartBot;
-//                        GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
-//                    }
-//                    else
-//                        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget")); 
-//                }
-//            }
-//        }
-//    }
-
-//    private void OnConfirmTeleport(int targetid, bool isnpc, string location, int questid)
-//    {
-//        //if (isnpc)
-//        //    BotCrossLevelVariables.Remember(true, questType, -1, false);
-//        //else
-//        //    BotCrossLevelVariables.Remember(true, questType, targetid, false);
-//        RPCFactory.CombatRPC.OnTeleportToLevel(location);
-//    }
-//}

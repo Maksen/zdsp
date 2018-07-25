@@ -518,6 +518,7 @@ public partial class ClientMain : MonoBehaviour
     {
         GameInfo.gLocalPlayer.InitMap();
         GameInfo.gLocalPlayer.SetHeadLabel(true);
+        GameInfo.gLocalPlayer.CheckQuestTeleportAction();
         //handle auto combat .
         bool startbot = false;
         RealmJson mRealmInfo = GameInfo.mRealmInfo;

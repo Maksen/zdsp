@@ -91,6 +91,8 @@ public class UI_MainQuest : MonoBehaviour
         {
             ObjectiveDescription.text = mDescription;
         }
+        ObjectiveDescription.ClickedLink.RemoveAllListeners();
+        ObjectiveDescription.ClickedLink.AddListener(OnClickHyperlink);
         Experience.text = "0";
         JobExperience.text = "0";
         
@@ -157,5 +159,10 @@ public class UI_MainQuest : MonoBehaviour
     {
         ObjectiveDescription.text = mQuestController.ReplaceEndTime(mDescription, mMOEndTime, mSOEndTime);
         StartCoroutine(EndTmeCD());
+    }
+
+    public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
+    {
+        mQuestController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestData.QuestId);
     }
 }

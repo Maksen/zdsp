@@ -14,6 +14,7 @@
       <property name ="costtype" type ="string" uitext="Cost Type"/> <!--Need a new enum for this ba-->
       <property name ="costab" type ="bool" uitext="Cost AB" info="true if it's absolute value, false if percentage"/>
       <property name ="lvstacked" type ="bool" uitext="Level Stacked"/>
+      <property name ="skillclass" type ="SkillClass" uitext="Skill Class" default="0"/>
       <property name="skilltype" type="SkillType" uitext="Skill Type" default ="0"/>
       <property name="skillbehavior" type="SkillBehaviour" uitext="SkillBehaviour" default ="0"/>
       <property name="targettype" type="TargetType" uitext="Target Type" default ="0"/>

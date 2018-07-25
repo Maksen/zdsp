@@ -40,6 +40,8 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     Model_3DAvatar m3DAvatar;
 
+    ItemBaseJson itemData;
+
     void OnEnable()
     {
         BigBossToggle.onValueChanged.RemoveAllListeners();
@@ -71,6 +73,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         GameObject bigBossDataObj = bigBossObjList[0];
         BossListData bigBossData = bigBossDataObj.GetComponent<BossListData>();
         GetBossListData(bigBossData.boss_id);
+        DrawRewardListGameIcons(bigBossData.rewardIdGroupid);
 
         UIManager.StopHourglass();
     }
@@ -96,6 +99,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         {
             ClearBigBossListData();
             ClearMiniBossListData();
+
             ScoreName.text = GUILocalizationRepo.GetLocalizedString("wb_PartyScore");
 
             List<SpecialBossStatus> bigBosses = new List<SpecialBossStatus>();
@@ -119,6 +123,10 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
                 bigBossObjList.Add(newWorldBossListObj);
             }
+
+            GameObject bigBossDataObj = bigBossObjList[0];
+            BossListData bigBossData = bigBossDataObj.GetComponent<BossListData>();
+            GetBossListData(bigBossData.boss_id);
         }
     }
 
@@ -128,6 +136,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         {
             ClearBigBossListData();
             ClearMiniBossListData();
+
             ScoreName.text = GUILocalizationRepo.GetLocalizedString("wb_DamangeScore");
 
             List<SpecialBossStatus> miniBosses = new List<SpecialBossStatus>();
@@ -151,6 +160,10 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
                 miniBossObjList.Add(newMiniBossListObj);
             }
+
+            GameObject MiniBossDataObj = miniBossObjList[0];
+            BossListData bigBossData = MiniBossDataObj.GetComponent<BossListData>();
+            GetBossListData(bigBossData.boss_id);
         }
     }
 
@@ -186,9 +199,32 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         miniBossObjList.Clear();
     }
 
-    public void DrawRewardListGameIcons(int rewardid)
+    public void DrawRewardListGameIcons(int rewardIdGroupid)
     {
-        GameRepo.ItemFactory.GetItemById(rewardid);
+        //取得獎勵組的所有獎勵
+        var rewardGroupDic = RewardListRepo.GetRewardDicByGrpId(rewardIdGroupid);
+
+        if (rewardGroupDic != null)
+        {
+            foreach (var reward in rewardGroupDic.Values)
+            {
+                for (int i = 0; i < reward.itemRewardLst.Count; ++i)
+                {
+                    itemData = GameRepo.ItemFactory.GetItemById(reward.itemRewardLst[i].id);
+                    GameObject obj = CreateIcon(DropPrefab);
+                    GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
+                    mcIcon.Init(itemData.id, reward.itemRewardLst.Count, false);
+                }
+            }
+        }
+        
+    }
+
+    private GameObject CreateIcon(GameObject prefab)
+    {
+        GameObject obj = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+        obj.transform.SetParent(DropContent.transform, false);
+        return obj;
     }
 
     void OnDestroy()

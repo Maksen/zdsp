@@ -1054,7 +1054,6 @@ namespace Photon.LoadBalancing.GameServer
         private void AutoAssignNewQuest()
         {
             TriggerQuestByLevel();
-            TriggerQuestByHero();
         }
 
         public void KillCheck(int monsterid, int count)
@@ -1111,11 +1110,6 @@ namespace Photon.LoadBalancing.GameServer
                     TriggerNewQuest(questJson.questid, mPlayer.PlayerSynStats.Level);
                 }
             }
-        }
-
-        private void TriggerQuestByHero()
-        {
-
         }
 
         private List<QuestJson> OrderAcceptableQuestList(List<int> idlist)

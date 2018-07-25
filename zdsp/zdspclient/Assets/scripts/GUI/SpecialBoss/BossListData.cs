@@ -15,16 +15,19 @@ public class BossListData : BaseWindowBehaviour
     public Material DeadMaterial;
 
     public int boss_id;
-    public int rewardid;
+    public int rewardIdGroupid;
     public Toggle BossListToggle;
     private UI_SpecialBoss_Detail BossListClickData;
-
-    //public GameObject SpawnTimeObj;
 
     void Awake()
     {
         BossListToggle.onValueChanged.RemoveAllListeners();
         BossListToggle.onValueChanged.AddListener(BossListOnClick);
+    }
+
+    void Update()
+    {
+
     }
 
     public void RefreshWorldBossListData(UI_SpecialBoss_Detail  uiSpecialBossDetails, Dictionary<int, SpecialBossStatus> specialBossStatus)
@@ -43,9 +46,9 @@ public class BossListData : BaseWindowBehaviour
 
         boss_id = bossStatus.id;
         var boss_info = SpecialBossRepo.GetInfoById(boss_id);
-
-        rewardid = boss_info.displayrewardgroupid;
-        BossListClickData.DrawRewardListGameIcons(rewardid);
+        
+        //取得獎勵組ID
+        rewardIdGroupid = boss_info.displayrewardgroupid;
 
         string scene_name = LevelReader.GetSpecialBossLocationData(boss_id).mLevel;
         var level_info = LevelRepo.GetInfoByName(scene_name);
@@ -74,6 +77,7 @@ public class BossListData : BaseWindowBehaviour
         if (BossListClick)
         {
             BossListClickData.GetBossListData(boss_id);
+            BossListClickData.DrawRewardListGameIcons(rewardIdGroupid);
         }
     }
 

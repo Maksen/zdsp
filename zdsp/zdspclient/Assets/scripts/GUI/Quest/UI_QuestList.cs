@@ -114,7 +114,7 @@ public class UI_QuestList : MonoBehaviour
                         bool ongoing = mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq ? true : false;
                         string description = mQuestController.DeserializedDescription(QuestType.Main, SelectedQuestId, objectiveid, completed, ongoing);
                         GameObject objectivedetail = Instantiate(ObjectiveDetail);
-                        objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed);
+                        objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed, mQuestController, SelectedQuestId);
                         objectivedetail.transform.SetParent(ObjectiveList, false);
                         mObjectiveList.Add(objectivedetail);
                     }
@@ -127,7 +127,7 @@ public class UI_QuestList : MonoBehaviour
                             bool ongoing = mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq && mQuestData.SubObjective[SelectedQuestId].SequenceNum == subobjective.Key ? true : false;
                             string description = mQuestController.DeserializedDescription(QuestType.Main, SelectedQuestId, objectiveid, subobjective.Value, completed, ongoing);
                             GameObject objectivedetail = Instantiate(ObjectiveDetail);
-                            objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed);
+                            objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed, mQuestController, SelectedQuestId);
                             objectivedetail.transform.SetParent(ObjectiveList, false);
                             mObjectiveList.Add(objectivedetail);
                         }

@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f716ec81201fa84c991b71f8f90a277, type: 3}
+  m_Name: Effects_ZDSP_characters
+  m_EditorClassIdentifier: 
+  preload: 1
+  build: 1
+  individualAssetBundle: 0
+  containerAssetsPath: Effects_ZDSP/characters
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: blade/female/prefab/blade_atk1.prefab
+    asset: {fileID: 1932502916996350, guid: 14c4e9434c62ce4439491b8f84fa1ff2, type: 2}
+  - assetPath: blade/female/prefab/blade_atk1_hit.prefab
+    asset: {fileID: 1632125570322130, guid: 556e7a21023eaca4d91fc75fa5c14dc2, type: 2}
+  - assetPath: blade/female/prefab/blade_atk2.prefab
+    asset: {fileID: 1099437669642438, guid: ba21cc2387a707145860a52bf7a3bf02, type: 2}
+  - assetPath: blade/female/prefab/blade_atk2_hit.prefab
+    asset: {fileID: 1967565456343670, guid: 196a2d8811de6b149aadab94b1e99753, type: 2}
+  - assetPath: blade/female/prefab/blade_atk3.prefab
+    asset: {fileID: 1030134995415104, guid: 2aa7995df6f76724483f8d42a0011a45, type: 2}
+  - assetPath: blade/female/prefab/blade_atk3_hit.prefab
+    asset: {fileID: 1788781703134980, guid: 1774f62e7bd51c74892965a6453b6bf6, type: 2}
+  - assetPath: blade/female/prefab/blade_directatk.prefab
+    asset: {fileID: 1431989857555032, guid: c5b829af36f03a34287adcf1b5ef2744, type: 2}
+  - assetPath: blade/female/prefab/blade_loopef.prefab
+    asset: {fileID: 1675876767986160, guid: b86cfcaa061adaa4c95b105eb54c6be6, type: 2}
+  - assetPath: blade/male/prefab/blade_atk1.prefab
+    asset: {fileID: 1271134424913360, guid: 9ac1fc05878590940abe50c4a247342c, type: 2}
+  - assetPath: blade/male/prefab/blade_atk1_hit.prefab
+    asset: {fileID: 1971749295093284, guid: c1b4c4984e12448409915979dc6e8fd6, type: 2}
+  - assetPath: blade/male/prefab/blade_atk2.prefab
+    asset: {fileID: 1157222603675920, guid: 8090d5fe2598de541aa778882a10f5d6, type: 2}
+  - assetPath: blade/male/prefab/blade_atk2_hit.prefab
+    asset: {fileID: 1922780031542190, guid: 3a619788c2a5264489534e459dbe2e8a, type: 2}
+  - assetPath: blade/male/prefab/blade_atk3.prefab
+    asset: {fileID: 1951595974009368, guid: e122e86cb162e37478012577f8da96e0, type: 2}
+  - assetPath: blade/male/prefab/blade_atk3_hit.prefab
+    asset: {fileID: 1648508391608740, guid: 1288f4a9b1153aa478d6791031865a53, type: 2}
+  - assetPath: buff/prefab/earth_hit.prefab
+    asset: {fileID: 1391850164442682, guid: a83970b19a7a75a46a3a68199516eee2, type: 2}
+  - assetPath: buff/prefab/fire_hit.prefab
+    asset: {fileID: 1168788419207052, guid: 91985a2f0699c9444b3883684bf60c1f, type: 2}
+  - assetPath: buff/prefab/hit_crit.prefab
+    asset: {fileID: 1275920898082214, guid: 5525a8baf89ea5449a31d3830eb7ff80, type: 2}
+  - assetPath: buff/prefab/level_up.prefab
+    asset: {fileID: 1956255216032410, guid: 25218fc8a0027d145bc005937bcf2689, type: 2}
+  - assetPath: buff/prefab/metal_hit.prefab
+    asset: {fileID: 1164287252322072, guid: a73afcfeb615edb47a10431d760e7f97, type: 2}
+  - assetPath: buff/prefab/none_hit.prefab
+    asset: {fileID: 1815643981019478, guid: 63b2955647a0051419c4dea10b2375de, type: 2}
+  - assetPath: buff/prefab/none_hit_02.prefab
+    asset: {fileID: 1808836116236008, guid: 4c4dc3be23d87ee48878dc90b23a622b, type: 2}
+  - assetPath: buff/prefab/water_hit.prefab
+    asset: {fileID: 1111517432378362, guid: 9751824655b5bd5498c6265c8b2067b9, type: 2}
+  - assetPath: dagger/male/prefab/dagger_atk1.prefab
+    asset: {fileID: 1562984435176506, guid: 62b97394e7975994e80f48f22e2b5f1f, type: 2}
+  - assetPath: dagger/male/prefab/dagger_atk1_hit.prefab
+    asset: {fileID: 1690740585450720, guid: 837cbab753316a4498440f7b6646da6e, type: 2}
+  - assetPath: dagger/male/prefab/dagger_atk2.prefab
+    asset: {fileID: 1658549039938470, guid: 4d26873ab82e10f458948ff0b5d5673d, type: 2}
+  - assetPath: dagger/male/prefab/dagger_atk2_hit.prefab
+    asset: {fileID: 1800849715280168, guid: 0181a6e5057352d42ae23a09fae84f2a, type: 2}
+  - assetPath: dagger/male/prefab/dagger_atk3.prefab
+    asset: {fileID: 1447929401362148, guid: 0d4ce95cbcc7cf24f8463aab6f9bbbad, type: 2}
+  - assetPath: dagger/male/prefab/dagger_atk3_hit.prefab
+    asset: {fileID: 1216555009153730, guid: 12cb8f73a4285e3459d48d5a5bc8af5b, type: 2}
+  - assetPath: dagger/male/prefab/dagger_dying.prefab
+    asset: {fileID: 1400331050918554, guid: 80af54ae394f59d4d9d3a7a91ab037e8, type: 2}
+  - assetPath: dagger/male/prefab/dagger_run.prefab
+    asset: {fileID: 1353217252278740, guid: fe241241d73e2f048bebaf1b441f522a, type: 2}
+  - assetPath: fan/female/prefab/fan_atk1.prefab
+    asset: {fileID: 1299947290741292, guid: ab22e0e328dd24b498fcf943d29c11da, type: 2}
+  - assetPath: fan/female/prefab/fan_atk1_hit.prefab
+    asset: {fileID: 1027720177952078, guid: 9263ce2b2fbb52c48a8597a819524b17, type: 2}
+  - assetPath: fan/female/prefab/fan_atk2.prefab
+    asset: {fileID: 1303744575576288, guid: 8f2c6603e4235574d85d86bdbe0dddad, type: 2}
+  - assetPath: fan/female/prefab/fan_atk2_hit.prefab
+    asset: {fileID: 1472307367793830, guid: 32b641887778f1a499b280680458e440, type: 2}
+  - assetPath: fan/female/prefab/fan_atk3.prefab
+    asset: {fileID: 1645218358441170, guid: 30daade352fd68e49ae3d3d09f391e2a, type: 2}
+  - assetPath: fan/female/prefab/fan_dying.prefab
+    asset: {fileID: 1931983803528276, guid: 40401eb97811d644da89d177f0eb9c6b, type: 2}
+  - assetPath: fan/female/prefab/fan_run.prefab
+    asset: {fileID: 1668075173206460, guid: 2e72a2f72185d69468c8fba89c5f04ca, type: 2}
+  - assetPath: hammer/male/prefab/hammer_atk1.prefab
+    asset: {fileID: 1815928120117684, guid: 4084ce6c0aae4524098a95504636d04b, type: 2}
+  - assetPath: hammer/male/prefab/hammer_atk1_hit.prefab
+    asset: {fileID: 1368723714265910, guid: 914b49621e4456c49b9f31d345abcd91, type: 2}
+  - assetPath: hammer/male/prefab/hammer_atk2.prefab
+    asset: {fileID: 1768172601328298, guid: e2c21713af1b0b64f8fd5d3c354cb134, type: 2}
+  - assetPath: hammer/male/prefab/hammer_atk2_hit.prefab
+    asset: {fileID: 1234006898130622, guid: 760ceddeae65fff4eb0c90e78fecc6c4, type: 2}
+  - assetPath: hammer/male/prefab/hammer_atk3.prefab
+    asset: {fileID: 1989419670547124, guid: 1bc5663ae40f87e4094a91547d1f4578, type: 2}
+  - assetPath: hammer/male/prefab/hammer_atk3_hit.prefab
+    asset: {fileID: 1563207924610624, guid: bb06ea6487e1be847ab6afe15b2bfa7a, type: 2}
+  - assetPath: lance/female/prefab/dying.prefab
+    asset: {fileID: 1472305554231290, guid: fc745692691387d49b15210a08694712, type: 2}
+  - assetPath: lance/female/prefab/lance_atk1.prefab
+    asset: {fileID: 1719933898985690, guid: 844ac07cb81269842b4e3db9941fcdcf, type: 2}
+  - assetPath: lance/female/prefab/lance_atk1_hit.prefab
+    asset: {fileID: 1427265290453908, guid: 359ee886941962e419bf770a66f91a28, type: 2}
+  - assetPath: lance/female/prefab/lance_atk2.prefab
+    asset: {fileID: 1708226865872960, guid: c4a32f3fdc47dd146a411571f651009c, type: 2}
+  - assetPath: lance/female/prefab/lance_atk2_end.prefab
+    asset: {fileID: 1375111890047716, guid: 70177af48bbe35e4381a24d065f8b2bb, type: 2}
+  - assetPath: lance/female/prefab/lance_atk2_hit.prefab
+    asset: {fileID: 1091817636557474, guid: a8f4990df15748d4996a835134446acc, type: 2}
+  - assetPath: lance/female/prefab/lance_atk3.prefab
+    asset: {fileID: 1153667745955918, guid: 17c46e8ee4f279d40b0af397178f343d, type: 2}
+  - assetPath: lance/female/prefab/lance_atk3_hit.prefab
+    asset: {fileID: 1242614188624798, guid: 52b6320cf3852124d83ad2500adfe613, type: 2}
+  - assetPath: lance/female/prefab/run.prefab
+    asset: {fileID: 1965606694579242, guid: 94698a17eb0400640bdb8a9f11bde690, type: 2}
+  - assetPath: lance/male/prefab/dying.prefab
+    asset: {fileID: 1127485371976302, guid: f49e2bdcb90a7f849990e6983d9ce2db, type: 2}
+  - assetPath: lance/male/prefab/lance_atk1.prefab
+    asset: {fileID: 1908232158234722, guid: d3eac09f363d7274496bf38cbec67414, type: 2}
+  - assetPath: lance/male/prefab/lance_atk1_hit.prefab
+    asset: {fileID: 1962552342988242, guid: 6f28f095221499844b23ca708a1b20a1, type: 2}
+  - assetPath: lance/male/prefab/lance_atk2.prefab
+    asset: {fileID: 1424286083912166, guid: b9faaac87218cd94ba6cddde15e80d55, type: 2}
+  - assetPath: lance/male/prefab/lance_atk2_end.prefab
+    asset: {fileID: 1367062732503268, guid: 413fed8de494ea743966d323f16aa549, type: 2}
+  - assetPath: lance/male/prefab/lance_atk2_hit.prefab
+    asset: {fileID: 1222948903878094, guid: c54ebf843d856c24ba19393f91c408b4, type: 2}
+  - assetPath: lance/male/prefab/lance_atk3.prefab
+    asset: {fileID: 1767857841013952, guid: ed85c42d12609ce4db40a29bcb1d7557, type: 2}
+  - assetPath: lance/male/prefab/lance_atk3_hit.prefab
+    asset: {fileID: 1544993490564016, guid: a1ffcf51f6ae382469e19ff808e8873b, type: 2}
+  - assetPath: lance/male/prefab/run.prefab
+    asset: {fileID: 1611337554464456, guid: 6282699a0dbe08e46adec0ab27db6584, type: 2}
+  PrefabList:
+  - {fileID: 1932502916996350, guid: 14c4e9434c62ce4439491b8f84fa1ff2, type: 2}
+  - {fileID: 1632125570322130, guid: 556e7a21023eaca4d91fc75fa5c14dc2, type: 2}
+  - {fileID: 1099437669642438, guid: ba21cc2387a707145860a52bf7a3bf02, type: 2}
+  - {fileID: 1967565456343670, guid: 196a2d8811de6b149aadab94b1e99753, type: 2}
+  - {fileID: 1030134995415104, guid: 2aa7995df6f76724483f8d42a0011a45, type: 2}
+  - {fileID: 1788781703134980, guid: 1774f62e7bd51c74892965a6453b6bf6, type: 2}
+  - {fileID: 1431989857555032, guid: c5b829af36f03a34287adcf1b5ef2744, type: 2}
+  - {fileID: 1675876767986160, guid: b86cfcaa061adaa4c95b105eb54c6be6, type: 2}
+  - {fileID: 1271134424913360, guid: 9ac1fc05878590940abe50c4a247342c, type: 2}
+  - {fileID: 1971749295093284, guid: c1b4c4984e12448409915979dc6e8fd6, type: 2}
+  - {fileID: 1157222603675920, guid: 8090d5fe2598de541aa778882a10f5d6, type: 2}
+  - {fileID: 1922780031542190, guid: 3a619788c2a5264489534e459dbe2e8a, type: 2}
+  - {fileID: 1951595974009368, guid: e122e86cb162e37478012577f8da96e0, type: 2}
+  - {fileID: 1648508391608740, guid: 1288f4a9b1153aa478d6791031865a53, type: 2}
+  - {fileID: 1391850164442682, guid: a83970b19a7a75a46a3a68199516eee2, type: 2}
+  - {fileID: 1168788419207052, guid: 91985a2f0699c9444b3883684bf60c1f, type: 2}
+  - {fileID: 1275920898082214, guid: 5525a8baf89ea5449a31d3830eb7ff80, type: 2}
+  - {fileID: 1956255216032410, guid: 25218fc8a0027d145bc005937bcf2689, type: 2}
+  - {fileID: 1164287252322072, guid: a73afcfeb615edb47a10431d760e7f97, type: 2}
+  - {fileID: 1815643981019478, guid: 63b2955647a0051419c4dea10b2375de, type: 2}
+  - {fileID: 1808836116236008, guid: 4c4dc3be23d87ee48878dc90b23a622b, type: 2}
+  - {fileID: 1111517432378362, guid: 9751824655b5bd5498c6265c8b2067b9, type: 2}
+  - {fileID: 1562984435176506, guid: 62b97394e7975994e80f48f22e2b5f1f, type: 2}
+  - {fileID: 1690740585450720, guid: 837cbab753316a4498440f7b6646da6e, type: 2}
+  - {fileID: 1658549039938470, guid: 4d26873ab82e10f458948ff0b5d5673d, type: 2}
+  - {fileID: 1800849715280168, guid: 0181a6e5057352d42ae23a09fae84f2a, type: 2}
+  - {fileID: 1447929401362148, guid: 0d4ce95cbcc7cf24f8463aab6f9bbbad, type: 2}
+  - {fileID: 1216555009153730, guid: 12cb8f73a4285e3459d48d5a5bc8af5b, type: 2}
+  - {fileID: 1400331050918554, guid: 80af54ae394f59d4d9d3a7a91ab037e8, type: 2}
+  - {fileID: 1353217252278740, guid: fe241241d73e2f048bebaf1b441f522a, type: 2}
+  - {fileID: 1299947290741292, guid: ab22e0e328dd24b498fcf943d29c11da, type: 2}
+  - {fileID: 1027720177952078, guid: 9263ce2b2fbb52c48a8597a819524b17, type: 2}
+  - {fileID: 1303744575576288, guid: 8f2c6603e4235574d85d86bdbe0dddad, type: 2}
+  - {fileID: 1472307367793830, guid: 32b641887778f1a499b280680458e440, type: 2}
+  - {fileID: 1645218358441170, guid: 30daade352fd68e49ae3d3d09f391e2a, type: 2}
+  - {fileID: 1931983803528276, guid: 40401eb97811d644da89d177f0eb9c6b, type: 2}
+  - {fileID: 1668075173206460, guid: 2e72a2f72185d69468c8fba89c5f04ca, type: 2}
+  - {fileID: 1815928120117684, guid: 4084ce6c0aae4524098a95504636d04b, type: 2}
+  - {fileID: 1368723714265910, guid: 914b49621e4456c49b9f31d345abcd91, type: 2}
+  - {fileID: 1768172601328298, guid: e2c21713af1b0b64f8fd5d3c354cb134, type: 2}
+  - {fileID: 1234006898130622, guid: 760ceddeae65fff4eb0c90e78fecc6c4, type: 2}
+  - {fileID: 1989419670547124, guid: 1bc5663ae40f87e4094a91547d1f4578, type: 2}
+  - {fileID: 1563207924610624, guid: bb06ea6487e1be847ab6afe15b2bfa7a, type: 2}
+  - {fileID: 1472305554231290, guid: fc745692691387d49b15210a08694712, type: 2}
+  - {fileID: 1719933898985690, guid: 844ac07cb81269842b4e3db9941fcdcf, type: 2}
+  - {fileID: 1427265290453908, guid: 359ee886941962e419bf770a66f91a28, type: 2}
+  - {fileID: 1708226865872960, guid: c4a32f3fdc47dd146a411571f651009c, type: 2}
+  - {fileID: 1375111890047716, guid: 70177af48bbe35e4381a24d065f8b2bb, type: 2}
+  - {fileID: 1091817636557474, guid: a8f4990df15748d4996a835134446acc, type: 2}
+  - {fileID: 1153667745955918, guid: 17c46e8ee4f279d40b0af397178f343d, type: 2}
+  - {fileID: 1242614188624798, guid: 52b6320cf3852124d83ad2500adfe613, type: 2}
+  - {fileID: 1965606694579242, guid: 94698a17eb0400640bdb8a9f11bde690, type: 2}
+  - {fileID: 1127485371976302, guid: f49e2bdcb90a7f849990e6983d9ce2db, type: 2}
+  - {fileID: 1908232158234722, guid: d3eac09f363d7274496bf38cbec67414, type: 2}
+  - {fileID: 1962552342988242, guid: 6f28f095221499844b23ca708a1b20a1, type: 2}
+  - {fileID: 1424286083912166, guid: b9faaac87218cd94ba6cddde15e80d55, type: 2}
+  - {fileID: 1367062732503268, guid: 413fed8de494ea743966d323f16aa549, type: 2}
+  - {fileID: 1222948903878094, guid: c54ebf843d856c24ba19393f91c408b4, type: 2}
+  - {fileID: 1767857841013952, guid: ed85c42d12609ce4db40a29bcb1d7557, type: 2}
+  - {fileID: 1544993490564016, guid: a1ffcf51f6ae382469e19ff808e8873b, type: 2}
+  - {fileID: 1611337554464456, guid: 6282699a0dbe08e46adec0ab27db6584, type: 2}

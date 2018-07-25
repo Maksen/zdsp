@@ -1,0 +1,150 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9df00c3f94ede3409be772df152a5f5, type: 3}
+  m_Name: Models_Characters
+  m_EditorClassIdentifier: 
+  preload: 0
+  build: 1
+  individualAssetBundle: 1
+  containerAssetsPath: Models/Characters
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: Pc_face/Materials/face_000_base_female.mat
+    asset: {fileID: 2100000, guid: a0374d0666d7ac04580b441dbc9610d0, type: 2}
+  - assetPath: Pc_face/Materials/face_000_base_male.mat
+    asset: {fileID: 2100000, guid: 5227f55e5a1738044b8f7fdd0b79f514, type: 2}
+  - assetPath: Pc_face/Materials/Materials/face_000_base_male.mat
+    asset: {fileID: 2100000, guid: 177be1997a0db9040a4ff69316345660, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_000_base_female_body.mat
+    asset: {fileID: 2100000, guid: df950d7893c0d06439c8b626bc614b9b, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_000_base_male_body.mat
+    asset: {fileID: 2100000, guid: 00416ed3135e99b42880eb9c30bbab8f, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_body.mat
+    asset: {fileID: 2100000, guid: 63b0ac8261d4c11408672f98615e4011, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_head.mat
+    asset: {fileID: 2100000, guid: 2473374d11cbf9d428b356b7f3eb10f3, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_head_glasses.mat
+    asset: {fileID: 2100000, guid: b20dca3d8a964a948bcea9460a4f9d42, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_weapon.mat
+    asset: {fileID: 2100000, guid: 049dbd2a178985d4681afab6e6e501ee, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_male_body.mat
+    asset: {fileID: 2100000, guid: 846ca7b5064b6c94cb022721c4501251, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_male_head.mat
+    asset: {fileID: 2100000, guid: 7a860c4714e08b64eb6a83c23b2cba22, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_male_weapon.mat
+    asset: {fileID: 2100000, guid: 45a06dfa01812ee4e975eaad70c31689, type: 2}
+  - assetPath: Pc_job/Materials/t3_bladeMaster_female_body.mat
+    asset: {fileID: 2100000, guid: 76ffce312483e71478c816cf566e5e3b, type: 2}
+  - assetPath: Pc_job/Materials/t3_bladeMaster_female_head.mat
+    asset: {fileID: 2100000, guid: cc92bfe1422cbef4894ca8ca5e2f34c2, type: 2}
+  - assetPath: Pc_job/Materials/t3_bladeMaster_male_body.mat
+    asset: {fileID: 2100000, guid: 12f99d17be4023a4db9e123c8a505d58, type: 2}
+  - assetPath: Pc_job/Materials/t3_bladeMaster_male_head.mat
+    asset: {fileID: 2100000, guid: 7f4ebf007f1dad344968313b469eb897, type: 2}
+  - assetPath: Pc_job/Materials/Materials/t3_bladeMaster_female_head.mat
+    asset: {fileID: 2100000, guid: 0ad28427e7c6098439305c5548cbcfd0, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_blade_class_t3.mat
+    asset: {fileID: 2100000, guid: 90b8dc4704e0402429ce2038e31c5308, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_sword_class_t3.mat
+    asset: {fileID: 2100000, guid: b0d42becc48724143b1bfd31cab5ca78, type: 2}
+  - assetPath: Pc_animation/female_blade/famale_blade.fbx
+    asset: {fileID: 4300004, guid: de67e523b4761df4b8be5faf5a5bbf57, type: 3}
+  - assetPath: Pc_animation/female_sword/famale_sword.fbx
+    asset: {fileID: 4300004, guid: b56a44f0c057b394598dee49b587ec5e, type: 3}
+  - assetPath: Pc_animation/male_blade/male_blade.fbx
+    asset: {fileID: 4300000, guid: 891887c64f4486348809bab37ebb56ce, type: 3}
+  - assetPath: Pc_animation/male_dagger/male_dagger.fbx
+    asset: {fileID: 4300000, guid: a24f40860c9cd3e4082aebeb970ae9b1, type: 3}
+  - assetPath: Pc_animation/male_hammer/hammer_dying.fbx
+    asset: {fileID: 4300000, guid: 865c9173e7cf5ea43bfbb707c7b34c35, type: 3}
+  - assetPath: Pc_animation/male_hammer/male_hammer_0-6_10-36_37-38_40-55.fbx
+    asset: {fileID: 4300000, guid: a296626749388c646bfc855c7648bd4a, type: 3}
+  - assetPath: Pc_animation/male_hammer/male_hummer.fbx
+    asset: {fileID: 4300000, guid: c74907b08ad63214ebfc2ba3394b1a71, type: 3}
+  - assetPath: Pc_animation/male_sword/male_sword.fbx
+    asset: {fileID: 4300000, guid: 4b17a4ae30841114cb81b275b438135a, type: 3}
+  - assetPath: Pc_face/face_000_base_female.fbx
+    asset: {fileID: 4300000, guid: 3e9d54b6ef035904898617e77aa2f85a, type: 3}
+  - assetPath: Pc_face/face_000_base_male.fbx
+    asset: {fileID: 4300002, guid: 149b7f4dba224b744ac704d10b5fff0c, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_000_base_female_view.fbx
+    asset: {fileID: 4300000, guid: a4add08ce8f526843b21d7d3d90a85d8, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_000_base_male_view.fbx
+    asset: {fileID: 4300002, guid: 52fc042b7a74b174ea86a42d90e8afed, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_001_agent_female_view.fbx
+    asset: {fileID: 4300004, guid: e3c99c3ed12cbc746b5cf81608ebebd8, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_001_agent_male_view.fbx
+    asset: {fileID: 4300004, guid: 98456ab4427f74b44ba6b60b5dc6552f, type: 3}
+  - assetPath: Pc_job/t3_bladeMaster_female_body.fbx
+    asset: {fileID: 4300002, guid: 7feee7cef22bd704ca3bab80b984d468, type: 3}
+  - assetPath: Pc_job/t3_bladeMaster_female_head.fbx
+    asset: {fileID: 4300004, guid: 33d3b02ae523661408bcffb485b0f414, type: 3}
+  - assetPath: Pc_job/t3_bladeMaster_male_body.fbx
+    asset: {fileID: 4300000, guid: dfd868b7ba41e814e9a0826ff25c9c14, type: 3}
+  - assetPath: Pc_job/t3_bladeMaster_male_head.fbx
+    asset: {fileID: 4300000, guid: e6aef7cd1ce3dab469777b433ca70714, type: 3}
+  - assetPath: Pc_job/FBX_FOR_VIEW_NOTFORBUILD/t3_bladeMaster_female_h_view.fbx
+    asset: {fileID: 4300000, guid: 8b37cad70e3f47447ad527e0ab327262, type: 3}
+  - assetPath: Pc_job/FBX_FOR_VIEW_NOTFORBUILD/t3_bladeMaster_female_view.fbx
+    asset: {fileID: 4300006, guid: 82d557c85f13f3f49a000d779d0163f2, type: 3}
+  - assetPath: Pc_job/FBX_FOR_VIEW_NOTFORBUILD/t3_bladeMaster_male_h_view.fbx
+    asset: {fileID: 4300002, guid: aad7ce02335c36b4598933f337a687bb, type: 3}
+  - assetPath: Pc_job/FBX_FOR_VIEW_NOTFORBUILD/t3_bladeMaster_male_view.fbx
+    asset: {fileID: 4300002, guid: 1841ee935571d2f4b9ca68e8d00cc81c, type: 3}
+  - assetPath: Pc_Weapon/wp_blade_class_t3.fbx
+    asset: {fileID: 4300000, guid: 68758f0985fc8e047b3039528a72ad34, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_blade_class_t3.fbx
+    asset: {fileID: 4300002, guid: c73b9490589f6964993a5aa68eb3c8cf, type: 3}
+  MaterialList:
+  - {fileID: 2100000, guid: a0374d0666d7ac04580b441dbc9610d0, type: 2}
+  - {fileID: 2100000, guid: 5227f55e5a1738044b8f7fdd0b79f514, type: 2}
+  - {fileID: 2100000, guid: 177be1997a0db9040a4ff69316345660, type: 2}
+  - {fileID: 2100000, guid: df950d7893c0d06439c8b626bc614b9b, type: 2}
+  - {fileID: 2100000, guid: 00416ed3135e99b42880eb9c30bbab8f, type: 2}
+  - {fileID: 2100000, guid: 63b0ac8261d4c11408672f98615e4011, type: 2}
+  - {fileID: 2100000, guid: 2473374d11cbf9d428b356b7f3eb10f3, type: 2}
+  - {fileID: 2100000, guid: b20dca3d8a964a948bcea9460a4f9d42, type: 2}
+  - {fileID: 2100000, guid: 049dbd2a178985d4681afab6e6e501ee, type: 2}
+  - {fileID: 2100000, guid: 846ca7b5064b6c94cb022721c4501251, type: 2}
+  - {fileID: 2100000, guid: 7a860c4714e08b64eb6a83c23b2cba22, type: 2}
+  - {fileID: 2100000, guid: 45a06dfa01812ee4e975eaad70c31689, type: 2}
+  - {fileID: 2100000, guid: 76ffce312483e71478c816cf566e5e3b, type: 2}
+  - {fileID: 2100000, guid: cc92bfe1422cbef4894ca8ca5e2f34c2, type: 2}
+  - {fileID: 2100000, guid: 12f99d17be4023a4db9e123c8a505d58, type: 2}
+  - {fileID: 2100000, guid: 7f4ebf007f1dad344968313b469eb897, type: 2}
+  - {fileID: 2100000, guid: 0ad28427e7c6098439305c5548cbcfd0, type: 2}
+  - {fileID: 2100000, guid: 90b8dc4704e0402429ce2038e31c5308, type: 2}
+  - {fileID: 2100000, guid: b0d42becc48724143b1bfd31cab5ca78, type: 2}
+  MeshList:
+  - {fileID: 4300004, guid: de67e523b4761df4b8be5faf5a5bbf57, type: 3}
+  - {fileID: 4300004, guid: b56a44f0c057b394598dee49b587ec5e, type: 3}
+  - {fileID: 4300000, guid: 891887c64f4486348809bab37ebb56ce, type: 3}
+  - {fileID: 4300000, guid: a24f40860c9cd3e4082aebeb970ae9b1, type: 3}
+  - {fileID: 4300000, guid: 865c9173e7cf5ea43bfbb707c7b34c35, type: 3}
+  - {fileID: 4300000, guid: a296626749388c646bfc855c7648bd4a, type: 3}
+  - {fileID: 4300000, guid: c74907b08ad63214ebfc2ba3394b1a71, type: 3}
+  - {fileID: 4300000, guid: 4b17a4ae30841114cb81b275b438135a, type: 3}
+  - {fileID: 4300000, guid: 3e9d54b6ef035904898617e77aa2f85a, type: 3}
+  - {fileID: 4300002, guid: 149b7f4dba224b744ac704d10b5fff0c, type: 3}
+  - {fileID: 4300000, guid: a4add08ce8f526843b21d7d3d90a85d8, type: 3}
+  - {fileID: 4300002, guid: 52fc042b7a74b174ea86a42d90e8afed, type: 3}
+  - {fileID: 4300004, guid: e3c99c3ed12cbc746b5cf81608ebebd8, type: 3}
+  - {fileID: 4300004, guid: 98456ab4427f74b44ba6b60b5dc6552f, type: 3}
+  - {fileID: 4300002, guid: 7feee7cef22bd704ca3bab80b984d468, type: 3}
+  - {fileID: 4300004, guid: 33d3b02ae523661408bcffb485b0f414, type: 3}
+  - {fileID: 4300000, guid: dfd868b7ba41e814e9a0826ff25c9c14, type: 3}
+  - {fileID: 4300000, guid: e6aef7cd1ce3dab469777b433ca70714, type: 3}
+  - {fileID: 4300000, guid: 8b37cad70e3f47447ad527e0ab327262, type: 3}
+  - {fileID: 4300006, guid: 82d557c85f13f3f49a000d779d0163f2, type: 3}
+  - {fileID: 4300002, guid: aad7ce02335c36b4598933f337a687bb, type: 3}
+  - {fileID: 4300002, guid: 1841ee935571d2f4b9ca68e8d00cc81c, type: 3}
+  - {fileID: 4300000, guid: 68758f0985fc8e047b3039528a72ad34, type: 3}
+  - {fileID: 4300002, guid: c73b9490589f6964993a5aa68eb3c8cf, type: 3}

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: def3a3dc1b62649498f767d9464ed912, type: 3}
+  m_Name: UI_ZDSP_Sound
+  m_EditorClassIdentifier: 
+  preload: 1
+  build: 1
+  individualAssetBundle: 0
+  containerAssetsPath: UI_ZDSP/Sound
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: ButtonA.ogg
+    asset: {fileID: 8300000, guid: b86fa0f7834ec6641b9b1b34c6cc7f71, type: 3}
+  - assetPath: CloseUI.ogg
+    asset: {fileID: 8300000, guid: 309670e44db9f44458b789aef38d7dcf, type: 3}
+  - assetPath: OpenUI.ogg
+    asset: {fileID: 8300000, guid: f5eadf0668a040f438cf0346aad8c3ea, type: 3}
+  - assetPath: Tabs.ogg
+    asset: {fileID: 8300000, guid: 0aa3c982aa8bc484f8b1866ae6010aaa, type: 3}
+  AudioClipList:
+  - {fileID: 8300000, guid: b86fa0f7834ec6641b9b1b34c6cc7f71, type: 3}
+  - {fileID: 8300000, guid: 309670e44db9f44458b789aef38d7dcf, type: 3}
+  - {fileID: 8300000, guid: f5eadf0668a040f438cf0346aad8c3ea, type: 3}
+  - {fileID: 8300000, guid: 0aa3c982aa8bc484f8b1866ae6010aaa, type: 3}

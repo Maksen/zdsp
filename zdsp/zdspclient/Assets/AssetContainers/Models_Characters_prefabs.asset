@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f716ec81201fa84c991b71f8f90a277, type: 3}
+  m_Name: Models_Characters_prefabs
+  m_EditorClassIdentifier: 
+  preload: 1
+  build: 1
+  individualAssetBundle: 0
+  containerAssetsPath: Models/Characters/prefabs
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: prefab_pc_female.prefab
+    asset: {fileID: 1569815488454018, guid: 8a814de8f54d862419a93ae9cda5fd88, type: 2}
+  - assetPath: prefab_pc_male.prefab
+    asset: {fileID: 1600091210762016, guid: bc6c68bb11e9b354590bc0692b7cdc41, type: 2}
+  PrefabList:
+  - {fileID: 1569815488454018, guid: 8a814de8f54d862419a93ae9cda5fd88, type: 2}
+  - {fileID: 1600091210762016, guid: bc6c68bb11e9b354590bc0692b7cdc41, type: 2}

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f716ec81201fa84c991b71f8f90a277, type: 3}
+  m_Name: Prefabs_preloadcontainer
+  m_EditorClassIdentifier: 
+  preload: 1
+  build: 1
+  individualAssetBundle: 0
+  containerAssetsPath: Prefabs/preloadcontainer
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: CombatMain.prefab
+    asset: {fileID: 141594, guid: 496ffcb36f2933a409d71ae826f48218, type: 2}
+  - assetPath: SceneEffect.prefab
+    asset: {fileID: 102502, guid: d938f6a55e670dd4582020022bae92e9, type: 2}
+  - assetPath: CombatCamera.prefab
+    asset: {fileID: 1978584237609482, guid: 8675b57257f813b48ad9f91a4a397f2e, type: 2}
+  PrefabList:
+  - {fileID: 141594, guid: 496ffcb36f2933a409d71ae826f48218, type: 2}
+  - {fileID: 102502, guid: d938f6a55e670dd4582020022bae92e9, type: 2}
+  - {fileID: 1978584237609482, guid: 8675b57257f813b48ad9f91a4a397f2e, type: 2}

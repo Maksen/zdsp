@@ -14,7 +14,7 @@ namespace Zealot.Common
     public enum GuildRankType {Leader = 0, Officer = 1, Member = 2};
     public enum GuildQuestType {White = 0, Green = 1, Blue = 2, Purple = 3, Golden = 4};
     public enum HeroRarity {Rare = 0, Epic = 1, Celestial = 2, Legendary = 3};
-    public enum HeroInterestType {None = 0, MartialArts = 1, Metallurgy = 2, Debate = 3, StrategicAttack = 4, Alcohol = 5, Heroism = 6, Lust = 7, Musical = 8, Greed = 9, Business = 10, Eloquence = 11, Negotiation = 12};
+    public enum HeroInterestType {Random = 0, MartialArts = 1, Metallurgy = 2, Debate = 3, StrategicAttack = 4, Alcohol = 5, Heroism = 6, Lust = 7, Musical = 8, Greed = 9, Business = 10, Eloquence = 11, Negotiation = 12, TotalNum = 13};
     public enum HeroBondType {None = 0, HeroLevel = 1, HeroSkill = 2};
     public enum TerrainType {Tavern = 0, TeaHouse = 1, Town = 2, Forest = 3, Inn = 4, Brothel = 5, Market = 6, Academy = 7, Villa = 8};
     public enum ChestRequirementType {None = 0, HeroID = 1, HeroInterest = 2, HeroTrust = 3};
@@ -943,20 +943,24 @@ namespace Kopio.JsonContracts
         [JsonProperty("34")]
         public string prefabpath { get; set; } 
         
-        [AssetData("mesh")]
+        [AssetData("prefab")]
         [JsonProperty("35")]
+        public string femaleprefabpath { get; set; } 
+        
+        [AssetData("mesh")]
+        [JsonProperty("36")]
         public string malemeshpath { get; set; } 
         
         [AssetData("material")]
-        [JsonProperty("36")]
+        [JsonProperty("37")]
         public string malematerialpath { get; set; } 
         
         [AssetData("mesh")]
-        [JsonProperty("37")]
+        [JsonProperty("38")]
         public string femalemeshpath { get; set; } 
         
         [AssetData("material")]
-        [JsonProperty("38")]
+        [JsonProperty("39")]
         public string femalematerialpath { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -996,6 +1000,7 @@ namespace Kopio.JsonContracts
             evolvegrp = (string)vals["evolvegrp"];
             evolvechange = (int)vals["evolvechange"];
             prefabpath = (string)vals["prefabpath"];
+            femaleprefabpath = (string)vals["femaleprefabpath"];
             malemeshpath = (string)vals["malemeshpath"];
             malematerialpath = (string)vals["malematerialpath"];
             femalemeshpath = (string)vals["femalemeshpath"];
@@ -5305,6 +5310,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("4")]
         public string iconpath { get; set; } 
         
+        [JsonProperty("5")]
+        public string description { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -5312,6 +5320,7 @@ namespace Kopio.JsonContracts
             localizedname = (string)vals["localizedname"];
             assigneditemid = (string)vals["assigneditemid"];
             iconpath = (string)vals["iconpath"];
+            description = (string)vals["description"];
         }
     }
     

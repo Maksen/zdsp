@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{540A5859-1475-471A-9364-180BE26EC77F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Zealot.DBRepository</RootNamespace>
+    <AssemblyName>Zealot.DBRepository</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ExitGames.Logging.Log4Net">
+      <HintPath>..\..\..\lib\ExitGames.Logging.Log4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="ExitGamesLibs">
+      <HintPath>..\..\..\lib\ExitGamesLibs.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook">
+      <HintPath>..\..\..\lib\Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GameServer\AuctionRepository.cs" />
+    <Compile Include="GameServer\GameConfigRepository.cs" />
+    <Compile Include="GameServer\MaillOfflineRepository.cs" />
+    <Compile Include="GameServer\LadderRepository.cs" />
+    <Compile Include="GameServer\CharacterRepository.cs" />
+    <Compile Include="DBRepository.cs" />
+    <Compile Include="GameServer\GuildRepository.cs" />
+    <Compile Include="GameServer\ProgressRepository.cs" />
+    <Compile Include="GM\CurrencyExchangeGMRepository.cs" />
+    <Compile Include="GM\NPCStoreRepository.cs" />
+    <Compile Include="GM\PlayerAccountRepository.cs" />
+    <Compile Include="GM\SevenDaysRepository.cs" />
+    <Compile Include="GM\SystemSwitchRepository.cs" />
+    <Compile Include="GM\TalentGMRepository.cs" />
+    <Compile Include="GM\TickerTapeRepository.cs" />
+    <Compile Include="GM\TongbaoCostBuffRepository.cs" />
+    <Compile Include="GM\TopUpActivityRepository.cs" />
+    <Compile Include="GM\WelfareRepository.cs" />
+    <Compile Include="GM\CompensateRepository.cs" />
+    <Compile Include="GM\GMActivityRepository.cs" />
+    <Compile Include="GM\ItemMallGMRepository.cs" />
+    <Compile Include="GM\RedemptionRepository.cs" />
+    <Compile Include="GM\ServerConfigRepository.cs" />
+    <Compile Include="GM\SystemMessageRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GameServer\RealmLadderRepository.cs" />
+    <Compile Include="GameServer\BossKillerRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MasterServer\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Zealot.Common\Zealot.Common.csproj">
+      <Project>{BF3E300F-D9B0-462D-A862-CDFA15F733B7}</Project>
+      <Name>Zealot.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

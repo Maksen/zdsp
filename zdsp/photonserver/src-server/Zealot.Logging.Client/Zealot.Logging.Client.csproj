@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{73577277-C903-488D-B03D-102E8265640F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Zealot.Logging.Client</RootNamespace>
+    <AssemblyName>Zealot.Logging.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\lib\Newtonsoft\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Contracts\Requests\RequestInsertRecord.cs" />
+    <Compile Include="Contracts\Requests\RequestUpdateTables.cs" />
+    <Compile Include="Contracts\Responses\ResponseInsertRecord.cs" />
+    <Compile Include="Contracts\Responses\ResponseUpdateTable.cs" />
+    <Compile Include="LogClasses\AccountShift.cs" />
+    <Compile Include="LogClasses\Arena\ArenaReward.cs" />
+    <Compile Include="LogClasses\Arena\ArenaWin.cs" />
+    <Compile Include="LogClasses\Auction.cs" />
+    <Compile Include="LogClasses\ChestLog.cs" />
+    <Compile Include="LogClasses\CraftLog.cs" />
+    <Compile Include="LogClasses\CurrencyExchange.cs" />
+    <Compile Include="LogClasses\Dungeon.cs" />
+    <Compile Include="LogClasses\EliteMap.cs" />
+    <Compile Include="LogClasses\Guild\GuildCreate.cs" />
+    <Compile Include="LogClasses\Guild\GuildDreamHouse.cs" />
+    <Compile Include="LogClasses\Guild\GuildIcon.cs" />
+    <Compile Include="LogClasses\Guild\GuildJoin.cs" />
+    <Compile Include="LogClasses\Guild\GuildLeave.cs" />
+    <Compile Include="LogClasses\Guild\GuildBossKill.cs" />
+    <Compile Include="LogClasses\Guild\GuildQuestLog.cs" />
+    <Compile Include="LogClasses\Guild\GuildTech.cs" />
+    <Compile Include="LogClasses\Guild\GuildShop.cs" />
+    <Compile Include="LogClasses\Inventory\CurrencyChange.cs" />
+    <Compile Include="LogClasses\Inventory\ItemChange.cs" />
+    <Compile Include="LogClasses\ItemMall.cs" />
+    <Compile Include="LogClasses\QuestReward.cs" />
+    <Compile Include="LogClasses\LogServerGold.cs" />
+    <Compile Include="LogClasses\LogPCU.cs" />
+    <Compile Include="LogClasses\LoginChar.cs" />
+    <Compile Include="LogClasses\CreateChar.cs" />
+    <Compile Include="LogClasses\Death.cs" />
+    <Compile Include="LogClasses\DonateLog.cs" />
+    <Compile Include="LogClasses\Equipment.cs" />
+    <Compile Include="LogClasses\Forge.cs" />
+    <Compile Include="LogClasses\InventorySlot.cs" />
+    <Compile Include="LogClasses\LogClass.cs" />
+    <Compile Include="LogClasses\Lottery.cs" />
+    <Compile Include="LogClasses\Mail.cs" />
+    <Compile Include="LogClasses\OfflineExp.cs" />
+    <Compile Include="LogClasses\PlayerTrade.cs" />
+    <Compile Include="LogClasses\PrizeGuarantee.cs" />
+    <Compile Include="LogClasses\QuestExtraRewards.cs" />
+    <Compile Include="LogClasses\RandomBoxReward.cs" />
+    <Compile Include="LogClasses\Redemption.cs" />
+    <Compile Include="LogClasses\SevenDays.cs" />
+    <Compile Include="LogClasses\Store.cs" />
+    <Compile Include="LogClasses\TongbaoBuffCost.cs" />
+    <Compile Include="LogClasses\Welfare.cs" />
+    <Compile Include="LogClasses\WorldBossLog.cs" />
+    <Compile Include="LogClasses\XPLevelRank.cs" />
+    <Compile Include="LoggingAgent.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Zealot.Common\Zealot.Common.csproj">
+      <Project>{BF3E300F-D9B0-462D-A862-CDFA15F733B7}</Project>
+      <Name>Zealot.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

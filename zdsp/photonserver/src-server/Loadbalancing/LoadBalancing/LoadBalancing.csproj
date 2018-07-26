@@ -1,0 +1,507 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{918525F6-635E-4D56-A85C-7F4C5E95E822}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Photon.LoadBalancing</RootNamespace>
+    <AssemblyName>Photon.LoadBalancing</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <StartAction>Program</StartAction>
+    <StartProgram>$(MSBuildProjectDirectory)\Path\Relative\To\CSProj\Folder</StartProgram>
+    <StartArguments>Any Required Arguments</StartArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <StartAction>Program</StartAction>
+    <StartProgram>..\..\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
+    <StartArguments>/debug LoadBalancing /config PhotonServer.LoadBalancing-Development.config</StartArguments>
+    <StartWorkingDirectory>..\..</StartWorkingDirectory>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <StartAction>Program</StartAction>
+    <StartProgram>..\..\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
+    <StartArguments>/config PhotonServer.LoadBalancing-Development.config</StartArguments>
+    <StartWorkingDirectory>..\..</StartWorkingDirectory>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Facebook">
+      <HintPath>..\..\..\lib\Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Zealot.Billing.Client\bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Photon3DotNet">
+      <HintPath>..\..\..\lib\Photon3DotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common">
+      <HintPath>..\..\..\lib\ServiceStack\ServiceStack.Common.3.9.71\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces">
+      <HintPath>..\..\..\lib\ServiceStack\ServiceStack.Common.3.9.71\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Redis">
+      <HintPath>..\..\..\lib\ServiceStack\ServiceStack.Redis.3.9.71\lib\net35\ServiceStack.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\..\..\lib\ServiceStack\ServiceStack.Text.3.9.71\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\lib\System.Data.SQLite.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ExitGames.Logging.Log4Net">
+      <HintPath>..\..\..\lib\ExitGames.Logging.Log4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="ExitGamesLibs">
+      <HintPath>..\..\..\lib\ExitGamesLibs.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Photon.SocketServer">
+      <HintPath>..\..\..\lib\Photon.SocketServer.dll</HintPath>
+    </Reference>
+    <Reference Include="PhotonHostRuntimeInterfaces">
+      <HintPath>..\..\..\lib\PhotonHostRuntimeInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\lib\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Zealot.DBRepository, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Zealot.DBRepository\bin\Debug\Zealot.DBRepository.dll</HintPath>
+    </Reference>
+    <Reference Include="Zealot.Logging.Client, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Zealot.Logging.Client\bin\Debug\Zealot.Logging.Client.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Actions\ASApproach.cs" />
+    <Compile Include="Actions\ASApproachWithPathFind.cs" />
+    <Compile Include="Actions\ASCastSkill.cs" />
+    <Compile Include="Actions\ASDashAttack.cs" />
+    <Compile Include="Actions\ASDead.cs" />
+    <Compile Include="Actions\ASDragged.cs" />
+    <Compile Include="Actions\ASIdle.cs" />
+    <Compile Include="Actions\ASInterruptManager.cs" />
+    <Compile Include="Actions\ASKnockedBack.cs" />
+    <Compile Include="Actions\ASKnockedUp.cs" />
+    <Compile Include="Actions\ASWalk.cs" />
+    <Compile Include="Actions\ASWalkAndCast.cs" />
+    <Compile Include="AI\AIPlayerAIBehaviour.cs" />
+    <Compile Include="AI\BossAIBehaviour.cs" />
+    <Compile Include="AI\EscapeAIBehaviour.cs" />
+    <Compile Include="AI\HeroAIBehaviour.cs" />
+    <Compile Include="AI\MonsterAIBehaviour.cs" />
+    <Compile Include="ClusterServers\ClusterApplication.cs" />
+    <Compile Include="ClusterServers\ClusterServer.cs" />
+    <Compile Include="ClusterServers\ClusterServerSettings.cs" />
+    <Compile Include="ClusterServers\GameServer\IncomingGameServerPeer.cs" />
+    <Compile Include="Entities\HeroEntity.cs" />
+    <Compile Include="Entities\PersonalMonsterSpawner.cs" />
+    <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
+    <Compile Include="GameServer\GameRules\QuestRules.cs" />
+    <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
+    <Compile Include="GameServer\NPCStore\NPCStoreManager.cs" />
+    <Compile Include="GameServer\Quest\QuestController.cs" />
+    <Compile Include="GameServer\Revive\ReviveItemController.cs" />
+    <Compile Include="MasterServer\ClusterServer\IncomingGamePeer.cs" />
+    <Compile Include="MasterServer\MasterGame.cs" />
+    <Compile Include="GameServer\GameRules\PartyRules.cs" />
+    <Compile Include="GameServer\Party\PartyStatsServer.cs" />
+    <Compile Include="MasterServer\MasterCluster.cs" />
+    <Compile Include="MasterServer\ClusterServer\IncomingClusterServerPeer.cs" />
+    <Compile Include="Common\CommonSettings.cs" />
+    <Compile Include="Common\LBErrorMessages.cs" />
+    <Compile Include="Common\S2SCustomTypeCacheMan.cs" />
+    <Compile Include="Common\DictionaryExtensions.cs" />
+    <Compile Include="Counters\GameCounter.cs" />
+    <Compile Include="Counters\Profiler.cs" />
+    <Compile Include="Entities\Actor.cs" />
+    <Compile Include="Entities\AIPlayer.cs" />
+    <Compile Include="Entities\ComboSkillCaster.cs" />
+    <Compile Include="Entities\GoblinSpawner.cs" />
+    <Compile Include="Entities\IServerEntity.cs" />
+    <Compile Include="Entities\LevelComponents\ObjectSpawner.cs" />
+    <Compile Include="Entities\LevelComponents\PortalEntryServer.cs" />
+    <Compile Include="Entities\Monster.cs" />
+    <Compile Include="Entities\MonsterSpawner.cs" />
+    <Compile Include="Entities\MonsterSpawnerBase.cs" />
+    <Compile Include="Entities\NetEntity.cs" />
+    <Compile Include="Entities\Player.cs" />
+    <Compile Include="Entities\Realm\RealmController.cs" />
+    <Compile Include="Entities\Realm\RealmControllerArena.cs" />
+    <Compile Include="Entities\Realm\RealmControllerBossSlowMotion.cs" />
+    <Compile Include="Entities\Realm\RealmControllerDungeonDailySpecial.cs" />
+    <Compile Include="Entities\Realm\RealmControllerDungeonStory.cs" />
+    <Compile Include="Entities\Realm\RealmControllerEliteMap.cs" />
+    <Compile Include="Entities\Realm\RealmControllerEndlessTower.cs" />
+    <Compile Include="Entities\Realm\RealmControllerGuildSMBoss.cs" />
+    <Compile Include="Entities\Realm\RealmControllerInvitePVP.cs" />
+    <Compile Include="Entities\Realm\RealmControllerTutorial.cs" />
+    <Compile Include="Entities\Realm\RealmControllerWorld.cs" />
+    <Compile Include="Entities\Realm\RealmControllerWorldBoss.cs" />
+    <Compile Include="Entities\ServerEntitySystem.cs" />
+    <Compile Include="Entities\ServerStats\ServerStats.cs" />
+    <Compile Include="Entities\SMBossSpawner.cs" />
+    <Compile Include="Entities\SpecialBossSpawner.cs" />
+    <Compile Include="Entities\Triggers\Counter.cs" />
+    <Compile Include="Entities\Triggers\CutSceneBroadcaster.cs" />
+    <Compile Include="Entities\Triggers\DelayTickerServer.cs" />
+    <Compile Include="Entities\Triggers\GateSpawner.cs" />
+    <Compile Include="Entities\Triggers\MessageBroadcaster.cs" />
+    <Compile Include="GameServer\ApplicationStatsPublisher.cs" />
+    <Compile Include="GameServer\Chest\Chest.cs" />
+    <Compile Include="GameServer\Combat\Chrono.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GameServer\Combat\CombatTimerManager.cs" />
+    <Compile Include="GameServer\Crafting\Crafting.cs" />
+    <Compile Include="GameServer\EventMessage\RoomBroadcastMessage.cs" />
+    <Compile Include="GameServer\EventMessage\RPCBroadcastData.cs" />
+    <Compile Include="GameServer\GameApplicationLogic.cs" />
+    <Compile Include="GameServer\GameConfig.cs" />
+    <Compile Include="GameServer\GameLogic.cs" />
+    <Compile Include="GameServer\GameManager\GameManagerAgent.cs" />
+    <Compile Include="GameServer\GameRules\AuctionRules.cs" />
+    <Compile Include="GameServer\GameRules\BossRules.cs" />
+    <Compile Include="GameServer\GameRules\CurrencyExchangeRules.cs" />
+    <Compile Include="GameServer\GameRules\Deathrules.cs" />
+    <Compile Include="GameServer\GameRules\DonateRules.cs" />
+    <Compile Include="GameServer\GameRules\EquipmentRules.cs" />
+    <Compile Include="GameServer\GameRules\GameRule.cs" />
+    <Compile Include="GameServer\GameRules\GMActivityRules.cs" />
+    <Compile Include="GameServer\GameRules\GuildRules.cs" />
+    <Compile Include="GameServer\GameRules\LadderRule.cs" />
+    <Compile Include="GameServer\GameRules\NewServerEventRules.cs" />
+    <Compile Include="GameServer\GameRules\PrizeGuaranteeRules.cs" />
+    <Compile Include="GameServer\GameRules\QuestExtraRewardsRules.cs" />
+    <Compile Include="GameServer\GameRules\RareItemNotificationRules.cs" />
+    <Compile Include="GameServer\GameRules\RealmRules.cs" />
+    <Compile Include="GameServer\GameRules\RedemptionRules.cs" />
+    <Compile Include="GameServer\GameRules\SevenDaysRules.cs" />
+    <Compile Include="GameServer\GameRules\StoreRules.cs" />
+    <Compile Include="GameServer\GameRules\SystemMessageRules.cs" />
+    <Compile Include="GameServer\GameRules\TutorialRules.cs" />
+    <Compile Include="GameServer\GameRules\WelfareRules.cs" />
+    <Compile Include="GameServer\GameServerSettings.cs" />
+    <Compile Include="GameServer\Guild\GuildQuestInfo.cs" />
+    <Compile Include="GameServer\Guild\GuildServer.cs" />
+    <Compile Include="GameServer\Inventory\InventoryController.cs" />
+    <Compile Include="GameServer\Inventory\ItemUIDGenerator.cs" />
+    <Compile Include="GameServer\Inventory\ServerItemFactory.cs" />
+    <Compile Include="GameServer\ItemMall\ItemMallManager.cs" />
+    <Compile Include="GameServer\LeaderBoard\LeaderboardController.cs" />
+    <Compile Include="GameServer\LeaderBoard\Leaderboards.cs" />
+    <Compile Include="GameServer\LobbyLogic.cs" />
+    <Compile Include="GameServer\Lottery\LotteryController.cs" />
+    <Compile Include="GameServer\Lottery\LotteryManager.cs" />
+    <Compile Include="GameServer\Mail\MailManager.cs" />
+    <Compile Include="Operations\GetServerListRequest.cs" />
+    <Compile Include="Operations\RegisterRequest.cs" />
+    <Compile Include="Operations\AuthenticateLoginRequest.cs" />
+    <Compile Include="Operations\AuthenticateCookieRequest.cs" />
+    <Compile Include="RPC\GameToMasterRPC.cs" />
+    <Compile Include="RPC\MasterToGameRPC.cs" />
+    <Compile Include="RPC\Receiver\GameMaster\ReceiverGameToMaster.cs" />
+    <Compile Include="RPC\Receiver\GameMaster\ReceiverMasterToGame.cs" />
+    <Compile Include="ServerToServer\GameToMasterConnection.cs" />
+    <Compile Include="ServerToServer\MasterServerConnection.cs" />
+    <Compile Include="ServerToServer\ClusterServerConnection.cs" />
+    <Compile Include="Events\AppStatsEvent.cs" />
+    <Compile Include="Events\EventCode.cs" />
+    <Compile Include="Events\GameListEvent.cs" />
+    <Compile Include="Events\GameListUpdateEvent.cs" />
+    <Compile Include="Events\GameServerOfflineEvent.cs" />
+    <Compile Include="Events\QueueEvent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GameServer\GameMessageCodes.cs" />
+    <Compile Include="GameServer\Game.cs" />
+    <Compile Include="GameServer\GameApplication.cs" />
+    <Compile Include="GameServer\GameCache.cs" />
+    <Compile Include="GameServer\GameClientPeer.cs" />
+    <Compile Include="GameServer\Global.cs" />
+    <Compile Include="GameServer\NetServerSlot.cs" />
+    <Compile Include="RPC\ClusterToMasterRPC.cs" />
+    <Compile Include="RPC\GameToClusterRPC.cs" />
+    <Compile Include="RPC\MasterToClusterRPC.cs" />
+    <Compile Include="RPC\Receiver\ClusterGame\ReceiverClusterToGame.cs" />
+    <Compile Include="GameServer\NewServerActivity\SevenDaysController.cs" />
+    <Compile Include="GameServer\OfflineExp\OfflineExpManager.cs" />
+    <Compile Include="ServerToServer\OutgoingGameToMasterPeer .cs" />
+    <Compile Include="ServerToServer\OutgoingMasterServerPeer.cs" />
+    <Compile Include="ServerToServer\OutgoingClusterServerPeer.cs" />
+    <Compile Include="GameServer\PathManager\PathManager.cs" />
+    <Compile Include="GameServer\QAClientPeer.cs" />
+    <Compile Include="GameServer\QuestExtraRewards\QuestExtraRewardsController.cs" />
+    <Compile Include="GameServer\RandomBoxReward\RandomBoxRewardManager.cs" />
+    <Compile Include="GameServer\SystemSwitch\SystemSwitch.cs" />
+    <Compile Include="GameServer\TickerTape\TickerTapeSystem.cs" />
+    <Compile Include="GameServer\TongbaoCostBuff.cs" />
+    <Compile Include="GameServer\TopUp\TopUpManager.cs" />
+    <Compile Include="GameServer\Wardrobe\WardrobeController.cs" />
+    <Compile Include="GameServer\Welfare\WelfareController.cs" />
+    <Compile Include="MasterServer\ApplicationStats.cs" />
+    <Compile Include="Common\Contract.cs\ServerContract.cs" />
+    <Compile Include="MasterServer\GameApplication.cs" />
+    <Compile Include="MasterServer\GameManager\IncomingGMPeer.cs" />
+    <Compile Include="Common\Contract.cs\GameServerStatus.cs" />
+    <Compile Include="MasterServer\MasterApplication.cs" />
+    <Compile Include="MasterServer\MasterClientPeer.cs" />
+    <Compile Include="MasterServer\MasterServerSettings.cs" />
+    <Compile Include="MasterServer\OperationHandler\OperationHandlerAuthenticating.cs" />
+    <Compile Include="Common\OperationHandlerBase.cs" />
+    <Compile Include="MasterServer\OperationHandler\OperationHandlerDefault.cs" />
+    <Compile Include="MasterServer\OperationHandler\OperationHandlerInitial.cs" />
+    <Compile Include="MasterServer\OperationHelper.cs" />
+    <Compile Include="Common\NodesReader.cs" />
+    <Compile Include="MasterServer\RedirectedClientPeer.cs" />
+    <Compile Include="Operations\AuthenticateRequest.cs" />
+    <Compile Include="Operations\AuthenticateResponse.cs" />
+    <Compile Include="Operations\FindFriendsResponse.cs" />
+    <Compile Include="Operations\FindFriendsRequest.cs" />
+    <Compile Include="Operations\GetLobbyStatsRequest.cs" />
+    <Compile Include="Operations\GetLobbyStatsResponse.cs" />
+    <Compile Include="Operations\JoinLobbyRequest.cs" />
+    <Compile Include="Operations\JoinRandomType.cs" />
+    <Compile Include="Operations\RedirectRepeatResponse.cs" />
+    <Compile Include="Pathfinding\changelog.cs" />
+    <Compile Include="Pathfinding\Core\AI\Seeker.cs" />
+    <Compile Include="Pathfinding\Core\astarclasses.cs" />
+    <Compile Include="Pathfinding\Core\AstarData.cs" />
+    <Compile Include="Pathfinding\Core\AstarMath.cs" />
+    <Compile Include="Pathfinding\Core\AstarPath.cs" />
+    <Compile Include="Pathfinding\Core\GraphUpdateShape.cs" />
+    <Compile Include="Pathfinding\Core\Misc\AstarEnumFlagAttr.cs" />
+    <Compile Include="Pathfinding\Core\Misc\BinaryHeap.cs" />
+    <Compile Include="Pathfinding\Core\Misc\Int3.cs" />
+    <Compile Include="Pathfinding\Core\Misc\ListPool.cs" />
+    <Compile Include="Pathfinding\Core\Misc\ObjectPool.cs" />
+    <Compile Include="Pathfinding\Core\Misc\PathPool.cs" />
+    <Compile Include="Pathfinding\Core\Misc\StackPool.cs" />
+    <Compile Include="Pathfinding\Core\Misc\ThreadControlQueue.cs" />
+    <Compile Include="Pathfinding\Core\Misc\WindowsStoreCompatibility.cs" />
+    <Compile Include="Pathfinding\Core\Modifiers\FunnelModifier.cs" />
+    <Compile Include="Pathfinding\Core\Modifiers\Modifiers.cs" />
+    <Compile Include="Pathfinding\Core\Modifiers\SimpleSmoothModifier.cs" />
+    <Compile Include="Pathfinding\Core\Modifiers\StripStraightPointsModifier.cs" />
+    <Compile Include="Pathfinding\Core\Nodes\GraphNode.cs" />
+    <Compile Include="Pathfinding\Core\Path.cs" />
+    <Compile Include="Pathfinding\Core\PathHandler.cs" />
+    <Compile Include="Pathfinding\Core\Serialization\JsonConverters.cs" />
+    <Compile Include="Pathfinding\Core\Serialization\JsonSerializer.cs" />
+    <Compile Include="Pathfinding\Core\Serialization\SimpleJsonReplacement.cs" />
+    <Compile Include="Pathfinding\Core\Serialization\SimpleZipReplacement.cs" />
+    <Compile Include="Pathfinding\Generators\Base.cs" />
+    <Compile Include="Pathfinding\Generators\GridGenerator.cs" />
+    <Compile Include="Pathfinding\Generators\NodeClasses\GridNode.cs" />
+    <Compile Include="Pathfinding\Generators\Utilities\BBTree.cs" />
+    <Compile Include="Pathfinding\Generators\Utilities\EuclideanEmbedding.cs" />
+    <Compile Include="Pathfinding\Pathfinders\ABPath.cs" />
+    <Compile Include="Pathfinding\Utilities\AstarChecksum.cs" />
+    <Compile Include="Pathfinding\Utilities\AstarMemory.cs" />
+    <Compile Include="Pathfinding\Utilities\AstarParallel.cs" />
+    <Compile Include="Pathfinding\Utilities\AstarProfiler.cs" />
+    <Compile Include="Pathfinding\Utilities\DotNetReplacements.cs" />
+    <Compile Include="Pathfinding\Utilities\GraphUpdateUtilities.cs" />
+    <Compile Include="Pathfinding\Utilities\LockFreeStack.cs" />
+    <Compile Include="Pathfinding\Utilities\PathUtilities.cs" />
+    <Compile Include="Pathfinding\Utilities\ProfileHelper.cs" />
+    <Compile Include="RPC\ActionRPC.cs" />
+    <Compile Include="RPC\CombatRPC.cs" />
+    <Compile Include="RPC\CombatRPCClientToServer.cs" />
+    <Compile Include="RPC\DevelopmentRPC.cs" />
+    <Compile Include="RPC\GMToMasterRPC.cs" />
+    <Compile Include="RPC\LobbyRPC.cs" />
+    <Compile Include="RPC\LocalObjectRPC.cs" />
+    <Compile Include="RPC\ClusterToGameRPC.cs" />
+    <Compile Include="RPC\NonCombatRPC.cs" />
+    <Compile Include="RPC\Receiver\ClusterGame\ReceiverGameToCluster.cs" />
+    <Compile Include="RPC\RPCProxy.cs" />
+    <Compile Include="RPC\ServerRPCBase.cs" />
+    <Compile Include="RPC\UnreliableCombatRPC.cs" />
+    <Compile Include="RPC\ZRPC.cs" />
+    <Compile Include="ServerToServer\Events\AuthenticateUpdateEvent.cs" />
+    <Compile Include="ServerToServer\Events\ServerParameterCode.cs" />
+    <Compile Include="ServerToServer\Events\RemoveGameEvent.cs" />
+    <Compile Include="ServerToServer\Events\ServerEventCode.cs" />
+    <Compile Include="ServerToServer\Events\UpdateAppStatsEvent.cs" />
+    <Compile Include="ServerToServer\Events\UpdateGameEvent.cs" />
+    <Compile Include="ServerToServer\Events\UpdateServerEvent.cs" />
+    <Compile Include="Operations\JoinRandomGameRequest.cs" />
+    <Compile Include="Operations\JoinRandomGameResponse.cs" />
+    <Compile Include="Operations\OperationCode.cs" />
+    <Compile Include="Operations\ParameterCode.cs" />
+    <Compile Include="ServerToServer\ServerConnectionBase.cs" />
+    <Compile Include="ServerToServer\Operations\GameManagerOpCode.cs" />
+    <Compile Include="ServerToServer\Operations\OperationCode.cs" />
+    <Compile Include="ServerToServer\Operations\RegisterClusterServer.cs" />
+    <Compile Include="ServerToServer\Operations\RegisterGameServer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerToServer\Operations\RegisterServerResponse.cs" />
+    <Compile Include="ServerToServer\OutgoingServerPeer.cs" />
+    <Compile Include="SideEffects\ActionSE.cs" />
+    <Compile Include="SideEffects\ControlSE.cs" />
+    <Compile Include="SideEffects\DamageSE.cs" />
+    <Compile Include="SideEffects\ExpBonusSE.cs" />
+    <Compile Include="SideEffects\ExpSE.cs" />
+    <Compile Include="SideEffects\HeavyStandSE.cs" />
+    <Compile Include="SideEffects\ImmuneSE.cs" />
+    <Compile Include="SideEffects\LevelUpSE.cs" />
+    <Compile Include="SideEffects\MiscSE.cs" />
+    <Compile Include="SideEffects\PureDamageNoKillSE.cs" />
+    <Compile Include="SideEffects\RecoverOnHitSE.cs" />
+    <Compile Include="SideEffects\RejuvenateSE.cs" />
+    <Compile Include="SideEffects\ShieldSE.cs" />
+    <Compile Include="SideEffects\SideEffect.cs" />
+    <Compile Include="SideEffects\SideEffectsUtils.cs" />
+    <Compile Include="SideEffects\SpecialSE.cs" />
+    <Compile Include="SideEffects\StatsSE.cs" />
+    <Compile Include="SideEffects\WorldExpBonusSE.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Pathfinding\defines.csv" />
+    <None Include="properties.proj" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\HivePlugin\PhotonHivePlugin.csproj">
+      <Project>{223d6705-337d-409f-8524-553abc5eaabd}</Project>
+      <Name>PhotonHivePlugin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Hive\PhotonHive\PhotonHive.csproj">
+      <Project>{E1F918F4-F581-4280-9D91-3CF77B24C290}</Project>
+      <Name>PhotonHive</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Photon.Common\Photon.Common.csproj">
+      <Project>{1ddb6b23-41f0-4c63-b945-0c7d3f902d1c}</Project>
+      <Name>Photon.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Zealot.Billing.Client\Zealot.Billing.Client.csproj">
+      <Project>{42c76635-5985-46cb-8003-bf5814552d2b}</Project>
+      <Name>Zealot.Billing.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Zealot.Common\Zealot.Common.csproj">
+      <Project>{bf3e300f-d9b0-462d-a862-cdfa15f733b7}</Project>
+      <Name>Zealot.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Pathfinding\link.xml" />
+    <Content Include="Pathfinding\Readme.txt" />
+    <Content Include="Pathfinding\Readme_upgrading.txt" />
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x64\SQLite.Interop.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="RPC\Receiver\ClientGame\" />
+    <Folder Include="RPC\Receiver\ClientMaster\" />
+    <Folder Include="RPC\Receiver\ClusterMaster\" />
+    <Folder Include="RPC\Receiver\GMMaster\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>  
+  -->
+  <!-- execute only on local VS Builds. -->
+  <Target Name="AfterBuild" Condition="'$(transformConfig)'!='false'">
+    <PropertyGroup>
+      <PropertyFile Condition=" '$(PropertyFile)' == '' ">$(ProjectDir)\properties.proj</PropertyFile>
+    </PropertyGroup>
+    <MSBuild Projects="..\..\..\build\transformConfig.proj" Targets="TransformConfig" Properties="PropertyFile=$(PropertyFile);RootDir=$(TargetDir)" />
+  </Target>
+</Project>

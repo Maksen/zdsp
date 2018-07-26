@@ -1,0 +1,472 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BF3E300F-D9B0-462D-A862-CDFA15F733B7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Common</RootNamespace>
+    <AssemblyName>Common</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ExitGames.Logging.Log4Net">
+      <HintPath>..\..\lib\ExitGames.Logging.Log4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="ExitGamesLibs">
+      <HintPath>..\..\lib\ExitGamesLibs.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook">
+      <HintPath>..\..\lib\Facebook.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Newtonsoft\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\lib\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Actions\Action.cs">
+      <Link>Actions\Action.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Actions\ActionCommand.cs">
+      <Link>Actions\ActionCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Actions\ADashAttack.cs">
+      <Link>Actions\ADashAttack.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Actions\AIdle.cs">
+      <Link>Actions\AIdle.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\BitController.cs">
+      <Link>BitController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\CombatCommon.cs">
+      <Link>CombatCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\CombatFormula.cs">
+      <Link>CombatFormula.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\CombatNode.cs">
+      <Link>CombatNode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\CombatUtils.cs">
+      <Link>CombatUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\ActorStats.cs">
+      <Link>Entities\ActorStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\CombatStats.cs">
+      <Link>Entities\CombatStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\Entity.cs">
+      <Link>Entities\Entity.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\EntitySystem.cs">
+      <Link>Entities\EntitySystem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\GuildStats.cs">
+      <Link>Entities\GuildStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\HeroStats.cs">
+      <Link>Entities\HeroStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\IActor.cs">
+      <Link>Entities\IActor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\INetEntity.cs">
+      <Link>Entities\INetEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\InventoryStats.cs">
+      <Link>Entities\InventoryStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\PartyStats.cs">
+      <Link>Entities\PartyStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\RealmStats.cs">
+      <Link>Entities\RealmStats.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ArenaInventory.cs">
+      <Link>GameObjects\ArenaInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\AuctionData.cs">
+      <Link>GameObjects\AuctionData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\BossKillData.cs">
+      <Link>GameObjects\BossKillData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CharacterData.cs">
+      <Link>GameObjects\CharacterData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CharacterInfoData.cs">
+      <Link>GameObjects\CharacterInfoData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CountryData.cs">
+      <Link>GameObjects\CountryData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CurrencyInventory.cs">
+      <Link>GameObjects\CurrencyInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\DonateDataList.cs">
+      <Link>GameObjects\DonateDataList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ExchangeShopInventory.cs">
+      <Link>GameObjects\ExchangeShopInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\GMMessageData.cs">
+      <Link>GameObjects\GMMessageData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\GuildData.cs">
+      <Link>GameObjects\GuildData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\GuildWarData.cs">
+      <Link>GameObjects\GuildWarData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\HeroData.cs">
+      <Link>GameObjects\HeroData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\Inventory.cs">
+      <Link>GameObjects\Inventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\InventoryItem.cs">
+      <Link>GameObjects\InventoryItem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\InvitePvpData.cs">
+      <Link>GameObjects\InvitePvpData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ItemMallInventory.cs">
+      <Link>GameObjects\ItemMallInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\LeaderboardData.cs">
+      <Link>GameObjects\LeaderboardData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\MailInventory.cs">
+      <Link>GameObjects\MailInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\NewServerEventInventory.cs">
+      <Link>GameObjects\NewServerEventInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\NPCStoreInfo.cs">
+      <Link>GameObjects\NPCStoreInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\OfflineExpInventory.cs">
+      <Link>GameObjects\OfflineExpInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\PartyData.cs">
+      <Link>GameObjects\PartyData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\PortraitData.cs">
+      <Link>GameObjects\PortraitData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\PrizeGuaranteeData.cs">
+      <Link>GameObjects\PrizeGuaranteeData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\QuestData.cs">
+      <Link>GameObjects\QuestData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\RealmInventory.cs">
+      <Link>GameObjects\RealmInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SideEffectInventory.cs">
+      <Link>GameObjects\SideEffectInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SkillInventoryData.cs">
+      <Link>GameObjects\SkillInventoryData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SocialInventory.cs">
+      <Link>GameObjects\SocialInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\StoreInventory.cs">
+      <Link>GameObjects\StoreInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SystemSwitchData.cs">
+      <Link>GameObjects\SystemSwitchData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\TutorialData.cs">
+      <Link>GameObjects\TutorialData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameSettings.cs">
+      <Link>GameSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameUtils.cs">
+      <Link>GameUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Guild\GuildQuestData.cs">
+      <Link>Guild\GuildQuestData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\IDPool.cs">
+      <Link>IDPool.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\JsonConverter\VectorConverter.cs">
+      <Link>JsonConverter\VectorConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\ClientSpawnerJson.cs">
+      <Link>LevelRepo\ClientSpawnerJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\LevelInfo.cs">
+      <Link>LevelRepo\LevelInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\LevelReader.cs">
+      <Link>LevelRepo\LevelReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\MonsterSpawnerJson.cs">
+      <Link>LevelRepo\MonsterSpawnerJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\PortalJson.cs">
+      <Link>LevelRepo\PortalJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\Realm\RealmControllerJson.cs">
+      <Link>LevelRepo\Realm\RealmControllerJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\SafeZoneJson.cs">
+      <Link>LevelRepo\SafeZoneJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\ServerEntityJson.cs">
+      <Link>LevelRepo\ServerEntityJson.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\Spawners.cs">
+      <Link>LevelRepo\Spawners.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LevelRepo\Triggers.cs">
+      <Link>LevelRepo\Triggers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LocalObjects\LocalObject.cs">
+      <Link>LocalObjects\LocalObject.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\LoginUtils.cs">
+      <Link>LoginUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Lottery\LotteryInventory.cs">
+      <Link>Lottery\LotteryInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Lottery\LotteryInventory_Methods.cs">
+      <Link>Lottery\LotteryInventory_Methods.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\MessageCommon.cs">
+      <Link>MessageCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\ObjectClone.cs">
+      <Link>ObjectClone.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\ProfilerUtils.cs">
+      <Link>ProfilerUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\QuestExtraRewards\QuestExtraRewardsInventory.cs">
+      <Link>QuestExtraRewards\QuestExtraRewardsInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\QuestExtraRewards\QuestExtraRewardsInventory_Methods.cs">
+      <Link>QuestExtraRewards\QuestExtraRewardsInventory_Methods.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ActivityOverviewRepo.cs">
+      <Link>Repositories\ActivityOverviewRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ArenaRankRepo.cs">
+      <Link>Repositories\ArenaRankRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CharacterLevelRepo.cs">
+      <Link>Repositories\CharacterLevelRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CharacterRepo.cs">
+      <Link>Repositories\CharacterRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CraftingRepo.cs">
+      <Link>Repositories\CraftingRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CurrencyExchangeRepo.cs">
+      <Link>Repositories\CurrencyExchangeRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\DonateRewardRepo.cs">
+      <Link>Repositories\DonateRewardRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ElementalChartRepo.cs">
+      <Link>Repositories\ElementalChartRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipmentModdingRepo.cs">
+      <Link>Repositories\EquipmentModdingRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipmentRepo.cs">
+      <Link>Repositories\EquipmentRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ExchangeShopRepo.cs">
+      <Link>Repositories\ExchangeShopRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ExperienceRepo.cs">
+      <Link>Repositories\ExperienceRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\GameConstantRepo.cs">
+      <Link>Repositories\GameConstantRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\GameRepo.cs">
+      <Link>Repositories\GameRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\GuildRepo.cs">
+      <Link>Repositories\GuildRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\GUILocalizationRepo.cs">
+      <Link>Repositories\GUILocalizationRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\HeroRepo.cs">
+      <Link>Repositories\HeroRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ItemFactory.cs">
+      <Link>Repositories\ItemFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ItemMallRepo.cs">
+      <Link>Repositories\ItemMallRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\JobSectRepo.cs">
+      <Link>Repositories\JobSectRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\jsoncontracts.cs">
+      <Link>Repositories\jsoncontracts.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\LevelRepo.cs">
+      <Link>Repositories\LevelRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\LotteryMainRepo.cs">
+      <Link>Repositories\LotteryMainRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\MailRepo.cs">
+      <Link>Repositories\MailRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\NPCRepo.cs">
+      <Link>Repositories\NPCRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\OfflineExpRepo.cs">
+      <Link>Repositories\OfflineExpRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PartyRepo.cs">
+      <Link>Repositories\PartyRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PortraitPathRepo.cs">
+      <Link>Repositories\PortraitPathRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PrizeGuaranteeRepository.cs">
+      <Link>Repositories\PrizeGuaranteeRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PushNotificationRepo.cs">
+      <Link>Repositories\PushNotificationRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\QuestExtraRewardRepo.cs">
+      <Link>Repositories\QuestExtraRewardRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\QuestRepo.cs">
+      <Link>Repositories\QuestRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RandomBoxRewardRepo.cs">
+      <Link>Repositories\RandomBoxRewardRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RareItemNotificationRepo.cs">
+      <Link>Repositories\RareItemNotificationRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RealmRepo.cs">
+      <Link>Repositories\RealmRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RespawnRepo.cs">
+      <Link>Repositories\RespawnRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RewardListRepo.cs">
+      <Link>Repositories\RewardListRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\SevenDaysRepo.cs">
+      <Link>Repositories\SevenDaysRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\SkillRepo.cs">
+      <Link>Repositories\SkillRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\SkillTreeRepo.cs">
+      <Link>Repositories\SkillTreeRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\StoreRepo.cs">
+      <Link>Repositories\StoreRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\TeleportNPCListRepo.cs">
+      <Link>Repositories\TeleportNPCListRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\TopUpRepo.cs">
+      <Link>Repositories\TopUpRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\WalletRepo.cs">
+      <Link>Repositories\WalletRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\WelfareRepo.cs">
+      <Link>Repositories\WelfareRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\WordFilterRepo.cs">
+      <Link>Repositories\WordFilterRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\RPC\RPCAttributes.cs">
+      <Link>RPC\RPCAttributes.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\RPC\RPCDataConversion.cs">
+      <Link>RPC\RPCDataConversion.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\RPC\RPCMethods.cs">
+      <Link>RPC\RPCMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\SevenDays\SevenDaysInventory.cs">
+      <Link>SevenDays\SevenDaysInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\SevenDays\SevenDaysInventory_Methods.cs">
+      <Link>SevenDays\SevenDaysInventory_Methods.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\StateMachine.cs">
+      <Link>StateMachine.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Timers.cs">
+      <Link>Timers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Welfare\WelfareInventory.cs">
+      <Link>Welfare\WelfareInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Welfare\WelfareInventory_Methods.cs">
+      <Link>Welfare\WelfareInventory_Methods.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

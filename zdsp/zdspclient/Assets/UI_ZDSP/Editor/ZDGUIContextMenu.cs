@@ -385,7 +385,7 @@ public class ZDGUIContextMenu : EditorWindow
     [MenuItem("GameObject/ZDGUI/Misc/ComboBoxA", false, -97)]
     static void ComboBoxA()
     {
-        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/ComboBox/P_ComboBoxA/ComboBoxA.prefab", typeof(GameObject));
+        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/ComboBox/newnew/P_ComboBox/ComboBoxA.prefab", typeof(GameObject));
         CreateAsChildNoBreak(uiWidget);
     }
 

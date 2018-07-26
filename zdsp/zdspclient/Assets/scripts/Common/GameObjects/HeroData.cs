@@ -125,6 +125,14 @@ public class Hero
         return !SkillRepo.IsSkillMaxLevel(skillgroupid, currentLevel);
     }
 
+    public bool CanAddSkillPoint()
+    {
+        int totalMaxSkillLevels = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill1grp);
+        totalMaxSkillLevels += SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill2grp);
+        totalMaxSkillLevels += SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill3grp);
+        return GetTotalSkillPoints() < totalMaxSkillLevels;
+    }
+
     public bool IsModelTierUnlocked(int tier)
     {
         int reqPts = 0;

@@ -239,6 +239,10 @@ public class UI_Hero_Info : MonoBehaviour
 
             if (oldHero.Interest != newHero.Interest)
                 UpdateInterest(newHero.Interest);
+
+            dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroStats);
+            if (dialog.activeInHierarchy)
+                dialog.GetComponent<UI_Hero_StatsDialog>().Init(newHero);
         }
     }
 
@@ -329,6 +333,7 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnClickStats()
     {
-        print("open stats dialog");
+        UIManager.OpenDialog(WindowType.DialogHeroStats,
+            (window) => window.GetComponent<UI_Hero_StatsDialog>().Init(selectedHero));
     }
 }

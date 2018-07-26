@@ -20,6 +20,7 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
     InterestScrollViewContext context;
+    string imagePath = "";
 
     void Start()
     {
@@ -54,15 +55,20 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
             var isSelected = context.SelectedIndex == DataIndex;
             highlight.SetActive(isSelected);
             HeroInterestType type = (HeroInterestType)itemData.Type;
-            if (type == HeroInterestType.None)
+
+            HeroInterestJson json = HeroRepo.GetInterestByType(type);
+            if (json != null)
             {
-                ClientUtils.LoadIconAsync("UI_ZDSP_AsyncIcons/InterestCell/zzz_interestcell_test_Random.png", OnImageLoaded);
+                if (imagePath != json.iconpath)
+                {
+                    imagePath = json.iconpath;
+                    ClientUtils.LoadIconAsync(imagePath, OnImageLoaded);
+                }
             }
             else
             {
-                HeroInterestJson json = HeroRepo.GetInterestByType(type);
-                if (json != null)
-                    ClientUtils.LoadIconAsync(json.iconpath, OnImageLoaded);
+                image.sprite = null;
+                imagePath = "";
             }
         }
     }

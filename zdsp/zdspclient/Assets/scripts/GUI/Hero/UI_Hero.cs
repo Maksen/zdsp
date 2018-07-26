@@ -5,6 +5,12 @@ public class UI_Hero : BaseWindowBehaviour
 {
     [SerializeField] UI_Hero_Info uiHeroInfo;
 
+    public override void OnRegister()
+    {
+        base.OnRegister();
+        uiHeroInfo.Setup();
+    }
+
     public override void OnOpenWindow()
     {
         base.OnOpenWindow();
@@ -26,8 +32,13 @@ public class UI_Hero : BaseWindowBehaviour
         uiHeroInfo.OnHeroAdded(hero);
     }
 
-    internal void OnHeroUpdated(Hero oldHero, Hero newHero)
+    public void OnHeroUpdated(Hero oldHero, Hero newHero)
     {
         uiHeroInfo.OnHeroUpdated(oldHero, newHero);
+    }
+
+    public void OnInterestRandomSpinResult(byte interest)
+    {
+        uiHeroInfo.OnInterestRandomSpinResult(interest);
     }
 }

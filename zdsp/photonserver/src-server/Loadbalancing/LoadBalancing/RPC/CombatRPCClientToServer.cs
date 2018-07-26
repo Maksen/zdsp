@@ -2000,16 +2000,16 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeHeroInterest)]
-        public void ChangeHeroInterest(int heroId, byte assignedInterest, GameClientPeer peer)
+        public void ChangeHeroInterest(int heroId, byte assignedInterest, bool acceptResult, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
             if (player != null)
-                player.HeroStats.ChangeHeroInterest(heroId, assignedInterest);
+                player.HeroStats.ChangeHeroInterest(heroId, assignedInterest, acceptResult);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeHeroInterest)]
         public void ChangeHeroInterestProxy(object[] args)
         {
-            ChangeHeroInterest((int)args[0], (byte)args[1], (GameClientPeer)args[2]);
+            ChangeHeroInterest((int)args[0], (byte)args[1], (bool)args[2], (GameClientPeer)args[3]);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddHeroTrust)]

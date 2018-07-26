@@ -731,9 +731,9 @@ public class CombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeHeroInterest)]
-    public void ChangeHeroInterest(int heroId, byte assignedInterest)
+    public void ChangeHeroInterest(int heroId, byte assignedInterest, bool acceptResult = false)
     {
-        ProxyMethod("ChangeHeroInterest", heroId, assignedInterest);
+        ProxyMethod("ChangeHeroInterest", heroId, assignedInterest, acceptResult);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddHeroTrust)]

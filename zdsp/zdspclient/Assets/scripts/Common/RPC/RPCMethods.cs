@@ -154,6 +154,10 @@
         OnGetPartyMemberPosition,
         #endregion
 
+        #region Hero
+        Ret_RandomInterestResult,
+        #endregion
+
         #region Mail
 
         Ret_HasNewMail,//called after server wants to inform the player the result of new mail

@@ -149,14 +149,32 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static HeroInterestType GetRandomInterestByGroup(int groupId)
+        public static bool IsInterestInGroup(int groupId, HeroInterestType type)
         {
             List<HeroInterestGroupJson> interestList;
             if (interestGroupToTypes.TryGetValue(groupId, out interestList))
             {
+                return interestList.Exists(x => x.interesttype == type);
+            }
+            return false;
+        }
+
+        public static HeroInterestType GetRandomInterestByGroup(int groupId, HeroInterestType excludeType = HeroInterestType.Random)
+        {
+            List<HeroInterestGroupJson> interestList;
+            if (interestGroupToTypes.TryGetValue(groupId, out interestList))
+            {
+                if (excludeType != HeroInterestType.Random)
+                    interestList.RemoveAll(x => x.interesttype == excludeType);
+
+                if (interestList.Count == 0)
+                    return HeroInterestType.Random;
+
                 float totalProb = 0;
                 for (int i = 0; i < interestList.Count; i++)
+                {
                     totalProb += interestList[i].probability;
+                }
 
                 float randomPoint = (float)GameUtils.Random(0, 1) * totalProb;
                 for (int i = 0; i < interestList.Count; i++)
@@ -168,7 +186,7 @@ namespace Zealot.Repository
                 }
                 return interestList[interestList.Count - 1].interesttype;
             }
-            return HeroInterestType.None;
+            return HeroInterestType.Random;
         }
 
         public static HeroInterestJson GetInterestByType(HeroInterestType type)

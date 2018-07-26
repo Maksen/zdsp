@@ -33,6 +33,8 @@ namespace Photon.LoadBalancing.GameServer
         private List<IPassiveSideEffect> summonPassiveSEs;
         private Dictionary<int, List<IPassiveSideEffect>> heroPassiveSEs;  // hero id -> list of passives
 
+        private HeroInterestType randomSpinResult;
+
         public HeroStatsServer() : base()
         {
             fulfilledBonds = new Dictionary<int, HeroBondSideEffect>();
@@ -209,6 +211,12 @@ namespace Photon.LoadBalancing.GameServer
             if (hero == null)
                 return;
 
+            if (!hero.CanAddSkillPoint())
+            {
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_SkillPointsMaxed", "", false, peer);
+                return;
+            }
+
             if (DeductItem(hero.HeroJson.upgradeitemid, hero.HeroJson.upgradeitemcount))
             {
                 hero.SkillPoints++;
@@ -278,38 +286,46 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public void ChangeHeroInterest(int heroId, byte assignedInterest)
+        public void ChangeHeroInterest(int heroId, byte assignedInterest, bool acceptResult)
         {
             Hero hero = GetHero(heroId);
-            if (hero != null && hero.Interest != (HeroInterestType)assignedInterest)
+            HeroInterestType interest = (HeroInterestType)assignedInterest;
+            if (hero != null && hero.Interest != interest)
             {
-                if (assignedInterest == (byte)HeroInterestType.None) // random
+                if (interest == HeroInterestType.Random) // random
                 {
-                    if (DeductHeroGiftItem(hero.HeroJson.randomitemid))
+                    if (acceptResult && randomSpinResult != HeroInterestType.Random) // means accept previous spin's result
                     {
-                        HeroInterestType newInterest = HeroRepo.GetRandomInterestByGroup(hero.HeroJson.interestgroup);
-                        hero.Interest = newInterest;
+                        hero.Interest = randomSpinResult;
                         heroes[hero.SlotIdx] = hero.ToString();
-                        //HeroInterestJson interestData = HeroRepo.GetInterestByType(newInterest);
-                        //peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_HeroInterestChanged",
-                        //    string.Format("interest;{0}", interestData.localizedname), false, peer);
-                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("interest changed to " + newInterest, "", false, peer);
                     }
-                    else
-                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
+                    else // means do random spin
+                    {
+                        randomSpinResult = HeroRepo.GetRandomInterestByGroup(hero.HeroJson.interestgroup, hero.Interest);  // exclude current interest
+                        if (randomSpinResult == HeroInterestType.Random)
+                        {
+                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_InterestCannotChange", "", false, peer);
+                            return;
+                        }
+
+                        if (DeductHeroGiftItem(hero.HeroJson.randomitemid))
+                            peer.ZRPC.CombatRPC.Ret_RandomInterestResult((byte)randomSpinResult, peer);
+                        else
+                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
+                    }
                 }
                 else  // assigned
                 {
-                    HeroInterestJson interestData = HeroRepo.GetInterestByType((HeroInterestType)assignedInterest);
+                    HeroInterestJson interestData = HeroRepo.GetInterestByType(interest);
                     if (interestData != null)
                     {
+                        if (!HeroRepo.IsInterestInGroup(hero.HeroJson.interestgroup, interest))  // assigned interest not in hero's interest group
+                            return;
+
                         if (DeductHeroGiftItem(interestData.assigneditemid))
                         {
-                            hero.Interest = (HeroInterestType)assignedInterest;
-                            heroes[hero.SlotIdx] = hero.ToString();
-                            //peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_HeroInterestChanged",
-                            //    string.Format("interest;{0}", interestData.localizedname), false, peer);
-                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("interest changed to " + assignedInterest, "", false, peer);
+                            hero.Interest = interest;
+                            heroes[hero.SlotIdx] = hero.ToString(); 
                         }
                         else
                             peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);

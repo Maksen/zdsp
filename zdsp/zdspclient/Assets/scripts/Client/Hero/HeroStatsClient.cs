@@ -99,4 +99,9 @@ public class HeroStatsClient : HeroStats
     {
         uiHero.OnSummonedHeroChanged();
     }
+
+    public void OnInterestRandomSpinResult(byte interest)
+    {
+        uiHero.OnInterestRandomSpinResult(interest);
+    }
 }

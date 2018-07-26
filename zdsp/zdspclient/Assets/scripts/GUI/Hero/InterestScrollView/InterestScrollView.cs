@@ -48,4 +48,9 @@ public class InterestScrollView : FancyScrollView<InterestCellDto, InterestScrol
     {
         UpdateSelection(cell.DataIndex);
     }
+
+    public void EnableScrollPositionController(bool value)
+    {
+        scrollPositionController.enabled = value;
+    }
 }

@@ -503,6 +503,14 @@ namespace Zealot.RPC
         }
         #endregion
 
+        #region Hero
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_RandomInterestResult)]
+        public void Ret_RandomInterestResult(byte interest, object target)
+        {
+            ProxyMethod("Ret_RandomInterestResult", interest, target);
+        } 
+        #endregion
+
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_OnCurrencyExchange)]
         public void Ret_OnCurrencyExchange(byte result, byte oldExchangeTime, object target)
         {

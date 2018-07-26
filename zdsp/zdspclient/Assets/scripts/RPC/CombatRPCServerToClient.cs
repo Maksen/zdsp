@@ -233,7 +233,16 @@ public partial class ClientMain : MonoBehaviour
         if (player != null && player.PartyStats != null)
             player.PartyStats.OnGetPartyMemberPosition(currLevelName, position);
     }
+    #endregion
 
+    #region Hero
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_RandomInterestResult)]
+    public void Ret_RandomInterestResult(byte interest)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player != null)
+            player.HeroStats.OnInterestRandomSpinResult(interest);
+    } 
     #endregion
 
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.SpawnGate)]

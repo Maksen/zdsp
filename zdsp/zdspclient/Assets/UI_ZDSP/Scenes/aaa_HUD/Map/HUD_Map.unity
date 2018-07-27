@@ -2193,6 +2193,11 @@ RectTransform:
   m_PrefabParentObject: {fileID: 224718823824292472, guid: e919a1dfaa59aba47b3ec1418c4eef35,
     type: 2}
   m_PrefabInternal: {fileID: 644123959}
+--- !u!1 &644123962 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1588499889086282, guid: e919a1dfaa59aba47b3ec1418c4eef35,
+    type: 2}
+  m_PrefabInternal: {fileID: 644123959}
 --- !u!1 &756901643
 GameObject:
   m_ObjectHideFlags: 0
@@ -3670,6 +3675,11 @@ RectTransform:
   m_PrefabParentObject: {fileID: 224718823824292472, guid: e919a1dfaa59aba47b3ec1418c4eef35,
     type: 2}
   m_PrefabInternal: {fileID: 1216791107}
+--- !u!1 &1216791110 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1588499889086282, guid: e919a1dfaa59aba47b3ec1418c4eef35,
+    type: 2}
+  m_PrefabInternal: {fileID: 1216791107}
 --- !u!1001 &1233525273
 Prefab:
   m_ObjectHideFlags: 0
@@ -4475,7 +4485,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -30.800056, y: -52.6}
+  m_AnchoredPosition: {x: -30.75, y: -52.5}
   m_SizeDelta: {x: 656.73, y: 461.41}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1689945528
@@ -4521,10 +4531,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mTxtMapName: {fileID: 699477}
-  mTxtServerName: {fileID: 1987440929}
+  mTxtChannelName: {fileID: 1987440929}
+  mImgMap: {fileID: 1815152591}
+  mTGExpander: {fileID: 1943838844}
   mBtnWorldMap: {fileID: 1083767892}
   mBtnClose: {fileID: 1081454135}
-  mExpanderGO: {fileID: 1943838842}
+  mExpanderNPCGO: {fileID: 1216791110}
+  mExpanderMonsterGO: {fileID: 644123962}
   mTeleportGO: {fileID: 45532706}
   mReviveGO: {fileID: 1780362576}
   mMonsterGO: {fileID: 2072823257}
@@ -4534,7 +4547,8 @@ MonoBehaviour:
   mMiniBossGO: {fileID: 825201545}
   mPartyGO: {fileID: 756901643}
   mPlayerGO: {fileID: 921877333}
-  mExpanderPrefab: {fileID: 0}
+  mExpanderPrefab: {fileID: 1720001143830846, guid: 0811a08f5e560564e813a3696f44c594,
+    type: 2}
   mMapIconPrefab: {fileID: 1715862876028580, guid: bbc016440d5463341ab2f4fc230a9d86,
     type: 2}
 --- !u!1 &1716823587

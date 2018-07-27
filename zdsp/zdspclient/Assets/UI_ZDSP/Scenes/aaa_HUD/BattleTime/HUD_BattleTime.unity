@@ -323,7 +323,7 @@ RectTransform:
   m_Children:
   - {fileID: 1316379426}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -589,6 +589,7 @@ GameObject:
   - component: {fileID: 983225979}
   - component: {fileID: 983225978}
   - component: {fileID: 983225977}
+  - component: {fileID: 983225980}
   m_Layer: 5
   m_Name: Text_LeftText
   m_TagString: Untagged
@@ -667,6 +668,18 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 983225975}
+--- !u!114 &983225980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 983225975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 050229b4002bba2439bb5a53774a3cf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localizeText: bt_BattleTime
 --- !u!1 &1047208983
 GameObject:
   m_ObjectHideFlags: 0
@@ -1255,7 +1268,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 418080, guid: 1b253800c7b6b194f999305297681d58, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1b253800c7b6b194f999305297681d58, type: 2}
@@ -1499,6 +1512,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1405447527}
   - component: {fileID: 1405447526}
+  - component: {fileID: 1405447528}
   m_Layer: 22
   m_Name: HUD_BattleTime
   m_TagString: Untagged
@@ -1517,8 +1531,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 325e9b6237f6e1f4b89306d28da7449e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  widgetType: 0
-  ActiveOnStartup: 0
+  widgetType: 18
+  ActiveOnStartup: 1
   toggle: {fileID: 0}
 --- !u!224 &1405447527
 RectTransform:
@@ -1532,13 +1546,25 @@ RectTransform:
   m_Children:
   - {fileID: 1120676357}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1405447528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1405447525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cceccbbd64a9144488376271eac2c53f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  battleTimeTxt: {fileID: 1967583490}
 --- !u!1 &1460261775
 GameObject:
   m_ObjectHideFlags: 0

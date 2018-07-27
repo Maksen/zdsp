@@ -188,9 +188,12 @@ namespace Photon.LoadBalancing.GameServer
                     if (applied)
                         combatStats.ComputeAll();
 
-                    // update synstats level of summoned hero entity if is this hero
+                    // update summoned hero entity if is this hero
                     if (IsHeroSummoned(heroId))
+                    {
                         summonedHeroEntity.HeroSynStats.Level = hero.Level;
+                        summonedHeroEntity.SetCombatStats(hero.Level);
+                    }
 
                     // if hero is in player's party, need to update partystats
                     if (player.IsInParty())

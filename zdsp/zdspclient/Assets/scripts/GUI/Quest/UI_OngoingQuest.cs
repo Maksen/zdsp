@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.UI;
 using Zealot.Repository;
+using System;
+using Kopio.JsonContracts;
 
 public class UI_OngoingQuest : MonoBehaviour
 {
@@ -12,6 +14,12 @@ public class UI_OngoingQuest : MonoBehaviour
 
     [SerializeField]
     Transform QuestListContent;
+
+    [SerializeField]
+    Transform[] OngoingGroupContent;
+
+    [SerializeField]
+    Transform[] UnlockGroupContent;
 
     [SerializeField]
     Scrollbar ContentScrollBar;
@@ -23,9 +31,9 @@ public class UI_OngoingQuest : MonoBehaviour
     Button Delete;
 
     private QuestClientController mQuestController;
-    private Dictionary<int, CurrentQuestData> mQuestList;
+    private Dictionary<QuestType, Dictionary<int, CurrentQuestData>> mQuestList;
     private Dictionary<int, GameObject> mOngoingQuestList;
-    private bool mIsLoading = false;
+    private Dictionary<QuestType, List<int>> mUnlockQuest;
     private List<int> mTrackingList;
     private int mSelectedQuest;
 
@@ -39,23 +47,33 @@ public class UI_OngoingQuest : MonoBehaviour
         if (mQuestController == null)
         {
             mQuestController = GameInfo.gLocalPlayer.QuestController;
-            mQuestList = new Dictionary<int, CurrentQuestData>();
-            mQuestList = mQuestController.GetQuestDataList(QuestType.Main);
-            mQuestList = mQuestList.Concat(mQuestController.GetQuestDataList(QuestType.Destiny)).ToDictionary(o => o.Key, o => o.Value);
-            mQuestList = mQuestList.Concat(mQuestController.GetQuestDataList(QuestType.Sub)).ToDictionary(o => o.Key, o => o.Value);
-            mQuestList = mQuestList.Concat(mQuestController.GetQuestDataList(QuestType.Guild)).ToDictionary(o => o.Key, o => o.Value);
-            mQuestList = mQuestList.Concat(mQuestController.GetQuestDataList(QuestType.Signboard)).ToDictionary(o => o.Key, o => o.Value);
-            mQuestList = mQuestList.Concat(mQuestController.GetQuestDataList(QuestType.Event)).ToDictionary(o => o.Key, o => o.Value);
+
+            mQuestList = new Dictionary<QuestType, Dictionary<int, CurrentQuestData>>();
+            mQuestList.Add(QuestType.Main, mQuestController.GetQuestDataList(QuestType.Main));
+            mQuestList.Add(QuestType.Destiny, mQuestController.GetQuestDataList(QuestType.Destiny));
+            mQuestList.Add(QuestType.Sub, mQuestController.GetQuestDataList(QuestType.Sub));
+            mQuestList.Add(QuestType.Guild, mQuestController.GetQuestDataList(QuestType.Guild));
+            mQuestList.Add(QuestType.Signboard, mQuestController.GetQuestDataList(QuestType.Signboard));
+            mQuestList.Add(QuestType.Event, mQuestController.GetQuestDataList(QuestType.Event));
+
+            mUnlockQuest = new Dictionary<QuestType, List<int>>();
+            mUnlockQuest.Add(QuestType.Main, new List<int>());
+            mUnlockQuest.Add(QuestType.Destiny, new List<int>());
+            mUnlockQuest.Add(QuestType.Sub, new List<int>());
+            mUnlockQuest.Add(QuestType.Guild, new List<int>());
+            mUnlockQuest.Add(QuestType.Signboard, new List<int>());
+            mUnlockQuest.Add(QuestType.Event, new List<int>());
+
             mOngoingQuestList = new Dictionary<int, GameObject>();
             mTrackingList = mQuestController.GetTrackingList();
             mSelectedQuest = -1;
-            UpdateQuestList();
+            UpdateOngoingList();
         }
         else
         {
             mTrackingList = mQuestController.GetTrackingList();
             mSelectedQuest = -1;
-            UpdateQuestList();
+            UpdateOngoingList();
         }
     }
 
@@ -76,76 +94,145 @@ public class UI_OngoingQuest : MonoBehaviour
 
         if (questid != -1)
         {
-            if (mQuestList.ContainsKey(questid))
+            QuestType questType = (QuestType)data.QuestType;
+            if (mQuestList[questType].ContainsKey(questid))
             {
-                mQuestList[questid] = data;
+                mQuestList[questType][questid] = data;
+                UpdateQuestData(questid, data);
             }
             else
             {
-                mQuestList.Add(questid, data);
+                mQuestList[questType].Add(questid, data);
+                AddNewOngoingQuest(questid, data);
             }
-            RefreshQuestList();
         }
     }
 
-    private void RefreshQuestList()
+    public void UpdateUnlockQuestList()
     {
         UIManager.StartHourglass();
-        mIsLoading = true;
-        foreach(KeyValuePair<int, GameObject> entry in mOngoingQuestList)
+        foreach (QuestType type in Enum.GetValues(typeof(QuestType)))
         {
-            CurrentQuestData questData = null;
-            mQuestList.TryGetValue(entry.Key, out questData);
-            if (questData != null)
-            {
-                entry.Value.GetComponent<UI_OngoingQuestData>().UpdateDescription(questData);
-            }
+            AddAvailableQuest(type);
+            DeleteAvailableQuest(type);
         }
-        mIsLoading = false;
         UIManager.StopHourglass();
     }
 
-    private void UpdateQuestList()
+    private void DeleteAvailableQuest(QuestType type)
     {
-        UIManager.StartHourglass();
-        mIsLoading = true;
-        for (int i = 0; i < QuestRepo.MaxTrackingCount; i++)
+        List<int> newquestlist = mQuestController.GetUnlockQuest(type).Select(o => o.questid).ToList();
+        List<int> oldquestlist = mUnlockQuest[type];
+        foreach (int questid in oldquestlist)
         {
-            foreach(KeyValuePair<int, CurrentQuestData> questdata in mQuestList)
+            if (!newquestlist.Contains(questid))
             {
-                if (questdata.Value == null)
+                if (mOngoingQuestList.ContainsKey(questid))
                 {
-                    break;
+                    Destroy(mOngoingQuestList[questid]);
+                    mOngoingQuestList.Remove(questid);
                 }
-                if (!mOngoingQuestList.ContainsKey(questdata.Key))
-                {
-                    GameObject ongoingdata = Instantiate(OngoingQuestData);
-                    bool tracked;
-                    if (mTrackingList == null)
-                    {
-                        tracked = false;
-                    }
-                    else
-                    {
-                        tracked = mTrackingList.Contains(questdata.Key) ? true : false;
-                    }
-                    ToggleGroup toggleGroup = QuestListContent.GetComponent<ToggleGroup>();
-                    ongoingdata.GetComponent<UI_OngoingQuestData>().Init(questdata.Value, mQuestController, tracked, this, mTrackingList.Count >= 20, toggleGroup);
-                    ongoingdata.transform.SetParent(QuestListContent, false);
-                    mOngoingQuestList.Add(questdata.Key, ongoingdata);
-                }
+                mUnlockQuest[type].Remove(questid);
             }
         }
-        mIsLoading = false;
+    }
+
+    private void UpdateQuestData(int questid, CurrentQuestData questData)
+    {
+        if (mOngoingQuestList.ContainsKey(questid))
+        {
+            UI_OngoingQuestData ongoingQuestData = mOngoingQuestList[questid].GetComponent<UI_OngoingQuestData>();
+            ongoingQuestData.UpdateDescription(questData);
+        }
+    }
+
+    private void AddNewOngoingQuest(int questid, CurrentQuestData questData)
+    {
+        Transform content = GetOngoingGroup((QuestType)questData.QuestType);
+        content.gameObject.SetActive(true);
+
+        if (mOngoingQuestList.ContainsKey(questid))
+        {
+            UI_OngoingQuestData ongoingQuestData = mOngoingQuestList[questid].GetComponent<UI_OngoingQuestData>();
+            ongoingQuestData.transform.SetParent(content, false);
+            ongoingQuestData.UpdateDescription(questData);
+        }
+        else
+        {
+            GameObject ongoingdata = Instantiate(OngoingQuestData);
+            bool tracked = mTrackingList == null ? false : mTrackingList.Contains(questid);
+            ToggleGroup toggleGroup = QuestListContent.GetComponent<ToggleGroup>();
+            ongoingdata.GetComponent<UI_OngoingQuestData>().Init(questData, mQuestController, tracked, this, mTrackingList.Count >= 20, toggleGroup);
+            ongoingdata.transform.SetParent(content, false);
+            mOngoingQuestList.Add(questid, ongoingdata);
+        }
+    }
+
+    private Transform GetOngoingGroup(QuestType type)
+    {
+        return OngoingGroupContent[(int)type];
+    }
+
+    private Transform GetUnlockGroup(QuestType type)
+    {
+        return UnlockGroupContent[(int)type];
+    }
+
+    private void UpdateOngoingList()
+    {
+        UIManager.StartHourglass();
+        foreach (QuestType type in Enum.GetValues(typeof(QuestType)))
+        {
+            AddOngoingQuest(mQuestList[type], type);
+            AddAvailableQuest(type);
+            DeleteAvailableQuest(type);
+        }
         UIManager.StopHourglass();
     }
 
-    private void Update()
+    private void AddOngoingQuest(Dictionary<int, CurrentQuestData> questdatas, QuestType type)
     {
-        if (!mIsLoading && ContentScrollBar.gameObject.activeSelf && ContentScrollBar.value == 0)
+        Transform content = GetOngoingGroup(type);
+        content.gameObject.SetActive(questdatas.Count == 0 ? false : true);
+        foreach (KeyValuePair<int, CurrentQuestData> questdata in questdatas)
         {
-            UpdateQuestList();
-            Debug.Log("Ongoing Quest List Refresh");
+            if (questdata.Value == null)
+            {
+                break;
+            }
+            if (!mOngoingQuestList.ContainsKey(questdata.Key))
+            {
+                GameObject ongoingdata = Instantiate(OngoingQuestData);
+                bool tracked = mTrackingList == null ? false : mTrackingList.Contains(questdata.Key);
+                ToggleGroup toggleGroup = QuestListContent.GetComponent<ToggleGroup>();
+                ongoingdata.GetComponent<UI_OngoingQuestData>().Init(questdata.Value, mQuestController, tracked, this, mTrackingList.Count >= 20, toggleGroup);
+                ongoingdata.transform.SetParent(content, false);
+                mOngoingQuestList.Add(questdata.Key, ongoingdata);
+            }
+        }
+    }
+
+    private void AddAvailableQuest(QuestType type)
+    {
+        Transform content = GetUnlockGroup(type);
+        List<QuestJson> questlist = mQuestController.GetUnlockQuest(type);
+        content.gameObject.SetActive(questlist.Count == 0 ? false : true);
+        foreach (QuestJson questJson in questlist)
+        {
+            if (!mOngoingQuestList.ContainsKey(questJson.questid))
+            {
+                GameObject ongoingdata = Instantiate(OngoingQuestData);
+                bool tracked = mTrackingList == null ? false : mTrackingList.Contains(questJson.questid);
+                ToggleGroup toggleGroup = QuestListContent.GetComponent<ToggleGroup>();
+                ongoingdata.GetComponent<UI_OngoingQuestData>().Init(questJson, mQuestController, tracked, this, mTrackingList.Count >= 20, toggleGroup);
+                ongoingdata.transform.SetParent(content, false);
+                mOngoingQuestList.Add(questJson.questid, ongoingdata);
+
+                if (!mUnlockQuest[type].Contains(questJson.questid))
+                {
+                    mUnlockQuest[type].Add(questJson.questid);
+                }
+            }
         }
     }
 
@@ -201,10 +288,10 @@ public class UI_OngoingQuest : MonoBehaviour
         mQuestController.UpdateTrackingList();
     }
 
-    public void OnQuestSelectionChanged(int questid)
+    public void OnQuestSelectionChanged(int questid, bool unlockquest)
     {
         mSelectedQuest = questid;
-        UpdateQuestButton(mSelectedQuest == -1 ? false : true);
+        UpdateQuestButton(unlockquest ? false : mSelectedQuest == -1 ? false : true);
     }
 
     public void OnClickedReset()
@@ -258,9 +345,10 @@ public class UI_OngoingQuest : MonoBehaviour
                 Destroy(mOngoingQuestList[questid]);
                 mOngoingQuestList.Remove(questid);
             }
-            if (mQuestList.ContainsKey(questid))
+            QuestType questType = QuestRepo.GetQuestTypeByQuestId(questid);
+            if (mQuestList[questType].ContainsKey(questid))
             {
-                mQuestList.Remove(questid);
+                mQuestList[questType].Remove(questid);
             }
             mQuestController.RollBackQuestEvent(questid);
         }

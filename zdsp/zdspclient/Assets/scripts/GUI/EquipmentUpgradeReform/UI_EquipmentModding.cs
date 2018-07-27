@@ -46,4 +46,21 @@ public class UI_EquipmentModding : MonoBehaviour
 
         return equipUpgList;
     }
+
+    public List<int> GetSEIDListFromString(string seIDGrp)
+    {
+        List<int> seIDList = new List<int>();
+
+        List<string> seIDStrList = seIDGrp.Split(';').ToList();
+        for(int i = 0; i < seIDStrList.Count; ++i)
+        {
+            int seId = 0;
+            if(int.TryParse(seIDStrList[i], out seId))
+            {
+                seIDList.Add(seId);
+            }
+        }
+
+        return seIDList;
+    }
 }

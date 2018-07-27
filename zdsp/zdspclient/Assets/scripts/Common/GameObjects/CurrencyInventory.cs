@@ -50,6 +50,10 @@ namespace Zealot.Common
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "battlecoin")]
         public int BattleCoin { get; set; }
+
+        
+        [JsonProperty(PropertyName = "BattleTime")]
+        public float BattleTime { get; set; }
         #endregion
     }
 }

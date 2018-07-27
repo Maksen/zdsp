@@ -240,6 +240,18 @@ namespace Zealot.RPC
         {
             ProxyMethod("Ret_NPCStoreInit", scJsonString, target);
         }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_NPCStoreGetPlayerTransactions)]
+        public void Ret_NPCStoreGetPlayerTransactions(string scJsonString, object target)
+        {
+            ProxyMethod("Ret_NPCStoreGetPlayerTransactions", scJsonString, target);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_NPCStoreBuy)]
+        public void Ret_NPCStoreBuy(string scJsonString, object target)
+        {
+            ProxyMethod("Ret_NPCStoreBuy", scJsonString, target);
+        }
         #endregion
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_TransferServer)]
@@ -272,6 +284,12 @@ namespace Zealot.RPC
         {
             ProxyMethod("Ret_InteractAction", target);
         }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_QuestFull)]
+        public void Ret_QuestFull(int questid, object target)
+        {
+            ProxyMethod("Ret_QuestFull", questid, target);
+        }
         #endregion
 
         #region CharacterInfo
@@ -279,6 +297,14 @@ namespace Zealot.RPC
         public void Ret_CharacterInfoSpendStatsPoints(int retVal, object target)
         {
             ProxyMethod("Ret_CharacterInfoSpendStatsPoints", retVal, target);
+        }
+        #endregion
+
+        #region Skill
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_AddToSkillInventory)]
+        public void Ret_AddToSkillInventory(byte result, int skillid, int skillpoint, int money, object target)
+        {
+            ProxyMethod("Ret_AddToSkillInventory", result, skillid, skillpoint, money, target);
         }
         #endregion
     }
@@ -1017,14 +1043,87 @@ namespace Photon.LoadBalancing.GameServer
 
             var starttime = DateTime.Now;
 
-            var npcstore = await NPCStoreManager.InstanceAsync().ConfigureAwait(false);
+            var npcstores = await NPCStoreManager.InstanceAsync().ConfigureAwait(false);
 
-            var contains = npcstore.storedata.ContainsKey(storeid);
+            var contains = npcstores.storedata.ContainsKey(storeid);
             if (contains)
             {
-                string scString = JsonConvert.SerializeObject(npcstore.storedata[storeid]);
+                string scString = JsonConvert.SerializeObject(npcstores.storedata[storeid]);
                 peer.ZRPC.NonCombatRPC.Ret_NPCStoreInit(scString, peer);
             }
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCStoreGetPlayerTransactions)]
+        public async void NPCStoreGetPlayerTransactions(int storeid, GameClientPeer peer)
+        {
+            var transactions = await GameApplication.dbGM.NPCStoreGMRepo.GetPlayerStoreTransactions(peer.mPlayer.Name).ConfigureAwait(false);
+            peer.ZRPC.NonCombatRPC.Ret_NPCStoreGetPlayerTransactions(JsonConvert.SerializeObject(transactions), peer);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCStoreBuy)]
+        public async void NPCStoreBuy(int storeid, int itemlistid, int purchaseamount, string charid, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player == null)
+                return;
+
+            var npcstores = await NPCStoreManager.InstanceAsync().ConfigureAwait(false);
+            var store = npcstores.storedata[storeid];
+            var storeentry = npcstores.storedata[storeid].inventory[itemlistid];
+
+            // validate purchase
+            var transactions = await GameApplication.dbGM.NPCStoreGMRepo.GetPlayerStoreTransactions(charid).ConfigureAwait(false);
+            if (transactions == null) transactions = new Dictionary<string, NPCStoreInfo.Transaction>();
+
+            var transactionkey = storeentry.Key();
+            NPCStoreInfo.Transaction transaction = null;
+            if (transactions.ContainsKey(transactionkey))
+            {
+                if (transactions[transactionkey].remaining < purchaseamount)
+                {
+                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("purchase limit exceeded", peer);
+                    return;
+                }
+
+                transactions[transactionkey].remaining -= purchaseamount;
+                transaction = transactions[transactionkey];
+            }
+            else
+            {
+                var bought_time = DateTime.Now;
+
+                var t = new NPCStoreInfo.Transaction();
+                t.storeitem = storeentry;
+                transactions.Add(t.storeitem.Key(), t);
+            }
+
+            bool buyresult = false;
+            switch (storeentry.SoldType)
+            {
+                case NPCStoreInfo.SoldCurrencyType.Normal:
+                    buyresult = peer.mPlayer.DeductMoney(storeentry.SoldValue, "NPCStoreBuy");
+                    break;
+
+                case NPCStoreInfo.SoldCurrencyType.Auction:
+                    buyresult = peer.mPlayer.DeductGold(storeentry.SoldValue, false, true, "NPCStoreBuy");
+                    break;
+            }
+
+            if (buyresult == false)
+            {
+                // money no enough, reject
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Money no enough", peer);
+                return;
+            }
+
+            // transaction legal, give the item
+            InvRetval retval = peer.mInventory.AddItemsIntoInventory((ushort)storeentry.ItemID, storeentry.ItemValue, true, "NPCStoreBuy");
+                
+            // record transaction            
+            var success = GameApplication.dbGM.NPCStoreGMRepo.UpdateTransactions(transactions, charid).ConfigureAwait(false);
+
+            string scString = JsonConvert.SerializeObject("success");
+            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(scString, peer);
         }
 
         #endregion
@@ -1091,19 +1190,46 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.AddToSkillInventory)]
         public void AddToSkillInventory(int skillid, int skillgid, GameClientPeer peer)
         {
-            //peer.mPlayer.SkillStats.SkillInv[skillid] = skillgid;
-            // find the skillid [groupid][id][groupid][id]
-            if (peer.mPlayer.SkillStats.SkillGroupIndex.ContainsKey(skillgid))
+            SkillData skill = SkillRepo.GetSkill(skillid);
+            // do integrety check
+            if (peer.mPlayer.LocalCombatStats.SkillPoints >= skill.skillJson.learningsp &&
+                peer.mPlayer.SecondaryStats.money >= skill.skillJson.learningcost)
             {
-                peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] + 1] = skillid;
-            }
-            else
-            {
-                peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] = peer.mPlayer.SkillStats.SkillInvCount;
-                peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillgid;
-                peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillid;
+                // try adding skill
+                // find the skillid [groupid][id][groupid][id]
+                if (peer.mPlayer.SkillStats.SkillGroupIndex.ContainsKey(skillgid))
+                {
+                    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] + 1] = skillid;
+                }
+                else
+                {
+                    peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] = peer.mPlayer.SkillStats.SkillInvCount;
+                    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillgid;
+                    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillid;
+                }
+
+                // deduct cost of skill, since the requirements is guaranteed in client
+
+                peer.mPlayer.LocalCombatStats.SkillPoints -= skill.skillJson.learningsp;
+                peer.mPlayer.SecondaryStats.money -= skill.skillJson.learningcost;
+
+                ZRPC.NonCombatRPC.Ret_AddToSkillInventory((byte)SkillReturnCode.SUCCESS, skillid, peer.mPlayer.LocalCombatStats.SkillPoints,
+                    peer.mPlayer.SecondaryStats.money, peer);
             }
 
+            else
+            {
+                SkillReturnCode code = SkillReturnCode.EMPTY;
+                if (peer.mPlayer.LocalCombatStats.SkillPoints < skill.skillJson.learningsp)
+                    code |= SkillReturnCode.SKILLPOINTFAILED;
+                if (peer.mPlayer.SecondaryStats.money < skill.skillJson.learningcost)
+                    code |= SkillReturnCode.MONEYFAILED;
+
+                ZRPC.NonCombatRPC.Ret_AddToSkillInventory((byte)code, skillid, peer.mPlayer.LocalCombatStats.SkillPoints,
+                    peer.mPlayer.SecondaryStats.money, peer);
+            }
+
+            
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipSkill)]

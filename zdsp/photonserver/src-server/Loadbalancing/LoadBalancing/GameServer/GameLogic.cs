@@ -669,6 +669,7 @@
             secStats.costbuffgold = characterData.costbuffgold;
             secStats.tutorialreddot = characterData.tutorialreddot;
             secStats.UnlockWorldBossLevel = GameConfig.UnlockWorldBossLevel;
+            secStats.BattleTime = characterData.BattleTime;
 
             /*********************   Items/Equipments   ***************************/
             player.InitInventoryStats(peer.mInventory.mInvData);
@@ -789,8 +790,12 @@
                 player.PartyStats = PartyRules.GetPartyById(partyId);
                 PartyRules.OnCharacterOnline(playername, true);
             }
-                
+
             /******* end stats *******/
+            /************************BattleTime Stats*****************/
+            //player.InitFromInventory(characterData.BattleTimeInventoryData);
+            //player.BattleTime(characterData.BattleTimeInventoryData);
+            /*************************end stats***********************/
 
             player.Slot = peer;
             peer.mPlayer = player;

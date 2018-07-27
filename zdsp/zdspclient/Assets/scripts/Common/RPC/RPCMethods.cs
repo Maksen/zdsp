@@ -255,6 +255,8 @@
         Ret_GetWorldBossList,
         Ret_GetWorldBossDmgList,
         #endregion
+
+        OnNPCKilled,
     }
 
     public enum GMMasterRPCMethods : byte
@@ -699,6 +701,8 @@
 
         #region NPCStore
         NPCStoreInit,
+        NPCStoreBuy,
+        NPCStoreGetPlayerTransactions,
         #endregion
 
         #region Quest
@@ -719,7 +723,7 @@
 
         #region Skills
         AddToSkillInventory,
-        EquipSkill,        
+        EquipSkill,
         #endregion
     }
 
@@ -785,6 +789,8 @@
 
         #region NPCStore
         Ret_NPCStoreInit,
+        Ret_NPCStoreBuy,
+        Ret_NPCStoreGetPlayerTransactions,
         #endregion
 
         #region Misc
@@ -808,10 +814,15 @@
         Ret_ResetQuest,
         Ret_CompleteQuest,
         Ret_InteractAction,
+        Ret_QuestFull,
         #endregion
 
         #region CharacterInfo
-        Ret_CharacterInfoSpendStatsPoints,        
+        Ret_CharacterInfoSpendStatsPoints,
+        #endregion
+
+        #region Skill
+        Ret_AddToSkillInventory,
         #endregion
     }
 }

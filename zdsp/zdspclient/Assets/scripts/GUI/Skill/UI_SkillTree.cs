@@ -72,6 +72,10 @@ public class GameObjectPoolManager
 
     public GameObject RequestObject()
     {
+        if(m_Pool.Count == 0)
+        {
+
+        }
         for (int i = 0; i < m_Pool.Count; ++i)
         {
             if (m_Pool[i].isFree)
@@ -127,31 +131,33 @@ public class UI_SkillTree : BaseWindowBehaviour
     public GameObject m_RowPrefab;
     public GameObject m_EquipSkillIconPrefab;
     public GameObject m_SkillPanelContentRect; // Content Panel
-    public UI_SkillExpandUI m_SkillDescriptor; // Skill Description Panel
 
     [Header("Connectors")]
     public List<GameObject> m_Connectors;
 
+    [Header("Skill Details Panel")]
+    public UI_SkillExpandUI m_SkillDescriptor; // Skill Description Panel
+
+    [Header("Job Selection Panel")]
+    public GameObject m_JobPanel;
+    public Text m_JobTitle;
+
+    [Header("Select Skill / Equip Skill Panel")]
+    public Transform m_SelectSkillContentRect;
+    public UI_SkillSelectDropDownList m_SelectSkillDDL;
+
+    [Header("Special Skill Panel")]
+    public UI_SkillSpecialUI m_SpecialSkillPanel;
 
     public Dictionary<JobType, List<GameObject>> m_SkillTreeCache = new Dictionary<JobType, List<GameObject>>();
     
-
     private GameObjectPoolManager m_ButtonPool;
     private GameObjectPoolManager m_EmptyButtonPool;
     private GameObjectPoolManager m_RowPool;
 
     private JobType m_DisplayType;
 
-    [Header("Job Selection Panel")]
-    public GameObject m_JobPanel;
-
     private List<UI_SkillJobButton> m_JobButtons = new List<UI_SkillJobButton>();
-
-
-    [Header("Select Skill")]
-    public Transform m_SelectSkillContentRect;
-    public UI_SkillSelectDropDownList m_SelectSkillDDL;
-
 
     private enum m_Dirty : byte
     {
@@ -169,12 +175,15 @@ public class UI_SkillTree : BaseWindowBehaviour
     // scrolling panel
     private float m_StartPos;
     private float m_FinalPos;
-    
     private float m_Time = 0;
 
     [Header("Scrolling Ease")]
     public AnimationCurve m_TweenFunction;
     public float m_Speed = 1;
+
+    [Header("Scrolling Arrows")]
+    public GameObject m_Left;
+    public GameObject m_Right;
 
     [Header("Debug use variables")]
     public int m_EquippableSize;
@@ -192,9 +201,9 @@ public class UI_SkillTree : BaseWindowBehaviour
     {
         base.OnCloseWindow();
         //clean up
-        m_ButtonPool.EmptyPool();
-        m_EmptyButtonPool.EmptyPool();
-        m_RowPool.EmptyPool();
+        //m_ButtonPool.EmptyPool();
+        //m_EmptyButtonPool.EmptyPool();
+        //m_RowPool.EmptyPool();
     }
 
     public override void OnOpenWindow()
@@ -248,6 +257,7 @@ public class UI_SkillTree : BaseWindowBehaviour
                 break;
             }
         }
+        m_JobTitle.text = JobSectRepo.GetJobLocalizedName(m_DisplayType);
         m_SkillDescriptor.Initialise(this.transform);
         m_SkillDescriptor.gameObject.SetActive(false);
 
@@ -265,6 +275,8 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_EquipSkillInv.Add(m_EquipSkillInv[0]);
         m_SelectSkillDDL.m_PanelPanel = this;
         m_SelectSkillDDL.Initialise(this.transform);
+        m_SpecialSkillPanel.m_Parent = this;
+        m_SpecialSkillPanel.Initialise(this.transform);
     }
 
     private void Update()
@@ -287,6 +299,7 @@ public class UI_SkillTree : BaseWindowBehaviour
                 }
 
             m_DisplayType = m_JobButtons[m_NewJobSelected].m_Jobtype;
+            m_JobTitle.text = JobSectRepo.GetJobLocalizedName(m_DisplayType);
 
             // check if panel exist
             ConstructPanel();
@@ -309,6 +322,15 @@ public class UI_SkillTree : BaseWindowBehaviour
                 m_DirtyBit ^= m_Dirty.ScrollPanel;
                 //m_SkillPanel.transform.localPosition = new Vector3(m_FinalPos, m_SkillPanel.transform.localPosition.y);
             }
+        }
+
+        if(m_SkillPanelContentRect.transform.localPosition.x <= 0)
+        {
+            m_Left.SetActive(false);
+        }
+        else
+        {
+            m_Left.SetActive(true);
         }
     }
 
@@ -442,12 +464,10 @@ public class UI_SkillTree : BaseWindowBehaviour
                             // check for dependancy
                             ParseSkillDependency(m_DisplayType, button, dict[col]);
 
-                        button.Init(dict[col]);
+                        button.Init(dict[col], delegate { button.OnSelected(); });
                         button.transform.SetParent(m_SkillTreeCache[m_DisplayType][row].transform);
                         button.transform.localPosition = new Vector3(button.transform.localPosition.x, button.transform.localPosition.y, 0);
                         button.transform.localScale = new Vector3(1, 1, 1);
-
-                        
                     }
                     else
                     {
@@ -505,6 +525,12 @@ public class UI_SkillTree : BaseWindowBehaviour
         //m_SkillDescriptor.gameObject.SetActive(false);
         if(m_CurrentActive != null)
             m_CurrentActive.m_Toggle.isOn = false;
+    }
+
+    public void ReloadSkillDescriptor()
+    {
+        m_SkillDescriptor.OnClosed();
+        m_SkillDescriptor.Show(m_CurrentActive);
     }
 
     public void OnSelectEquipSkill(UI_SkillSelectButton button)
@@ -577,6 +603,53 @@ public class UI_SkillTree : BaseWindowBehaviour
         }
     }
 
+    public void OnEventSkillLevelUp(byte result, int skillid, int skillpoint, int money)
+    {
+        if(((SkillReturnCode)result & SkillReturnCode.SUCCESS) == SkillReturnCode.SUCCESS)
+        {
+            // levelup of skill success, search for skill
+            List<JobType> jobs = SkillRepo.GetSkillRequiredClass(skillid);
+            SkillData skill = SkillRepo.GetSkill(skillid);
+
+            //phase 1 update the level ups
+            foreach(JobType tag in jobs)
+            {
+                bool isDone = false;
+                //update buttons of all related jobs
+                foreach (GameObject row in m_SkillTreeCache[m_DisplayType])
+                {
+                    UI_SkillButton[] obj = row.GetComponentsInChildren<UI_SkillButton>();
+
+                    foreach (UI_SkillButton button in obj)
+                    {
+                        if (button.m_ID == skill.skillgroupJson.id)
+                        {
+                            button.OnServerVerifiedLevelUp(skillid);
+                            isDone = true;
+                            break;
+                        }
+                    }
+                    if (isDone)
+                        break;
+                }
+            }
+
+            //phase 2 update all buttons
+            m_SelectSkillDDL.GenerateSkillList();
+
+            // update panel skills 
+            foreach (GameObject row in m_SkillTreeCache[m_DisplayType])
+            {
+                UI_SkillButton[] obj = row.GetComponentsInChildren<UI_SkillButton>();
+
+                foreach (UI_SkillButton button in obj)
+                {
+                    button.UpdateButton();
+                }
+            }
+        }
+    }
+
     public void OnLevelUpSkillWithID(int skillid, int level)
     {
         m_SelectSkillDDL.GenerateSkillList();
@@ -612,5 +685,33 @@ public class UI_SkillTree : BaseWindowBehaviour
         }
         return result;
         
+    }
+
+    public bool IsRequiredJobUnlocked(UI_SkillButton skill)
+    {
+        bool result = true;
+        List<int> req_jobs = new List<int>();
+        SkillData mskill = skill.m_SkillData;
+        if(mskill == null)
+            mskill = SkillRepo.GetSkillByGroupIDOfNextLevel(skill.m_ID, 0);
+        if (mskill.skillJson.requiredclass.CompareTo("#unnamed#") == 0) return true;
+        string[] req_class = mskill.skillJson.requiredclass.Split(';');
+        foreach(string req_class_iter in req_class)
+        {
+            int converted = 0;
+            bool toint = System.Int32.TryParse(req_class_iter, out converted);
+            if (toint)
+            {
+                req_jobs.Add(converted);
+            }
+        }
+
+        //loop all the class to see if player has it
+        foreach(int iter in req_jobs)
+        {
+            // need to construct player job history for this to work...
+        }
+
+        return result;
     }
 }

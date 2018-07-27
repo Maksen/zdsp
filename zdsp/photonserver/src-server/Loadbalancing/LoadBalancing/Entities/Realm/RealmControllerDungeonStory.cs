@@ -190,7 +190,7 @@ namespace Zealot.Server.Entities
                     }
                     else
                     {
-                        itemList = GameRules.GiveRewardGrp_CheckBagSlotThenMail(player, new List<int>() { mDungeonStoryInfo.rewardgrp },
+                        itemList = GameRules.GiveReward_CheckBagSlotThenMail(player, new List<int>() { mDungeonStoryInfo.rewardgrp },
                                         "Reward_DungeonStory", null, true, false, string.Format("RealmStory id={0}", mDungeonStoryInfo.id));
                     }
 

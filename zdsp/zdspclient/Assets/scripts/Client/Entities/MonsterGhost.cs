@@ -239,7 +239,7 @@ namespace Zealot.Client.Entities
                 if (effectRef != null)
                     heightOffset = effectRef.localPosition.y;
                 mHeadLabel.CreateNPCLabel(QuestLabelType.None);
-                mHeadLabel.mNpcLabel.InitChatWithMonsterNPC(mArchetype.archetype, true);
+                mHeadLabel.mNpcLabel.InitChatWithMonsterNPC(mArchetype.archetype);
                 mHeadLabel.SetLabelOffset_WorldSpace(Vector3.zero, new Vector3(0.0f, heightOffset + mHeadLabel.mNpcLabel.height, 0.0f));
 
                 //HeadLabel.SetActorName (mArchetype.localizedname);            

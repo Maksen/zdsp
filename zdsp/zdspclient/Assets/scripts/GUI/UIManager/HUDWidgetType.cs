@@ -23,6 +23,8 @@
     QuestList = 17,
     MiniMap = 18,
     Map = 19,
+    BattleTime = 20,
+    HideWhenDeath = 21,
 
     //----------------------------
 

@@ -50,7 +50,7 @@ public class PlayerInput : MonoBehaviour
             //SkillButtons = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
             //SkillButtons.Init();
 
-            PickableLayerMask = LayerMask.GetMask("Entities", "Destructible", "Nav_Walkable");
+            PickableLayerMask = LayerMask.GetMask("Entities", "Destructible", "Nav_Walkable", "Boss");
         }
     }
 

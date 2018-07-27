@@ -459,7 +459,7 @@ namespace Zealot.Server.Rules
                 }
                 else
                 {
-                    itemInfos = GameRules.GiveRewardGrp_CheckBagSlotThenMail(player, new List<int>() { rewardGrp }, "Reward_DungeonStory",
+                    itemInfos = GameRules.GiveReward_CheckBagSlotThenMail(player, new List<int>() { rewardGrp }, "Reward_DungeonStory",
                     null, true, false, string.Format("RealmStory id={0}", realmId));
                 }
             }
@@ -743,7 +743,7 @@ namespace Zealot.Server.Rules
                 if (starRewardsDict.TryGetValue(starCount, out rewardGrpId))
                 {
                     bool isFull = false;
-                    GameRules.GiveRewardGrp_CheckBagSlot(peer.mPlayer, new List<int>() { rewardGrpId }, out isFull, true, true, string.Format("Realm start={0}", starCount));
+                    GameRules.GiveReward_CheckBagSlot(peer.mPlayer, new List<int>() { rewardGrpId }, out isFull, true, true, string.Format("Realm start={0}", starCount));
                     if (!isFull)
                     {
                         starCollectedDict[starCount] = true;

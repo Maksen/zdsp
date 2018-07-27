@@ -1103,6 +1103,7 @@ namespace Zealot.Common.Entities
         private byte _CurrencyExchangeTime;
         private int _UnlockWorldBossLevel;
         private int _tutorialreddot;
+        private float _BattleTime;
 
         public SecondaryStats()
             : base(LOTYPE.SecondaryStats)
@@ -1121,6 +1122,7 @@ namespace Zealot.Common.Entities
             _vippoints = 0;
             _contribute = 0;
             _battlecoin = 0;
+            _BattleTime = 0;
             // currency end
 
             _UnlockedSlotCount = 30;
@@ -1209,6 +1211,14 @@ namespace Zealot.Common.Entities
             get { return _battlecoin; }
             set { this.OnSetAttribute("battlecoin", value); _battlecoin = value; }
         }
+        public float BattleTime 
+        {
+            get { return _BattleTime; }
+            set { this.OnSetAttribute("BattleTime", value); _BattleTime = value; }
+        }
+        public long availableBattleTime { get; set; }
+        public long accumulatedBattleTime { get; set; }
+
         // Currency end
 
         public int UnlockedSlotCount
@@ -1294,13 +1304,20 @@ namespace Zealot.Common.Entities
             get { return _costbuffgold; }
             set { this.OnSetAttribute("costbuffgold", value); _costbuffgold = value; }
         }
+        /// <summary>
+        /// current using pet index
+        /// </summary>
+        //public int PetIndex
+        //{
+        //    get { return _petIndex; }
+        //    set { this.OnSetAttribute("PetIndex", value); _petIndex = value; }
+        //}
 
         public byte CurrencyExchangeTime
         {
             get { return _CurrencyExchangeTime; }
             set { OnSetAttribute("CurrencyExchangeTime", value); _CurrencyExchangeTime = value; }
         }
-
         public void ResetOnNewDay(CharacterData characterData)
         {
             GuildSMBossEntry = characterData.GuildSMBossEntry;
@@ -1311,6 +1328,7 @@ namespace Zealot.Common.Entities
             GuildDreamHouseCollected = characterData.GuildDreamHouseCollected;
 
             FreeReviveOnSpot = characterData.FreeReviveOnSpot;
+            BattleTime += 300f;
         }
 
         public bool IsGoldEnough(int value, bool useBind = true)
@@ -1543,6 +1561,7 @@ namespace Zealot.Common.Entities
 
         private string _trackingList;
         private string _wonderfulList;
+        private string _unlockQuestList;
 
         public QuestSynStats()
             : base(LOTYPE.QuestSynStats)
@@ -1582,6 +1601,7 @@ namespace Zealot.Common.Entities
             _completedEvent = "";
             _trackingList = "";
             _wonderfulList = "";
+            _unlockQuestList = "";
     }
 
         public string mainQuest
@@ -1673,6 +1693,11 @@ namespace Zealot.Common.Entities
         {
             get { return _wonderfulList; }
             set { this.OnSetAttribute("wonderfulList", value); _wonderfulList = value; }
+        }
+        public string unlockQuestList
+        {
+            get { return _unlockQuestList; }
+            set { this.OnSetAttribute("unlockQuestList", value); _unlockQuestList = value; }
         }
 
         private void InitCollectionData(QuestType type, Dictionary<int, string> datas)
@@ -2215,6 +2240,31 @@ namespace Zealot.Common.Entities
         public CollectionHandler<object> PersistentsDur { get; set; }
 
     }
+    //#region BattleTime
+    //public class BattleTimeStats : LocalObject
+    //{
+    //    private int _accumulatedBattleTime;
+    //    private int _availableBattleTime;
+    //    public CollectionHandler<object> exampleBattleTimeList { get; set;}
+
+    //    public BattleTimeStats() : base(LOTYPE.BattleTimeStats)
+    //    {
+    //        _accumulatedBattleTime = 0;
+    //        _availableBattleTime = 0;
+    //        exampleBattleTimeList = new CollectionHandler<object>(BattleTimeInventoryData.MAX_LIST_LEN);
+    //    }
+    //    public int accumulatedBattleTime
+    //    {
+    //        get { return _accumulatedBattleTime; }
+    //        set { this.OnSetAttribute("accumulatedBattleTime", value); _accumulatedBattleTime = value; }
+    //    }
+    //    public int availableBattleTime
+    //    {
+    //        get { return _availableBattleTime; }
+    //        set { this.OnSetAttribute("availableBattleTime", value); _availableBattleTime = value; }
+    //    }
+    //}
+    //#endregion
 
     #region Social
     public class SocialInfoBase

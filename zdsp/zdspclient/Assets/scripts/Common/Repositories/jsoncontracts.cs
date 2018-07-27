@@ -47,7 +47,7 @@ namespace Zealot.Common
     public enum JobType {Newbie = 0, Warrior = 1, Soldier = 2, Tactician = 3, Killer = 4, Samurai = 5, Swordsman = 6, Lieutenant = 7, SpecialForce = 8, Alchemist = 9, QigongMaster = 10, Assassin = 11, Shadow = 12, BladeMaster = 13, SwordMaster = 14, General = 15, Commando = 16, Strategist = 17, Schemer = 18, Executioner = 19, Slaughter = 20};
     public enum CharPortraitType {None = 0, Knife = 1, Sword = 2, Spear = 3, Hammer = 4, Hero = 5};
     public enum FactionType {None = 0, Dragon = 1, Tiger = 2, Pig = 3, Leopard = 4};
-    public enum CurrencyType {None = 0, Money = 1, GuildContribution = 2, GuildGold = 3, Gold = 4, LockGold = 5, LotteryTicket = 6, HonorValue = 7, BattleCoin = 8, Exp = 9, VIP = 10};
+    public enum CurrencyType {None = 0, Money = 1, GuildContribution = 2, GuildGold = 3, Gold = 4, LockGold = 5, LotteryTicket = 6, HonorValue = 7, BattleCoin = 8, Exp = 9, VIP = 10, JExp = 11, DonateContribution = 12};
     public enum EquipmentType {Weapon = 0, Armor = 8, Accessory = 12};
     public enum PartsType {Sword = 0, Blade = 1, Lance = 2, Hammer = 3, Fan = 4, Xbow = 5, Dagger = 6, Sanxian = 7, Helm = 101, Body = 102, Wing = 103, Boots = 104, Bathrobe = 105, Ring = 201, Jewelry = 202, Accessory = 203};
     public enum MainWeaponAttribute {Str = 0, Dex = 1, Int = 2};
@@ -70,7 +70,7 @@ namespace Zealot.Common
     public enum ItemRarity {Common = 0, Uncommon = 1, Rare = 2, Epic = 3, Celestial = 4, Legendary = 5};
     public enum ItemType {Invalid = 0, PotionFood = 1, Material = 2, LuckyPick = 3, Henshin = 4, Features = 5, Equipment = 6, DNA = 7, Relic = 8, QuestItem = 9, MercenaryItem = 10, InstanceItem = 11, PetItem = 12};
     public enum BagType {Any = 0, Equipment = 1, Consumable = 2, Material = 3, DNA = 4, Gem = 5};
-    public enum MaterialType {Exchange = 0, UpgradeItem = 1, Special = 2, Token = 3};
+    public enum MaterialType {Exchange = 0, UpgradeItem = 1, Special = 2, Token = 3, AddInstanceTime = 4};
     public enum ToolTipType {Common = 0, Event = 1, Consumables = 2};
     public enum GCDType {Non_GDC = 0, HP_Recover = 1, MP_Recover = 2, Hybrid_Recover = 3};
     public enum DNAType {Locked = 0, Head = 1, Shoulders = 2, Chest = 3, Arms = 4, Body = 5, Legs = 6, Feet = 7};
@@ -467,6 +467,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("27")]
         public float upgitemrate { get; set; } 
         
+        [JsonProperty("28")]
+        public string addinstancetime { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -497,6 +500,7 @@ namespace Kopio.JsonContracts
             reqval = (int)vals["reqval"];
             exchitemid = (int)vals["exchitemid"];
             upgitemrate = Convert.ToSingle((double)vals["upgitemrate"]);
+            addinstancetime = (string)vals["addinstancetime"];
         }
     }
     
@@ -4772,72 +4776,54 @@ namespace Kopio.JsonContracts
         public bool isrelative { get; set; } 
         
         [JsonProperty("7")]
-        public bool usereferencetable { get; set; } 
-        
-        [JsonProperty("8")]
-        public int step { get; set; } 
-        
-        [JsonProperty("9")]
-        public float increase { get; set; } 
-        
-        [JsonProperty("10")]
         public string parameter { get; set; } 
         
-        [JsonProperty("11")]
+        [JsonProperty("8")]
         public float duration { get; set; } 
         
-        [JsonProperty("12")]
+        [JsonProperty("9")]
         public float interval { get; set; } 
         
-        [JsonProperty("13")]
+        [JsonProperty("10")]
         public CriticalType criticaltype { get; set; } 
         
-        [JsonProperty("14")]
+        [JsonProperty("11")]
         public int bonuscriticalchance { get; set; } 
         
-        [JsonProperty("15")]
+        [JsonProperty("12")]
         public float procchance { get; set; } 
         
-        [JsonProperty("16")]
+        [JsonProperty("13")]
         public bool persistentafterdeath { get; set; } 
         
-        [JsonProperty("17")]
+        [JsonProperty("14")]
         public bool persistentonlogout { get; set; } 
         
-        [JsonProperty("18")]
+        [JsonProperty("15")]
         public int rank { get; set; } 
         
         [AssetData("prefab")]
-        [JsonProperty("19")]
+        [JsonProperty("16")]
         public string effectpath { get; set; } 
         
         [AssetData("sprite")]
-        [JsonProperty("20")]
+        [JsonProperty("17")]
         public string icon { get; set; } 
         
-        [JsonProperty("21")]
+        [JsonProperty("18")]
         public string localizedname { get; set; } 
         
-        [JsonProperty("22")]
+        [JsonProperty("19")]
         public string description { get; set; } 
         
-        [JsonProperty("23")]
-        public ActorStatsType stat1 { get; set; } 
-        
-        [JsonProperty("24")]
-        public ActorStatsType stat2 { get; set; } 
-        
-        [JsonProperty("25")]
-        public ActorStatsType stat3 { get; set; } 
-        
         //type SkillDescriptionGroupJson
-        [JsonProperty("26")]
+        [JsonProperty("20")]
         public int sdg { get; set; } 
         
-        [JsonProperty("27")]
+        [JsonProperty("21")]
         public bool stackable { get; set; } 
         
-        [JsonProperty("28")]
+        [JsonProperty("22")]
         public int stackcount { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -4849,9 +4835,6 @@ namespace Kopio.JsonContracts
             max = Convert.ToSingle((double)vals["max"]);
             min = Convert.ToSingle((double)vals["min"]);
             isrelative = (bool)vals["isrelative"];
-            usereferencetable = (bool)vals["usereferencetable"];
-            step = (int)vals["step"];
-            increase = Convert.ToSingle((double)vals["increase"]);
             parameter = (string)vals["parameter"];
             duration = Convert.ToSingle((double)vals["duration"]);
             interval = Convert.ToSingle((double)vals["interval"]);
@@ -4865,9 +4848,6 @@ namespace Kopio.JsonContracts
             icon = (string)vals["icon"];
             localizedname = (string)vals["localizedname"];
             description = (string)vals["description"];
-            stat1 = (ActorStatsType)vals["stat1"];
-            stat2 = (ActorStatsType)vals["stat2"];
-            stat3 = (ActorStatsType)vals["stat3"];
             sdg = (int)vals["sdg"];
             stackable = (bool)vals["stackable"];
             stackcount = (int)vals["stackcount"];

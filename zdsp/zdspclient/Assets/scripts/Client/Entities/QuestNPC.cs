@@ -64,7 +64,7 @@ namespace Zealot.Client.Entities
                 if (effectRef != null)
                     heightOffset = effectRef.localPosition.y;
                 mHeadLabel.CreateNPCLabel(mQuestLabelType);
-                mHeadLabel.mNpcLabel.InitChatWithStaticNPC(mArchetype,true);
+                mHeadLabel.mNpcLabel.InitChatWithStaticNPC(mArchetype);
                 mHeadLabel.SetLabelOffset_WorldSpace(Vector3.zero,new Vector3(0.0f, heightOffset + mHeadLabel.mNpcLabel.height, 0.0f));
             }
            

@@ -243,6 +243,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "UnlockWonderful")]
         public string UnlockWonderful { get; set; }
 
+        [JsonProperty(PropertyName = "UnlockQuest")]
+        public string UnlockQuest { get; set; }
+
         public QuestInventoryData() {
             MainQuest = "";
             CompletedMain = "";
@@ -258,6 +261,7 @@ namespace Zealot.Common
             CompletedEvent = "";
             TrackingList = "";
             UnlockWonderful = "";
+            UnlockQuest = "";
         }
 
         public void DeserializeSingleQuestData(QuestType type, ref CurrentQuestData questData)
@@ -366,6 +370,11 @@ namespace Zealot.Common
             return JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockWonderful);
         }
 
+        public List<int> DeseralizeUnlockQuestList()
+        {
+            return JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockQuest);
+        }
+
         public string SerailizeTrackingList(List<int> trackinglist)
         {
             TrackingList = JsonConvertDefaultSetting.SerializeObject(trackinglist);
@@ -376,6 +385,12 @@ namespace Zealot.Common
         {
             UnlockWonderful = JsonConvertDefaultSetting.SerializeObject(wonderfullist);
             return UnlockWonderful;
+        }
+
+        public string SerailizeUnlockQuestList(List<int> questlist)
+        {
+            UnlockQuest = JsonConvertDefaultSetting.SerializeObject(questlist);
+            return UnlockQuest;
         }
 
         public void SerializeQuestData(object questData, QuestType type)

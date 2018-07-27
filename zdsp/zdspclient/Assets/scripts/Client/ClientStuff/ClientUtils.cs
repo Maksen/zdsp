@@ -602,5 +602,91 @@ public static class ClientUtils
 
         dict[e] += val;
     }
+
+    public static string GetLocalizedReformKai(int reformStep)
+    {
+        System.Text.StringBuilder kaiStr = new System.Text.StringBuilder();
+        kaiStr.AppendFormat("{0}{1}", GUILocalizationRepo.GetLocalizedString("com_Kai"), GetLocalizedNumFromInt(reformStep));
+
+        return kaiStr.ToString();
+    }
+
+    private static string GetLocalizedNumFromInt(int number)
+    {
+        if(number > 0 && number < 100)
+        {
+            int times = 0;
+            while(number > 10)
+            {
+                ++times;
+                number -= 10;
+            }
+
+            if(number == 10)
+            {
+                ++times;
+                return string.Format("{0}{1}", GetLocalizedSingleDigit(times), GetLocalizedSingleDigit(10));
+            }
+            else
+            {
+                if(times > 0)
+                {
+                    return string.Format("{0}{1}", GetLocalizedSingleDigit(times), GetLocalizedSingleDigit(number));
+                }
+                else
+                {
+                    return GetLocalizedSingleDigit(number);
+                }
+            }
+        }
+
+        return "Invalid number or number too big!";
+    }
+
+    private static string GetLocalizedSingleDigit(int number)
+    {
+        if(number > 10)
+        {
+            return "Num too big!";
+        }
+
+        string num_str = "";
+
+        switch(number)
+        {
+            case 1:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_One");
+                break;
+            case 2:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Two");
+                break;
+            case 3:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Three");
+                break;
+            case 4:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Four");
+                break;
+            case 5:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Five");
+                break;
+            case 6:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Six");
+                break;
+            case 7:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Seven");
+                break;
+            case 8:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Eight");
+                break;
+            case 9:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Nine");
+                break;
+            case 10:
+                num_str = GUILocalizationRepo.GetLocalizedString("com_Ten");
+                break;
+        }
+
+        return num_str;
+    }
 }
 

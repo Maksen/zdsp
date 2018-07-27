@@ -566,5 +566,11 @@ namespace Zealot.RPC
             ProxyMethod("Ret_GetWorldBossDmgList", result, target);
         }
         #endregion
+
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnNPCKilled)]
+        public void OnNPCKilled(object target)
+        {
+            ProxyMethod("OnNPCKilled", target);
+        }
     }
 }

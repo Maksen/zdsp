@@ -442,7 +442,7 @@ public class ZDSPCamera : MonoBehaviour
             GUIStyle buttonStyle = new GUIStyle("button");
             buttonStyle.fontSize = fontsize;
 
-            if (GUI.Button(new Rect(Screen.width - 20 - 2 * buttonWidth / 2, 20, buttonWidth, buttonHeight), cameraMode.ToString(), buttonStyle))
+            if (GUI.Button(new Rect(Screen.width/2 + buttonWidth, 20, buttonWidth, buttonHeight), cameraMode.ToString(), buttonStyle))
                 ToggleCameraMode();
         }
     }

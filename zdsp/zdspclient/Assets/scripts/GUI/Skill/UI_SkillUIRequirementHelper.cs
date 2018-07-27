@@ -17,8 +17,7 @@ public class UI_SkillUIRequirementHelper : MonoBehaviour {
 
     public void SetData(string name)
     {
-        m_ValueName.text = "";
-        m_Colon.text = "";
+        m_ValueName.text = "Skill";
         m_Value.text = name;
     }
 }

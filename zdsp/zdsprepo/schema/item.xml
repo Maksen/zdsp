@@ -67,6 +67,7 @@
       <property name="reqval" type="int" uitext="Required Value" default="0"/>
       <property name="exchitemid" type="int" uitext="Exchanged Item ID" default="1"/>
       <property name="upgitemrate" type="float" uitext="Upgrade Item Rate" default="1"/>
+      <property name="addinstancetime" type="string" uitext="Add Instance Time" default=""/>
     </element>
     
     <element name="LuckyPick" inherit="ItemBase">

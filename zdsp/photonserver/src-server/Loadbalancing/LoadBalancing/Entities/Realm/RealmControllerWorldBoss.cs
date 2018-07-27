@@ -286,11 +286,11 @@ namespace Zealot.Server.Entities
             {
                 mail_parameters.Clear();
                 mail_parameters.Add("rank", rank.ToString());
-                GameRules.GiveReward_Mail(playername, "Reward_WorldBoss", rewardIdList, mail_parameters);
+                //GameRules.GiveReward_Mail(playername, "Reward_WorldBoss", rewardIdList, mail_parameters);
             }
             else
             {
-                GameRules.GiveReward_Mail(playername, "Reward_WorldBossJoin", rewardIdList, null);
+                //GameRules.GiveReward_Mail(playername, "Reward_WorldBossJoin", rewardIdList, null);
             }
         }
 
@@ -339,7 +339,7 @@ namespace Zealot.Server.Entities
             {
                 mail_parameters.Clear();
                 mail_parameters.Add("dmg", playerDamage.ToString());
-                GameRules.GiveReward_Mail(playername, "Reward_WorldBossDamage", rewardIdList, mail_parameters);
+                //GameRules.GiveReward_Mail(playername, "Reward_WorldBossDamage", rewardIdList, mail_parameters);
                 worldBossRewardLog.mail = 1;
             }
             var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(worldBossRewardLog);

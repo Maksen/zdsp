@@ -54,6 +54,10 @@
         public PortraitDataStats PortraitDataStats { get; private set; }
         public PartyStatsServer PartyStats { get; set; }
         public HeroStatsServer HeroStats { get; private set; }
+
+        //public BattleTimeStats BattleTimeStats { get; private set; }
+
+
         #endregion
 
         public RespawnType mRespawnType = RespawnType.None;
@@ -270,6 +274,8 @@
           
             PortraitDataStats = new PortraitDataStats();
             //LOStats.Add(LOTYPE.PortraitDataStats, PortraitDataStats);
+            //BattleTimeStats = new BattleTimeStats();
+
         }
 
         void InitInvStats()
@@ -786,21 +792,65 @@
 
         public override void CombatStarted()
         {
-            InCombatTime = 5000;
+            InCombatTime = 6000;
+            Slot.CharacterData.BattleTime = BattleTime;
+            SecondaryStats.BattleTime = BattleTime;
+            if (!LocalCombatStats.IsInCombat)
+            {
+
+                LocalCombatStats.IsInCombat = true;
+
+
+            }
+
+            InCombatTime = 6000;
             LocalCombatStats.IsInCombat = true;
+            
+
         }
 
         public override void Update(long dt)
         {
             base.Update(dt);
+
+            //同步以及戰鬥時間更新及運算方式
+            BattleTime = Slot.CharacterData.BattleTime;
+            BattleTime = SecondaryStats.BattleTime;
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             if (InCombatTime > 0)
             {
-                InCombatTime -= dt;
-                if (InCombatTime <= 0)
-                {
-                    LocalCombatStats.IsInCombat = false;
-                }
-            } 
+                sw.Reset();
+                sw.Start();
+            }
+            if (InCombatTime <= 0)
+            {
+                sw.Stop();
+            }
+            string sw_result = sw.Elapsed.TotalSeconds.ToString();
+            float SWRESULT = (float)Convert.ToDouble(sw_result);
+            BattleTime = (BattleTime * 60 - Mathf.CeilToInt(SWRESULT / 10)) / 60;
+            Slot.CharacterData.BattleTime = BattleTime;
+
+
+            //900MIN最大時間判斷,Secondary& CharacterData的同步
+            if (SecondaryStats.BattleTime >= MaxBattleTime)
+            {
+                SecondaryStats.BattleTime = MaxBattleTime;
+                Slot.CharacterData.BattleTime = MaxBattleTime;
+            }
+            if (Slot.CharacterData.BattleTime >= MaxBattleTime)
+            {
+                SecondaryStats.BattleTime = MaxBattleTime;
+                Slot.CharacterData.BattleTime = MaxBattleTime;
+            }
+            if (SecondaryStats.BattleTime <= 0.0)
+            {
+                SecondaryStats.BattleTime = 0;
+            }
+            if(Slot.CharacterData.BattleTime <= 0.0)
+            {
+                Slot.CharacterData.BattleTime = 0;
+            }
         }
 
         public float GetBasicAttackRange()
@@ -822,7 +872,7 @@
             //Slot.mWelfareCtrlr.ResetOnNewDay();
             mLotteryInvController.ResetOnNewDay();
             Slot.CharacterData.ExchangeShopInv.NewDayReset();
-            //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();
+            //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();                           
         }
          
         public void SaveToCharacterData(bool exitroom)
@@ -893,6 +943,8 @@
             characterData.costbuffid = SecondaryStats.costbuffid;
             characterData.costbuffgold = SecondaryStats.costbuffgold;
             characterData.tutorialreddot = SecondaryStats.tutorialreddot;
+            characterData.BattleTime = SecondaryStats.BattleTime;
+            characterData.BattleTime = Slot.CharacterData.BattleTime;
 
             //if (exitroom) // Log out
             //{
@@ -917,6 +969,7 @@
             currencyInventory.VIPPoints = SecondaryStats.vippoints;
             currencyInventory.VIPLevel = PlayerSynStats.vipLvl;
             currencyInventory.BattleCoin = SecondaryStats.battlecoin;
+            currencyInventory.BattleTime = SecondaryStats.BattleTime;
 
             SkillInventoryData skillInventory = characterData.SkillInventory;
             skillInventory.basicAttack1SId = SkillStats.basicAttack1SId;
@@ -971,6 +1024,8 @@
                 data.ExtraEntry = info.ExtraEntry;
                 realmInvData.DungeonSpecial.Add(data);
             }
+            //BattleTime
+            //characterData.BattleTimeInventoryData.SaveToInventory(BattleTimeStats);
             realmInvData.WorldBoss.Clear();
             foreach (KeyValuePair<int, RealmInfo> entry in RealmStats.GetWorldBossDict())
             {
@@ -1111,6 +1166,7 @@
                 PartyStats.AddExperienceToPartyMembers(finalExp, Name);
 
             QuestController.KillCheck(npc.id, 1);
+            Slot.ZRPC.CombatRPC.OnNPCKilled(Slot);
 
             //int experience = 0;
             //if (experience > 0)
@@ -1688,7 +1744,10 @@
             questExtraRewardsInv.InitFromInventory(QuestExtraRewardsStats);
         }
         #endregion
-
+        //public void InitBattleTimeStats(BattleTimeInventoryData battleTimeInv)
+        //{
+        //    battleTimeInv.InitFromInventory(SecondaryStats.BattleTime);
+        //}
         private void VIPLevelUp()
         {
             //int pointsNeeded = VIPRepo.GetPointsByVIPLevel(PlayerSynStats.vipLvl);
@@ -1724,6 +1783,7 @@
         #region Currency Methods
 
         public const int currencyMax = 2100000000;
+        private DateTime currentTime;
         public void AddMoney(int amount, string from)
         {
             if (amount <= 0) //in case hacked

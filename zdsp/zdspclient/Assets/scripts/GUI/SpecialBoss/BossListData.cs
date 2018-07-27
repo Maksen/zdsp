@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,18 +20,39 @@ public class BossListData : BaseWindowBehaviour
     public Toggle BossListToggle;
     private UI_SpecialBoss_Detail BossListClickData;
 
+    string aa;
+
+    private long mDayWeeklyTime;
+    private double mDoubleConvert;
+
     void Awake()
     {
         BossListToggle.onValueChanged.RemoveAllListeners();
         BossListToggle.onValueChanged.AddListener(BossListOnClick);
     }
 
-    void Update()
+    public long DayWeeklyTime
     {
-
+        get { return mDayWeeklyTime; }
+        set { mDayWeeklyTime = value; }
     }
 
-    public void RefreshWorldBossListData(UI_SpecialBoss_Detail  uiSpecialBossDetails, Dictionary<int, SpecialBossStatus> specialBossStatus)
+    public double DoubleConvert
+    {
+        get { return mDoubleConvert; }
+        set { mDoubleConvert = value; }
+    }
+
+    public string BossSpawnTime
+    {
+        get { return SpawnTime.text; }
+        set
+        {
+            SpawnTime.text = value;
+        }
+    }
+
+    public void RefreshWorldBossListData(UI_SpecialBoss_Detail uiSpecialBossDetails, Dictionary<int, SpecialBossStatus> specialBossStatus)
     {
         foreach (KeyValuePair<int, SpecialBossStatus> status in specialBossStatus)
         {
@@ -46,7 +68,7 @@ public class BossListData : BaseWindowBehaviour
 
         boss_id = bossStatus.id;
         var boss_info = SpecialBossRepo.GetInfoById(boss_id);
-        
+
         //取得獎勵組ID
         rewardIdGroupid = boss_info.displayrewardgroupid;
 
@@ -59,15 +81,33 @@ public class BossListData : BaseWindowBehaviour
             BossIcon.sprite = img;
         BossIcon = null;
 
+        bool foundNext = false;
+
         if (bossStatus != null && bossStatus.isAlive)
         {
-            SpawnTime.text = "活躍中";
+            SpawnTime.text = GUILocalizationRepo.GetLocalizedString("wb_isAlive");
         }
         else
         {
-            if (bossStatus.nextSpawn.HasValue == true)
+            switch (boss_info.spawntype)
             {
-                SpawnTime.text = GUILocalizationRepo.GetLocalizedDateTime(bossStatus.nextSpawn.Value , 3);
+                case BossSpawnType.SpawnDaily:
+                    DayWeeklyTime = (GameUtils.TimeToNextEventDailyFormat(GameInfo.GetSynchronizedServerDT(), boss_info.spawndaily, out foundNext, 5000)/1000);
+                    mDoubleConvert = Convert.ToDouble(DayWeeklyTime);
+                    BossSpawnTime = GUILocalizationRepo.GetShortLocalizedTimeString(mDoubleConvert);
+                    break;
+                case BossSpawnType.SpawnWeekly:
+                    DayWeeklyTime = (GameUtils.TimeToNextEventWeeklyFormat(GameInfo.GetSynchronizedServerDT(), boss_info.spawnweekly, out foundNext, 5000)/1000);
+                    mDoubleConvert = Convert.ToDouble(DayWeeklyTime);
+                    BossSpawnTime = GUILocalizationRepo.GetShortLocalizedTimeString(mDoubleConvert);
+                    break;
+                case BossSpawnType.SpawnDuration:
+                    if (bossStatus.nextSpawn.HasValue == true)
+                    {
+                        mDoubleConvert = (bossStatus.nextSpawn.Value - GameInfo.GetSynchronizedServerDT()).TotalSeconds;
+                        BossSpawnTime = GUILocalizationRepo.GetShortLocalizedTimeString(mDoubleConvert);
+                    }
+                    break;
             }
         }
     }

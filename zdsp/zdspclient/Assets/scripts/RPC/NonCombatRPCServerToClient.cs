@@ -140,5 +140,36 @@ public partial class ClientMain : MonoBehaviour
             GameInfo.gUIShopSell.init(store.inventory, store.Type);
         }
     }
+    
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_NPCStoreGetPlayerTransactions)]
+    public void Ret_NPCStoreGetPlayerTransactions(string scString)
+    {
+        JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+        var trans = JsonConvert.DeserializeObject<Dictionary<string, NPCStoreInfo.Transaction>>(scString, jsonSetting);
+
+        if (GameInfo.gUIShopSell != null)
+        {
+            GameInfo.gUIShopSell.UpdateTransactions(trans);
+        }
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_NPCStoreBuy)]
+    public void Ret_NPCStoreBuy(string scString)
+    {
+        if (GameInfo.gUIShopSell != null)
+        {
+            GameInfo.gUIShopSell.SignalBuySuccess();
+        }
+    }
+    #endregion
+
+    #region Skill
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_AddToSkillInventory)]
+    public void Ret_AddToSkillInventory(byte result, int skillid, int skillpoint, int money)
+    {
+        GameObject obj = UIManager.GetWindowGameObject(WindowType.Skill);
+        UI_SkillTree ui = obj.GetComponent<UI_SkillTree>();
+        ui.OnEventSkillLevelUp(result, skillid, skillpoint, money);
+    }
     #endregion
 }

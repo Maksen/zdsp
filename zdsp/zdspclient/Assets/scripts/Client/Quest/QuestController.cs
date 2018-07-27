@@ -65,6 +65,9 @@ public class QuestClientController
     //Wonderful List
     private List<int> mWonderfulList;
 
+    //Quest Unlock List
+    private List<int> mUnlockQuestList;
+
     private PlayerGhost mPlayer;
     private int mQuestEventTriggered;
     private List<int> mPendingQuestEventList;
@@ -100,6 +103,8 @@ public class QuestClientController
         mTrackingList = new List<int>();
 
         mWonderfulList = new List<int>();
+
+        mUnlockQuestList = new List<int>();
 
         mQuestEventTriggered = -1;
         mPendingQuestEventList = new List<int>();
@@ -170,6 +175,10 @@ public class QuestClientController
                 break;
             case "wonderfulList":
                 mWonderfulList = DeserializeCompletedQuest(data);
+                break;
+            case "unlockQuestList":
+                mUnlockQuestList = DeserializeCompletedQuest(data);
+                UpdateUI();
                 break;
         }
     }
@@ -494,6 +503,15 @@ public class QuestClientController
         }
     }
 
+    private void UpdateUI()
+    {
+        UI_Quest quest = UIManager.GetWindowGameObject(WindowType.Quest).GetComponent<UI_Quest>();
+        if (quest != null)
+        {
+            quest.UpdateOngoingQuestData();
+        }
+    }
+
     public CurrentQuestData GetQuestData(QuestType type)
     {
         switch (type)
@@ -509,7 +527,7 @@ public class QuestClientController
         switch (type)
         {
             case QuestType.Main:
-                return new Dictionary<int, CurrentQuestData>() { { mMainQuest.QuestId, mMainQuest } };
+                return mMainQuest == null ? new Dictionary<int, CurrentQuestData>() : new Dictionary<int, CurrentQuestData>() { { mMainQuest.QuestId, mMainQuest } };
             case QuestType.Destiny:
                 return mAdventureQuest;
             case QuestType.Sub:
@@ -1146,6 +1164,20 @@ public class QuestClientController
         return true;
     }
 
+    public List<QuestJson> GetUnlockQuest(QuestType type)
+    {
+        List<QuestJson> questlist = new List<QuestJson>();
+        foreach(int id in mUnlockQuestList)
+        {
+            QuestJson questJson = QuestRepo.GetQuestByID(id);
+            if (questJson != null && questJson.type == type)
+            {
+                questlist.Add(questJson);
+            }
+        }
+        return questlist;
+    }
+
     #region Description
     public string DeserializedDescription(QuestType type, int questid, int objectiveid, bool completed, bool ongoing)
     {
@@ -1310,7 +1342,7 @@ public class QuestClientController
         else
         {
             return description.Replace(replacement, targetname);
-        }       
+        }
     }
 
     private string DeserializedObjectiveTarget2(string description, string replacement, int param, QuestObjectiveType type)
@@ -1593,7 +1625,49 @@ public class QuestClientController
 
     private string GenerateHyperlink(string display, QuestObjectiveType type, int param)
     {
-        return "<a name=\"" + (byte)type + ";" + param + "\">" + display + "</a>";
+        return "<a name=\"" + (byte)type + ";" + param + ";1\">" + display + "</a>";
+    }
+
+    private string GenerateHyperlink(string display, QuestTriggerType type, int param)
+    {
+        return "<a name=\"" + (byte)type + ";" + param + ";0\">" + display + "</a>";
+    }
+
+    public string GetStartQuestDescription(QuestJson questJson)
+    {
+        string description = questJson.description;
+        string replacement = "%tc_%";
+        string targetname = "";
+        bool ishyperlink = false;
+        switch (questJson.triggertype)
+        {
+            case QuestTriggerType.NPC:
+                ishyperlink = true;
+                targetname = StaticNPCRepo.GetStaticNPCById(questJson.triggercaller).localizedname;
+                break;
+            case QuestTriggerType.Item:
+                targetname = GameRepo.ItemFactory.GetItemById(questJson.triggercaller).localizedname;
+                break;
+            case QuestTriggerType.Level:
+                targetname = questJson.triggercaller.ToString();
+                break;
+            case QuestTriggerType.Interact:
+            case QuestTriggerType.Signboard:
+                targetname = "";
+                break;
+            case QuestTriggerType.Hero:
+                targetname = HeroRepo.GetHeroById(questJson.triggercaller).localizedname;
+                break;
+        }
+        if (ishyperlink)
+        {
+            string hyperlink = GenerateHyperlink(targetname, questJson.triggertype, questJson.triggercaller);
+            return description.Replace(replacement, hyperlink);
+        }
+        else
+        {
+            return description.Replace(replacement, targetname);
+        }
     }
     #endregion
 

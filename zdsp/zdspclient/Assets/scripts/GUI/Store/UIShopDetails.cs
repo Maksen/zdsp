@@ -5,6 +5,7 @@ using UIWidgets;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
+using Zealot.Repository;
 
 public class UIShopDetails : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class UIShopDetails : MonoBehaviour
 
     public Text itemname, itemtype;
     public Text dailyorweekly;
+    public Text stocklimit;
     public Text limitamountvalue;
     public Text purchasequantity;
     public Spinner purchasequantitywidget;
@@ -28,13 +30,16 @@ public class UIShopDetails : MonoBehaviour
     public GameObject description_line;
     List<GameObject> description_objects = new List<GameObject>();
 
+    public Button buybutton;
+
     public NPCStoreInfo.Item selecteditem;
 
     // Use this for initialization
     void Start ()
     {
         purchasequantitywidget.onValueChanged.AddListener(delegate { UpdateTotalCost(); });
-        if(discount != null) discount.text = "沒折扣";
+        
+        if (discount != null) discount.text = "沒折扣";
     }
 	
 	// Update is called once per frame
@@ -71,6 +76,26 @@ public class UIShopDetails : MonoBehaviour
             totalcost.text = "0";
             unitcost.text = standarditem.SoldValue.ToString();
 
+            purchasequantitywidget.Max = standarditem.Remaining;
+
+            switch (standarditem.DailyOrWeekly)
+            {
+                case NPCStoreInfo.Frequency.Daily:
+                    dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[291].localizedval;
+                    limitamountvalue.text = standarditem.Remaining.ToString() + " / " + standarditem.ExCount.ToString();
+                    break;
+
+                case NPCStoreInfo.Frequency.Weekly:
+                    dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[292].localizedval;
+                    limitamountvalue.text = standarditem.Remaining.ToString() + " / " + standarditem.ExCount.ToString();
+                    break;
+
+                case NPCStoreInfo.Frequency.Unlimited:
+                    dailyorweekly.text = "無限";
+                    limitamountvalue.text = "";
+                    break;
+            }
+
             if (itemiconprefab != null)
             {
                 if (itemicon != null)
@@ -85,7 +110,6 @@ public class UIShopDetails : MonoBehaviour
             {
                 currencyicon.type = item.currencyicon.type;
             }
-
         }
 
         selecteditem = item.itemdata;
@@ -98,5 +122,24 @@ public class UIShopDetails : MonoBehaviour
             var standarditem = (NPCStoreInfo.StandardItem)selecteditem;
             totalcost.text = (purchasequantitywidget.Value * standarditem.SoldValue).ToString();
         }
+
+        buybutton.enabled = true;
+        buybutton.interactable = purchasequantitywidget.Value > 0;
+    }
+
+    public void UpdateSelectedItemRemaining()
+    {
+        if (selecteditem != null)
+        {
+            var item = NPCStoreInfo.StandardItem.GetFromBase(selecteditem);
+
+            purchasequantitywidget.Max = item.Remaining;
+            UpdateTotalCost();
+        }
+    }
+
+    public void BuySelectedItem()
+    {
+        RPCFactory.NonCombatRPC.NPCStoreBuy(selecteditem.ItemListID, selecteditem.StoreID, purchasequantitywidget.Value, GameInfo.gLocalPlayer.Name);
     }
 }

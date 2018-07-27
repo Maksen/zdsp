@@ -4505,7 +4505,38 @@ namespace Zealot.Common.Entities
             // Base Attribute Types: Attack -> Weapons, Accessory | Defence -> Armor
             // Add buffList side effect ids if buffList is not null and only if isEquipping is true
 
+            if (buffList == null) return;
+
+            float val = 0;
+
             // add to stats
+            switch (equipment.EquipmentJson.equiptype)
+            {
+                case EquipmentType.Weapon:
+                case EquipmentType.Accessory:
+                    //int value = equipment.
+                    //get side effects
+                   
+                    foreach(int ids in buffList)
+                    {
+                        SideEffectJson se = SideEffectRepo.GetSideEffect(ids);
+                        val += se.max;
+                        
+                    }
+                    val = (val + val) * multiplier * sign;
+                    AddToField(FieldName.WeaponAttackBonus, val);
+                    break;
+                case EquipmentType.Armor:
+                    foreach (int ids in buffList)
+                    {
+                        SideEffectJson se = SideEffectRepo.GetSideEffect(ids);
+                        val += se.max;
+                    }
+                    val = (val + val) * multiplier * sign;
+                    AddToField(FieldName.ArmorBonus, val);
+                    
+                    break;
+            }
         }
 
         private EquipmentAttributeType GetEquipmentAbilityTypeByEffectType(EffectType efftype)
@@ -4847,12 +4878,12 @@ namespace Zealot.Common.Entities
         private void OnSecondInterval(object args)
         {
             System.Diagnostics.Debug.WriteLine("oninterval");
-            foreach (SideEffectJson sej in SkillPassiveOnDot)
-            {
-                SkillPassiveFieldName field = CombatUtils.GetSkillPassiveDotFieldByStatsType(sej.stat1, true);
-                int val = (int)sej.max;
-                AddToField(field, val, true);
-            }
+            //foreach (SideEffectJson sej in SkillPassiveOnDot)
+            //{
+            //    SkillPassiveFieldName field = CombatUtils.GetSkillPassiveDotFieldByStatsType(sej.stat1, true);
+            //    int val = (int)sej.max;
+            //    AddToField(field, val, true);
+            //}
             DotTimer = timers.SetTimer(1000, OnSecondInterval, null);
         }
 
@@ -4868,12 +4899,12 @@ namespace Zealot.Common.Entities
             {
                 timers.StopTimer(DotTimer);
                 DotTimer = null;
-                foreach (SideEffectJson sej in SkillPassiveOnDot)
-                {
-                    SkillPassiveFieldName field = CombatUtils.GetSkillPassiveDotFieldByStatsType(sej.stat1, true);
-                    SetField(field, 0);
-                    AddToField(field, 0, true);//trigger a UpdateLocalSkillPassiveStats
-                }
+                //foreach (SideEffectJson sej in SkillPassiveOnDot)
+                //{
+                //    SkillPassiveFieldName field = CombatUtils.GetSkillPassiveDotFieldByStatsType(sej.stat1, true);
+                //    SetField(field, 0);
+                //    AddToField(field, 0, true);//trigger a UpdateLocalSkillPassiveStats
+                //}
             }
         }
 
@@ -4882,15 +4913,15 @@ namespace Zealot.Common.Entities
             debuffcount++;
             if (debuffcount > 1)
                 return;
-            foreach (SideEffectJson sej in SkillPassiveOnDebuff)
-            {
-                SkillPassiveFieldName targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat1, true);
-                if (targetfield != SkillPassiveFieldName.None) OnDebuffStart(targetfield, (int)sej.max);
-                targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat2, true);
-                if (targetfield != SkillPassiveFieldName.None) OnDebuffStart(targetfield, (int)sej.max);
-                targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat3, true);
-                if (targetfield != SkillPassiveFieldName.None) OnDebuffStart(targetfield, (int)sej.max);
-            }
+            //foreach (SideEffectJson sej in SkillPassiveOnDebuff)
+            //{
+            //    SkillPassiveFieldName targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat1, true);
+            //    if (targetfield != SkillPassiveFieldName.None) OnDebuffStart(targetfield, (int)sej.max);
+            //    targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat2, true);
+            //    if (targetfield != SkillPassiveFieldName.None) OnDebuffStart(targetfield, (int)sej.max);
+            //    targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat3, true);
+            //    if (targetfield != SkillPassiveFieldName.None) OnDebuffStart(targetfield, (int)sej.max);
+            //}
         }
 
         public void OnDebuffEnd()
@@ -4898,15 +4929,15 @@ namespace Zealot.Common.Entities
             debuffcount--;
             if (debuffcount > 0)
                 return;
-            foreach (SideEffectJson sej in SkillPassiveOnDebuff)
-            {
-                SkillPassiveFieldName targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat1, true);
-                if (targetfield != SkillPassiveFieldName.None) OnDebuffEnd(targetfield, (int)sej.max);
-                targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat2, true);
-                if (targetfield != SkillPassiveFieldName.None) OnDebuffEnd(targetfield, (int)sej.max);
-                targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat3, true);
-                if (targetfield != SkillPassiveFieldName.None) OnDebuffEnd(targetfield, (int)sej.max);
-            }
+            //foreach (SideEffectJson sej in SkillPassiveOnDebuff)
+            //{
+            //    SkillPassiveFieldName targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat1, true);
+            //    if (targetfield != SkillPassiveFieldName.None) OnDebuffEnd(targetfield, (int)sej.max);
+            //    targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat2, true);
+            //    if (targetfield != SkillPassiveFieldName.None) OnDebuffEnd(targetfield, (int)sej.max);
+            //    targetfield = CombatUtils.GetSkillOnDebuffPassiveFieldByStatsType(sej.stat3, true);
+            //    if (targetfield != SkillPassiveFieldName.None) OnDebuffEnd(targetfield, (int)sej.max);
+            //}
         }
 
         private void OnDebuffStart(SkillPassiveFieldName field, int val)

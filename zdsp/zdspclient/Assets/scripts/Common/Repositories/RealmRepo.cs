@@ -265,7 +265,7 @@ namespace Zealot.Repository
                     current_city = kvp.Key;
                 }
             }
-            return string.IsNullOrEmpty(current_city) ? "daliang" : current_city;
+            return string.IsNullOrEmpty(current_city) ? "daliang_field_test" : current_city;
         }
 
         public static Dictionary<DungeonDifficulty, DungeonStoryJson> GetDungeonStoryBySeq(int sequence)

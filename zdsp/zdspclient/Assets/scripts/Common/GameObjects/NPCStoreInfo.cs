@@ -29,6 +29,8 @@ namespace Zealot.Common
             {
                 StoreID = storeid; ItemListID = itemlistid; Show = show; ItemID = itemid; Type = type;
             }
+
+            public string Key() { return string.Format("{0} {1}", StoreID.ToString(), ItemListID.ToString()); }
         };
 
         public class StandardItem : Item
@@ -41,6 +43,7 @@ namespace Zealot.Common
             public DateTime StartTime;
             public DateTime EndTime;
             public int ExCount;
+            public int Remaining;
             public NPCStoreInfo.Frequency DailyOrWeekly;
 
             public StandardItem(int storeid, int itemlistid, bool show, int itemid, ItemStoreType type,
@@ -62,8 +65,18 @@ namespace Zealot.Common
                 SortNumber = sortnumber;
                 StartTime = start;
                 EndTime = end;
-                ExCount = excount;
+                Remaining = ExCount = excount;
                 DailyOrWeekly = dailyorweekly;
+            }
+
+            public static StandardItem GetFromBase(Item i)
+            {
+                if (i.Type == NPCStoreInfo.ItemStoreType.Normal)
+                {
+                    return (NPCStoreInfo.StandardItem)i;
+                }
+                else
+                    return null;
             }
         };
 
@@ -83,6 +96,13 @@ namespace Zealot.Common
             }
         };
 
+        public class Transaction
+        {
+            public DateTime bought;
+            public StandardItem storeitem;
+            public int remaining;
+        };
+
         public enum StoreType { Normal = 0, Random = 1, Barter = 2 };
         public enum SoldCurrencyType { Normal = 0, Auction = 1 };
         public enum Frequency { Unlimited = 0, Daily = 1, Weekly = 2 };
@@ -92,7 +112,7 @@ namespace Zealot.Common
         public string NameEN;
         public StoreType Type;
 
-        public List<StandardItem> inventory = new List<StandardItem>();
+        public Dictionary<int, StandardItem> inventory = new Dictionary<int, StandardItem>();
 
         public NPCStoreInfo(int id, string namect, string nameen, StoreType type)
         {

@@ -118,7 +118,7 @@ namespace Zealot.Server.Entities
                     }
                     else
                     {
-                        itemList = GameRules.GiveRewardGrp_CheckBagSlotThenMail(player, new List<int>() { mDungeonDailySpecialInfo.rewardgrp }, "Reward_DungeonDailySpecial",
+                        itemList = GameRules.GiveReward_CheckBagSlotThenMail(player, new List<int>() { mDungeonDailySpecialInfo.rewardgrp }, "Reward_DungeonDailySpecial",
                           null, true, false, string.Format("RealmDaily id={0}", mDungeonDailySpecialInfo.id));
                     }
                     iteminfostr = GameUtils.SerializeItemInfoList(itemList);

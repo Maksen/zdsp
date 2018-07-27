@@ -94,11 +94,6 @@
       <property name="max" type="float" uitext="Max" default="0" min="0" max="9999999" info="max value, used as percentage if isRelative is ticked"/>
       <property name="min" type="float" uitext="Min" default="0" min="0" max="9999999" info="min value, used as percentage if isRelative is ticked"/>      
       <property name="isrelative" type="bool" uitext="Is Relative" default="false" info="if true, min and max is percentage value"/>
-       <!--field regards to skill level-->
-      <property name="usereferencetable" type="bool" uitext="Use Refrence Table" default="false" info="if true, the values are relative to refrence table"/>
-      <property name="step" type="int" uitext="Step by level" default="0" min="0" max="9999999" info="the step amout for level increasement"/>      
-      <property name="increase" type="float" uitext="Increasement Amount" default="0" min="0" max="9999999" info="the increasement per step"/>      
-       <!--field regards to skill level-->
       <property name="parameter" type="string" uitext="Parameter" default="" info="Additional parameter for use in certain sideeffects: duration for KnockUp, distance for KnockBack, number of hit For RecoverOnHit,  total Amount for ShieldSE"/>
       <property name="duration" type="float" uitext="Duration" default="0" info="In seconds. Less than 0: Infinite until death or logout. 0 : Apply exactly 1 time. More than 0: Will stop after duration is reached."/>
       <property name="interval" type="float" uitext="Interval" default="0" info="In seconds. This is the interval to proc when repeat proc is checked."/>     
@@ -112,10 +107,7 @@
       <property name="effectpath" type="asset" uitext="Effect Path" default="" assettype="prefab"/>
       <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
-      <property name="description" type="localizedstring" uitext="Description(Localized)"/>
-      <property name="stat1" type="ActorStatsType" uitext="Affact Stats 1"/>
-      <property name="stat2" type="ActorStatsType" uitext="Affact Stats 2"/>
-      <property name="stat3" type="ActorStatsType" uitext="Affact Stats 3"/> 
+      <property name="description"  type="localizedstring" uitext="Description(Localized)"/>
       <property name="sdg" type="SkillDescriptionGroup" uitext="SideEffect Description Group" display="name"/>
       <property name="stackable" type="bool" uitext="Is it Stackable?" default="false"/>
       <property name="stackcount" type="int" uitext="how much stacking?" default="9"/>

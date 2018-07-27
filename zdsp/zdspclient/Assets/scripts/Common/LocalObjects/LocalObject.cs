@@ -233,6 +233,7 @@
         SkillStats, // Skills
         HeroStats,
         HeroSynStats,
+        StoreTransactions,
 
         PartyStats, // Shared object, normal party members
         GuildStats, // Shared object, shared between guild members

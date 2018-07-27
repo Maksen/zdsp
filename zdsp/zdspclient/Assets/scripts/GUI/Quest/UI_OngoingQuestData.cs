@@ -39,18 +39,27 @@ public class UI_OngoingQuestData : MonoBehaviour
     [SerializeField]
     UI_QuestReward Rewards;
 
+    [SerializeField]
+    GameObject RewardDescription;
+
+    [SerializeField]
+    GameObject RewardList;
+
     private UI_OngoingQuest mParent;
     private QuestClientController mController;
     private int mQuestId;
     private Dictionary<int, long> mMOEndTime;
     private Dictionary<int, long> mSOEndTime;
     private string mDescription;
+    private bool bIsUnlockQuest = false;
 
     public void Init(CurrentQuestData questData, QuestClientController controller, bool tracked, UI_OngoingQuest parent, bool maxtrack, ToggleGroup group)
     {
         mParent = parent;
         mController = controller;
         mQuestId = questData.QuestId;
+        GetComponent<Image>().color = new Color(106.0f / 255.0f, 119f / 255.0f, 122f / 255.0f, 100f / 255.0f);
+        bIsUnlockQuest = false;
         QuestJson questJson = QuestRepo.GetQuestByID(questData.QuestId);
         QuestName.text = questJson.questname;
         QuestListToggle.isOn = tracked;
@@ -80,12 +89,59 @@ public class UI_OngoingQuestData : MonoBehaviour
         Reward reward = RewardListRepo.GetRewardByGrpIDJobID(rewardgroup, -1);
         if (reward != null)
         {
+            RewardDescription.SetActive(false);
             int exp = reward.Exp(GameInfo.gLocalPlayer.PlayerSynStats.Level);
             if (exp > 0)
             {
                 Experience.text = exp.ToString();
             }
             Rewards.Init(reward);
+        }
+    }
+
+    public void Init(QuestJson questJson, QuestClientController controller, bool tracked, UI_OngoingQuest parent, bool maxtrack, ToggleGroup group)
+    {
+        mParent = parent;
+        mController = controller;
+        mQuestId = questJson.questid;
+        GetComponent<Image>().color = new Color(250f / 255.0f, 191f / 255.0f, 143f / 255.0f, 100f / 255.0f);
+        bIsUnlockQuest = true;
+        QuestName.text = questJson.questname;
+        QuestListToggle.isOn = tracked;
+        if (!tracked && maxtrack)
+        {
+            QuestListToggle.gameObject.SetActive(false);
+        }
+        SelectedToggle.group = group;
+        mDescription = controller.GetStartQuestDescription(questJson);
+        Description.text = mDescription;
+        Description.ClickedLink.AddListener(OnClickHyperlink);
+        Level.text = questJson.minlv.ToString();
+        MapName.text = questJson.subname;
+        Experience.text = "0";
+        JobExperience.text = "0";
+
+        if (QuestRepo.MultiQuestRewardGroup(questJson.questid))
+        {
+            RewardDescription.SetActive(true);
+            RewardList.SetActive(false);
+            RewardDescription.GetComponent<Text>().text = GUILocalizationRepo.GetLocalizedString("quest_multireward");
+        }
+        else
+        {
+            RewardDescription.SetActive(false);
+            RewardList.SetActive(true);
+            int rewardgroup = QuestRepo.GetQuestReward(questJson.questid, 0);
+            Reward reward = RewardListRepo.GetRewardByGrpIDJobID(rewardgroup, -1);
+            if (reward != null)
+            {
+                int exp = reward.Exp(GameInfo.gLocalPlayer.PlayerSynStats.Level);
+                if (exp > 0)
+                {
+                    Experience.text = exp.ToString();
+                }
+                Rewards.Init(reward);
+            }
         }
     }
 
@@ -116,7 +172,7 @@ public class UI_OngoingQuestData : MonoBehaviour
 
     public void OnSelected()
     {
-        mParent.OnQuestSelectionChanged(SelectedToggle.isOn ? mQuestId : -1);
+        mParent.OnQuestSelectionChanged(SelectedToggle.isOn ? mQuestId : -1, bIsUnlockQuest);
     }
 
     public void Deselect()

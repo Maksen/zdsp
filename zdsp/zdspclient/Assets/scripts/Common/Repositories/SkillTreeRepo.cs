@@ -18,10 +18,12 @@ namespace Zealot.Repository {
                         m_SkillTree[kvp.Value.jobclass].Add(new Dictionary<int, SkillTreeJson>());
                     }
                 }
+
                 int key = 65;
                 key = Encoding.ASCII.GetBytes(kvp.Value.gridrow.ToUpper())[0];
 
                 m_SkillTree[kvp.Value.jobclass][key - 65][kvp.Value.gridcol] = kvp.Value;
+                
             }
         }
 

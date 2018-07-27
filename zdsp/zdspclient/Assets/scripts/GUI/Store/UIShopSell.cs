@@ -9,25 +9,6 @@ using Zealot.Repository;
 
 public class UIShopSell : MonoBehaviour
 {
-    //public class Item
-    //{
-    //    public string name;
-
-    //    public int id;
-    //    public int value;
-    //    public char soldtype;
-    //    public int soldvalue;
-    //    public float discount;
-    //    public int sortnumber;
-    //    public float probability;
-    //    public int levelrequired;
-    //    public DateTime starttime;
-    //    public DateTime endtime;
-    //    public int excount;
-    //    public char dailyorweekly;
-    //    public IInventoryItem data;
-    //};
-
     public class IconTypes
     {
         public static string[] types = new string[] { "equip", "material", "consumable", "buffdebuff", "DNA" };
@@ -43,6 +24,7 @@ public class UIShopSell : MonoBehaviour
     public UIShopDetails detailswindow;
     public Dictionary<string, GameObject> SortedGameIcons = new Dictionary<string, GameObject>();
     public List<GameObject> GameIconPrefabs;
+    public Text heldcurrency, heldauctioncurrency;
 
     List<ShopItem> currentitemlist = null;
 
@@ -70,11 +52,27 @@ public class UIShopSell : MonoBehaviour
 		
 	}
 
+    public void init(Dictionary<int, NPCStoreInfo.StandardItem> newitemlist, NPCStoreInfo.StoreType store_type)
+    {
+        List<NPCStoreInfo.StandardItem> arg = new List<NPCStoreInfo.StandardItem>();
+
+        foreach (var item in newitemlist)
+        {
+            arg.Add(item.Value);
+        }
+
+        init(arg, store_type);
+    }
+
     public void init(List<NPCStoreInfo.StandardItem> newitemlist, NPCStoreInfo.StoreType store_type)
     {
-        // GameInfo.gLocalPlayer;
-
         storetype = store_type;
+
+        if (GameInfo.gLocalPlayer != null)
+        {
+            heldcurrency.text = GameInfo.gLocalPlayer.SecondaryStats.money.ToString();
+            heldauctioncurrency.text = GameInfo.gLocalPlayer.SecondaryStats.gold.ToString();
+        }
 
         if (itemlistparent != null && itemicon_prefab != null && newitemlist != null && newitemlist.Count > 0)
         {
@@ -178,5 +176,31 @@ public class UIShopSell : MonoBehaviour
 
         animator.enabled = true;
         animator.Play("ShopSellItemDetail_Close");        
+    }
+
+    public void SignalBuySuccess()
+    {
+        UIManager.OpenOkDialog("Transaction success", null);
+    }
+
+    Dictionary<string, NPCStoreInfo.Transaction> playertransactions = null;
+    public void UpdateTransactions(Dictionary<string, NPCStoreInfo.Transaction> transactions)
+    {
+        playertransactions = transactions;
+
+        foreach (var item in currentitemlist)
+        {
+            var storeitem = item.itemdata;
+            if (storeitem.Type == NPCStoreInfo.ItemStoreType.Normal)
+            {
+                var itemkey = storeitem.Key();
+
+                if (transactions.ContainsKey(itemkey))
+                {
+                    ((NPCStoreInfo.StandardItem)storeitem).Remaining = transactions[itemkey].remaining;
+                    detailswindow.UpdateSelectedItemRemaining();
+                }
+            }
+        }
     }
 }

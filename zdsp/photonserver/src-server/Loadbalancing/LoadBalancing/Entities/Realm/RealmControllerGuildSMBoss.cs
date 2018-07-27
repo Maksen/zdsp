@@ -101,7 +101,7 @@ namespace Zealot.Server.Entities
             // Participation reward
             param.Clear();
             param.Add("dmg", mSMBossDmgDone.ToString());
-            GameRules.GiveReward_Mail(player.Name, "Reward_GuildSMBossEnter", new List<int>() { mGuildSMBossJson.enterrewardlist }, param);
+            GameRules.GiveReward_Mail(player.Name, "Reward_GuildSMBossEnter", player.PlayerSynStats, new List<int>() { mGuildSMBossJson.enterrewardlist }, param);
 
             // QuestExtraRewards
             player.Slot.mQuestExtraRewardsCtrler.UpdateTask(QuestExtraType.GuildSMBoss);
@@ -160,8 +160,8 @@ namespace Zealot.Server.Entities
                     _paramters.Add("killer", mKiller);
                     GuildRules.SendGuildMessage(guildStats.guildId, GUILocalizationRepo.GetLocalizedString("guild_History_LoveBossKill", _paramters));
                     Dictionary<string, GuildMemberStats>.KeyCollection memberStatsDictKeys = guildStats.GetMemberStatsDict().Keys;
-                    foreach (string membername in memberStatsDictKeys)
-                        GameRules.GiveReward_Mail(membername, "Reward_GuildSMBossKill", new List<int>() { mGuildSMBossJson.killrewardlist }, param);
+                    //foreach (string membername in memberStatsDictKeys)
+                    //    GameRules.GiveReward_Mail(membername, "Reward_GuildSMBossKill", new List<int>() { mGuildSMBossJson.killrewardlist }, param);
 
                     int guildId = guildStats.guildId;
                     string message = string.Format("id:{0}|bosslvl:{1}|killer:{2}", guildId, mGuildSMBossJson.level, mKiller);

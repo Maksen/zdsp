@@ -69,7 +69,7 @@ namespace Photon.LoadBalancing.GameServer.RandomBoxReward
         {
             rewardList = new List<ItemInfo>();
             Dictionary<CurrencyType, int> currency = new Dictionary<CurrencyType, int>();
-            GameRules.GenerateRewardGrp(rewardGroupId, rewardList, currency);
+            //GameRules.GenerateRewardGrp(rewardGroupId, rewardList, currency);
         }
     }
 

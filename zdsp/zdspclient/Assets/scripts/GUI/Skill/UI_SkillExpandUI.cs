@@ -60,9 +60,14 @@ public class UI_SkillExpandUI : MonoBehaviour {
         //show required skill points
         //check current player skill
         int skp = 1000;
+        int my = 1000;
         if (GameInfo.gLocalPlayer != null)
+        {
             skp = (int)GameInfo.gLocalPlayer.LocalCombatStats.SkillPoints;
+            my = (int)GameInfo.gLocalPlayer.SecondaryStats.money;
+        }
         int skillpoint = skill.skillJson.learningsp;
+        int money = skill.skillJson.learningcost;
         GameObject obj = m_ReqStatsPool.RequestObject();
         m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
         m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("技能點數 ", skillpoint.ToString() + "/"  + skp.ToString());
@@ -70,7 +75,14 @@ public class UI_SkillExpandUI : MonoBehaviour {
         obj.transform.localPosition = new Vector3(0, 0, 1);
         obj.transform.localScale = new Vector3(1, 1, 1);
 
-        switch(skill.skillgroupJson.skilltype)
+        obj = m_ReqStatsPool.RequestObject();
+        m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
+        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("Money (temp) ", money.ToString() + "/" + my.ToString());
+        obj.transform.parent = m_ReqStatsParent.transform;
+        obj.transform.localPosition = new Vector3(0, 0, 1);
+        obj.transform.localScale = new Vector3(1, 1, 1);
+
+        switch (skill.skillgroupJson.skilltype)
         {
             case Zealot.Common.SkillType.Active:
                 m_ActivePassive.text = "主動";
@@ -102,10 +114,10 @@ public class UI_SkillExpandUI : MonoBehaviour {
     {
         // notify button to level up
         m_Button.OnLevelUpSkill();
-        m_SkillDesc.GenerateChunk(m_Button);
+        //m_SkillDesc.GenerateChunk(m_Button);
         //if (SkillRepo.IsSkillMaxLevel(m_Button.m_SkillData.skillgroupJson.id, m_Button.m_SkillLevel))
-        if(!m_Button.IsUpgradable())
-            m_Upgrade.interactable = false;
+        //if(!m_Button.IsUpgradable())
+        //    m_Upgrade.interactable = false;
     }
 
     public void OnClosed()

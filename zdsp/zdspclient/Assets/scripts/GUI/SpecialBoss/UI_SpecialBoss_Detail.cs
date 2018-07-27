@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UIAddons;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
@@ -20,7 +21,12 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     //Reward Icon
     public GameObject DropContent;
-    public GameObject DropPrefab;
+    //public GameObject DropPrefab;
+
+    public GameObject mConsumablePrefab;
+    public GameObject mEquipIconPrefab;
+    public GameObject mGeneIconPrefab;
+    public GameObject mMaterialPrefab;
 
     //Boss Status Display List
     public Toggle BigBossToggle;
@@ -28,9 +34,6 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     public GameObject BossListContent;
     public GameObject BossListPrefab;
-
-    private GameObject[] mDrop_Children;
-    private Dictionary<int, GameObject> mBossList_Children;
 
     private Dictionary<int, SpecialBossStatus> worldBossList;
     private List<GameObject> bigBossObjList;
@@ -40,7 +43,8 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     Model_3DAvatar m3DAvatar;
 
-    ItemBaseJson itemData;
+    public bool BigBossCategory;
+    public bool MiniBossCategory;
 
     void OnEnable()
     {
@@ -99,6 +103,9 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         {
             ClearBigBossListData();
             ClearMiniBossListData();
+            BigBossToggle.isOn = true;
+            BigBossCategory = true;
+            MiniBossCategory = false;
 
             ScoreName.text = GUILocalizationRepo.GetLocalizedString("wb_PartyScore");
 
@@ -136,6 +143,9 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         {
             ClearBigBossListData();
             ClearMiniBossListData();
+            MiniBossToggle.isOn = true;
+            BigBossCategory = false;
+            MiniBossCategory = true;
 
             ScoreName.text = GUILocalizationRepo.GetLocalizedString("wb_DamangeScore");
 
@@ -201,6 +211,8 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     public void DrawRewardListGameIcons(int rewardIdGroupid)
     {
+        ClearRewardIcons();
+
         //取得獎勵組的所有獎勵
         var rewardGroupDic = RewardListRepo.GetRewardDicByGrpId(rewardIdGroupid);
 
@@ -210,10 +222,36 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
             {
                 for (int i = 0; i < reward.itemRewardLst.Count; ++i)
                 {
-                    itemData = GameRepo.ItemFactory.GetItemById(reward.itemRewardLst[i].id);
-                    GameObject obj = CreateIcon(DropPrefab);
-                    GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-                    mcIcon.Init(itemData.id, reward.itemRewardLst.Count, false);
+                    ItemBaseJson itemData = GameRepo.ItemFactory.GetItemById(reward.itemRewardLst[i].id);
+
+                    switch (itemData.bagtype)
+                    {
+                        case BagType.Consumable:
+                            GameObject obj = CreateIcon(mConsumablePrefab);
+                            GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
+                            //mcIcon.Init(itemData.itemid, reward.itemRewardLst.Count , false);
+                            break;
+                        case BagType.DNA:
+                            GameObject obj2 = CreateIcon(mConsumablePrefab);
+                            GameIcon_DNA mcIcon2 = obj2.GetComponent<GameIcon_DNA>();
+                            //mcIcon2.Init(itemData.itemid,0,0);
+                            break;
+                        case BagType.Equipment:
+                            GameObject obj3 = CreateIcon(mConsumablePrefab);
+                            GameIcon_Equip mcIcon3 = obj3.GetComponent<GameIcon_Equip>();
+                            //mcIcon3.Init(itemData.itemid);
+                            break;
+                        case BagType.Gem:
+                            GameObject obj4 = CreateIcon(mConsumablePrefab);
+                            GameIcon_DNA mcIcon4 = obj4.GetComponent<GameIcon_DNA>();
+                            //mcIcon4.Init(itemData.itemid, 0, 0);
+                            break;
+                        case BagType.Material:
+                            GameObject obj5 = CreateIcon(mConsumablePrefab);
+                            GameIcon_MaterialConsumable mcIcon5 = obj5.GetComponent<GameIcon_MaterialConsumable>();
+                            //mcIcon5.Init(itemData.itemid, reward.itemRewardLst.Count, false);
+                            break;
+                    }
                 }
             }
         }
@@ -227,11 +265,25 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         return obj;
     }
 
+    private void ClearRewardIcons()
+    {
+        if (DropContent != null)
+        {
+            foreach (Transform t in DropContent.transform)
+                Destroy(t.gameObject);
+        }
+    }
+
+    void OnDisable()
+    {
+        BigBossToggle.isOn = true;
+        MiniBossToggle.isOn = false;
+    }
+
     void OnDestroy()
     {
         BossName = null;
         DropContent = null;
-        DropPrefab = null;
         BossListContent = null;
         BossListPrefab = null;
     }

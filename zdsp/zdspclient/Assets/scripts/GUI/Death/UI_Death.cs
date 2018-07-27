@@ -52,7 +52,7 @@ public class DeathCurrencyData
     }
 }
 
-public class UI_Death : MonoBehaviour
+public class UI_Death : BaseWindowBehaviour
 {
     [Header("Prefabs")]
     public GameObject   respawnItemCurrPrefab;
@@ -80,6 +80,8 @@ public class UI_Death : MonoBehaviour
 
     public void Init(string killer, int respawnid)
     {
+        SetHideWhenDeath(false);
+
         ClearItemCurrencyList();
         ClearItemList();
         ClearCurrencyList();
@@ -275,6 +277,12 @@ public class UI_Death : MonoBehaviour
         return itemList;
     }
 
+    public override void OnCloseWindow()
+    {
+        base.OnCloseWindow();
+        SetHideWhenDeath(true);
+    }
+
     private List<DeathCurrencyData> GetRequiredCurrencyFromString(string currencyListStr)
     {
         if (string.IsNullOrEmpty(currencyListStr))
@@ -301,6 +309,15 @@ public class UI_Death : MonoBehaviour
         }
 
         return currencyList;
+    }
+
+    private void SetHideWhenDeath(bool bShow)
+    {
+        GameObject hideWhenDeathHUD = UIManager.GetWidget(HUDWidgetType.HideWhenDeath);
+        if(hideWhenDeathHUD != null)
+        {
+            hideWhenDeathHUD.SetActive(bShow);
+        }
     }
 
     private void ClearItemCurrencyList()

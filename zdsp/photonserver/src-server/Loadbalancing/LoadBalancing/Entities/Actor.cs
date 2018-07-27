@@ -1001,7 +1001,10 @@
 
         public long RecoverTime = 0;
         public long InCombatTime = 0;
-
+        public float InBattleTime;
+        public float BattleTime;               
+        public float MaxBattleTime = 900;             //MaxBattleTime
+        public float ExpRate { get; set; }         //經驗值比例
         //public void SetImmuneControl(ControlSEType settype, bool flag)
         //{
         //    mControlImmune[(int)settype] = flag;

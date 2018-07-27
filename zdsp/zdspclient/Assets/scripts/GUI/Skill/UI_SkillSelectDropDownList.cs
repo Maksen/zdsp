@@ -30,7 +30,8 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
         {
             if ((int)skill[i] == 0) break;
             SkillData skd = SkillRepo.GetSkill((int)skill[i + 1]);
-            if (skd.skillgroupJson.skilltype == Zealot.Common.SkillType.Active)
+            if (skd.skillgroupJson.skilltype == Zealot.Common.SkillType.Active &&
+                skd.skillgroupJson.skillclass == Zealot.Common.SkillClass.Normal)
                 temp.Add(new KeyValuePair<int, int>((int)skill[i], (int)skill[i + 1]));
         }
 

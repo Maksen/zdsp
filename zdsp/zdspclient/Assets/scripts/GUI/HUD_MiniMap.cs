@@ -178,6 +178,12 @@ public class HUD_MiniMap : MonoBehaviour
         img.gameObject.SetActive(true);
     }
 
+    public void OnClick_MiniMap()
+    {
+        GameObject obj = UIManager.GetWidget(HUDWidgetType.Map);
+        obj.SetActive(!obj.GetActive());
+    }
+
     public enum IconType
     {
         PLAYER,

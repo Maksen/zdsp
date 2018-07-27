@@ -569,70 +569,70 @@ namespace Zealot.Common
             return EffectType.Trigger_OnNormalAttack;
         }
 
-        public static void EnhanceMainStatsSE(SideEffectJson mainsej, SideEffectJson subsej)
-        {
-            switch (subsej.stat1)
-            {
-                case ActorStatsType.Accuracy:
-                    if (mainsej.effecttype == EffectType.StatsAttack_Accuracy)
-                    {
-                        mainsej.max *= (1 + subsej.max * 0.01f);
-                        mainsej.min *= (1 + subsej.max * 0.01f);
-                    }
-                    break;
-                case ActorStatsType.Armor:
-                    if (mainsej.effecttype == EffectType.StatsDefence_Armor)
-                    {
-                        mainsej.max *= (1 + subsej.max * 0.01f);
-                        mainsej.min *= (1 + subsej.max * 0.01f);
-                    }
-                    break;
-                case ActorStatsType.Attack:
-                    //if (mainsej.effecttype == EffectType.StatsAttack_Attack)
-                    //{
-                    //    mainsej.max *= (1 + subsej.max * 0.01f);
-                    //    mainsej.min *= (1 + subsej.max * 0.01f);
-                    //}
-                    break;
-                case ActorStatsType.Cocritical:
-                    if (mainsej.effecttype == EffectType.StatsDefence_CoCritical)
-                    {
-                        mainsej.max *= (1 + subsej.max * 0.01f);
-                        mainsej.min *= (1 + subsej.max * 0.01f);
-                    }
-                    break;
-                case ActorStatsType.CocriticalDamage:
-                    //if (mainsej.effecttype == EffectType.StatsDefence_CoCriticalDamage)
-                    //{
-                    //    mainsej.max *= (1 + subsej.max * 0.01f);
-                    //    mainsej.min *= (1 + subsej.max * 0.01f);
-                    //}
-                    break;
-                case ActorStatsType.Critical:
-                    if (mainsej.effecttype == EffectType.StatsAttack_Critical)
-                    {
-                        mainsej.max *= (1 + subsej.max * 0.01f);
-                        mainsej.min *= (1 + subsej.max * 0.01f);
-                    }
-                    break;
-                case ActorStatsType.CriticalDamage:
-                    if (mainsej.effecttype == EffectType.StatsAttack_CriticalDamage)
-                    {
-                        mainsej.max *= (1 + subsej.max * 0.01f);
-                        mainsej.min *= (1 + subsej.max * 0.01f);
-                    }
-                    break;
-                case ActorStatsType.Evasion:
-                    if (mainsej.effecttype == EffectType.StatsDefence_Evasion)
-                    {
-                        mainsej.max *= (1 + subsej.max * 0.01f);
-                        mainsej.min *= (1 + subsej.max * 0.01f);
-                    }
-                    break;
+        //public static void EnhanceMainStatsSE(SideEffectJson mainsej, SideEffectJson subsej)
+        //{
+        //    switch (subsej.stat1)
+        //    {
+        //        case ActorStatsType.Accuracy:
+        //            if (mainsej.effecttype == EffectType.StatsAttack_Accuracy)
+        //            {
+        //                mainsej.max *= (1 + subsej.max * 0.01f);
+        //                mainsej.min *= (1 + subsej.max * 0.01f);
+        //            }
+        //            break;
+        //        case ActorStatsType.Armor:
+        //            if (mainsej.effecttype == EffectType.StatsDefence_Armor)
+        //            {
+        //                mainsej.max *= (1 + subsej.max * 0.01f);
+        //                mainsej.min *= (1 + subsej.max * 0.01f);
+        //            }
+        //            break;
+        //        case ActorStatsType.Attack:
+        //            //if (mainsej.effecttype == EffectType.StatsAttack_Attack)
+        //            //{
+        //            //    mainsej.max *= (1 + subsej.max * 0.01f);
+        //            //    mainsej.min *= (1 + subsej.max * 0.01f);
+        //            //}
+        //            break;
+        //        case ActorStatsType.Cocritical:
+        //            if (mainsej.effecttype == EffectType.StatsDefence_CoCritical)
+        //            {
+        //                mainsej.max *= (1 + subsej.max * 0.01f);
+        //                mainsej.min *= (1 + subsej.max * 0.01f);
+        //            }
+        //            break;
+        //        case ActorStatsType.CocriticalDamage:
+        //            //if (mainsej.effecttype == EffectType.StatsDefence_CoCriticalDamage)
+        //            //{
+        //            //    mainsej.max *= (1 + subsej.max * 0.01f);
+        //            //    mainsej.min *= (1 + subsej.max * 0.01f);
+        //            //}
+        //            break;
+        //        case ActorStatsType.Critical:
+        //            if (mainsej.effecttype == EffectType.StatsAttack_Critical)
+        //            {
+        //                mainsej.max *= (1 + subsej.max * 0.01f);
+        //                mainsej.min *= (1 + subsej.max * 0.01f);
+        //            }
+        //            break;
+        //        case ActorStatsType.CriticalDamage:
+        //            if (mainsej.effecttype == EffectType.StatsAttack_CriticalDamage)
+        //            {
+        //                mainsej.max *= (1 + subsej.max * 0.01f);
+        //                mainsej.min *= (1 + subsej.max * 0.01f);
+        //            }
+        //            break;
+        //        case ActorStatsType.Evasion:
+        //            if (mainsej.effecttype == EffectType.StatsDefence_Evasion)
+        //            {
+        //                mainsej.max *= (1 + subsej.max * 0.01f);
+        //                mainsej.min *= (1 + subsej.max * 0.01f);
+        //            }
+        //            break;
 
-            } 
+        //    } 
 
-        }
+        //}
 
 
         public static void DebugCompoundSkill(SkillData data)
@@ -738,18 +738,18 @@ namespace Zealot.Common
                     sej.max = sej.min = int.Parse(additional[2]);
                 if (additional.Length > 3)
                     sej.parameter = additional[3];
-                if (additional.Length > 4)
-                    sej.stat1 = (Zealot.Common.ActorStatsType)(int.Parse(additional[4]));
-                if (additional.Length > 5)
-                    sej.stat2 = (Zealot.Common.ActorStatsType)(int.Parse(additional[5]));
-                if (additional.Length > 6)
-                    sej.isrelative = bool.Parse(additional[6]);
-                if (additional.Length > 7)
-                    sej.usereferencetable = bool.Parse(additional[7]);
-                if (additional.Length > 8)
-                    sej.step = int.Parse(additional[8]);
-                if (additional.Length > 9)
-                    sej.increase = float.Parse(additional[9]);
+                //if (additional.Length > 4)
+                //    sej.stat1 = (Zealot.Common.ActorStatsType)(int.Parse(additional[4]));
+                //if (additional.Length > 5)
+                //    sej.stat2 = (Zealot.Common.ActorStatsType)(int.Parse(additional[5]));
+                //if (additional.Length > 6)
+                //    sej.isrelative = bool.Parse(additional[6]);
+                //if (additional.Length > 7)
+                //    sej.usereferencetable = bool.Parse(additional[7]);
+                //if (additional.Length > 8)
+                //    sej.step = int.Parse(additional[8]);
+                //if (additional.Length > 9)
+                //    sej.increase = float.Parse(additional[9]);
                 if (additional.Length > 10)
                     sej.persistentafterdeath = bool.Parse(additional[10]);
                 if (additional.Length > 11)

@@ -529,7 +529,12 @@ namespace Zealot.Server.Rules
             RewardListJson reward = RewardListRepo.GetRewardById(rewardListId);
             for (int i = 0; i < count; i++)
             {
-                GameRules.GenerateReward(rewardListId, itemsToAttach, currencyAdded);
+                GameRules.GenerateRewardByRewardGrpID(rewardListId, 
+                                                      peer.mPlayer.PlayerSynStats.Level,
+                                                      peer.mPlayer.PlayerSynStats.progressJobLevel,
+                                                      peer.mPlayer.PlayerSynStats.jobsect,
+                                                      itemsToAttach,
+                                                      currencyAdded);
             }
 
             //generate item list

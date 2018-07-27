@@ -850,24 +850,28 @@ public partial class ClientMain : MonoBehaviour
         //base on id list and if _specialBossStatus contains the id means can popolate it.
         GameObject worldbossRankDialogObj = UIManager.GetWindowGameObject(WindowType.DialogWorldBossRanking);
         UI_DamangeRankData uiDamangeRankData = worldbossRankDialogObj.GetComponentInChildren<UI_DamangeRankData>();
-        if (uiDamangeRankData != null)
-        {
-            uiDamangeRankData.RefreshDamangeRankData(_specialBossStatus);
-        }
         RankingData uiRankingData = worldbossRankDialogObj.GetComponentInChildren<RankingData>();
-        if (uiRankingData != null)
-        {
-            uiRankingData.RefreshRankingData(_specialBossStatus);
-        }
         //-------------------------------------------------------------------------------------------------------------
         GameObject dailyQuestObj = UIManager.GetWindowGameObject(WindowType.DailyQuest);
         Model_3DAvatar model_3DAvatar = dailyQuestObj.GetComponentInChildren<Model_3DAvatar>();
         UI_SpecialBoss_Detail uiSpecialBoss = dailyQuestObj.GetComponentInChildren<UI_SpecialBoss_Detail>();
+        BossListData uiSpecialBossData = dailyQuestObj.GetComponentInChildren<BossListData>();
+
+        if (uiDamangeRankData != null)
+        {
+            uiDamangeRankData.RefreshDamangeRankData(_specialBossStatus, uiSpecialBoss);
+        }
+        
+        if (uiRankingData != null)
+        {
+            uiRankingData.RefreshRankingData(_specialBossStatus);
+        }
+        
         if(uiSpecialBoss != null)
         {
             uiSpecialBoss.InitWorldBossList(uiDamangeRankData,_specialBossStatus, model_3DAvatar);
         }
-        BossListData uiSpecialBossData = dailyQuestObj.GetComponentInChildren<BossListData>();
+        
         if (uiSpecialBossData != null)
         {
             uiSpecialBossData.RefreshWorldBossListData(uiSpecialBoss, _specialBossStatus);
@@ -883,4 +887,10 @@ public partial class ClientMain : MonoBehaviour
         //todo refresh bossdamagelist with _bossKillData
     }
     #endregion
+
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnNPCKilled)]
+    public void OnNPCKilled()
+    {
+        GameInfo.gLocalPlayer.OnNPCKilled();
+    }
 }

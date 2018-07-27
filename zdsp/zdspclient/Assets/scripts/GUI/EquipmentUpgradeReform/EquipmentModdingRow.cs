@@ -52,23 +52,6 @@ public class EquipmentModdingRow : MonoBehaviour
         }
     }
 
-    public void AddData(UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
-    {
-        if (IsFull())
-        {
-            return;
-        }
-
-        int newIconPos = GetNewIcon();
-
-        if (newIconPos != -1 || (newIconPos >= 0 && newIconPos < _equipIconList.Count))
-        {
-            GameObject equipIconObj = _equipIconList[newIconPos];
-            GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
-            UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
-        }
-    }
-
     public void UpdateData(int pos, UI_EquipmentUpgrade uiEquipUpgrade, int slotId, Equipment equipment, bool isSafeUpgrade, bool isEquipped, ToggleGroup toggleGroup)
     {
         if(pos < 0 || pos >= _equipIconList.Count)
@@ -94,6 +77,51 @@ public class EquipmentModdingRow : MonoBehaviour
             GameObject equipIconObj = _equipIconList[newIconPos];
             GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
             UpdateIconData(equipIcon, uiEquipUpgrade, slotId, equipment, isSafeUpgrade, isEquipped, toggleGroup);
+        }
+    }
+
+    public void AddData(UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    {
+        if (IsFull())
+        {
+            return;
+        }
+
+        int newIconPos = GetNewIcon();
+
+        if (newIconPos != -1 || (newIconPos >= 0 && newIconPos < _equipIconList.Count))
+        {
+            GameObject equipIconObj = _equipIconList[newIconPos];
+            GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
+            UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
+        }
+    }
+
+    public void UpdateData(int pos, UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    {
+        if (pos < 0 || pos >= _equipIconList.Count)
+        {
+            return;
+        }
+
+        GameIcon_Equip equipIcon = _equipIconList[pos].GetComponent<GameIcon_Equip>();
+        UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
+    }
+
+    public void AddRefresh(UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    {
+        if (IsFull())
+        {
+            return;
+        }
+
+        int newIconPos = GetNewIcon();
+
+        if (newIconPos != -1 || (newIconPos >= 0 && newIconPos < _equipIconList.Count))
+        {
+            GameObject equipIconObj = _equipIconList[newIconPos];
+            GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
+            UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
         }
     }
 

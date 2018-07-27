@@ -152,10 +152,39 @@ namespace Zealot.Repository
         }
     }
 
+    public class EquipReformData
+    {
+        public int mReformStep;
+        public EquipmentReformGroupJson mReformData;
+
+        public EquipReformData(int reformStep, EquipmentReformGroupJson reformData)
+        {
+            mReformStep = reformStep;
+            mReformData = reformData;
+        }
+
+        public List<int> GetSideEffects()
+        {
+            List<int> seIds = new List<int>();
+            List<string> seIdStrList = mReformData.grpid.Split(';').ToList();
+            
+            for(int i = 0; i < seIdStrList.Count; ++i)
+            {
+                int seId = 0;
+                if(int.TryParse(seIdStrList[i], out seId))
+                {
+                    seIds.Add(seId);
+                }
+            }
+
+            return seIds;
+        }
+    }
+
     public class EquipmentModdingRepo
     {
         // Equipment Upgrade
-        private static Dictionary<EquipmentType, Dictionary<ItemRarity, Dictionary<int, EquipmentUpgradeJson>>> equipUpgradeTypeRarityIDJsonMap;    // Equipment Type -> Rarity -> Upgrade Level -> Json         // Safe Upgrade Gem ID -> Json
+        private static Dictionary<EquipmentType, Dictionary<ItemRarity, Dictionary<int, EquipmentUpgradeJson>>> equipUpgradeTypeRarityIDJsonMap;    // Equipment Type -> Rarity -> Upgrade Level -> Json
 
         // Equipment Reform
         private static Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>   equipReformJsonMap; // Upgrade Gem ID -> Json
@@ -425,6 +454,16 @@ namespace Zealot.Repository
             return prob.RollUpgrade();
         }
 
+        public static Dictionary<int, List<EquipmentReformGroupJson>> GetEquipmentReformDataByGroup(string reformGrp)
+        {
+            if (!equipReformJsonMap.ContainsKey(reformGrp))
+            {
+                return null;
+            }
+
+            return equipReformJsonMap[reformGrp];
+        }
+
         public static List<EquipmentReformGroupJson> GetEquipmentReformDataByGroupStep(string reformGrp, int reformStep)
         {
             if(!equipReformJsonMap.ContainsKey(reformGrp))
@@ -438,6 +477,66 @@ namespace Zealot.Repository
             }
 
             return equipReformJsonMap[reformGrp][reformStep];
+        }
+
+        private static Dictionary<int, List<EquipmentReformGroupJson>> GetEquipmentReformDataToStep(string reformGrp, int reformStep)
+        {
+            Dictionary<int, List<EquipmentReformGroupJson>> reformGroup = GetEquipmentReformDataByGroup(reformGrp);
+
+            if(reformGroup == null)
+            {
+                return null;
+            }
+
+            Dictionary<int, List<EquipmentReformGroupJson>> relevantData = new Dictionary<int, List<EquipmentReformGroupJson>>();
+            int i = 1;
+            foreach(KeyValuePair<int, List<EquipmentReformGroupJson>> entry in reformGroup)
+            {
+                if(i > entry.Key)
+                {
+                    break;
+                }
+
+                relevantData.Add(entry.Key, entry.Value);
+
+                ++i;
+            }
+
+            return relevantData;
+        }
+
+        public static List<EquipReformData> GetEquipmentReformData(Equipment equipment)
+        {
+            List<EquipReformData> reformDataList = new List<EquipReformData>();
+
+            string reformGrp = equipment.EquipmentJson.evolvegrp;
+            int reformStep = equipment.ReformStep;
+
+            Dictionary<int, List<EquipmentReformGroupJson>> reformGrpData = GetEquipmentReformDataToStep(reformGrp, reformStep);
+            if(reformGrpData == null)
+            {
+                return null;
+            }
+
+            int i = 0;
+            foreach(KeyValuePair<int, List<EquipmentReformGroupJson>> entry in reformGrpData)
+            {
+                List<EquipmentReformGroupJson> reformGrpStepList = entry.Value;
+
+                if(reformGrpStepList.Count == 1)
+                {
+                    reformDataList.Add(new EquipReformData(entry.Key, entry.Value[0]));
+                }
+                else
+                {
+                    int selection = equipment.Selection[i];
+                    reformDataList.Add(new EquipReformData(entry.Key, entry.Value[selection]));
+                }
+
+                ++i;
+            }
+
+            return reformDataList;
         }
 
         public static List<EquipModMaterial> GetEquipmentReformMaterials(string reformGrp, int reformStep, int selection)

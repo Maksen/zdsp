@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -28,7 +29,7 @@ namespace Zealot.DBRepository.GM.NPCStore
             {
                 var storeid = (int)row["storeid"];
 
-                var a = (int)row["storeid"];
+                var a = storeid;
                 var b = (int)row["entryid"];
                 var c = (bool)row["show"];
                 var d = (int)row["itemid"];
@@ -43,7 +44,7 @@ namespace Zealot.DBRepository.GM.NPCStore
                 var m = (int)row["excount"];
                 var n = (NPCStoreInfo.Frequency)((string)row["dailyorweekly"]).ToCharArray()[0];
 
-                ret[storeid].inventory.Add(new Zealot.Common.NPCStoreInfo.StandardItem(a, b, c, d, e, f, g, h, (float)i, j, k, l, m, n));
+                ret[storeid].inventory.Add(b, new Zealot.Common.NPCStoreInfo.StandardItem(a, b, c, d, e, f, g, h, (float)i, j, k, l, m, n));
             }
 
             return ret;
@@ -108,6 +109,64 @@ namespace Zealot.DBRepository.GM.NPCStore
                 }
             }
             return result;
+        }
+
+        public async Task<bool> PerformSQLCommandAsync(string command)
+        {
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    try
+                    {
+                        connection.Open();
+                        using (SqlCommand userquery = new SqlCommand())
+                        {
+                            userquery.Connection = connection;
+                            userquery.CommandType = CommandType.Text;
+                            userquery.CommandText = command;
+
+                            //var reader = userquery.ExecuteReader();
+                            await userquery.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        HandleQueryException(e);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public async Task<Dictionary<string, NPCStoreInfo.Transaction>> GetPlayerStoreTransactions(string charid)
+        {
+            var instancedb = "InstanceDBCS";
+            var query = string.Format("SELECT [transactionhistory] FROM [{0}].[dbo].[{1}] WHERE [charname] = '{2}'", instancedb, "Character", charid.ToString());
+            var result = await PerformQueryAsync(query).ConfigureAwait(false);
+
+            //extract transactions from query
+            JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+
+            if((result[0])["transactionhistory"].GetType() == typeof(System.DBNull))
+                return null;
+
+            var serialisedstring = (string)((result[0])["transactionhistory"]);
+            var transactions = JsonConvert.DeserializeObject<Dictionary<string, NPCStoreInfo.Transaction>>(serialisedstring, jsonSetting);
+
+            return transactions;
+        }
+
+        public async Task UpdateTransactions(Dictionary<string, NPCStoreInfo.Transaction> transactions, string charid)
+        {
+            var transtr = JsonConvert.SerializeObject(transactions);
+
+            var instancedb = "InstanceDBCS";
+            var command = string.Format("UPDATE [{0}].[dbo].[{1}] SET [transactionhistory] = '{3}' WHERE [charname] = '{2}'", instancedb, "Character", charid, transtr);
+
+           var success = await PerformSQLCommandAsync(command).ConfigureAwait(false);
         }
     }
 }

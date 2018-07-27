@@ -54,4 +54,15 @@ public class UI_Quest : MonoBehaviour
             OngoingQuest.UpdateQuestData(questData, oldquestData);
         }
     }
+
+    public void UpdateOngoingQuestData()
+    {
+        if (!mIsActived)
+            return;
+
+        if (OngoingQuest.gameObject.activeSelf)
+        {
+            OngoingQuest.UpdateUnlockQuestList();
+        }
+    }
 }

@@ -437,24 +437,31 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupMail)]
         public void ConsoleAddRewardMail(int grpID, GameClientPeer peer)
         {
-            GameRules.GiveRewardGrp_Mail(peer.mPlayer.Name, "Reward_TestRewardGroup", new List<int>() { grpID }, null);
+            GameRules.GiveReward_Mail(peer.mPlayer.Name, "Reward_TestRewardGroup", peer.mPlayer.PlayerSynStats, new List<int>() { grpID }, null);
+            //GameRules.GiveRewardGrp_Mail(peer.mPlayer.Name, "Reward_TestRewardGroup", new List<int>() { grpID }, null);
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupBag)]
         public void ConsoleAddRewardBag(int grpID, GameClientPeer peer) 
         {
-            GameRules.GiveRewardGrp_Bag(peer.mPlayer, new List<int>() { grpID }, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
+            //GameRules.GiveRewardGrp_Bag(peer.mPlayer, new List<int>() { grpID }, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
+            GameRules.GiveReward_Bag(peer.mPlayer, new List<int>() { grpID }, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupCheckBagSlot)]
         public void ConsoleAddRewardGroupCheckBagSlot(int grpID, GameClientPeer peer)
         {
             bool isFull = false;
-            GameRules.GiveRewardGrp_CheckBagSlot(peer.mPlayer, new List<int>() { grpID }, out isFull, 
-                true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
+            //GameRules.GiveRewardGrp_CheckBagSlot(peer.mPlayer, new List<int>() { grpID }, out isFull, 
+            //    true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
+
+            GameRules.GiveReward_CheckBagSlot(peer.mPlayer, new List<int>() { grpID }, out isFull, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupCheckBagMail)]
         public void ConsoleAddRewardGroupCheckBagMail(int grpID, GameClientPeer peer)
         {
-            GameRules.GiveRewardGrp_CheckBagSlotThenMail(peer.mPlayer, new List<int>() { grpID }, "Reward_TestRewardGroup", 
+            //GameRules.GiveRewardGrp_CheckBagSlotThenMail(peer.mPlayer, new List<int>() { grpID }, "Reward_TestRewardGroup", 
+            //    null, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
+
+            GameRules.GiveReward_CheckBagSlotThenMail(peer.mPlayer, new List<int>() { grpID }, "Reward_TestRewardGroup", 
                 null, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
         }
 

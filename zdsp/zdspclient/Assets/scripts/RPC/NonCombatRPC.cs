@@ -710,6 +710,19 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("NPCStoreInit", storeid);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCStoreGetPlayerTransactions)]
+    public void NPCStoreGetPlayerTransactions(int storeid)
+    {
+        ProxyMethod("NPCStoreGetPlayerTransactions", storeid);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCStoreBuy)]
+    public void NPCStoreBuy(int storeid, int itemlistid, int purchaseamount, string charid)
+    {
+        ProxyMethod("NPCStoreBuy", storeid, purchaseamount, itemlistid, charid);
+    }
+
     #endregion
 
     #region Quest

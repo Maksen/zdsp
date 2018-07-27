@@ -52,7 +52,9 @@ public class StoreTestingCube : MonoBehaviour
         if (RPCFactory.NonCombatRPC != null)
         {
             GameInfo.gUIShopSell = theshop;
+            RPCFactory.CombatRPC.AddCurrency((int)CurrencyType.Money, 10000);
             RPCFactory.NonCombatRPC.NPCStoreInit(1);
+            RPCFactory.NonCombatRPC.NPCStoreGetPlayerTransactions(1);            
         }
     }
 

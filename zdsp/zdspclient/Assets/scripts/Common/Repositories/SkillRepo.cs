@@ -5,6 +5,15 @@ using Zealot.Common;
 
 namespace Zealot.Repository
 {
+    [System.Flags]
+    public enum SkillReturnCode : byte
+    {
+        EMPTY = 0,
+        SUCCESS = 1 << 0,
+        SKILLPOINTFAILED = 1 << 1,
+        MONEYFAILED = 1 << 2,
+    }
+
     public class SkillData
     {
         public SkillGroupJson skillgroupJson;
@@ -47,7 +56,7 @@ namespace Zealot.Repository
         public static Dictionary<int, SkillData> mSkills;
         //public static Dictionary<int, List<SideEffectJson>> mSkillSideEffects; //active
         public static Dictionary<int, SkillSideEffect> mSkillSideEffects;
-        public static Dictionary<int, Dictionary<int, SideEffectJson>> mSideEffectByLevel;
+        //public static Dictionary<int, Dictionary<int, SideEffectJson>> mSideEffectByLevel;
         //public static Dictionary<int, List<SideEffectJson>> mPassiveSideEffects; //passive
         //public static SkillData mMonsterBasicAttack; //Cache for quick access in monster AI
 
@@ -63,7 +72,7 @@ namespace Zealot.Repository
             mSkillSideEffects = new Dictionary<int, SkillSideEffect>();
             //mPassiveSideEffects = new Dictionary<int, List<SideEffectJson>>();
             mWeapontypeToSId = new Dictionary<int, Dictionary<WeaponType, int>>();
-            mSideEffectByLevel = new Dictionary<int, Dictionary<int, SideEffectJson>>();
+            //mSideEffectByLevel = new Dictionary<int, Dictionary<int, SideEffectJson>>();
             mWeaponTypeGetSkillID = new Dictionary<PartsType, Dictionary<int, int>>();
             m_SkillGroupToSkill = new Dictionary<int, List<int>>();
         }
@@ -148,17 +157,18 @@ namespace Zealot.Repository
                 }
             }
 
-            foreach (KeyValuePair<int, SideEffectJson> entry in SideEffectRepo.mIdMap)
-            {
-                SideEffectJson sideeffect = entry.Value;
-                Dictionary<int, SideEffectJson> tmplist = new Dictionary<int, SideEffectJson>();
-                for (int i = 0; i < 100; i++)
-                {
-                    tmplist.Add(i, UpdateSideEffectByLevel(sideeffect, i+1));
-                }
+            //foreach (KeyValuePair<int, SideEffectJson> entry in SideEffectRepo.mIdMap)
+            //{
+            //    SideEffectJson sideeffect = entry.Value;
+            //    Dictionary<int, SideEffectJson> tmplist = new Dictionary<int, SideEffectJson>();
+            //    for (int i = 0; i < 100; i++)
+            //    {
+            //        tmplist.Add(i, UpdateSideEffectByLevel(sideeffect, i+1));
+            //    }
 
-                mSideEffectByLevel.Add(sideeffect.id, tmplist);
-            }
+            //    mSideEffectByLevel.Add(sideeffect.id, tmplist);
+               
+            //}
 
             foreach (KeyValuePair<int, List<int>> ids in m_SkillGroupToSkill)
             {
@@ -459,6 +469,21 @@ namespace Zealot.Repository
             return ressej;
         }
 
+        public static List<JobType> GetSkillRequiredClass(int skillid)
+        {
+            List<JobType> result = new List<JobType>();
+            SkillData skill = GetSkill(skillid);
+            string list = skill.skillJson.requiredclass;
+            string[] res = list.Split(';');
+            foreach(string iter in res)
+            {
+                int job;
+                bool code = System.Int32.TryParse(iter, out job);
+                if (code)
+                    result.Add((JobType)job);
+            }
+            return result;
+        }
          
         /// <summary>
         /// call this method to get skill data whose data may be modified 
@@ -517,112 +542,6 @@ namespace Zealot.Repository
         //    else return null;
         //}
 
-        private static SideEffectJson UpdateSideEffectByLevel(SideEffectJson temp, int level)
-        {
-            
-            if (!temp.usereferencetable)
-            {
-                if (temp.increase > 0 && temp.step > 0)
-                {
-                    SideEffectJson sej = (SideEffectJson)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(temp), typeof(SideEffectJson));
-                    int incmentLvl = System.Math.Max(0, level - 1); 
-                    float amount = (incmentLvl / sej.step) * sej.increase;
-                    //all damage side effect use basicskilldamageperc
-                    //if (//sej.effecttype == EffectType.Damage_Damage
-                    //    //|| sej.effecttype == EffectType.Damage_DamageTalentStone
-                    //    //|| sej.effecttype == EffectType.Damage_DamageTalentScissor
-                    //    //|| sej.effecttype == EffectType.Damage_DamageTalentCloth
-                    //    //|| sej.effecttype == EffectType.Damage_RandomTalent
-                    //    //|| sej.effecttype == EffectType.Damage_DamageWithRejuvenate
-                    //    //|| sej.effecttype == EffectType.Damage_DamageWithRejuvenateOnEnd
-                    //    //|| sej.effecttype == EffectType.Damage_DamageVaryOnHp
-                    //     sej.effecttype == EffectType.Damage_ExtraWhenInDot
-                    //    || sej.effecttype == EffectType.Damage_IgnoreArmor 
-                    //    || sej.effecttype == EffectType.Damage_ExtraWhenInCtl)
-                    //{
-                    //    sej.basicskilldamageperc += amount;
-                    //    //if (sej.effecttype == EffectType.Damage_DamageVaryOnHp) //special one.
-                    //    //{
-                    //    //    sej.max += amount;
-                    //    //    sej.min += amount;
-                    //    //}
-                    //}
-                    //else
-                    //{
-                        sej.max += amount;
-                        sej.min += amount;
-                    //}
-                    return sej;
-                }
-            }
-            else if (!temp.isrelative)
-            {
-                //get the values from the refrence table.
-                //LevelUpJson lvlupjson = ExperienceRepo.GetLevelInfo(level); 
-                //if (lvlupjson != null)
-                //{
-                //    SideEffectJson sej = (SideEffectJson)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(temp), typeof(SideEffectJson));
-
-                //    switch (sej.effecttype)
-                //    {
-                //        //case EffectType.Stats_HealthMax:
-                //        //case EffectType.Stats_HealthMax_Debuff:
-                //        //    sej.max = lvlupjson.hp * sej.max * 0.01f;
-                //        //    sej.min = lvlupjson.hp * sej.min * 0.01f;
-                //        //    break;
-                //        case EffectType.StatsAttack_Accuracy:
-                //        case EffectType.StatsAttack_Accuracy_Debuff:
-                //            sej.max = lvlupjson.accuracy * sej.max * 0.01f;
-                //            sej.min = lvlupjson.accuracy * sej.min * 0.01f;
-                //            break;
-                //        //case EffectType.StatsAttack_Attack:
-                //        //case EffectType.StatsAttack_Attack_Debuff:
-                //        //    sej.max = lvlupjson.attack * sej.max * 0.01f;
-                //        //    sej.min = lvlupjson.attack * sej.min * 0.01f;
-                //        //    break;
-                //        case EffectType.StatsAttack_Critical:
-                //        case EffectType.StatsAttack_Critical_Debuff:
-                //            sej.max = lvlupjson.critical * sej.max * 0.01f;
-                //            sej.min = lvlupjson.critical * sej.min * 0.01f;
-                //            break;
-                //        case EffectType.StatsAttack_CriticalDamage:
-                //        case EffectType.StatsAttack_CriticalDamage_Debuff:
-                //            sej.max = lvlupjson.criticaldamage * sej.max * 0.01f;
-                //            sej.min = lvlupjson.criticaldamage * sej.min * 0.01f;
-                //            break;
-                //        case EffectType.StatsDefence_Armor:
-                //        case EffectType.StatsDefence_Armor_Debuff:
-                //            sej.max = lvlupjson.defense * sej.max * 0.01f;
-                //            sej.min = lvlupjson.defense * sej.min * 0.01f;
-                //            break;
-                //        case EffectType.StatsDefence_Evasion:
-                //        case EffectType.StatsDefence_Evasion_Debuff:
-                //            sej.max = lvlupjson.evasion * sej.max * 0.01f;
-                //            sej.min = lvlupjson.evasion * sej.min * 0.01f;
-                //            break;
-                //        case EffectType.StatsDefence_CoCritical:
-                //        case EffectType.StatsDefence_CoCritical_Debuff:
-                //            sej.max = lvlupjson.cocritical * sej.max * 0.01f;
-                //            sej.min = lvlupjson.cocritical * sej.min * 0.01f;
-                //            break;
-                //        //case EffectType.StatsDefence_CoCriticalDamage:
-                //        //case EffectType.StatsDefence_CoCriticalDamage_Debuff:
-                //        //    sej.max = lvlupjson.cocriticaldamage * sej.max * 0.01f;
-                //        //    sej.min = lvlupjson.cocriticaldamage * sej.min * 0.01f;
-                //        //    break;
-                //        //case EffectType.Rejuvenate_Health:
-                //        //    sej.max = lvlupjson.hp * sej.max * 0.01f;
-                //        //    sej.min = lvlupjson.hp * sej.min * 0.01f;
-                //        //    break;
-                //        //case EffectType.Assist_Shield:
-                //        //    sej.parameter = lvlupjson.hp * sej.parameter * 0.01f; 
-                //        //    break;
-                //    }
-                //    return sej;
-                //}
-            }
-            return temp;//some sideeffect do not have level, simply return itself;
-        }
 
         //public static SkillData GetNextLevelUpSkill(int skillgroupid, int lvl)
         //{
@@ -630,19 +549,19 @@ namespace Zealot.Repository
         //    return GetSkill(skillid, lvl);
         //}
 
-        public static SideEffectJson GetSideEffectAtLevel(int seid, int lvl)
-        {
-            if (lvl < 1 || lvl > 100)
-                return null;
-            if (mSideEffectByLevel.ContainsKey(seid))
-            {
-                if(mSideEffectByLevel[seid].ContainsKey(lvl-1))
-                {
-                    return mSideEffectByLevel[seid][lvl-1];
-                }
-            }
-            return null;
-        }
+        //public static SideEffectJson GetSideEffectAtLevel(int seid, int lvl)
+        //{
+        //    if (lvl < 1 || lvl > 100)
+        //        return null;
+        //    if (mSideEffectByLevel.ContainsKey(seid))
+        //    {
+        //        if(mSideEffectByLevel[seid].ContainsKey(lvl-1))
+        //        {
+        //            return mSideEffectByLevel[seid][lvl-1];
+        //        }
+        //    }
+        //    return null;
+        //}
 
         public static SkillSideEffect GetSkillSideEffects(int skillid)
         {

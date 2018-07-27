@@ -110,22 +110,19 @@ namespace Photon.LoadBalancing.GameServer
         //Wonderful Unlock List
         private List<int> mWonderfulList;
 
+        //Quest Unlock List
+        private List<int> mUnlockQuestList;
+
         private Dictionary<QuestObjectiveType, Dictionary<int, QuestObjectiveData>> mObjectiveListByObjectiveType;
         private List<CompletedQuestData> mCompletedQuestList;
         private Dictionary<QuestType, List<int>> mUpdateList;
-        private Dictionary<QuestTriggerType, List<int>> mUnlockQuestByTriggerType;
         
         public QuestController(Player player)
         {
             mPlayer = player;
             mCompletedQuestList = new List<CompletedQuestData>();
             mUpdateList = new Dictionary<QuestType, List<int>>();
-            mUnlockQuestByTriggerType = new Dictionary<QuestTriggerType, List<int>>();
             mTrackingList = new List<int>();
-            foreach (QuestTriggerType type in Enum.GetValues(typeof(QuestTriggerType)))
-            {
-                mUnlockQuestByTriggerType.Add(type, new List<int>());
-            }
             mObjectiveListByObjectiveType = new Dictionary<QuestObjectiveType, Dictionary<int, QuestObjectiveData>>();
             foreach (QuestObjectiveType type in Enum.GetValues(typeof(QuestObjectiveType)))
             {
@@ -170,7 +167,13 @@ namespace Photon.LoadBalancing.GameServer
             mWonderfulList = characterData.QuestInventory.DeseralizeWonderfulList();
             mWonderfulList = mWonderfulList == null ? new List<int>() : mWonderfulList;
 
-            UpdateUnlockQuestList();
+            mUnlockQuestList = characterData.QuestInventory.DeseralizeUnlockQuestList();
+            mUnlockQuestList = mUnlockQuestList == null ? new List<int>() : mUnlockQuestList;
+            if (!mUnlockQuestList.Contains(6))
+            {
+                mUnlockQuestList.Add(6);
+            }
+
             InitObjectiveData();
         }
 
@@ -204,13 +207,14 @@ namespace Photon.LoadBalancing.GameServer
 
             questSynStats.trackingList = questInventoryData.TrackingList;
             questSynStats.wonderfulList = questInventoryData.UnlockWonderful;
+            questSynStats.unlockQuestList = questInventoryData.UnlockQuest;
         }
 
-        private void UpdateUnlockQuestList()
+        private List<int> GetUnlockQuestList()
         {
             int level = mPlayer.PlayerSynStats.Level;
             List<int> idlist = QuestRepo.GetUnlockQuest(level, QuestTriggerType.Level, level);
-            mUnlockQuestByTriggerType[QuestTriggerType.Level] = FilterQuestList(idlist);
+            return FilterQuestList(idlist);
         }
 
         private void InitObjectiveData()
@@ -462,7 +466,7 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        private bool CanAcceptQuest(QuestType questType)
+        private bool CheckEmptySlot(QuestType questType)
         {
             int current = GetCurrentQuestCount(questType);
             int max = QuestRepo.GetMaxQuestCountByType(questType);
@@ -758,21 +762,50 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
-        public void TriggerNewQuest(int questid, int callerid, int group = 0, bool sync = true)
+        public bool TriggerNewQuest(int questid, int callerid, int group = 0, bool sync = true)
         {
-            QuestType questType = QuestRepo.GetQuestTypeByQuestId(questid);
-            bool canAccept = QuestRules.AcceptQuest(questid, callerid, GetCompletedList(questType), GetCurrentQuestCount(questType), mPlayer);
-            CurrentQuestData existQuestData = GetQuestDataById(questid);
-            if (canAccept && existQuestData == null)
+            bool unlockquestchanged = false;
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
+            if (questJson != null)
             {
-                CurrentQuestData questData = QuestRules.StartNewQuest(questid, group, mPlayer.GetSynchronizedTime(), mPlayer);
-                AddNewQuest(questData);
-                AddToTracking(questid);
-                if (sync)
+                QuestType questType = questJson.type;
+                if (CheckEmptySlot(questType))
                 {
-                    SyncQuestStats();
+                    bool canAccept = QuestRules.AcceptQuest(questid, callerid, GetCompletedList(questType), GetCurrentQuestCount(questType), mPlayer);
+                    CurrentQuestData existQuestData = GetQuestDataById(questid);
+                    if (canAccept && existQuestData == null)
+                    {
+                        CurrentQuestData questData = QuestRules.StartNewQuest(questid, group, mPlayer.GetSynchronizedTime(), mPlayer);
+                        AddNewQuest(questData);
+                        AddToTracking(questid);
+                        if (sync)
+                        {
+                            SyncQuestStats();
+                        }
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (questJson.triggertype == QuestTriggerType.Level || questJson.triggertype == QuestTriggerType.Hero)
+                    {
+                        if (!mUnlockQuestList.Contains(questid))
+                        {
+                            mUnlockQuestList.Add(questid);
+                            unlockquestchanged = true;
+                        }
+                    }
+                    else
+                    {
+                        mPlayer.Slot.ZRPC.NonCombatRPC.Ret_QuestFull(questid, mPlayer.Slot);
+                    }
                 }
             }
+            if (unlockquestchanged)
+            {
+                SyncUnlockQuestList();
+            }
+            return false;
         }
 
         /*
@@ -997,7 +1030,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 Dictionary<string, string> parameters = new Dictionary<string, string>();
                 parameters.Add("questid", questJson.questid.ToString());
-                GameRules.GiveRewardGrp_CheckBagSlotThenMail(mPlayer, new List<int>() { rewardgroup }, "quest_mailname", parameters, true, true, "Quest_Reward");
+                GameRules.GiveReward_CheckBagSlotThenMail(mPlayer, new List<int>() { rewardgroup }, "quest_mailname", parameters, true, true, "Quest_Reward");
             }
 
             //unlock feature
@@ -1041,7 +1074,11 @@ namespace Photon.LoadBalancing.GameServer
             
             if (nextquest > 0)
             {
-                TriggerNewQuest(nextquest, 0);
+                if (!mUnlockQuestList.Contains(nextquest))
+                {
+                    mUnlockQuestList.Add(nextquest);
+                    SyncUnlockQuestList();
+                }
             }
 
             AutoAssignNewQuest();
@@ -1053,7 +1090,23 @@ namespace Photon.LoadBalancing.GameServer
 
         private void AutoAssignNewQuest()
         {
-            TriggerQuestByLevel();
+            List<QuestJson> questJsons = OrderAcceptableQuestList(mUnlockQuestList, false);
+
+            bool changed = false;
+            foreach (QuestJson questJson in questJsons)
+            {
+                bool result = TriggerNewQuest(questJson.questid, mPlayer.PlayerSynStats.Level);
+                if (result)
+                {
+                    changed = true;
+                    mUnlockQuestList.Remove(questJson.questid);
+                }
+            }
+
+            if (changed)
+            {
+                SyncUnlockQuestList();
+            }
         }
 
         public void KillCheck(int monsterid, int count)
@@ -1094,32 +1147,29 @@ namespace Photon.LoadBalancing.GameServer
 
             if (type == QuestRequirementType.Level)
             {
-                UpdateUnlockQuestList();
-                TriggerQuestByLevel();
+                List<int> questlist = GetUnlockQuestList();
+                TriggerQuestByLevel(questlist);
             }
         }
 
-        private void TriggerQuestByLevel()
+        private void TriggerQuestByLevel(List<int> questlist)
         {
-            List<QuestJson> questJsons = OrderAcceptableQuestList(mUnlockQuestByTriggerType[QuestTriggerType.Level]);
+            List<QuestJson> questJsons = OrderAcceptableQuestList(questlist, true);
 
             foreach(QuestJson questJson in questJsons)
             {
-                if (CanAcceptQuest(questJson.type))
-                {
-                    TriggerNewQuest(questJson.questid, mPlayer.PlayerSynStats.Level);
-                }
+                TriggerNewQuest(questJson.questid, mPlayer.PlayerSynStats.Level);
             }
         }
 
-        private List<QuestJson> OrderAcceptableQuestList(List<int> idlist)
+        private List<QuestJson> OrderAcceptableQuestList(List<int> idlist, bool order)
         {
             List<QuestJson> questJsons = new List<QuestJson>();
             foreach (int id in idlist)
             {
                 questJsons.Add(QuestRepo.GetQuestByID(id));
             }
-            questJsons = questJsons.OrderBy(o => o.minlv).ToList();
+            questJsons = order ? questJsons.OrderBy(o => o.minlv).ToList() : questJsons;
             return questJsons;
         }
 
@@ -1185,6 +1235,11 @@ namespace Photon.LoadBalancing.GameServer
                 mPlayer.QuestStats.wonderfulList = QuestRules.SerializedCompletedList(mWonderfulList);
             }
         }
+        
+        private void SyncUnlockQuestList()
+        {
+            mPlayer.QuestStats.unlockQuestList = QuestRules.SerializedCompletedList(mUnlockQuestList);
+        }
 
         public void SaveQuestInventory(QuestInventoryData questInventory)
         {
@@ -1204,6 +1259,7 @@ namespace Photon.LoadBalancing.GameServer
 
             questInventory.SerailizeTrackingList(mTrackingList);
             questInventory.SerailizeWonderfulList(mWonderfulList);
+            questInventory.SerailizeUnlockQuestList(mUnlockQuestList);
         }
 
         private void AddToTracking(int questid)

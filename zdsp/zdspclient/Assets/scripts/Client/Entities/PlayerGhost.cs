@@ -34,6 +34,7 @@ namespace Zealot.Client.Entities
         public LotteryInfoStats LotteryInfoStats { get; set; }
         public HeroStatsClient HeroStats { get; private set; }
 
+
         // Shared stats 
         public PartyStatsClient PartyStats { get; set; }
         //public GuildStatsClient GuildStats { get; set; }
@@ -56,6 +57,7 @@ namespace Zealot.Client.Entities
         public SystemSwitchData mSysSwitch;
         public EquipmentInventoryData mEquipmentInvData;
         public Gender mGender;
+        public int mSelectTargetID = -1;
 
         public PlayerGhost() : base()
         {
@@ -269,6 +271,14 @@ namespace Zealot.Client.Entities
                     break;
                 case "guildDonateDot":
                     UIManager.AlertManager2.SetAlert(AlertType.GuildWishingPool, GameInfo.gLocalPlayer.SecondaryStats.guildDonateDot);
+                    break;
+                case "BattleTime":
+                    GameObject battletimeWidget = UIManager.GetWidget(HUDWidgetType.BattleTime);
+                    if(battletimeWidget != null)
+                    {
+                        HUD_BattleTime battleTimeHUD = battletimeWidget.GetComponent<HUD_BattleTime>();
+                        battleTimeHUD.UpdateBattleTime(Convert.ToInt32(SecondaryStats.BattleTime));
+                    }
                     break;
             }
             if (!SecondaryStats.IsNewlyAdded)
@@ -1229,7 +1239,6 @@ namespace Zealot.Client.Entities
 
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
-
         protected override void PlayStunEffect(bool bplay)
         {
         }
@@ -1640,6 +1649,11 @@ namespace Zealot.Client.Entities
         public void TestComboSkill(int sid, SideEffectJson mainsej, SideEffectJson sej, int lvl, float dur)
         {
             //TEST OF ONE SKill Combo ONLY
+        }
+
+        public void OnNPCKilled()
+        {
+            mSelectTargetID = -1;
         }
 
         public PartsType WeaponTypeUsed = PartsType.Hammer;

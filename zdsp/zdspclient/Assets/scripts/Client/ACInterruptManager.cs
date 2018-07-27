@@ -183,7 +183,7 @@ namespace Zealot.Client.Actions
             {ACTIONTYPE.GETHIT, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>() {
                     {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
                     {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
-                    {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.CASTSKILL, InterruptFn.NoInterrupt},
                     {ACTIONTYPE.Flash, InterruptFn.AfterComplete},
                     {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
                     {ACTIONTYPE.APPROACH_PATHFIND, InterruptFn.AfterComplete},

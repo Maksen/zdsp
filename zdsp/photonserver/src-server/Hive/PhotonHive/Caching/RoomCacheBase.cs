@@ -53,7 +53,7 @@ namespace Photon.Hive.Caching
             lock (this.SyncRoot)
             {
                 RoomInstance roomInstance;
-                if (this.RoomInstances.TryGetValue(roomId, out roomInstance))
+                if (!string.IsNullOrEmpty(roomId) && this.RoomInstances.TryGetValue(roomId, out roomInstance))
                 {
                     room = roomInstance.Room;
                     return true;

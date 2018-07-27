@@ -152,18 +152,26 @@ public class HUD_NpcLabel : MonoBehaviour
         //Get static NPC by name
         StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCByName(mArchetype);
         Chat = npcJson.speechbubbletext;
-        mChatDuration = npcJson.speechbubbleduration;
-        height = npcJson.speechbubbleheight;
-        maxTime = npcJson.speechbubblemaxint;
-        minTime = npcJson.speechbubbleminint;
 
-        mChatDurationDecreas = mChatDuration;
+        if (Chat != "")
+        {
+            mChatDuration = npcJson.speechbubbleduration;
+            height = npcJson.speechbubbleheight;
+            maxTime = npcJson.speechbubblemaxint;
+            minTime = npcJson.speechbubbleminint;
 
-        TalkSentence = Chat.Split(';');
-        mRandomTalk = (int)(GameUtils.Random(0, TalkSentence.Length));
-        Chat = TalkSentence[mRandomTalk];
+            mChatDurationDecreas = mChatDuration;
 
-        ChatOn = toggleOn; //Turn on or off
+            TalkSentence = Chat.Split(';');
+            mRandomTalk = (int)(GameUtils.Random(0, TalkSentence.Length));
+            Chat = TalkSentence[mRandomTalk];
+
+            ChatOn = toggleOn; //Turn on or off
+        }
+        else
+        {
+            ChatOn = false;
+        }
     }
 
     public void InitChatWithMonsterNPC(string name, bool toggleOn = true)
@@ -171,18 +179,26 @@ public class HUD_NpcLabel : MonoBehaviour
         //Get Monster NPC by name
         CombatNPCJson monsJson = NPCRepo.GetArchetypeByName(name);
         Chat = monsJson.speechbubbletext;
-        mChatDuration_mons = monsJson.speechbubbleduration;
-        height = monsJson.speechbubbleheight;
-        maxTime_mons = monsJson.speechbubblemaxint;
-        minTime_mons = monsJson.speechbubbleminint;
 
-        mChatDurationDecreas_mons = mChatDuration_mons;
+        if (Chat != "")
+        {
+            mChatDuration_mons = monsJson.speechbubbleduration;
+            height = monsJson.speechbubbleheight;
+            maxTime_mons = monsJson.speechbubblemaxint;
+            minTime_mons = monsJson.speechbubbleminint;
 
-        TalkSentence_mons = Chat.Split(';');
-        mRandomTalk_mons = (int)(GameUtils.Random(0, TalkSentence_mons.Length));
-        Chat = TalkSentence_mons[mRandomTalk_mons];
+            mChatDurationDecreas_mons = mChatDuration_mons;
 
-        ChatOn = toggleOn; //Turn on or off
+            TalkSentence_mons = Chat.Split(';');
+            mRandomTalk_mons = (int)(GameUtils.Random(0, TalkSentence_mons.Length));
+            Chat = TalkSentence_mons[mRandomTalk_mons];
+
+            ChatOn = toggleOn; //Turn on or off
+        }
+        else
+        {
+            ChatOn = false;
+        }
     }
 
     public void NewMainQuest()

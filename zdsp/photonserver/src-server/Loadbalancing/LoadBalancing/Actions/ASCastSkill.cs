@@ -358,7 +358,8 @@
                             //one se is created for each target, only create se when hit
                             if (mskillLevel > 1)
                             {
-                                sideeffectjson = SkillRepo.GetSideEffectAtLevel(seteffectid, mskillLevel);
+                                //sideeffectjson = SkillRepo.GetSideEffectAtLevel(seteffectid, mskillLevel);
+                                sideeffectjson = SideEffectRepo.GetSideEffect(seteffectid);
                             }
                             se = SideEffectFactory.CreateSideEffect(sideeffectjson);
                             se.OnEnhanceBuffAffact(mBUffBonusPerc, mBuffBonus);
@@ -634,6 +635,11 @@
             {
                 p.CombatStarted();
             }
+        }
+
+        protected override void OnActiveUpdate(long dt)
+        {
+            base.OnActiveUpdate(dt);
         }
 
         protected override void OnCompleteEnter(string prevstate)

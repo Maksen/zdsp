@@ -192,13 +192,20 @@ public class EquipmentModdingScrollView : MonoBehaviour
                     break;
                 }
 
-                ModdingEquipment upgEquip = equipmentList[displayIdx];
-                if (upgEquip == null)
+                ModdingEquipment modEquip = equipmentList[displayIdx];
+                if (modEquip == null)
                 {
                     continue;
                 }
-                
-                equipmentRowData.UpdateData(c, uiEquipUpgrade, upgEquip.mSlotID, upgEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+
+                if (isUpgrade == true)
+                {
+                    equipmentRowData.UpdateData(c, uiEquipUpgrade, modEquip.mSlotID, modEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+                }
+                else
+                {
+                    equipmentRowData.UpdateData(c, uiEquipReform, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
+                }
             }
         }
     }
@@ -393,12 +400,20 @@ public class EquipmentModdingScrollView : MonoBehaviour
                 break;
             }
 
-            ModdingEquipment upgEquip = equipmentList[displayIdx];
-            if (upgEquip == null)
+            ModdingEquipment modEquip = equipmentList[displayIdx];
+            if (modEquip == null)
             {
                 continue;
             }
-            equipmentRowData.AddData(uiEquipUpgrade, upgEquip.mSlotID, upgEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+
+            if(isUpgrade == true)
+            {
+                equipmentRowData.AddData(uiEquipUpgrade, modEquip.mSlotID, modEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+            }
+            else
+            {
+                equipmentRowData.AddData(uiEquipReform, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
+            }
         }
     }
 

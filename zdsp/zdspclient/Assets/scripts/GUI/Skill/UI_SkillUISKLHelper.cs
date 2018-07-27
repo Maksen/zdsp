@@ -42,16 +42,6 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         }
         else
         {
-            // remove previous chunks
-            //foreach(SKLChunk chunk in m_Chunks)
-            //{
-            //    chunk.m_Level.transform.parent = null;
-            //    chunk.m_Descriptor.transform.parent = null;
-            //    chunk.m_CoolDown.transform.parent = null;
-            //}
-            //SKLLine.transform.parent = null;
-
-            //m_Chunks.Clear();
 
             RemoveChunks();
 

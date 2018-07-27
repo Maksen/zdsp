@@ -708,9 +708,34 @@ namespace Zealot.Server.Rules
                 }
                 foreach(var _playerListByInstance in _instanceInCombat) //Add battleTime for players in combat level
                 {
+                    
                     var _playerList = _membersGroupByInstance[_playerListByInstance.Key];
+
+                     
+
                     for (int index = 0; index < _playerList.Count; index++)
-                        _playerList[index].Slot.CharacterData.BattleTime += 10;
+                    {
+                        _playerList[index].BattleTime = _playerList[index].SecondaryStats.BattleTime;
+                        _playerList[index].BattleTime = _playerList[index].Slot.CharacterData.BattleTime;
+                        //_playerList[index].Slot.CharacterData.BattleTime += 10;
+                        _playerList[index].SecondaryStats.BattleTime = _playerList[index].BattleTime;
+                        _playerList[index].Slot.CharacterData.BattleTime = _playerList[index].BattleTime;
+                        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+                        if ((_playerList[index].InCombatTime > 0)&&(_playerList[index+1].InCombatTime<=0))
+                        {
+                            sw.Reset();
+                            sw.Start();
+                        }
+                        if (_playerList[index].InCombatTime <= 0)
+                        {
+                            sw.Stop();
+                        }
+
+                        string sw_result = sw.Elapsed.TotalSeconds.ToString();
+                        float SWRESULT = (float)Convert.ToDouble(sw_result);
+                        _playerList[index].BattleTime = (_playerList[index].SecondaryStats.BattleTime * 60 - Mathf.CeilToInt(SWRESULT / 10)) / 60;
+
+                    }
                 }
             }
         }

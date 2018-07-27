@@ -240,10 +240,9 @@ namespace Zealot.Common
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "tutorialreddot")]
         public int tutorialreddot { get; set; }
-
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "battime")]
-        public int BattleTime { get; set; }
+        
+        [JsonProperty(PropertyName = "BattleTime")]
+        public float BattleTime { get; set; }
 
         public CharacterData()
         {
@@ -271,6 +270,7 @@ namespace Zealot.Common
             PortraitData = new PortraitData();
             CharInfoData = new CharacterInfoData();
             HeroInventory = new HeroInvData();
+            
         }
 
         /// <summary>
@@ -278,6 +278,7 @@ namespace Zealot.Common
         /// </summary>
         public void InitDefault(JobType jobsect)
         {
+            BattleTime = 300;
             ItemInventory.InitDefault();
             EquipmentInventory.InitDefault();
             //ItemKindInv.InitDefault();
@@ -304,6 +305,25 @@ namespace Zealot.Common
             SkillInventory.InitDefault(JobSectRepo.GetJobByType((JobType)JobSect));
         }
 
+        public void BattleTimeResetOnNewDay()
+        {
+            DateTime currentTime = DateTime.Now;
+            int Hour = currentTime.Hour;
+            int Minute = currentTime.Minute;
+            int SC = currentTime.Second;
+            if (Hour == 5 && Minute == 0 && SC == 0)
+            {
+                if (BattleTime <= 0)
+                {
+                    BattleTime = 300;
+                }
+                else
+                {
+                    BattleTime += 300;
+                }
+            }
+        }
+
         public void ResetOnNewDay()
         {
             NewDayDts = DateTime.Today;
@@ -317,7 +337,6 @@ namespace Zealot.Common
             ExchangeShopInv.NewDayReset();
             CurrencyInventory.GuildFundToday = 0;
         }
-
         public void ClearGuild()
         {
             GuildId = 0;

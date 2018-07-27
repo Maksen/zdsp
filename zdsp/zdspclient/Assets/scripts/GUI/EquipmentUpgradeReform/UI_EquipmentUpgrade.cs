@@ -960,10 +960,10 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             GameObject newStatsLine = Instantiate(upgStatsValueLnPrefab);
             newStatsLine.transform.SetParent(itemStatsParent, false);
 
-            EquipmentModdingStats upgradeStatsObj = newStatsLine.GetComponent<EquipmentModdingStats>();
+            EquipmentUpgradeStats upgradeStatsObj = newStatsLine.GetComponent<EquipmentUpgradeStats>();
             if(upgradeStatsObj != null)
             {
-                upgradeStatsObj.Init(EquipmentModdingType.Upgrade, EquipmentModdingStatsType.ToGet, nextLevel, sideeffect.description);
+                upgradeStatsObj.Init(EquipmentUpgradeStatsType.ToGet, nextLevel, sideeffect.localizedname);
             }
 
             _selectEquipStatsList.Add(newStatsLine);

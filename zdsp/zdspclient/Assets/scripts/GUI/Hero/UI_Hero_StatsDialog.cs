@@ -96,7 +96,7 @@ public class UI_Hero_StatsDialog : BaseWindowBehaviour
             case HeroStats.ACC: name = "stats_accuracy"; break;
             case HeroStats.CRI: name = "stats_critical"; break;
             case HeroStats.ATK_STYLE: name = "com_attackstyle"; break;
-            case HeroStats.WPN_ATTR: name = "com_weaponattribute"; break;
+            case HeroStats.WPN_ATTR: name = "id_wpnmainattr"; break;
             case HeroStats.ELE: name = "com_element"; break;
             case HeroStats.STR: name = "ci_strength"; break;
             case HeroStats.AGI: name = "ci_agility"; break;
@@ -125,9 +125,9 @@ public class UI_Hero_StatsDialog : BaseWindowBehaviour
         string name = "";
         switch (attribute)
         {
-            case MainWeaponAttribute.Str: name = "com_wpnattrstr"; break;
-            case MainWeaponAttribute.Dex: name = "com_wpnattrdex"; break;
-            case MainWeaponAttribute.Int: name = "com_wpnattrint"; break;
+            case MainWeaponAttribute.Str: name = "ci_strength"; break;
+            case MainWeaponAttribute.Dex: name = "ci_dexterity"; break;
+            case MainWeaponAttribute.Int: name = "ci_inteligence"; break;
         }
         return GUILocalizationRepo.GetLocalizedString(name);
     }

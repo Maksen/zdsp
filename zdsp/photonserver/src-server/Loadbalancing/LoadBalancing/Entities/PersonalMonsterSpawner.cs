@@ -35,7 +35,7 @@ namespace Zealot.Server.Entities
             return;
         }
 
-        public void SpawnToMeOnly(Player player, int population)
+        public void SpawnToMeOnly(Player player, int population, bool aggressive)
         {
             if (mArchetype == null)
                 return;
@@ -53,10 +53,10 @@ namespace Zealot.Server.Entities
                 mSummonerMonsters.Add(playername, monsters);
             }
             for (int count = 1; count <= population; count++)
-                SpawnMonster(playername, monsters);
+                SpawnMonster(playername, monsters, aggressive, player);
         }
 
-        public void SpawnMonster(string summoner, List<Monster> monsters)
+        public void SpawnMonster(string summoner, List<Monster> monsters, bool aggressive, Player player)
         {
             //Spawn monster at server
             bool logflag = mArchetype.monsterclass == MonsterClass.Boss;
@@ -74,6 +74,10 @@ namespace Zealot.Server.Entities
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
             else if(monsterClass == MonsterClass.Boss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
+            if (aggressive)
+            {
+                monster.OnAttacked(player, 1);
+            }
             monsters.Add(monster);
         }
 

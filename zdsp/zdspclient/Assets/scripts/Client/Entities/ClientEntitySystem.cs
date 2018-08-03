@@ -203,6 +203,42 @@ namespace Zealot.Common.Entities
             }
         }
 
+        public void GetRadarVisibleEntities2(List<string> partyMemberNames, List<UnityEngine.Vector3> pmembers,
+                                             List<UnityEngine.Vector3> monsters, List<UnityEngine.Vector3> miniboss,
+                                             List<UnityEngine.Vector3> boss)
+        {
+            foreach (Entity e in mNetEntities.Values)
+            {
+                if (e.EntityType == EntityType.MonsterGhost)
+                {
+                    MonsterGhost mg = e as MonsterGhost;
+                    if (mg.mArchetype == null)
+                        continue;
+
+                    switch (mg.mArchetype.monsterclass)
+                    {
+                        case MonsterClass.Normal:
+                            monsters.Add(e.Position);
+                            break;
+                        case MonsterClass.Mini:
+                            miniboss.Add(e.Position);
+                            break;
+                        case MonsterClass.Boss:
+                            boss.Add(e.Position);
+                            break;
+                    }
+                }
+                else if (e.EntityType == EntityType.PlayerGhost)
+                {
+                    PlayerGhost ep = e as PlayerGhost;
+                    if (ep != null && partyMemberNames.Contains(ep.Name))
+                    {
+                        pmembers.Add(ep.Position);
+                    }
+                }
+            }
+        }
+
         public void ShowAllEntities(bool show)
         {
             foreach (var entity in mEntities.Values)
@@ -484,6 +520,37 @@ namespace Zealot.Common.Entities
                     StaticAreaGhost staticarea = entity.Value as StaticAreaGhost;
                     if (staticarea.mArchetypeID == archetypeid)
                         return staticarea;
+                }
+                else if (entity.Value.GetType() == typeof(StaticTargetGhost))
+                {
+                    StaticTargetGhost statictarget = entity.Value as StaticTargetGhost;
+                    if (statictarget.mArchetypeID == archetypeid)
+                        return statictarget;
+                }
+            }
+            return null;
+        }
+        public StaticClientNPCAlwaysShow GetStaticClientNPC(string archetypeName)
+        {
+            foreach (KeyValuePair<int, Entity> entity in mEntities)
+            {
+                if (entity.Value.GetType() == typeof(QuestNPC))
+                {
+                    QuestNPC questnpc = entity.Value as QuestNPC;
+                    if (string.Compare(questnpc.Archetype, archetypeName) == 0)
+                        return questnpc;
+                }
+                else if (entity.Value.GetType() == typeof(StaticAreaGhost))
+                {
+                    StaticAreaGhost staticarea = entity.Value as StaticAreaGhost;
+                    if (string.Compare(staticarea.Archetype, archetypeName) == 0)
+                        return staticarea;
+                }
+                else if (entity.Value.GetType() == typeof(StaticTargetGhost))
+                {
+                    StaticTargetGhost statictarget = entity.Value as StaticTargetGhost;
+                    if (string.Compare(statictarget.Archetype, archetypeName) == 0)
+                        return statictarget;
                 }
             }
             return null;

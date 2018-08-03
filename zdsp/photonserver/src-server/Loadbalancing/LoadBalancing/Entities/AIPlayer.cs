@@ -181,15 +181,7 @@
                     return true;
             }
             return false;
-        }
-
-        public override void OnDamage(IActor attacker, AttackResult res, bool pbasicattack)
-        {
-            base.OnDamage(attacker, res, pbasicattack);
-
-            if (!IsAlive())
-                return;
-        }        
+        }      
 
         public Actor QueryForThreat()
         {

@@ -172,24 +172,31 @@ namespace Zealot.Repository
 
         public static Reward GetRewardByGrpIDJobID(int grpID, int jobID)
         {
-            if (!mRewardGrp.ContainsKey(grpID) || !mRewardGrp[grpID].ContainsKey(jobID))
+            //If invalid reward group id
+            if (!mRewardGrp.ContainsKey(grpID))
                 return null;
-
+            
+            if (!mRewardGrp[grpID].ContainsKey(jobID))
+            {
+                //If reward group only contains all jobs specifc reward
+                if (mRewardGrp[grpID].ContainsKey(-1))
+                    return mRewardGrp[grpID][-1];
+                else
+                    return null;
+            }
+            //Otherwise, return job specific reward
             return mRewardGrp[grpID][jobID];
         }
 
-        public static List<RewardItem> GetRewardItemsByGrpIDJobID(int grpID, int jobID = -1)
+        public static List<RewardItem> GetRewardItemsByGrpIDJobID(int grpID, int jobID = -1) 
         {
-            if (!mRewardGrp.ContainsKey(grpID))
+            //Try get reward
+            Reward rwd = GetRewardByGrpIDJobID(grpID, jobID);
+
+            if (rwd == null)
                 return null;
-
-            if (jobID < 0)
-            {
-                foreach (var e in mRewardGrp[grpID].Values)
-                    return e.itemRewardLst;
-            }
-
-            return mRewardGrp[grpID][jobID].itemRewardLst;
+            else
+                return rwd.itemRewardLst;
         }
 
         public static ExperienceRateJson GetLvExpRate(int level)

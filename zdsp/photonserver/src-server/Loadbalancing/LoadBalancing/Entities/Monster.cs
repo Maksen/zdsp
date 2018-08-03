@@ -15,6 +15,8 @@ namespace Zealot.Server.Entities
     using Rules;
     using System.Text;
     using Repository;
+    using System;
+    using EventMessage;
 
     public class BigBossScoreRecord
     {
@@ -31,7 +33,6 @@ namespace Zealot.Server.Entities
         private Vector3 mSpawnPos;
         private GameTimer livetimer;
         private GameTimer deadtimer;
-        private Player killer;
         protected BaseAIBehaviour mAIController;
         private bool mIsBigBossLoot;
         private bool mIsBoss;
@@ -173,9 +174,14 @@ namespace Zealot.Server.Entities
             Idle();
             if (liveDuration > 0)
                 livetimer = mInstance.SetTimer(liveDuration, OnLiveTimeUp, null);
-            mIsBoss = spawner is SpecialBossSpawner;
-            mBossNoDmgCountdownConst = SpecialBossRepo.BossNoDmgRandomPos * 1000;
-            mBossNoDmgCountdown = mBossNoDmgCountdownConst;
+            SpecialBossSpawner bossSpawner = spawner as SpecialBossSpawner;
+            if (bossSpawner != null)
+            {
+                mIsBoss = true;
+                mIsBigBossLoot = bossSpawner.mSpecialBossInfo.category == BossCategory.BIGBOSS;
+                mBossNoDmgCountdownConst = SpecialBossRepo.BossNoDmgRandomPos * 1000;
+                mBossNoDmgCountdown = mBossNoDmgCountdownConst;
+            }
         }
 
         public override float GetExDamage()
@@ -287,120 +293,17 @@ namespace Zealot.Server.Entities
         {          
             base.OnKilled(attacker);
             mAIController.OnKilled();
-
-            if (mIsBigBossLoot)
-            {
-                uint ticknow = EntitySystem.Timers.GetTick();
-                mPlayerScore = mPlayerScore.Where(kvp => ticknow - kvp.Value.tick <= 4800).ToDictionary(pair => pair.Key, pair => pair.Value);
-
-                Dictionary<string, long> _partyScore = new Dictionary<string, long>();
-                foreach (var kvp in mPlayerScore)
-                {
-                    string _playername = kvp.Key;
-                    int score = kvp.Value.score;
-                    int _partyid = PartyRules.GetPartyIdByPlayerName(_playername);
-                    if (_partyid != 0)
-                    {
-                        string leader = PartyRules.GetPartyById(_partyid).leader;
-                        if (_partyScore.ContainsKey(leader))
-                            _partyScore[leader] += score;
-                        else
-                            _partyScore.Add(leader, score);
-                    }
-                    else
-                        _partyScore[_playername] = score;
-                }
-
-                var _peers = GameApplication.Instance.GetAllCharPeer();
-                string _bossinfo = mArchetype.id + ";";
-                foreach (var kvp in _partyScore)
-                {
-                    PartyStatsServer _party = PartyRules.GetMyParty(kvp.Key);
-                    if (_party != null && _party.GetPartyMemberList().Count > 1)
-                    {
-                        StringBuilder _sb = new StringBuilder();
-                        _sb.Append(_bossinfo);
-                        _sb.Append(kvp.Value + ";");
-                        foreach (string _member in _party.GetPartyMemberList().Keys)
-                        {
-                            if (mPlayerScore.ContainsKey(_member))
-                                _sb.AppendFormat("{0}: {1};", _member, mPlayerScore[_member].score);
-                        }
-                        GameApplication.Instance.BroadcastMessage_Party(BroadcastMessageType.BossKilledMyScore, _sb.ToString(), _party);
-                    }
-                    else
-                    {
-                        GameClientPeer _peer;
-                        if (_peers.TryGetValue(kvp.Key, out _peer))
-                            _peer.ZRPC.CombatRPC.BroadcastMessageToClient((byte)BroadcastMessageType.BossKilledMyScore, _bossinfo + kvp.Value, _peer);
-                    }
-                }
-
-                mPartyScoreRank = _partyScore.ToList().OrderByDescending(x => x.Value).Take(10).ToList();
-                List<string> _lootPlayers = new List<string>();
-                if (mPartyScoreRank.Count >= 1)
-                {
-                    string _name = mPartyScoreRank[0].Key;
-                    PartyStatsServer _party = PartyRules.GetMyParty(_name);
-                    if (_party != null)
-                    {
-                        foreach (var _member in _party.GetPartyMemberList())
-                        {
-                            if (!_member.Value.IsHero() && mPlayerScore.ContainsKey(_member.Key))
-                                _lootPlayers.Add(_member.Key);
-                        }
-                    }
-                    else
-                        _lootPlayers.Add(_name);
-                }
-            }
-            else //todo check boss loot
-            {
-                var _peers = GameApplication.Instance.GetAllCharPeer();
-                string _bossinfo = mArchetype.id + ";";
-                foreach (var kvp in mPlayerDamages)
-                {
-                    GameClientPeer _peer;
-                    if (_peers.TryGetValue(kvp.Key, out _peer))
-                        _peer.ZRPC.CombatRPC.BroadcastMessageToClient((byte)BroadcastMessageType.BossKilledMyDmg, _bossinfo + kvp.Value, _peer);
-                }
-                mPlayerDamageRank = mPlayerDamages.ToList().OrderByDescending(x => x.Value).Take(10).ToList();
-                Dictionary<string, float> _lootRatio = new Dictionary<string, float>();
-                var _lootlist = mPlayerDamageRank.Take(2).ToList();
-                if (_lootlist.Count == 2)
-                {
-                    float _dmgRatio = 1.0f * _lootlist[1].Value / _lootlist[0].Value;
-                    if (_dmgRatio < 0.2f)
-                        _lootRatio.Add(_lootlist[0].Key, 1);
-                    else
-                    {
-                        float _ratioTop1 = 1 / (1 + _dmgRatio);
-                        _lootRatio.Add(_lootlist[0].Key, _ratioTop1);
-                        _lootRatio.Add(_lootlist[1].Key, 1 - _ratioTop1);
-                    }
-                }
-                //todo: distribute loot base on _lootRatio
-            }
-
+            HandleBossOnKilled();
+    
             PerformAction(new ServerAuthoASDead(this, new DeadActionCommand()));
             deadtimer = mInstance.SetTimer(CombatUtils.DYING_TIME, OnDeadTimeUp, null);//give  seconds for client
-            NetEntity ne = (NetEntity)attacker;                 
+            NetEntity ne = (NetEntity)attacker;
+            Player killer = null;                
             if (ne.IsPlayer())
-            {
-                Player killer_player = attacker as Player;
-                killer = killer_player;// GetKiller(killer_player);
-
-                //if (killer != null)
-                    killer.OnNPCKilled(mArchetype);
-                //else
-                //    Console.Write("Monster.cs OnKilled() could not find killer");                          
-            }
+                killer = attacker as Player;                   
             else if (ne.IsHero())
-            {
-                HeroEntity killerHero = attacker as HeroEntity;
-                killer = killerHero.Owner;  //set the hero's owner as the killer
-                killer.OnNPCKilled(mArchetype);
-            }
+                killer = (attacker as HeroEntity).Owner;  //set the hero's owner as the killer
+            HandleLoot(killer);
             mSp.OnChildDead(this, killer);
             mSp = null;
         }
@@ -432,40 +335,10 @@ namespace Zealot.Server.Entities
                 }
                 record.tick = ticknow;
             }
+            if (mPlayerDamages.ContainsKey(playerName))
+                mPlayerDamages[playerName] += damage;
             else
-            {
-                if (mPlayerDamages.ContainsKey(playerName))
-                    mPlayerDamages[playerName] += damage;
-                else
-                    mPlayerDamages.Add(playerName, damage);
-            }
-        }
-
-        //public Player GetKiller(Player attacker)
-        //{
-        //    if (mArchetype.lootrule == NPCLootRule.LootByLasthit)
-        //    {
-        //        return attacker;
-        //    }
-        //    else
-        //    {
-        //        return GetHighestDamagePlayer();//if highest damage player is not present when the monster is killed, the highest damage player will be the next highest damage player
-        //    }
-        //}
-        public Player GetHighestDamagePlayer()
-        {
-            int highestAmt = 0;
-            Player myplayer = null;
-            foreach (KeyValuePair<string, int> entry in mPlayerDamages)
-            {
-                Player _myplayer = mInstance.mEntitySystem.GetPlayerByName(entry.Key);
-                if (_myplayer != null && entry.Value > highestAmt)
-                {
-                    highestAmt = entry.Value;
-                    myplayer = _myplayer;
-                }
-            }
-            return myplayer;
+                mPlayerDamages.Add(playerName, damage);
         }
 
         public void AddDamageToPlayer(string playerName, int damage)
@@ -490,28 +363,327 @@ namespace Zealot.Server.Entities
                 record.tick = ticknow;
             }
         }
+
+        private void HandleBossOnKilled()
+        {
+            if (!mIsBoss)
+                return;
+
+            var _peers = GameApplication.Instance.GetAllCharPeer();
+            string _bossinfo = mArchetype.id + ";";
+            if (mIsBigBossLoot)
+            {
+                uint ticknow = EntitySystem.Timers.GetTick();
+                mPlayerScore = mPlayerScore.Where(kvp => ticknow - kvp.Value.tick <= 4800).ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                Dictionary<string, long> _partyScore = new Dictionary<string, long>();
+                foreach (var kvp in mPlayerScore)
+                {
+                    string _playername = kvp.Key;
+                    int score = kvp.Value.score;
+                    int _partyid = PartyRules.GetPartyIdByPlayerName(_playername);
+                    if (_partyid != 0)
+                    {
+                        string leader = PartyRules.GetPartyById(_partyid).leader;
+                        if (_partyScore.ContainsKey(leader))
+                            _partyScore[leader] += score;
+                        else
+                            _partyScore.Add(leader, score);
+                    }
+                    else
+                        _partyScore[_playername] = score;
+                }
+
+                foreach (var kvp in _partyScore)
+                {
+                    PartyStatsServer _party = PartyRules.GetMyParty(kvp.Key);
+                    if (_party != null && _party.GetPartyMemberList().Count > 1)
+                    {
+                        StringBuilder _sb = new StringBuilder();
+                        _sb.Append(_bossinfo);
+                        _sb.Append(kvp.Value + ";");
+                        foreach (string _member in _party.GetPartyMemberList().Keys)
+                        {
+                            if (mPlayerScore.ContainsKey(_member))
+                                _sb.AppendFormat("{0}: {1};", _member, mPlayerScore[_member].score);
+                        }
+                        GameApplication.Instance.BroadcastMessage_Party(BroadcastMessageType.BossKilledMyScore, _sb.ToString(), _party);
+                    }
+                    else
+                    {
+                        GameClientPeer _peer;
+                        if (_peers.TryGetValue(kvp.Key, out _peer))
+                            _peer.ZRPC.CombatRPC.BroadcastMessageToClient((byte)BroadcastMessageType.BossKilledMyScore, _bossinfo + kvp.Value, _peer);
+                    }
+                }
+                mPartyScoreRank = _partyScore.ToList().OrderByDescending(x => x.Value).Take(10).ToList();
+            }
+            else
+            {
+                Dictionary<string, int> validPlayerInfo = new Dictionary<string, int>();
+                foreach (var kvp in mPlayerDamages)
+                {
+                    GameClientPeer _peer;
+                    if (_peers.TryGetValue(kvp.Key, out _peer) && _peer.mPlayer != null)
+                    {
+                        _peer.ZRPC.CombatRPC.BroadcastMessageToClient((byte)BroadcastMessageType.BossKilledMyDmg, _bossinfo + kvp.Value, _peer);
+                        validPlayerInfo.Add(kvp.Key, kvp.Value);
+                    }
+                }
+                mPlayerDamageRank = validPlayerInfo.ToList().OrderByDescending(x => x.Value).Take(10).ToList();
+            }
+        }
+
+        private void HandleLoot(Player killer)
+        {           
+            int monsterLvl = mArchetype.level;
+            MonsterClass monsterClass = mArchetype.monsterclass;
+
+            var _peers = GameApplication.Instance.GetAllCharPeer();
+            List<Player> validPlayers = new List<Player>();
+            int validPlayerCount = 0;
+            int validDamageTotal = 0; 
+            foreach (var kvp in mPlayerDamages)
+            {
+                GameClientPeer _peer;
+                if (_peers.TryGetValue(kvp.Key, out _peer) && _peer.mPlayer != null && _peer.mPlayer.mInstance == mInstance)
+                {
+                    validPlayers.Add(_peer.mPlayer);
+                    validDamageTotal += kvp.Value;
+                }
+            }
+            validPlayerCount = validPlayers.Count;
+            //distribute exp
+            int expTotal = mArchetype.experience;
+            for (int index = 0; index < validPlayerCount; index++)
+            {
+                if (expTotal > 0)
+                    validPlayers[index].OnNPCKilled(mArchetype, expTotal * mPlayerDamages[validPlayers[index].Name] / validDamageTotal);
+                else
+                    validPlayers[index].OnNPCKilled(mArchetype, 0);
+            }
+
+            NPCLootLink npcLootLink = NPCRepo.GetNPCLootLink(mArchetype.id);
+            if (npcLootLink == null)
+                return;
+
+            Dictionary<LootType, List<int>> lootMap = npcLootLink.GetLootGroupIDs(DateTime.Now);
+            LootItemDisplayInventory lootItemDisplayInventory = new LootItemDisplayInventory();
+            foreach (var kvp in lootMap)
+            {
+                switch (kvp.Key)
+                {
+                    case LootType.Normal:                                                
+                        if (validPlayerCount > 0)
+                        {
+                            var lootItems = LootRepo.RandomItems(kvp.Value);
+                            int lootItemsCount = lootItems.Count;
+                            if (lootItemsCount > 0)
+                            {
+                                int index = GameUtils.RandomInt(0, validPlayerCount - 1);
+                                Player toPlayer = validPlayers[index];
+                                string toPlayerName = toPlayer.Name;
+                                var partyInfo = PartyRules.GetMyParty(toPlayerName);
+                                if (partyInfo != null)
+                                {
+                                    List<Player> toPartyPlayers = partyInfo.GetSameInstancePartyMembers(toPlayerName, mInstance);
+                                    toPartyPlayers.Add(toPlayer);
+                                    int toPartyPlayersCount = toPartyPlayers.Count;
+                                    if (toPartyPlayersCount > 1)
+                                        toPlayer = toPartyPlayers[GameUtils.RandomInt(0, toPartyPlayersCount - 1)];
+                                }
+                                LootRules.GenerateLootItem(toPlayer, lootItems, monsterClass, monsterLvl, null);
+                            }
+                        }
+                        break;
+                    case LootType.Share:
+                        if (validPlayerCount > 0)
+                        {
+                            var lootItems = LootRepo.RandomItems(kvp.Value);
+                            int lootItemsCount = lootItems.Count;
+                            if (lootItemsCount > 0)
+                            {
+                                //store given player names to avoid give double loot.
+                                Dictionary<string, bool> lootGiven = new Dictionary<string, bool>();
+                                for (int index = 0; index < validPlayerCount; index++)
+                                {
+                                    Player toPlayer = validPlayers[index];
+                                    string toPlayerName = toPlayer.Name;
+                                    if (lootGiven.ContainsKey(toPlayerName))
+                                        continue;
+                                    LootRules.GenerateLootItem(toPlayer, lootItems, monsterClass, monsterLvl, null);
+                                    lootGiven.Add(toPlayerName, true);
+
+                                    var partyInfo = PartyRules.GetMyParty(toPlayerName);
+                                    if (partyInfo != null)
+                                    {
+                                        foreach (var _member in partyInfo.GetPartyMemberList())
+                                        {
+                                            if (_member.Value.IsHero() || lootGiven.ContainsKey(_member.Key))
+                                                continue;
+                                            GameClientPeer _peer;
+                                            if (_peers.TryGetValue(_member.Key, out _peer) && _peer.mPlayer != null && _peer.mPlayer.mInstance == this.mInstance)
+                                            {
+                                                LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, null);
+                                                lootGiven.Add(_member.Key, true);
+                                            } 
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case LootType.Boss:
+                        {
+                            var lootItems = LootRepo.RandomItems(kvp.Value);
+                            int lootItemsCount = lootItems.Count;
+                            if (lootItemsCount > 0)
+                            {
+                                int validDamageRankCount = mPlayerDamageRank.Count;
+                                if (validDamageRankCount == 1)
+                                {
+                                    GameClientPeer _peer;
+                                    if (_peers.TryGetValue(mPlayerDamageRank[0].Key, out _peer) && _peer.mPlayer != null)
+                                        LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                }
+                                else if (validDamageRankCount >= 2)
+                                {
+                                    int _dmgRatioTop2 = Mathf.FloorToInt(100.0f * mPlayerDamageRank[1].Value / (mPlayerDamageRank[0].Value + mPlayerDamageRank[1].Value));
+                                    if (_dmgRatioTop2 <= 16)
+                                    {
+                                        GameClientPeer _peer;
+                                        if (_peers.TryGetValue(mPlayerDamageRank[0].Key, out _peer) && _peer.mPlayer != null)
+                                            LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                    }
+                                    else
+                                    {
+                                        Player top1Player = null;
+                                        Player top2Player = null;
+                                        GameClientPeer _peer;
+                                        if (_peers.TryGetValue(mPlayerDamageRank[0].Key, out _peer) && _peer.mPlayer != null)
+                                            top1Player = _peer.mPlayer;
+                                        if (_peers.TryGetValue(mPlayerDamageRank[1].Key, out _peer) && _peer.mPlayer != null)
+                                            top2Player = _peer.mPlayer;                                     
+                                        List<LootItem> toTop1Player = new List<LootItem>();
+                                        List<LootItem> toTop2Player = new List<LootItem>();
+                                        for (int index = 0; index < lootItemsCount; index++)
+                                        {
+                                            if (GameUtils.RandomInt(1, 100) <= _dmgRatioTop2)
+                                                toTop2Player.Add(lootItems[index]);
+                                            else
+                                                toTop1Player.Add(lootItems[index]);
+                                        }
+                                        if (toTop1Player.Count > 0)
+                                            LootRules.GenerateLootItem(top1Player, toTop1Player, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                        if (toTop2Player.Count > 0)
+                                            LootRules.GenerateLootItem(top2Player, toTop2Player, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case LootType.BigBoss:
+                        {
+                            var lootItems = LootRepo.RandomItems(kvp.Value);
+                            int lootItemsCount = lootItems.Count;
+                            if (lootItemsCount > 0)
+                            {
+                                List<string> _lootPlayers = new List<string>();
+                                if (mPartyScoreRank.Count >= 1)
+                                {
+                                    string _name = mPartyScoreRank[0].Key;
+                                    PartyStatsServer _party = PartyRules.GetMyParty(_name);
+                                    if (_party != null)
+                                    {
+                                        foreach (var _member in _party.GetPartyMemberList())
+                                        {
+                                            if (!_member.Value.IsHero() && mPlayerScore.ContainsKey(_member.Key))
+                                                _lootPlayers.Add(_member.Key);
+                                        }
+                                    }
+                                    else
+                                        _lootPlayers.Add(_name);
+                                }
+                                int lootPlayerCount = _lootPlayers.Count;
+                                if (lootPlayerCount == 1)
+                                {
+                                    string playerName = _lootPlayers[0];
+                                    GameClientPeer _peer;
+                                    if (_peers.TryGetValue(playerName, out _peer) && _peer.mPlayer != null)
+                                        LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                    else
+                                        LootRules.GenerateLootItem_SendMail(playerName, lootItems, lootItemDisplayInventory);
+                                }
+                                else
+                                {
+                                    int interval = 100 / lootPlayerCount;
+                                    Dictionary<string, List<LootItem>> toLootPlayers = new Dictionary<string, List<LootItem>>();
+                                    for (int index = 0; index < lootItemsCount; index++)
+                                    {
+                                        int toLootPlayerIndex = Math.Min(GameUtils.RandomInt(0, 99) / interval, lootPlayerCount - 1);
+                                        string toLootPlayerName = _lootPlayers[toLootPlayerIndex];
+                                        if (!toLootPlayers.ContainsKey(toLootPlayerName))
+                                            toLootPlayers.Add(toLootPlayerName, new List<LootItem>());
+                                        toLootPlayers[toLootPlayerName].Add(lootItems[index]);
+                                    }
+                                    foreach(var kvp2 in toLootPlayers)
+                                    {
+                                        string playerName = kvp2.Key;
+                                        GameClientPeer _peer;
+                                        if (_peers.TryGetValue(playerName, out _peer) && _peer.mPlayer != null)
+                                            LootRules.GenerateLootItem(_peer.mPlayer, kvp2.Value, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                        else
+                                            LootRules.GenerateLootItem_SendMail(playerName, kvp2.Value, lootItemDisplayInventory);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case LootType.LastHit:
+                        if (killer != null)
+                        {
+                            var lootItems = LootRepo.RandomItems(kvp.Value);
+                            if (lootItems.Count > 0)
+                                LootRules.GenerateLootItem(killer, lootItems, monsterClass, monsterLvl, null);
+                        }
+                        break;
+                    case LootType.Explore: //monster should not set to Explore
+                        break;
+                }
+            }
+            //send LootItemDisplay to players within 20m
+            if (lootItemDisplayInventory.records.Count > 0)
+            {
+                Vector3 pos = Position;
+                lootItemDisplayInventory.SetPos(pos.x, pos.y, pos.z);
+                List<Entity> qr = new List<Entity>();
+                EntitySystem.QueryNetEntitiesInCircle(pos, 15, (queriedEntity) =>
+                {
+                    return (queriedEntity as Player != null);
+                }, qr);
+                int qrCount = qr.Count;
+                if (qrCount > 0)
+                {
+                    string lootDisplay = lootItemDisplayInventory.ToString();
+                    RPCBroadcastData rpcdata = mInstance.ZRPC.CombatRPC.GetSerializedRPC(ServerCombatRPCMethods.LootItemDisplay, lootDisplay);
+                    for (int index = 0; index < qrCount; index++)
+                        ((Player)qr[index]).Slot.SendEvent(rpcdata.EventData, rpcdata.SendParameters);
+                }
+            }
+        }
         #endregion
 
         public override void OnDamage(IActor attacker, AttackResult res, bool pbasicattack)
         {
             if (mArchetype.dmgbyhitcount)
-            {
-                //res.AttackType = AttackResultType.Physical;
                 res.RealDamage = 1;
-            }
 
             if (res.RealDamage > 0)
             {
                 Player player = attacker as Player;
                 if (player != null)
                 {
-                    //{
-                    //    string logstr = string.Format("[{0}][{1}][{2}][{3}][{4}][{5}]", 
-                    //        DateTime.Now, Name, " was attacked by", attacker.Name, res.SkillID, res.RealDamage);
-                    //}
-                    //if (mArchetype.lootrule == NPCLootRule.LootByDamage)
-                        AddDamageRecord(player.Name, res.RealDamage); //actual damage caused is less if health is lower than damage
-
+                    AddDamageRecord(player.Name, res.RealDamage); //actual damage caused is less if health is lower than damage
                     if (mInstance.mRealmController != null)
                         mInstance.mRealmController.OnDealtDamage(player, this, res.RealDamage);
                 }

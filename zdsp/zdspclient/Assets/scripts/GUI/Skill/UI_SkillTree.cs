@@ -214,11 +214,22 @@ public class UI_SkillTree : BaseWindowBehaviour
         {
             Initialise();
         }
+        else
+        {
+            foreach(var objectlist in m_SkillTreeCache)
+            {
+                foreach(var obj in objectlist.Value)
+                {
+                    foreach(Transform child in obj.transform)
+                    {
+                        UI_SkillButton ui = child.GetComponent<UI_SkillButton>();
+                        if (ui != null)
+                            ui.UpdateButton();
+                    }
+                }
+            }
+        }
 
-        //m_ButtonPool.CheckContainerIntegrity();
-        //m_EmptyButtonPool.CheckContainerIntegrity();
-        //m_RowPool.CheckContainerIntegrity();
-        //m_SelectSkillDDL.GenerateSkillList();
         m_DisplayType = (JobType)GameInfo.gLocalPlayer.PlayerSynStats.jobsect; 
         foreach (UI_SkillJobButton job in m_JobButtons)
         {
@@ -689,7 +700,6 @@ public class UI_SkillTree : BaseWindowBehaviour
 
     public bool IsRequiredJobUnlocked(UI_SkillButton skill)
     {
-        bool result = true;
         List<int> req_jobs = new List<int>();
         SkillData mskill = skill.m_SkillData;
         if(mskill == null)
@@ -706,12 +716,16 @@ public class UI_SkillTree : BaseWindowBehaviour
             }
         }
 
+        // need to construct player job history for this to work...
+        List<JobType> hist = JobSectRepo.GetJobHistoryToCurrent(GameInfo.gLocalPlayer.GetJobSect());
+
         //loop all the class to see if player has it
-        foreach(int iter in req_jobs)
+        foreach (int iter in req_jobs)
         {
-            // need to construct player job history for this to work...
+            if (hist.BinarySearch((JobType)iter) < 0)
+                return false;
         }
 
-        return result;
+        return true;
     }
 }

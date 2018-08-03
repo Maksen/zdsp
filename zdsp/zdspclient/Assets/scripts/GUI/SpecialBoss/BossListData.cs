@@ -18,9 +18,8 @@ public class BossListData : BaseWindowBehaviour
     public int boss_id;
     public int rewardIdGroupid;
     public Toggle BossListToggle;
-    private UI_SpecialBoss_Detail BossListClickData;
-
-    string aa;
+    UI_SpecialBoss_Detail BossListClickData;
+    UI_DamangeRankData UI_DamangeRankData;
 
     private long mDayWeeklyTime;
     private double mDoubleConvert;
@@ -52,19 +51,21 @@ public class BossListData : BaseWindowBehaviour
         }
     }
 
-    public void RefreshWorldBossListData(UI_SpecialBoss_Detail uiSpecialBossDetails, Dictionary<int, SpecialBossStatus> specialBossStatus)
+    public void RefreshWorldBossListData(UI_SpecialBoss_Detail uiSpecialBossDetails, UI_DamangeRankData uiDamangeRankData , Dictionary<int, SpecialBossStatus> specialBossStatus)
     {
         foreach (KeyValuePair<int, SpecialBossStatus> status in specialBossStatus)
         {
-            InitBossList(uiSpecialBossDetails, status.Value);
+            InitBossList(uiSpecialBossDetails, uiDamangeRankData, status.Value);
         }
 
         UIManager.StopHourglass();
     }
 
-    public void InitBossList(UI_SpecialBoss_Detail uiSpecialBossDetails, SpecialBossStatus bossStatus)
+    public void InitBossList(UI_SpecialBoss_Detail uiSpecialBossDetails, UI_DamangeRankData uiDamangeRankData, SpecialBossStatus bossStatus)
     {
         BossListClickData = uiSpecialBossDetails;
+
+        UI_DamangeRankData = uiDamangeRankData;
 
         boss_id = bossStatus.id;
         var boss_info = SpecialBossRepo.GetInfoById(boss_id);

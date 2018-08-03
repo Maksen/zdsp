@@ -361,10 +361,6 @@
             return now < RecoverTime + CombatUtils.RECOVER_FROM_HIT_TIME;
         }
 
-        public virtual void CombatStarted()
-        {
-             
-        }
         public virtual void OnDamage(IActor attacker, AttackResult res, bool pbasicattack)
         {
             if (!IsAlive())
@@ -373,24 +369,18 @@
             if (attacker != this) //if player attacks himself, we don't queue as attacker
                 attacker.QueueDmgResult(res); //For attacker to see this result at client
             if (shieldSE != null)
-            {
                 res.RealDamage = shieldSE.OnAttacked(res.RealDamage);
-            }else
-            {
+            else
                 res.RealDamage = SkillPassiveStats.OnDamage(res.RealDamage, this);
-            }
             
             QueueDmgResult(res);          //For defender to see this result at client
- 
             OnAttacked(attacker, res.RealDamage); //currently 1:1  
             
-            int temphealth = GetHealth();            
-            temphealth -= res.RealDamage;
+            int temphealth = GetHealth() - res.RealDamage;
             if (temphealth <= 0)
             {                                
                 SetHealth(0);
                 OnKilled(attacker);
-                //SetHealth(GetHealthMax());
             }
             else
             {                
@@ -468,15 +458,9 @@
                 
         //    }
         //}
-
-        public virtual void QueueDmgResult(AttackResult res)
-        {            
-        }
-
-        public virtual void OnAttacked(IActor attacker, int aggro)
-        {
-        }
-
+        public virtual Actor GetOwner() { return this; }
+        public virtual void QueueDmgResult(AttackResult res){ }
+        public virtual void OnAttacked(IActor attacker, int aggro){ }
         public virtual void OnKilled(IActor attacker)
         {
             PlayerStats.Alive = false;
@@ -803,6 +787,25 @@
             return false;
         }
 
+        public SideEffect GetSideEffect(int sid)
+        {
+            foreach (SideEffect se in mSideEffectsPos)
+            {
+                if (se != null && se.mSideeffectData.id == sid)
+                {
+                    return se;
+                }
+            }
+            foreach (SideEffect se in mSideEffectsNeg)
+            {
+                if (se != null && se.mSideeffectData.id == sid)
+                {
+                    return se;
+                }
+            }
+            return null;
+        }
+
         public bool HasDot()
         {
             foreach (SideEffect se in mSideEffectsNeg)
@@ -1000,11 +1003,6 @@
         }
 
         public long RecoverTime = 0;
-        public long InCombatTime = 0;
-        public float InBattleTime;
-        public float BattleTime;               
-        public float MaxBattleTime = 900;             //MaxBattleTime
-        public float ExpRate { get; set; }         //經驗值比例
         //public void SetImmuneControl(ControlSEType settype, bool flag)
         //{
         //    mControlImmune[(int)settype] = flag;

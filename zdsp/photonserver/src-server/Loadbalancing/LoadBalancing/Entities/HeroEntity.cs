@@ -65,10 +65,12 @@
             HeroSynStats.ModelTier = hero.ModelTier;
 
             // Set CombatStats
-            PlayerCombatStats heroCombatStats = new PlayerCombatStats();
+            //PlayerCombatStats heroCombatStats = new PlayerCombatStats();
+
+            PlayerCombatStats heroCombatStats = (PlayerCombatStats)hero.CombatStats;
             heroCombatStats.SetPlayerLocalAndSyncStats(null, HeroSynStats, null);
             CombatStats = heroCombatStats;
-            SetCombatStats(hero.Level);
+            //SetCombatStats(hero.Level);
         }
 
         public void SetSpawnPosition(Player player)
@@ -138,6 +140,7 @@
             mAIController.UpdateSkill();
         }
 
+        public override Actor GetOwner() { return Owner; }
         public override void QueueDmgResult(AttackResult res)
         {
             Owner.QueueDmgResult(res);   //show damage result for player in client

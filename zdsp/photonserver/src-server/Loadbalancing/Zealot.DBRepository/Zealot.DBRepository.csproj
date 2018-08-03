@@ -43,9 +43,9 @@
     <Reference Include="log4net">
       <HintPath>..\..\..\lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Zealot.Billing.Client\bin\Debug\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\lib\Newtonsoft\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameServer\AuctionRepository.cs" />
+    <Compile Include="GameServer\LimitedItemRepository.cs" />
     <Compile Include="GameServer\GameConfigRepository.cs" />
     <Compile Include="GameServer\MaillOfflineRepository.cs" />
     <Compile Include="GameServer\LadderRepository.cs" />

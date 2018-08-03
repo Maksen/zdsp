@@ -143,6 +143,7 @@ public partial class ClientMain : MonoBehaviour
     private GameObject mStaticNPCHolder; //to organize static npc;
     private GameObject mPlayerHolder; //to organize player ghost;
     private GameObject mPlayerOwnedNPCHolder; //to organize player owned spawns
+    private GameObject mLootHolder;
 
     // Cached list
     private List<Entity> qr = new List<Entity>(32);
@@ -255,6 +256,8 @@ public partial class ClientMain : MonoBehaviour
         mPlayerHolder.name = "Player";
         mPlayerOwnedNPCHolder = new GameObject();
         mPlayerOwnedNPCHolder.name = "PlayerOwnedNPCs";
+        mLootHolder = new GameObject();
+        mLootHolder.name = "Loot";
 
         GameObject cutsceneManager = new GameObject();
         cutsceneManager.transform.SetParent(transform, false);
@@ -1194,6 +1197,11 @@ public partial class ClientMain : MonoBehaviour
         AnimObj.transform.SetParent(mPlayerOwnedNPCHolder.transform, false);
     }
 
+    public void SetLootParent(GameObject AnimObj)
+    {
+        AnimObj.transform.SetParent(mLootHolder.transform, false);
+    }
+    
     #region Coroutine for hero use
     public void WaitForHero(Func<bool> del, UnityAction callback)
     {
@@ -1261,17 +1269,6 @@ public partial class ClientMain : MonoBehaviour
         return skillAction.PlayerBasicAttack;
     }
 
-    private bool CanCastSkill()
-    {
-        PlayerGhost localplayer = GameInfo.gLocalPlayer;
-        if (localplayer == null || !localplayer.IsAlive())
-            return false;
-        if (localplayer.IsStun() || localplayer.IsDisarmed())
-            return false;
-
-        return true;
-    }
-
     /// <summary>
     /// function for cast ActiveSkill,
     /// it will apporach first then cast.
@@ -1314,7 +1311,8 @@ public partial class ClientMain : MonoBehaviour
     /// <param name="pos"></param>
     private void DirectCastSkill(int skillid, int targetpid = 0, Vector3? pos = null)
     {
-        if (!CanCastSkill())
+        PlayerGhost localplayer = GameInfo.gLocalPlayer;
+        if (localplayer == null || !localplayer.CanCastSkill(true))
             return;
         PlayerSkillCDState cdstate = GameInfo.gSkillCDState;
         if (cdstate.IsSkillCoolingDown(skillid))
@@ -1328,7 +1326,6 @@ public partial class ClientMain : MonoBehaviour
         }
 
         Zealot.Common.Actions.Action action;
-        PlayerGhost localplayer = GameInfo.gLocalPlayer;
         SkillData skilldata;
         skilldata = SkillRepo.GetSkill(castcmd.skillid);
         if (skilldata == null)

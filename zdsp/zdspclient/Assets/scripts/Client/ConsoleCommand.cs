@@ -1963,6 +1963,30 @@ public class CommandManager
         }
     }
 
+    [ConsoleCmd("ConsoleChangeJob")]
+    public void ConsoleChangeJob(string[] param)
+    {
+        if(param.Length == 1)
+        {
+            byte job = 0;
+            byte.TryParse(param[0], out job);
+
+            if (job < 21)
+                RPCFactory.NonCombatRPC.ConsoleChangeJob(job);
+        }
+    }
+
+    [ConsoleCmd("ConsoleAddSkillPoint")]
+    public void ConsoleAddSkillPoint(string[] param)
+    {
+        if(param.Length == 1)
+        {
+            int amt = 0;
+            Int32.TryParse(param[0], out amt);
+
+            RPCFactory.NonCombatRPC.ConsoleAddSkillPoint(amt);
+        }
+    }
 #endif
         #endregion
     }

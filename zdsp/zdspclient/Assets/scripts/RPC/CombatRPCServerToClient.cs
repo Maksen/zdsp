@@ -233,6 +233,7 @@ public partial class ClientMain : MonoBehaviour
         if (player != null && player.PartyStats != null)
             player.PartyStats.OnGetPartyMemberPosition(currLevelName, position);
     }
+
     #endregion
 
     #region Hero
@@ -242,7 +243,7 @@ public partial class ClientMain : MonoBehaviour
         PlayerGhost player = GameInfo.gLocalPlayer;
         if (player != null)
             player.HeroStats.OnInterestRandomSpinResult(interest);
-    } 
+    }
     #endregion
 
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.SpawnGate)]
@@ -849,23 +850,12 @@ public partial class ClientMain : MonoBehaviour
         //SpecialBossRepo.GetOrderedBossIdsByCategory(category)  
         //base on id list and if _specialBossStatus contains the id means can popolate it.
         GameObject worldbossRankDialogObj = UIManager.GetWindowGameObject(WindowType.DialogWorldBossRanking);
-        UI_DamangeRankData uiDamangeRankData = worldbossRankDialogObj.GetComponentInChildren<UI_DamangeRankData>();
-        RankingData uiRankingData = worldbossRankDialogObj.GetComponentInChildren<RankingData>();
+        UI_DamangeRankData uiDamangeRankData = worldbossRankDialogObj.GetComponent<UI_DamangeRankData>();
         //-------------------------------------------------------------------------------------------------------------
         GameObject dailyQuestObj = UIManager.GetWindowGameObject(WindowType.DailyQuest);
         Model_3DAvatar model_3DAvatar = dailyQuestObj.GetComponentInChildren<Model_3DAvatar>();
         UI_SpecialBoss_Detail uiSpecialBoss = dailyQuestObj.GetComponentInChildren<UI_SpecialBoss_Detail>();
         BossListData uiSpecialBossData = dailyQuestObj.GetComponentInChildren<BossListData>();
-
-        if (uiDamangeRankData != null)
-        {
-            uiDamangeRankData.RefreshDamangeRankData(_specialBossStatus, uiSpecialBoss);
-        }
-        
-        if (uiRankingData != null)
-        {
-            uiRankingData.RefreshRankingData(_specialBossStatus);
-        }
         
         if(uiSpecialBoss != null)
         {
@@ -874,23 +864,35 @@ public partial class ClientMain : MonoBehaviour
         
         if (uiSpecialBossData != null)
         {
-            uiSpecialBossData.RefreshWorldBossListData(uiSpecialBoss, _specialBossStatus);
+            uiSpecialBossData.RefreshWorldBossListData(uiSpecialBoss, uiDamangeRankData , _specialBossStatus);
         }
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_GetWorldBossDmgList)]
     public void Ret_GetWorldBossDmgList(string result)
     {
+        UIManager.StopHourglass();
         BossKillData _bossKillData = null;
         if (!string.IsNullOrEmpty(result))
             _bossKillData = BossKillData.DeserializeFromDB(result);
         //todo refresh bossdamagelist with _bossKillData
+        GameObject worldbossRankDialogObj = UIManager.GetWindowGameObject(WindowType.DialogWorldBossRanking);
+        UI_DamangeRankData uiDamangeRankData = worldbossRankDialogObj.GetComponent<UI_DamangeRankData>();
+        uiDamangeRankData.InitDamangeRankData(_bossKillData);
     }
     #endregion
 
-    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnNPCKilled)]
-    public void OnNPCKilled()
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.LootItemDisplay)]
+    public void LootItemDisplay(string data)
     {
-        GameInfo.gLocalPlayer.OnNPCKilled();
+        LootItemDisplayInventory lootData = LootItemDisplayInventory.ToObject(data);
+        if (lootData != null && lootData.records.Count > 0)
+        {
+            GameObject lootObject = new GameObject();
+            SetLootParent(lootObject);
+            lootObject.transform.position = new Vector3(lootData.pos[0], lootData.pos[1], lootData.pos[2]);
+            LootDisplayController component = lootObject.AddComponent<LootDisplayController>();
+            component.Init(lootData);
+        }
     }
 }

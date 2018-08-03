@@ -61,7 +61,7 @@ public class CutsceneManager : MonoBehaviour
         }
     }
 
-    public void PlayCutscene(string name)
+    public void PlayCutscene(string name, Action finishedCB = null)
     {
         foreach (CutsceneEntity cutsceneEnt in cutsceneEntities)
         {
@@ -69,6 +69,7 @@ public class CutsceneManager : MonoBehaviour
             {
                 cutsceneEnt.gameObject.SetActive(true);
                 cutsceneEnt.PlayCutscene();
+                OnFinishedCutsceneAction = finishedCB;
                 break;
             }
         }

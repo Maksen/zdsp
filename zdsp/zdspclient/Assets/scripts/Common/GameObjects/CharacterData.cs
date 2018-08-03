@@ -242,7 +242,7 @@ namespace Zealot.Common
         public int tutorialreddot { get; set; }
         
         [JsonProperty(PropertyName = "BattleTime")]
-        public float BattleTime { get; set; }
+        public int BattleTime { get; set; } //max 900 minutes * 60seconds = 54000 seconds.
 
         public CharacterData()
         {
@@ -278,7 +278,7 @@ namespace Zealot.Common
         /// </summary>
         public void InitDefault(JobType jobsect)
         {
-            BattleTime = 300;
+            BattleTime = 0;
             ItemInventory.InitDefault();
             EquipmentInventory.InitDefault();
             //ItemKindInv.InitDefault();
@@ -305,22 +305,15 @@ namespace Zealot.Common
             SkillInventory.InitDefault(JobSectRepo.GetJobByType((JobType)JobSect));
         }
 
-        public void BattleTimeResetOnNewDay()
+        private void BattleTimeResetOnNewDay()
         {
-            DateTime currentTime = DateTime.Now;
-            int Hour = currentTime.Hour;
-            int Minute = currentTime.Minute;
-            int SC = currentTime.Second;
-            if (Hour == 5 && Minute == 0 && SC == 0)
+            if (BattleTime <= 0) //300 minutes
+                BattleTime = 18000;
+            else
             {
-                if (BattleTime <= 0)
-                {
-                    BattleTime = 300;
-                }
-                else
-                {
-                    BattleTime += 300;
-                }
+                BattleTime += 18000;
+                if (BattleTime > 54000)
+                    BattleTime = 54000;
             }
         }
 
@@ -336,6 +329,7 @@ namespace Zealot.Common
             // Remove all expired item
             ExchangeShopInv.NewDayReset();
             CurrencyInventory.GuildFundToday = 0;
+            BattleTimeResetOnNewDay();
         }
         public void ClearGuild()
         {

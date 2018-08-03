@@ -43,6 +43,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     Model_3DAvatar m3DAvatar;
 
+    public int Boss_id;
     public bool BigBossCategory;
     public bool MiniBossCategory;
 
@@ -57,11 +58,6 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         RPCFactory.CombatRPC.GetWorldBossList();
 
         UIManager.StartHourglass();
-    }
-
-    private void GetWorldBossList()
-    {
-        RPCFactory.CombatRPC.GetWorldBossList();
     }
 
     public void InitWorldBossList(UI_DamangeRankData ui_DamangeRankData , Dictionary<int, SpecialBossStatus> specialBossStatus, Model_3DAvatar model_3DAvatar)
@@ -84,7 +80,8 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
 
     public void GetBossListData(int boss_id)
     {
-        var boss_info = SpecialBossRepo.GetInfoById(boss_id);
+        Boss_id = boss_id;
+        var boss_info = SpecialBossRepo.GetInfoById(Boss_id);
         var npc_info = NPCRepo.GetArchetypeById(boss_info.archetypeid);
         BossName.text = npc_info.localizedname;
         BossGrade.text = npc_info.level.ToString();
@@ -94,7 +91,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
     public void BossRankOnClick()
     {
         UIManager.OpenDialog(WindowType.DialogWorldBossRanking);
-        UI_DamangeRankData.InitDamangeRank();
+        UI_DamangeRankData.GetRankingData(Boss_id);
     }
 
     public void BigBossOnClick(bool BigBossClick)
@@ -103,7 +100,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         {
             ClearBigBossListData();
             ClearMiniBossListData();
-            BigBossToggle.isOn = true;
+
             BigBossCategory = true;
             MiniBossCategory = false;
 
@@ -126,7 +123,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
                 newWorldBossListObj.transform.SetParent(BossListContent.transform, false);
 
                 BossListData bossListData = newWorldBossListObj.GetComponent<BossListData>();
-                bossListData.InitBossList(this, bigBosses[i]);
+                bossListData.InitBossList(this, UI_DamangeRankData, bigBosses[i]);
 
                 bigBossObjList.Add(newWorldBossListObj);
             }
@@ -143,7 +140,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
         {
             ClearBigBossListData();
             ClearMiniBossListData();
-            MiniBossToggle.isOn = true;
+
             BigBossCategory = false;
             MiniBossCategory = true;
 
@@ -166,7 +163,7 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
                 newMiniBossListObj.transform.SetParent(BossListContent.transform, false);
 
                 BossListData bossListData = newMiniBossListObj.GetComponent<BossListData>();
-                bossListData.InitBossList(this, miniBosses[i]);
+                bossListData.InitBossList(this, UI_DamangeRankData, miniBosses[i]);
 
                 miniBossObjList.Add(newMiniBossListObj);
             }
@@ -224,33 +221,36 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
                 {
                     ItemBaseJson itemData = GameRepo.ItemFactory.GetItemById(reward.itemRewardLst[i].id);
 
-                    switch (itemData.bagtype)
+                    if (itemData != null)
                     {
-                        case BagType.Consumable:
-                            GameObject obj = CreateIcon(mConsumablePrefab);
-                            GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-                            //mcIcon.Init(itemData.itemid, reward.itemRewardLst.Count , false);
-                            break;
-                        case BagType.DNA:
-                            GameObject obj2 = CreateIcon(mConsumablePrefab);
-                            GameIcon_DNA mcIcon2 = obj2.GetComponent<GameIcon_DNA>();
-                            //mcIcon2.Init(itemData.itemid,0,0);
-                            break;
-                        case BagType.Equipment:
-                            GameObject obj3 = CreateIcon(mConsumablePrefab);
-                            GameIcon_Equip mcIcon3 = obj3.GetComponent<GameIcon_Equip>();
-                            //mcIcon3.Init(itemData.itemid);
-                            break;
-                        case BagType.Gem:
-                            GameObject obj4 = CreateIcon(mConsumablePrefab);
-                            GameIcon_DNA mcIcon4 = obj4.GetComponent<GameIcon_DNA>();
-                            //mcIcon4.Init(itemData.itemid, 0, 0);
-                            break;
-                        case BagType.Material:
-                            GameObject obj5 = CreateIcon(mConsumablePrefab);
-                            GameIcon_MaterialConsumable mcIcon5 = obj5.GetComponent<GameIcon_MaterialConsumable>();
-                            //mcIcon5.Init(itemData.itemid, reward.itemRewardLst.Count, false);
-                            break;
+                        switch (itemData.bagtype)
+                        {
+                            case BagType.Consumable:
+                                GameObject obj = CreateIcon(mConsumablePrefab);
+                                GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
+                                //mcIcon.Init(itemData.itemid, reward.itemRewardLst.Count , false);
+                                break;
+                            case BagType.DNA:
+                                GameObject obj2 = CreateIcon(mConsumablePrefab);
+                                GameIcon_DNA mcIcon2 = obj2.GetComponent<GameIcon_DNA>();
+                                //mcIcon2.Init(itemData.itemid,0,0);
+                                break;
+                            case BagType.Equipment:
+                                GameObject obj3 = CreateIcon(mConsumablePrefab);
+                                GameIcon_Equip mcIcon3 = obj3.GetComponent<GameIcon_Equip>();
+                                //mcIcon3.Init(itemData.itemid);
+                                break;
+                            case BagType.Gem:
+                                GameObject obj4 = CreateIcon(mConsumablePrefab);
+                                GameIcon_DNA mcIcon4 = obj4.GetComponent<GameIcon_DNA>();
+                                //mcIcon4.Init(itemData.itemid, 0, 0);
+                                break;
+                            case BagType.Material:
+                                GameObject obj5 = CreateIcon(mConsumablePrefab);
+                                GameIcon_MaterialConsumable mcIcon5 = obj5.GetComponent<GameIcon_MaterialConsumable>();
+                                //mcIcon5.Init(itemData.itemid, reward.itemRewardLst.Count, false);
+                                break;
+                        }
                     }
                 }
             }
@@ -272,12 +272,6 @@ public class UI_SpecialBoss_Detail : BaseWindowBehaviour {
             foreach (Transform t in DropContent.transform)
                 Destroy(t.gameObject);
         }
-    }
-
-    void OnDisable()
-    {
-        BigBossToggle.isOn = true;
-        MiniBossToggle.isOn = false;
     }
 
     void OnDestroy()

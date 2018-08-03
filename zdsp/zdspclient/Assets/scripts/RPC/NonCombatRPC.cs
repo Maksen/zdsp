@@ -218,6 +218,12 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleRemoveHero", heroId);
     }
 
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetHeroSkin)]
+    public void ConsoleGetHeroSkin(int heroId, int itemId)
+    {
+        ProxyMethod("ConsoleGetHeroSkin", heroId, itemId);
+    }
+
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetExplorations)]
     public void ConsoleResetExplorations()
     {
@@ -345,9 +351,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSpawnPersonalMonster)]
-    public void ConsoleSpawnPersonalMonster(string archtype, int population)
+    public void ConsoleSpawnPersonalMonster(string archtype, int population, bool aggressive = false, int questid = -1)
     {
-        ProxyMethod("ConsoleSpawnPersonalMonster", archtype, population);
+        ProxyMethod("ConsoleSpawnPersonalMonster", archtype, population, aggressive, questid);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleUpdateQuestProgress)]
@@ -372,6 +378,18 @@ public partial class NonCombatRPC : RPCBase
     public void CritRate(float rate)
     {
         ProxyMethod("CritRate", rate);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleChangeJob)]
+    public void ConsoleChangeJob(byte job)
+    {
+        ProxyMethod("ConsoleChangeJob", job);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddSkillPoint)]
+    public void ConsoleAddSkillPoint(int amt)
+    {
+        ProxyMethod("ConsoleAddSkillPoint", amt);
     }
     #endregion
 
@@ -757,9 +775,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCInteract)]
-    public void NPCInteract(int questid, int npcid, int choice)
+    public void NPCInteract(int questid, int npcid, int choice, int talkid)
     {
-        ProxyMethod("NPCInteract", questid, npcid, choice);
+        ProxyMethod("NPCInteract", questid, npcid, choice, talkid);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CompleteQuest)]
@@ -778,6 +796,18 @@ public partial class NonCombatRPC : RPCBase
     public void FailQuest(int questid)
     {
         ProxyMethod("FailQuest", questid);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SubmitEmptyObjective)]
+    public void SubmitEmptyObjective(int questid)
+    {
+        ProxyMethod("SubmitEmptyObjective", questid);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]
+    public void ApplyQuestEventBuff(int eventid, int questid)
+    {
+        ProxyMethod("ApplyQuestEventBuff", eventid, questid);
     }
     #endregion
 

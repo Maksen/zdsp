@@ -79,6 +79,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         {
             Description.text = mDescription;
         }
+        Description.ClickedLink.RemoveAllListeners();
         Description.ClickedLink.AddListener(OnClickHyperlink);
         Level.text = questJson.minlv.ToString();
         MapName.text = questJson.subname;
@@ -115,6 +116,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         SelectedToggle.group = group;
         mDescription = controller.GetStartQuestDescription(questJson);
         Description.text = mDescription;
+        Description.ClickedLink.RemoveAllListeners();
         Description.ClickedLink.AddListener(OnClickHyperlink);
         Level.text = questJson.minlv.ToString();
         MapName.text = questJson.subname;

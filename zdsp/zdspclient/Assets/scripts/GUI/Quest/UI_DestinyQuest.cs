@@ -37,12 +37,22 @@ public class UI_DestinyQuest : MonoBehaviour
     [SerializeField]
     GameObject Marker;
 
+    [SerializeField]
+    GameObject[] MapCountry;
+
+    [SerializeField]
+    Transform[] MapCameraPos;
+
+    [SerializeField]
+    UI_MoveToObj HologramMap;
+
     private QuestClientController mQuestController;
     private int mSelectedHero;
     private int mSelectedDestiny;
     private Dictionary<int, List<QuestDestinyJson>> mDestinyDataByColumn;
     private List<GameObject> mHeroes;
     private Dictionary<int, GameObject> mDestinies;
+    private GameObject mActivedMapCountry;
 
     private void OnEnable()
     {
@@ -70,6 +80,7 @@ public class UI_DestinyQuest : MonoBehaviour
         UpdateHeroesList();
         UpdateDestinyData();
         UpdateDestinyList();
+        UpdateMapCountry();
     }
 
     private void OnDisable()
@@ -98,9 +109,12 @@ public class UI_DestinyQuest : MonoBehaviour
 
     private void ClearHeroes()
     {
-        foreach(GameObject hero in mHeroes)
+        if (mHeroes != null)
         {
-            Destroy(hero);
+            foreach (GameObject hero in mHeroes)
+            {
+                Destroy(hero);
+            }
         }
     }
 
@@ -124,7 +138,7 @@ public class UI_DestinyQuest : MonoBehaviour
         foreach (KeyValuePair<int, List<QuestDestinyJson>> entry in mDestinyDataByColumn)
         {
             GameObject newDestiny = Instantiate(FlowChartData);
-            newDestiny.GetComponent<UI_ChartData>().Init(entry.Value, toggleGroup, this);
+            newDestiny.GetComponent<UI_ChartData>().Init(entry.Value, toggleGroup, this, mQuestController);
             newDestiny.transform.SetParent(FlowChartContent, false);
             mDestinies.Add(entry.Key, newDestiny);
         }
@@ -219,12 +233,15 @@ public class UI_DestinyQuest : MonoBehaviour
 
     private void ClearDestinies()
     {
-        foreach (KeyValuePair<int, GameObject> destiny in mDestinies)
+        if (mDestinies != null)
         {
-            destiny.Value.GetComponent<UI_ChartData>().ClearLineObject();
-            Destroy(destiny.Value);
+            foreach (KeyValuePair<int, GameObject> destiny in mDestinies)
+            {
+                destiny.Value.GetComponent<UI_ChartData>().ClearLineObject();
+                Destroy(destiny.Value);
+            }
+            mDestinies.Clear();
         }
-        mDestinies.Clear();
     }
 
     public void OnHeroChanged(int heroid)
@@ -259,10 +276,79 @@ public class UI_DestinyQuest : MonoBehaviour
     {
         mSelectedDestiny = destinyid;
         UpdateDestinyData();
+        UpdateMapCountry();
     }
 
     public int GetSelectedDestinyId()
     {
         return mSelectedDestiny;
+    }
+
+    public GameObject GetMapCountry(QuestDestinyType type)
+    {
+        switch(type)
+        {
+            case QuestDestinyType.Qing:
+                return MapCountry[0];
+            case QuestDestinyType.Wei:
+                return MapCountry[1];
+            case QuestDestinyType.Zhao:
+                return MapCountry[3];
+            case QuestDestinyType.Yan:
+                return MapCountry[4];
+            case QuestDestinyType.Qi:
+                return MapCountry[5];
+            case QuestDestinyType.Chu:
+                return MapCountry[6];
+            case QuestDestinyType.Han:
+                return MapCountry[7];
+        }
+        return null;
+    }
+
+    public Transform GetMapTransform(QuestDestinyType type)
+    {
+        switch (type)
+        {
+            case QuestDestinyType.Qing:
+                return MapCameraPos[0];
+            case QuestDestinyType.Wei:
+                return MapCameraPos[1];
+            case QuestDestinyType.Zhao:
+                return MapCameraPos[3];
+            case QuestDestinyType.Yan:
+                return MapCameraPos[4];
+            case QuestDestinyType.Qi:
+                return MapCameraPos[5];
+            case QuestDestinyType.Chu:
+                return MapCameraPos[6];
+            case QuestDestinyType.Han:
+                return MapCameraPos[7];
+        }
+        return null;
+    }
+
+    private void UpdateMapCountry()
+    {
+        QuestDestinyJson destinyJson = QuestRepo.GetDestinyById(mSelectedDestiny);
+        if (destinyJson != null)
+        {
+            if (mActivedMapCountry != null)
+            {
+                mActivedMapCountry.SetActive(false);
+                mActivedMapCountry = null;
+            }
+
+            mActivedMapCountry = GetMapCountry(destinyJson.type);
+            if (mActivedMapCountry != null)
+            {
+                Transform cameratransform = GetMapTransform(destinyJson.type);
+                if (cameratransform != null)
+                {
+                    HologramMap.MoveTo(cameratransform);
+                }
+                mActivedMapCountry.SetActive(true);
+            }
+        }
     }
 }

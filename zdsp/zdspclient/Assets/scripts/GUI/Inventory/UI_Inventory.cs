@@ -66,6 +66,7 @@ public class UI_Inventory : MonoBehaviour
         {
             int slotIdx = index;
             GameObject _icon = Instantiate(equipIconPrefab);
+            _icon.name = "GameIcon_Equip";
             _icon.transform.SetParent(equipSlots[index].transform, false);
             _icon.SetActive(false);
             _icon.GetComponent<GameIcon_Equip>().SetClickCallback(() => OnEquipmentSlotClickedCB(slotIdx));
@@ -75,6 +76,7 @@ public class UI_Inventory : MonoBehaviour
         {
             int slotIdx = index;
             GameObject _icon = Instantiate(equipIconPrefab);
+            _icon.name = "GameIcon_Equip";
             _icon.transform.SetParent(fashionSlots[index].transform, false);
             _icon.SetActive(false);
             _icon.GetComponent<GameIcon_Equip>().SetClickCallback(() => OnFashionSlotClickedCB(slotIdx));
@@ -253,8 +255,8 @@ public class UI_Inventory : MonoBehaviour
         for (int index = 0; index < length; ++index)
         {
             _item = _equipmentSlots[index];
-            _baseIcon = _uiSlots[index].transform.GetChild(0).gameObject;
-            _equipIcon = _uiSlots[index].transform.GetChild(1).gameObject;
+            _baseIcon = _uiSlots[index].transform.Find("Image_Base").gameObject;
+            _equipIcon = _uiSlots[index].transform.Find("GameIcon_Equip").gameObject;
             if (_item == null)
             {
                 _baseIcon.SetActive(true);

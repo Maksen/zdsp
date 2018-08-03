@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    
+    <element name="PowerUp" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="part" type="PowerUpPartsType" uitext="Part"/>
+      <property name="power" type="int" uitext="Power"/>
+      <property name="effect" type="SideEffect"  uitext="Effect" display="name"/>
+      <property name="value" type="int" uitext="Value"/>
+      <property name="currency" type="CurrencyType" uitext="CurrencyType"/>
+      <property name="cost" type="int" uitext="Cost"/>
+      <property name="material" type="string" uitext="Material" info="Format: ItemID|Count;ItemID|Count;ItemID|Count;ItemID|Count;ItemID|Count"/>
+    </element>
+    
+    <element name="MeridianList" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="mlid" type="int" uitext="Mlid"/>
+      <property name="mlname" type="string" uitext="Mlname"/>
+      <property name="apid" type="int"  uitext="Apid" info="apid ; apid ; apid ; apid ; apid ; apid ; apid ; apid"/>
+      <property name="mlrank" type="int" uitext="Mlrank" info="0 mean unlock"/>
+      <property name="aplvup" type="int" uitext="Aplvup"/>
+      <property name="item" type="int" uitext="Item" info="itemid|count ; itemid|count ; itemid|count ; itemid|count ; itemid|count"/>
+      <property name="currency" type="int" uitext="Currency" info="currency|count"/>
+      <property name="effect" type="int" uitext="Effect" info="effectid ; effectid ;effectid"/>
+    </element>
+    
+    <element name="AcupointList" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="apid" type="int" uitext="Apid"/>
+      <property name="apname" type="string" uitext="Apname"/>
+      <property name="aplevel" type="int"  uitext="Aplevel"/>
+      <property name="apexp" type="int"  uitext="Apexp"/>
+      <property name="payid" type="int"  uitext="Payid"/>
+      <property name="effect" type="int"  uitext="Effect" info="effectid"/>
+    </element>
+    
+    <element name="PayMaterialItemList" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="payid" type="int"  uitext="Payid"/>
+      <property name="item" type="int"  uitext="Item" info="Format: itemid|count ; itemid|count"/>
+      <property name="currency" type="int"  uitext="Currency" info="currency|count"/>
+      <property name="earnexp" type="int"  uitext="Earnexp"/>
+      <property name="amplification" type="int"  uitext="Amplification"/>
+      <property name="probability" type="int"  uitext="Probability"/>
+    </element>
+    
+  </data>
+</magicalarea51>

@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using Kopio.JsonContracts;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
+using Zealot.Repository;
 
 public class RankingData : MonoBehaviour {
 
@@ -10,26 +12,24 @@ public class RankingData : MonoBehaviour {
     public Text Name;
     public Text Score;
 
-    public void RefreshRankingData(Dictionary<int, SpecialBossStatus> specialBossStatus)
+    public void InitDmgRanking(int rank, BossKillDmgRecord mdmgRecords)
     {
-        foreach (KeyValuePair<int, SpecialBossStatus> status in specialBossStatus)
-        {
-            InitRanking(status.Value);
-        }
-
-        UIManager.StopHourglass();
+        Rank.text = rank.ToString();
+        Name.text = mdmgRecords.Name;
+        Score.text = mdmgRecords.Score.ToString();
     }
 
-    public void InitRanking(SpecialBossStatus bossStatus)
+    public void InitScoreRanking(int rank, BossKillScoreRecord mscoreRecords)
     {
-
+        Rank.text = rank.ToString();
+        Name.text = mscoreRecords.Name[0];
+        Score.text = mscoreRecords.Score.ToString();
     }
 
-    void OnDestroy()
+    public void Clear()
     {
-        Rank = null;
-        Name = null;
-        Score = null;
+        Rank.text = "-";
+        Name.text = "-";
+        Score.text = "-";
     }
-
 }

@@ -52,6 +52,7 @@ public class HUD_MiniMap : MonoBehaviour
     const int MAX_ICON = 128;
     List<Image> mMiniMapIconLst = new List<Image>(MAX_ICON);
 
+    #region interface
     public void InitMap()
     {
         var realm = GameInfo.mRealmInfo;
@@ -60,11 +61,10 @@ public class HUD_MiniMap : MonoBehaviour
 
         mMapName.text = realm.localizedname;
     }
-
     public int AddIcon(IconType type, Vector3 worldpos)
     {
-        //if (GameInfo.mRealmInfo == null)
-        //    return -1;
+        if (GameInfo.mRealmInfo == null)
+            return -1;
 
         //Get a icon index that is not in use
         int idx = FindFreeIconSlot();
@@ -88,7 +88,6 @@ public class HUD_MiniMap : MonoBehaviour
 
         return idx;
     }
-
     public void DeleteIcon(int index)
     {
         if (index >= mMiniMapIconLst.Count || mMiniMapIconLst[index] == null)
@@ -97,7 +96,6 @@ public class HUD_MiniMap : MonoBehaviour
         mMiniMapIconLst[index].sprite = null;
         mMiniMapIconLst[index].gameObject.SetActive(false);
     }
-
     public void ChangeIconSprite(int index, IconType type)
     {
         if (index >= mMiniMapIconLst.Count || mMiniMapIconLst[index] == null)
@@ -105,7 +103,6 @@ public class HUD_MiniMap : MonoBehaviour
 
         SetIcon(type, mMiniMapIconLst[index]);
     }
-
     public void ChangeIconPosition(int index, Vector3 newpos)
     {
         if (index >= mMiniMapIconLst.Count || mMiniMapIconLst[index] == null)
@@ -113,7 +110,9 @@ public class HUD_MiniMap : MonoBehaviour
 
         mMiniMapIconLst[index].transform.position = newpos;
     }
+    #endregion
 
+    #region Helper function
     private int FindFreeIconSlot()
     {
         for (int i = 0; i < mMiniMapIconLst.Count; ++i)
@@ -124,7 +123,6 @@ public class HUD_MiniMap : MonoBehaviour
 
         return -1;
     }
-
     private void SetIcon(IconType type, Image img)
     {
         switch (type)
@@ -177,11 +175,17 @@ public class HUD_MiniMap : MonoBehaviour
 
         img.gameObject.SetActive(true);
     }
+    #endregion
 
+    /// <summary>
+    /// Opens HUD_Map
+    /// </summary>
     public void OnClick_MiniMap()
     {
-        GameObject obj = UIManager.GetWidget(HUDWidgetType.Map);
-        obj.SetActive(!obj.GetActive());
+        GameObject bigmapobj = UIManager.GetWidget(HUDWidgetType.Map);
+        HUD_Map bigmap = bigmapobj.GetComponent<HUD_Map>();
+
+        bigmap.OnMiniMapClick();
     }
 
     public enum IconType

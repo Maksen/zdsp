@@ -512,6 +512,11 @@ namespace Zealot.Repository
             string reformGrp = equipment.EquipmentJson.evolvegrp;
             int reformStep = equipment.ReformStep;
 
+            if(reformStep == 0)
+            {
+                return null;
+            }
+
             Dictionary<int, List<EquipmentReformGroupJson>> reformGrpData = GetEquipmentReformDataToStep(reformGrp, reformStep);
             if(reformGrpData == null)
             {
@@ -566,6 +571,56 @@ namespace Zealot.Repository
             }
 
             return reformMaterialsList;
+        }
+
+        public static int GetEquipmentReformCost(string reformGrp, int reformStep, int selection)
+        {
+            List<EquipmentReformGroupJson> equipReformData = GetEquipmentReformDataByGroupStep(reformGrp, reformStep);
+            if (equipReformData == null)
+            {
+                return -1;
+            }
+
+            if (selection < 0 || selection >= equipReformData.Count)
+            {
+                return -1;
+            }
+
+            return equipReformData[selection].cost;
+        }
+
+        public static List<EquipModMaterial> GetModdingMaterialsFromStr(string matStr)
+        {
+            if(string.IsNullOrEmpty(matStr))
+            {
+                return null;
+            }
+
+            List<string> matStrList = matStr.Split(';').ToList();
+            List<EquipModMaterial> materialList = new List<EquipModMaterial>();
+            for(int i = 0; i < matStrList.Count; ++i)
+            {
+                string currStr = matStrList[i];
+                if(string.IsNullOrEmpty(currStr))
+                {
+                    continue;
+                }
+
+                List<string> matDataList = currStr.Split('#').ToList();
+                if(matDataList.Count != 2)
+                {
+                    continue;
+                }
+
+                int itemId = 0;
+                int amount = 0;
+                if(int.TryParse(matDataList[0], out itemId) && int.TryParse(matDataList[1], out amount))
+                {
+                    materialList.Add(new EquipModMaterial(itemId, amount));
+                }
+            }
+
+            return materialList;
         }
     }
 }

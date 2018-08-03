@@ -16,8 +16,9 @@ public class UITimelineController : MonoBehaviour
             CleanUp();
         }
 
-        if (timelineObj == null)
+        if (timelineObj == null && !string.IsNullOrEmpty(timelinePath))
         {
+            OnBegin();
             AssetLoader.Instance.LoadAsync<GameObject>(timelinePath, OnTimelineLoaded, true);
             path = timelinePath;
         }
@@ -32,10 +33,7 @@ public class UITimelineController : MonoBehaviour
             if (uiTimeline != null)
                 uiTimeline.SetCloseCallback(OnEndCutscene);
             timelineObj.transform.SetParent(transform, false);
-            OnBegin();
         }
-        else
-            path = "";
     }
 
     public void OnEndCutscene()

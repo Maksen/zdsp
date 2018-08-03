@@ -842,8 +842,8 @@
             //    player.WardrobeController.Init();
 
             //player.InitLevelUpCost();
-            //if (characterData.NewDayDts < DateTime.Today)
-            //    player.NewDay();
+            if (characterData.NewDayDts < DateTime.Today)
+                player.NewDay();
             slot.SetLocalEntity(player);
             player.ResetSyncStats();
 

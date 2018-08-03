@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class UIHierarchy : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class UIHierarchy : MonoBehaviour
 
     private List<GameObject> lowSettingObj;//will hide all the gameobject when player choose low setting
     private GameObject eventSystemObj;
+    private GameObject fpsObj;
 
     void Awake()
     {
@@ -48,6 +50,8 @@ public class UIHierarchy : MonoBehaviour
         DontDestroyOnLoad(eventSystemObj);
 
         EventSystem.current.pixelDragThreshold = 15;  // for joystick
+
+        SetupFPS();
     }
 
     public void DestroyHierarchy()
@@ -56,6 +60,8 @@ public class UIHierarchy : MonoBehaviour
         Destroy(gameObject);
         if (eventSystemObj != null)
             Destroy(eventSystemObj);
+        if (fpsObj != null)
+            Destroy(fpsObj);
     }
 
     void OnDestroy()
@@ -71,4 +77,19 @@ public class UIHierarchy : MonoBehaviour
         }
     }
 
+    private void SetupFPS()
+    {
+        Scene scene = SceneManager.GetActiveScene();
+        GameObject[] sceneObj = scene.GetRootGameObjects();
+        for (int i = 0; i < sceneObj.Length; i++)
+        {
+            GameObject obj = sceneObj[i];
+            if (obj.name == "Canvas_ssOverlay_FPS")
+            {
+                fpsObj = obj;
+                DontDestroyOnLoad(obj);
+                break;
+            }
+        }
+    }
 }

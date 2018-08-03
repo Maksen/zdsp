@@ -2,6 +2,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
+using Zealot.Repository;
 
 public class Hero_ModelTierData : MonoBehaviour
 {
@@ -17,34 +19,70 @@ public class Hero_ModelTierData : MonoBehaviour
 
     public void Setup(int tier, ToggleGroup toggleGrp, Action<int> callback)
     {
+        this.tier = tier;
         toggle = GetComponent<Toggle>();
         toggle.group = toggleGrp;
         toggle.onValueChanged.AddListener(OnToggled);
         OnSelectedCallback = callback;
-        this.tier = tier;
-        switch (tier)
-        {
-            case 1: unlockValueText.text = HeroData.TIER1_UNLOCK.ToString(); break;
-            case 2: unlockValueText.text = HeroData.TIER2_UNLOCK.ToString(); break;
-            case 3: unlockValueText.text = HeroData.TIER3_UNLOCK.ToString(); break;
-        }
         origTextColor = unlockValueText.color;
+        gameObject.SetActive(false);
     }
 
-    public void Init(HeroJson data, bool unlocked)
+    public void Init(HeroJson heroJson, int reqPts, bool unlocked)
     {
-        if (heroId != data.heroid)
+        if (heroId != heroJson.heroid)
         {
-            heroId = data.heroid;
-            switch (tier)
+            heroId = heroJson.heroid;
+            if (reqPts > 0)
             {
-                case 1: ClientUtils.LoadIconAsync(data.t1imagepath, OnImageLoaded); break;
-                case 2: ClientUtils.LoadIconAsync(data.t2imagepath, OnImageLoaded); break;
-                case 3: ClientUtils.LoadIconAsync(data.t3imagepath, OnImageLoaded); break;
+                gameObject.SetActive(true);
+                string imagePath = "";
+                switch (tier)
+                {
+                    case 1:
+                        imagePath = heroJson.t1imagepath;
+                        break;
+                    case 2:
+                        imagePath = heroJson.t2imagepath;
+                        break;
+                    case 3:
+                        imagePath = heroJson.t3imagepath;
+                        break;
+                }
+                ClientUtils.LoadIconAsync(imagePath, OnImageLoaded);
             }
+            else
+                gameObject.SetActive(false);
+            unlockValueText.text = reqPts.ToString();
         }
         modelImage.material = unlocked ? null : grayscaleMat;
-        unlockValueText.color = unlocked ? origTextColor : Color.red;
+        SetTextColor(unlocked ? origTextColor : Color.red);
+    }
+
+    public void InitSkinItem(bool unlocked)
+    {
+        gameObject.SetActive(true);
+        HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
+        if (skinItem != null)
+            ClientUtils.LoadIconAsync(skinItem.HeroItemJson.heroimagepath, OnImageLoaded);
+
+        unlockValueText.text = "ItemId " + tier;  // temp
+
+        modelImage.material = unlocked ? null : grayscaleMat;
+        SetTextColor(unlocked ? origTextColor : Color.red);
+    }
+
+    private void SetTextColor(Color color)
+    {
+        if (unlockValueText.color != color)
+        {
+            Transform parent = unlockValueText.transform.parent;
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Text childText = parent.GetChild(i).GetComponent<Text>();
+                childText.color = color;
+            }
+        }
     }
 
     private void OnImageLoaded(Sprite sprite)

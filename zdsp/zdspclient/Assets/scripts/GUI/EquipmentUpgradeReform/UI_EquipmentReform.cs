@@ -40,12 +40,13 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     public Animator rightSideAnimator;
 
     [Header("RightSide Prefabs")]
-    public Transform reformBagInvParent;
-    public Transform recycleBagInvParent;
-    public Transform itemStatsParent;
-    public GameObject rfmStatsValueLnPrefab;
-    public GameObject rfmStatsMultiLnPrefab;
-    public GameObject rfmStatsLinePrefab;
+    public GameObject   reformBagDataPrefab;
+    public Transform    reformBagParent;
+    public Transform    recycleBagParent;
+    public Transform    itemStatsParent;
+    public GameObject   rfmStatsValueLnPrefab;
+    public GameObject   rfmStatsMultiLnPrefab;
+    public GameObject   rfmStatsLinePrefab;
 
     [Header("RightSide Text")]
     public Text selectedEquipText;
@@ -64,6 +65,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     private int                 _slotID;
     private bool                _isEquipped;
     private Equipment           _selectedEquipment;
+    private int                 _reformSel;
     private string              _defaultRightSideState      = "RFM_RightSlideIn_DefaultOffScreen";
     private string              _rightSideSlideOut          = "RFM_RightSlideOut";
     private string              _rightSideSlideIn           = "RFM_RightSlideIn_Equipment";
@@ -128,7 +130,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         equipmentNameTextObj.SetActive(true);
         equipmentNameText.text = equipName;
 
-        int currentLevel = equipment.UpgradeLevel;
+        int currentLevel = equipment.ReformStep;
         equipmentLvlTextObj.SetActive(true);
         equipmentLvlText.text = currentLevel.ToString();
 
@@ -181,6 +183,33 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         FillInventory(equippedItemList, bagItemList);
     }
 
+    private void LoadNextReformData(Equipment equipment)
+    {
+        string reformGrp = equipment.EquipmentJson.evolvegrp;
+        int reformStep = equipment.ReformStep;
+        int nextStep = reformStep + 1;
+
+        List<EquipmentReformGroupJson> reformDataList = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, nextStep);
+
+        if(reformDataList == null)
+        {
+            return;
+        }
+
+        for(int i = 0; i < reformDataList.Count; ++i)
+        {
+            EquipmentReformGroupJson reformData = reformDataList[i];
+            if(reformData != null)
+            {
+                GameObject reformBagDatObj = Instantiate(reformBagDataPrefab);
+                reformBagDatObj.transform.SetParent(reformBagParent, false);
+
+                ReformBagData reformBagData = reformBagDatObj.GetComponent<ReformBagData>();
+                reformBagData.Init(this, i, reformData);
+            }
+        }
+    }
+
     public void OnClickOpenSelectEquipment()
     {
         if(rightSideAnimator.GetCurrentAnimatorStateInfo(0).IsName(_rightSideSlideInEnd))
@@ -196,21 +225,16 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         LoadEquippedBagInventory();
     }
 
-    public void OnClickOpenSelectReform()
-    {
-
-    }
-
     public void OnClickSelectReformEquipment(bool isToggleOn, bool isEquipped, ModdingEquipment equipToUpgrade)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
 
-        if (player == null)
+        if(player == null)
         {
             return;
         }
 
-        if (isToggleOn)
+        if(isToggleOn)
         {
             _selectedEquipment = equipToUpgrade.mEquip;
             _isEquipped = isEquipped;
@@ -218,9 +242,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
             // Equipment Stats
             selectedEquipText.text = _selectedEquipment.GetEquipmentName();
-
-            EquipmentType equipType = _selectedEquipment.EquipmentJson.equiptype;
-            ItemRarity rarity = _selectedEquipment.EquipmentJson.rarity;
+            
             string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
 
             if(reformGrp != "-1" && reformGrp != "#unnamed#")
@@ -228,18 +250,21 @@ public class UI_EquipmentReform : BaseWindowBehaviour
                 int currentStep = _selectedEquipment.ReformStep;
                 int nextStep = currentStep + 1;
 
-                List<EquipmentReformGroupJson> reformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, currentStep);
-
-                if (reformData == null)
+                if(currentStep > 0)
                 {
-                    return;
+                    List<EquipmentReformGroupJson> reformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, currentStep);
+
+                    if(reformData == null)
+                    {
+                        return;
+                    }
+
+                    ClearSelectEquipStatsList();
+
+                    List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(_selectedEquipment);
+
+                    GenerateEquipRfmStatsObj(reformDataList);
                 }
-
-                ClearSelectEquipStatsList();
-
-                List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(_selectedEquipment);
-
-                GenerateEquipRfmStatsObj(reformDataList);
             }
 
             confirmReformAttributesBtn.interactable = true;
@@ -255,6 +280,40 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     public void OnClickConfirmSelectEquipment()
     {
         equipmentReformStatsText.text = GenerateEquipmentStatsString(_selectedEquipment);
+
+        LoadEquipmentData(_selectedEquipment);
+        GenerateSelectedEquipIcon(_selectedEquipment);
+
+        LoadNextReformData(_selectedEquipment);
+
+        confirmReformAttributesBtn.gameObject.SetActive(false);
+        confirmReformBtn.gameObject.SetActive(true);
+        confirmReformBtn.interactable = false;
+
+        InitCostString();
+    }
+
+    public void OnClickSelectReformStep(int selection)
+    {
+        _reformSel = selection;
+
+        string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+        int nextStep = _selectedEquipment.ReformStep + 1;
+        int reformCost = EquipmentModdingRepo.GetEquipmentReformCost(reformGrp, nextStep, selection);
+        reformCostText.text = reformCost.ToString();
+
+        if(CheckSufficientMoney(_reformSel) == false)
+        {
+            confirmReformBtn.interactable = false;
+
+            reformCostText.color = Color.red;
+        }
+        else
+        {
+            confirmReformBtn.interactable = true;
+
+            reformCostText.color = Color.white;
+        }
     }
 
     public void OnClickEquipmentReform()
@@ -328,7 +387,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         //    OpenUpgradeItemStoreDialog(isEnoughGenMat, isEnoughSafeMat);
         //    return;
         //}
-        
+
         //bool isGenMat = _genMatSel == 0;
         //bool isSafeEquip = isSafeUpgrade && _selectedSafeEquipment != null && _safeMatSel == -1;
         //bool isSafeGenMat = _safeMatSel == 0;
@@ -342,6 +401,86 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         //}
     }
 
+    public void PlayEquipmentUpgradeSuccess()
+    {
+        if (successFxObj.activeSelf == false)
+        {
+            successFxObj.SetActive(true);
+        }
+    }
+
+    public void Refresh()
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player == null)
+        {
+            return;
+        }
+
+        Equipment equipment = _isEquipped ? player.mEquipmentInvData.Slots[_slotID] as Equipment : player.clientItemInvCtrl.itemInvData.Slots[_slotID] as Equipment;
+
+        InitEquipmentUpgradeRefresh(equipment);
+    }
+
+    void OnDisable()
+    {
+        rightSideAnimator.Play(_rightSideSlideOut);
+
+        ClearSelectedEquipment();
+    }
+
+    private void OpenUpgradeItemStoreDialog(bool isEnoughGenMat, bool isEnoughSafeMat)
+    {
+        Debug.LogError("Not enough material, opening Item Store Dialog.");
+        //UIManager.OpenDialog(WindowType.DialogItemStore);
+    }
+
+    private bool CheckMaxedLevel(bool showMessage = false)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return false;
+        }
+
+        //// Check if already maxed out upgrade level
+        //int upgradeLevel = _selectedEquipment.UpgradeLevel + 1;
+        //int maxLevel = _selectedEquipment.EquipmentJson.upgradelimit;
+
+        //if(upgradeLevel >= maxLevel)
+        //{
+        //    // Exceeded max upgrade level
+        //    if(showMessage)
+        //        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Equip_UpgradeLevelMaxed"));
+        //    return false;
+        //}
+
+        return true;
+    }
+
+    private bool CheckSufficientMoney(int selection, bool showMessage = false)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return false;
+        }
+
+        int nextStep = _selectedEquipment.ReformStep + 1;
+        string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+
+        // Check enough gold
+        int moneyCost = EquipmentModdingRepo.GetEquipmentReformCost(reformGrp, nextStep, selection);
+        if(player.IsCurrencyEnough(CurrencyType.Money, moneyCost) == false)
+        {
+            if(showMessage)
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_InsufficientMoney"));
+            return false;
+        }
+
+        return true;
+    }
+
     private void GenerateSelectedEquipIcon(Equipment equipment)
     {
         int currentStep = equipment.ReformStep;
@@ -351,7 +490,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         newEquipObj.transform.SetParent(selectEquipIconParent, false);
 
         GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-        //equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectReformEquipment);
+        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectEquipment);
 
         _selectedEquipmentIcon = newEquipObj;
     }
@@ -426,6 +565,12 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         }
 
         return "";
+    }
+
+    private void InitCostString()
+    {
+        reformCostText.text = "0";
+        reformCostText.color = Color.white;
     }
 
     private string FormatSideEffectString(List<int> seIds)

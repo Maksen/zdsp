@@ -24,12 +24,18 @@ public class UI_Hero_AddSkillPointsDialog : BaseWindowBehaviour
         }
 
         int itemId = hero.HeroJson.upgradeitemid;
-        item.Init(itemId, 0);
-        itemName.text = item.inventoryItem.JsonObject.localizedname;
+        if (itemId > 0)
+        {
+            item.Init(itemId, 0);
+            itemName.text = item.inventoryItem.JsonObject.localizedname;
 
-        int count = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)itemId);
-        string avail = count > 999 ? "999+" : count.ToString();
-        amtText.text = avail + " / " + hero.HeroJson.upgradeitemcount;
+            int count = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)itemId);
+            string avail = count > 999 ? "999+" : count.ToString();
+            bool enough = count >= hero.HeroJson.upgradeitemcount;
+            if (!enough)
+                avail = string.Format("<color=red>{0}</color>", avail);
+            amtText.text = avail + " / " + hero.HeroJson.upgradeitemcount;
+        }
 
         pointsText.text = hero.SkillPoints.ToString();
     }
@@ -38,4 +44,5 @@ public class UI_Hero_AddSkillPointsDialog : BaseWindowBehaviour
     {
         RPCFactory.CombatRPC.AddHeroSkillPoint(heroId);
     }
+
 }

@@ -39,6 +39,7 @@
     </element>
 
     <element name="LootItemGroup" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="gid" type="int" uitext="GID"/>
       <property name="itemid" type="int" uitext="Itemid"/>
       <property name="currency" type="CurrencyType" uitext="Currency Type"/>
@@ -47,25 +48,28 @@
       <property name="weight" type="int" uitext="Weight"/>
       <property name="ignorelv" type="bool" uitext="Ignore Lv"/>
       <property name="ignoretime" type="bool" uitext="Ignore Time"/>
-      <property name="amt" type="string" uitext="Amount" default="1" info="support min/max"/>
+      <property name="amt" type="string" uitext="Amount" default="1" info="support min|max"/>
     </element>  
     
     <element name="LootLink" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="loottype" type="LootType" uitext="LootType"/>
       <property name="gids" type="string" uitext="GIDs" default="" info="gid1;gid2"/>
     </element>
 
     <element name="EventLootLink" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="loottype" type="LootType" uitext="LootType"/>
       <property name="gids" type="string" uitext="GIDs" default="" info="gid1;gid2"/>
       <property name="datestart" type="string" uitext="Start Date" default="2018/01/01 00:00"/>
       <property name="dateend" type="string" uitext="End Date" default="2018/12/31 23:59"/>
-      <property name="days" type="string" uitext="Days" default="0" info="0 means all days, 1;2"/>
-      <property name="weeks" type="string" uitext="Weeks" default="0" info="0 means all days, 1;2"/>
-      <property name="times" type="string" uitext="Times" default="00:00-24:00" info="09:00-10:00;15:00-16:00"/>
+      <property name="days" type="string" uitext="Days" default="0" info="0 means all days, [1];[2]"/>
+      <property name="weeks" type="string" uitext="Weeks" default="0" info="0 means all days, [1];[7]"/>
+      <property name="times" type="string" uitext="Times" default="00:00-24:00" info="09:00-10:00|15:00-16:00"/>
     </element>
 
     <element name="LimitedItem" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="itemid" type="int" uitext="Itemid"/>
       <property name="source" type="LootSourceType" uitext="LootSource"/>
       <property name="amt" type="int" uitext="Amount"/>

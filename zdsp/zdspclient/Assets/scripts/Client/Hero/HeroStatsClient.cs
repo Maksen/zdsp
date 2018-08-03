@@ -74,8 +74,7 @@ public class HeroStatsClient : HeroStats
 
         mHeroesDict[newHero.HeroId] = newHero;
 
-        if (windowObj.activeInHierarchy)
-            uiHero.OnHeroUpdated(oldHero, newHero);
+        uiHero.OnHeroUpdated(oldHero, newHero);
     }
 
     public void UpdateExplorations()

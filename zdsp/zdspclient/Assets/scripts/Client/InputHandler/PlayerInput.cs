@@ -108,7 +108,7 @@ public class PlayerInput : MonoBehaviour
 
     private void OnPointerClick(PointerEventData eventData)
     {
-        if (mainCam.cameraMode == ZDSPCamera.CameraMode.Orbit)
+        if (mainCam == null || mainCam.cameraMode == ZDSPCamera.CameraMode.Orbit)
             return;
 
 #if UNITY_IOS || UNITY_ANDROID

@@ -28,7 +28,7 @@ public class UI_Dialogue : BaseWindowBehaviour
     private bool mCompletedAllQuest;
     private int mNPCId;
     private int mQuestId;
-    private bool mOngoingQuest;
+    private bool mOngoingQuest;    
 
     enum DialogueAction
     {
@@ -41,8 +41,9 @@ public class UI_Dialogue : BaseWindowBehaviour
     private int mSelectedQuestGroup = 0;
     private int mSelectedChoice = -1;
     private DialogueAction mDialogueAction = DialogueAction.None;
+    private int mQuestionTalkId = -1;
 
-   public void Init(QuestNPC npc, int talkid, int questid, bool ongoingquest, List<int> questlist = null, bool completedall = false)
+    public void Init(QuestNPC npc, int talkid, int questid, bool ongoingquest, List<int> questlist = null, bool completedall = false)
     {
         mQuestNPC = npc;
         mSelectionObjects = new List<GameObject>();
@@ -55,6 +56,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mQuestId = questid;
         mOngoingQuest = ongoingquest;
         mDialogueAction = DialogueAction.None;
+        mQuestionTalkId = -1;
         if (mTalkJson != null)
         {
             mTotalStep = mTalkJson.steps;
@@ -83,6 +85,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mQuestId = questid;
         mOngoingQuest = ongoingquest;
         mDialogueAction = DialogueAction.None;
+        mQuestionTalkId = -1;
         if (mTalkJson != null)
         {
             mTotalStep = mTalkJson.steps;
@@ -336,6 +339,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mSelectedQuestId = questid;
         mSelectedChoice = choice;
         mDialogueAction = DialogueAction.InteractNpc;
+        mQuestionTalkId = mTalkJson.talkid;
         if (nexttalkid != -1)
         {
             UpdateTalkId(nexttalkid);
@@ -350,7 +354,7 @@ public class UI_Dialogue : BaseWindowBehaviour
     {
         if (mSelectedQuestId != -1)
         {
-            RPCFactory.NonCombatRPC.NPCInteract(mSelectedQuestId, mNPCId, mSelectedChoice);
+            RPCFactory.NonCombatRPC.NPCInteract(mSelectedQuestId, mNPCId, mSelectedChoice, mQuestionTalkId);
         }
         UIManager.CloseDialog(WindowType.DialogNpcTalk);
     }
@@ -360,6 +364,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mSelectedQuestId = questid;
         mSelectedQuestGroup = groupid;
         mDialogueAction = DialogueAction.StartQuest;
+        mQuestionTalkId = -1;
         if (nexttalkid != -1)
         {
             UpdateTalkId(nexttalkid);

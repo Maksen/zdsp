@@ -309,7 +309,7 @@ namespace Photon.LoadBalancing.GameServer
 
             if (questid != -1)
             {
-                peer.mPlayer.QuestController.UpdateQuestStatus(questid);
+                peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
             }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevelAndPos)]
@@ -2219,17 +2219,7 @@ namespace Photon.LoadBalancing.GameServer
             //if(actor!=null)
             //actor.OnSyncDamage(player,dmg, heal, interrupte);
         }
-        #endregion
-
-        #region Combat Timer
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CombatTimerActiveZone)]
-        public void CombataTimerActiveZone(GameClientPeer peer)
-        {
-            peer.mPlayer.ActiveCombatTimerZone();
-        }
-        #endregion
-
-        
+        #endregion      
 
         #region triggers
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnColliderTrigger)]

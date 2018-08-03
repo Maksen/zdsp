@@ -17,5 +17,10 @@
       <property name="modelpath" type="asset" uitext="Model Prefab Path" default="" assettype="prefab"/>
       <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="" info="x;y;rotatey;scale"/>
     </element>
+
+    <element name="JobTree" useexcel="true" >
+      <property name="job" type="JobType" uitext="Job Type"/>
+      <property name="nextjob" type="JobType" uitext="Next tier Jobs"/>
+    </element>
   </data>
 </magicalarea51>

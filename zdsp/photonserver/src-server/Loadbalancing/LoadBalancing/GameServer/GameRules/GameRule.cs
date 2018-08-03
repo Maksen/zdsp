@@ -599,7 +599,8 @@ namespace Zealot.Server.Rules
 
         public static void SaveToDB()
         {
-            LadderRules.SaveArenaRank();
+            //LadderRules.SaveArenaRank();
+            var saved = LootRules.SaveLimitedItemsToDB();
             //CountryRules.SaveReport();
         }
 
@@ -636,7 +637,7 @@ namespace Zealot.Server.Rules
         public static void SetCharacterFirstEquipments(EquipmentInventoryData equipmentInvData)
         {
             Dictionary<EquipmentSlot, int> slotItem = new Dictionary<EquipmentSlot, int>();
-            slotItem.Add(EquipmentSlot.Weapon, 14);
+            slotItem.Add(EquipmentSlot.Weapon, 2);
 
             foreach(var kvp in slotItem)
             {

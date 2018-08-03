@@ -196,7 +196,7 @@ namespace Zealot.Common
         public virtual void LoadJson(ItemBaseJson jsonobject)
         {
             JsonObject = jsonobject;
-            ItemID = (ushort)jsonobject.id;
+            ItemID = (ushort)jsonobject.itemid;
             MaxStackCount = (ushort)GameRepo.ItemFactory.GetItemMaxStackCount(jsonobject.bagtype);
             SortOrder = GameRepo.ItemFactory.GetItemOrderById(jsonobject.itemsort);
         }
@@ -333,6 +333,7 @@ namespace Zealot.Common
         public struct EquipmentAttribute
         {
             public ushort itemId;
+            public byte newItem;
             public ushort upgradeLevel;
             public ushort reformStep;
             public ushort selection1;
@@ -394,14 +395,14 @@ namespace Zealot.Common
 
         public override void EncodeItem()
         {
-            base.EncodeItem();
+            //base.EncodeItem();
             //ItemCode |= (UpgradeLevel << (int)ItemBits.UpgradeLevelShift);
             equipmentItemCode = EncodeEquipmentItem();
         }
 
         public override void InitFromCode(int itemCode)
         {
-            base.InitFromCode(itemCode);
+            //base.InitFromCode(itemCode);
             //UpgradeLevel = (byte)((itemCode >> (int)ItemBits.UpgradeLevelShift) & (int)ItemCodeMask.UPGRADELEVEL);
             throw new Exception("should not init equipment from integer code");
         }
@@ -435,6 +436,7 @@ namespace Zealot.Common
         string EncodeEquipmentItem(bool base64encode = false)
         {
             equipAttr.itemId = ItemID;
+            equipAttr.newItem = (byte)(newItem ? 1 : 0);
             equipAttr.upgradeLevel = UpgradeLevel;
 
             var arrProperties = getBytes(ref equipAttr);
@@ -457,8 +459,9 @@ namespace Zealot.Common
             if (attributes.Length > 0)
             {
                 ItemID = getUInt16FromBytes(attributes[0], attributes[1]);
-                UpgradeLevel = getUInt16FromBytes(attributes[2], attributes[3]);
-                ReformStep = getUInt16FromBytes(attributes[4], attributes[5]);
+                newItem = attributes[2] > 0;
+                UpgradeLevel = getUInt16FromBytes(attributes[3], attributes[4]);
+                ReformStep = getUInt16FromBytes(attributes[5], attributes[6]);
                 DecodeSelectionsToSingle(attributes);
             }
         }
@@ -486,35 +489,35 @@ namespace Zealot.Common
 
         private void DecodeSelectionsToSingle(byte[] attributes)
         {
-            StringBuilder selectionStr = new StringBuilder(DecodeSelection(getUInt16FromBytes(attributes[6], attributes[7])));
+            StringBuilder selectionStr = new StringBuilder(DecodeSelection(getUInt16FromBytes(attributes[7], attributes[8])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[8], attributes[9])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[9], attributes[10])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[10], attributes[11])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[11], attributes[12])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[12], attributes[13])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[13], attributes[14])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[14], attributes[15])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[15], attributes[16])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[16], attributes[17])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[17], attributes[18])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[18], attributes[19])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[19], attributes[20])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[20], attributes[21])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[21], attributes[22])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[22], attributes[23])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[23], attributes[24])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[24], attributes[25])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[25], attributes[26])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[26], attributes[27])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[27], attributes[28])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[28], attributes[29])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[29], attributes[30])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[30], attributes[31])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[31], attributes[32])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[32], attributes[33])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[33], attributes[34])));
             selectionStr.Append("|");
-            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[34], attributes[35])));
+            selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[35], attributes[36])));
             Selection = selectionStr.ToString();
         }
 

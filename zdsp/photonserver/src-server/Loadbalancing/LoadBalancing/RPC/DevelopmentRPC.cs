@@ -499,6 +499,14 @@ namespace Photon.LoadBalancing.GameServer
                 player.HeroStats.RemoveHero(heroId);
         }
 
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetHeroSkin)]
+        public void ConsoleGetHeroSkin(int heroId, int itemId, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.HeroStats.UnlockHeroSkin(heroId, itemId);
+        }
+
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetExplorations)]
         public void ConsoleResetExplorations(GameClientPeer peer)
         {
@@ -752,15 +760,21 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSpawnPersonalMonster)]
-        public void ConsoleSpawnPersonalMonster(string archtype, int population, GameClientPeer peer)
+        public void ConsoleSpawnPersonalMonster(string archtype, int population, bool aggressive, int questid, GameClientPeer peer)
         {
             foreach(var entry in maMonsterSpawners)
             {
                 if (entry is PersonalMonsterSpawner && entry.mArchetype.archetype == archtype)
                 {
-                    ((PersonalMonsterSpawner)entry).SpawnToMeOnly(peer.mPlayer, population);
+                    population = population == -1 ? ((PersonalMonsterSpawner)entry).GetPopulation() : population;
+                    ((PersonalMonsterSpawner)entry).SpawnToMeOnly(peer.mPlayer, population, aggressive);
                     break;
                 }
+            }
+
+            if (questid != -1)
+            {
+                peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
             }
         }
 
@@ -791,6 +805,23 @@ namespace Photon.LoadBalancing.GameServer
                 player.LocalCombatStats.StatsPoint += val;
             }
         }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleChangeJob)]
+        public void ConsoleChangeJob(byte job, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if(player != null)
+            {
+                player.PlayerSynStats.jobsect = job;
+            }
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddSkillPoint)]
+        public void ConsoleAddSkillPoint(int amt, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null && !player.Destroyed)
+                player.LocalCombatStats.SkillPoints += amt;
+        }
         #endregion
 
         #region Quest
@@ -817,7 +848,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateQuestStatus)]
         public void UpdateQuestStatus(int questid, GameClientPeer peer)
         {
-             peer.mPlayer.QuestController.UpdateQuestStatus(questid);
+             peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.StartQuest)]
@@ -827,9 +858,9 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCInteract)]
-        public void NPCInteract(int questid, int npcid, int choice, GameClientPeer peer)
+        public void NPCInteract(int questid, int npcid, int choice, int talkid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.NpcCheck(questid, npcid, choice);
+            peer.mPlayer.QuestController.NpcCheck(questid, npcid, choice, talkid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CompleteQuest)]
@@ -850,6 +881,18 @@ namespace Photon.LoadBalancing.GameServer
         public void FailQuest(int questid, GameClientPeer peer)
         {
             peer.mPlayer.QuestController.FailQuest(questid);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SubmitEmptyObjective)]
+        public void SubmitEmptyObjective(int questid, GameClientPeer peer)
+        {
+            peer.mPlayer.QuestController.SubmiteEmptyObjective(questid);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]
+        public void ApplyQuestEventBuff(int eventid, int questid, GameClientPeer peer)
+        {
+            peer.mPlayer.QuestController.ApplyEventSE(eventid, questid);
         }
         #endregion
     }

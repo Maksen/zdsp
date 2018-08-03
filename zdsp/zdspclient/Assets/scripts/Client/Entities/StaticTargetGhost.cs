@@ -220,58 +220,74 @@ namespace Zealot.Client.Entities
             List<int> questacceptable = new List<int>();
             foreach (int questid in mOngoingQuest)
             {
-                QuestJson questJson = QuestRepo.GetQuestByID(questid);
-                if (questJson != null && questJson.promptobj)
+                if (questController.IsQuestCanSubmit(questid))
                 {
-                    if (questController.IsQuestCanSubmit(questid))
-                    {
-                        questcansubmit.Add(questid);
-                    }
-                    else
-                    {
-                        questongoing.Add(questid);
-                    }
+                    questcansubmit.Add(questid);
+                }
+                else
+                {
+                    questongoing.Add(questid);
                 }
             }
 
             foreach (int questid in mAvailableQuest)
             {
-                QuestJson questJson = QuestRepo.GetQuestByID(questid);
-                if (questJson != null && questJson.promptaccept)
-                {
-                    questacceptable.Add(questid);
-                }
+                questacceptable.Add(questid);
             }
 
             if (questcansubmit.Count > 0)
             {
                 mActiveQuest = QuestRepo.GetPriorityQuestId(questcansubmit);
-                mQuestLabelType = QuestLabelType.Submit;
+                QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
+                if (questJson != null && questJson.promptobj)
+                {
+                    mQuestLabelType = QuestLabelType.Submit;
+                }
+                else
+                {
+                    mQuestLabelType = QuestLabelType.None;
+                }
             }
             else if (questongoing.Count > 0)
             {
                 mActiveQuest = QuestRepo.GetPriorityQuestId(questongoing);
-                mQuestLabelType = QuestLabelType.Ongoing;
+                QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
+                if (questJson != null && questJson.promptobj)
+                {
+                    mQuestLabelType = QuestLabelType.Ongoing;
+                }
+                else
+                {
+                    mQuestLabelType = QuestLabelType.None;
+                }
             }
             else if (questacceptable.Count > 0)
             {
                 mActiveQuest = QuestRepo.GetPriorityQuestId(questacceptable);
                 QuestType type = QuestRepo.GetQuestTypeByQuestId(mActiveQuest);
-                if (type == QuestType.Main)
+                QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
+                if (questJson != null && questJson.promptaccept)
                 {
-                    mQuestLabelType = QuestLabelType.NewMainQuest;
-                }
-                else if (type == QuestType.Destiny)
-                {
-                    mQuestLabelType = QuestLabelType.NewAdventureQuest;
-                }
-                else if (type == QuestType.Event)
-                {
-                    mQuestLabelType = QuestLabelType.NewEventQuest;
+                    if (type == QuestType.Main)
+                    {
+                        mQuestLabelType = QuestLabelType.NewMainQuest;
+                    }
+                    else if (type == QuestType.Destiny)
+                    {
+                        mQuestLabelType = QuestLabelType.NewAdventureQuest;
+                    }
+                    else if (type == QuestType.Event)
+                    {
+                        mQuestLabelType = QuestLabelType.NewEventQuest;
+                    }
+                    else
+                    {
+                        mQuestLabelType = QuestLabelType.NewSubQuest;
+                    }
                 }
                 else
                 {
-                    mQuestLabelType = QuestLabelType.NewSubQuest;
+                    mQuestLabelType = QuestLabelType.None;
                 }
             }
             else

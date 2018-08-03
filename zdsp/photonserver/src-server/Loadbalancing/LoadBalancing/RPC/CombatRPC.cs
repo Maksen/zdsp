@@ -508,7 +508,7 @@ namespace Zealot.RPC
         public void Ret_RandomInterestResult(byte interest, object target)
         {
             ProxyMethod("Ret_RandomInterestResult", interest, target);
-        } 
+        }
         #endregion
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_OnCurrencyExchange)]
@@ -545,14 +545,6 @@ namespace Zealot.RPC
         }
         #endregion
 
-        #region Combat Timer
-        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.PushExpDecayPrompt)]
-        public void PushExpDecayNotification(string message, object target)
-        {
-            ProxyMethod("PushExpDecayNotification", message, target);
-        }
-        #endregion
-
         #region world boss
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_GetWorldBossList)]
         public void Ret_GetWorldBossList(string result, object target)
@@ -567,10 +559,10 @@ namespace Zealot.RPC
         }
         #endregion
 
-        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnNPCKilled)]
-        public void OnNPCKilled(object target)
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.LootItemDisplay)]
+        public void LootItemDisplay(string data, object target)
         {
-            ProxyMethod("OnNPCKilled", target);
+            ProxyMethod("LootItemDisplay", data, target);
         }
     }
 }

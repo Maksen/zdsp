@@ -29,8 +29,8 @@ public class ActorNameTagController : MonoBehaviour {
     //Add more stuff here
 
     //Min scale when label is far away from player's character
-    static Vector3 mLabelMinScale = new Vector3(0.75f, 0.75f, 0.75f);
-    static float mMaxScaleDist = 100f;  //This need to scale on the length of visible distance in worldspace
+    static float mLabelMinScale = 0.75f;
+    static float mMaxScaleDist = 20;  //This need to scale on the length of visible distance in worldspace
 
     #region old
     Camera cam;
@@ -66,10 +66,10 @@ public class ActorNameTagController : MonoBehaviour {
     {
         if (!IsControllerCreated())
             return;
-
-        mPlayerLabel.UpdateAchorPos();
+        if (mPlayerLabel.gameObject.activeSelf)
+            mPlayerLabel.UpdateAchorPos();
         mPlayerLabelExt.UpdateAchorPos();
-        if (mNpcLabel != null)
+        if (mNpcLabel != null && mNpcLabel.gameObject.activeSelf)
             mNpcLabel.UpdateAchorPos();
         ScaleLabelByDistance();
     }
@@ -104,7 +104,6 @@ public class ActorNameTagController : MonoBehaviour {
             {
                 mPlayerLabelExtObj.transform.SetParent(playerlabelextParent.transform, false);
                 mPlayerLabelExtObj.transform.SetAsLastSibling();
-                mPlayerLabelExtObj.transform.localPosition = new Vector3(0, 0, 0);
 
                 mPlayerLabelExt = mPlayerLabelExtObj.GetComponent<HUD_PlayerLabelExt>();
                 mPlayerLabelExt.CanvasPosFunc = getCanvasPosition;
@@ -153,9 +152,6 @@ public class ActorNameTagController : MonoBehaviour {
         if (init)
         {
             mPlayerLabel.Name = pg.Name;
-            mPlayerLabel.Title = "";
-            mPlayerLabel.GuildName = ""; //pg.PlayerSynStats.guildName;
-            mPlayerLabel.HPf = 1f; //pg.PlayerSynStats.DisplayHp;
             SetLabelOffset_WorldSpace();
         }
 
@@ -269,10 +265,10 @@ public class ActorNameTagController : MonoBehaviour {
         if (this == local_antc || local_antc == null)
             return;
 
-        Vector3 normalscale = new Vector3(1f, 1f, 1f);
-        float dist = Mathf.Abs( Vector3.SqrMagnitude(transform.position - local_antc.transform.position) );
+        float dist = (transform.position - local_antc.transform.position).magnitude;
         dist = Mathf.Min(dist / mMaxScaleDist, 1f);
-        Vector3 scaleVec = dist * mLabelMinScale + (1f - dist) * normalscale;
+        float scale = mLabelMinScale + (1 - mLabelMinScale) * (1 - dist);
+        Vector3 scaleVec = new Vector3(scale, scale, scale);
 
         mPlayerLabel.SetScale(scaleVec);
         mPlayerLabelExt.ScaleLabel(scaleVec);

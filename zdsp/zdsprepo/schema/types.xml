@@ -123,6 +123,17 @@
       <item key="Accessory" value="203"/>
     </enum>
 
+    <enum name="PowerUpPartsType">
+      <item key="Helmet" value="0"/>
+      <item key="Chest" value="1"/>
+      <item key="Wing" value="2"/>
+      <item key="Amulet" value="3"/>
+      <item key="Weapon" value="4"/>
+      <item key="Boots" value="5"/>
+      <item key="Accessory" value="6"/>
+      <item key="Ring" value="7"/>
+    </enum>
+    
     <enum name="MainWeaponAttribute">
       <item key="Str" value="0"/>
       <item key="Dex" value="1"/>
@@ -516,6 +527,7 @@
       <item key="Shard" value="0"/>
       <item key="Gift" value="1"/>
       <item key="Onigiri" value="2"/>
+      <item key="HeroSkin" value="3"/>
     </enum>
 
     <enum name="ESERequireType">
@@ -757,7 +769,7 @@
       <item key="Title" value="4"/>
       <item key="SideEffect" value="5"/>
       <item key="Companian" value="6"/>
-      <item key="NPC" value="7"/>
+      <item key="Clue" value="7"/>
       <item key="Outfit" value="8"/>
       <item key="Job" value="9"/>
     </enum>
@@ -798,6 +810,25 @@
       <item key="Earth" value="3"/>
       <item key="Water" value="4"/>
       <item key="Fire" value="5"/>
+    </enum>
+
+    <enum name="ClueCondition">
+      <item key="Quest" value="0"/>
+      <item key="Achivement" value="1"/>
+      <item key="Item" value="2"/>
+    </enum>
+
+    <enum name="ClueCategory">
+      <item key="Video" value="0"/>
+      <item key="Photo" value="1"/>
+      <item key="Sound" value="2"/>
+      <item key="Word" value="3"/>
+    </enum>
+
+    <enum name="ClueMemoryType">
+      <item key="Non" value="0"/>
+      <item key="Event" value="1"/>
+      <item key="Special" value="2"/>
     </enum>
     
   </data>

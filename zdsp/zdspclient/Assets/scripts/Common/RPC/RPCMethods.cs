@@ -247,16 +247,12 @@
         InitSystemSwitch,
         #endregion
 
-        #region CombatTimer
-        PushExpDecayPrompt,
-        #endregion
-
         #region world boss
         Ret_GetWorldBossList,
         Ret_GetWorldBossDmgList,
         #endregion
 
-        OnNPCKilled,
+        LootItemDisplay,
     }
 
     public enum GMMasterRPCMethods : byte
@@ -512,10 +508,6 @@
         UpdateTutorialList,
         SyncAttackResult,
         #endregion
-
-        #region Combat Timer
-        CombatTimerActiveZone,
-        #endregion
      
         #region Triggers
         OnColliderTrigger,
@@ -570,6 +562,7 @@
         ConsoleSetAchievement,
         ConsoleAddHero,
         ConsoleRemoveHero,
+        ConsoleGetHeroSkin,
         ConsoleResetExplorations,
         ConsoleKillPlayer,
         ConsoleItemMallTopUp,
@@ -597,6 +590,8 @@
         TotalCrit,
         CritRate,
         ConsoleAddStatsPoint,
+        ConsoleChangeJob,
+        ConsoleAddSkillPoint,
         #endregion
 
         #region LeaderBoard
@@ -715,6 +710,8 @@
         CompleteQuest,
         InteractAction,
         FailQuest,
+        SubmitEmptyObjective,
+        ApplyQuestEventBuff,
         #endregion
 
         #region CharacterInfo

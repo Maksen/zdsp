@@ -11,7 +11,7 @@ namespace Zealot.DBRepository
         public BossKillerRepository(DBAccessor dBRepository) : base(dBRepository) { }
 
         #region Queries
-        public List<Dictionary<string, object>> GetRecords(int serverId)
+        public List<Dictionary<string, object>> GetRecords()
         {
             List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
 
@@ -26,7 +26,7 @@ namespace Zealot.DBRepository
                         {
                             command.CommandType = CommandType.StoredProcedure;
 
-                            command.Parameters.AddWithValue("@serverid", serverId);
+                            command.Parameters.AddWithValue("@serverid", _dbRepo.mServerId);
 
                             using (SqlDataReader reader = command.ExecuteReader())
                             {
@@ -52,7 +52,7 @@ namespace Zealot.DBRepository
             return result;
         }
 
-        public async Task<bool> Insert_Update(int serverId, int bossid, string killer, string payload)
+        public async Task<bool> Insert_Update(int bossid, string killer, string payload)
         {
             if (isConnected)
             {
@@ -66,7 +66,7 @@ namespace Zealot.DBRepository
                             command.CommandType = CommandType.StoredProcedure;
 
                             command.Parameters.AddWithValue("@bossid", bossid);
-                            command.Parameters.AddWithValue("@serverid", serverId);
+                            command.Parameters.AddWithValue("@serverid", _dbRepo.mServerId);
                             command.Parameters.AddWithValue("@killer", killer);
                             command.Parameters.AddWithValue("@payload", payload);
 

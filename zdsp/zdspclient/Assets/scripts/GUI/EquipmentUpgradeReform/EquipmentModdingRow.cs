@@ -179,10 +179,12 @@ public class EquipmentModdingRow : MonoBehaviour
                 if (selectCheckMark != null)
                 {
                     Toggle checkmarkToggle = selectCheckMark.GetToggleSelect();
+                    checkmarkToggle.onValueChanged.RemoveAllListeners();
                     checkmarkToggle.onValueChanged.AddListener(delegate
                     {
                         uiEquipUpgrade.OnClickSelectUpgradeEquipment(checkmarkToggle.isOn, isEquipped, equipToUpgrade);
                     });
+                    checkmarkToggle.group = toggleGroup;
                 }
             }
             else
@@ -217,34 +219,8 @@ public class EquipmentModdingRow : MonoBehaviour
                 {
                     uiEquipReform.OnClickSelectReformEquipment(checkmarkToggle.isOn, isEquipped, equipToMod);
                 });
+                checkmarkToggle.group = toggleGroup;
             }
-            //if (!isSafeUpgrade)
-            //{
-            //    equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
-            //    GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
-            //    if (selectCheckMark != null)
-            //    {
-            //        Toggle checkmarkToggle = selectCheckMark.GetToggleSelect();
-            //        checkmarkToggle.onValueChanged.AddListener(delegate
-            //        {
-            //            uiEquipUpgrade.OnClickSelectUpgradeEquipment(checkmarkToggle.isOn, isEquipped, equipToUpgrade);
-            //        });
-            //    }
-            //}
-            //else
-            //{
-            //    equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
-            //    GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
-            //    if (selectCheckMark != null)
-            //    {
-            //        Toggle checkmarkToggle = selectCheckMark.GetToggleSelect();
-            //        checkmarkToggle.onValueChanged.AddListener(delegate
-            //        {
-            //            uiEquipUpgrade.OnClickSelectSafeUpgradeEquipment(checkmarkToggle.isOn, isEquipped, equipToUpgrade);
-            //        });
-            //        checkmarkToggle.group = toggleGroup;
-            //    }
-            //}
         }
     }
 

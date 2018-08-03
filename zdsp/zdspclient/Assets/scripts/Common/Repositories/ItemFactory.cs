@@ -34,37 +34,37 @@ namespace Zealot.Repository
                 linkUITable.Add(kvp.Value.uiid, kvp.Value);      
 
             foreach (KeyValuePair<int, PotionFoodJson> kvp in gameData.PotionFood)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, MaterialJson> kvp in gameData.Material)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, LuckyPickJson> kvp in gameData.LuckyPick)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, HenshinJson> kvp in gameData.Henshin)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, FeaturesJson> kvp in gameData.Features)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
             
             foreach (KeyValuePair<int, EquipmentJson> kvp in gameData.Equipment)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, DNAJson> kvp in gameData.DNA)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, RelicJson> kvp in gameData.Relic)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, QuestItemJson> kvp in gameData.QuestItem)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, HeroItemJson> kvp in gameData.HeroItem)
-                itemTable.Add(kvp.Key, kvp.Value);
+                itemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, InstanceItemJson> kvp in gameData.InstanceItem)
-                itemTable.Add(kvp.Key, kvp.Value);        
+                itemTable.Add(kvp.Value.itemid, kvp.Value);        
         }
 
         public int GetItemMaxStackCount(BagType type)

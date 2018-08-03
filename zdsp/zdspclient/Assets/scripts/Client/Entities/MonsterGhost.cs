@@ -123,24 +123,20 @@ namespace Zealot.Client.Entities
             {
                 HandleSideEffectVisuals(field, value);
             }
-#if YAO_HPBAR_TEST
             else if (field == "DisplayHp")
             {
                 PlayerStats.DisplayHp = (float)value; 
-                //Prevent crash from monster spawning outside view
                 if (HeadLabel != null)
                     HeadLabel.mPlayerLabel.HPf = PlayerStats.DisplayHp;
-                //PlayerStats.DisplayHp = (float)value / GetHealthMax();
                 //Debug.Log("Monster ID " + GetPersistentID() + " has hp " + value);
-                if (PlayerStats.DisplayHp == 0)
-                {
-                    EnsureDyingAction();
-                }
+                //if (PlayerStats.DisplayHp == 0)
+                //{
+                //    EnsureDyingAction();
+                //}
 
                 if (this == GameInfo.gSelectedEntity)
                     GameInfo.gCombat.UpdateSelectedEntityHealth(PlayerStats.DisplayHp);
             }
-#endif
             else
                 HandleBuffStatus(field, value);
             //Debug.Log("MG: " + field + " " + value + " " + oldvalue);

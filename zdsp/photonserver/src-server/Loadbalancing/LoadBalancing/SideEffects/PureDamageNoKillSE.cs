@@ -32,7 +32,7 @@
                     return false;
 
                 AttackResult res = new AttackResult(mTarget.GetPersistentID(),  dmg, false, mCaster.GetPersistentID());
-                mTarget.OnDamage(mCaster, res, false);
+                mTarget.OnDamage(mCaster.GetOwner(), res, false);
 
                 return true;
             }

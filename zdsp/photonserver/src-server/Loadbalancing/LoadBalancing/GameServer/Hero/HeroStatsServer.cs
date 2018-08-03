@@ -55,6 +55,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (heroData != null)
                 {
                     hero.HeroJson = heroData;
+                    hero.ComputeCombatStats();
                     AddHero(hero);
                     ApplyHeroPassiveSEs(hero, false);
                 }
@@ -153,8 +154,7 @@ namespace Photon.LoadBalancing.GameServer
                 int itemCount = free ? 0 : heroData.unlockitemcount;
                 if (DeductItem(heroData.unlockitemid, itemCount))
                 {
-                    HeroInterestType interest = HeroRepo.GetRandomInterestByGroup(heroData.interestgroup);
-                    Hero newHero = new Hero(heroId, interest, GetEmptySlot(), heroData);
+                    Hero newHero = new Hero(heroId, heroData, GetEmptySlot());
                     AddHero(newHero);
 
                     PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
@@ -173,27 +173,40 @@ namespace Photon.LoadBalancing.GameServer
         public void LevelUpHero(int heroId)
         {
             Hero hero = GetHero(heroId);
-            if (hero != null && hero.CanLevelUp(player.PlayerSynStats.Level))
+            if (hero != null)
             {
+                if (hero.IsMaxLevel())
+                {
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_MaxHeroLevel", "", false, peer);
+                    return;
+                }
+                if (hero.Level >= player.PlayerSynStats.Level)
+                {
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_MaxPlayerLevel", "", false, peer);
+                    return;
+                }
+
                 HeroGrowthJson growthData = HeroRepo.GetHeroGrowthData(hero.HeroJson.growthgroup, hero.Level);
                 if (player.DeductMoney(growthData.levelupmoney, "Hero"))
                 {
                     hero.Level++;
+
+                    // update summoned hero entity if is this hero
+                    if (IsHeroSummoned(heroId))
+                    {
+                        summonedHeroEntity.HeroSynStats.Level = hero.Level;
+                        //summonedHeroEntity.SetCombatStats(hero.Level);
+                    }
+                    hero.ComputeCombatStats();
                     heroes[hero.SlotIdx] = hero.ToString();
 
+                    // update hero bonds
                     PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
                     combatStats.SuppressComputeAll = true;
                     bool applied = UpdateHeroBonds(heroId);
                     combatStats.SuppressComputeAll = false;
                     if (applied)
                         combatStats.ComputeAll();
-
-                    // update summoned hero entity if is this hero
-                    if (IsHeroSummoned(heroId))
-                    {
-                        summonedHeroEntity.HeroSynStats.Level = hero.Level;
-                        summonedHeroEntity.SetCombatStats(hero.Level);
-                    }
 
                     // if hero is in player's party, need to update partystats
                     if (player.IsInParty())
@@ -328,7 +341,7 @@ namespace Photon.LoadBalancing.GameServer
                         if (DeductHeroGiftItem(interestData.assigneditemid))
                         {
                             hero.Interest = interest;
-                            heroes[hero.SlotIdx] = hero.ToString(); 
+                            heroes[hero.SlotIdx] = hero.ToString();
                         }
                         else
                             peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
@@ -390,11 +403,35 @@ namespace Photon.LoadBalancing.GameServer
             {
                 hero.ModelTier = tier;
                 heroes[hero.SlotIdx] = hero.ToString();
+
+                if (IsHeroSummoned(heroId))  // update model if hero is summoned
+                    SummonHero(heroId);
+            }
+        }
+
+        public void UnlockHeroSkin(int heroId, int itemId)
+        {
+            Hero hero = GetHero(heroId);
+            if (hero != null)
+            {
+                string[] skinitems = hero.HeroJson.skinitemid.Split(';');
+                for (int i = 0; i < skinitems.Length; i++)
+                {
+                    int skinItemId;
+                    if (int.TryParse(skinitems[i], out skinItemId))
+                    {
+                        if (skinItemId == itemId && !hero.UnlockedSkinItems.Contains(skinItemId))
+                        {
+                            hero.UnlockedSkinItems.Add(skinItemId);
+                            heroes[hero.SlotIdx] = hero.ToString();
+                            break;
+                        }
+                    }
+                }
             }
         }
 
         #region Summon Hero
-
         public bool IsHeroSummoned(int heroId)
         {
             return summonedHeroEntity != null && summonedHeroEntity.Hero.HeroId == heroId;
@@ -612,10 +649,9 @@ namespace Photon.LoadBalancing.GameServer
             summonPassiveSEs.Clear();
             return needCompute;
         }
-        #endregion
+        #endregion Passive SEs
 
         #region HeroBonds
-
         // don't need to compute combat stats since will be computed after all stats initialized
         private void ApplyHeroBondSEs()
         {
@@ -698,11 +734,9 @@ namespace Photon.LoadBalancing.GameServer
             fulfilledBonds.Remove(groupId);
             return needCompute;
         }
-
         #endregion HeroBonds
 
         #region Exploration
-
         public void ExploreMap(int mapId, int targetId, List<int> heroIds)
         {
             ExplorationMapJson mapData = HeroRepo.GetExplorationMapById(mapId);
@@ -796,7 +830,6 @@ namespace Photon.LoadBalancing.GameServer
                 // todo: check reward group and target rewards
             }
         }
-
         #endregion Exploration
 
 #if DEBUG

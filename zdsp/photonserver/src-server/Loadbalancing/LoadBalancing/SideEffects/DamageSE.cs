@@ -343,7 +343,7 @@
             else if (mbIsDot && mTarget.PlayerStats.InvincibleDot)
                 return;
 
-            mTarget.OnDamage(mCaster, mAttackResult, mbBasicAttack);
+            mTarget.OnDamage(mCaster.GetOwner(), mAttackResult, mbBasicAttack);
             totalDamageApplied += mAttackResult.RealDamage;
             //if(mSideeffectData.effecttype == EffectType.Damage_DamageWithRejuvenate)
             //{

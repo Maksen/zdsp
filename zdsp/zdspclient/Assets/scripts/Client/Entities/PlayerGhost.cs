@@ -57,7 +57,6 @@ namespace Zealot.Client.Entities
         public SystemSwitchData mSysSwitch;
         public EquipmentInventoryData mEquipmentInvData;
         public Gender mGender;
-        public int mSelectTargetID = -1;
 
         public PlayerGhost() : base()
         {
@@ -277,7 +276,7 @@ namespace Zealot.Client.Entities
                     if(battletimeWidget != null)
                     {
                         HUD_BattleTime battleTimeHUD = battletimeWidget.GetComponent<HUD_BattleTime>();
-                        battleTimeHUD.UpdateBattleTime(Convert.ToInt32(SecondaryStats.BattleTime));
+                        battleTimeHUD.UpdateBattleTime((int)value);
                     }
                     break;
             }
@@ -496,7 +495,7 @@ namespace Zealot.Client.Entities
         {
             IInventoryItem item = GameRepo.ItemFactory.GetItemFromCode(value);
             int slotid = (lotype - LOTYPE.InventoryStats) * (int)InventorySlot.COLLECTION_SIZE + idx;
-            clientItemInvCtrl.UpdateItemInv(slotid, item);
+            clientItemInvCtrl.UpdateItemInv(slotid, item); 
 
             Equipment equipment = GameRepo.ItemFactory.GetItemFromCode(value) as Equipment;
             if(equipment != null)
@@ -531,7 +530,7 @@ namespace Zealot.Client.Entities
                 if (idx == (int)EquipmentSlot.Weapon)
                 {
                     PartsType _prevWeaponTypeUsed = WeaponTypeUsed;
-                    WeaponTypeUsed = value == null ? PartsType.Hammer : mEquipmentInvData.GetEquipmentBySlotId(idx).EquipmentJson.partstype;
+                    WeaponTypeUsed = value == null ? PartsType.Blade : mEquipmentInvData.GetEquipmentBySlotId(idx).EquipmentJson.partstype;
                     if (_prevWeaponTypeUsed != WeaponTypeUsed && mAction != null)
                     {
                         switch (mAction.mdbCommand.GetActionType())
@@ -991,7 +990,6 @@ namespace Zealot.Client.Entities
             {
                 //Add playerghost to entity system
                 ((ClientEntitySystem)EntitySystem).AddPlayer(this, true);
-
                 if (GameInfo.mRealmInfo != null)
                 {
                     HeadLabel.SetPlayerLabelByRealm(this, true);
@@ -1361,6 +1359,21 @@ namespace Zealot.Client.Entities
                 return false;
         }
 
+        public bool CanCastSkill(bool notify)
+        {
+            if (!IsAlive())
+                return false;
+            if (IsStun() || IsDisarmed())
+                return false;
+            if (mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Weapon) == null)
+            {
+                if (notify)
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CastSkillFail_NoWeapon"));
+                return false;
+            }
+            return true;
+        }
+
         public bool IsStun()
         {
             //if (LocalCombatStats != null)
@@ -1437,13 +1450,6 @@ namespace Zealot.Client.Entities
         public void ForceIdle()
         {
             Zealot.Common.Actions.Action action = GetAction();
-            ClientAuthoCastSkill castskill = action as ClientAuthoCastSkill;
-            if (castskill != null)
-            {
-                //if (!castskill.IsCompleted())
-                    //return;
-            }
-
             IdleActionCommand cmd = new IdleActionCommand();
             PerformAction(new ClientAuthoACIdle(this, cmd), true);
         }
@@ -1480,7 +1486,7 @@ namespace Zealot.Client.Entities
                     Dictionary<string, string> parameters = new Dictionary<string, string>();
                     parameters.Add("currency", GUILocalizationRepo.GetLocalizedString("currency_" + field));
                     parameters.Add("increment", increment.ToString());
-                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CurrencyIncrement", parameters), false);
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CurrencyIncrement", parameters), true);
                 }
             }
             else if (t.Name == "Int32")
@@ -1491,7 +1497,7 @@ namespace Zealot.Client.Entities
                     Dictionary<string, string> parameters = new Dictionary<string, string>();
                     parameters.Add("currency", GUILocalizationRepo.GetLocalizedString("currency_" + field));
                     parameters.Add("increment", increment.ToString());
-                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CurrencyIncrement", parameters), false);
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CurrencyIncrement", parameters), true);
                 }
             }
         }
@@ -1651,12 +1657,7 @@ namespace Zealot.Client.Entities
             //TEST OF ONE SKill Combo ONLY
         }
 
-        public void OnNPCKilled()
-        {
-            mSelectTargetID = -1;
-        }
-
-        public PartsType WeaponTypeUsed = PartsType.Hammer;
+        public PartsType WeaponTypeUsed = PartsType.Blade;
         public override string GetRunningAnimation()
         {           
             switch (WeaponTypeUsed)
@@ -1678,7 +1679,7 @@ namespace Zealot.Client.Entities
                 case PartsType.Sanxian:
                     return "sanxian_run";                        
                 default:
-                    return "hammer_run";
+                    return "blade_run";
             }
         }
 
@@ -1703,7 +1704,7 @@ namespace Zealot.Client.Entities
                 case PartsType.Sanxian:
                     return "sanxian_gethit";   
                 default:
-                    return "hammer_gethit";
+                    return "blade_gethit";
             }
         }
 
@@ -1732,7 +1733,7 @@ namespace Zealot.Client.Entities
                 case PartsType.Sanxian:
                     return isincombat ? "sanxian_standby" : "sanxian_nmstandby";               
                 default:
-                    return isincombat ? "hammer_standby" : "hammer_nmstandby";
+                    return isincombat ? "blade_standby" : "blade_nmstandby";
             }
         }
 
@@ -1757,7 +1758,7 @@ namespace Zealot.Client.Entities
                 case PartsType.Sanxian:
                     return "sanxian_dying";     
                 default:
-                    return "hammer_dying";
+                    return "blade_dying";
             }
         }
 
@@ -1782,7 +1783,7 @@ namespace Zealot.Client.Entities
                 case PartsType.Sanxian:
                     return "sanxian_";  
                 default:
-                    return "dagger_";
+                    return "blade_";
             }
         }
 
@@ -1858,11 +1859,17 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public IEnumerator PlayCutscene(string name, int delay)
+        public IEnumerator PlayCutscene(string name, int delay, int questid)
         {
             yield return new WaitForSecondsRealtime(delay);
 
-            GameInfo.gCombat.CutsceneManager.PlayCutscene(name);
+            GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));
+        }
+
+        public void StartNextQuestEvent(int questid)
+        {
+            //RPCFactory.NonCombatRPC.UpdateQuestStatus(questid);
+            //QuestController.StartNextQuestEvent();
         }
 
         public void CheckQuestTeleportAction()

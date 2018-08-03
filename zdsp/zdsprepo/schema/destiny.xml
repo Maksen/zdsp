@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="DestinyClue" useexcel="true">
+      <property name="condition1" type="ClueCondition" uitext="Condition 1"/>
+      <property name="condition1id" type="int" uitext="Condition 1 ID"/>
+      <property name="condition2" type="ClueCondition" uitext="Condition 2"/>
+      <property name="condition2id" type="int" uitext="Condition 2 ID"/>
+      <property name="condition3" type="ClueCondition" uitext="Condition 3"/>
+      <property name="condition3id" type="int" uitext="Condition 3 ID"/>
+      <property name="avatarpath" type="string" uitext="Avatar Path"/>
+      <property name="category" type="ClueCategory" uitext="Category"/>
+      <property name="text" type="localizedstring" uitext="Text"/>
+      <property name="filepath" type="string" uitext="File Path"/>
+      <property name="message" type="localizedstring" uitext="Message"/>
+      <property name="task" type="localizedstring" uitext="Task"/>
+      <property name="memorytype" type="ClueMemoryType" uitext="Memory Category"/>
+      <property name="heroid" type="int" uitext="Hero Memory ID" default="1"/>
+      <property name="orderno" type="int" uitext="Order Number"/>
+    </element>
+
+    <element name="HeroMemory" useexcel="true">
+      <property name="name" type="localizedstring" uitext="Name"/>
+      <property name="orderno" type="int" uitext="Order Number"/>
+      <property name="avatarpath" type="string" uitext="Avatar Path"/>
+      <property name="questid" type="int" uitext="Quest ID"/>
+    </element>
+
+    <element name="HeroDialogueClue" useexcel="true">
+      <property name="lvl" type="int" uitext="Level"/>
+      <property name="avatarpath" type="string" uitext="Avatar Path"/>
+      <property name="text" type="localizedstring" uitext="Text"/>
+      <property name="isuse" type="bool" uitext="Use?"/>
+      <property name="probability" type="int" uitext="Probability"/>
+      <property name="reward" type="int" uitext="Reward Id"/>
+    </element>
+
+    <element name="TimeClue" useexcel="true">
+      <property name="avatarpath" type="string" uitext="Avatar Path"/>
+      <property name="category" type="ClueCategory" uitext="Category"/>
+      <property name="text" type="localizedstring" uitext="Text"/>
+      <property name="filepath" type="string" uitext="File Path"/>
+      <property name="message" type="localizedstring" uitext="Message"/>
+      <property name="task" type="localizedstring" uitext="Task"/>
+      <property name="isuse" type="bool" uitext="Use?"/>
+      <property name="probability" type="int" uitext="Probability"/>
+      <property name="time" type="int" uitext="Time (Minute)"/>
+    </element>
+  </data>
+</magicalarea51>

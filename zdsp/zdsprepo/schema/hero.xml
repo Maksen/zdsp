@@ -10,7 +10,7 @@
     </enum>
 
     <enum name="HeroInterestType">
-      <item key="None" value="0"/>
+      <item key="Random" value="0"/>
       <item key="MartialArts" value="1"/>
       <item key="Metallurgy" value="2"/>
       <item key="Debate" value="3"/>
@@ -23,6 +23,7 @@
       <item key="Business" value="10"/>
       <item key="Eloquence" value="11"/>
       <item key="Negotiation" value="12"/>
+      <item key="TotalNum" value="13"/>
     </enum>
 
     <enum name="HeroBondType">
@@ -81,6 +82,8 @@
       <property name="t1imagepath" type="asset" uitext="T1 Image Path" default="" assettype="sprite"/>
       <property name="t2imagepath" type="asset" uitext="T2 Image Path" default="" assettype="sprite"/>
       <property name="t3imagepath" type="asset" uitext="T3 Image Path" default="" assettype="sprite"/>
+      <property name="tierunlockpts" type="string" uitext="Skin Unlock Pts" default="" info="t1;t2;t3 (-1 for unapplicable tier)"/>
+      <property name="skinitemid" type="string" uitext="Skin Item ID " default="" info="itemid;itemid"/>
       <property name="modelscalex" type="float" uitext="Model Scale X" default="1.0"/>
       <property name="modelscaley" type="float" uitext="Model Scale Y" default="1.0"/>
       <property name="modelscalez" type="float" uitext="Model Scale Z" default="1.0"/>
@@ -90,7 +93,7 @@
       <property name="unlockshow" type="asset" uitext="Unlock Show Path" default="" assettype="prefab"/>
       <property name="lookbackshow" type="string" uitext="Look Back Show Name" default=""/>
       <property name="exploreaction" type="string" uitext="Explore Action Name" default=""/>
-      <property name="randomitemid" type="string" uitext="Random Change Item ID" default="" info="separate by ; (bind;unbind)"/>
+      <property name="randomitemid" type="string" uitext="Random Change Item ID" default="" info="bind;unbind"/>
       <property name="portraitpath" type="asset" uitext="Portrait Path" default="" assettype="sprite"/>
       <property name="questid" type="string" uitext="Quest ID" default="" info="trust,questid;trust,questid"/>
     </element>
@@ -118,7 +121,8 @@
     <element name="HeroInterest" useexcel="true">
       <property name="interesttype" type="HeroInterestType" uitext="Interest Type"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
-      <property name="assigneditemid" type="string" uitext="Assigned Change Item ID" default="" info="separate by ; (bind;unbind)"/>
+      <property name="description" type="localizedstring" uitext="Description"/>
+      <property name="assigneditemid" type="string" uitext="Assigned Change Item ID" default="" info="bind;unbind"/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
     </element>
 

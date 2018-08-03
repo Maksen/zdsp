@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Repository;
@@ -15,6 +16,21 @@ public class ItemInventoryController
 
     public void UpdateItemInv(int slotIdx, IInventoryItem item)
     {
+        if (item != null && item.IsNew)
+        {
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+            string color = ItemUtils.GetStrColorByRarity(item.JsonObject.rarity);
+            parameters.Add("item", string.Format("<color={0}>{1}</color>", color, item.JsonObject.localizedname));
+            int increment = 1;
+            IInventoryItem old_item = itemInvData.Slots[slotIdx];
+            if (old_item != null && old_item.ItemID == item.ItemID)
+                increment = item.StackCount - old_item.StackCount;
+            else
+                increment = item.StackCount;
+            parameters.Add("increment", increment.ToString());
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ItemIncrement", parameters), true);
+        }
+
         itemInvData.Slots[slotIdx] = item;
     }
 

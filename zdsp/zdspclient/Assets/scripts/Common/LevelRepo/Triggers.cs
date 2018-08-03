@@ -51,4 +51,13 @@ namespace Zealot.Entities
 
         public override string GetServerClassName() { return "ColliderTrigger"; }
     }
+
+    public class RandomTriggerJson : ServerEntityWithEventJson
+    {
+        public bool activeOnStartup = true;
+        public bool loop = false;
+        public byte size = 10;
+
+        public override string GetServerClassName() { return "RandomTrigger"; }
+    }
 }

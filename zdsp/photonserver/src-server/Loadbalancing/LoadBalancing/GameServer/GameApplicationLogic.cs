@@ -247,6 +247,7 @@ namespace Photon.LoadBalancing.GameServer
             CurrencyExchangeRules.Init();
             PartyRules.Init();
             QuestRules.Init();
+            LootRules.Init();
 
             OnStartupNewDay();
             SetNewDayTimer();
@@ -269,7 +270,7 @@ namespace Photon.LoadBalancing.GameServer
             this.executionFiber.ScheduleOnInterval(UpdateServerReport, 600000, 600000);
             if (MyServerConfig.IsGameServer())
             {
-                this.executionFiber.ScheduleOnInterval(GameRules.SaveToDB, 0, 120000);
+                this.executionFiber.ScheduleOnInterval(GameRules.SaveToDB, 0, 60000);
                 this.executionFiber.Schedule(GuildRules.Update, GuildRules.UpdateInterval);
                 this.executionFiber.Schedule(GuildRules.OnSaveGuildInterval, GuildRules.saveDBInterval);
                 this.executionFiber.Schedule(RealmRules.Update, RealmRules.UpdateInterval);

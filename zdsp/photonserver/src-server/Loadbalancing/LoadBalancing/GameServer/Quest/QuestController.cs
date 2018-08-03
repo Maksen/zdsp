@@ -299,7 +299,7 @@ namespace Photon.LoadBalancing.GameServer
 
         private void InsertSubObjectiveData(CurrentQuestData questData, int mainid, int subid, int order, QuestObjectiveType type)
         {
-            int progresscount = GetSubObjectiveProgressCount(questData, subid, order);
+            int progresscount = GetSubObjectiveProgressCount(questData, mainid, order);
             ObjectiveStatus status = GetObjectiveStatus(progresscount, subid);
             if (status == ObjectiveStatus.Completed)
                 return;
@@ -789,7 +789,7 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     if (questJson.triggertype == QuestTriggerType.Level || questJson.triggertype == QuestTriggerType.Hero)
                     {
-                        if (!mUnlockQuestList.Contains(questid))
+                        if (!mUnlockQuestList.Contains(questid) && QuestRules.CanAddIntoUnlock(questJson, mPlayer.PlayerSynStats.jobsect))
                         {
                             mUnlockQuestList.Add(questid);
                             unlockquestchanged = true;
@@ -814,7 +814,7 @@ namespace Photon.LoadBalancing.GameServer
         Realm Type - param1(RealmId), param2(Completed Count)
         Interact Type - param1(InteractId),param2(Success?)
         */
-        private void UpdateObjectiveStatus(UpdateObjectiveType type, int param1, int param2, int param3, int questid = -1)
+        private void UpdateObjectiveStatus(UpdateObjectiveType type, int param1, int param2, int param3, int questid = -1, int talkid = -1)
         {
             List<QuestObjectiveData> objectiveDatas = new List<QuestObjectiveData>();
             List<QuestObjectiveData> updatedDatas = new List<QuestObjectiveData>();
@@ -846,7 +846,7 @@ namespace Photon.LoadBalancing.GameServer
                     break;
             }
 
-            if (questid != -1)
+            if (questid != -1 && objectiveDatas.Count > 0)
             {
                 QuestObjectiveData odata = objectiveDatas.Where(o => o.QuestId == questid).First();
                 if (odata != null)
@@ -863,7 +863,7 @@ namespace Photon.LoadBalancing.GameServer
                     break;
 
                 QuestObjectiveData data = objectivedata;
-                if (QuestRules.UpdateObjectiveStatus(ref data, mPlayer, param1, param2, param3))
+                if (QuestRules.UpdateObjectiveStatus(ref data, mPlayer, param1, param2, param3, talkid))
                 {
                     updatedDatas.Add(data);
                 }
@@ -983,18 +983,18 @@ namespace Photon.LoadBalancing.GameServer
                 DeleteObjectiveData(objectiveid);
             }
 
-            if (questForUpdate.ContainsKey(questid))
-            {
-                CurrentQuestData questData = questForUpdate[questid];
-                QuestSelectDetailJson selectJson = QuestRepo.GetSelectionById(param3);
-                if (selectJson != null && (questData.Status == (byte)QuestStatus.CompletedAllObjective || questData.Status == (byte)QuestStatus.CompletedWithEvent))
-                {
-                    if (selectJson.actiontype == QuestSelectionActionType.Job)
-                    {
-                        //change player job
-                    }
-                }
-            }
+            //if (questForUpdate.ContainsKey(questid))
+            //{
+            //    CurrentQuestData questData = questForUpdate[questid];
+            //    QuestSelectDetailJson selectJson = QuestRepo.GetSelectionById(param3);
+            //    if (selectJson != null && (questData.Status == (byte)QuestStatus.CompletedAllObjective || questData.Status == (byte)QuestStatus.CompletedWithEvent))
+            //    {
+            //        if (selectJson.actiontype == QuestSelectionActionType.Job)
+            //        {
+            //            //change player job
+            //        }
+            //    }
+            //}
 
             foreach (KeyValuePair<int, CurrentQuestData> questdata in questForUpdate)
             {
@@ -1114,9 +1114,9 @@ namespace Photon.LoadBalancing.GameServer
             UpdateObjectiveStatus(UpdateObjectiveType.Kill, monsterid, count, 0);
         }
 
-        public void NpcCheck(int questid, int npcid, int choice)
+        public void NpcCheck(int questid, int npcid, int choice, int talkid)
         {
-            UpdateObjectiveStatus(UpdateObjectiveType.NPC, npcid, 1, choice, questid);
+            UpdateObjectiveStatus(UpdateObjectiveType.NPC, npcid, 1, choice, questid, talkid);
         }
 
         public void RealmCheck(int realmid, int count)
@@ -1317,7 +1317,7 @@ namespace Photon.LoadBalancing.GameServer
             return success;
         }
 
-        public void UpdateQuestStatus(int questid)
+        public void UpdateQuestEventStatus(int questid)
         {
             CurrentQuestData questData = GetQuestDataById(questid);
             if (questData != null)
@@ -1362,7 +1362,7 @@ namespace Photon.LoadBalancing.GameServer
 
         private bool QuestObjectiveRollBack(CurrentQuestData questData, bool UpdateObjectiveData = true)
         {
-            if (questData.SubObjective.Count > 1)
+            if (questData != null && questData.SubObjective.Count > 1)
             {
                 CurrentQuestData newQuestData = null;
                 if (QuestRules.RollBackQuestObjective(mPlayer, mPlayer.GetSynchronizedTime(), questData, ref newQuestData))
@@ -1377,6 +1377,30 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
             return false;
+        }
+
+        public void SubmiteEmptyObjective(int questid)
+        {
+            UpdateObjectiveStatus(UpdateObjectiveType.Empty, 0, 1, 0, questid);
+        }
+
+        public void ApplyEventSE(int eventid, int questid)
+        {
+            QuestEventDetailJson questEvent = QuestRepo.GetQuestEventById(eventid);
+            int seid = -1;
+            bool status = false;
+            int.TryParse(questEvent.para1, out seid);
+            status = questEvent.para2 == "1" ? true : false;
+            if (status)
+            {
+                GameRules.ApplySideEffect(seid, mPlayer, mPlayer);
+            }
+           else
+            {
+                mPlayer.RemoveSideEffect(seid);
+            }
+
+            UpdateQuestEventStatus(questid);
         }
 
         #region Development

@@ -16,6 +16,9 @@ public class UI_TrackQuestData : MonoBehaviour
     Text Name;
 
     [SerializeField]
+    Button ObjectiveButton;
+
+    [SerializeField]
     HyperText Description;
 
     [SerializeField]
@@ -25,14 +28,19 @@ public class UI_TrackQuestData : MonoBehaviour
     GameObject CompletedQuest;
 
     private string mDescription;
+    private string mLocation;
     private Dictionary<int, long> mMOEndTime;
     private Dictionary<int, long> mSOEndTime;
     private QuestClientController mQuestController;
     private int mQuestId;
+    private bool bUnlockQuest = false;
+    private CurrentQuestData mQuestData;
 
     public void UpdateQuestData(CurrentQuestData questData, QuestClientController questController)
     {
+        mQuestData = questData;
         mQuestId = questData.QuestId;
+        bUnlockQuest = false;
         QuestJson questJson = QuestRepo.GetQuestByID(questData.QuestId);
         if (questJson != null)
         {
@@ -42,24 +50,50 @@ public class UI_TrackQuestData : MonoBehaviour
             mMOEndTime = questController.GetMainObjectiveEndtime(questData);
             mSOEndTime = questController.GetSubObjectiveEndtime(questData);
             mDescription = questController.DeserializedDescription(questData);
+            mLocation = "<size=5>\n</size>地點 ：" + questJson.subname;
             if (mMOEndTime.Count > 0 || mSOEndTime.Count > 0)
             {
                 UpdateDescrption();
             }
             else
             {
-                Description.text = mDescription;
+                Description.text = mDescription + mLocation;
             }
-            Description.ClickedLink.AddListener(OnClickHyperlink);
+            Description.ClickedLink.RemoveAllListeners();
+            if (questController.HaveMultipleTarget(questData))
+            {
+                Description.ClickedLink.AddListener(OnClickHyperlink);
+                ObjectiveButton.interactable = false;
+            }
+            else
+            {
+                ObjectiveButton.interactable = true;
+            }
             DoingQuest.SetActive(false);
             bool submitable = questController.IsQuestCanSubmit(questData.QuestId);
             CompletedQuest.SetActive(submitable);
         }
     }
 
+    public void UpdateQuestData(QuestJson questJson, QuestClientController questController)
+    {
+        mQuestId = questJson.questid;
+        bUnlockQuest = true;
+        Type.text = GetTypeName(questJson.type);
+        Name.text = questJson.questname;
+        mQuestController = questController;
+        mDescription = questController.GetStartQuestDescription(questJson);
+        mLocation = "<size=5>\n</size>地點 ：" + questJson.subname;
+        Description.text = mDescription + mLocation;
+        Description.ClickedLink.RemoveAllListeners();
+        ObjectiveButton.interactable = true;
+        DoingQuest.SetActive(false);
+        CompletedQuest.SetActive(false);
+    }
+
     private void UpdateDescrption()
     {
-        Description.text = mQuestController.ReplaceEndTime(mDescription, mMOEndTime, mSOEndTime);
+        Description.text = mQuestController.ReplaceEndTime(mDescription, mMOEndTime, mSOEndTime) + mLocation;
         StartCoroutine(EndTmeCD());
     }
 
@@ -100,5 +134,27 @@ public class UI_TrackQuestData : MonoBehaviour
     public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
     {
         mQuestController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestId);
+    }
+
+    public void OnClickObjectiveButton()
+    {
+        if (bUnlockQuest)
+        {
+            int targetid;
+            QuestTriggerType type;
+            if (mQuestController.GetQuestTriggerTarget(mQuestId, out targetid, out type))
+            {
+                mQuestController.ProceedQuestTrigger(type, targetid, mQuestId);
+            }
+        }
+        else
+        {
+            int targetid;
+            QuestObjectiveType type;
+            if (mQuestController.GetObjectiveTarget(mQuestData, out targetid, out type))
+            {
+                mQuestController.ProceedQuestObjective(type, targetid, mQuestId);
+            }
+        }
     }
 }

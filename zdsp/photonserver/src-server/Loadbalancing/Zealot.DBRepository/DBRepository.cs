@@ -157,6 +157,8 @@ namespace Zealot.DBRepository
         private ProgressRepository _progressRepo;
         public ProgressRepository Progress { get { return _progressRepo; } }
 
+        public LimitedItemRepository LimitedItem { get; private set; }
+
         public DBRepository()
             : base()
         {
@@ -171,6 +173,7 @@ namespace Zealot.DBRepository
             _mailOfflineRepo = new MailOfflineRepository(this);
             GameConfig = new GameConfigRepository(this);
             _progressRepo = new ProgressRepository(this);
+            LimitedItem = new LimitedItemRepository(this);
         }
     }
 

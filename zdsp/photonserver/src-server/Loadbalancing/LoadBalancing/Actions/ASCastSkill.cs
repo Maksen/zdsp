@@ -394,10 +394,10 @@
                             AttackResult res = new AttackResult(pid, 0, false, mCasterPID);
                             res.IsEvasion = true;
                             if (thetarget.IsPlayer())
-                                evasionTarget.OnDamage(caster, res, isPlayerBasicAttack);//send label
+                                evasionTarget.OnDamage(caster.GetOwner(), res, isPlayerBasicAttack);//send label
                             else
                             {
-                                evasionTarget.OnDamage(caster, res, isPlayerBasicAttack);//send label
+                                evasionTarget.OnDamage(caster.GetOwner(), res, isPlayerBasicAttack);//send label
                                 evasionTarget.OnAttacked(caster, 1);//update ai
                             }
                             thetarget.OnEvasion();

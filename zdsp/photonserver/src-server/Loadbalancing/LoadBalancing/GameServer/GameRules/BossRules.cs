@@ -18,8 +18,7 @@ namespace Zealot.Server.Rules
             SpecialBossStatusMap = new Dictionary<int, SpecialBossStatus>();
             SpecialBossStatusString = "";
 
-            int serverId = GameApplication.Instance.GetMyServerId();
-            List<Dictionary<string, object>> bossKillerRecords = GameApplication.dbRepository.BossKiller.GetRecords(serverId);
+            List<Dictionary<string, object>> bossKillerRecords = GameApplication.dbRepository.BossKiller.GetRecords();
 
             var boss_idmap = SpecialBossRepo.mIdMap;
             DateTime now = DateTime.Now;
@@ -61,8 +60,7 @@ namespace Zealot.Server.Rules
             _status.payload = payload;
             IsStatusDirty = true;
 
-            int serverId = GameApplication.Instance.GetMyServerId();
-            var saved = GameApplication.dbRepository.BossKiller.Insert_Update(serverId, id, killer, payload);   
+            var saved = GameApplication.dbRepository.BossKiller.Insert_Update(id, killer, payload);   
         }
 
         public static void SetBossNextSpawn(int id, DateTime? nextSpawn)

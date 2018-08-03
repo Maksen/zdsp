@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Zealot.Common;
 
@@ -15,21 +14,21 @@ public class InterestCircleScroll : MonoBehaviour
 
     private void Awake()
     {
-        //if (GameInfo.gCombat == null)
-        //{
-        //    cellData = new List<InterestCellDto>();
-        //    for (HeroInterestType i = HeroInterestType.Random; i < HeroInterestType.TotalNum; i++)
-        //    {
-        //        InterestCellDto cell = new InterestCellDto((byte)i, i.ToString());
-        //        cellData.Add(cell);
-        //    }
+        if (GameInfo.gCombat == null)
+        {
+            cellData = new List<InterestCellDto>();
+            for (HeroInterestType i = HeroInterestType.Random; i < HeroInterestType.TotalNum; i++)
+            {
+                InterestCellDto cell = new InterestCellDto((byte)i, i.ToString());
+                cellData.Add(cell);
+            }
 
-        //    context = new InterestScrollViewContext();
-        //    context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
+            context = new InterestScrollViewContext();
+            context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
 
-        //    scrollView.UpdateData(cellData, context);  // set contents and context
-        //    scrollView.SetSelection(0);
-        //}
+            scrollView.UpdateData(cellData, context);  // set contents and context
+            scrollView.SetSelection(0);
+        }
     }
 
     public void SetUp(Action<byte> onSelectCallback)

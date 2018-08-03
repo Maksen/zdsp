@@ -164,27 +164,29 @@ namespace Zealot.Repository
             List<HeroInterestGroupJson> interestList;
             if (interestGroupToTypes.TryGetValue(groupId, out interestList))
             {
-                if (excludeType != HeroInterestType.Random)
-                    interestList.RemoveAll(x => x.interesttype == excludeType);
-
                 if (interestList.Count == 0)
                     return HeroInterestType.Random;
 
                 float totalProb = 0;
                 for (int i = 0; i < interestList.Count; i++)
                 {
+                    if (interestList[i].interesttype == excludeType)
+                        continue;
                     totalProb += interestList[i].probability;
                 }
 
                 float randomPoint = (float)GameUtils.Random(0, 1) * totalProb;
                 for (int i = 0; i < interestList.Count; i++)
                 {
+                    if (interestList[i].interesttype == excludeType)
+                        continue;
                     if (randomPoint < interestList[i].probability)
                         return interestList[i].interesttype;
                     else
                         randomPoint -= interestList[i].probability;
                 }
-                return interestList[interestList.Count - 1].interesttype;
+                if (interestList[interestList.Count - 1].interesttype != excludeType)
+                    return interestList[interestList.Count - 1].interesttype;
             }
             return HeroInterestType.Random;
         }

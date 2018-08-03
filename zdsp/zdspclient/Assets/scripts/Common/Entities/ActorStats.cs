@@ -1103,7 +1103,7 @@ namespace Zealot.Common.Entities
         private byte _CurrencyExchangeTime;
         private int _UnlockWorldBossLevel;
         private int _tutorialreddot;
-        private float _BattleTime;
+        private int _BattleTime;
 
         public SecondaryStats()
             : base(LOTYPE.SecondaryStats)
@@ -1211,7 +1211,7 @@ namespace Zealot.Common.Entities
             get { return _battlecoin; }
             set { this.OnSetAttribute("battlecoin", value); _battlecoin = value; }
         }
-        public float BattleTime 
+        public int BattleTime 
         {
             get { return _BattleTime; }
             set { this.OnSetAttribute("BattleTime", value); _BattleTime = value; }
@@ -1321,14 +1321,11 @@ namespace Zealot.Common.Entities
         public void ResetOnNewDay(CharacterData characterData)
         {
             GuildSMBossEntry = characterData.GuildSMBossEntry;
-
             CurrencyExchangeTime = characterData.CurrencyExchangeTime;
-
             GuildDreamHouseUsed = characterData.GuildDreamHouseUsed;
             GuildDreamHouseCollected = characterData.GuildDreamHouseCollected;
-
             FreeReviveOnSpot = characterData.FreeReviveOnSpot;
-            BattleTime += 300f;
+            BattleTime = characterData.BattleTime;
         }
 
         public bool IsGoldEnough(int value, bool useBind = true)

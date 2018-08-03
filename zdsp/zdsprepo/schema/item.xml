@@ -142,6 +142,8 @@
       <property name="ischangelike" type="int" uitext="Is Change Like" default="0"/>
       <property name="liketype" type="int" uitext="Like Type" default="0"/>
       <property name="giftexp" type="int" uitext="Gift Exp" default="0"/>
+      <property name="heroskinpath" type="asset" uitext="Hero Skin Path" default="" assettype="prefab"/>
+      <property name="heroimagepath" type="asset" uitext="Hero Image Path" default="" assettype="sprite"/>
     </element>
     
     <element name="InstanceItem" inherit="ItemBase">

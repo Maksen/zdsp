@@ -8,7 +8,7 @@ using Zealot.Common;
 
 namespace Zealot.ClientSpawners
 {
-    [AddComponentMenu("Spawners at Client/Static NPC Spawner")]
+    [AddComponentMenu("Spawners at Client/Quest NPC Spawner")]
     public class QuestNPCSpawnerDesc : ClientSpawnerDesc
     {
         [Tooltip("Archetype Link to gamedb StaticNPC table.")]

@@ -338,11 +338,26 @@ namespace Zealot.Repository
         {
             if (m_SkillGroupToSkill.ContainsKey(skillgroupid))
             {
-                if (GetSkill(m_SkillGroupToSkill[skillgroupid][m_SkillGroupToSkill[skillgroupid].Count - 1]).skillJson.level == level)
-                    return true;
+                List<int> skillList = m_SkillGroupToSkill[skillgroupid];
+                if (skillList.Count > 0)
+                    return GetSkill(skillList[skillList.Count - 1]).skillJson.level == level;
+                else
+                    return false;
             }
             return false;
+        }
 
+        public static int GetSkillGroupMaxLevel(int skillgroupid)
+        {
+            if (m_SkillGroupToSkill.ContainsKey(skillgroupid))
+            {
+                List<int> skillList = m_SkillGroupToSkill[skillgroupid];
+                if (skillList.Count > 0)
+                    return GetSkill(skillList[skillList.Count - 1]).skillJson.level;
+                else
+                    return 0;
+            }
+            return 0;
         }
 
         /// <summary>
@@ -427,15 +442,6 @@ namespace Zealot.Repository
         //    }
         //    return null;
         //}
-
-        public static int GetSkillGroupMaxLevel(int skillgroupid)
-        {
-            if (m_SkillGroupToSkill.ContainsKey(skillgroupid))
-            {
-                return GetSkill(m_SkillGroupToSkill[skillgroupid][m_SkillGroupToSkill[skillgroupid].Count - 1]).skillJson.level;
-            }
-            return -1;
-        }
 
         public static SkillData GetWeaponsBasicAttackData(PartsType weapon, int index) {
             Dictionary<int, int> result = null;

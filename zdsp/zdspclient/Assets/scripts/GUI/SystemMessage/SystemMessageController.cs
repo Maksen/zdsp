@@ -25,12 +25,12 @@ public class SystemMessageController : MonoBehaviour
         if (countdownTimer == null)
             countdownTimer = StartCoroutine(ShowMessage());
 
-        //if (addToChatLog)
-        //{
-        //    HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //    if (hudChat)
-        //        hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
-        //}
+        if (addToChatLog)
+        {
+            //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
+            //if (hudChat)
+            //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
+        }
     }
 
     private IEnumerator ShowMessage()

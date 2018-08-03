@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Zealot.Common;
 using Zealot.Common.Datablock;
@@ -238,8 +239,9 @@ namespace Photon.LoadBalancing.GameServer
             members[newHero.slotIdx] = newHero.ToString();
         }
 
-        public void AddExperienceToPartyMembers(int exp, string excludeName)
+        public List<Player> GetOnlinePartyMembers(string excludeName)
         {
+            List<Player> ret = new List<Player>();
             var memberList = mPartyMembers.Values;
             foreach (PartyMember member in memberList)
             {
@@ -247,8 +249,24 @@ namespace Photon.LoadBalancing.GameServer
                     continue;
                 GameClientPeer peer = GameApplication.Instance.GetCharPeer(member.name);
                 if (peer != null && peer.mPlayer != null)
-                    peer.mPlayer.AddExperience(exp);
+                    ret.Add(peer.mPlayer);
             }
+            return ret;
+        }
+
+        public List<Player> GetSameInstancePartyMembers(string excludeName, GameLogic instance)
+        {
+            List<Player> ret = new List<Player>();
+            var memberList = mPartyMembers.Values;
+            foreach (PartyMember member in memberList)
+            {
+                if (member.name == excludeName || member.IsHero())
+                    continue;
+                GameClientPeer peer = GameApplication.Instance.GetCharPeer(member.name);
+                if (peer != null && peer.mPlayer != null && peer.mPlayer.mInstance == instance)
+                    ret.Add(peer.mPlayer);
+            }
+            return ret;
         }
     }
 }

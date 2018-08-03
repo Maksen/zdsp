@@ -455,11 +455,8 @@ namespace Zealot.Client.Actions
 
     public class NonClientAuthoCastSkill : BaseClientCastSkill
     {
-        private bool mIsPartymemberAttack;
-        private Vector3? monsterSkillMoveTarget;
         public NonClientAuthoCastSkill(Entity entity, ISkillCastCommandCommon cmd) : base(entity, cmd)
         {
-
         }
 
         protected override void OnActiveEnter(string prevstate)
@@ -481,47 +478,11 @@ namespace Zealot.Client.Actions
                     }
                 }
             }
-            if (mEntity.IsPlayer())
-            {
-                ActorGhost ghost = mEntity as ActorGhost;
-                if (ghost.GetParty() == GameInfo.gLocalPlayer.GetParty() && ghost.GetParty() != -1)
-                {
-                    mIsPartymemberAttack = true;
-                }
-            }
-
-
-        }
-
-
-
-        public override void Start()
-        {
-            base.Start();
-            // removed for now, no movedist in kopio for skills anymore
-            //if (mEntity.IsMonster() && mSkillData.skillgroupJson.movedist > 0)
-            //{
-            //    monsterSkillMoveTarget = mEntity.Position + mEntity.Forward * mSkillData.skillgroupJson.movedist;
-            //} 
-        }
-        protected override void OnActiveUpdate(long dt)
-        {
-            base.OnActiveUpdate(dt);
-            // removed for now, no movedist in kopio for skills anymore
-            //if (monsterSkillMoveTarget!=null && monsterSkillMoveTarget.Value.magnitude > 0)
-            //{
-            //    float moveSpeed = mSkillData.skillgroupJson.movedist / mSkillData.skillJson.skillduration;
-            //    float distToTarget = (monsterSkillMoveTarget.Value - mEntity.Position).magnitude;
-            //    Vector3 motion = ClientUtils.MoveTowards(mEntity.Forward, distToTarget, moveSpeed, dt / 1000.0f);
-            //    MonsterGhost monster = (MonsterGhost)mEntity;
-            //    monster.Move(motion);
-            //}
         }
 
         protected override void OnActiveLeave()
         {
             base.OnActiveLeave();
-
             mCaster.HideSkillIndicator();
         }
 

@@ -75,6 +75,7 @@ namespace Zealot.Repository
             SkillTreeRepo.Init(GameData);
             HeroRepo.Init(GameData);
             EquipmentModdingRepo.Init(GameData);
+            LootRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("others", ref heapsize);
             RewardListRepo.Init(GameData);
             _loaded = true;

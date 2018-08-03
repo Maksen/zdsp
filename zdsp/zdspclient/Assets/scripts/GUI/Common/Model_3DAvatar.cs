@@ -36,15 +36,16 @@ public class Model_3DAvatar : MonoBehaviour
 
         model.GetComponent<AvatarController>().InitAvatar(equipmentInvData, jobtype, gender);
         var _weapon = equipmentInvData.Slots[(int)EquipmentSlot.Weapon];
-        PartsType _weaponType = (_weapon != null) ? _weapon.EquipmentJson.partstype : PartsType.Hammer;
+        PartsType _weaponType = (_weapon != null) ? _weapon.EquipmentJson.partstype : PartsType.Blade;
         model.GetComponent<Animator>().PlayFromStart(ClientUtils.GetStandbyAnimationByWeapnType(_weaponType));
         if (afterLoad != null)
             afterLoad(model);
     }
 
+    private HeroJson heroJson;
     public void ChangeHero(int heroId, int tier)
     {
-        HeroJson heroJson = HeroRepo.GetHeroById(heroId);
+        heroJson = HeroRepo.GetHeroById(heroId);
         if (heroJson == null)
             return;
 
@@ -54,6 +55,11 @@ public class Model_3DAvatar : MonoBehaviour
             case 1: prefabPath = heroJson.t1modelpath; break;
             case 2: prefabPath = heroJson.t2modelpath; break;
             case 3: prefabPath = heroJson.t3modelpath; break;
+            default:
+                HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
+                if (skinItem != null)
+                    prefabPath = skinItem.HeroItemJson.heroskinpath;
+                break;
         }
 
         if (model != null && modelpath != prefabPath)
@@ -94,6 +100,7 @@ public class Model_3DAvatar : MonoBehaviour
             CharacterController charCtrl = model.GetComponent<CharacterController>();
             if (charCtrl != null)
                 Destroy(charCtrl);
+            model.transform.localScale = new Vector3(heroJson.modelscalex, heroJson.modelscaley, heroJson.modelscalez);
             model.transform.SetParent(modelParent, false);
             ClientUtils.SetLayerRecursively(model, LayerMask.NameToLayer("UI"));
         }

@@ -6,122 +6,104 @@ using UnityEngine.UI;
 using Zealot.Common;
 using Zealot.Repository;
 
-public class UI_DamangeRankData : MonoBehaviour {
-
+public class UI_DamangeRankData : MonoBehaviour
+{
     public Text Leaderboard_Name;
     public Text PartyPersonal_NameRank;
-    public Text PartyPersonalData_Rnak;
     public Text PartyPersonalData_Name;
     public Text PartyPersonalData_DamangePartyScore;
 
+    public int Boss_id;
     public GameObject RankDataContent;
+    public GameObject Me_RankDataContent;
     public GameObject RankDataPrefab;
-    private Dictionary<int, SpecialBossStatus> RankDataList;
-    private List<GameObject> bigBossObjList;
-    private List<GameObject> miniBossObjList;
 
-    UI_SpecialBoss_Detail UI_SpecialBoss_Detail;
+    private GameObject mMyRankData;
 
-    public void RefreshDamangeRankData(Dictionary<int, SpecialBossStatus> specialBossStatus, UI_SpecialBoss_Detail uiSpecialBossDialog)
+    public void GetRankingData(int boss_id)
     {
-        RankDataList = specialBossStatus;
+        Boss_id = boss_id;
+        SpecialBossJson boss = SpecialBossRepo.GetInfoById(boss_id);
+        if (boss.category == BossCategory.BIGBOSS)
+        {
+            Leaderboard_Name.text = GUILocalizationRepo.GetLocalizedString("wb_BigBossTitle");
+            PartyPersonalData_Name.text = GUILocalizationRepo.GetLocalizedString("wb_PartyName");
+            PartyPersonalData_DamangePartyScore.text = GUILocalizationRepo.GetLocalizedString("wb_PartyScore");
+            PartyPersonal_NameRank.text = GUILocalizationRepo.GetLocalizedString("wb_PartyNameRank");
+        }
+        else
+        {
+            Leaderboard_Name.text = GUILocalizationRepo.GetLocalizedString("wb_BossTitle");
+            PartyPersonalData_Name.text = GUILocalizationRepo.GetLocalizedString("wb_PersonalName");
+            PartyPersonalData_DamangePartyScore.text = GUILocalizationRepo.GetLocalizedString("wb_DamangeScore");
+            PartyPersonal_NameRank.text = GUILocalizationRepo.GetLocalizedString("wb_PersonalNameRank");
+        }
 
-        UI_SpecialBoss_Detail = uiSpecialBossDialog;
+        RPCFactory.CombatRPC.GetWorldBossDmgList(Boss_id);
+        UIManager.StartHourglass();
     }
 
-    public void InitDamangeRank()
+    public void InitDamangeRankData(BossKillData _bossKillData)
     {
-        ClearBigBossRankingData();
-        ClearMiniBossRankingData();
+        Clear();
 
-        if (UI_SpecialBoss_Detail.BigBossCategory == true)
+        if (_bossKillData != null)
         {
-            List<SpecialBossStatus> bigBosses = new List<SpecialBossStatus>();
-            foreach (KeyValuePair<int, SpecialBossStatus> status in RankDataList)
+            string myName = GameInfo.gLocalPlayer.Name;
+            SpecialBossJson boss = SpecialBossRepo.GetInfoById(Boss_id);
+            if (boss.category == BossCategory.BOSS)
             {
-                SpecialBossJson boss = SpecialBossRepo.GetInfoById(status.Value.id);
-
-                if (boss.category == BossCategory.BIGBOSS)
+                List<BossKillDmgRecord> dmgRecords = _bossKillData.dmgRecords;
+                for (int i = 0; i < dmgRecords.Count; ++i)
                 {
-                    bigBosses.Add(status.Value);
-                    Leaderboard_Name.text = GUILocalizationRepo.GetLocalizedString("wb_BigBossTitle");
-                    PartyPersonalData_Name.text = GUILocalizationRepo.GetLocalizedString("wb_PartyName");
-                    PartyPersonalData_DamangePartyScore.text = GUILocalizationRepo.GetLocalizedString("wb_PartyScore");
-                    PartyPersonal_NameRank.text = GUILocalizationRepo.GetLocalizedString("wb_PartyNameRank");
+                    GameObject newMiniBossListObj = Instantiate(RankDataPrefab);
+                    newMiniBossListObj.transform.SetParent(RankDataContent.transform, false);
+                    RankingData rankingData = newMiniBossListObj.GetComponent<RankingData>();
+                    rankingData.InitDmgRanking(i + 1, dmgRecords[i]);
+                    if (dmgRecords[i].Name == myName)
+                    {
+                        if (mMyRankData == null)
+                        {
+                            mMyRankData = Instantiate(RankDataPrefab);
+                            mMyRankData.transform.SetParent(Me_RankDataContent.transform, false);
+                        }
+                        mMyRankData.GetComponent<RankingData>().InitDmgRanking(i + 1, dmgRecords[i]);
+                    }
                 }
             }
-
-            for (int i = 0; i < bigBosses.Count; ++i)
+            else
             {
-                GameObject newBigBossRankingDataObj = Instantiate(RankDataPrefab);
-                newBigBossRankingDataObj.transform.SetParent(RankDataContent.transform, false);
-
-                RankingData rankingData = newBigBossRankingDataObj.GetComponent<RankingData>();
-                rankingData.InitRanking(bigBosses[i]);
-
-                bigBossObjList.Add(newBigBossRankingDataObj);
-            }
-        }
-
-        if (UI_SpecialBoss_Detail.MiniBossCategory == true)
-        {
-            List<SpecialBossStatus> miniBosses = new List<SpecialBossStatus>();
-            foreach (KeyValuePair<int, SpecialBossStatus> status in RankDataList)
-            {
-                SpecialBossJson boss = SpecialBossRepo.GetInfoById(status.Value.id);
-
-                if (boss.category == BossCategory.BOSS)
+                List<BossKillScoreRecord> scoreRecords = _bossKillData.scoreRecords;
+                for (int i = 0; i < scoreRecords.Count; ++i)
                 {
-                    miniBosses.Add(status.Value);
-                    Leaderboard_Name.text = GUILocalizationRepo.GetLocalizedString("wb_BossTitle");
-                    PartyPersonalData_Name.text = GUILocalizationRepo.GetLocalizedString("wb_PersonalName");
-                    PartyPersonalData_DamangePartyScore.text = GUILocalizationRepo.GetLocalizedString("wb_DamangeScore");
-                    PartyPersonal_NameRank.text = GUILocalizationRepo.GetLocalizedString("wb_PersonalNameRank");
+                    GameObject newMiniBossListObj = Instantiate(RankDataPrefab);
+                    newMiniBossListObj.transform.SetParent(RankDataContent.transform, false);
+                    RankingData rankingData = newMiniBossListObj.GetComponent<RankingData>();
+                    rankingData.InitScoreRanking(i + 1, scoreRecords[i]);
+                    if (scoreRecords[i].Name.Contains(myName))
+                    {
+                        if (mMyRankData == null)
+                        {
+                            mMyRankData = Instantiate(RankDataPrefab);
+                            mMyRankData.transform.SetParent(Me_RankDataContent.transform, false);
+                        }
+                        mMyRankData.GetComponent<RankingData>().InitScoreRanking(i + 1, scoreRecords[i]);
+                    }
                 }
             }
-
-            for (int i = 0; i < miniBosses.Count; ++i)
-            {
-                GameObject newMiniBossRankingDataObj = Instantiate(RankDataPrefab);
-                newMiniBossRankingDataObj.transform.SetParent(RankDataContent.transform, false);
-
-                RankingData rankingData = newMiniBossRankingDataObj.GetComponent<RankingData>();
-                rankingData.InitRanking(miniBosses[i]);
-
-                miniBossObjList.Add(newMiniBossRankingDataObj);
-            }
         }
     }
 
-    void ClearBigBossRankingData()
+    void Clear()
     {
-        if (bigBossObjList == null)
-        {
-            bigBossObjList = new List<GameObject>();
-            return;
-        }
-
-        for (int i = 0; i < bigBossObjList.Count; ++i)
-        {
-            Destroy(bigBossObjList[i]);
-            bigBossObjList[i] = null;
-        }
-        bigBossObjList.Clear();
+        ClearBossListData();
+        if (mMyRankData != null)
+            mMyRankData.GetComponent<RankingData>().Clear();
     }
 
-    void ClearMiniBossRankingData()
+    void ClearBossListData()
     {
-        if (miniBossObjList == null)
-        {
-            miniBossObjList = new List<GameObject>();
-            return;
-        }
-
-        for (int i = 0; i < miniBossObjList.Count; ++i)
-        {
-            Destroy(miniBossObjList[i]);
-            miniBossObjList[i] = null;
-        }
-        miniBossObjList.Clear();
+        foreach (Transform child in RankDataContent.transform)
+            Destroy(child.gameObject);
     }
 }

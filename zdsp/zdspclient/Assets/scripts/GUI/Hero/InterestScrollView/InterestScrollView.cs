@@ -9,6 +9,8 @@ public class InterestScrollView : FancyScrollView<InterestCellDto, InterestScrol
     [SerializeField]
     float scrollToDuration = 0.4f;
 
+    private bool isActive = true;
+
     private void Awake()
     {
         scrollPositionController.OnUpdatePosition(UpdatePosition);
@@ -46,11 +48,13 @@ public class InterestScrollView : FancyScrollView<InterestCellDto, InterestScrol
 
     private void OnPressedCell(InterestScrollViewCell cell)
     {
-        UpdateSelection(cell.DataIndex);
+        if (isActive)
+            UpdateSelection(cell.DataIndex);
     }
 
     public void EnableScrollPositionController(bool value)
     {
-        scrollPositionController.enabled = value;
+        scrollPositionController.CanDrag = value;
+        isActive = value;
     }
 }

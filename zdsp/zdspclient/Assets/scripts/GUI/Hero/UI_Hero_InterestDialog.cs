@@ -22,12 +22,16 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
     private HeroInterestType selectedType;
     private Hero hero;
     private GameIcon_MaterialConsumable item;
+    private bool waitForResetComplete;
     private bool waitForSpinConfirm;
+    private bool hasEnoughItem;
 
-    public void OnEnable()
+    public override void OnCloseWindow()
     {
-        Hero hero1 = new Hero(1, HeroInterestType.Metallurgy, 1, HeroRepo.GetHeroById(1));
-        Init(hero1, null, "current interest desc");
+        base.OnCloseWindow();
+        EnableCicleScroll(true);
+        waitForSpinConfirm = false;
+        circleScroll.ResetSelection();
     }
 
     public void Init(Hero hero, Sprite currentSprite, string currentDesc)
@@ -38,7 +42,6 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
         if (item == null)
         {
-            ClientUtils.DestroyChildren(itemIconTransform);
             GameObject icon = ClientUtils.CreateChild(itemIconTransform, itemIconPrefab);
             item = icon.GetComponent<GameIcon_MaterialConsumable>();
         }
@@ -48,16 +51,19 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
             circleScroll.SetUp(OnInterestSelected);
             initialized = true;
         }
-        else
-        {
-            ResetCircleScroll();
-        }
+    }
+
+    public void UpdateInterest(Hero hero, Sprite currentSprite, string currentDesc)
+    {
+        this.hero = hero;
+        currentInterestImage.sprite = currentSprite;
+        currentInterestDescText.text = currentDesc;
+        ResetCircleScroll();
     }
 
     private void OnInterestSelected(byte type)
     {
         selectedType = (HeroInterestType)type;
-        print("selected type: " + selectedType);
         HeroInterestJson interestJson = HeroRepo.GetInterestByType(selectedType);
         if (interestJson != null)
         {
@@ -66,13 +72,14 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
             {
                 SetRandom();
                 SetItemIcon(hero.HeroJson.randomitemid);
+                if (waitForResetComplete)
+                    EnableCicleScroll(true);
             }
             else
             {
-                SetAssign(HeroRepo.IsInterestInGroup(hero.HeroJson.interestgroup, selectedType));
-                if (waitForSpinConfirm)
-                    circleScroll.EnableScrollView(false);
-                else
+                bool canAssign = selectedType != hero.Interest && HeroRepo.IsInterestInGroup(hero.HeroJson.interestgroup, selectedType);
+                SetAssign(canAssign);
+                if (!waitForSpinConfirm)
                     SetItemIcon(interestJson.assigneditemid);
             }
         }
@@ -104,41 +111,53 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
     private void SetItemIcon(string itemIdStr)
     {
-        int id;
+        hasEnoughItem = false;
+        int bindItemId, unbindItemId;
         string[] itemids = itemIdStr.Split(';');
-        if (itemids.Length > 0 && int.TryParse(itemids[0], out id))
+        if (itemids.Length > 0 && int.TryParse(itemids[0], out bindItemId))
         {
-            item.Init(id);
+            item.Init(bindItemId);
             itemNameText.text = item.inventoryItem.JsonObject.localizedname;
+            hasEnoughItem = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.HasItem((ushort)bindItemId, 1);
+            if (!hasEnoughItem && itemids.Length > 1 && int.TryParse(itemids[1], out unbindItemId))
+                hasEnoughItem = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.HasItem((ushort)unbindItemId, 1);
         }
     }
 
     public void OnClickRandomSpin()
     {
-        int randIndex = GameUtils.RandomInt(1, 12);
-        OnInterestRandomSpinResult((byte)randIndex);
-        //RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, 0);
+        if (hasEnoughItem)
+        {
+            EnableCicleScroll(false);
+            RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, 0);
+        }
+        else
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_GiftNotEnough"));
     }
 
     public void OnClickConfirm()
     {
-        ResetCircleScroll();
-
-        //if (waitForSpinConfirm)  // confirm on a random spin result
-        //    RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, 0, true);
-        //else  // confirm on an assigned change
-        //    RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, (byte)selectedType);
+        if (hasEnoughItem)
+        {
+            EnableCicleScroll(false);
+            if (waitForSpinConfirm)  // confirm on a random spin result
+                RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, 0, true);
+            else  // confirm on an assigned change
+                RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, (byte)selectedType);
+        }
+        else
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_GiftNotEnough"));
     }
 
     public void OnClickReset()
     {
+        EnableCicleScroll(false);
         ResetCircleScroll();
     }
 
     private void ResetCircleScroll()
     {
         waitForSpinConfirm = false;
-        circleScroll.EnableScrollView(true);
         circleScroll.SelectCell(0);
     }
 
@@ -146,5 +165,11 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
     {
         waitForSpinConfirm = true;
         circleScroll.SelectCell(newType);
+    }
+
+    private void EnableCicleScroll(bool value)
+    {
+        waitForResetComplete = !value;
+        circleScroll.EnableScrollView(value); // prevent user drag scrollview
     }
 }

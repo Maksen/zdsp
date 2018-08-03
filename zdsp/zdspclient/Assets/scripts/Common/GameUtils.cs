@@ -516,6 +516,14 @@ namespace Zealot.Common
             return pos;
         }
 
+        public static Vector3 RandomPosWithRadiusRange(Vector3 origin, float radiusMin, float radiusMax)
+        {
+            double rand = randomGen.NextDouble();
+            Vector3 randomDir = YawToDirection(rand * Math.PI * 2);
+            Vector3 pos = origin + randomDir * (radiusMin + (float)(randomGen.NextDouble() * (radiusMax - radiusMin)));
+            return pos;
+        }
+
         public static bool InRange(Vector3 posA, Vector3 posB, float radiusA, float radiusB = 0)
         {
             //A ----------)-(---B
@@ -621,7 +629,9 @@ namespace Zealot.Common
         /// </summary>
         public static int RandomInt(int min, int max)
         {
-            return randomGen.Next(min, max + 1);
+            if (min < max)
+                return randomGen.Next(min, max + 1);
+            return min;
         }
 
         public static long TimeToNextEvent(DateTime now, string eventformat, bool isdaily, out bool foundNext, int offset)
@@ -952,6 +962,24 @@ namespace Zealot.Common
                 }
             }
             return itemList;
+        }
+
+        //for case like id1;id2 
+        public static List<int> ParseStringToIntList(string data, char delimiter)
+        {
+            List<int> ret = new List<int>();
+            if (!string.IsNullOrEmpty(data))
+            {
+                string[] arr = data.Split(delimiter);
+                int length = arr.Length;
+                for (int index = 0; index < length; index++)
+                {
+                    int temp;
+                    if (int.TryParse(arr[index], out temp))
+                        ret.Add(temp);
+                }
+            }
+            return ret;
         }
     }
 

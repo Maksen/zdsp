@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using Zealot.Client.Actions;
+using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Common.Datablock;
 using Zealot.Common.Entities;
@@ -58,12 +59,24 @@ namespace Zealot.Client.Entities
             string path = "";
             switch (tier)
             {
-                case 1: path = mHeroJson.t1modelpath; break;
-                case 2: path = mHeroJson.t2modelpath; break;
-                case 3: path = mHeroJson.t3modelpath; break;
+                case 1:
+                    path = mHeroJson.t1modelpath;
+                    break;
+                case 2:
+                    path = mHeroJson.t2modelpath;
+                    break;
+                case 3:
+                    path = mHeroJson.t3modelpath;
+                    break;
+                default:
+                    HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
+                    if (skinItem != null)
+                        path = skinItem.HeroItemJson.heroskinpath;
+                    break;
             }
             return path;
         }
+
 
         public override void OnAnimObjLoaded(UnityEngine.Object asset)
         {
@@ -78,6 +91,7 @@ namespace Zealot.Client.Entities
         {
             if (AnimObj != null)
             {
+                AnimObj.transform.localScale = new Vector3(mHeroJson.modelscalex, mHeroJson.modelscaley, mHeroJson.modelscalez);
                 GameInfo.gCombat.SetPlayerOwnedNPCParent(AnimObj);
 
                 base.Init();
@@ -150,8 +164,10 @@ namespace Zealot.Client.Entities
         {
             if (EffectController.Animator != null)
                 return EffectController.Animator.GetCurrentAnimatorStateInfo(0).IsName(mHeroJson.summonaction);
-            else
+            else if (EffectController.Anim != null)
                 return EffectController.Anim.IsPlaying(mHeroJson.summonaction);
+            else
+                return false;
         }
 
         private void OnModelReady()

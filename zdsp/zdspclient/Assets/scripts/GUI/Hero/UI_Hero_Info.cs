@@ -34,7 +34,8 @@ public class UI_Hero_Info : MonoBehaviour
 
     [Header("Timeline")]
     [SerializeField] UITimelineController timelineController;
-    [SerializeField] GameObject[] uiCameras;
+    [SerializeField] GameObject[] objectsToHide;
+    [SerializeField] GameObject clickBlocker;
 
     private PlayerGhost player;
     private bool scrollSetup;
@@ -51,8 +52,9 @@ public class UI_Hero_Info : MonoBehaviour
 
     private void ShowUICameras(bool value)
     {
-        for (int i = 0; i < uiCameras.Length; i++)
-            uiCameras[i].SetActive(value);
+        clickBlocker.SetActive(!value);
+        for (int i = 0; i < objectsToHide.Length; i++)
+            objectsToHide[i].SetActive(value);
     }
 
     private List<HeroCellDto> CreateHeroesData()
@@ -118,24 +120,23 @@ public class UI_Hero_Info : MonoBehaviour
         else
         {
             modelAvatar.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);  // to be removed
-
             heroNameText.text = selectedHeroData.localizedname;
 
             selectedHero = player.HeroStats.GetHero(heroId);
             if (selectedHero != null)  // unlocked
             {
                 SetUnlocked(player.HeroStats.IsHeroSummoned(heroId));
-                UpdateModelTier(selectedHero.ModelTier);
                 skillPointsText.text = selectedHero.SkillPoints.ToString();
                 trustLevelText.text = selectedHero.TrustLevel.ToString();
                 UpdateInterest(selectedHero.Interest);
             }
             else // locked
             {
+                selectedHero = new Hero(heroId, selectedHeroData);
                 SetLocked();
-                UpdateModelTier(1);
                 InitUnlockItem(selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount);
             }
+            UpdateModelTier(selectedHero.ModelTier);
             SetSkillIcons(selectedHero, selectedHeroData);
         }
     }
@@ -158,18 +159,9 @@ public class UI_Hero_Info : MonoBehaviour
 
     private void SetSkillIcons(Hero hero, HeroJson heroData)
     {
-        if (hero != null)
-        {
-            skillIcons[0].Init(1, heroData.skill1grp, hero.Skill1Level);
-            skillIcons[1].Init(2, heroData.skill2grp, hero.Skill2Level);
-            skillIcons[2].Init(3, heroData.skill3grp, hero.Skill3Level);
-        }
-        else
-        {
-            skillIcons[0].Init(1, heroData.skill1grp, 0);
-            skillIcons[1].Init(2, heroData.skill2grp, 0);
-            skillIcons[2].Init(3, heroData.skill3grp, 0);
-        }
+        skillIcons[0].Init(1, heroData.skill1grp, hero.Skill1Level);
+        skillIcons[1].Init(2, heroData.skill2grp, hero.Skill2Level);
+        skillIcons[2].Init(3, heroData.skill3grp, hero.Skill3Level);
     }
 
     public void OnClickUnlockHero()
@@ -179,6 +171,9 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnSummonedHeroChanged()
     {
+        if (player == null)
+            return;
+
         if (selectedHeroId == player.HeroStats.SummonedHeroId)
         {
             summonBtn.SetActive(false);
@@ -214,6 +209,7 @@ public class UI_Hero_Info : MonoBehaviour
             skillPointsText.text = hero.SkillPoints.ToString();
             trustLevelText.text = hero.TrustLevel.ToString();
             modelImage.material = null;
+            UpdateInterest(hero.Interest);
         }
     }
 
@@ -227,21 +223,21 @@ public class UI_Hero_Info : MonoBehaviour
             trustLevelText.text = newHero.TrustLevel.ToString();
 
             GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroSkillPoints);
-            if (dialog.activeInHierarchy)
+            if (dialog != null && dialog.activeInHierarchy)
                 dialog.GetComponent<UI_Hero_AddSkillPointsDialog>().Init(newHero);
 
             if (oldHero.ModelTier != newHero.ModelTier)
                 UpdateModelTier(newHero.ModelTier);
 
             dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroTrust);
-            if (dialog.activeInHierarchy)
+            if (dialog != null && dialog.activeInHierarchy)
                 dialog.GetComponent<UI_Hero_AddTrustDialog>().UpdateList(newHero);
 
             if (oldHero.Interest != newHero.Interest)
                 UpdateInterest(newHero.Interest);
 
             dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroStats);
-            if (dialog.activeInHierarchy)
+            if (dialog != null && dialog.activeInHierarchy)
                 dialog.GetComponent<UI_Hero_StatsDialog>().Init(newHero);
         }
     }
@@ -249,13 +245,20 @@ public class UI_Hero_Info : MonoBehaviour
     private void UpdateModelTier(int tier)
     {
         modelAvatar.ChangeHero(selectedHeroId, tier);
+        string imagePath = "";
         switch (tier)
         {
-            case 1: ClientUtils.LoadIconAsync(selectedHeroData.t1imagepath, OnModelImageLoaded); break;
-            case 2: ClientUtils.LoadIconAsync(selectedHeroData.t2imagepath, OnModelImageLoaded); break;
-            case 3: ClientUtils.LoadIconAsync(selectedHeroData.t3imagepath, OnModelImageLoaded); break;
+            case 1: imagePath = selectedHeroData.t1imagepath; break;
+            case 2: imagePath = selectedHeroData.t2imagepath; break;
+            case 3: imagePath = selectedHeroData.t3imagepath; break;
+            default:
+                HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
+                if (skinItem != null)
+                    imagePath = skinItem.HeroItemJson.heroimagepath;
+                break;
         }
-        modelImage.material = selectedHero == null ? grayscaleMat : null;
+        ClientUtils.LoadIconAsync(imagePath, OnModelImageLoaded);
+        modelImage.material = selectedHero.SlotIdx == -1 ? grayscaleMat : null;
     }
 
     private void OnModelImageLoaded(Sprite sprite)
@@ -270,7 +273,7 @@ public class UI_Hero_Info : MonoBehaviour
         if (interestJson != null)
         {
             ClientUtils.LoadIconAsync(interestJson.iconpath, OnInterestIconLoaded);
-            interestDescText.text = type.ToString();
+            interestDescText.text = interestJson.description;
         }
     }
 
@@ -281,15 +284,15 @@ public class UI_Hero_Info : MonoBehaviour
             interestIconImage.sprite = sprite;
 
             GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroInterest);
-            if (dialog.activeInHierarchy)
-                dialog.GetComponent<UI_Hero_InterestDialog>().Init(selectedHero, sprite, interestDescText.text);
+            if (dialog != null &&  dialog.activeInHierarchy)
+                dialog.GetComponent<UI_Hero_InterestDialog>().UpdateInterest(selectedHero, sprite, interestDescText.text);
         }
     }
 
     public void OnInterestRandomSpinResult(byte interest)
     {
         GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroInterest);
-        if (dialog.activeInHierarchy)
+        if (dialog != null && dialog.activeInHierarchy)
             dialog.GetComponent<UI_Hero_InterestDialog>().OnInterestRandomSpinResult(interest);
     }
 
@@ -322,7 +325,7 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnClickChangeModelTier()
     {
-        if (selectedHero != null)
+        if (selectedHero.SlotIdx != -1)
         {
             UIManager.OpenDialog(WindowType.DialogHeroTier,
                 (window) => window.GetComponent<UI_Hero_ModelTierDialog>().Init(selectedHero, modelImage.sprite));
@@ -335,5 +338,10 @@ public class UI_Hero_Info : MonoBehaviour
     {
         UIManager.OpenDialog(WindowType.DialogHeroStats,
             (window) => window.GetComponent<UI_Hero_StatsDialog>().Init(selectedHero));
+    }
+
+    public void OnClickBonds()
+    {
+
     }
 }

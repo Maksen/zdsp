@@ -159,6 +159,8 @@ namespace Zealot.Repository
                 }
                 mDestinyDetailGroupMap[entry.Value.groupid].Add(entry.Value);
             }
+
+            MainStartQuestRefId = GameConstantRepo.GetConstantInt("MainQuest_Id");
         }
 
         public static ChapterJson GetChapterByQuestId(int questid)
@@ -378,7 +380,7 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static int GetObjectiveCorrectAnswer(int talkid)
+        public static bool CheckCorrectAnswer(int talkid, int answerid)
         {
             QuestTalkDetailJson talkJson = GetQuestTalkByID(talkid);
             if (talkJson != null)
@@ -388,14 +390,17 @@ namespace Zealot.Repository
                 {
                     foreach(QuestSelectDetailJson selection in questSelects)
                     {
-                        if (selection.actiontype == QuestSelectionActionType.SubmitObjective && selection.isanswer)
+                        if (selection.id == answerid)
                         {
-                            return selection.id;
+                            if ((selection.actiontype == QuestSelectionActionType.SubmitObjective || selection.actiontype == QuestSelectionActionType.Job) && selection.isanswer)
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
             }
-            return -1;
+            return false;
         }
 
         public static QuestInteractiveDetailJson GetQuestInteractiveByID(int interactiveid)
@@ -736,6 +741,21 @@ namespace Zealot.Repository
             return null;
         }
 
+        public static QuestEventDetailJson GetQuestEventById(int eventid)
+        {
+            foreach(KeyValuePair<int, List<QuestEventDetailJson>> entry in mQuestEventDetailMap)
+            {
+                foreach(QuestEventDetailJson eventdata in entry.Value)
+                {
+                    if (eventdata.id == eventid)
+                    {
+                        return eventdata;
+                    }
+                }
+            }
+            return null;
+        }
+
         public static List<int> GetDestinyGroup()
         {
             return mDestinyDetailGroupMap.Keys.ToList();
@@ -756,6 +776,20 @@ namespace Zealot.Repository
             if (mDestinyDetailGroupMap.ContainsKey(groupid))
             {
                 return mDestinyDetailGroupMap[groupid];
+            }
+            return null;
+        }
+
+        public static QuestJson GetNextBlockQuestJson(int groupid, int row, int column)
+        {
+            List<QuestDestinyJson> destinyJsons = GetDestinyListByGroupId(groupid);
+            foreach(QuestDestinyJson destinyJson in destinyJsons)
+            {
+                if (destinyJson.uicolumn == column && destinyJson.uirow == row)
+                {
+                    QuestJson questJson = GetQuestByID(destinyJson.questid);
+                    return questJson;
+                }
             }
             return null;
         }

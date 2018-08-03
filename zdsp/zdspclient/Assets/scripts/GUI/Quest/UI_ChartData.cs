@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UI.Extensions;
+using Zealot.Repository;
 
 public enum ChartDirection
 {
@@ -48,11 +49,13 @@ public class UI_ChartData : MonoBehaviour
     private UI_DestinyQuest mParent;
     private List<QuestDestinyJson> mDestinyJsons;
     private List<GameObject> mLineObjects;
+    private QuestClientController mQuestController;
 
-    public void Init(List<QuestDestinyJson> destinies, ToggleGroup toggleGroup, UI_DestinyQuest parent)
+    public void Init(List<QuestDestinyJson> destinies, ToggleGroup toggleGroup, UI_DestinyQuest parent, QuestClientController questcontroller)
     {
         mParent = parent;
         mDestinyJsons = destinies;
+        mQuestController = questcontroller;
         mLineObjects = new List<GameObject>();
         for (int i = 1; i <= 5; i++)
         {
@@ -91,6 +94,13 @@ public class UI_ChartData : MonoBehaviour
                 ChartDirection invertdirection;
                 GetDirection(destiny.uicolumn, destiny.uirow, nextdata.Column, nextdata.Row, out direction, out invertdirection);
 
+                bool specialline = false;
+                QuestJson questJson = QuestRepo.GetNextBlockQuestJson(destiny.groupid, destiny.uirow, destiny.uicolumn);
+                if (questJson != null)
+                {
+                    specialline = mQuestController.IsQuestInProgressOrUnlockOrCompleted(questJson);
+                }
+
                 Vector2 startpoint;
                 Vector2 endpoint;
                 mParent.GetPoint(destiny.uicolumn, destiny.uirow, direction, nextdata.Column, nextdata.Row, invertdirection, out startpoint, out endpoint);
@@ -101,6 +111,16 @@ public class UI_ChartData : MonoBehaviour
                 newline.GetComponent<UILineRenderer>().Points[0].y = 0;
                 newline.GetComponent<UILineRenderer>().Points[1].x = endpoint.x;
                 newline.GetComponent<UILineRenderer>().Points[1].y = endpoint.y;
+                if (specialline)
+                {
+                    newline.GetComponent<UILineRenderer>().LineThickness = 20;
+                    newline.GetComponent<UILineRenderer>().color = Color.cyan;
+                }
+                else
+                {
+                    newline.GetComponent<UILineRenderer>().LineThickness = 5;
+                    newline.GetComponent<UILineRenderer>().color = Color.white;
+                }
                 mLineObjects.Add(newline);
             }
         }

@@ -7,6 +7,7 @@
         <option uitext="LinkUI" datasource="LinkUI"/>
         <option uitext="Item Origin" datasource="ItemOrigin"/>
         <option uitext="Item Sort" datasource="ItemSort"/>
+        <option uitext="ItemBase" datasource="ItemBase"/>
         <option uitext="Potion Food" datasource="PotionFood"/>
         <option uitext="Material" datasource="Material"/>
         <option uitext="Lucky Pick" datasource="LuckyPick"/>
@@ -48,6 +49,7 @@
       <category uitext="Jobsect">
         <option uitext="Jobsect" datasource="Jobsect"/>
         <option uitext="GenderInfo" datasource="GenderInfo"/>
+        <option uitext="JobTree" datasource="JobTree"/>
       </category>
 
       <category uitext="Character">
@@ -99,8 +101,8 @@
       <category uitext="Reward">
         <option uitext="Reward List" datasource="RewardList"/>
         <option uitext="Experience Rate" datasource="ExperienceRate"/>
-		    <option uitext="ActivityReward" datasource="ActivityReward"/>
-		    <option uitext="Reward Group" datasource="RewardGroup"/>
+		<option uitext="ActivityReward" datasource="ActivityReward"/>
+		<option uitext="Reward Group" datasource="RewardGroup"/>
         <option uitext="Random Box Reward" datasource="RandomBoxReward"/>
         <option uitext="Prize Guarantee" datasource="PrizeGuarantee"/>
         <option uitext="Donate RewardId" datasource="DonateRewardId"/>
@@ -122,6 +124,13 @@
         <option uitext="LimitedItem" datasource="LimitedItem"/>        
       </category>
 
+      <category uitext="Power Up">
+        <option uitext="Power Up" datasource="PowerUp"/>
+        <option uitext="Meridian List" datasource="MeridianList"/>
+        <option uitext="Acupoint List" datasource="AcupointList"/>
+        <option uitext="Pay Material Item List" datasource="PayMaterialItemList"/>
+      </category>
+
       <category uitext="GUI Localization">
         <option uitext="GUI LocalizedString" datasource="GUILocalizedString"/>
         <option uitext="System Message" datasource="SystemMessage"/>
@@ -138,7 +147,14 @@
         <option uitext="Quest Requirement Detail" datasource="QuestRequirementDetail"/>
         <option uitext="Quest Event Detail" datasource="QuestEventDetail"/>
         <option uitext="Destiny" datasource="QuestDestiny"/>
-      </category> 
+      </category>
+
+      <category uitext="Destiny Clue">
+        <option uitext="Destiny Clue" datasource="DestinyClue"/>
+        <option uitext="Hero Memory" datasource="HeroMemory"/>
+        <option uitext="Hero Dialogue Clue" datasource="HeroDialogueClue"/>
+        <option uitext="Time Clue" datasource="TimeClue"/>
+      </category>
       
       <category uitext="Skills">
         <option uitext="Skill Group" datasource="SkillGroup"/> 

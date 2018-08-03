@@ -248,6 +248,11 @@ namespace Zealot.Client.Entities
 
         public virtual int GetArchetypeID() { return -1; }
 
+        public int ActiveQuest
+        {
+            get { return mActiveQuest; }
+        }
+
         public bool GetStartUpDisplay()
         {
             return staticNPCJson.activeonstartup;

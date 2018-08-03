@@ -63,14 +63,12 @@ namespace Zealot.Client.Entities
         private string mPrevPosVisualSEName, mPrevNegVisualSEName;
         private bool _isHitByLocalPlayer;
         private bool _isInLocalCombat;
-        private GameTimer combatTimer;
         private Dictionary<string, bool> ControlSE_Status;
 
         public ActorGhost() : base()
         {
             mPrevPosVisualSEName = null;
             mPrevNegVisualSEName = null;
-            combatTimer = null;
             _isHitByLocalPlayer = false;
             _isInLocalCombat = false;
             Radius = CombatUtils.DEFAULT_ACTOR_RADIUS;//todo: make sure this is same as server.

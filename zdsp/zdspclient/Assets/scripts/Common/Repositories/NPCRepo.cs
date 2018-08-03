@@ -3,27 +3,82 @@ using System.Collections.Generic;
 using Kopio.JsonContracts;
 using Zealot.Common;
 using System.Linq;
+using System;
 
 namespace Zealot.Repository
 {
+    public class NPCLootLink
+    {
+        public List<int> lootList;
+        public List<int> eventLootList;
+
+        public static NPCLootLink Create(string loot, string eventLoot)
+        {
+            if (!string.IsNullOrEmpty(loot) || !string.IsNullOrEmpty(eventLoot))
+            {
+                var lootList = GameUtils.ParseStringToIntList(loot, ';');
+                var eventLootList = GameUtils.ParseStringToIntList(eventLoot, ';');
+                if (lootList.Count > 0 || eventLootList.Count > 0)
+                {
+                    NPCLootLink ret = new NPCLootLink();
+                    ret.lootList = lootList;
+                    ret.eventLootList = eventLootList;
+                    return ret;
+                }
+            }
+            return null;
+        }
+
+        public Dictionary<LootType, List<int>> GetLootGroupIDs(DateTime now)
+        {
+            Dictionary<LootType, List<int>> lootMap = new Dictionary<LootType, List<int>>();
+            for (int index = 0; index < lootList.Count; index++)
+            {
+                LootLink lootLink = LootRepo.GetLootLink(lootList[index]);
+                if (lootLink == null || lootLink.gids.Count == 0)
+                    continue;
+                if (!lootMap.ContainsKey(lootLink.lootType))
+                    lootMap.Add(lootLink.lootType, new List<int>());
+                lootMap[lootLink.lootType].AddRange(lootLink.gids);
+            }
+
+            for (int index = 0; index < eventLootList.Count; index++)
+            {
+                EventLootLink lootLink = LootRepo.GetEventLootLink(eventLootList[index]);
+                if (lootLink == null || lootLink.gids.Count == 0 || !lootLink.IsInEvent(now))
+                    continue;
+                if (!lootMap.ContainsKey(lootLink.lootType))
+                    lootMap.Add(lootLink.lootType, new List<int>());
+                lootMap[lootLink.lootType].AddRange(lootLink.gids);
+            }
+            return lootMap;
+        }
+    }
+
     public static class NPCRepo
     {
         public static Dictionary<string, int> mNameMap;
         public static Dictionary<int, CombatNPCJson> mIdMap;
+        public static Dictionary<int, NPCLootLink> mNPCLootLinks;
         public static Dictionary<int, BossAIJson> mBossAIRaw;
         static NPCRepo()
         {
             mNameMap = new Dictionary<string, int>();
             mIdMap = new Dictionary<int, CombatNPCJson>();
+            mNPCLootLinks = new Dictionary<int, NPCLootLink>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
             mNameMap.Clear();
+            mNPCLootLinks.Clear();
             mIdMap = gameData.CombatNPC;
             mBossAIRaw =  gameData.BossAI;
             foreach (KeyValuePair<int, CombatNPCJson> entry in gameData.CombatNPC) {
                 mNameMap.Add(entry.Value.archetype, entry.Key);
+                NPCLootLink npcLooLink = NPCLootLink.Create(entry.Value.loot, entry.Value.eventloot);
+                if (npcLooLink != null)
+                    mNPCLootLinks.Add(entry.Key, npcLooLink);
             }
         }
 
@@ -46,6 +101,13 @@ namespace Zealot.Repository
             CombatNPCJson npcJson;
             mIdMap.TryGetValue(id, out npcJson);
             return npcJson;
+        }
+
+        public static NPCLootLink GetNPCLootLink(int id)
+        {
+            NPCLootLink npcLootLink;
+            mNPCLootLinks.TryGetValue(id, out npcLootLink);
+            return npcLootLink;
         }
     }
 

@@ -27,12 +27,12 @@ namespace Zealot.Server.Rules
         /*
         Kill/Percentage Kill Type - param1(MonsterId), param2(Killed Count)
         Talk Type - param1(NpcId), param2(Interact Count)
-        Choice Type - param1(NpcId), param2(Interact Count), param3(SelectionId)
+        Choice Type - param1(NpcId), param2(Interact Count), param3(SelectionId), param4(Question Talk Id)
         Interact Type - param1(InteractId),param2(Success?)
         Realm Type - param1(RealmId), param2(Completed Count)
         Multiple Type - param2(Completed?)
         */
-        public static bool UpdateObjectiveStatus(ref QuestObjectiveData objectiveData, Player player, int param1, int param2, int param3 = -1)
+        public static bool UpdateObjectiveStatus(ref QuestObjectiveData objectiveData, Player player, int param1, int param2, int param3 = -1, int param4 = -1)
         {
             bool success = false;
             QuestJson questJson = QuestRepo.GetQuestByID(objectiveData.QuestId);
@@ -76,8 +76,8 @@ namespace Zealot.Server.Rules
                     }
                     break;
                 case QuestObjectiveType.Choice:
-                    int answerid = QuestRepo.GetObjectiveCorrectAnswer(objectiveJson.para2);
-                    if (objectiveJson.para1 == param1 && answerid == param3)
+                    bool isanswer = QuestRepo.CheckCorrectAnswer(param4, param3);
+                    if (objectiveJson.para1 == param1 && isanswer)
                     {
                         success = true;
                     }
@@ -452,7 +452,10 @@ namespace Zealot.Server.Rules
                         Dictionary<int, int> requirements = GenerateRequirementProgress(objectiveData.ObjectiveIds[i], player);
                         foreach (KeyValuePair<int, int> requirement in requirements)
                         {
-                            objectiveData.RequirementProgress.Add(requirement.Key, requirement.Value);
+                            if (!objectiveData.RequirementProgress.ContainsKey(requirement.Key))
+                            {
+                                objectiveData.RequirementProgress.Add(requirement.Key, requirement.Value);
+                            }
                         }
                     }
                     objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds, currentime);
@@ -511,7 +514,7 @@ namespace Zealot.Server.Rules
                         {
                             progress.Add(requirementDetailJson.requirementid, 0);
                         }
-                        else if (requirementDetailJson.type == QuestRequirementType.NPC)
+                        else if (requirementDetailJson.type == QuestRequirementType.Clue)
                         {
                             progress.Add(requirementDetailJson.requirementid, 0);
                         }
@@ -574,7 +577,7 @@ namespace Zealot.Server.Rules
                         return 0;
                     case QuestRequirementType.Companian:
                         return 0;
-                    case QuestRequirementType.NPC:
+                    case QuestRequirementType.Clue:
                         return 0;
                     case QuestRequirementType.Outfit:
                         return 0;
@@ -732,7 +735,7 @@ namespace Zealot.Server.Rules
                     return true;
                 case QuestRequirementType.Companian:
                     return true;
-                case QuestRequirementType.NPC:
+                case QuestRequirementType.Clue:
                     return true;
                 case QuestRequirementType.Outfit:
                     return true;
@@ -748,6 +751,29 @@ namespace Zealot.Server.Rules
                     break;
             }
             return false;
+        }
+
+        public static bool CanAddIntoUnlock(QuestJson questJson, int jobsec)
+        {
+            List<QuestRequirementDetailJson> requirementList = QuestRepo.GetRequirementByGroupId(questJson.requirementid);
+            if (requirementList != null)
+            {
+                foreach (QuestRequirementDetailJson requirement in requirementList)
+                {
+                    if (requirement.type == QuestRequirementType.Job)
+                    {
+                        if (requirement.para2 == 1 && requirement.para1 != jobsec)
+                        {
+                            return false;
+                        }
+                        else if (requirement.para2 == 2 && requirement.para1 == jobsec)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
         }
         #endregion
 
@@ -801,7 +827,7 @@ namespace Zealot.Server.Rules
                     return true;
                 case QuestRequirementType.Companian:
                     return true;
-                case QuestRequirementType.NPC:
+                case QuestRequirementType.Clue:
                     return true;
                 case QuestRequirementType.Outfit:
                     return true;

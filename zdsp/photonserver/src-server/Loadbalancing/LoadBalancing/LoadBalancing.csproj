@@ -158,7 +158,9 @@
     <Compile Include="ClusterServers\GameServer\IncomingGameServerPeer.cs" />
     <Compile Include="Entities\HeroEntity.cs" />
     <Compile Include="Entities\PersonalMonsterSpawner.cs" />
+    <Compile Include="Entities\Triggers\RandomTrigger.cs" />
     <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
+    <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
     <Compile Include="GameServer\NPCStore\NPCStoreManager.cs" />
@@ -211,10 +213,6 @@
     <Compile Include="Entities\Triggers\MessageBroadcaster.cs" />
     <Compile Include="GameServer\ApplicationStatsPublisher.cs" />
     <Compile Include="GameServer\Chest\Chest.cs" />
-    <Compile Include="GameServer\Combat\Chrono.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="GameServer\Combat\CombatTimerManager.cs" />
     <Compile Include="GameServer\Crafting\Crafting.cs" />
     <Compile Include="GameServer\EventMessage\RoomBroadcastMessage.cs" />
     <Compile Include="GameServer\EventMessage\RPCBroadcastData.cs" />

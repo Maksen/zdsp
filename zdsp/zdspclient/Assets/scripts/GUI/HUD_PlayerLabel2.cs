@@ -326,10 +326,7 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     }
     public void SetScale(Vector3 scale)
     {
-        Transform parent = gameObject.transform.parent;
-        transform.SetParent(null, false);
         transform.localScale = scale;
-        transform.SetParent(parent, false);
     }
 
     //Quick set functions

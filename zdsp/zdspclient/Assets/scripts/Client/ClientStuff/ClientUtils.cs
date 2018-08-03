@@ -494,7 +494,7 @@ public static class ClientUtils
             case PartsType.Sanxian:
                 return "sanxian_nmstandby";
             default:
-                return "hammer_nmstandby";
+                return "blade_nmstandby";
         }
     }
 

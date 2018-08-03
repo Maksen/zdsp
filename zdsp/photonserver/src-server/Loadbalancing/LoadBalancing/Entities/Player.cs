@@ -22,7 +22,6 @@
     using Photon.LoadBalancing.GameServer.Lottery;
     using Photon.LoadBalancing.GameServer.Crafting;
     using Photon.LoadBalancing.Entities;
-    using Photon.LoadBalancing.GameServer.Combat;
 
     public class Player : ComboSkillCaster
     {
@@ -90,9 +89,8 @@
         public WardrobeController WardrobeController { get; private set; }
         public bool InspectMode = false;
 
-        private CombatTimerManager m_CombatTimer;
-        private float m_CombatModifer = 1.0f;
         public WeaponType WeaponTypeUsed = WeaponType.Any;
+        private bool mIsWorld = false;
 
         public Player() : base()
         {            
@@ -138,9 +136,6 @@
 
             mCrafting = new Crafting(this);
             WardrobeController = new WardrobeController(this);
-
-            m_CombatTimer = new CombatTimerManager(this);
-
             QuestController = new QuestController(this);
         }
 
@@ -296,6 +291,7 @@
         public override void SetInstance(GameLogic instance)
         {
             base.SetInstance(instance);
+            mIsWorld = instance.IsWorld();
             RealmController realmController = instance.mRealmController;
             if (realmController != null)
             {
@@ -790,73 +786,38 @@
             base.OnDamage(attacker, res, pbasicattack);
         }
 
-        public override void CombatStarted()
+        private long InCombatTime = 0;
+        public void CombatStarted()
         {
             InCombatTime = 6000;
-            Slot.CharacterData.BattleTime = BattleTime;
-            SecondaryStats.BattleTime = BattleTime;
             if (!LocalCombatStats.IsInCombat)
-            {
-
-                LocalCombatStats.IsInCombat = true;
-
-
-            }
-
-            InCombatTime = 6000;
-            LocalCombatStats.IsInCombat = true;
-            
-
+                LocalCombatStats.IsInCombat = true;        
         }
 
+        private long mBattleTimeCountdown = 10000;
         public override void Update(long dt)
         {
             base.Update(dt);
 
-            //同步以及戰鬥時間更新及運算方式
-            BattleTime = Slot.CharacterData.BattleTime;
-            BattleTime = SecondaryStats.BattleTime;
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             if (InCombatTime > 0)
             {
-                sw.Reset();
-                sw.Start();
-            }
-            if (InCombatTime <= 0)
-            {
-                sw.Stop();
-            }
-            string sw_result = sw.Elapsed.TotalSeconds.ToString();
-            float SWRESULT = (float)Convert.ToDouble(sw_result);
-            BattleTime = (BattleTime * 60 - Mathf.CeilToInt(SWRESULT / 10)) / 60;
-            Slot.CharacterData.BattleTime = BattleTime;
-
-
-            //900MIN最大時間判斷,Secondary& CharacterData的同步
-            if (SecondaryStats.BattleTime >= MaxBattleTime)
-            {
-                SecondaryStats.BattleTime = MaxBattleTime;
-                Slot.CharacterData.BattleTime = MaxBattleTime;
-            }
-            if (Slot.CharacterData.BattleTime >= MaxBattleTime)
-            {
-                SecondaryStats.BattleTime = MaxBattleTime;
-                Slot.CharacterData.BattleTime = MaxBattleTime;
-            }
-            if (SecondaryStats.BattleTime <= 0.0)
-            {
-                SecondaryStats.BattleTime = 0;
-            }
-            if(Slot.CharacterData.BattleTime <= 0.0)
-            {
-                Slot.CharacterData.BattleTime = 0;
+                InCombatTime -= dt;
+                if (InCombatTime <= 0)
+                    LocalCombatStats.IsInCombat = false;
+                if (mIsWorld && PlayerSynStats.Party == 0)
+                {
+                    mBattleTimeCountdown -= dt;
+                    if (mBattleTimeCountdown <= 0)
+                        DeductBattleTime();
+                }
             }
         }
 
-        public float GetBasicAttackRange()
+        public void DeductBattleTime()
         {
-            //Todo:: get basis attack combat range
-            return 1;
+            mBattleTimeCountdown = 10000;
+            Slot.CharacterData.BattleTime -= 10;
+            SecondaryStats.BattleTime = Slot.CharacterData.BattleTime;
         }
 
         public void NewDay()
@@ -943,8 +904,6 @@
             characterData.costbuffid = SecondaryStats.costbuffid;
             characterData.costbuffgold = SecondaryStats.costbuffgold;
             characterData.tutorialreddot = SecondaryStats.tutorialreddot;
-            characterData.BattleTime = SecondaryStats.BattleTime;
-            characterData.BattleTime = Slot.CharacterData.BattleTime;
 
             //if (exitroom) // Log out
             //{
@@ -969,7 +928,6 @@
             currencyInventory.VIPPoints = SecondaryStats.vippoints;
             currencyInventory.VIPLevel = PlayerSynStats.vipLvl;
             currencyInventory.BattleCoin = SecondaryStats.battlecoin;
-            currencyInventory.BattleTime = SecondaryStats.BattleTime;
 
             SkillInventoryData skillInventory = characterData.SkillInventory;
             skillInventory.basicAttack1SId = SkillStats.basicAttack1SId;
@@ -1143,42 +1101,31 @@
             }
         }
 
-        public void OnNPCKilled(CombatNPCJson npc)
-        {
-            //finalexp = Min(1, exp x lvldiffpenalty% x (1 + expbuff%) x (1 - battletimepenalty%) Rounded UP)
-            //exp = (monster base exp x dealtHP%) / number of party member
-            //dealtHP% = 0% ~ 100%
-            //lvldiffpenalty% = refer to lvl diff table
-            //expbuff% = 100% ~ infinity%
-            //battletimepenalty% = 0% (if battletime < maxbattletime), [battletime - maxbattletime]% (otherwise)
-            bool hasParty = IsInParty();
-            float partyMemNum = (!hasParty) ? 1f : PartyStats.MemberCount(false);
-            float dealtHP = 1f;
-            float exp = npc.experience / partyMemNum;
-            float lvldiffPenalty = CharacterLevelRepo.GetShareExpByLevelDiff(PlayerSynStats.Level, npc.level) * 0.01f; //floating point inaccuracy
-            float expbuff = 1f + 0f;
-            float bTimePenalty = 1f - 0f;
-            int finalExp = Mathf.FloorToInt(Mathf.Max(1f, exp * dealtHP * lvldiffPenalty * expbuff * bTimePenalty));
-
-            AddExperience(finalExp);
-            AddJobExperience(0);
-            if (hasParty)
-                PartyStats.AddExperienceToPartyMembers(finalExp, Name);
+        public void OnNPCKilled(CombatNPCJson npc, float exp)
+        {        
+            if(exp > 0)
+            {
+                int monsterLvl = npc.level;
+                if (IsInParty())
+                {
+                    List<Player> partyPlayers = PartyStats.GetSameInstancePartyMembers(Name, mInstance);
+                    int count = partyPlayers.Count;
+                    int totalValidPlayers = count + 1;
+                    if (totalValidPlayers == 1)
+                        AddMonsterExperience(exp, monsterLvl);
+                    else
+                    {
+                        float expEach = exp / totalValidPlayers;
+                        AddMonsterExperience(expEach, monsterLvl);
+                        for (int index = 0; index < count; index++)
+                            partyPlayers[index].AddMonsterExperience(expEach, monsterLvl);
+                    }
+                }
+                else
+                    AddMonsterExperience(exp, monsterLvl);
+            }
 
             QuestController.KillCheck(npc.id, 1);
-            Slot.ZRPC.CombatRPC.OnNPCKilled(Slot);
-
-            //int experience = 0;
-            //if (experience > 0)
-            //    AddExperience(Mathf.FloorToInt(experience * (1.0f + mMonsterExpBonus)));
-
-            /*if (npc.rewardgroupid > 0)
-            {
-                bool isFull;
-                GameRules.GiveRewardGrp_CheckBagSlot(this, new List<int>() { npc.rewardgroupid }, out isFull, true, true, string.Format("NPCKill id={0}", npc.id));
-                if(isFull == true)
-                    Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagNoEnoughSpace", "", false, Slot);
-            }*/
         }
          
         #region PlayerStats Methods
@@ -1230,12 +1177,24 @@
             return GameUtils.FormatString(GUILocalizationRepo.GetLocalizedString("inst_LevelMinRank0"), parameters);            
         }
 
+        public void AddMonsterExperience(float exp, int monsterLvl)
+        {
+            if (SecondaryStats.BattleTime > 0)
+            {
+                float lvldiffPenalty = CharacterLevelRepo.GetShareExpByLevelDiff(PlayerSynStats.Level, monsterLvl) * 0.01f; //floating point inaccuracy
+                exp *= lvldiffPenalty;
+                if (exp < 1)
+                    AddExperience(1);
+                else
+                    AddExperience(Mathf.FloorToInt(exp));
+            }
+        }
+
         public void AddExperience(int exp)
         {
             if (PlayerSynStats.Level < mMaxLevel)
             {
-                // SecondaryStats.experience += exp;
-                SecondaryStats.experience += (int)Math.Ceiling((float)exp * m_CombatModifer);
+                SecondaryStats.experience += exp;
 
                 // Broadcast Exp msg with all the defaults less the BroadcastMessageType being GainExperience
                 AddToChatMessageQueue(new ChatMessage(MessageType.BroadcastMessage, exp.ToString(),
@@ -2472,6 +2431,17 @@
                 }
             } 
         }
+
+        public void RemoveSideEffect(int seid)
+        {
+            SideEffect se = base.GetSideEffect(seid);
+            if (se != null)
+            {
+                SideEffectJson sej = SideEffectRepo.GetSideEffect(seid);
+                bool positiveEffect = SideEffectsUtils.IsSideEffectPositive(sej);
+                RemoveSideEffect(se, positiveEffect);
+            }
+        }
         #endregion
 
         #region SocialStats Methods
@@ -3409,24 +3379,5 @@
                 return PlayerSynStats.Party;
             return -1;
         }
-
-        #region CombatTimer
-        public void ActiveCombatTimerZone()
-        {
-            m_CombatTimer.StartCombat();
-        }
-
-        public void ApplyDecay()
-        {
-            m_CombatModifer -= 0.01f;
-        }
-
-        public void RecoverTimeFromOnsen(double duration)
-        {
-            // adds back 1 min
-            m_CombatTimer.AddAdditionalTime(duration);
-        }
-
-        #endregion
     }
 }

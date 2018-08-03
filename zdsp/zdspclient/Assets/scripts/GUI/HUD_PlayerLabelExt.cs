@@ -58,6 +58,11 @@ public class HUD_PlayerLabelExt : MonoBehaviour
         mRectTrans = gameObject.GetComponent<RectTransform>();
     }
 
+    private bool IsActive()
+    {
+        return mCastBar.gameObject.GetActive() || mCutsceneIcon.gameObject.GetActive();
+    }
+
     public void CastSkill(float skillCastTime)
     {
         //Do nothing if a skill is already casting
@@ -88,12 +93,13 @@ public class HUD_PlayerLabelExt : MonoBehaviour
 
         //Set current cast time and check if casting is done
         mCastBar.Value = val;
-        mCastBar.gameObject.SetActive(mCastBar.Value < mCastBar.Max);
+        if (mCastBar.Value >= mCastBar.Max)
+            mCastBar.gameObject.SetActive(false);
     }
 
     public void UpdateAchorPos()
     {
-        if (mCanvasPosFunc == null)
+        if (mCanvasPosFunc == null || !IsActive())
             return;
 
         mRectTrans.anchoredPosition = mCanvasPosFunc(mOffset_WorldSpace);
@@ -101,10 +107,7 @@ public class HUD_PlayerLabelExt : MonoBehaviour
 
     public void ScaleLabel(Vector3 scale)
     {
-        Transform parent = gameObject.transform.parent;
-        transform.SetParent(null, false);
         transform.localScale = scale;
-        transform.SetParent(parent, false);
     }
 }
 

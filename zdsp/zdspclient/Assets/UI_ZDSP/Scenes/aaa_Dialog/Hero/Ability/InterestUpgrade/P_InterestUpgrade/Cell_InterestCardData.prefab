@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 225834564423193208}
   - component: {fileID: 223988488174668990}
   - component: {fileID: 114231811097930174}
-  - component: {fileID: 114785372738431992}
+  - component: {fileID: 114705550531112454}
   m_Layer: 23
   m_Name: Cell_InterestCardData
   m_TagString: Untagged
@@ -436,6 +436,22 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114705550531112454
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1510899913683170}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ed7628b1063ace42b8ca18b6836ebb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 95592032122261502}
+  message: {fileID: 114809502098078582}
+  image: {fileID: 114455561153844322}
+  button: {fileID: 114084726600443398}
+  highlight: {fileID: 1863113198217340}
 --- !u!114 &114744224581312056
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -463,23 +479,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114785372738431992
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1510899913683170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44750c129d6431c43a9202d76a73e46d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 95592032122261502}
-  message: {fileID: 114809502098078582}
-  image: {fileID: 114455561153844322}
-  button: {fileID: 114084726600443398}
-  highlight: {fileID: 1863113198217340}
-  grayScaleMat: {fileID: 0}
 --- !u!114 &114809502098078582
 MonoBehaviour:
   m_ObjectHideFlags: 1

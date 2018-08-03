@@ -57,6 +57,7 @@ GameObject:
   - component: {fileID: 224721331678337974}
   - component: {fileID: 114115547189435748}
   - component: {fileID: 114938013548244210}
+  - component: {fileID: 114375552755439332}
   m_Layer: 5
   m_Name: RfmStats_Text_Value
   m_TagString: Untagged
@@ -150,6 +151,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   localizeText: com_colon
+--- !u!114 &114375552755439332
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1895461991197740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5de0ba724f93d04e94c40bc80cc7d52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsLabel: {fileID: 114717512150957104}
+  statsValue: {fileID: 114037565240119468}
 --- !u!114 &114375827935727532
 MonoBehaviour:
   m_ObjectHideFlags: 1

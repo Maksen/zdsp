@@ -1,7 +1,127 @@
 {
   "mEntities": {
     "MonsterSpawnerJson": {
-      "-9374": {
+      "-358864": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 8.0,
+        "combatRadius": 10.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "aggressive": true,
+        "forward": {
+          "x": 0.749008238,
+          "y": 1.9819268E-07,
+          "z": -0.66256094
+        },
+        "archetype": "realm_01_b02",
+        "EntityLinks_Server": {
+          "OnChildDead": [
+            {
+              "mReceiver": -276282,
+              "mTrigger": "CompleteRealm"
+            }
+          ]
+        },
+        "ObjectID": -358864,
+        "position": {
+          "x": 25.1200027,
+          "y": -1.90734863E-06,
+          "z": 56.1899948
+        },
+        "ShowInMap": true
+      },
+      "-276464": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 8.0,
+        "combatRadius": 10.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "aggressive": true,
+        "forward": {
+          "x": -0.593489468,
+          "y": -1.99629291E-08,
+          "z": -0.804841638
+        },
+        "archetype": "realm_01_m01",
+        "EntityLinks_Server": {
+          "OnChildDead": [
+            {
+              "mReceiver": -276368,
+              "mTrigger": "Increase"
+            }
+          ]
+        },
+        "ObjectID": -276464,
+        "position": {
+          "x": 38.4999962,
+          "y": -1.90734863E-06,
+          "z": 50.8799973
+        },
+        "ShowInMap": true
+      },
+      "-276446": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 8.0,
+        "combatRadius": 10.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "aggressive": true,
+        "forward": {
+          "x": 0.6931329,
+          "y": 0.0,
+          "z": 0.7208098
+        },
+        "archetype": "realm_01_b01",
+        "EntityLinks_Server": {
+          "OnChildDead": [
+            {
+              "mReceiver": -276408,
+              "mTrigger": "Increase"
+            }
+          ]
+        },
+        "ObjectID": -276446,
+        "position": {
+          "x": 87.75,
+          "y": 0.0179884434,
+          "z": 39.82
+        },
+        "ShowInMap": true
+      },
+      "-276474": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 8.0,
+        "combatRadius": 10.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "aggressive": true,
+        "forward": {
+          "x": 0.694155455,
+          "y": 3.339944E-08,
+          "z": 0.719825149
+        },
+        "archetype": "realm_01_m02",
+        "EntityLinks_Server": {
+          "OnChildDead": [
+            {
+              "mReceiver": -276368,
+              "mTrigger": "Increase"
+            }
+          ]
+        },
+        "ObjectID": -276474,
+        "position": {
+          "x": 29.4399986,
+          "y": -1.90734863E-06,
+          "z": 46.71
+        },
+        "ShowInMap": true
+      },
+      "-276466": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 8.0,
@@ -20,12 +140,12 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -9342,
+              "mReceiver": -276366,
               "mTrigger": "Increase"
             }
           ]
         },
-        "ObjectID": -9374,
+        "ObjectID": -276466,
         "position": {
           "x": 92.10999,
           "y": -1.90734863E-06,
@@ -33,7 +153,37 @@
         },
         "ShowInMap": true
       },
-      "-9360": {
+      "-276444": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 8.0,
+        "combatRadius": 10.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "aggressive": true,
+        "forward": {
+          "x": 0.634061456,
+          "y": 0.0,
+          "z": 0.7732827
+        },
+        "archetype": "realm_01_m01",
+        "EntityLinks_Server": {
+          "OnChildDead": [
+            {
+              "mReceiver": -276368,
+              "mTrigger": "Increase"
+            }
+          ]
+        },
+        "ObjectID": -276444,
+        "position": {
+          "x": 32.68,
+          "y": -1.90734863E-06,
+          "z": 44.08001
+        },
+        "ShowInMap": true
+      },
+      "-276462": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 8.0,
@@ -50,12 +200,12 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -9394,
+              "mReceiver": -276368,
               "mTrigger": "Increase"
             }
           ]
         },
-        "ObjectID": -9360,
+        "ObjectID": -276462,
         "position": {
           "x": 26.18,
           "y": -1.90734863E-06,
@@ -63,67 +213,7 @@
         },
         "ShowInMap": true
       },
-      "-9380": {
-        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
-        "archetypeGroup": "",
-        "aggroRadius": 8.0,
-        "combatRadius": 10.0,
-        "spawnRadius": 1.0,
-        "population": 1,
-        "aggressive": true,
-        "forward": {
-          "x": 0.694155455,
-          "y": 3.339944E-08,
-          "z": 0.719825149
-        },
-        "archetype": "realm_01_m02",
-        "EntityLinks_Server": {
-          "OnChildDead": [
-            {
-              "mReceiver": -9394,
-              "mTrigger": "Increase"
-            }
-          ]
-        },
-        "ObjectID": -9380,
-        "position": {
-          "x": 29.4399986,
-          "y": -1.90734863E-06,
-          "z": 46.71
-        },
-        "ShowInMap": true
-      },
-      "-9338": {
-        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
-        "archetypeGroup": "",
-        "aggroRadius": 8.0,
-        "combatRadius": 10.0,
-        "spawnRadius": 1.0,
-        "population": 1,
-        "aggressive": true,
-        "forward": {
-          "x": -0.659565032,
-          "y": 0.0,
-          "z": -0.7516475
-        },
-        "archetype": "realm_01_m02",
-        "EntityLinks_Server": {
-          "OnChildDead": [
-            {
-              "mReceiver": -9394,
-              "mTrigger": "Increase"
-            }
-          ]
-        },
-        "ObjectID": -9338,
-        "position": {
-          "x": 35.34,
-          "y": -1.90734863E-06,
-          "z": 53.38001
-        },
-        "ShowInMap": true
-      },
-      "-9346": {
+      "-276472": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 8.0,
@@ -141,12 +231,12 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -9324,
+              "mReceiver": -276408,
               "mTrigger": "Increase"
             }
           ]
         },
-        "ObjectID": -9346,
+        "ObjectID": -276472,
         "position": {
           "x": 94.8,
           "y": 0.0179884434,
@@ -154,67 +244,7 @@
         },
         "ShowInMap": true
       },
-      "-9382": {
-        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
-        "archetypeGroup": "",
-        "aggroRadius": 8.0,
-        "combatRadius": 10.0,
-        "spawnRadius": 1.0,
-        "population": 1,
-        "aggressive": true,
-        "forward": {
-          "x": 0.6931329,
-          "y": 0.0,
-          "z": 0.7208098
-        },
-        "archetype": "realm_01_b01",
-        "EntityLinks_Server": {
-          "OnChildDead": [
-            {
-              "mReceiver": -9324,
-              "mTrigger": "Increase"
-            }
-          ]
-        },
-        "ObjectID": -9382,
-        "position": {
-          "x": 87.75,
-          "y": 0.0179884434,
-          "z": 39.82
-        },
-        "ShowInMap": true
-      },
-      "-9372": {
-        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
-        "archetypeGroup": "",
-        "aggroRadius": 8.0,
-        "combatRadius": 10.0,
-        "spawnRadius": 1.0,
-        "population": 1,
-        "aggressive": true,
-        "forward": {
-          "x": 0.634061456,
-          "y": 0.0,
-          "z": 0.7732827
-        },
-        "archetype": "realm_01_m01",
-        "EntityLinks_Server": {
-          "OnChildDead": [
-            {
-              "mReceiver": -9394,
-              "mTrigger": "Increase"
-            }
-          ]
-        },
-        "ObjectID": -9372,
-        "position": {
-          "x": 32.68,
-          "y": -1.90734863E-06,
-          "z": 44.08001
-        },
-        "ShowInMap": true
-      },
-      "-9340": {
+      "-276442": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 8.0,
@@ -231,12 +261,12 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -9394,
+              "mReceiver": -276368,
               "mTrigger": "Increase"
             }
           ]
         },
-        "ObjectID": -9340,
+        "ObjectID": -276442,
         "position": {
           "x": 29.9000015,
           "y": -1.90734863E-06,
@@ -244,7 +274,7 @@
         },
         "ShowInMap": true
       },
-      "-9388": {
+      "-276460": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 8.0,
@@ -253,48 +283,70 @@
         "population": 1,
         "aggressive": true,
         "forward": {
-          "x": -0.593489468,
-          "y": -1.99629291E-08,
-          "z": -0.804841638
+          "x": -0.659565032,
+          "y": 0.0,
+          "z": -0.7516475
         },
-        "archetype": "realm_01_m01",
+        "archetype": "realm_01_m02",
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -9394,
+              "mReceiver": -276368,
               "mTrigger": "Increase"
             }
           ]
         },
-        "ObjectID": -9388,
+        "ObjectID": -276460,
         "position": {
-          "x": 38.4999962,
+          "x": 35.34,
           "y": -1.90734863E-06,
-          "z": 50.8799973
+          "z": 53.38001
         },
         "ShowInMap": true
       }
     },
-    "GateSpawnerJson": {
-      "-9336": {
-        "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
+    "RandomTriggerJson": {
+      "-280606": {
+        "$type": "Zealot.Entities.RandomTriggerJson, Assembly-CSharp",
         "activeOnStartup": true,
-        "forward": {
-          "x": 0.9932288,
-          "y": 1.3305845E-07,
-          "z": -0.116175175
+        "loop": true,
+        "size": 4,
+        "EntityLinks_Server": {
+          "Event1": [
+            {
+              "mReceiver": -358864,
+              "mTrigger": "TriggerSpawn"
+            }
+          ],
+          "Event2": [
+            {
+              "mReceiver": -358864,
+              "mTrigger": "TriggerSpawn"
+            }
+          ],
+          "Event3": [
+            {
+              "mReceiver": -276282,
+              "mTrigger": "CompleteRealm"
+            }
+          ],
+          "Event4": [
+            {
+              "mReceiver": -276282,
+              "mTrigger": "CompleteRealm"
+            }
+          ]
         },
-        "width": 1.0,
-        "height": 1.0,
-        "prefab": "lightwall1",
-        "ObjectID": -9336,
+        "ObjectID": -280606,
         "position": {
-          "x": 74.58602,
-          "y": 0.958953857,
-          "z": 39.9383125
+          "x": 90.2660141,
+          "y": -1.79104614,
+          "z": 80.98831
         }
-      },
-      "-9396": {
+      }
+    },
+    "GateSpawnerJson": {
+      "-276384": {
         "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
         "activeOnStartup": true,
         "forward": {
@@ -305,98 +357,116 @@
         "width": 1.0,
         "height": 1.0,
         "prefab": "lightwall1",
-        "ObjectID": -9396,
+        "ObjectID": -276384,
         "position": {
           "x": 93.95601,
           "y": 1.03895378,
           "z": 59.738308
         }
+      },
+      "-276370": {
+        "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
+        "activeOnStartup": true,
+        "forward": {
+          "x": 0.9932288,
+          "y": 1.3305845E-07,
+          "z": -0.116175175
+        },
+        "width": 1.0,
+        "height": 1.0,
+        "prefab": "lightwall1",
+        "ObjectID": -276370,
+        "position": {
+          "x": 74.58602,
+          "y": 0.958953857,
+          "z": 39.9383125
+        }
       }
     },
     "CounterJson": {
-      "-9342": {
-        "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
-        "activeOnStartup": true,
-        "count": 3,
-        "EntityLinks_Server": {
-          "OnCounter": [
-            {
-              "mReceiver": -9396,
-              "mTrigger": "Open"
-            },
-            {
-              "mReceiver": -9346,
-              "mTrigger": "TriggerSpawn"
-            },
-            {
-              "mReceiver": -9382,
-              "mTrigger": "TriggerSpawn"
-            }
-          ]
-        },
-        "ObjectID": -9342,
-        "position": {
-          "x": 90.2660141,
-          "y": -1.79104614,
-          "z": 80.98831
-        }
-      },
-      "-9394": {
+      "-276368": {
         "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
         "activeOnStartup": true,
         "count": 6,
         "EntityLinks_Server": {
           "OnCounter": [
             {
-              "mReceiver": -9386,
-              "mTrigger": "CompleteRealm"
+              "mReceiver": -280606,
+              "mTrigger": "Random"
             }
           ]
         },
-        "ObjectID": -9394,
+        "ObjectID": -276368,
         "position": {
           "x": 90.2660141,
           "y": -1.79104614,
           "z": 80.98831
         }
       },
-      "-9324": {
+      "-276366": {
+        "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
+        "activeOnStartup": true,
+        "count": 3,
+        "EntityLinks_Server": {
+          "OnCounter": [
+            {
+              "mReceiver": -276384,
+              "mTrigger": "Open"
+            },
+            {
+              "mReceiver": -276472,
+              "mTrigger": "TriggerSpawn"
+            },
+            {
+              "mReceiver": -276446,
+              "mTrigger": "TriggerSpawn"
+            }
+          ]
+        },
+        "ObjectID": -276366,
+        "position": {
+          "x": 90.2660141,
+          "y": -1.79104614,
+          "z": 80.98831
+        }
+      },
+      "-276408": {
         "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
         "activeOnStartup": true,
         "count": 5,
         "EntityLinks_Server": {
           "OnCounter": [
             {
-              "mReceiver": -9388,
+              "mReceiver": -276464,
               "mTrigger": "TriggerSpawn"
             },
             {
-              "mReceiver": -9372,
+              "mReceiver": -276444,
               "mTrigger": "TriggerSpawn"
             },
             {
-              "mReceiver": -9338,
+              "mReceiver": -276460,
               "mTrigger": "TriggerSpawn"
             },
             {
-              "mReceiver": -9380,
+              "mReceiver": -276474,
               "mTrigger": "TriggerSpawn"
             },
             {
-              "mReceiver": -9340,
+              "mReceiver": -276442,
               "mTrigger": "TriggerSpawn"
             },
             {
-              "mReceiver": -9360,
+              "mReceiver": -276462,
               "mTrigger": "TriggerSpawn"
             },
             {
-              "mReceiver": -9336,
+              "mReceiver": -276370,
               "mTrigger": "Open"
             }
           ]
         },
-        "ObjectID": -9324,
+        "ObjectID": -276408,
         "position": {
           "x": 90.2660141,
           "y": -1.79104614,
@@ -404,25 +474,42 @@
         }
       }
     },
-    "PlayerSpawnerJson": {
-      "-9358": {
-        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+    "PortalExitJson": {
+      "-276296": {
+        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
+        "myName": "huanshui_exit_01",
         "forward": {
-          "x": -4.76837158E-07,
+          "x": 0.0144136706,
           "y": 0.0,
-          "z": -1.0
+          "z": -0.9998963
         },
-        "ObjectID": -9358,
+        "ObjectID": -276296,
         "position": {
-          "x": 93.5060043,
+          "x": 93.59601,
           "y": -1.90734863E-06,
-          "z": 79.3983154
+          "z": 78.54831
+        }
+      }
+    },
+    "RealmControllerDungeonStoryJson": {
+      "-276282": {
+        "$type": "Zealot.Entities.RealmControllerDungeonStoryJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.00702852663,
+          "y": 0.0,
+          "z": -0.9999752
         },
-        "ShowInMap": true
+        "EntityLinks_Server": {},
+        "ObjectID": -276282,
+        "position": {
+          "x": 93.21601,
+          "y": -1.90734863E-06,
+          "z": 79.6983
+        }
       }
     },
     "SpecialBossSpawnerJson": {
-      "-9376": {
+      "-276292": {
         "$type": "Zealot.Entities.SpecialBossSpawnerJson, Assembly-CSharp",
         "positionhelper": [
           {
@@ -454,7 +541,7 @@
         },
         "archetype": "test",
         "EntityLinks_Server": {},
-        "ObjectID": -9376,
+        "ObjectID": -276292,
         "position": {
           "x": 90.2660141,
           "y": -1.79104614,
@@ -463,29 +550,12 @@
         "ShowInMap": true
       }
     },
-    "RealmControllerDungeonDailySpecialJson": {
-      "-9386": {
-        "$type": "Zealot.Entities.RealmControllerDungeonDailySpecialJson, Assembly-CSharp",
-        "forward": {
-          "x": 0.00702852663,
-          "y": 0.0,
-          "z": -0.9999752
-        },
-        "EntityLinks_Server": {},
-        "ObjectID": -9386,
-        "position": {
-          "x": 93.21601,
-          "y": -1.90734863E-06,
-          "z": 79.6983
-        }
-      }
-    },
     "PortalEntryJson": {
-      "-9368": {
+      "-276294": {
         "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
         "myName": "huanshui_01",
         "exitName": "daliang_field_test_exit_01",
-        "ObjectID": -9368,
+        "ObjectID": -276294,
         "position": {
           "x": 95.77601,
           "y": -1.90734863E-06,
@@ -494,21 +564,21 @@
         "ShowInMap": true
       }
     },
-    "PortalExitJson": {
-      "-9406": {
-        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
-        "myName": "huanshui_exit_01",
+    "PlayerSpawnerJson": {
+      "-276280": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
         "forward": {
-          "x": 0.0144136706,
+          "x": -4.76837158E-07,
           "y": 0.0,
-          "z": -0.9998963
+          "z": -1.0
         },
-        "ObjectID": -9406,
+        "ObjectID": -276280,
         "position": {
-          "x": 93.59601,
+          "x": 93.5060043,
           "y": -1.90734863E-06,
-          "z": 78.54831
-        }
+          "z": 79.3983154
+        },
+        "ShowInMap": true
       }
     }
   }

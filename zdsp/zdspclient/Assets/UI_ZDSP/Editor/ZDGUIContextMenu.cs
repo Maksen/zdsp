@@ -236,6 +236,17 @@ public class ZDGUIContextMenu : EditorWindow
 
 	//####################################################################
 	//Editor Only
+	
+	//GameIcon
+    [MenuItem("GameObject/ZDGUI/EditorOnly/GameIcon", false, -110)]
+    static void GameIcon()
+    {
+        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/GameIcon/GameIcon_Equip/P_GameIcon_Equip/GameIcon_Equip.prefab", typeof(GameObject));
+        CreateAsChildNoBreak(uiWidget);
+		Selection.activeObject.name = "GameIcon_Equip_SAMPLEDELETE";
+    }
+	
+	//Chinese Text
     [MenuItem("GameObject/ZDGUI/EditorOnly/ChineseText", false, -110)]
     static void ChineseText()
     {
@@ -244,6 +255,7 @@ public class ZDGUIContextMenu : EditorWindow
         Selection.activeGameObject.GetComponent<Text>().text = "咖哩魚頭";
     }
 
+	//3D Cube
     [MenuItem("GameObject/ZDGUI/EditorOnly/3DCube", false, -110)]
     static void EDITORONLY3DTEST()
     {
@@ -251,6 +263,7 @@ public class ZDGUIContextMenu : EditorWindow
         CreateInRootNoBreak(uiWidget);
     }
 
+	//Test Button
     [MenuItem("GameObject/ZDGUI/EditorOnly/TestButton", false, -110)]
     static void TestButton()
     {
@@ -258,6 +271,7 @@ public class ZDGUIContextMenu : EditorWindow
         CreateAsChild(uiWidget);
     }
 	
+	//Avatar Man
 	[MenuItem("GameObject/ZDGUI/EditorOnly/Avatar3D_Man (set layer to UI)", false, -110)]
     static void Avatar3D_Man()
     {
@@ -265,6 +279,7 @@ public class ZDGUIContextMenu : EditorWindow
         CreateAsChildNoBreak(uiWidget);
     }
 	
+	//Avatar Woman
 	[MenuItem("GameObject/ZDGUI/EditorOnly/Avatar3D_Female (set layer to UI)", false, -110)]
     static void Avatar3D_Female()
     {
@@ -274,8 +289,8 @@ public class ZDGUIContextMenu : EditorWindow
 
     //####################################################################
     //MISC
-
-    //FPS Counter
+	
+	//FPS Counter
     [MenuItem("GameObject/ZDGUI/Misc/FPS", false, -101)]
     static void FPS()
     {
@@ -353,22 +368,7 @@ public class ZDGUIContextMenu : EditorWindow
         CreateAsChildNoBreak(uiWidget);
     }
 	
-	//GAMEICON
-    [MenuItem("GameObject/ZDGUI/Misc/GameIcon (PiLi)", false, -99)]
-    static void GameIcon_BackPack()
-    {
-        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_PiLiQ/Widgets/GameIcon/GameIcon_BagPack/P_GameIcon_BagPack/GameIcon_BagPack.prefab", typeof(GameObject));
-        CreateAsChildNoBreak(uiWidget);
-    }
-
-    [MenuItem("GameObject/ZDGUI/Misc/EmptySlot (PiLi)", false, -99)]
-    static void EmptySlot()
-    {
-        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_PiLiQ/Widgets/GameIcon/EmptySlot.prefab", typeof(GameObject));
-        CreateAsChild(uiWidget);
-    }
-
-    [MenuItem("GameObject/ZDGUI/Misc/Expander (Only Expander Button)", false, -98)]
+	[MenuItem("GameObject/ZDGUI/Misc/Expander (Only Expander Button)", false, -98)]
     static void Expander()
     {
            Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/Expander/P_Expander/Expander.prefab", typeof(GameObject));
@@ -623,5 +623,4 @@ public class ZDGUIContextMenu : EditorWindow
         //PrefabUtility.DisconnectPrefabInstance(newPrefab);
         Selection.activeObject = newPrefab;
     }
-
 }

@@ -53,8 +53,18 @@ namespace FancyScrollView
         float currentScrollPosition;
         bool dragging;
 
+        private bool canDrag = true;
+        public bool CanDrag
+        {
+            get { return canDrag; }
+            set { canDrag = value; }
+        }
+
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
+            if (!CanDrag)
+                return;
+
             if (eventData.button != PointerEventData.InputButton.Left)
             {
                 return;

@@ -70,7 +70,7 @@ namespace UnityEngine.UI.Extensions
                 }
                 else break;
             }
-            this.GetComponent<Graphic>().SetVerticesDirty();
+            //this.GetComponent<Graphic>().SetVerticesDirty();
             base.OnValidate();
         }
 #endif

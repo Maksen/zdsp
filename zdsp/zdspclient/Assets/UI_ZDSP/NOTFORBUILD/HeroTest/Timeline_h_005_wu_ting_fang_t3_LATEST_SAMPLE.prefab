@@ -98,7 +98,6 @@ GameObject:
   - component: {fileID: 4324710978237992}
   - component: {fileID: 20981909224336726}
   - component: {fileID: 124232992755705196}
-  - component: {fileID: 81966232385419384}
   - component: {fileID: 320413528753036050}
   - component: {fileID: 95042995289453186}
   - component: {fileID: 114630637679619704}
@@ -465,7 +464,6 @@ GameObject:
   - component: {fileID: 4944102332990474}
   - component: {fileID: 143591670827451820}
   - component: {fileID: 95350616418233228}
-  - component: {fileID: 111900809810777292}
   m_Layer: 16
   m_Name: prefabs_h_005_wu_ting_fang_t3
   m_TagString: Untagged
@@ -1618,7 +1616,7 @@ GameObject:
   - component: {fileID: 4253242503107374}
   - component: {fileID: 320516277445462516}
   - component: {fileID: 95104346717108188}
-  - component: {fileID: 114111273310589342}
+  - component: {fileID: 114634509979303928}
   m_Layer: 16
   m_Name: Timeline_h_005_wu_ting_fang_t3_LATEST_SAMPLE
   m_TagString: Untagged
@@ -3710,13 +3708,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &81966232385419384
-AudioListener:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1029907821508208}
-  m_Enabled: 1
 --- !u!95 &95042995289453186
 Animator:
   serializedVersion: 3
@@ -3855,20 +3846,6 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!111 &111900809810777292
-Animation:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1206766753816180}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: 73bf9523c08fb8f488f56eab1f0c73df, type: 3}
-  m_Animations: []
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 0
 --- !u!114 &114034668376908684
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3928,17 +3905,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &114111273310589342
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1788833149267406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4789f149013ef1468044c34129d51ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114259547338338414
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4187,7 +4153,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114111273310589342}
+      - m_Target: {fileID: 0}
         m_MethodName: SetCamUIActive
         m_Mode: 1
         m_Arguments:
@@ -4248,6 +4214,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   profile: {fileID: 11400000, guid: c6243e21fc9806f489b6b228a7a7c570, type: 2}
+--- !u!114 &114634509979303928
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1788833149267406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a65f2c7ca7f9f184e8515c439ddd8fb7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  closeButton: {fileID: 114553306011373276}
 --- !u!114 &114700717252812274
 MonoBehaviour:
   m_ObjectHideFlags: 1

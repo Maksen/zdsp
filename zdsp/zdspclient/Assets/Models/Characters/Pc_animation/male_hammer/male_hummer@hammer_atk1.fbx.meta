@@ -98,6 +98,7 @@ ModelImporter:
     100180: weapon00
     100182: weapon00_end
     100184: r_hand_weapon_CTRL 1
+    100186: wp_hammer_class_t3
     400000: 2weapon00
     400002: 2weapon00_end
     400004: b_cap00
@@ -191,26 +192,32 @@ ModelImporter:
     400180: weapon00
     400182: weapon00_end
     400184: r_hand_weapon_CTRL 1
+    400186: wp_hammer_class_t3
     2100000: fa_001_agent_m_f
     2100002: fa_001_agent_m_h
     2100004: fa_001_agent_m_b
     2100006: weapon
+    2300000: wp_hammer_class_t3
+    3300000: wp_hammer_class_t3
     4300000: fa_001_agent_m_f
     4300002: fa_001_agent_male_head
     4300004: fa_001_agent_male_body001
     4300006: hammer
+    4300008: wp_hammer_class_t3
     7400000: hammer_atk1
     7400002: hammer_atk1_end
     7400004: hammer_atk2
     7400006: hammer_atk2_end
     7400008: hammer_atk3
     7400010: hammer_atk3_end
+    7400012: hammer_atk
     9500000: //RootNode
     11100000: //RootNode
     13700000: fa_001_agent_m_f
     13700002: fa_001_agent_male_body001
     13700004: fa_001_agent_male_head
     13700006: hammer
+    13700008: wp_hammer_class_t3
   externalObjects: {}
   materials:
     importMaterials: 0
@@ -326,7 +333,7 @@ ModelImporter:
       name: hammer_atk2_end
       takeName: Take 001
       firstFrame: 76
-      lastFrame: 89
+      lastFrame: 114
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -353,8 +360,8 @@ ModelImporter:
     - serializedVersion: 16
       name: hammer_atk3
       takeName: Take 001
-      firstFrame: 120
-      lastFrame: 135
+      firstFrame: 115
+      lastFrame: 130
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -381,8 +388,8 @@ ModelImporter:
     - serializedVersion: 16
       name: hammer_atk3_end
       takeName: Take 001
-      firstFrame: 136
-      lastFrame: 179
+      firstFrame: 131
+      lastFrame: 180
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

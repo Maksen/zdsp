@@ -23,7 +23,7 @@ namespace Zealot.Server.Entities
 
         public override bool IsCorrectController()
         {
-            return mRealmInfo.type == RealmType.RealmWorld;
+            return mRealmInfo.type == RealmType.World;
         }
 
         public override void SetSpawnPos(Player player)

@@ -53,12 +53,7 @@ namespace Zealot.Server.Entities
             mInstance.BroadcastEvent(this, "OnChildrenSpawn");
             if (mSpecialBossInfo.spawntype != BossSpawnType.Event)
                 BossRules.OnSpecialBossSpawn(mSpecialBossInfo.id);
-            //if (category == BossCategory.WorldBoss || category == BossCategory.GoldenArmy)
-            //{  
-            //    GameApplication.Instance.BroadcastMessage(BroadcastMessageType.BossSpawn, mSpecialBossInfo.id.ToString());
-            //}
-            //else if(category == BossCategory.HuoLongTuXi)
-            //    GameApplication.Instance.BroadcastMessage(BroadcastMessageType.BossSpawn, mSpecialBossInfo.id.ToString());
+            GameApplication.Instance.BroadcastMessage(BroadcastMessageType.BossSpawn, mSpecialBossInfo.id.ToString());
         }
 
         public override void SpawnMonster()
@@ -136,14 +131,28 @@ namespace Zealot.Server.Entities
                         _record.Score = kvp.Value;
                     }
                 }
+                _bossKillData.bossId = mSpecialBossInfo.id;
                 BossRules.OnSpecialBossKilled(mSpecialBossInfo.id, _killer, _bossKillData.SerializeForDB());
             }
 
             if (attacker != null)
             {
-                string attackerName = attacker.Name;
-                string paramStr = string.Format("{0};{1}", mSpecialBossInfo.id, attackerName);
-                GameApplication.Instance.BroadcastMessage(BroadcastMessageType.BossKilled, paramStr);
+                string attackerName = "";
+                if (mSpecialBossInfo.category == BossCategory.BIGBOSS)
+                {
+                    if (child.mPartyScoreRank.Count > 0)
+                        attackerName = child.mPartyScoreRank[0].Key;
+                }
+                else
+                {
+                    if (child.mPlayerDamageRank.Count > 0)
+                        attackerName = child.mPlayerDamageRank[0].Key;
+                }
+                if (!string.IsNullOrEmpty(attackerName))
+                {
+                    string paramStr = string.Format("{0};{1}", mSpecialBossInfo.id, attackerName);
+                    GameApplication.Instance.BroadcastMessage(BroadcastMessageType.BossKilled, paramStr);
+                }
             }
         }
 
@@ -221,6 +230,11 @@ namespace Zealot.Server.Entities
         public override bool CanPathFind()
         {
             return mSpecialBossSpawnerJson.canpathfind;
+        }
+
+        public override bool IsAggressive()
+        {
+            return mSpecialBossSpawnerJson.aggressive;
         }
 
         public override float GetCombatRadius()

@@ -61,7 +61,9 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
 
-            SummonedHeroId = GetHero(invData.SummonedHero) != null ? invData.SummonedHero : 0;
+            Hero summonedHero = GetHero(invData.SummonedHero);
+            if (summonedHero != null)
+                SummonedHeroId = summonedHero.HeroId;
 
             ApplyHeroBondSEs();
 
@@ -396,19 +398,6 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public void ChangeHeroModelTier(int heroId, int tier)
-        {
-            Hero hero = GetHero(heroId);
-            if (hero != null && hero.ModelTier != tier && hero.IsModelTierUnlocked(tier))
-            {
-                hero.ModelTier = tier;
-                heroes[hero.SlotIdx] = hero.ToString();
-
-                if (IsHeroSummoned(heroId))  // update model if hero is summoned
-                    SummonHero(heroId);
-            }
-        }
-
         public void UnlockHeroSkin(int heroId, int itemId)
         {
             Hero hero = GetHero(heroId);
@@ -442,12 +431,18 @@ namespace Photon.LoadBalancing.GameServer
             return summonedHeroEntity;
         }
 
-        public void SummonHero(int heroId)
+        public void SummonHero(int heroId, int tier = 0)
         {
             if (heroId == 0)  // means unsummon
             {
                 if (SummonedHeroId > 0)
                 {
+                    Hero hero = GetHero(SummonedHeroId);
+                    if (hero.ModelTier != hero.GetFirstModelTier())
+                    {
+                        hero.ModelTier = hero.GetFirstModelTier();   // reset to first tier
+                        heroes[hero.SlotIdx] = hero.ToString();
+                    }
                     SummonedHeroId = 0;
                     UnSummonHeroEntity();
 
@@ -480,34 +475,50 @@ namespace Photon.LoadBalancing.GameServer
                     return;
                 }
 
-                if (summonedHeroEntity == null || summonedHeroEntity.HeroSynStats.HeroId != heroId || summonedHeroEntity.HeroSynStats.ModelTier != hero.ModelTier)
+                if (summonedHeroEntity == null || summonedHeroEntity.HeroSynStats.HeroId != heroId || summonedHeroEntity.HeroSynStats.ModelTier != tier)
                 {
-                    bool canSummon = true;
+                    bool canSummon = !player.IsInParty() || player.PartyStats.CanAddMemberHeroToParty(player.Name);
                     // if player has party, so try to add hero to party
-                    if (player.IsInParty())
-                    {
-                        PartyMember newMember = new PartyMember(hero, player.Name);
-                        PartyMember currHeroMember = player.PartyStats.GetHeroOwnedByMember(player.Name);
-                        if (currHeroMember != null)  // already have owned hero in party, so replace current hero
-                        {
-                            newMember.slotIdx = currHeroMember.slotIdx;
-                            player.PartyStats.UpdateMemberHero(currHeroMember.name, newMember);
-                            player.PartyStats.OnDirty();
-                        }
-                        else if (!player.PartyStats.IsPartyFull())  // no hero in party and party is not full, so add hero to party
-                        {
-                            player.PartyStats.AddPartyMember(newMember);
-                            player.PartyStats.OnDirty();
-                        }
-                        else // don't have owned hero in party and no space to add hero so cannot summon
-                            canSummon = false;
-                    }
-
                     if (canSummon)
                     {
-                        SpawnHeroEntity(hero, true);
+                        if (tier == 0)
+                            tier = hero.ModelTier;
+
                         if (SummonedHeroId != heroId)
+                        {
+                            Hero prevHero = GetHero(SummonedHeroId);
+                            if (prevHero != null && prevHero.ModelTier != prevHero.GetFirstModelTier())
+                            {
+                                prevHero.ModelTier = prevHero.GetFirstModelTier();
+                                heroes[prevHero.SlotIdx] = prevHero.ToString();
+                            }
                             SummonedHeroId = heroId;  // for record
+                        }
+
+                        if (hero.ModelTier != tier)
+                        {
+                            hero.ModelTier = tier;  // save this summoned tier
+                            heroes[hero.SlotIdx] = hero.ToString();
+                        }
+
+                        SpawnHeroEntity(hero, true);
+
+                        if (player.IsInParty())
+                        {
+                            PartyMember newMember = new PartyMember(hero, player.Name);
+                            PartyMember currHeroMember = player.PartyStats.GetHeroOwnedByMember(player.Name);
+                            if (currHeroMember != null)  // already have owned hero in party, so replace current hero
+                            {
+                                newMember.slotIdx = currHeroMember.slotIdx;
+                                player.PartyStats.UpdateMemberHero(currHeroMember.name, newMember);
+                                player.PartyStats.OnDirty();
+                            }
+                            else if (!player.PartyStats.IsPartyFull())  // no hero in party and party is not full, so add hero to party
+                            {
+                                player.PartyStats.AddPartyMember(newMember);
+                                player.PartyStats.OnDirty();
+                            }
+                        }
                     }
                     else
                         peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_PartyFullCannotSummon", "", false, peer);

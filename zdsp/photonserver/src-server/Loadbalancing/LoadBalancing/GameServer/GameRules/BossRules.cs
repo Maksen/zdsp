@@ -31,7 +31,7 @@ namespace Zealot.Server.Rules
                 if (_specialBossJson.spawntype == BossSpawnType.SpawnDuration)
                 {
                     if (now < DateTime.ParseExact(_specialBossJson.spawnstart, "yyyy/MM/dd/HH:mm", null)
-                        || now.AddSeconds(600) < DateTime.ParseExact(_specialBossJson.spawnend, "yyyy/MM/dd/HH:mm", null))
+                        || now.AddSeconds(600) >= DateTime.ParseExact(_specialBossJson.spawnend, "yyyy/MM/dd/HH:mm", null))
                         continue; //activity not started or is going to end, doesn't need to show boss inforamtion.
                 }
                 SpecialBossStatusMap.Add(id, new SpecialBossStatus(id, false, (string)entry["killer"], (string)entry["payload"]));

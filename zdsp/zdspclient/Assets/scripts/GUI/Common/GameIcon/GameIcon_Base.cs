@@ -35,12 +35,13 @@ public class GameIcon_Base : MonoBehaviour
             imgIcon.sprite = sprite;
 
         itemRarity.SetRarity(itemBaseJson.bagtype, itemBaseJson.rarity);
+    }
 
-        if (onClickIconCallback == null)
-        {
-            //mOnClickIconCallBack = OnClickedIcon;
-            //imageButton.onClick.AddListener(mOnClickIconCallBack);
-        }
+    public virtual void OnClickShowTooltipViewOnly()
+    {
+        UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
+            window.GetComponent<HUD_ItemDetailToolTip>().InitTooltip(inventoryItem);
+        });
     }
 
     public void SetClickCallback(UnityAction callback)

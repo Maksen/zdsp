@@ -1,40 +1,40 @@
 ﻿using Kopio.JsonContracts;
 using UnityEngine;
+using System.Collections.Generic;
 using Zealot.Repository;
 using Zealot.Common.Entities;
-using System.Collections.Generic;
 using Zealot.Common;
-using Zealot.Client.Actions;
 using Zealot.Common.Actions;
+using Zealot.Client.Actions;
 
 namespace Zealot.Client.Entities
 {
     public class StaticTargetGhost : StaticClientNPCAlwaysShow
     {
         protected string mModelPath;
-        protected string mArchetype;
+        protected string mArchetypeName;
         public int mArchetypeID;
         private float mRadius;
         private ActorNameTagController mHeadLabel;
         private QuestLabelType mQuestLabelType = QuestLabelType.None;
+
+        public string ArchetypeName { get { return mArchetypeName; } }
 
         public StaticTargetGhost()
         {
             this.EntityType = EntityType.StaticNPC;
         }
 
-        public string Archetype { get { return mArchetype; } }
-
         public void Init(string archetype, Vector3 pos, Vector3 forward, float radius)
         {
-            staticNPCJson = StaticNPCRepo.GetStaticNPCByName(archetype);
-            mArchetype = archetype;
-            mModelPath = staticNPCJson == null ? "" : staticNPCJson.modelprefabpath;
-            this.mArchetypeID = staticNPCJson == null ? 0 : staticNPCJson.id;
-            this.Name = staticNPCJson == null ? "" : staticNPCJson.localizedname;
+            mArchetype = StaticNPCRepo.GetStaticNPCByName(archetype);
+            mArchetypeName = archetype;
+            mModelPath = mArchetype == null ? "" : mArchetype.modelprefabpath;
+            this.mArchetypeID = mArchetype == null ? 0 : mArchetype.id;
+            this.Name = mArchetype == null ? "" : mArchetype.localizedname;
             mRadius = radius;
             mActiveQuest = -1;
-            mActiveStatus = staticNPCJson.activeonstartup;
+            mActiveStatus = mArchetype.activeonstartup;
             GetQuestList();
             GetOngoingQuest();
 
@@ -51,7 +51,7 @@ namespace Zealot.Client.Entities
             AnimObj.transform.position = Position;
             AnimObj.transform.forward = Forward;
             AnimObj.tag = "NPC";
-            AnimObj.name = mModelPath;
+            AnimObj.name = mArchetypeName;
 
             mHeadLabel = AnimObj.AddComponent<ActorNameTagController>();
             mHeadLabel.CreatePlayerLabel();
@@ -78,10 +78,10 @@ namespace Zealot.Client.Entities
             go.transform.SetParent(AnimObj.transform, false);
             NpcPlayerDetect detect = go.AddComponent<NpcPlayerDetect>();
             detect.Init(this, mRadius);
-            mShadow.SetActive(false);
 
             Show(true);
             ShowEffect(true);
+            mShadow.SetActive(false);
             UpdateQuestMarker();
         }
 
@@ -146,13 +146,11 @@ namespace Zealot.Client.Entities
         private void GetQuestList()
         {
             mQuestList = new List<int>();
-            string[] ids = staticNPCJson.questid.Split(';');
+            string[] ids = mArchetype.questid.Split(';');
             foreach (string id in ids)
             {
                 if (!string.IsNullOrEmpty(id))
-                {
                     mQuestList.Add(int.Parse(id));
-                }
             }
         }
 
@@ -182,14 +180,8 @@ namespace Zealot.Client.Entities
 
         private void GetOngoingQuest()
         {
-            if (GameInfo.gLocalPlayer != null)
-            {
-                mOngoingQuest = GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeID);
-            }
-            else
-            {
-                mOngoingQuest = new List<int>();
-            }
+            mOngoingQuest = (GameInfo.gLocalPlayer != null)
+                ? GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeID) : new List<int>();
         }
 
         public override void UpdateOngoingQuest(List<int> quests)
@@ -210,9 +202,7 @@ namespace Zealot.Client.Entities
         private void UpdateQuestMarker()
         {
             if (GameInfo.gLocalPlayer == null)
-            {
                 return;
-            }
 
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
             List<int> questcansubmit = new List<int>();
@@ -322,9 +312,7 @@ namespace Zealot.Client.Entities
         public void OnPlayerAway()
         {
             if (UIManager.IsWidgetActived(HUDWidgetType.QuestAction))
-            {
                 UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
-            }
         }
     }
 }

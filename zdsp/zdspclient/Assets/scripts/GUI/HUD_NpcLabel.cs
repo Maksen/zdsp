@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using Zealot.Common;
 using Zealot.Repository;
 using Kopio.JsonContracts;
-using System;
-using Zealot.Client.Entities;
 
 public class HUD_NpcLabel : MonoBehaviour
 {
@@ -147,18 +144,17 @@ public class HUD_NpcLabel : MonoBehaviour
         }
     }
 
-    public void InitChatWithStaticNPC(string mArchetype, bool toggleOn = true)
+    public void InitChatWithStaticNPC(StaticNPCJson staticNpcJson, bool toggleOn = true)
     {
-        //Get static NPC by name
-        StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCByName(mArchetype);
-        Chat = npcJson.speechbubbletext;
+        // Get static NPC by name
+        Chat = staticNpcJson.speechbubbletext;
 
         if (Chat != "")
         {
-            mChatDuration = npcJson.speechbubbleduration;
-            height = npcJson.speechbubbleheight;
-            maxTime = npcJson.speechbubblemaxint;
-            minTime = npcJson.speechbubbleminint;
+            mChatDuration = staticNpcJson.speechbubbleduration;
+            height = staticNpcJson.speechbubbleheight;
+            maxTime = staticNpcJson.speechbubblemaxint;
+            minTime = staticNpcJson.speechbubbleminint;
 
             mChatDurationDecreas = mChatDuration;
 
@@ -169,9 +165,7 @@ public class HUD_NpcLabel : MonoBehaviour
             ChatOn = toggleOn; //Turn on or off
         }
         else
-        {
             ChatOn = false;
-        }
     }
 
     public void InitChatWithMonsterNPC(string name, bool toggleOn = true)

@@ -28,14 +28,15 @@
       <property name="archetype" type="string" uitext="Archetype" unique="true"/>
       <constant name="npctype" type="NPCType" value="NPCType.Combat"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="localizedtitle" type="localizedstring" uitext="Title(Localized)"/>
       <property name="remark" type="string" uitext="Remarks(not exported)" default="" noexport="true"/>
-	  <property name="containerprefabpath" type="asset" uitext="Container Prefab Path" default="" assettype="prefab" />
+	    <property name="containerprefabpath" type="asset" uitext="Container Prefab Path" default="" assettype="prefab" />
       <property name="modelprefabpath" type="asset" uitext="Model Prefab Path" default="" assettype="prefab"/>
       <property name="modelmaterialpath" type="string" uitext="Model Material Path" default="" assettype="material" info="To replace original npc's material"/>   
       <property name="modelscalex" type="float" uitext="Model Scale X" default="1.0"/>
       <property name="modelscaley" type="float" uitext="Model Scale Y" default="1.0"/>
       <property name="modelscalez" type="float" uitext="Model Scale Z" default="1.0"/>
-      <property name="speechbubbletext" type="string" uitext="Speech Bubble Text"/>
+      <property name="speechbubbletext" type="localizedstring" uitext="Speech Bubble Text"/>
       <property name="speechbubblebox" type="string" uitext="Speech Bubble Box"/>
       <property name="speechbubbleheight" type="float" uitext="Speech Bubble Height"/>
       <property name="speechbubbleduration" type="float" uitext="Speech Bubble Duration"/>
@@ -78,7 +79,8 @@
       <property name="hpregenamt" type="int" uitext="HP Regen Amount" default ="0" info="Regen amount per interval"/>
       <property name="hpregenamtbypercent" type="int" uitext="HP Regen Amount by Percentage" default="0" info="Regen percentage per interval"/>
       <property name="healthregeninterval" type="float" uitext="Health Regen Interval" default="0" info="In seconds"/>
-      <property name="experience" type="int" uitext="Experience" default="0" />
+      <property name="exp" type="int" uitext="Experience" default="0" />
+      <property name="skillexp" type="int" uitext="Skill Experience" default="0" />
       <property name="loot" type="string" uitext="LootLink Ids" default="" info="id1;id2"/>
       <property name="eventloot" type="string" uitext="EventLootLink ids" default="" info="id1;id2"/>
       
@@ -89,8 +91,8 @@
     <element name="StaticNPC" inherit="NPC" useexcel="true" collectionkey="archetype">
       <constant name="npctype" type="NPCType" value="NPCType.Static"/>
       <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="" info="x;y;rotatey;scale"/>
-      <property name="talktext" type="string" uitext="Talk Text"/>
-      <property name="talktextalt" type="string" uitext="Talk Text(Alternate)"/>
+      <property name="talktext" type="localizedstring" uitext="Talk Text"/>
+      <property name="talktextalt" type="localizedstring" uitext="Talk Text(Alternate)"/>
       <property name="talktextbox" type="string" uitext="Talk Text Box"/>
       <property name="npcfunction" type="string" uitext="NPC Function"/>
       <property name="questid" type="string" uitext="Quest Id"/>
@@ -104,7 +106,7 @@
     <element name="RealmNPCGroup" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="realmid" type="Realm" uitext="Realm" display="excelname"/>
-      <property name="archetypeid" type="CombatNPC" uitext="NPC" display="archetype"/>
+      <property name="archetypeid" type="CombatNPC" uitext="NPC Archetype" display="archetype"/>
     </element>
 
     <element name="SpecialBoss" useexcel="true" collectionkey="name">
@@ -121,10 +123,7 @@
       <property name="respawntime" type="int" uitext="Respawn Time"/>
       <property name="displayrewardgroupid" type="int" uitext="Display Reward Group id"/>
       <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
-      <property name="modelscale" type="float" uitext="Model Scale" default="1.0"/>
-      <property name="modelposx" type="float" uitext="Model Pos X" default="0.0"/>
-      <property name="modelposy" type="float" uitext="Model Pos Y" default="0.0"/>
-      <property name="modelrotatey" type="float" uitext="Model Rotate Y" default="0.0"/>
+      <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="0;0;0;1" info="x;y;rotatey;scale"/>
     </element>
   </data>
 </magicalarea51>

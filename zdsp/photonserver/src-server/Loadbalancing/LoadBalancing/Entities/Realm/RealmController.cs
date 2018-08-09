@@ -47,7 +47,7 @@ namespace Zealot.Server.Entities
 
         public bool IsWorld()
         {
-            return mRealmInfo.type == RealmType.RealmWorld;
+            return mRealmInfo.type == RealmType.World;
         }
 
         public virtual void InstanceStartUp()

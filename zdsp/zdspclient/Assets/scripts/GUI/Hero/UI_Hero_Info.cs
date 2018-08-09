@@ -15,6 +15,7 @@ public class UI_Hero_Info : MonoBehaviour
     [SerializeField] Image modelImage;
     [SerializeField] Material grayscaleMat;
     [SerializeField] HeroCircleScroll circleScroll;
+    [SerializeField] Hero_SkillIconData[] skillIcons;
 
     [Header("Locked")]
     [SerializeField] GameObject lockedHeroObj;
@@ -25,11 +26,10 @@ public class UI_Hero_Info : MonoBehaviour
     [Header("Unlocked")]
     [SerializeField] GameObject unlockedHeroObj;
     [SerializeField] Text skillPointsText;
-    [SerializeField] Hero_SkillIconData[] skillIcons;
     [SerializeField] Text trustLevelText;
     [SerializeField] Image interestIconImage;
     [SerializeField] Text interestDescText;
-    [SerializeField] GameObject summonBtn;
+    [SerializeField] Button summonBtn;
     [SerializeField] GameObject unsummonBtn;
 
     [Header("Timeline")]
@@ -37,12 +37,12 @@ public class UI_Hero_Info : MonoBehaviour
     [SerializeField] GameObject[] objectsToHide;
     [SerializeField] GameObject clickBlocker;
 
-    private PlayerGhost player;
-    private bool scrollSetup;
+    private HeroStatsClient heroStats;
     private int selectedHeroId = -1;
     private HeroJson selectedHeroData;
     private Hero selectedHero;
     private GameIcon_MaterialConsumable unlockItem;
+    private Dictionary<int, int> currentHeroTier = new Dictionary<int, int>();
 
     public void Setup()
     {
@@ -64,12 +64,12 @@ public class UI_Hero_Info : MonoBehaviour
 
         foreach (int heroid in HeroRepo.heroes.Keys)
         {
-            HeroCellDto cell = new HeroCellDto(heroid, "Hero " + heroid, player.HeroStats.IsHeroUnlocked(heroid));
+            HeroCellDto cell = new HeroCellDto(heroid, "Hero " + heroid, GameInfo.gLocalPlayer.HeroStats.IsHeroUnlocked(heroid));
             list.Add(cell);
             index++;
         }
 
-        for (int i = index; i < 20; i++)
+        for (int i = index; i < 13; i++)
         {
             HeroCellDto cell = new HeroCellDto(i + 1, "Fake " + (i + 1), false);
             list.Add(cell);
@@ -78,15 +78,30 @@ public class UI_Hero_Info : MonoBehaviour
         return list;
     }
 
+    private void Awake()
+    {
+        List<HeroCellDto> heroList = CreateHeroesData();
+        circleScroll.SetUp(heroList, OnHeroSelected);
+    }
+
     public void Init()
     {
-        player = GameInfo.gLocalPlayer;
+        heroStats = GameInfo.gLocalPlayer.HeroStats;
+        circleScroll.SelectHero(GetFirstHeroToSelect());
+    }
 
-        if (!scrollSetup)
+    private int GetFirstHeroToSelect()
+    {
+        if (heroStats.SummonedHeroId > 0)
+            return heroStats.SummonedHeroId;
+        else
         {
-            List<HeroCellDto> heroList = CreateHeroesData();
-            circleScroll.SetUp(heroList, OnHeroSelected);
-            scrollSetup = true;
+            foreach (int heroid in HeroRepo.heroes.Keys)
+            {
+                if (heroStats.IsHeroUnlocked(heroid))
+                    return heroid;
+            }
+            return -1;
         }
     }
 
@@ -99,13 +114,13 @@ public class UI_Hero_Info : MonoBehaviour
             unlockItem = icon.GetComponent<GameIcon_MaterialConsumable>();
         }
 
-        unlockItem.Init(itemId, 0);
+        unlockItem.Init(itemId, 1);
         unlockItemCountText.text = "x" + itemCount;
     }
 
     private void OnHeroSelected(int heroId)
     {
-        //print("selected heroid " + selectedHeroId);
+        //print("selected heroid " + heroId);
         selectedHeroId = heroId;
         selectedHeroData = HeroRepo.GetHeroById(heroId);
 
@@ -116,16 +131,17 @@ public class UI_Hero_Info : MonoBehaviour
             modelAvatar.Cleanup();
             SetLocked();
             InitUnlockItem(0, 0);
+            SetSkillIcons(null);
         }
         else
         {
             modelAvatar.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);  // to be removed
             heroNameText.text = selectedHeroData.localizedname;
 
-            selectedHero = player.HeroStats.GetHero(heroId);
+            selectedHero = heroStats.GetHero(heroId);
             if (selectedHero != null)  // unlocked
             {
-                SetUnlocked(player.HeroStats.IsHeroSummoned(heroId));
+                SetUnlocked(heroStats.IsHeroSummoned(heroId));
                 skillPointsText.text = selectedHero.SkillPoints.ToString();
                 trustLevelText.text = selectedHero.TrustLevel.ToString();
                 UpdateInterest(selectedHero.Interest);
@@ -136,8 +152,13 @@ public class UI_Hero_Info : MonoBehaviour
                 SetLocked();
                 InitUnlockItem(selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount);
             }
-            UpdateModelTier(selectedHero.ModelTier);
-            SetSkillIcons(selectedHero, selectedHeroData);
+
+            if (!currentHeroTier.ContainsKey(heroId))
+                UpdateModelTier(selectedHero.ModelTier);
+            else
+                UpdateModelTier(currentHeroTier[heroId]);  // show the temp tier instead of the actual one
+
+            SetSkillIcons(selectedHero);
         }
     }
 
@@ -145,7 +166,7 @@ public class UI_Hero_Info : MonoBehaviour
     {
         unlockedHeroObj.SetActive(false);
         lockedHeroObj.SetActive(true);
-        summonBtn.SetActive(false);
+        summonBtn.gameObject.SetActive(false);
         unsummonBtn.SetActive(false);
     }
 
@@ -153,15 +174,16 @@ public class UI_Hero_Info : MonoBehaviour
     {
         unlockedHeroObj.SetActive(true);
         lockedHeroObj.SetActive(false);
-        summonBtn.SetActive(!showUnsummonBtn);
+        summonBtn.gameObject.SetActive(!showUnsummonBtn);
         unsummonBtn.SetActive(showUnsummonBtn);
     }
 
-    private void SetSkillIcons(Hero hero, HeroJson heroData)
+    private void SetSkillIcons(Hero hero)
     {
-        skillIcons[0].Init(1, heroData.skill1grp, hero.Skill1Level);
-        skillIcons[1].Init(2, heroData.skill2grp, hero.Skill2Level);
-        skillIcons[2].Init(3, heroData.skill3grp, hero.Skill3Level);
+        for (int i = 0; i < skillIcons.Length; i++)
+        {
+            skillIcons[i].Init(hero, i + 1);
+        }
     }
 
     public void OnClickUnlockHero()
@@ -171,24 +193,16 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnSummonedHeroChanged()
     {
-        if (player == null)
+        if (heroStats == null)
             return;
 
-        if (selectedHeroId == player.HeroStats.SummonedHeroId)
-        {
-            summonBtn.SetActive(false);
-            unsummonBtn.SetActive(true);
-        }
-        else
-        {
-            summonBtn.SetActive(true);
-            unsummonBtn.SetActive(false);
-        }
+        unsummonBtn.SetActive(selectedHeroId == heroStats.SummonedHeroId);
+        summonBtn.gameObject.SetActive(selectedHeroId != heroStats.SummonedHeroId);
     }
 
     public void OnClickSummonHero()
     {
-        RPCFactory.CombatRPC.SummonHero(selectedHeroId);
+        RPCFactory.CombatRPC.SummonHero(selectedHeroId, currentHeroTier[selectedHeroId]);
         UIManager.CloseWindow(WindowType.Hero);
     }
 
@@ -205,11 +219,11 @@ public class UI_Hero_Info : MonoBehaviour
             timelineController.Play(hero.HeroJson.unlockshow);
             circleScroll.UpdateCell(hero.HeroId, true);
             SetUnlocked(false);
-            SetSkillIcons(hero, hero.HeroJson);
+            SetSkillIcons(hero);
             skillPointsText.text = hero.SkillPoints.ToString();
             trustLevelText.text = hero.TrustLevel.ToString();
-            modelImage.material = null;
             UpdateInterest(hero.Interest);
+            UpdateModelTier(hero.ModelTier);
         }
     }
 
@@ -218,16 +232,16 @@ public class UI_Hero_Info : MonoBehaviour
         if (selectedHeroId == newHero.HeroId)
         {
             selectedHero = newHero;
-            SetSkillIcons(newHero, newHero.HeroJson);
+            SetSkillIcons(newHero);
             skillPointsText.text = newHero.SkillPoints.ToString();
             trustLevelText.text = newHero.TrustLevel.ToString();
 
             GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroSkillPoints);
             if (dialog != null && dialog.activeInHierarchy)
+            {
                 dialog.GetComponent<UI_Hero_AddSkillPointsDialog>().Init(newHero);
-
-            if (oldHero.ModelTier != newHero.ModelTier)
-                UpdateModelTier(newHero.ModelTier);
+                CheckModelTierUnlocked(currentHeroTier[selectedHeroId]);
+            }
 
             dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroTrust);
             if (dialog != null && dialog.activeInHierarchy)
@@ -239,11 +253,16 @@ public class UI_Hero_Info : MonoBehaviour
             dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroStats);
             if (dialog != null && dialog.activeInHierarchy)
                 dialog.GetComponent<UI_Hero_StatsDialog>().Init(newHero);
+
+            dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroSkillDetails);
+            if (dialog != null && dialog.activeInHierarchy)
+                dialog.GetComponent<UI_Hero_SkillDetailsDialog>().Refresh(newHero);
         }
     }
 
     private void UpdateModelTier(int tier)
     {
+        currentHeroTier[selectedHeroId] = tier;
         modelAvatar.ChangeHero(selectedHeroId, tier);
         string imagePath = "";
         switch (tier)
@@ -258,7 +277,19 @@ public class UI_Hero_Info : MonoBehaviour
                 break;
         }
         ClientUtils.LoadIconAsync(imagePath, OnModelImageLoaded);
-        modelImage.material = selectedHero.SlotIdx == -1 ? grayscaleMat : null;
+        CheckModelTierUnlocked(tier);
+    }
+
+    private void CheckModelTierUnlocked(int currentTier)
+    {
+        bool unlocked = selectedHero.IsModelTierUnlocked(currentTier);
+        modelImage.material = selectedHero.SlotIdx == -1 || !unlocked ? grayscaleMat : null;
+        summonBtn.interactable = unlocked;
+        if (heroStats.IsHeroSummoned(selectedHeroId))
+        {
+            unsummonBtn.SetActive(selectedHero.ModelTier == currentTier);
+            summonBtn.gameObject.SetActive(selectedHero.ModelTier != currentTier);
+        }
     }
 
     private void OnModelImageLoaded(Sprite sprite)
@@ -325,23 +356,34 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnClickChangeModelTier()
     {
-        if (selectedHero.SlotIdx != -1)
-        {
-            UIManager.OpenDialog(WindowType.DialogHeroTier,
-                (window) => window.GetComponent<UI_Hero_ModelTierDialog>().Init(selectedHero, modelImage.sprite));
-        }
-        else
-            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_HeroIsLocked"));
+        if (selectedHeroData == null)
+            return;
+
+        UIManager.OpenDialog(WindowType.DialogHeroTier,
+            (window) => window.GetComponent<UI_Hero_ModelTierDialog>().Init(selectedHero, currentHeroTier[selectedHeroId],
+            modelImage.sprite, UpdateModelTier));
     }
 
     public void OnClickStats()
     {
+        if (selectedHeroData == null)
+            return;
+
         UIManager.OpenDialog(WindowType.DialogHeroStats,
             (window) => window.GetComponent<UI_Hero_StatsDialog>().Init(selectedHero));
     }
 
     public void OnClickBonds()
     {
+        if (selectedHeroData == null)
+            return;
 
+        print("hero bonds");
+    }
+
+    public void CleanUp()
+    {
+        currentHeroTier.Clear();
+        circleScroll.ResetSelectedIndex();
     }
 }

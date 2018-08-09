@@ -110,7 +110,7 @@ namespace Zealot.Server.Rules
 
                     if (deductGold)
                     {
-                        int amt = (realmWorldJson.worldseq - 1) * 1000 + 2000;
+                        int amt = (realmWorldJson.sequence - 1) * 1000 + 2000;
                         if (amt < 0) amt = 0;
                         if (!player.IsCurrencySufficient(CurrencyType.Gold, amt))
                         {
@@ -362,11 +362,11 @@ namespace Zealot.Server.Rules
             if (player == null || player.Destroyed)
                 return;
             RealmJson realm = RealmRepo.GetInfoById(realmId);
-            if (realm == null || realm.type != RealmType.DungeonStory) // Can only add extry entry for dungeon story
+            if (realm == null || realm.type != RealmType.Dungeon) // Can only add extry entry for dungeon story
                 return;
 
-            DungeonStoryJson dStoryJson = (DungeonStoryJson)realm;
-            int seq = dStoryJson.sequence;
+            DungeonJson dungeonJson = (DungeonJson)realm;
+            int seq = dungeonJson.sequence;
             Dictionary<int, int> extraEntryFeesDict = RealmRepo.GetExtraEntryFeesBySeq(seq);
             DungeonStoryInfo dungeonStoryInfo = player.RealmStats.GetDungeonStoryDict()[seq];
             //int dailyLimit = VIPRepo.GetVIPPrivilege("DungeonStory", player.PlayerSynStats.vipLvl);
@@ -399,8 +399,8 @@ namespace Zealot.Server.Rules
                 isSuccess = false;
             else if (!GetRealmInfo(realmId, ref realm, ref levelScene))
                 isSuccess = false;
-            else if (realm.type != RealmType.DungeonStory) // Can only raid on dungeon story
-                isSuccess = false;
+            //else if (realm.type != RealmType.DungeonStory) // Can only raid on dungeon story
+            //    isSuccess = false;
             else if (!CheckRealmRequirement(realm, player, peer, true))
                 isSuccess = false;
 
@@ -408,8 +408,8 @@ namespace Zealot.Server.Rules
             List<ItemInfo> itemInfos = null;
             if (isSuccess)
             {
-                DungeonStoryJson dStoryJson = (DungeonStoryJson)realm;
-                rewardGrp = dStoryJson.rewardgrp;
+                DungeonJson dStoryJson = (DungeonJson)realm;
+                //rewardGrp = dStoryJson.rewardgrp;
                 Dictionary<int, DungeonStoryInfo> dStoryDict = player.RealmStats.GetDungeonStoryDict();
                 DungeonStoryInfo dStoryInfo = dStoryDict[dStoryJson.sequence];
                 int diffIdx = (int)dStoryJson.difficulty * 3;
@@ -480,10 +480,10 @@ namespace Zealot.Server.Rules
             if (!GetRealmInfo(realmId, ref realm, ref levelScene))
                 return;
             bool isCompletingQuest = false;
-            if (realm.type == RealmType.DungeonStory)
-            {
-                DungeonStoryJson dStoryJson = (DungeonStoryJson)realm;
-            }
+            //if (realm.type == RealmType.DungeonStory)
+            //{
+            //    DungeonStoryJson dStoryJson = (DungeonStoryJson)realm;
+            //}
             if (!CheckRealmRequirement(realm, player, peer, !isCompletingQuest))
                 return;
 
@@ -501,24 +501,24 @@ namespace Zealot.Server.Rules
                 int membersCnt = partyStats.MemberCount();
                 switch (realm.type)
                 {
-                    case RealmType.DungeonStory:
+                    case RealmType.Dungeon:
                         //PartyRules.LeaveParty(partyId, player, myName);
                         peer.CreateRealm(realmId, levelScene);
                         break;
-                    case RealmType.DungeonDailySpecial:
-                        if (realm.maxplayer == 1)
-                        {
+                    //case RealmType.DungeonDailySpecial:
+                    //    if (realm.maxplayer == 1)
+                    //    {
                             //GameRules.PartyController.LeaveParty(partyName, player, myName);
-                            peer.CreateRealm(realmId, levelScene);
-                        }
-                        else
-                        {
-                            if (membersCnt < realm.minplayer)
-                                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_LessThanMinPlayer", "", false, peer);
-                            else
-                                PartyEnterRequest(partyStats, realm, peer);
-                        }
-                        break;
+                    //        peer.CreateRealm(realmId, levelScene);
+                    //    }
+                    //    else
+                    //    {
+                    //        if (membersCnt < realm.minplayer)
+                    //            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_LessThanMinPlayer", "", false, peer);
+                    //        else
+                    //            PartyEnterRequest(partyStats, realm, peer);
+                    //    }
+                    //    break;
                 }
             }
         }
@@ -584,15 +584,15 @@ namespace Zealot.Server.Rules
                 if (memberName != myName) // Check entry of other members
                 {
                     Player memberPlayer = memberPeer.mPlayer;
-                    if (realm.type == RealmType.DungeonDailySpecial)
-                    {
-                        DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
-                        Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
-                                                                    ? memberPlayer.RealmStats.GetDungeonDailyDict()
-                                                                    : memberPlayer.RealmStats.GetDungeonSpecialDict();
-                        int seq = dDailySpecialJson.sequence;
-                        hasEntry = (realmInfoDict[seq].DailyEntry + realmInfoDict[seq].ExtraEntry > 0);
-                    }
+                    //if (realm.type == RealmType.DungeonDailySpecial)
+                    //{
+                    //    DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
+                    //    Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
+                    //                                                ? memberPlayer.RealmStats.GetDungeonDailyDict()
+                    //                                                : memberPlayer.RealmStats.GetDungeonSpecialDict();
+                    //    int seq = dDailySpecialJson.sequence;
+                    //    hasEntry = (realmInfoDict[seq].DailyEntry + realmInfoDict[seq].ExtraEntry > 0);
+                    //}
                 }
                 memberPeer.ZRPC.CombatRPC.Ret_DungeonEnterConfirmResult(realmId, hasEntry, "", memberPeer);
                 dungeonParty.AddMember(memberName);
@@ -763,7 +763,7 @@ namespace Zealot.Server.Rules
         public static bool GetRealmInfo(int realmId, ref RealmJson mRealm, ref string levelScene)
         {
             RealmJson realm = RealmRepo.GetInfoById(realmId);
-            if (realm == null || realm.type == RealmType.RealmWorld)
+            if (realm == null || realm.type == RealmType.World)
                 return false;
             mRealm = realm;
             LevelJson level = LevelRepo.GetInfoById(realm.level);
@@ -802,8 +802,8 @@ namespace Zealot.Server.Rules
                 int guildId = playerToCheck.SecondaryStats.guildId;
                 switch (realm.type)
                 {
-                    case RealmType.DungeonStory:
-                        DungeonStoryJson dStoryJson = (DungeonStoryJson)realm;
+                    case RealmType.Dungeon:
+                        DungeonJson dStoryJson = (DungeonJson)realm;
                         Dictionary<int, DungeonStoryInfo> dStoryInfoDict = playerToCheck.RealmStats.GetDungeonStoryDict();
                         seq = dStoryJson.sequence;
                         if (dStoryInfoDict[seq].DailyEntry+dStoryInfoDict[seq].ExtraEntry <= 0)
@@ -817,27 +817,27 @@ namespace Zealot.Server.Rules
                         }
                         break;
 
-                    case RealmType.DungeonDailySpecial:
-                        DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
-                        if (!CheckDungeonIsOpen(dDailySpecialJson))
-                        {
-                            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_DungeonNotOpen", "", false, peerToInform);
-                            return false;
-                        }
-                        Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
-                                                                    ? playerToCheck.RealmStats.GetDungeonDailyDict()
-                                                                    : playerToCheck.RealmStats.GetDungeonSpecialDict();
-                        seq = dDailySpecialJson.sequence;
-                        if (realmInfoDict[seq].DailyEntry+realmInfoDict[seq].ExtraEntry <= 0)
-                        {
-                            if (samePlayer)
-                                peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft", "", false, peerToInform);
-                            else
-                                peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft_PartyMember",
-                                    string.Format("name;{0}", playerToCheck.Name), false, peerToInform);
-                            return false;
-                        }
-                        break;
+                    //case RealmType.DungeonDailySpecial:
+                    //    DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
+                    //    if (!CheckDungeonIsOpen(dDailySpecialJson))
+                    //    {
+                    //        peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_DungeonNotOpen", "", false, peerToInform);
+                    //        return false;
+                    //    }
+                    //    Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
+                    //                                                ? playerToCheck.RealmStats.GetDungeonDailyDict()
+                    //                                                : playerToCheck.RealmStats.GetDungeonSpecialDict();
+                    //    seq = dDailySpecialJson.sequence;
+                    //    if (realmInfoDict[seq].DailyEntry+realmInfoDict[seq].ExtraEntry <= 0)
+                    //    {
+                    //        if (samePlayer)
+                    //            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft", "", false, peerToInform);
+                    //        else
+                    //            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft_PartyMember",
+                    //                string.Format("name;{0}", playerToCheck.Name), false, peerToInform);
+                    //        return false;
+                    //    }
+                    //    break;
 
                     //case RealmType.InvitePVP:
                     //    if (GetInvitePVPData(playerToCheck.Name) == null)
@@ -915,63 +915,63 @@ namespace Zealot.Server.Rules
             return true;
         }
 
-        public static bool CheckDungeonIsOpen(DungeonDailySpecialJson dDailySpecialJson)
+        public static bool CheckDungeonIsOpen(DungeonJson dungeonJson)
         {
             DayOfWeek dayOfWeek = DateTime.Today.DayOfWeek;
             switch(dayOfWeek)
             {
-                case DayOfWeek.Monday:      return dDailySpecialJson.isopenday1;
-                case DayOfWeek.Tuesday:     return dDailySpecialJson.isopenday2;
-                case DayOfWeek.Wednesday:   return dDailySpecialJson.isopenday3;
-                case DayOfWeek.Thursday:    return dDailySpecialJson.isopenday4;
-                case DayOfWeek.Friday:      return dDailySpecialJson.isopenday5;
-                case DayOfWeek.Saturday:    return dDailySpecialJson.isopenday6;
-                case DayOfWeek.Sunday:      return dDailySpecialJson.isopenday7;
+                case DayOfWeek.Monday:      return dungeonJson.isopenday1;
+                case DayOfWeek.Tuesday:     return dungeonJson.isopenday2;
+                case DayOfWeek.Wednesday:   return dungeonJson.isopenday3;
+                case DayOfWeek.Thursday:    return dungeonJson.isopenday4;
+                case DayOfWeek.Friday:      return dungeonJson.isopenday5;
+                case DayOfWeek.Saturday:    return dungeonJson.isopenday6;
+                case DayOfWeek.Sunday:      return dungeonJson.isopenday7;
             }
             return false;
         }
 
         public static void InitRealmStats(RealmStats realmStats)
         {
-            Dictionary<int, Dictionary<DungeonDifficulty, DungeonStoryJson>> dStorySeq = RealmRepo.mDungeonStory;
-            int count = dStorySeq.Count;
+            Dictionary<int, Dictionary<DungeonDifficulty, DungeonJson>> dungeonSeq = RealmRepo.mDungeon;
+            int count = dungeonSeq.Count;
             Dictionary<int, DungeonStoryInfo> dStoryDict = realmStats.GetDungeonStoryDict();
             for (int i = 0; i < count; ++i)
             {
                 int seq = i+1;
                 if (dStoryDict.Count == i)
                 {
-                    dStoryDict.Add(seq, new DungeonStoryInfo(dStorySeq[seq][DungeonDifficulty.Easy].dailyentry, 0, 0, false, false, false,
+                    dStoryDict.Add(seq, new DungeonStoryInfo(dungeonSeq[seq][DungeonDifficulty.Easy].entrylimit, 0, 0, false, false, false,
                                                              false, false, false, false, false, false, "", i));
                     realmStats.DungeonStory[i] = dStoryDict[seq].ToString();
                 }
             }
 
-            Dictionary<int, List<DungeonDailySpecialJson>> dDailySeq = RealmRepo.mDungeonDaily;
-            count = dDailySeq.Count;
-            Dictionary<int, RealmInfo> dDailyDict = realmStats.GetDungeonDailyDict();
-            for (int i = 0; i < count; ++i)
-            {
-                int seq = i+1;
-                if (dDailyDict.Count == i)
-                {
-                    dDailyDict.Add(seq, new RealmInfo(dDailySeq[seq][0].dailyentry, 0, i));
-                    realmStats.DungeonDaily[i] = dDailyDict[seq].ToString();
-                }
-            }
+            //Dictionary<int, List<DungeonDailySpecialJson>> dDailySeq = RealmRepo.mDungeonDaily;
+            //count = dDailySeq.Count;
+            //Dictionary<int, RealmInfo> dDailyDict = realmStats.GetDungeonDailyDict();
+            //for (int i = 0; i < count; ++i)
+            //{
+            //    int seq = i+1;
+            //    if (dDailyDict.Count == i)
+            //    {
+            //        dDailyDict.Add(seq, new RealmInfo(dDailySeq[seq][0].dailyentry, 0, i));
+            //        realmStats.DungeonDaily[i] = dDailyDict[seq].ToString();
+            //    }
+            //}
 
-            Dictionary<int, List<DungeonDailySpecialJson>> dSpecialSeq = RealmRepo.mDungeonSpecial;
-            count = dSpecialSeq.Count;
-            Dictionary<int, RealmInfo> dSpecialDict = realmStats.GetDungeonSpecialDict();
-            for (int i = 0; i < count; ++i)
-            {
-                int seq = i+1;
-                if (dSpecialDict.Count == i)
-                {
-                    dSpecialDict.Add(seq, new RealmInfo(dSpecialSeq[seq][0].dailyentry, 0, i));
-                    realmStats.DungeonSpecial[i] = dSpecialDict[seq].ToString();
-                }
-            }
+            //Dictionary<int, List<DungeonDailySpecialJson>> dSpecialSeq = RealmRepo.mDungeonSpecial;
+            //count = dSpecialSeq.Count;
+            //Dictionary<int, RealmInfo> dSpecialDict = realmStats.GetDungeonSpecialDict();
+            //for (int i = 0; i < count; ++i)
+            //{
+            //    int seq = i+1;
+            //    if (dSpecialDict.Count == i)
+            //    {
+            //        dSpecialDict.Add(seq, new RealmInfo(dSpecialSeq[seq][0].dailyentry, 0, i));
+            //        realmStats.DungeonSpecial[i] = dSpecialDict[seq].ToString();
+            //    }
+            //}
 
             //ActivityWorldBossJson mActivityWorldBossInfo = RealmRepo.mActivityWorldBoss;
             //Dictionary<int, RealmInfo> dWorldBossDict = realmStats.GetWorldBossDict();

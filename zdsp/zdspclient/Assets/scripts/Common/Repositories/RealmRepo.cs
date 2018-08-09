@@ -10,10 +10,10 @@ namespace Zealot.Repository
     {
         public static Dictionary<int, RealmJson> mIdMap;
         public static Dictionary<string, RealmWorldJson> mRealmWorld; // key = level name
-        public static Dictionary<int, Dictionary<DungeonDifficulty, DungeonStoryJson>> mDungeonStory; // key = sequence <- difficulty
-        public static Dictionary<int, List<DungeonDailySpecialJson>> mDungeonDaily; // key = sequence <- List sort by reqlvl
-        public static Dictionary<int, List<DungeonDailySpecialJson>> mDungeonSpecial; // key = sequence <- List sort by reqlvl
-        public static Dictionary<int, RealmObjectiveJson> mRealmObjective; // key = index
+        public static Dictionary<int, Dictionary<DungeonDifficulty, DungeonJson>> mDungeon; // key = sequence <- difficulty
+        //public static Dictionary<int, List<DungeonDailySpecialJson>> mDungeonDaily; // key = sequence <- List sort by reqlvl
+        //public static Dictionary<int, List<DungeonDailySpecialJson>> mDungeonSpecial; // key = sequence <- List sort by reqlvl
+        //public static Dictionary<int, RealmObjectiveJson> mRealmObjective; // key = index
         public static Dictionary<int, Dictionary<int, int>> mExtraEntryFees; // key = sequence <- Dict of gold to count
         public static Dictionary<int, Dictionary<int, int>> mStarRewards; // key = sequence <- Dict of starnumber to reward Id
         //public static Dictionary<int, List<ActivityGuardWarJson>> mActivityGuardWar;
@@ -29,10 +29,8 @@ namespace Zealot.Repository
         {
             mIdMap = new Dictionary<int, RealmJson>();
             mRealmWorld = new Dictionary<string, RealmWorldJson>();
-            mDungeonStory = new Dictionary<int, Dictionary<DungeonDifficulty, DungeonStoryJson>>();
-            mDungeonDaily = new Dictionary<int, List<DungeonDailySpecialJson>>();
-            mDungeonSpecial = new Dictionary<int, List<DungeonDailySpecialJson>>();
-            mRealmObjective = new Dictionary<int, RealmObjectiveJson>();
+            mDungeon = new Dictionary<int, Dictionary<DungeonDifficulty, DungeonJson>>();
+            //mRealmObjective = new Dictionary<int, RealmObjectiveJson>();
             mExtraEntryFees = new Dictionary<int, Dictionary<int, int>>();
             mStarRewards = new Dictionary<int, Dictionary<int, int>>();
             //mActivityGuardWar = new Dictionary<int, List<ActivityGuardWarJson>>();
@@ -46,10 +44,8 @@ namespace Zealot.Repository
         {
             mIdMap.Clear();
             mRealmWorld.Clear();
-            mDungeonStory.Clear();
-            mDungeonDaily.Clear();
-            mDungeonSpecial.Clear();
-            mRealmObjective.Clear();
+            mDungeon.Clear();
+            //mRealmObjective.Clear();
             mExtraEntryFees.Clear();
             mStarRewards.Clear();
             //mActivityGuardWar.Clear();
@@ -81,17 +77,17 @@ namespace Zealot.Repository
                 mAllMapRealmWorld[kvp.Key] = kvp.Value.OrderBy(o => o.reqlvl).ToList();
             }
 
-            foreach (KeyValuePair<int, DungeonStoryJson> kvp in gameData.DungeonStory)
+            foreach (KeyValuePair<int, DungeonJson> kvp in gameData.Dungeon)
             {
                 mIdMap.Add(kvp.Key, kvp.Value);
-                DungeonStoryJson dStoryJson = kvp.Value;
-                int seq = dStoryJson.sequence;
-                if (!mDungeonStory.ContainsKey(seq))
-                    mDungeonStory[seq] = new Dictionary<DungeonDifficulty, DungeonStoryJson>();
-                mDungeonStory[seq][dStoryJson.difficulty] = dStoryJson;
+                DungeonJson dungeonJson = kvp.Value;
+                int seq = dungeonJson.sequence;
+                if (!mDungeon.ContainsKey(seq))
+                    mDungeon[seq] = new Dictionary<DungeonDifficulty, DungeonJson>();
+                mDungeon[seq][dungeonJson.difficulty] = dungeonJson;
             }
 
-            Dictionary<int, List<DungeonDailySpecialJson>> currDungeonDict = null;
+            /*Dictionary<int, List<DungeonDailySpecialJson>> currDungeonDict = null;
             foreach (KeyValuePair<int, DungeonDailySpecialJson> kvp in gameData.DungeonDailySpecial)
             {
                 DungeonDailySpecialJson dDailySpecialJson = kvp.Value;
@@ -108,14 +104,14 @@ namespace Zealot.Repository
             foreach(KeyValuePair<int, List<DungeonDailySpecialJson>> kvp in mDungeonDaily)
                 kvp.Value.Sort((x, y) => x.reqlvl.CompareTo(y.reqlvl));
             foreach (KeyValuePair<int, List<DungeonDailySpecialJson>> kvp in mDungeonSpecial)
-                kvp.Value.Sort((x, y) => x.reqlvl.CompareTo(y.reqlvl));
+                kvp.Value.Sort((x, y) => x.reqlvl.CompareTo(y.reqlvl));*/
 
-            foreach (KeyValuePair<int, RealmObjectiveJson> kvp in gameData.RealmObjective)
+            /*foreach (KeyValuePair<int, RealmObjectiveJson> kvp in gameData.RealmObjective)
             {
                 mRealmObjective.Add(kvp.Key, kvp.Value);
             }
 
-            /*foreach (KeyValuePair<int, ExtraEntryFeesJson> kvp in gameData.ExtraEntryFees)
+            foreach (KeyValuePair<int, ExtraEntryFeesJson> kvp in gameData.ExtraEntryFees)
             {
                 ExtraEntryFeesJson extraEntryFeesJson = kvp.Value;
                 int seq = extraEntryFeesJson.sequence;
@@ -268,120 +264,19 @@ namespace Zealot.Repository
             return string.IsNullOrEmpty(current_city) ? "daliang_field_test" : current_city;
         }
 
-        public static Dictionary<DungeonDifficulty, DungeonStoryJson> GetDungeonStoryBySeq(int sequence)
+        public static Dictionary<DungeonDifficulty, DungeonJson> GetDungeonStoryBySeq(int sequence)
         {
-            if (mDungeonStory.ContainsKey(sequence))
-                return mDungeonStory[sequence];
+            if (mDungeon.ContainsKey(sequence))
+                return mDungeon[sequence];
             return null;
         }
 
-        public static DungeonStoryJson GetDungeonStoryBySeqAndDifficulty(int sequence, DungeonDifficulty difficulty)
-        {
-            if (mDungeonStory.ContainsKey(sequence) && mDungeonStory[sequence].ContainsKey(difficulty))
-                return mDungeonStory[sequence][difficulty];
-            return null;
-        }
-
-        public static Dictionary<int, List<DungeonDailySpecialJson>> GetDungeonDailySpecialByType(DungeonType type)
-        {
-            return (type == DungeonType.Daily) ? mDungeonDaily : mDungeonSpecial;
-        }
-
-        public static DungeonDailySpecialJson GetDungeonDailySpecialByName(string dungeonname)
-        {
-            foreach(var dungeon in mDungeonDaily)
-            {
-                var json = dungeon.Value[0];
-                if (json.localizedname == dungeonname)
-                    return json;
-            }
-
-            foreach (var dungeon in mDungeonSpecial)
-            {
-                var json = dungeon.Value[0];
-                if (json.localizedname == dungeonname)
-                    return json;
-            }
-
-            return null;
-        }
-
-        public static DungeonDailySpecialJson GetDungeonDailySpecialByNameAndLevel(string dungeonname,int level)
-        {
-            foreach (var dungeon in mDungeonDaily)
-            {
-                var json = dungeon.Value[0];
-                if (json.localizedname == dungeonname)
-                {
-                    foreach(var dungeonjson in dungeon.Value)
-                    {
-                        if(dungeonjson.reqlvl == level)
-                        {
-                            return dungeonjson;
-                        }
-                    }
-                }
-            }
-
-            foreach (var dungeon in mDungeonSpecial)
-            {
-                var json = dungeon.Value[0];
-                if (json.localizedname == dungeonname)
-                {
-                    foreach (var dungeonjson in dungeon.Value)
-                    {
-                        if (dungeonjson.reqlvl == level)
-                        {
-                            return dungeonjson;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public static List<DungeonDailySpecialJson> GetDungeonDailyBySeq(int sequence)
-        {
-            if (mDungeonDaily.ContainsKey(sequence))
-                return mDungeonDaily[sequence];
-            return null;
-        }
-
-        public static List<DungeonDailySpecialJson> GetDungeonSpecialBySeq(int sequence)
-        {
-            if (mDungeonSpecial.ContainsKey(sequence))
-                return mDungeonSpecial[sequence];
-            return null;
-        }
-
-        public static int GetStoryDungeonMinReqLvl()
-        {
-            if (mDungeonStory.ContainsKey(1))
-                return mDungeonStory[1][DungeonDifficulty.Easy].reqlvl;
-            return 0;
-        }
-
-        public static int GetDailyDungeonMinReqLvl()
-        {
-            if (mDungeonDaily.ContainsKey(1) && mDungeonDaily[1].Count > 0)
-                return mDungeonDaily[1][0].reqlvl;
-            return 0;
-        }
-
-        public static int GetDailySpecialDungeonMinReqLvl()
-        {
-            if (mDungeonSpecial.ContainsKey(1) && mDungeonSpecial[1].Count > 0)
-                return mDungeonSpecial[1][0].reqlvl;
-            return 0;
-        }
-
-        public static RealmObjectiveJson GetRealmObjectiveById(int id)
+        /*public static RealmObjectiveJson GetRealmObjectiveById(int id)
         {
             if (mRealmObjective.ContainsKey(id))
                 return mRealmObjective[id];
             return null;
-        }
+        }*/
 
         public static Dictionary<int, int> GetExtraEntryFeesBySeq(int sequence)
         {
@@ -409,17 +304,17 @@ namespace Zealot.Repository
             string res = "";
             switch (rtype)
             {
-                case RealmType.DungeonStory:
+                case RealmType.Dungeon:
                     var dungeonStoryInfo = GetDungeonStoryBySeq(sequence);
                     if (dungeonStoryInfo != null)
                         res = dungeonStoryInfo[DungeonDifficulty.Easy].localizedname;
                     break;
-                case RealmType.DungeonDailySpecial:
-                    var realmInfo = (dType == DungeonType.Daily)
-                        ? GetDungeonDailyBySeq(sequence) : GetDungeonSpecialBySeq(sequence);
-                    if (realmInfo != null && realmInfo.Count > 0)
-                        res = realmInfo[0].localizedname;
-                    break;
+                //case RealmType.DungeonDailySpecial:
+                //    var realmInfo = (dType == DungeonType.Daily)
+                //        ? GetDungeonDailyBySeq(sequence) : GetDungeonSpecialBySeq(sequence);
+                //    if (realmInfo != null && realmInfo.Count > 0)
+                //        res = realmInfo[0].localizedname;
+                //    break;
 
                 //case RealmType.ActivityGuildSMBoss:
                 //    if (mActivityGuildSMBoss.ContainsKey("guildsmboss"))

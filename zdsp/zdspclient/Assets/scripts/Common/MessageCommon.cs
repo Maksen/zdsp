@@ -2,13 +2,13 @@ namespace Zealot.Common
 {
     public enum MessageType : byte
     {
+        System,
         World,
-        Faction,
+        //Faction,
         Guild,
         Party,
-        Recruit,
+        Nearby,
         Whisper,
-        System,
         BroadcastMessage,
     }
 
@@ -54,9 +54,9 @@ namespace Zealot.Common
         public byte mBroadcastMsgType;
         public bool mHasShadow;
         
-        public ChatMessage(MessageType msgType, string msg, string sender="", string whisperTo="", int portraitId=0, 
-                           byte jobsect=1, byte vipLvl=0, byte faction=1, bool isVoiceChat=false, 
-                           byte broadcastMsgType=0, bool hasShadow=false)
+        public ChatMessage(MessageType msgType, string msg, string sender="", string whisperTo="", 
+                           int portraitId=0, byte jobsect=1, byte vipLvl=0, byte faction=1, 
+                           bool isVoiceChat=false, byte broadcastMsgType=0, bool hasShadow=false)
         {
             mMsgType = (byte)msgType;
             mMessage = msg;

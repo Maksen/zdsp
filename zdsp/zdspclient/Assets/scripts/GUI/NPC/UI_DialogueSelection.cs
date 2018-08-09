@@ -60,6 +60,10 @@ public class UI_DialogueSelection : MonoBehaviour
             {
                 mParent.SelectedInteractChoice(mQuestId, mSelectionJson.id, mSelectionJson.questtalkid > 0 ? mSelectionJson.questtalkid : -1);
             }
+            else if (mSelectionJson.actiontype == QuestSelectionActionType.Job)
+            {
+                mParent.SelectedInteractChoice(mQuestId, mSelectionJson.id, mSelectionJson.questtalkid > 0 ? mSelectionJson.questtalkid : -1);
+            }
             else
             {
                 mParent.UpdateTalkId(mSelectionJson.questtalkid);

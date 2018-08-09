@@ -246,6 +246,12 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "UnlockQuest")]
         public string UnlockQuest { get; set; }
 
+        [JsonProperty(PropertyName = "UnlockSignboard")]
+        public string UnlockSignboard { get; set; }
+
+        [JsonProperty(PropertyName = "CompanionId")]
+        public int CompanionId { get; set; }
+
         public QuestInventoryData() {
             MainQuest = "";
             CompletedMain = "";
@@ -262,6 +268,20 @@ namespace Zealot.Common
             TrackingList = "";
             UnlockWonderful = "";
             UnlockQuest = "";
+            UnlockSignboard = "";
+            CompanionId = -1;
+        }
+
+        public bool IsDefaultData()
+        {
+            if (MainQuest == "" && CompletedMain == "" && AdventureQuest == "" && CompletedAdventure == ""
+                && SublineQuest == "" && CompletedSubline == "" && GuildQuest == "" && CompletedGuild == ""
+                && SignboardQuest == "" && CompletedSignboard == "" && EventQuest == "" && CompletedEvent == ""
+                && TrackingList == "" && UnlockWonderful == "" && UnlockQuest == "" && UnlockSignboard =="")
+            {
+                return true;
+            }
+            return false;
         }
 
         public void DeserializeSingleQuestData(QuestType type, ref CurrentQuestData questData)
@@ -375,6 +395,11 @@ namespace Zealot.Common
             return JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockQuest);
         }
 
+        public List<int> DeseralizeUnlockSignboardList()
+        {
+            return JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockSignboard);
+        }
+
         public string SerailizeTrackingList(List<int> trackinglist)
         {
             TrackingList = JsonConvertDefaultSetting.SerializeObject(trackinglist);
@@ -391,6 +416,12 @@ namespace Zealot.Common
         {
             UnlockQuest = JsonConvertDefaultSetting.SerializeObject(questlist);
             return UnlockQuest;
+        }
+
+        public string SerailizeUnlockSignboardList(List<int> signboardlist)
+        {
+            UnlockSignboard = JsonConvertDefaultSetting.SerializeObject(signboardlist);
+            return UnlockSignboard;
         }
 
         public void SerializeQuestData(object questData, QuestType type)

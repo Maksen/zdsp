@@ -24,6 +24,7 @@ public class UI_ObjectiveListData : MonoBehaviour
         mQuestController = controller;
         if (ongoing)
         {
+            Objective.raycastTarget = true;
             Objective.ClickedLink.AddListener(OnClickHyperlink);
         }
     }

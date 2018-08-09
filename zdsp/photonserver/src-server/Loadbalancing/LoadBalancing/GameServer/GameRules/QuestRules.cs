@@ -508,7 +508,16 @@ namespace Zealot.Server.Rules
                         }
                         else if (requirementDetailJson.type == QuestRequirementType.SideEffect)
                         {
-                            progress.Add(requirementDetailJson.requirementid, 0);
+                            int sideeffectprogress = 0;
+                            if (requirementDetailJson.para2 == 1 && player.HasSideEffect(requirementDetailJson.para1))
+                            {
+                                sideeffectprogress = 1;
+                            }
+                            else if (requirementDetailJson.para2 == 2 && !player.HasSideEffect(requirementDetailJson.para1))
+                            {
+                                sideeffectprogress = 1;
+                            }
+                            progress.Add(requirementDetailJson.requirementid, sideeffectprogress);
                         }
                         else if (requirementDetailJson.type == QuestRequirementType.Companian)
                         {
@@ -518,13 +527,18 @@ namespace Zealot.Server.Rules
                         {
                             progress.Add(requirementDetailJson.requirementid, 0);
                         }
-                        else if (requirementDetailJson.type == QuestRequirementType.Outfit)
-                        {
-                            progress.Add(requirementDetailJson.requirementid, 0);
-                        }
                         else if (requirementDetailJson.type == QuestRequirementType.Job)
                         {
-                            progress.Add(requirementDetailJson.requirementid, player.PlayerSynStats.jobsect);
+                            int jobprogress = 0;
+                            if (requirementDetailJson.para2 == 1 && player.PlayerSynStats.jobsect == requirementDetailJson.para1)
+                            {
+                                jobprogress = 1;
+                            }
+                            else if (requirementDetailJson.para2 == 2 && player.PlayerSynStats.jobsect != requirementDetailJson.para1)
+                            {
+                                jobprogress = 1;
+                            }
+                            progress.Add(requirementDetailJson.requirementid, jobprogress);
                         }
                     }
                 }
@@ -574,15 +588,29 @@ namespace Zealot.Server.Rules
                     case QuestRequirementType.Title:
                         return 0;
                     case QuestRequirementType.SideEffect:
+                        if (questRequirement.para2 == 1 && player.HasSideEffect(questRequirement.para1))
+                        {
+                            return 1;
+                        }
+                        else if (questRequirement.para2 == 2 && !player.HasSideEffect(questRequirement.para1))
+                        {
+                            return 1;
+                        }
                         return 0;
                     case QuestRequirementType.Companian:
                         return 0;
                     case QuestRequirementType.Clue:
                         return 0;
-                    case QuestRequirementType.Outfit:
-                        return 0;
                     case QuestRequirementType.Job:
-                        return player.PlayerSynStats.jobsect;
+                        if (questRequirement.para2 == 1 && player.PlayerSynStats.jobsect == questRequirement.para1)
+                        {
+                            return 1;
+                        }
+                        else if (questRequirement.para2 == 2 && player.PlayerSynStats.jobsect != questRequirement.para1)
+                        {
+                            return 1;
+                        }
+                        return 0;
                 }
             }
             return 0;
@@ -621,7 +649,7 @@ namespace Zealot.Server.Rules
             if (mainObjectiveId != -1)
             {
                 QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(mainObjectiveId);
-                if (objectiveJson != null && objectiveJson.type == QuestObjectiveType.MultipleObj)
+                if (objectiveJson != null && objectiveJson.type == QuestObjectiveType.MultipleObj && objectiveJson.para1 != 0)
                 {
                     newQuestData = questData;
                     newQuestData.MainObjective.RequirementProgress = new Dictionary<int, int>();
@@ -732,12 +760,18 @@ namespace Zealot.Server.Rules
                 case QuestRequirementType.Title:
                     return true;
                 case QuestRequirementType.SideEffect:
-                    return true;
+                    if (requirement.para2 == 1 && player.HasSideEffect(requirement.para1))
+                    {
+                        return true;
+                    }
+                    else if (requirement.para2 == 2 && !player.HasSideEffect(requirement.para1))
+                    {
+                        return true;
+                    }
+                    break;
                 case QuestRequirementType.Companian:
                     return true;
                 case QuestRequirementType.Clue:
-                    return true;
-                case QuestRequirementType.Outfit:
                     return true;
                 case QuestRequirementType.Job:
                     if (requirement.para2 == 1 && player.PlayerSynStats.jobsect == requirement.para1)
@@ -824,12 +858,14 @@ namespace Zealot.Server.Rules
                 case QuestRequirementType.Title:
                     return true;
                 case QuestRequirementType.SideEffect:
+                    if (requirement.para3 == 1)
+                    {
+                        player.RemoveSideEffect(requirement.para1);
+                    }
                     return true;
                 case QuestRequirementType.Companian:
                     return true;
                 case QuestRequirementType.Clue:
-                    return true;
-                case QuestRequirementType.Outfit:
                     return true;
                 case QuestRequirementType.Job:
                     return true;
@@ -861,6 +897,86 @@ namespace Zealot.Server.Rules
         public static string SerializedQuestStats(QuestDataStats questDataStats)
         {
             return JsonConvertDefaultSetting.SerializeObject(questDataStats);
+        }
+
+        public static List<int> GetUnlockSignboardList(int level, List<int> signboardquests, int maxsignboard, List<int> existlist)
+        {
+            List<int> signboardlist = existlist;
+            foreach (int questid in signboardquests)
+            {
+                int signboardid = QuestRepo.GetSignboardIdByQuestId(questid);
+                QuestSignboardJson signboardJson = QuestRepo.GetSignboardQuestBySignboardId(signboardid);
+                if (signboardJson != null)
+                {
+                    signboardlist.Add(signboardid);
+                }
+            }
+
+            if (signboardlist.Count >= maxsignboard)
+            {
+                return signboardlist;
+            }
+
+            List<int> signboardgroup = QuestRepo.GetSignboardGroupByLevel(level);
+            Dictionary<int, List<QuestSignboardJson>> signboardJsons = new Dictionary<int, List<QuestSignboardJson>>();
+            foreach (int groupid in signboardgroup)
+            {
+                signboardJsons.Add(groupid, new List<QuestSignboardJson>());
+                List<QuestSignboardJson> result = QuestRepo.GetSignboardQuestByGroup(groupid);
+                foreach (QuestSignboardJson data in result)
+                {
+                    if (!signboardlist.Contains(data.signboardid))
+                    {
+                        signboardJsons[groupid].Add(data);
+                    }
+                }
+            }
+
+            int remain = maxsignboard - signboardlist.Count;
+            int countpergroup = remain / signboardJsons.Count;
+            foreach (KeyValuePair<int, List<QuestSignboardJson>> entry in signboardJsons)
+            {
+                signboardlist.AddRange(GetSignboardListInGroup(entry.Value, countpergroup));
+            }
+            return signboardlist;
+        }
+
+        private static List<int> GetSignboardListInGroup(List<QuestSignboardJson> signboardJsons, int count)
+        {
+            List<int> signboardlist = new List<int>();
+            for (int i = 0; i < count; i++)
+            {
+                QuestSignboardJson result = GetRandomSignboard(signboardJsons);
+                if (result != null)
+                {
+                    signboardlist.Add(result.signboardid);
+                    signboardJsons.Remove(result);
+                }
+            }
+            return signboardlist;
+        }
+
+        private static QuestSignboardJson GetRandomSignboard(List<QuestSignboardJson> signboardJsons)
+        {
+            int maxweight = 0;
+            foreach (QuestSignboardJson signboardJson in signboardJsons)
+            {
+                maxweight += signboardJson.probability;
+            }
+
+            int randomweight = GameUtils.RandomInt(0, maxweight);
+            int min = 0;
+            int max = 0;
+            foreach (QuestSignboardJson signboardJson in signboardJsons)
+            {
+                min = max;
+                max += signboardJson.probability;
+                if (randomweight >= min && randomweight < max)
+                {
+                    return signboardJson;
+                }
+            }
+            return null;
         }
     }
 }

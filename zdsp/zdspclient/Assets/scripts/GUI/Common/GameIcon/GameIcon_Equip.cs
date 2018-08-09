@@ -40,6 +40,11 @@ public class GameIcon_Equip : GameIcon_Base
             SetClickCallback(onClickCallback);
     }
 
+    public void InitWithTooltipViewOnly(int itemId)
+    {
+        Init(itemId, 0, 0, 0, false, false, false, OnClickShowTooltipViewOnly);
+    }
+
     public bool StatusCannotUse
     {
         set { iconStatusCannotuse.SetActive(value); }

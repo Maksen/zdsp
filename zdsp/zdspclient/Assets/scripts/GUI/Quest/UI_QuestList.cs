@@ -108,10 +108,14 @@ public class UI_QuestList : MonoBehaviour
                 {
                     int objectiveid = int.Parse(id);
                     QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
+                    if (objectiveJson.type == QuestObjectiveType.Empty)
+                    {
+                        continue;
+                    }
                     if (objectiveJson.type != QuestObjectiveType.MultipleObj)
                     {
                         bool completed = mQuestController.IsMainQuestObjectiveCompleted(SelectedQuestId, group, seq);
-                        bool ongoing = mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq ? true : false;
+                        bool ongoing = mQuestData == null ? false : mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq ? true : false;
                         string description = mQuestController.DeserializedDescription(QuestType.Main, SelectedQuestId, objectiveid, completed, ongoing);
                         GameObject objectivedetail = Instantiate(ObjectiveDetail);
                         objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed, mQuestController, SelectedQuestId);
@@ -124,7 +128,7 @@ public class UI_QuestList : MonoBehaviour
                         foreach(KeyValuePair<int, List<int>> subobjective in subobjectivelist)
                         {
                             bool completed = mQuestController.IsMainQuestObjectiveCompleted(SelectedQuestId, group, seq, SelectedQuestId, subobjective.Key);
-                            bool ongoing = mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq && mQuestData.SubObjective[SelectedQuestId].SequenceNum == subobjective.Key ? true : false;
+                            bool ongoing = mQuestData == null ? false : mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq && mQuestData.SubObjective[SelectedQuestId].SequenceNum == subobjective.Key ? true : false;
                             string description = mQuestController.DeserializedDescription(QuestType.Main, SelectedQuestId, objectiveid, subobjective.Value, completed, ongoing);
                             GameObject objectivedetail = Instantiate(ObjectiveDetail);
                             objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed, mQuestController, SelectedQuestId);

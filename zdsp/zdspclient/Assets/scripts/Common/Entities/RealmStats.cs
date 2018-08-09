@@ -3,7 +3,6 @@ using System.Text;
 using Kopio.JsonContracts;
 using Zealot.Common.Datablock;
 using Zealot.Repository;
-using Zealot.Common;
 using System.Linq;
 
 namespace Zealot.Common.Entities
@@ -181,18 +180,18 @@ namespace Zealot.Common.Entities
             {
                 DungeonStoryInfo info = entry.Value;
                 int seq = info.LocalObjIdx+1;
-                DungeonStoryJson storyJson = null;
-                Dictionary<DungeonDifficulty, DungeonStoryJson> dungeonStoryBySeq = RealmRepo.GetDungeonStoryBySeq(seq);       
+                DungeonJson storyJson = null;
+                Dictionary<DungeonDifficulty, DungeonJson> dungeonStoryBySeq = RealmRepo.GetDungeonStoryBySeq(seq);       
                 if (dungeonStoryBySeq != null && dungeonStoryBySeq.TryGetValue(DungeonDifficulty.Easy, out storyJson))
                 {
-                    info.DailyEntry = storyJson.dailyentry;
+                    info.DailyEntry = storyJson.entrylimit;
                     info.DailyExtraEntry = 0;
                     DungeonStory[info.LocalObjIdx] = info.ToString();
                 }
                 else
                     DungeonStory[info.LocalObjIdx] = null;
             }
-            foreach (KeyValuePair<int, RealmInfo> entry in dungeonDailyDict)
+            /*foreach (KeyValuePair<int, RealmInfo> entry in dungeonDailyDict)
             {
                 RealmInfo info = entry.Value;
                 int seq = info.LocalObjIdx+1;
@@ -219,7 +218,7 @@ namespace Zealot.Common.Entities
                     DungeonSpecial[info.LocalObjIdx] = null;
             }
 
-            /*foreach (KeyValuePair<int, RealmInfo> entry in WorldBossDict)
+            foreach (KeyValuePair<int, RealmInfo> entry in WorldBossDict)
             {
                 RealmInfo info = entry.Value;
                 ActivityWorldBossJson worldBossJson = RealmRepo.mActivityWorldBoss;
@@ -239,18 +238,18 @@ namespace Zealot.Common.Entities
         {
             switch(realmType)
             {
-                case RealmType.DungeonStory:
+                case RealmType.Dungeon:
                     DungeonStoryInfo dungeonStoryInfo = GetDungeonStoryDict()[seq];
                     dungeonStoryInfo.ExtraEntry += amt;
                     DungeonStory[dungeonStoryInfo.LocalObjIdx] = dungeonStoryInfo.ToString();
                     break;
-                case RealmType.DungeonDailySpecial:
-                    RealmInfo realmInfo = (dungeonType == DungeonType.Daily) 
-                        ? GetDungeonDailyDict()[seq] : GetDungeonSpecialDict()[seq];
-                    realmInfo.ExtraEntry += amt;
-                    CollectionHandler<object> list = (dungeonType == DungeonType.Daily) ? DungeonDaily : DungeonSpecial;
-                    list[realmInfo.LocalObjIdx] = realmInfo.ToString();
-                    break;
+                //case RealmType.DungeonDailySpecial:
+                //    RealmInfo realmInfo = (dungeonType == DungeonType.Daily) 
+                //        ? GetDungeonDailyDict()[seq] : GetDungeonSpecialDict()[seq];
+                //    realmInfo.ExtraEntry += amt;
+                //    CollectionHandler<object> list = (dungeonType == DungeonType.Daily) ? DungeonDaily : DungeonSpecial;
+                //    list[realmInfo.LocalObjIdx] = realmInfo.ToString();
+                //    break;
             }
         }
 
@@ -299,7 +298,7 @@ namespace Zealot.Common.Entities
     public class DungeonObjectiveStats : LocalObject
     {
         public CollectionHandler<object> StarObjectivesProgress { get; set; }
-        private List<RealmObjectiveJson> starObjectives = null;
+        //private List<RealmObjectiveJson> starObjectives = null;
 
         public DungeonObjectiveStats() : base(LOTYPE.DungeonObjectiveStats)
         {
@@ -314,19 +313,19 @@ namespace Zealot.Common.Entities
 
         public void InitStarObjectives(int objective1, int objective2, int objective3)
         {
-            starObjectives = new List<RealmObjectiveJson>();
-            starObjectives.Add(RealmRepo.GetRealmObjectiveById(objective1));
-            starObjectives.Add(RealmRepo.GetRealmObjectiveById(objective2));
-            starObjectives.Add(RealmRepo.GetRealmObjectiveById(objective3));
+            //starObjectives = new List<RealmObjectiveJson>();
+            //starObjectives.Add(RealmRepo.GetRealmObjectiveById(objective1));
+            //starObjectives.Add(RealmRepo.GetRealmObjectiveById(objective2));
+            //starObjectives.Add(RealmRepo.GetRealmObjectiveById(objective3));
 
-            int objectivesCnt = starObjectives.Count;
-            for (int i=0; i<objectivesCnt; ++i)
-                StarObjectivesProgress[i] = 0;
+            //int objectivesCnt = starObjectives.Count;
+            //for (int i=0; i<objectivesCnt; ++i)
+            //    StarObjectivesProgress[i] = 0;
         }
 
         public void OnObjectiveMonsterKill(int npcId)
         {
-            if (starObjectives == null)
+            /*if (starObjectives == null)
                 return;
             for (int i = 0; i < 3; ++i)
             {
@@ -339,12 +338,12 @@ namespace Zealot.Common.Entities
                     if (npcId == starObjective.monsterid && progress < starObjective.monsterkillcnt)
                         StarObjectivesProgress[i] = progress+1;
                 }
-            }
+            }*/
         }
 
         public void OnObjectiveTimeNoDeath(long elapsedTime, int deathCount)
         {
-            if (starObjectives == null)
+            /*if (starObjectives == null)
                 return;
             for (int i = 0; i < 3; ++i)
             {
@@ -361,12 +360,12 @@ namespace Zealot.Common.Entities
                             StarObjectivesProgress[i] = 0;
                     }
                 }
-            }
+            }*/
         }
 
         public void OnObjectiveTimeComplete(long elapsedTime, bool success)
         {
-            if (starObjectives == null)
+            /*if (starObjectives == null)
                 return;
             for (int i = 0; i < 3; ++i)
             {
@@ -378,7 +377,7 @@ namespace Zealot.Common.Entities
                     if (elapsedTime <= (long)starObjective.timelimit*1000 && success)
                         StarObjectivesProgress[i] = 1;
                 }
-            }
+            }*/
         }
 
         //public void OnObjectiveHeroUseOnly(SkillSynStats skillStats)
@@ -511,7 +510,7 @@ namespace Zealot.Common.Entities
 
         public void OnObjectiveSkillCannotUseAny(SkillSynStats skillStats)
         {
-            if (starObjectives == null)
+            /*if (starObjectives == null)
                 return;
             for (int i = 0; i < 3; ++i)
             {
@@ -524,7 +523,7 @@ namespace Zealot.Common.Entities
                      //   skillStats.BlueHeroCardSkillAttackSId == 0 && skillStats.JobskillAttackSId == 0)
                      //       StarObjectivesProgress[i] = 1; 
                 }
-            }
+            }*/
         }
 
         //public void OnObjectiveHeroQualityUseOnly(SkillSynStats skillStats)
@@ -585,7 +584,7 @@ namespace Zealot.Common.Entities
 
         public void OnObjectiveRealmComplete(bool success)
         {
-            if (starObjectives == null)
+            /*if (starObjectives == null)
                 return;
             for (int i = 0; i < 3; ++i)
             {
@@ -597,17 +596,17 @@ namespace Zealot.Common.Entities
                     if(success)
                         StarObjectivesProgress[i] = 1;
                 }
-            }
+            }*/
         }
 
-        public string UpdatePlayerStarObjectivesProgress(RealmStats realmStats, DungeonStoryJson dungeonStoryJson, bool updateStats)
+        public string UpdatePlayerStarObjectivesProgress(RealmStats realmStats, DungeonJson dungeonJson, bool updateStats)
         {
-            if (starObjectives == null)
+            /*if (starObjectives == null)
                 return "";
 
             Dictionary<int, DungeonStoryInfo> dungeonStoryInfoDict = realmStats.GetDungeonStoryDict();
-            DungeonStoryInfo dungeonStoryInfo = dungeonStoryInfoDict[dungeonStoryJson.sequence];
-            int diff = (int)dungeonStoryJson.difficulty*3;
+            DungeonStoryInfo dungeonStoryInfo = dungeonStoryInfoDict[dungeonJson.sequence];
+            int diff = (int)dungeonJson.difficulty*3;
             StringBuilder sb = new StringBuilder();
             bool isFirst = true;
             for (int i = 0; i < 3; ++i)
@@ -632,7 +631,8 @@ namespace Zealot.Common.Entities
                 realmStats.DungeonStory[dungeonStoryInfo.LocalObjIdx] = dungeonStoryInfo.ToString();
                 dungeonStoryInfo.UpdateTotalStarCompleted(); // Update current stars completed
             }
-            return sb.ToString();
+            return sb.ToString();*/
+            return "";
         }
 
         /* Star objective planning

@@ -12,6 +12,7 @@ namespace Zealot.Spawners
         public bool canroam;
         [Tooltip("All monsters in world instance do not need path find. Some monsters in realm may not need path find if combat radius ensure they can move safely")]
         public bool canpathfind;
+        public bool aggressive;
 
         void Awake()
         {
@@ -47,7 +48,6 @@ namespace Zealot.Spawners
             {
                 jsonclass.positionhelper.Add(new PositionHelperData()
                 {
-                    id = element.id,
                     aggroRadius = element.aggroRadius,
                     combatRadius = element.combatRadius,
                     position = element.transform.position
@@ -55,6 +55,7 @@ namespace Zealot.Spawners
             }
             jsonclass.canroam = canroam;
             jsonclass.canpathfind = canpathfind;
+            jsonclass.aggressive = aggressive;
             base.GetJson(jsonclass);
 		}
     }

@@ -71,11 +71,7 @@ public partial class ClientMain : MonoBehaviour
                 }
                 else
                     GameInfo.gDmgLabelPool.Setup(res, defenderghost.Position);
-            }
-            
-            //local player on damage interrupt interact action.
-            if (defenderghost == GameInfo.gLocalPlayer && defenderghost.GetAction().mdbCommand.GetActionType() == ACTIONTYPE.INTERACT)
-                defenderghost.PerformAction(new ClientAuthoACIdle(defenderghost, new IdleActionCommand()));
+            }                     
 
             if (defenderghost.IsMonster())//monster get hit
             {
@@ -84,10 +80,18 @@ public partial class ClientMain : MonoBehaviour
                 if(res.IsCritical)
                     defenderghost.PlayEffect("", GameInfo.gLocalPlayer.GetHitCritEffect());
             }
-            else if (defenderghost.IsPlayer() && defenderghost.IsLocal == false)//player get hit
+            else if (defenderghost.IsPlayer())//player get hit
             {
                 PlayerGhost g = (PlayerGhost)defenderghost;
-                g.SetHeadLabel();
+                if (defenderghost.IsLocal)
+                {
+                    //local player on damage interrupt interact action.
+                    if (defenderghost.GetAction().mdbCommand.GetActionType() == ACTIONTYPE.INTERACT)
+                        defenderghost.PerformAction(new ClientAuthoACIdle(defenderghost, new IdleActionCommand()));
+                    g.ActionInterupted();
+                }
+                else                
+                    g.SetHeadLabel();
             }
             //Debug.Log("damage: " + ghost.Name + " " + attacktype);
         }

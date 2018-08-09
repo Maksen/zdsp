@@ -87,7 +87,11 @@ public class Model_3DAvatar : MonoBehaviour
 
         if (model == null)
         {
-            AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, OnModelLoaded + afterLoad, true);
+            AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, (obj) => {
+                OnModelLoaded(obj);
+                if (model != null && afterLoad != null)
+                    afterLoad(model);
+            }, true);
             modelpath = prefabPath;
         }
     }
@@ -100,7 +104,8 @@ public class Model_3DAvatar : MonoBehaviour
             CharacterController charCtrl = model.GetComponent<CharacterController>();
             if (charCtrl != null)
                 Destroy(charCtrl);
-            model.transform.localScale = new Vector3(heroJson.modelscalex, heroJson.modelscaley, heroJson.modelscalez);
+            if (heroJson != null)
+                model.transform.localScale = new Vector3(heroJson.modelscalex, heroJson.modelscaley, heroJson.modelscalez);
             model.transform.SetParent(modelParent, false);
             ClientUtils.SetLayerRecursively(model, LayerMask.NameToLayer("UI"));
         }

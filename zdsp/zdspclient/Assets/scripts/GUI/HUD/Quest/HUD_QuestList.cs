@@ -50,7 +50,7 @@ public class HUD_QuestList : MonoBehaviour
 
         List<QuestJson> questJsonList = GetQuestJsonByType(type, trackinglist);
         Transform unlockcontent = GetUnlockGroup(type);
-        unlockcontent.gameObject.SetActive(questDataList.Count == 0 ? false : true);
+        unlockcontent.gameObject.SetActive(questJsonList.Count == 0 ? false : true);
         foreach (QuestJson questjson in questJsonList)
         {
             AddQuestObject(questjson, unlockcontent, controller);

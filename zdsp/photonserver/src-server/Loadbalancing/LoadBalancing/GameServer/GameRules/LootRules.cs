@@ -21,6 +21,13 @@ namespace Zealot.Server.Rules
                 mLimitedItemInventory = LimitedItemInventory.DeserializeFromDB((string)records[0]["payload"]);
         }
 
+        public static void AddLimitItem(List<ItemInfo> itemsToAdd)
+        {
+            int count = itemsToAdd.Count;
+            for (int index = 0; index < count; index++)
+                AddLimitItem(itemsToAdd[index].itemId, itemsToAdd[index].stackCount);
+        }
+
         //return count added.
         public static int AddLimitItem(int itemid, int stackCount)
         {
@@ -34,33 +41,31 @@ namespace Zealot.Server.Rules
             LimitedItemData record;
             if (mLimitedItemInventory.records.TryGetValue(itemid, out record))
             {
-                bool reset = false;
+                int amountNow = record.amount;
                 switch (json.cycle)
                 {
                     case LimitItemCycle.Day:
                         if (record.lastUpdateDate != today)
-                            reset = true;
+                            amountNow = 0;
                         break;
                     case LimitItemCycle.Week:
                         if (record.lastUpdateDate.AddDays(-AdjustDayOfWeek(record.lastUpdateDate.DayOfWeek)) !=
                             today.AddDays(-AdjustDayOfWeek(today.DayOfWeek)))
-                            reset = true;
+                            amountNow = 0;
                         break;
                     case LimitItemCycle.Month:
                         if (record.lastUpdateDate.Year != today.Year || record.lastUpdateDate.Month != today.Month)
-                            reset = true;
+                            amountNow = 0;
                         break;
-                }   
-                if (reset)
-                    record.amount = 0;
+                }
                 
-                if (record.amount >= maxAmt)
+                if (amountNow >= maxAmt)
                     return 0;
                 else
                 {
                     record.lastUpdateDate = today;
                     mLimitedItemInventory.IsDirty = true;
-                    record.amount = record.amount + stackCount;
+                    record.amount = amountNow + stackCount;
                     int overCount = record.amount - maxAmt;
                     if (overCount > 0)
                     {
@@ -74,8 +79,60 @@ namespace Zealot.Server.Rules
             else
             {
                 int added = Math.Min(stackCount, maxAmt);
+                mLimitedItemInventory.IsDirty = true;
                 mLimitedItemInventory.records.Add(itemid, new LimitedItemData() { amount = added, lastUpdateDate = today });
                 return added;
+            }
+        }
+
+        //check can add how many count, but not modify amount
+        public static int CanAddLimitItem(int itemid, int stackCount, out bool findLimitItem)
+        {
+            findLimitItem = false;
+            LimitedItemJson json = LootRepo.GetLimitedItemInfo(itemid);
+            if (json == null)
+                return stackCount;
+            int maxAmt = json.amt;
+            if (maxAmt == 0)
+                return 0;
+            DateTime today = DateTime.Today;
+            LimitedItemData record;
+            if (mLimitedItemInventory.records.TryGetValue(itemid, out record))
+            {
+                int amountNow = record.amount;
+                switch (json.cycle)
+                {
+                    case LimitItemCycle.Day:
+                        if (record.lastUpdateDate != today)
+                            amountNow = 0;
+                        break;
+                    case LimitItemCycle.Week:
+                        if (record.lastUpdateDate.AddDays(-AdjustDayOfWeek(record.lastUpdateDate.DayOfWeek)) !=
+                            today.AddDays(-AdjustDayOfWeek(today.DayOfWeek)))
+                            amountNow = 0;
+                        break;
+                    case LimitItemCycle.Month:
+                        if (record.lastUpdateDate.Year != today.Year || record.lastUpdateDate.Month != today.Month)
+                            amountNow = 0;
+                        break;
+                }
+
+                if (amountNow >= maxAmt)
+                    return 0;
+                else
+                {
+                    findLimitItem = true;
+                    int overCount = amountNow + stackCount - maxAmt;
+                    if (overCount > 0)
+                        return stackCount - overCount;
+                    else
+                        return stackCount;
+                }
+            }
+            else
+            {
+                findLimitItem = true;
+                return Math.Min(stackCount, maxAmt);
             }
         }
 
@@ -127,7 +184,7 @@ namespace Zealot.Server.Rules
             bool noBattleTime = player.Slot.CharacterData.BattleTime <= 0;
 
             List<ItemInfo> items = new List<ItemInfo>();
-            Dictionary<CurrencyType, int> currencyAdded = new Dictionary<CurrencyType, int>();
+            Dictionary<CurrencyType, int> currencyToAdd = new Dictionary<CurrencyType, int>();
             for (int index = 0; index < itemListCount; index++)
             {
                 LootItem lootItem = itemList[index];
@@ -145,7 +202,7 @@ namespace Zealot.Server.Rules
                 if (itemid > 0)
                 {
                     int addedCount = AddLimitItem(itemid, stackCount);
-                    if (addedCount == 0) 
+                    if (addedCount == 0)
                         continue; //limiteditem hit max amount
                     items.Add(new ItemInfo() { itemId = (ushort)itemid, stackCount = addedCount });
                     if (displayInventory != null)
@@ -153,14 +210,15 @@ namespace Zealot.Server.Rules
                 }
                 else if (lootItem.currencyType != CurrencyType.None)
                 {
-                    if (currencyAdded.ContainsKey(lootItem.currencyType))
-                        currencyAdded[lootItem.currencyType] += stackCount;
+                    if (currencyToAdd.ContainsKey(lootItem.currencyType))
+                        currencyToAdd[lootItem.currencyType] += stackCount;
                     else
-                        currencyAdded[lootItem.currencyType] = stackCount;
+                        currencyToAdd[lootItem.currencyType] = stackCount;
                     if (displayInventory != null)
                         displayInventory.Add(pid, -1);
                 }
             }
+
             var retValue = player.Slot.mInventory.AddItemsIntoInventory(items, true, "Loot");
             if (retValue.retCode != InvReturnCode.AddSuccess)
             {
@@ -173,13 +231,13 @@ namespace Zealot.Server.Rules
                     list_Attachment.Add(GameRules.GenerateItem(item.itemId, null, item.stackCount));
 
                 mailObj.lstAttachment = list_Attachment;
-                mailObj.dicCurrencyAmt = currencyAdded;
+                mailObj.dicCurrencyAmt = currencyToAdd;
                 MailManager.Instance.SendMail(mailObj);
             }
             else
             {
                 // Add currency
-                foreach (var currency in currencyAdded)
+                foreach (var currency in currencyToAdd)
                     player.AddCurrency(currency.Key, currency.Value, "Loot");
             }
         }
@@ -191,7 +249,7 @@ namespace Zealot.Server.Rules
                 return;
 
             List<ItemInfo> items = new List<ItemInfo>();
-            Dictionary<CurrencyType, int> currencyAdded = new Dictionary<CurrencyType, int>();
+            Dictionary<CurrencyType, int> currencyToAdd = new Dictionary<CurrencyType, int>();
             for (int index = 0; index < itemListCount; index++)
             {
                 LootItem lootItem = itemList[index];
@@ -210,10 +268,10 @@ namespace Zealot.Server.Rules
                 }
                 else if (lootItem.currencyType != CurrencyType.None)
                 {
-                    if (currencyAdded.ContainsKey(lootItem.currencyType))
-                        currencyAdded[lootItem.currencyType] += stackCount;
+                    if (currencyToAdd.ContainsKey(lootItem.currencyType))
+                        currencyToAdd[lootItem.currencyType] += stackCount;
                     else
-                        currencyAdded[lootItem.currencyType] = stackCount;
+                        currencyToAdd[lootItem.currencyType] = stackCount;
                     if (displayInventory != null)
                         displayInventory.Add(0, -1);
                 }
@@ -228,8 +286,86 @@ namespace Zealot.Server.Rules
                 list_Attachment.Add(GameRules.GenerateItem(item.itemId, null, item.stackCount));
 
             mailObj.lstAttachment = list_Attachment;
-            mailObj.dicCurrencyAmt = currencyAdded;
+            mailObj.dicCurrencyAmt = currencyToAdd;
             MailManager.Instance.SendMail(mailObj);
+        }
+
+        //doesn't check LootCorrection and battle time 
+        public static void GenerateLootItem(Player player, List<int> grpIds, Dictionary<int, int> itemIdCount, Dictionary<CurrencyType, int> currencyToAdd)
+        {
+            var itemList = LootRepo.RandomItems(grpIds);
+            int itemListCount = itemList.Count;
+            if (itemListCount == 0)
+                return;
+
+            for (int index = 0; index < itemListCount; index++)
+            {
+                LootItem lootItem = itemList[index];
+                int stackCount = lootItem.GetAmount();
+                if (stackCount == 0)
+                    continue;
+                int itemid = lootItem.itemid;
+                if (itemid > 0)
+                {
+                    if (itemIdCount.ContainsKey(itemid))
+                        itemIdCount[itemid] += stackCount;
+                    else
+                        itemIdCount.Add(itemid, stackCount);
+                }
+                else if (lootItem.currencyType != CurrencyType.None)
+                {
+                    if (currencyToAdd.ContainsKey(lootItem.currencyType))
+                        currencyToAdd[lootItem.currencyType] += stackCount;
+                    else
+                        currencyToAdd[lootItem.currencyType] = stackCount;
+                }
+            }
+        }
+
+        public static List<ItemInfo> GetItemInfoListToAdd(Dictionary<int, int> itemsToAdd, bool checkLimitItem, out bool findLimitItem)
+        {
+            List<ItemInfo> items = new List<ItemInfo>();
+            findLimitItem = false;
+            if (checkLimitItem)
+            {
+                foreach (var kvp in itemsToAdd)
+                {
+                    bool found;
+                    int addedCount = CanAddLimitItem(kvp.Key, kvp.Value, out found);
+                    if (addedCount > 0)
+                    {
+                        if (found)
+                            findLimitItem = true;
+                        items.Add(new ItemInfo { itemId = (ushort)kvp.Key, stackCount = addedCount });
+                    }
+                }
+            }
+            else
+            {
+                foreach (var kvp in itemsToAdd)
+                    items.Add(new ItemInfo { itemId = (ushort)kvp.Key, stackCount = kvp.Value });
+            }
+            return items;
+        }
+
+        public static List<ItemInfo> GetItemInfoListToAdd(Dictionary<int, int> itemsToAdd, bool checkLimitItem)
+        {
+            List<ItemInfo> items = new List<ItemInfo>();
+            if (checkLimitItem)
+            {
+                foreach (var kvp in itemsToAdd)
+                {
+                    int addedCount = AddLimitItem(kvp.Key, kvp.Value);
+                    if (addedCount > 0)
+                        items.Add(new ItemInfo { itemId = (ushort)kvp.Key, stackCount = addedCount });
+                }
+            }
+            else
+            {
+                foreach (var kvp in itemsToAdd)
+                    items.Add(new ItemInfo { itemId = (ushort)kvp.Key, stackCount = kvp.Value });
+            }
+            return items;
         }
         #endregion
     }

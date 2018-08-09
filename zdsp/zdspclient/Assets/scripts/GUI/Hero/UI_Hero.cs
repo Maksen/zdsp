@@ -20,6 +20,7 @@ public class UI_Hero : BaseWindowBehaviour
     public override void OnCloseWindow()
     {
         base.OnCloseWindow();
+        uiHeroInfo.CleanUp();
     }
 
     public void OnSummonedHeroChanged()

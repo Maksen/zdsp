@@ -2,16 +2,22 @@
 <magicalarea51>
   <data>
     <enum name="RealmType">
-      <item key="RealmWorld" value="0"/>
-      <item key="DungeonStory" value="1"/>
-      <item key="DungeonDailySpecial" value="2"/>
-      <!--<item key="RealmTutorial" value="3"/>
-      <item key="ActivityGuardWar" value="4"/>
-      <item key="ActivityGuildSMBoss" value="5"/>
-      <item key="ActivityWorldBoss" value="6"/>
-      <item key="Arena" value="7"/>
-      <item key="InvitePVP" value="8"/>
-      <item key="EliteMap" value="9"/>-->
+      <item key="World" value="0"/>
+      <item key="Dungeon" value="1"/>
+      <!--<item key="Tutorial" value="2"/>
+      <item key="ActivityGuardWar" value="3"/>
+      <item key="ActivityGuildSMBoss" value="4"/>
+      <item key="ActivityWorldBoss" value="5"/>
+      <item key="Arena" value="6"/>
+      <item key="InvitePVP" value="7"/>
+      <item key="EliteMap" value="8"/>-->
+    </enum>
+    
+    <enum name="RealmPVPType">
+      <item key="Peace" value="0"/>
+      <item key="FreeForAll" value="1"/>
+      <item key="Guild" value="2"/>
+      <item key="Faction" value="3"/>
     </enum>
 
     <enum name="MapType">
@@ -23,24 +29,28 @@
     </enum>
 
     <enum name="DungeonDifficulty">
-      <item key="Easy" value="0"/>
-      <item key="Hard" value="1"/>
-      <item key="Hell" value="2"/>
-    </enum>
-
-    <enum name="LevelPVPType">
-      <item key="Peace" value="0"/>
-      <item key="FreeForAll" value="2"/>
-      <item key="Guild" value="4"/>
-      <item key="Faction" value="5"/>
+      <item key="None" value="0"/>
+      <item key="Easy" value="1"/>
+      <item key="Normal" value="2"/>
+      <item key="Hard" value="3"/>
+      <item key="Challenger" value="4"/>
     </enum>
 
     <enum name="DungeonType">
-      <item key="Daily" value="0"/>
-      <item key="Special" value="1"/>
+      <item key="Story" value="0"/>
+      <item key="Daily" value="1"/>
+      <item key="Special" value="2"/>
+      <item key="ChickenDinner" value="3"/>
+      <item key="EndlessTower" value="4"/>
     </enum>
 
-    <enum name="RealmObjectiveType">
+    <enum name="LootResetType">
+      <item key="None" value="0"/>
+      <item key="Daily" value="1"/>
+      <item key="Weekly" value="2"/>
+    </enum>
+
+    <!--<enum name="RealmObjectiveType">
       <item key="TimeWithinNoDeath" value="0"/>
       <item key="TimeWithinComplete" value="1"/>
       <item key="HeroUseOnly" value="2"/>
@@ -56,7 +66,7 @@
       <item key="Item" value="0"/>
       <item key="SideEffect" value="1"/>
       <item key="Skill" value="2"/>
-    </enum>
+    </enum>-->
 
     <element name="MapCategory" useexcel="true" collectionkey="categoryname">
       <property name="categoryname" type="string" uitext="Name"/>
@@ -78,41 +88,36 @@
       <property name="excelname" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="level" type="Level" uitext="Level" display="unityscene"/>
-      <constant name="type" type="RealmType" value="RealmType.RealmWorld"/>
+      <constant name="type" type="RealmType" value="RealmType.World"/>
       <property name="reqlvl" type="int" uitext="Required Level" default="1"/>
-      <property name="pvptype" type="LevelPVPType" uitext="PVP Type" default="0"/>
+      <property name="pvptype" type="RealmPVPType" uitext="PVP Type" default="0"/>
       <property name="preparation" type="int" uitext="Preparation Time" default="0" info="0 means no preparation time"/>
       <property name="timelimit" type="int" uitext="Time Limit" default="600" info="0 means no limit"/>
-      <property name="respawntype" type="RespawnType" uitext="Respawn Type"/>
-      <property name="respawncd" type="int" uitext="Respawn Countdown" default="30" info="Seconds"/>
+      <property name="respawn" type="Respawn" uitext="Respawn" display="name"/>
+      <property name="respawncd" type="int" uitext="Respawn Cooldown" default="10" info="Seconds"/>
       <property name="minplayer" type="int" uitext="Min Player" default="1" info="0 means no min player"/>
-      <property name="maxplayer" type="int" uitext="Max Player" default="0" info="0 means no limit"/>
+      <property name="maxplayer" type="int" uitext="Max Player" default="0" info="0 means no max limit"/>
       <property name="maptype" type="MapType" uitext="Map Type"/>
     </element>
 
     <element name="RealmWorld" inherit="Realm" useexcel="true" collectionkey="excelname">
-      <constant name="type" type="RealmType" value="RealmType.RealmWorld"/>
-      <property name="worldseq" type="int" uitext="World Sequence" default="1"/>
-    </element>
-
-    <element name="DungeonStory" inherit="Realm" useexcel="true" collectionkey="excelname">
-      <constant name="type" type="RealmType" value="RealmType.DungeonStory"/>
-      <property name="sequence" type="int" uitext="Story Sequence" default="1"/>
-      <property name="iconpath" type="asset" uitext="UI Icon Path" default="" assettype="sprite"/>
-      <property name="difficulty" type="DungeonDifficulty" uitext="Difficulty"/>
-      <property name="dailyentry" type="int" uitext="Daily Entry" default="3"/>
-      <property name="displaygrp" type="RewardGroup" uitext="Display Group" display="name"/>
-      <property name="rewardgrp" type="RewardGroup" uitext="Reward Group" display="name"/>
+      <constant name="type" type="RealmType" value="RealmType.World"/>
+      <property name="sequence" type="int" uitext="World Sequence" default="1"/>
     </element>
     
-    <element name="DungeonDailySpecial" inherit="Realm" useexcel="true" collectionkey="excelname">
-      <constant name="type" type="RealmType" value="RealmType.DungeonDailySpecial"/>
+    <element name="Dungeon" inherit="Realm" useexcel="true" collectionkey="excelname">
+      <constant name="type" type="RealmType" value="RealmType.Dungeon"/>
       <property name="dungeontype" type="DungeonType" uitext="Dungeon Type" default="0"/>
-      <property name="sequence" type="int" uitext="Sequence" default="1"/>
+      <property name="sequence" type="int" uitext=" Dungeon Sequence" default="1"/>
       <property name="iconpath" type="asset" uitext="UI Icon Path" default="" assettype="sprite"/>
-      <property name="dailyentry" type="int" uitext="Daily Entry" default="3"/>
-      <property name="displaygrp" type="RewardGroup" uitext="Display Group" display="name"/>
-      <property name="rewardgrp" type="RewardGroup" uitext="Reward Group" display="name"/>
+      <property name="difficulty" type="DungeonDifficulty" uitext="Difficulty"/>
+      <property name="entrylimit" type="int" uitext="Entry limit" default="3" info="-1 means no limit"/>
+      <property name="lootdisplayitems" type="LootItemGroup" uitext="Loot Display Items" display="remark"/>
+      <property name="lootrewarditems" type="LootItemGroup" uitext="Loot Reward Items" display="remark"/>
+      <property name="opendate" type="string" uitext="Open Date" info="Usage: 0101 to 1231"/>
+      <property name="closedate" type="string" uitext="Close Date" info="Usage: 0101 to 1231"/>
+      <property name="opentime" type="string" uitext="Open Time" info="Usage: 0000 to 2359"/>
+      <property name="closetime" type="string" uitext="Close Time" info="Usage: 0000 to 2359"/>
       <property name="isopenday1" type="bool" uitext="Is Open Day 1" default="false"/>
       <property name="isopenday2" type="bool" uitext="Is Open Day 2" default="false"/>
       <property name="isopenday3" type="bool" uitext="Is Open Day 3" default="false"/>
@@ -120,20 +125,23 @@
       <property name="isopenday5" type="bool" uitext="Is Open Day 5" default="false"/>
       <property name="isopenday6" type="bool" uitext="Is Open Day 6" default="false"/>
       <property name="isopenday7" type="bool" uitext="Is Open Day 7" default="false"/>
+      <property name="lootlimit" type="int" uitext="Loot Limit" default="3"/>
+      <property name="lootresettype" type="LootResetType" uitext="Loot Reset Type" default="1"/>
+      <property name="lootresettime" type="string" uitext="Loot Reset Time" info="Usage: 0000 to 2359"/>
     </element>
 
-    <element name="RealmObjective" useexcel="true" collectionkey="excelname">
+    <!--<element name="RealmObjective" useexcel="true" collectionkey="excelname">
       <property name="excelname" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
       <property name="realmobjectivetype" type="RealmObjectiveType" uitext="Realm Objective Type" default="0"/>
       <property name="timelimit" type="int" uitext="Time Limit" default="600" info="Time in seconds"/>
-      <!--<property name="hero" type="HeroCard" uitext="Hero" display="name" info="For Hero objective"/>
+      <property name="hero" type="HeroCard" uitext="Hero" display="name" info="For Hero objective"/>
       <property name="herotype" type="HeroType" uitext="Hero Type" default="0" info="For HeroType objective"/>
-      <property name="heroquality" type="HeroQuality" uitext="Hero Quality" default="0" info="For HeroQuality objective"/>-->
+      <property name="heroquality" type="HeroQuality" uitext="Hero Quality" default="0" info="For HeroQuality objective"/>
       <property name="monsterid" type="CombatNPC" uitext="NPC Monster" display="archetype" info="For NPCKills objective"/>
       <property name="monsterkillcnt" type="int" uitext="NPC Monster KillCount" default="0" info="For NPCKills objective"/>
-    </element>
+    </element>-->
 
     <!--<element name="ExtraEntryFees" useexcel="true" collectionkey="excelname">
       <property name="excelname" type="string" uitext="Name"/>
@@ -162,8 +170,8 @@
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
     </element>  
     
-    <element name="RealmTutorial" inherit="Realm" useexcel="true">
-      <constant name="type" type="RealmType" value="RealmType.RealmTutorial"/>
+    <element name="Tutorial" inherit="Realm" useexcel="true">
+      <constant name="type" type="RealmType" value="RealmType.Tutorial"/>
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
     </element>
 

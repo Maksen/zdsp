@@ -69,7 +69,6 @@ public class HUD_SelectTarget : MonoBehaviour
         else if (entity.IsNPC())
         {
             StaticClientNPCAlwaysShow npc = entity as StaticClientNPCAlwaysShow;
-            StaticNPCJson staticNPCJson = npc.staticNPCJson;
             SetTargetHeath(1f);
         }
         else if (entity.IsHero())

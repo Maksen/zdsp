@@ -1,15 +1,15 @@
 ﻿using Kopio.JsonContracts;
 using UnityEngine;
-using Zealot.Repository;
-using Zealot.Common.Entities;
 using System.Collections.Generic;
+using Zealot.Repository;
 using Zealot.Common;
+using Zealot.Common.Entities;
 
 namespace Zealot.Client.Entities
 {
     public class StaticAreaGhost : StaticClientNPCAlwaysShow
     {
-        protected string mArchetype;
+        protected string mArchetypeName;
         public int mArchetypeID;
         private float mRadius;
 
@@ -18,17 +18,17 @@ namespace Zealot.Client.Entities
             this.EntityType = EntityType.StaticNPC;
         }
 
-        public string Archetype { get { return mArchetype; } }
+        public string ArchetypeName { get { return mArchetypeName; } }
 
         public void Init(string archetype, Vector3 pos, Vector3 forward, float radius)
         {
-            staticNPCJson = StaticNPCRepo.GetStaticNPCByName(archetype);
-            mArchetype = archetype;
-            this.mArchetypeID = staticNPCJson == null ? 0 : staticNPCJson.id;
-            this.Name = staticNPCJson == null ? "" : staticNPCJson.localizedname;
+            mArchetype = StaticNPCRepo.GetStaticNPCByName(archetype);
+            mArchetypeName = archetype;
+            this.mArchetypeID = mArchetype == null ? 0 : mArchetype.id;
+            this.Name = mArchetype == null ? "" : mArchetype.localizedname;
             mRadius = radius;
             mActiveQuest = -1;
-            mActiveStatus = staticNPCJson.activeonstartup;
+            mActiveStatus = mArchetype.activeonstartup;
             GetQuestList();
 
             Position = pos;
@@ -44,7 +44,7 @@ namespace Zealot.Client.Entities
             AnimObj.transform.position = Position;
             AnimObj.transform.forward = Forward;
             AnimObj.tag = "NPC";
-            AnimObj.name = "";
+            AnimObj.name = mArchetypeName;
 
             base.InitAnimObj();
             GameObject go = new GameObject();
@@ -52,10 +52,10 @@ namespace Zealot.Client.Entities
             go.transform.SetParent(AnimObj.transform, false);
             NpcPlayerDetect detect = go.AddComponent<NpcPlayerDetect>();
             detect.Init(this, mRadius);
-            mShadow.SetActive(false);
-
+            
             Show(true);
-            ShowEffect(true);
+            ShowEffect(false);
+            mShadow.SetActive(false);
         }
 
         public override bool Interact()
@@ -82,9 +82,7 @@ namespace Zealot.Client.Entities
         {
             PlayerGhost player = GameInfo.gLocalPlayer;
             if (player == null)
-            {
                 return;
-            }
 
             List<int> availablequest = new List<int>();
             foreach (int questid in mQuestList)
@@ -105,9 +103,7 @@ namespace Zealot.Client.Entities
         private void UpdateAvtiveQuest()
         {
             if (GameInfo.gLocalPlayer == null)
-            {
                 return;
-            }
 
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
 
@@ -169,13 +165,11 @@ namespace Zealot.Client.Entities
         private void GetQuestList()
         {
             mQuestList = new List<int>();
-            string[] ids = staticNPCJson.questid.Split(';');
+            string[] ids = mArchetype.questid.Split(';');
             foreach (string id in ids)
             {
                 if (!string.IsNullOrEmpty(id))
-                {
                     mQuestList.Add(int.Parse(id));
-                }
             }
         }
 
@@ -187,17 +181,13 @@ namespace Zealot.Client.Entities
         public void OnPlayerNear()
         {
             if (GameInfo.gLocalPlayer != null && mActiveQuest != -1)
-            {
                 GameInfo.gLocalPlayer.QuestController.OnEnterStaticArea(this);
-            }
         }
 
         public void OnPlayerAway()
         {
             if (GameInfo.gLocalPlayer != null)
-            {
                 GameInfo.gLocalPlayer.QuestController.OnExitStaticArea(this);
-            }
         }
     }
 }

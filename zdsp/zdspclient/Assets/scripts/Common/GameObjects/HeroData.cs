@@ -11,12 +11,22 @@ public static class HeroData
     public static readonly int MAX_HEROES = 40;
 }
 
+[JsonObject(MemberSerialization = MemberSerialization.OptIn)]
 public class HeroSynCombatStats
 {
+    [JsonProperty(PropertyName = "att")]
     public float Attack { get; set; }
+
+    [JsonProperty(PropertyName = "acc")]
     public float Accuracy { get; set; }
+
+    [JsonProperty(PropertyName = "cri")]
     public float Critical { get; set; }
+
+    [JsonProperty(PropertyName = "cdm")]
     public float CriticalDamage { get; set; }
+
+    [JsonProperty(PropertyName = "ia")]
     public float IgnoreArmor { get; set; }
 }
 
@@ -95,6 +105,9 @@ public class Hero
         HeroJson = json;
         HeroId = id;
         Level = 1;
+        Skill1Level = 1;
+        Skill2Level = 1;
+        Skill3Level = 1;
         ModelTier = GetFirstModelTier();
         UnlockedSkinItems = new List<int>();
         ComputeCombatStats();
@@ -130,24 +143,33 @@ public class Hero
         Skill3Level = 1;
     }
 
-    public bool CanLevelUpSkill(int skillNo)
+    public void GetSkillGroupAndCurrentLevel(int skillNo, out int skillGrpId, out int currentLevel)
     {
-        int skillgroupid = 0, currentLevel = 0;
         switch (skillNo)
         {
             case 1:
-                skillgroupid = HeroJson.skill1grp;
+                skillGrpId = HeroJson.skill1grp;
                 currentLevel = Skill1Level;
                 break;
             case 2:
-                skillgroupid = HeroJson.skill2grp;
+                skillGrpId = HeroJson.skill2grp;
                 currentLevel = Skill2Level;
                 break;
             case 3:
-                skillgroupid = HeroJson.skill3grp;
+                skillGrpId = HeroJson.skill3grp;
                 currentLevel = Skill3Level;
                 break;
+            default:
+                skillGrpId = 0;
+                currentLevel = 0;
+                break;
         }
+    }
+
+    public bool CanLevelUpSkill(int skillNo)
+    {
+        int skillgroupid, currentLevel;
+        GetSkillGroupAndCurrentLevel(skillNo, out skillgroupid, out currentLevel);
         return !SkillRepo.IsSkillMaxLevel(skillgroupid, currentLevel);
     }
 

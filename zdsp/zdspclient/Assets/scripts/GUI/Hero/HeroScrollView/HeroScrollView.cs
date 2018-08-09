@@ -28,8 +28,6 @@ public class HeroScrollView : FancyScrollView<HeroCellDto, HeroScrollViewContext
     public void UpdateSelection(int selectedCellIndex)
     {
         scrollPositionController.ScrollTo(selectedCellIndex, scrollToDuration);
-        //context.SelectedIndex = selectedCellIndex;
-        //UpdateContents();
     }
 
     public void SetSelection(int selectedCellIndex)
@@ -47,5 +45,10 @@ public class HeroScrollView : FancyScrollView<HeroCellDto, HeroScrollViewContext
     private void OnPressedCell(HeroScrollViewCell cell)
     {
         UpdateSelection(cell.DataIndex);
+    }
+
+    public void ResetSelectedIndex()
+    {
+        context.SelectedIndex = -1;
     }
 }

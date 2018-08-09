@@ -7,7 +7,7 @@
       <property name="siturespawn" type="bool" uitext="Situ Respawn" default="true"/>
       <property name="deductitem" type="string" uitext="Deduct Item" default="" info="道具1;數量|道具2;數量"/>
       <property name="deductcurrency" type="string" uitext="Deduct Currency" default="" info="貨幣ID;數量|貨幣ID;數量"/>
-      <property name="returntype" type="ReturnType" uitext="Return Type"/>
+      <property name="respawntype" type="RespawnType" uitext="Respawn Type"/>
       <property name="countdown" type="int" uitext="Countdown" default="3600" info="填入數值為秒"/>
     </element>
   </data>

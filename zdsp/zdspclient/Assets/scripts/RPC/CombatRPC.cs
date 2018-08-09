@@ -107,9 +107,9 @@ public class CombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClientSendChatMessage)]
-    public void ClientSendChatMessage(byte messagetype, string message, string whisperTo, bool voice)
+    public void ClientSendChatMessage(byte msgType, string message, string whisperTo, bool isVoiceChat)
     {
-        ProxyMethod("ClientSendChatMessage", messagetype, message, whisperTo, voice);
+        ProxyMethod("ClientSendChatMessage", msgType, message, whisperTo, isVoiceChat);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.BroadcastSysMsgToServer)]
@@ -742,16 +742,10 @@ public class CombatRPC : RPCBase
         ProxyMethod("AddHeroTrust", heroId, itemId);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeHeroModelTier)]
-    public void ChangeHeroModelTier(int heroId, int tier)
-    {
-        ProxyMethod("ChangeHeroModelTier", heroId, tier);
-    }
-
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SummonHero)]
-    public void SummonHero(int heroId)
+    public void SummonHero(int heroId, int tier = 0)
     {
-        ProxyMethod("SummonHero", heroId);
+        ProxyMethod("SummonHero", heroId, tier);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ExploreMap)]

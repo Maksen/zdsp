@@ -14,6 +14,7 @@
     DailyQuest = 9,
     Skill = 10,
     Hero = 11,
+    Destiny = 12,
 
     // Add persistent type window here
     //-----------------------------------
@@ -51,6 +52,10 @@
     DialogHeroInterest = 417,
     DialogHeroTier = 418,
     DialogHeroStats = 419,
+    DialogHeroBonds = 420,
+    DialogHeroList = 421,
+    DialogHeroTargetList = 422,
+    DialogHeroEfficiency = 423,
 
     DialogEnd = 699,
 

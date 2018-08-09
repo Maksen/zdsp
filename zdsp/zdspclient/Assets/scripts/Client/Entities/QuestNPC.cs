@@ -11,28 +11,28 @@ namespace Zealot.Client.Entities
 {
     public class QuestNPC : StaticClientNPCAlwaysShow
     {
-        protected string mArchetype;
-        protected string mModelPath;
-        public int mArchetypeID;
+        private string mArchetypeName = "";
+        public int mArchetypeID = 0;
+        private string mModelPath = "";
         private ActorNameTagController mHeadLabel;
         private QuestLabelType mQuestLabelType = QuestLabelType.None;
+
+        public string ArchetypeName { get { return mArchetypeName; } }
 
         public QuestNPC()
         {
             this.EntityType = EntityType.StaticNPC;
         }
 
-        public string Archetype { get { return mArchetype; }   }
-
         public void Init(string archetype, Vector3 pos, Vector3 forward)
         {
-            staticNPCJson = StaticNPCRepo.GetStaticNPCByName(archetype);
-            mArchetype = archetype;
-            mModelPath = staticNPCJson == null ? "" : staticNPCJson.modelprefabpath;
-            this.mArchetypeID = staticNPCJson == null ? 0 : staticNPCJson.id;
-            this.Name = staticNPCJson == null ? "" : staticNPCJson.localizedname;
+            mArchetype = StaticNPCRepo.GetStaticNPCByName(archetype);
+            mArchetypeName = archetype;
+            mArchetypeID = mArchetype == null ? 0 : mArchetype.id;
+            mModelPath = (mArchetype != null) ? mArchetype.modelprefabpath : "";
+            this.Name = mArchetype == null ? "" : mArchetype.localizedname;
             mActiveQuest = -1;
-            mActiveStatus = staticNPCJson.activeonstartup;
+            mActiveStatus = mArchetype.activeonstartup;
             GetQuestList();
             GetOngoingQuest();
 
@@ -48,8 +48,11 @@ namespace Zealot.Client.Entities
             GameInfo.gCombat.SetStaticNPCParent(AnimObj);
             AnimObj.transform.position = Position;
             AnimObj.transform.forward = Forward;
+            mAnimObj.transform.localScale = new Vector3(mArchetype.modelscalex,
+                                                        mArchetype.modelscaley,
+                                                        mArchetype.modelscalez);
             AnimObj.tag = "NPC";
-            AnimObj.name = mArchetype;
+            AnimObj.name = mArchetypeName;
 
             mHeadLabel = AnimObj.AddComponent<ActorNameTagController>();
             //float yoffset = 140 * 4 / 3 / GameInfo.gCombat.CameraAspect;
@@ -83,7 +86,8 @@ namespace Zealot.Client.Entities
 
             Show(true);
             ShowEffect(true);
-            PreloadEffect();
+            PreloadEffect();          
+            mShadow.SetActive(!string.IsNullOrEmpty(mModelPath) && mModelPath != "Models/Npcs/Prefabs/npc_null.prefab");
             UpdateQuestMarker();
         }
 
@@ -91,18 +95,13 @@ namespace Zealot.Client.Entities
         {
             if(mArchetypeID > 0)
             {
-                StaticNPCJson sjson =  StaticNPCRepo.GetStaticNPCById(mArchetypeID);             
-                /*if (!string.IsNullOrEmpty(sjson.idleeffect))
-                {
-                    EfxSystem.Instance.GetEffectByName(mArchetype + "_idle");
-                }
-                if (!string.IsNullOrEmpty(sjson.standbyeffect))
-                {
-                    EfxSystem.Instance.GetEffectByName(mArchetype + "_standby");
-                }*/
+                /*if (!string.IsNullOrEmpty(mArchetype.idleeffect))
+                    EfxSystem.Instance.GetEffectByName(ArchetypeName + "_idle");
+                if (!string.IsNullOrEmpty(mArchetype.standbyeffect))
+                    EfxSystem.Instance.GetEffectByName(ArchetypeName + "_standby");*/
             }
             EntitySystem.Timers.SetTimer(1000, (obj) => {
-                EffectController.PlayEffect("standby",  mArchetype + "_standby");
+                EffectController.PlayEffect("standby", ArchetypeName + "_standby");
             }, null);
         }
 
@@ -199,6 +198,7 @@ namespace Zealot.Client.Entities
         {
             _playerNear = false;
         }
+
         private bool _idleRepeated = false;
         private void OnIdleTimeUp(object arg)
         {
@@ -220,7 +220,6 @@ namespace Zealot.Client.Entities
             else
             {
                 EffectController.PlayEffect("standby",  mArchetype + "_standby");
-
             }
         }
 
@@ -244,9 +243,7 @@ namespace Zealot.Client.Entities
         private void UpdateQuestMarker()
         {
             if (GameInfo.gLocalPlayer == null)
-            {
                 return;
-            }
 
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
             List<int> questcansubmit = new List<int>();
@@ -336,7 +333,7 @@ namespace Zealot.Client.Entities
         private void GetQuestList()
         {
             mQuestList = new List<int>();
-            string[] ids = staticNPCJson.questid.Split(';');
+            string[] ids = mArchetype.questid.Split(';');
             foreach (string id in ids)
             {
                 if (!string.IsNullOrEmpty(id))
@@ -350,9 +347,7 @@ namespace Zealot.Client.Entities
         {
             PlayerGhost player = GameInfo.gLocalPlayer;
             if (player == null)
-            {
                 return;
-            }
 
             List<int> availablequest = new List<int>();
             foreach (int questid in mQuestList)
@@ -372,14 +367,8 @@ namespace Zealot.Client.Entities
 
         private void GetOngoingQuest()
         {
-            if (GameInfo.gLocalPlayer != null)
-            {
-                mOngoingQuest = GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeID);
-            }
-            else
-            {
-                mOngoingQuest = new List<int>();
-            }
+            mOngoingQuest = (GameInfo.gLocalPlayer != null) 
+                ? GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeID) : new List<int>();
         }
 
         public override void UpdateOngoingQuest(List<int> quests)
@@ -400,6 +389,26 @@ namespace Zealot.Client.Entities
         public override int GetArchetypeID()
         {
             return mArchetypeID;
+        }
+
+        private GameObjectToEntityRef mEntityRef = null;
+        public override void UpdateDisplayStatus(bool status)
+        {
+            mActiveStatus = status;
+            Show(true);
+            if (AnimObj != null)
+            {
+                mEntityRef = AnimObj.GetComponent<GameObjectToEntityRef>();
+                if (mEntityRef != null && !status)
+                {
+                    GameObject.Destroy(mEntityRef);
+                }
+                else if (mEntityRef == null && status)
+                {
+                    mEntityRef = AnimObj.AddComponent<GameObjectToEntityRef>();
+                    mEntityRef.mParentEntity = this;
+                }
+            }
         }
     }
 }

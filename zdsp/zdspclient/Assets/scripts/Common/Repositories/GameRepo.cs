@@ -78,6 +78,9 @@ namespace Zealot.Repository
             LootRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("others", ref heapsize);
             RewardListRepo.Init(GameData);
+            DestinyClueRepo.Init(GameData);
+			DestinyClueRepo.Init(GameData);
+            PowerUpRepo.Init(GameData);
             _loaded = true;
         }
 

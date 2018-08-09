@@ -8,7 +8,6 @@ using Zealot.Repository;
 public class HUD_PortraitFunctions : MonoBehaviour
 {
     [SerializeField] GameObject clickBlocker;
-    [SerializeField] Text uidText;
     [SerializeField] Text charNameText;
     [SerializeField] Text guildNameText;
 

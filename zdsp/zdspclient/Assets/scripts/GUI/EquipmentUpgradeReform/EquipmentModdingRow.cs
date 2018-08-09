@@ -80,7 +80,7 @@ public class EquipmentModdingRow : MonoBehaviour
         }
     }
 
-    public void AddData(UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    public void AddData(UI_EquipmentReform uiEquipReform, bool isReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
     {
         if (IsFull())
         {
@@ -93,11 +93,11 @@ public class EquipmentModdingRow : MonoBehaviour
         {
             GameObject equipIconObj = _equipIconList[newIconPos];
             GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
-            UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
+            UpdateIconData(equipIcon, uiEquipReform, isReform, slotId, equipment, isEquipped, toggleGroup);
         }
     }
 
-    public void UpdateData(int pos, UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    public void UpdateData(int pos, UI_EquipmentReform uiEquipReform, bool isReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
     {
         if (pos < 0 || pos >= _equipIconList.Count)
         {
@@ -105,10 +105,10 @@ public class EquipmentModdingRow : MonoBehaviour
         }
 
         GameIcon_Equip equipIcon = _equipIconList[pos].GetComponent<GameIcon_Equip>();
-        UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
+        UpdateIconData(equipIcon, uiEquipReform, isReform, slotId, equipment, isEquipped, toggleGroup);
     }
 
-    public void AddRefresh(UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    public void AddRefresh(UI_EquipmentReform uiEquipReform, bool isReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
     {
         if (IsFull())
         {
@@ -121,7 +121,7 @@ public class EquipmentModdingRow : MonoBehaviour
         {
             GameObject equipIconObj = _equipIconList[newIconPos];
             GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
-            UpdateIconData(equipIcon, uiEquipReform, slotId, equipment, isEquipped, toggleGroup);
+            UpdateIconData(equipIcon, uiEquipReform, isReform, slotId, equipment, isEquipped, toggleGroup);
         }
     }
 
@@ -204,7 +204,7 @@ public class EquipmentModdingRow : MonoBehaviour
         }
     }
 
-    private void UpdateIconData(GameIcon_Equip equipIcon, UI_EquipmentReform uiEquipReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
+    private void UpdateIconData(GameIcon_Equip equipIcon, UI_EquipmentReform uiEquipReform, bool isReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
     {
         ModdingEquipment equipToMod = new ModdingEquipment(slotId, equipment);
 
@@ -215,10 +215,20 @@ public class EquipmentModdingRow : MonoBehaviour
             if (selectCheckMark != null)
             {
                 Toggle checkmarkToggle = selectCheckMark.GetToggleSelect();
-                checkmarkToggle.onValueChanged.AddListener(delegate
+                if(isReform)
                 {
-                    uiEquipReform.OnClickSelectReformEquipment(checkmarkToggle.isOn, isEquipped, equipToMod);
-                });
+                    checkmarkToggle.onValueChanged.AddListener(delegate
+                    {
+                        uiEquipReform.OnClickSelectReformEquipment(checkmarkToggle.isOn, isEquipped, equipToMod);
+                    });
+                }
+                else
+                {
+                    checkmarkToggle.onValueChanged.AddListener(delegate
+                    {
+                        uiEquipReform.OnClickSelectRecycleEquipment(checkmarkToggle.isOn, isEquipped, equipToMod);
+                    });
+                }
                 checkmarkToggle.group = toggleGroup;
             }
         }

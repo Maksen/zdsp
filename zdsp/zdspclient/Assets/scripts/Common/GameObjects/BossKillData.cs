@@ -9,6 +9,9 @@ namespace Zealot.Common
     public class BossKillData
     {
         #region serializable properties
+        [JsonProperty(PropertyName = "id")]
+        public int bossId { get; set; }
+
         [JsonProperty(PropertyName = "dmg")]
         public List<BossKillDmgRecord> dmgRecords = new List<BossKillDmgRecord>(); //max count of 50;
 

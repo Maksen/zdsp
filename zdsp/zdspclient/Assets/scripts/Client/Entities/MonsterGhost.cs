@@ -72,10 +72,9 @@ namespace Zealot.Client.Entities
                 //    }
                 //    HeadLabel.mPlayerLabel.SetBuffDebuff(this);
                 //    break;
-                case RealmType.DungeonDailySpecial:
-                case RealmType.DungeonStory:
+                case RealmType.Dungeon:
                 //case RealmType.RealmTutorial:
-                case RealmType.RealmWorld:
+                case RealmType.World:
                     switch (mArchetype.monsterclass)
                     {
                         case MonsterClass.Normal:
@@ -227,6 +226,9 @@ namespace Zealot.Client.Entities
                 AnimObj.tag = "Monster";
                 mAnimObj.transform.position = Position;
                 mAnimObj.transform.forward = Forward;
+                mAnimObj.transform.localScale = new Vector3(mArchetype.modelscalex, 
+                                                            mArchetype.modelscaley, 
+                                                            mArchetype.modelscalez);
                 this.Name = mArchetype.localizedname;
 
                 InitCharacterController();

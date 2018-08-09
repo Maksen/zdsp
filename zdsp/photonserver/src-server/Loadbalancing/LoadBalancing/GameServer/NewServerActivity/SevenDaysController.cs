@@ -162,10 +162,10 @@ namespace Photon.LoadBalancing.GameServer
                 case DungeonDifficulty.Easy:
                     UpdateTask(NewServerActivityType.Normalchapter);
                     break;
-                case DungeonDifficulty.Hard:
+                case DungeonDifficulty.Normal:
                     UpdateTask(NewServerActivityType.Elitechapter);
                     break;
-                case DungeonDifficulty.Hell:
+                case DungeonDifficulty.Hard:
                     UpdateTask(NewServerActivityType.Hellchapter);
                     break;
             }
@@ -601,9 +601,9 @@ namespace Photon.LoadBalancing.GameServer
                 case NewServerActivityType.Normalchapter:
                     return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Easy);
                 case NewServerActivityType.Elitechapter:
-                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Hard);
+                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Normal);
                 case NewServerActivityType.Hellchapter:
-                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Hell);
+                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Hard);
                 case NewServerActivityType.ChapterStars:
                     return peer.mPlayer.RealmStats.GetTotalStarsCompleted();
                 case NewServerActivityType.Herototal:

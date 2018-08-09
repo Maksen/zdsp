@@ -77,21 +77,24 @@
       <category uitext="Level">
         <option uitext="Level" datasource="Level"/>
         <option uitext="Map Category" datasource="MapCategory"/>
-        <option uitext="RealmWorld" datasource="RealmWorld"/>
-        <option uitext="Dungeon Story" datasource="DungeonStory"/>
-        <option uitext="Dungeon DailySpecial" datasource="DungeonDailySpecial"/>
-        <option uitext="Realm Objective" datasource="RealmObjective"/>
-        <!--<option uitext="Extra Entry Fees" datasource="ExtraEntryFees"/>
+        <option uitext="Realm World" datasource="RealmWorld"/>
+        <option uitext="Dungeon" datasource="Dungeon"/>
+        <!--<option uitext="Realm Objective" datasource="RealmObjective"/>
+        <option uitext="Extra Entry Fees" datasource="ExtraEntryFees"/>
         <option uitext="Star Reward" datasource="StarReward"/>
         <option uitext="Arena" datasource="Arena"/>
         <option uitext="ArenaFakeRank" datasource="ArenaFakeRank"/>
-        <option uitext="Realm Tutorial" datasource="RealmTutorial"/>
+        <option uitext="Tutorial" datasource="Tutorial"/>
         <option uitext="Activity Guard War" datasource="ActivityGuardWar"/>
         <option uitext="Activity Guild SMBoss" datasource="ActivityGuildSMBoss"/>    
         <option uitext="Activity World Boss" datasource="ActivityWorldBoss"/>
         <option uitext="Activity Notification" datasource="ActivityNotification"/>
         <option uitext="Invite PVP" datasource="InvitePVP"/>
         <option uitext="Elite Map" datasource="EliteMap"/>-->
+      </category>
+
+      <category uitext="Respawn">
+        <option uitext="Respawn Type" datasource="Respawn"/>
       </category>
 
       <category uitext="WordFilter">
@@ -101,8 +104,8 @@
       <category uitext="Reward">
         <option uitext="Reward List" datasource="RewardList"/>
         <option uitext="Experience Rate" datasource="ExperienceRate"/>
-		<option uitext="ActivityReward" datasource="ActivityReward"/>
-		<option uitext="Reward Group" datasource="RewardGroup"/>
+		    <option uitext="ActivityReward" datasource="ActivityReward"/>
+		    <option uitext="Reward Group" datasource="RewardGroup"/>
         <option uitext="Random Box Reward" datasource="RandomBoxReward"/>
         <option uitext="Prize Guarantee" datasource="PrizeGuarantee"/>
         <option uitext="Donate RewardId" datasource="DonateRewardId"/>
@@ -147,6 +150,8 @@
         <option uitext="Quest Requirement Detail" datasource="QuestRequirementDetail"/>
         <option uitext="Quest Event Detail" datasource="QuestEventDetail"/>
         <option uitext="Destiny" datasource="QuestDestiny"/>
+        <option uitext="Signboard" datasource="QuestSignboard"/>
+        <option uitext="Signboard Daily Limit" datasource="SignboardLimit"/>
       </category>
 
       <category uitext="Destiny Clue">
@@ -247,13 +252,16 @@
         <option uitext="Active Reward" datasource="QuestExtraReward"/>
       </category>
 
-      <category uitext="Respawn">
-        <option uitext="Respawn Type" datasource="Respawn"/>
-      </category>
-      
       <category uitext="Onsen">
         <option uitext="Onsen" datasource="Onsen"/>
       </category>
+	  
+	  <category uitext="Map">
+		<option uitext="WorldMapCountryMonster" datasource="WorldMapCountryMonster"/>
+		<option uitext="WorldMapCountryPlace" datasource="WorldMapCountryPlace"/>
+		<option uitext="WorldMapCountry" datasource="WorldMapCountry"/>
+	  </category>
+	  
     </menu>
   </presentation>
 </magicalarea51>

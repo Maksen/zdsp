@@ -19,10 +19,11 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     public GameObject equipIconPrefab;
     public GameObject matIconPrefab;
     public Transform selectEquipIconParent;
+    public Transform recycleReturnMatParent;
 
     [Header("Toggle Tabs")]
     public Toggle reformTab;
-    public Toggle revertTab;
+    public Toggle recycleTab;
 
     [Header("Text")]
     public Text         equipmentNameText;
@@ -35,6 +36,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     [Header("Button")]
     public Button confirmReformAttributesBtn;
     public Button confirmReformBtn;
+    public Button confirmRecycleBtn;
 
     [Header("General UI")]
     public Animator rightSideAnimator;
@@ -54,9 +56,12 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     [Header("RightSide Inv UI")]
     public ToggleGroup reformInvToggleGrp;
 
+    [Header("RightSide Reform Bag UI")]
+    public ToggleGroup reformBagToggleGrp;
+
     [Header("RightSide Scrollviews")]
     public EquipmentModdingScrollView invScrollView;
-    public EquipmentModdingScrollView reformScrollView;
+    //public EquipmentModdingScrollView reformScrollView;
 
     [Header("Results")]
     public GameObject successFxObj;
@@ -75,11 +80,13 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     private GameObject          _selectedEquipmentIcon;
     private List<GameObject>    _inventoryEquipmentList;
     private List<GameObject>    _selectEquipStatsList;
+    private List<GameObject>    _reformBagDataList;
+    private List<GameObject>    _recycleReturnsList;
 
     public override void OnOpenWindow()
     {
         invScrollView.InitScrollView();
-        reformScrollView.InitScrollView();
+        //reformScrollView.InitScrollView();
     }
 
     public void InitEquipmentReform()
@@ -94,6 +101,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         equipmentReformStatsText.text = "";
 
         rightSideAnimator.Play(_defaultRightSideState);
+        selectedEquipText.text = "";
 
         confirmReformAttributesBtn.gameObject.SetActive(true);
         confirmReformAttributesBtn.interactable = false;
@@ -124,6 +132,53 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         LoadEquipmentData(equipment);
     }
 
+    public void InitEquipmentRecycle()
+    {
+        ClearSelectedEquipment();
+
+        // Set default look for the UI
+        equipmentNameTextObj.SetActive(true);
+        equipmentNameText.text = GUILocalizationRepo.GetLocalizedString("rfm_please_select_reform_equip");
+        equipmentLvlTextObj.SetActive(false);
+
+        equipmentReformStatsText.text = "";
+
+        rightSideAnimator.Play(_defaultRightSideState);
+        selectedEquipText.text = "";
+
+        confirmReformAttributesBtn.gameObject.SetActive(false);
+        confirmReformAttributesBtn.interactable = false;
+        confirmReformBtn.gameObject.SetActive(false);
+        confirmReformBtn.interactable = false;
+        confirmRecycleBtn.gameObject.SetActive(true);
+        confirmRecycleBtn.interactable = false;
+    }
+
+    public void InitEquipmentRecycleWithEquipment(int slotId, Equipment equipment)
+    {
+        ClearSelectedEquipment();
+
+        // Set default look for the UI
+        equipmentNameTextObj.SetActive(false);
+        equipmentLvlTextObj.SetActive(false);
+
+        _slotID = slotId;
+        _selectedEquipment = equipment;
+
+        rightSideAnimator.Play(_defaultRightSideState);
+
+        ClearSelectEquipStatsList();
+
+        confirmReformAttributesBtn.gameObject.SetActive(true);
+        confirmReformAttributesBtn.interactable = false;
+        confirmReformBtn.gameObject.SetActive(false);
+        confirmReformBtn.interactable = false;
+        confirmRecycleBtn.gameObject.SetActive(true);
+        confirmRecycleBtn.interactable = false;
+
+        LoadEquipmentData(equipment);
+    }
+
     private void LoadEquipmentData(Equipment equipment)
     {
         string equipName = equipment.GetEquipmentName();
@@ -141,7 +196,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         //SetEquipmentUpgradeButtonState(equipment);
     }
 
-    public void InitEquipmentUpgradeRefresh(Equipment equipment)
+    public void InitEquipmentReformRefresh(Equipment equipment)
     {
         rightSideAnimator.Play(_defaultRightSideState);
 
@@ -189,6 +244,8 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         int reformStep = equipment.ReformStep;
         int nextStep = reformStep + 1;
 
+        ClearReformBagDataList();
+
         List<EquipmentReformGroupJson> reformDataList = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, nextStep);
 
         if(reformDataList == null)
@@ -201,11 +258,13 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             EquipmentReformGroupJson reformData = reformDataList[i];
             if(reformData != null)
             {
-                GameObject reformBagDatObj = Instantiate(reformBagDataPrefab);
-                reformBagDatObj.transform.SetParent(reformBagParent, false);
+                GameObject reformBagDataObj = Instantiate(reformBagDataPrefab);
+                reformBagDataObj.transform.SetParent(reformBagParent, false);
 
-                ReformBagData reformBagData = reformBagDatObj.GetComponent<ReformBagData>();
-                reformBagData.Init(this, i, reformData);
+                ReformBagData reformBagData = reformBagDataObj.GetComponent<ReformBagData>();
+                reformBagData.Init(this, i, reformBagToggleGrp, nextStep, reformData);
+
+                _reformBagDataList.Add(reformBagDataObj);
             }
         }
     }
@@ -218,6 +277,21 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         }
 
         rightSideAnimator.Play(_rightSideSlideIn);
+        selectedEquipText.text = "";
+
+        if(reformTab.isOn)
+        {
+            confirmReformAttributesBtn.gameObject.SetActive(true);
+            confirmReformAttributesBtn.interactable = false;
+            confirmReformBtn.gameObject.SetActive(false);
+            confirmReformBtn.interactable = false;
+        }
+        else
+        {
+            confirmRecycleBtn.gameObject.SetActive(true);
+            confirmRecycleBtn.interactable = false;
+        }
+
         //confirmSelectEquipBtn.interactable = false;
         //confirmSelectEquipBtn.onClick.RemoveAllListeners();
         //confirmSelectEquipBtn.onClick.AddListener(OnClickConfirmSelectUpgradeEquipment);
@@ -277,7 +351,79 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         }
     }
 
-    public void OnClickConfirmSelectEquipment()
+    public void OnClickSelectRecycleEquipment(bool isToggleOn, bool isEquipped, ModdingEquipment equipToUpgrade)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+
+        if(player == null)
+        {
+            return;
+        }
+
+        if(isToggleOn)
+        {
+            _selectedEquipment = equipToUpgrade.mEquip;
+            _isEquipped = isEquipped;
+            _slotID = equipToUpgrade.mSlotID;
+
+            // Left side
+            // Equipment data
+            LoadEquipmentData(_selectedEquipment);
+            
+            // Right side
+            selectedEquipText.text = _selectedEquipment.GetEquipmentName();
+            
+            string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+
+            if(reformGrp != "-1" && reformGrp != "#unnamed#")
+            {
+                int currentStep = _selectedEquipment.ReformStep;
+                int nextStep = currentStep + 1;
+
+                if(currentStep > 0)
+                {
+                    List<EquipmentReformGroupJson> reformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, currentStep);
+
+                    if(reformData == null)
+                    {
+                        return;
+                    }
+
+                    // Equipment Stats
+                    ClearSelectEquipStatsList();
+
+                    List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(_selectedEquipment);
+
+                    if(reformDataList != null)
+                    {
+                        GenerateEquipRfmStatsObj(reformDataList);
+                    }
+
+                    // Recycle returns
+                    ClearRecycleReturnsList();
+
+                    int selection = _selectedEquipment.GetSelectionsList()[currentStep];
+                    GenerateEquipRecycleReturns(reformGrp, currentStep, selection);
+
+                    confirmRecycleBtn.interactable = true;
+                }
+                else
+                {
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Equip_RecycleAtBaseLevel"));
+
+                    confirmRecycleBtn.interactable = false;
+                }
+            }
+        }
+        else
+        {
+            ClearSelectEquipStatsList();
+
+            confirmRecycleBtn.interactable = false;
+        }
+    }
+
+    public void OnClickConfirmSelectReformEquipment()
     {
         equipmentReformStatsText.text = GenerateEquipmentStatsString(_selectedEquipment);
 
@@ -293,112 +439,62 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         InitCostString();
     }
 
-    public void OnClickSelectReformStep(int selection)
+    public void OnClickSelectReformStep(int selection, bool isToggleOn)
     {
-        _reformSel = selection;
-
-        string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
-        int nextStep = _selectedEquipment.ReformStep + 1;
-        int reformCost = EquipmentModdingRepo.GetEquipmentReformCost(reformGrp, nextStep, selection);
-        reformCostText.text = reformCost.ToString();
-
-        if(CheckSufficientMoney(_reformSel) == false)
+        if(isToggleOn)
         {
-            confirmReformBtn.interactable = false;
+            _reformSel = selection;
 
-            reformCostText.color = Color.red;
+            string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+            int nextStep = _selectedEquipment.ReformStep + 1;
+            int reformCost = EquipmentModdingRepo.GetEquipmentReformCost(reformGrp, nextStep, selection);
+            reformCostText.text = reformCost.ToString();
+
+            if (CheckSufficientMoney(_reformSel) == false)
+            {
+                confirmReformBtn.interactable = false;
+
+                reformCostText.color = Color.red;
+            }
+            else
+            {
+                confirmReformBtn.interactable = true;
+
+                reformCostText.color = Color.white;
+            }
         }
         else
         {
-            confirmReformBtn.interactable = true;
+            _reformSel = -1;
 
+            confirmReformBtn.interactable = false;
+
+            reformCostText.text = "0";
             reformCostText.color = Color.white;
         }
     }
 
     public void OnClickEquipmentReform()
     {
-        //if(!CheckMaxedLevel(true) || !CheckSufficientMoney(true))
-        //{
-        //    return;
-        //}
+        if(!CheckMaxedLevel(true) || !CheckSufficientMoney(_reformSel, true))
+        {
+            return;
+        }
 
-        //PlayerGhost player = GameInfo.gLocalPlayer;
-        //if (player == null)
-        //{
-        //    return;
-        //}
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return;
+        }
 
-        //// Check if already maxed out upgrade level
-        //int upgradeLevel = _selectedEquipment.UpgradeLevel + 1;
+        // Check if enough materials
+        if(!CheckSufficientMaterials(_reformSel, false))
+        {
+            OpenReformItemStoreDialog();
+            return;
+        }
 
-        //bool isSafeUpgrade = safeUpgradeTab.isOn;
-        //EquipmentType equipType = _selectedEquipment.EquipmentJson.equiptype;
-        //ItemRarity rarity = _selectedEquipment.EquipmentJson.rarity;
-        //EquipmentUpgradeJson upgradeData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, upgradeLevel);
-        //if (upgradeData == null)
-        //{
-        //    // Unable to get upgrade data
-        //    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipUpgrade_UpgradeDataReadFailed"));
-        //    return;
-        //}
-
-        //bool isEnoughGenMat = true;
-        //bool isEnoughSafeMat = true;
-        //// Check enough normal materials
-        //List<EquipUpgMaterial> generalMatList = EquipmentModdingRepo.GetEquipmentUpgradeMaterials(equipType, rarity, upgradeLevel, false);
-        //if (_genMatSel >= 0 && _genMatSel < generalMatList.Count)
-        //{
-        //    EquipUpgMaterial selectedGenMat = generalMatList[_genMatSel];
-        //    int genMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedGenMat.mMat.mItemID);
-        //    if (genMatCount < selectedGenMat.mMat.mAmount)
-        //    {
-        //        //UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipUpgrade_InsufficientGenMaterials"));
-        //        isEnoughGenMat = false;
-        //    }
-        //}
-
-        //// Check enough safe materials (if use Safe Upgrade)
-        //if (isSafeUpgrade)
-        //{
-        //    if (_safeMatSel == -1 && _selectedSafeEquipment == null)
-        //    {
-        //        //UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Missing_Replace_Equip_Gem"));
-        //        isEnoughSafeMat = false;
-        //    }
-        //    else if (_safeMatSel != -1 && _selectedSafeEquipment == null)
-        //    {
-        //        List<EquipUpgMaterial> safeMatList = EquipmentModdingRepo.GetEquipmentUpgradeMaterials(equipType, rarity, upgradeLevel, true);
-        //        if (_safeMatSel >= 0 && _safeMatSel < safeMatList.Count)
-        //        {
-        //            EquipUpgMaterial selectedSafeMat = safeMatList[_safeMatSel];
-        //            int safeMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedSafeMat.mMat.mItemID);
-        //            if (safeMatCount < selectedSafeMat.mMat.mAmount)
-        //            {
-        //                //UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipUpgrade_InsufficientSafeMaterials"));
-        //                isEnoughGenMat = false;
-        //            }
-        //        }
-        //    }
-        //}
-
-        //if (!isEnoughGenMat || !isEnoughSafeMat)
-        //{
-        //    OpenUpgradeItemStoreDialog(isEnoughGenMat, isEnoughSafeMat);
-        //    return;
-        //}
-
-        //bool isGenMat = _genMatSel == 0;
-        //bool isSafeEquip = isSafeUpgrade && _selectedSafeEquipment != null && _safeMatSel == -1;
-        //bool isSafeGenMat = _safeMatSel == 0;
-        //if(isSafeEquip)
-        //{
-        //    RPCFactory.NonCombatRPC.EquipmentUpgradeEquipment(_slotID, _isEquipped, isGenMat, isSafeUpgrade, true, isSafeGenMat, _slotID);
-        //}
-        //else
-        //{
-        //    RPCFactory.NonCombatRPC.EquipmentUpgradeEquipment(_slotID, _isEquipped, isGenMat, isSafeUpgrade, false, isSafeGenMat);
-        //}
+        RPCFactory.NonCombatRPC.EquipmentReformEquipment(_slotID, _isEquipped, _reformSel);
     }
 
     public void PlayEquipmentUpgradeSuccess()
@@ -419,7 +515,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
         Equipment equipment = _isEquipped ? player.mEquipmentInvData.Slots[_slotID] as Equipment : player.clientItemInvCtrl.itemInvData.Slots[_slotID] as Equipment;
 
-        InitEquipmentUpgradeRefresh(equipment);
+        InitEquipmentReformRefresh(equipment);
     }
 
     void OnDisable()
@@ -427,9 +523,12 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         rightSideAnimator.Play(_rightSideSlideOut);
 
         ClearSelectedEquipment();
+        selectedEquipText.text = "";
+        equipmentReformStatsText.text = "";
+        ClearSelectEquipStatsList();
     }
 
-    private void OpenUpgradeItemStoreDialog(bool isEnoughGenMat, bool isEnoughSafeMat)
+    private void OpenReformItemStoreDialog()
     {
         Debug.LogError("Not enough material, opening Item Store Dialog.");
         //UIManager.OpenDialog(WindowType.DialogItemStore);
@@ -443,17 +542,20 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             return false;
         }
 
-        //// Check if already maxed out upgrade level
-        //int upgradeLevel = _selectedEquipment.UpgradeLevel + 1;
-        //int maxLevel = _selectedEquipment.EquipmentJson.upgradelimit;
+        // Check if already maxed out reform steps
+        string reformGroup = _selectedEquipment.EquipmentJson.evolvegrp;
+        int reformNextEquip = _selectedEquipment.EquipmentJson.evolvechange;
+        int nextStep = _selectedEquipment.ReformStep + 1;
+        int maxLevel = EquipmentModdingRepo.GetEquipmentReformGroupMaxLevel(reformGroup);
 
-        //if(upgradeLevel >= maxLevel)
-        //{
-        //    // Exceeded max upgrade level
-        //    if(showMessage)
-        //        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Equip_UpgradeLevelMaxed"));
-        //    return false;
-        //}
+        if(nextStep >= maxLevel && reformNextEquip == -1)
+        {
+            // Exceeded max upgrade level
+            if (showMessage)
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Equip_ReformLevelMaxed"));
+
+            return false;
+        }
 
         return true;
     }
@@ -476,6 +578,36 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             if(showMessage)
                 UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_InsufficientMoney"));
             return false;
+        }
+
+        return true;
+    }
+
+    private bool CheckSufficientMaterials(int selection, bool showMessage = false)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return false;
+        }
+
+        int nextStep = _selectedEquipment.ReformStep + 1;
+        string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+
+        // Check enough materials
+        List<EquipModMaterial> materialList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, nextStep, selection);
+        for(int i = 0; i < materialList.Count; ++i)
+        {
+            EquipModMaterial mat = materialList[i];
+            int currMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)mat.mItemID);
+            int reqMatCount = mat.mAmount;
+            if(currMatCount < reqMatCount)
+            {
+                if (showMessage)
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Equip_ReformInsufficientMaterials"));
+
+                return false;
+            }
         }
 
         return true;
@@ -524,9 +656,9 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         {
             int currentStep = reformDataList[i].mReformStep;
             List<int> seIds = reformDataList[i].GetSideEffects();
-            for (int j = 0; j < seIds.Count; ++i)
+            for (int j = 0; j < seIds.Count; ++j)
             {
-                int seId = seIds[i];
+                int seId = seIds[j];
                 SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
 
                 GameObject newStatsLine = Instantiate(rfmStatsValueLnPrefab);
@@ -549,6 +681,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
     private string GenerateEquipmentStatsString(Equipment reformEquipment)
     {
+        int reformStep = reformEquipment.ReformStep;
         List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(reformEquipment);
 
         if(reformDataList != null)
@@ -558,7 +691,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             {
                 EquipReformData reformData = reformDataList[i];
 
-                statsStr.Append(FormatSideEffectString(reformData.GetSideEffects()));
+                statsStr.Append(FormatSideEffectString(reformStep, reformData.GetSideEffects()));
             }
 
             return statsStr.ToString();
@@ -567,23 +700,64 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         return "";
     }
 
+    private void GenerateEquipRecycleReturns(string reformGrp, int currentStep, int selection)
+    {
+        int recycleMoney = EquipmentModdingRepo.GetEquipmentReformCost(reformGrp, currentStep, selection);
+
+        GameObject retMoneyObj = Instantiate(matIconPrefab);
+        retMoneyObj.transform.SetParent(recycleBagParent, false);
+
+        GameIcon_MaterialConsumable retMoneyIcon = retMoneyObj.GetComponent<GameIcon_MaterialConsumable>();
+        retMoneyIcon.SetFullStackCount(recycleMoney);
+
+        _recycleReturnsList.Add(retMoneyObj);
+        
+        List<EquipModMaterial> recycleReturnsList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, currentStep, selection);
+
+        if(recycleReturnsList != null)
+        {
+            for(int i = 0; i < recycleReturnsList.Count; ++i)
+            {
+                EquipModMaterial equipModMat = recycleReturnsList[i];
+
+                GameObject retMatObj = Instantiate(equipIconPrefab);
+                retMatObj.transform.SetParent(recycleBagParent, false);
+
+                GameIcon_Equip retMatIcon = retMatObj.GetComponent<GameIcon_Equip>();
+                retMatIcon.Init(equipModMat.mItemID);
+
+                _recycleReturnsList.Add(retMatObj);
+            }
+        }
+    }
+
     private void InitCostString()
     {
         reformCostText.text = "0";
         reformCostText.color = Color.white;
     }
 
-    private string FormatSideEffectString(List<int> seIds)
+    public string FormatSideEffectString(int reformStep, List<int> seIds)
     {
         StringBuilder statsStr = new StringBuilder();
 
         if(seIds.Count > 0)
         {
-            for(int i = 0; i < seIds.Count; ++i)
+            int lastPos = seIds.Count - 1;
+            string reformKai = ClientUtils.GetLocalizedReformKai(reformStep);
+
+            if(seIds.Count > 1)
             {
-                SideEffectJson se = SideEffectRepo.GetSideEffect(seIds[i]);
-                statsStr.AppendFormat("{0} {1} {2}\n", se.localizedname, se.max);
+                for (int i = 0; i < lastPos; ++i)
+                {
+                    SideEffectJson se = SideEffectRepo.GetSideEffect(seIds[i]);
+                    statsStr.AppendFormat("{0} {1}+{2}\n", reformKai, se.localizedname, se.max);
+                }
             }
+
+            SideEffectJson lastSE = SideEffectRepo.GetSideEffect(seIds[lastPos]);
+            ClientUtils.GetLocalizedReformKai(reformStep);
+            statsStr.AppendFormat("{0} {1}+{2}", reformKai, lastSE.localizedname, lastSE.max);
         }
 
         return statsStr.ToString();
@@ -625,5 +799,37 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             _selectEquipStatsList[i] = null;
         }
         _selectEquipStatsList.Clear();
+    }
+
+    private void ClearReformBagDataList()
+    {
+        if(_reformBagDataList == null)
+        {
+            _reformBagDataList = new List<GameObject>();
+            return;
+        }
+
+        for(int i = 0; i < _reformBagDataList.Count; ++i)
+        {
+            Destroy(_reformBagDataList[i]);
+            _reformBagDataList[i] = null;
+        }
+        _reformBagDataList.Clear();
+    }
+
+    private void ClearRecycleReturnsList()
+    {
+        if(_recycleReturnsList == null)
+        {
+            _recycleReturnsList = new List<GameObject>();
+            return;
+        }
+
+        for(int i = 0; i < _recycleReturnsList.Count; ++i)
+        {
+            Destroy(_recycleReturnsList[i]);
+            _recycleReturnsList[i] = null;
+        }
+        _recycleReturnsList.Clear();
     }
 }

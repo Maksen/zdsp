@@ -60,7 +60,9 @@ namespace Zealot.Server.Entities
             this.EntityType = EntityType.Monster;           
             elapsedDT = 0;
             mPlayerDamages = new Dictionary<string, int>();
+            mPlayerDamageRank = new List<KeyValuePair<string, int>>();
             mPlayerScore = new Dictionary<string, BigBossScoreRecord>();
+            mPartyScoreRank = new List<KeyValuePair<string, long>>();
         }
 
         #region Implement abstract methods
@@ -454,7 +456,7 @@ namespace Zealot.Server.Entities
             }
             validPlayerCount = validPlayers.Count;
             //distribute exp
-            int expTotal = mArchetype.experience;
+            int expTotal = mArchetype.exp;
             for (int index = 0; index < validPlayerCount; index++)
             {
                 if (expTotal > 0)
@@ -549,7 +551,7 @@ namespace Zealot.Server.Entities
                                 else if (validDamageRankCount >= 2)
                                 {
                                     int _dmgRatioTop2 = Mathf.FloorToInt(100.0f * mPlayerDamageRank[1].Value / (mPlayerDamageRank[0].Value + mPlayerDamageRank[1].Value));
-                                    if (_dmgRatioTop2 <= 16)
+                                    if (_dmgRatioTop2 <= 16) // second player dmg less than first by ratio 1/5
                                     {
                                         GameClientPeer _peer;
                                         if (_peers.TryGetValue(mPlayerDamageRank[0].Key, out _peer) && _peer.mPlayer != null)

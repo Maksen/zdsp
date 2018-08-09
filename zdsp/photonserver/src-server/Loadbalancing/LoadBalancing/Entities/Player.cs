@@ -53,13 +53,16 @@
         public PortraitDataStats PortraitDataStats { get; private set; }
         public PartyStatsServer PartyStats { get; set; }
         public HeroStatsServer HeroStats { get; private set; }
+        public DestinyClueSynStats DestinyClueStats { get; private set; }
 
         //public BattleTimeStats BattleTimeStats { get; private set; }
+
+        public PowerUpStats PowerUpStats { get; private set; }
 
 
         #endregion
 
-        public RespawnType mRespawnType = RespawnType.None;
+        public RespawnJson mRespawnInfo;
         private Dictionary<byte, Queue<ChatMessage>> mMessageQueues;
         private Dictionary<byte, int> mChannelMsgDispatchLimit;
 
@@ -72,6 +75,9 @@
 
         //Quest
         public QuestController QuestController;
+
+        //Destiny Clue
+        public DestinyClueController DestinyClueController;
 
         // Friends
         private StringBuilder friendSB;
@@ -101,20 +107,18 @@
 
             mMessageQueues = new Dictionary<byte, Queue<ChatMessage>>();
             mMessageQueues.Add((byte)MessageType.World, new Queue<ChatMessage>());
-            mMessageQueues.Add((byte)MessageType.Faction, new Queue<ChatMessage>());
+            //mMessageQueues.Add((byte)MessageType.Faction, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.Guild, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.Party, new Queue<ChatMessage>());      
-            mMessageQueues.Add((byte)MessageType.Recruit, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.Whisper, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.System, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.BroadcastMessage, new Queue<ChatMessage>());
 
             mChannelMsgDispatchLimit = new Dictionary<byte, int>();
             mChannelMsgDispatchLimit.Add((byte)MessageType.World, 10);
-            mChannelMsgDispatchLimit.Add((byte)MessageType.Faction, 10);
+            //mChannelMsgDispatchLimit.Add((byte)MessageType.Faction, 10);
             mChannelMsgDispatchLimit.Add((byte)MessageType.Guild, 10);
             mChannelMsgDispatchLimit.Add((byte)MessageType.Party, 10);
-            mChannelMsgDispatchLimit.Add((byte)MessageType.Recruit, 10);
             mChannelMsgDispatchLimit.Add((byte)MessageType.Whisper, 10);
             mChannelMsgDispatchLimit.Add((byte)MessageType.System, 10);
             mChannelMsgDispatchLimit.Add((byte)MessageType.BroadcastMessage, 10);
@@ -137,6 +141,8 @@
             mCrafting = new Crafting(this);
             WardrobeController = new WardrobeController(this);
             QuestController = new QuestController(this);
+
+            DestinyClueController = new DestinyClueController(this);
         }
 
         public override int GetAccuracy()
@@ -271,6 +277,11 @@
             //LOStats.Add(LOTYPE.PortraitDataStats, PortraitDataStats);
             //BattleTimeStats = new BattleTimeStats();
 
+            PowerUpStats = new PowerUpStats();
+            LOStats.Add(LOTYPE.PowerUpStats, PowerUpStats);
+
+            DestinyClueStats = new DestinyClueSynStats();
+            LOStats.Add(LOTYPE.DestinyClueSynStats, DestinyClueStats);
         }
 
         void InitInvStats()
@@ -297,16 +308,16 @@
             {
                 switch (realmController.mRealmInfo.pvptype)
                 {
-                    case LevelPVPType.Peace:
+                    case RealmPVPType.Peace:
                         PlayerSynStats.Team = -1;
                         break;
-                    case LevelPVPType.FreeForAll:
+                   case RealmPVPType.FreeForAll:
                         PlayerSynStats.Team = -2;
                         break;
-                    case LevelPVPType.Guild:
+                   case RealmPVPType.Guild:
                         PlayerSynStats.Team = (SecondaryStats.guildId == 0) ? -2 : SecondaryStats.guildId;
                         break;
-                    case LevelPVPType.Faction:
+                   case RealmPVPType.Faction:
                         PlayerSynStats.Team = PlayerSynStats.faction;
                         break;
                 }
@@ -445,11 +456,11 @@
                     ChatMessage msg = qMsgs.Dequeue();
                     MessageType messagetype = (MessageType)msg.mMsgType;
                     if (messagetype == MessageType.BroadcastMessage)
-                        peer.ZRPC.CombatRPC.BroadcastMessageToClient((byte)msg.mBroadcastMsgType, msg.mMessage, peer);
+                        peer.ZRPC.CombatRPC.BroadcastMessageToClient(msg.mBroadcastMsgType, msg.mMessage, peer);
                     else
                         peer.ZRPC.CombatRPC.ServerSendChatMessage(kvp.Key, msg.mMessage, msg.mSender, msg.mWhisperTo, 
-                                                                  msg.mPortraitId, (byte)msg.mJobsect, msg.mVipLvl, 
-                                                                  (byte)msg.mFaction, msg.mIsVoiceChat, peer);
+                                                                  msg.mPortraitId, msg.mJobsect, msg.mVipLvl, 
+                                                                  msg.mFaction, msg.mIsVoiceChat, peer);
                     ++channelmsgcount;
                     ++msgcount;
                 }
@@ -459,6 +470,11 @@
         public long GetSynchronizedTime()
         {
             return EntitySystem.Timers.GetSynchronizedTime();
+        }
+
+        public DateTime GetSynchronizedServerDT()
+        {
+            return EntitySystem.Timers.GetSynchronizedServerDT();
         }
 
         public override PlayerSynStats GetPlayerStats()
@@ -500,37 +516,37 @@
             //log.InfoFormat("[{0}]: onkilled {1} ({2}) {3} killer {4} ({5})", mInstance.ID, Name, GetPersistentID(), ((Actor)attacker).IsPlayer() ? "Player": "", attacker.Name, ((Actor)attacker).GetPersistentID());
 
             base.OnKilled(attacker);
-            if (mInstance.mRealmController == null) // World respawn
+            RealmController realmController = mInstance.mRealmController;
+            if (realmController != null)
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             {
-                mRespawnType = RespawnType.Spot_City_CountdownSafeZoon;
-                int respawnId = 1;
-                RespawnJson respawnData = RespawnRepo.GetRespawnDataByID(respawnId);
-                Slot.ZRPC.CombatRPC.OnPlayerDead(attacker.Name, (byte)respawnId, Slot);
-                if(respawnData.countdown != -1)
-                {
-                    int realCD = respawnData.countdown * 1000;
-                    mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
-                    {
-                        mRespawnTimer = null;
-                        RespawnAtSafezone();
-                        int mapId = mInstance.mCurrentLevelID;
-                        DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
-                    }, null);
-                }
-            }
-            else
-            {
-                RealmController realmController = mInstance.mRealmController;
-                mRespawnType = realmController.mRealmInfo.respawntype;
-                int respawnId = 1;
-                RespawnJson respawnData = RespawnRepo.GetRespawnDataByID(respawnId);
+                int respawnId = realmController.mRealmInfo.respawn;
+                mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
+                
+                
                 string attackername = attacker.Name == null ? "" : attacker.Name;
                 Slot.ZRPC.CombatRPC.OnPlayerDead(attackername, (byte)respawnId, Slot);
-                if(respawnData.returntype == ReturnType.ReturnCity)
+                if(mRespawnInfo.respawntype == RespawnType.City)
                 {
-                    if (respawnData.countdown != -1)
+                    if (mRespawnInfo.countdown != -1)
                     {
-                        int realCD = respawnData.countdown * 1000;
+                        int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
                         {
                             mRespawnTimer = null;
@@ -540,11 +556,11 @@
                         }, null);
                     }
                 }
-                else if(respawnData.returntype == ReturnType.ReturnSafeZone)
+                else if(mRespawnInfo.respawntype == RespawnType.SafeZone)
                 {
-                    if (respawnData.countdown != -1)
+                    if (mRespawnInfo.countdown != -1)
                     {
-                        int realCD = respawnData.countdown * 1000;
+                        int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
                         {
                             mRespawnTimer = null;
@@ -645,7 +661,7 @@
                 mInstance.StopTimer(mRespawnTimer);
                 mRespawnTimer = null;
             }
-            if (mRespawnType == RespawnType.SafeZoneCost_CountdownSafeZoon)
+            if (mRespawnInfo.respawntype == RespawnType.SafeZone)
             {
                 StartInvincible(1);
             }
@@ -834,6 +850,7 @@
             mLotteryInvController.ResetOnNewDay();
             Slot.CharacterData.ExchangeShopInv.NewDayReset();
             //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();                           
+			QuestController.ResetOnNewDay();
         }
          
         public void SaveToCharacterData(bool exitroom)
@@ -862,7 +879,7 @@
                 else if (!IsAlive())
                 {
                     ResetStatsOnRespawn();
-                    if (mRespawnType == RespawnType.Spot_City_CountdownSafeZoon)
+                    if (mRespawnInfo.respawntype == RespawnType.SafeZone)
                         mInstance.SetSpawnPos(this);
                     else
                         kickToCity = true;
@@ -1064,6 +1081,9 @@
 
             ////PortraitData
             //characterData.PortraitData.SaveToPortraitData(PortraitDataStats.portraitDataInfoString);
+
+            // PowerUp
+            characterData.PowerUpInventory.SaveToInventory(PowerUpStats);
 
             Slot.mCanSaveDB = true;
         }
@@ -1349,6 +1369,10 @@
             LocalCombatStats.SkillPoints += 1;
         }
 
+		public void UpdateJobSect(byte jobsect)
+        {
+            PlayerSynStats.jobsect = jobsect;
+        }
         public bool LevelUpTo(int level)
         {
             if (PlayerSynStats.Level + level > 100)
@@ -1616,6 +1640,11 @@
             //}
         }
         #endregion
+
+        public void InitPowerUpStats(PowerUpInventoryData powerupInv)
+        {
+            powerupInv.InitFromInventory(PowerUpStats);
+        }
 
         // LotteryShopStats
         #region LotteryShopStats

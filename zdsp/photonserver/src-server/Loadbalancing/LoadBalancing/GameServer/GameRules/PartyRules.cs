@@ -326,6 +326,12 @@ namespace Zealot.Server.Rules
                 if (partyStats != null)
                 {
                     partyStats.SetMemberOnline(charName, isOnline);
+                    if (isOnline)
+                    {  // set avatar in case player has gone to other server and has change equipment in the mean time
+                        GameClientPeer peer = GameApplication.Instance.GetCharPeer(charName);
+                        if (peer != null)
+                            partyStats.SetMemberAvatar(charName, peer.CharacterData.EquipmentInventory, (JobType)peer.mPlayer.PlayerSynStats.jobsect);
+                    }
 
                     // set online status of any hero owned by this player
                     PartyMember hero = partyStats.GetHeroOwnedByMember(charName);

@@ -331,11 +331,8 @@ namespace Photon.LoadBalancing.GameServer
                 RealmType type = realmJson.type;
                 switch (type)
                 {
-                    case RealmType.DungeonStory:
+                    case RealmType.Dungeon:
                         ((RealmControllerDungeonStory)mRealmController).OnMissionCompleted(true, true);
-                        break;
-                    case RealmType.DungeonDailySpecial:
-                        ((RealmControllerDungeonDailySpecial)mRealmController).OnMissionCompleted(true, true);
                         break;
                 }
             }
@@ -376,14 +373,14 @@ namespace Photon.LoadBalancing.GameServer
         }
         
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSpawnSpecialBoss)]
-        public void ConsoleSpawnSpecialBoss(GameClientPeer peer)
+        public void ConsoleSpawnSpecialBoss(string name, GameClientPeer peer)
         {
-            Player player = peer.mPlayer;
-            if (player == null)
+            if (peer.mPlayer == null)
                 return;
-            for (int index = 0; index < maMonsterSpawners.Count; index++)
+            int count = maMonsterSpawners.Count;
+            for (int index = 0; index < count; ++index)
             {
-                if (maMonsterSpawners[index] is SpecialBossSpawner)
+                if (maMonsterSpawners[index] is SpecialBossSpawner && ((SpecialBossSpawner)maMonsterSpawners[index]).mSpecialBossSpawnerJson.archetype == name)
                     maMonsterSpawners[index].SpawnAllMonster();
             }
         }
@@ -821,78 +818,6 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if (player != null && !player.Destroyed)
                 player.LocalCombatStats.SkillPoints += amt;
-        }
-        #endregion
-
-        #region Quest
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateTrakingList)]
-        public void UpdateTrakingList(string data, GameClientPeer peer)
-        {
-            peer.mPlayer.QuestController.UpdateTrackingList(data);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DeleteQuest)]
-        public void DeleteQuest(int questid, GameClientPeer peer)
-        {
-            bool result = peer.mPlayer.QuestController.DeleteQuest(questid);
-            peer.ZRPC.NonCombatRPC.Ret_DeleteQuest(result, questid, peer);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuest)]
-        public void ResetQuest(int questid, GameClientPeer peer)
-        {
-            bool result = peer.mPlayer.QuestController.ResetQuest(questid);
-            peer.ZRPC.NonCombatRPC.Ret_ResetQuest(result, questid, peer);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateQuestStatus)]
-        public void UpdateQuestStatus(int questid, GameClientPeer peer)
-        {
-             peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.StartQuest)]
-        public void StartQuest(int questid, int callerid, int groupid, GameClientPeer peer)
-        {
-            peer.mPlayer.QuestController.TriggerNewQuest(questid, callerid, groupid);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCInteract)]
-        public void NPCInteract(int questid, int npcid, int choice, int talkid, GameClientPeer peer)
-        {
-            peer.mPlayer.QuestController.NpcCheck(questid, npcid, choice, talkid);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CompleteQuest)]
-        public void CompleteQuest(int questid, bool replyid, GameClientPeer peer)
-        {
-            bool result = peer.mPlayer.QuestController.CompleteQuest(questid, replyid);
-            peer.ZRPC.NonCombatRPC.Ret_CompleteQuest(result, questid, peer);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.InteractAction)]
-        public void InteractAction(int questid, int interactid, GameClientPeer peer)
-        {
-            bool result = peer.mPlayer.QuestController.InteractCheck(interactid, questid);
-            peer.ZRPC.NonCombatRPC.Ret_InteractAction(peer);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.FailQuest)]
-        public void FailQuest(int questid, GameClientPeer peer)
-        {
-            peer.mPlayer.QuestController.FailQuest(questid);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SubmitEmptyObjective)]
-        public void SubmitEmptyObjective(int questid, GameClientPeer peer)
-        {
-            peer.mPlayer.QuestController.SubmiteEmptyObjective(questid);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]
-        public void ApplyQuestEventBuff(int eventid, int questid, GameClientPeer peer)
-        {
-            peer.mPlayer.QuestController.ApplyEventSE(eventid, questid);
         }
         #endregion
     }

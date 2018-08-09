@@ -212,14 +212,14 @@ namespace Zealot.Repository
     {
         public static Dictionary<int, SpecialBossJson> mIdMap; 
         public static Dictionary<string, int> mNameMap;
-        public static Dictionary<BossCategory, List<int>> mBossOrderedBySequence;
+        public static Dictionary<BossCategory, List<SpecialBossJson>> mBossOrderedBySequence;
         public static int BossNoDmgRandomPos = 1800;
        
         static SpecialBossRepo()
         {            
             mIdMap = new Dictionary<int, SpecialBossJson>();
             mNameMap = new Dictionary<string, int>();
-            mBossOrderedBySequence = new Dictionary<BossCategory, List<int>>();
+            mBossOrderedBySequence = new Dictionary<BossCategory, List<SpecialBossJson>>();
         }
 
         public static void Init(GameDBRepo gameData)
@@ -228,22 +228,17 @@ namespace Zealot.Repository
             mIdMap = gameData.SpecialBoss;
             mNameMap.Clear();
             mBossOrderedBySequence.Clear();
-            Dictionary<BossCategory, Dictionary<int, int>> _temp = new Dictionary<BossCategory, Dictionary<int, int>>();
+            Dictionary<BossCategory, List<SpecialBossJson>> _temp = new Dictionary<BossCategory, List<SpecialBossJson>>();
             foreach (KeyValuePair<int, SpecialBossJson> entry in gameData.SpecialBoss)
             {
                 mNameMap.Add(entry.Value.name, entry.Key);
                 BossCategory _category = entry.Value.category;
                 if (!_temp.ContainsKey(_category))
-                    _temp.Add(_category, new Dictionary<int, int>());
-                _temp[_category][entry.Value.sequence] = entry.Value.id;
+                    _temp.Add(_category, new List<SpecialBossJson>());
+                _temp[_category].Add(entry.Value);
             }
             foreach(var kvp in _temp)
-            {
-                BossCategory _category = kvp.Key;
-                mBossOrderedBySequence.Add(_category, new List<int>());
-                foreach (int sequence in kvp.Value.Keys.ToList().OrderBy(x => x))
-                    mBossOrderedBySequence[_category].Add(kvp.Value[sequence]);
-            }
+                mBossOrderedBySequence.Add(kvp.Key, kvp.Value.OrderBy(x => x.sequence).ToList());
         }
 
         public static SpecialBossJson GetInfoByName(string name)
@@ -260,9 +255,9 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static List<int> GetOrderedBossIdsByCategory(BossCategory category)
+        public static List<SpecialBossJson> GetOrderedBossIdsByCategory(BossCategory category)
         {
-            List<int> ret;
+            List<SpecialBossJson> ret;
             mBossOrderedBySequence.TryGetValue(category, out ret);
             return ret;
         }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    
+	<element name="WorldMapCountry" useexcel="true">
+		<property name="countryname" type="string" uitext="localizedname"/>
+		<property name="lv" type="string" uitext="level range"/>
+	</element>
+	
+	<element name="WorldMapCountryPlace" useexcel="true">
+		<property name="country" type="WorldMapCountry" uitext="world map country" display="countryname"/>
+		<property name="placeiconpath" type="string" uitext="place icon asset path" default=""/>
+		<property name="placename" type="string" uitext="Place or Interest Name" default=""/>
+	</element>
+	
+	<element name="WorldMapCountryMonster" useexcel="true">
+		<property name="country" type="WorldMapCountry" uitext="world map country" display="countryname"/>
+		<property name="archetype" type="CombatNPC" uitext="Monster Archetype" display="archetype"/>
+	</element>
+    
+  </data>
+</magicalarea51>

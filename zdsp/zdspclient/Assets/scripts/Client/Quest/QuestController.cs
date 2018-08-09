@@ -70,6 +70,9 @@ public class QuestClientController
     //Quest Unlock List
     private List<int> mUnlockQuestList;
 
+    //Signboard Unlock List
+    private List<int> mUnlockSignboardList;
+
     private PlayerGhost mPlayer;
     private int mQuestEventTriggered;
     private List<int> mPendingQuestEventList;
@@ -103,10 +106,9 @@ public class QuestClientController
         mCompletedEventQuest = new List<int>();
 
         mTrackingList = new List<int>();
-
         mWonderfulList = new List<int>();
-
         mUnlockQuestList = new List<int>();
+        mUnlockSignboardList = new List<int>();
 
         mQuestEventTriggered = -1;
         mPendingQuestEventList = new List<int>();
@@ -126,7 +128,6 @@ public class QuestClientController
         mNpcQuestStatus = new Dictionary<int, bool>();
         mQuestIdByEventType = new Dictionary<QuestEventType, int>();
         mQuestIdByEventType.Add(QuestEventType.Companion, -1);
-        mQuestIdByEventType.Add(QuestEventType.Outfit, -1);
 
         mTeleportAction = null;
     }
@@ -181,6 +182,9 @@ public class QuestClientController
                 mUnlockQuestList = DeserializeCompletedQuest(data);
                 UpdateUI();
                 break;
+            case "unlockSignboardList":
+                mUnlockSignboardList = DeserializeCompletedQuest(data);
+                break;
         }
     }
 
@@ -209,7 +213,7 @@ public class QuestClientController
 
     private CurrentQuestData DeserializeQuestData(string data)
     {
-        if (!string.IsNullOrEmpty(data))
+        if (!string.IsNullOrEmpty(data) && data != "{}")
         {
             QuestDataStats questDataStats = JsonConvertDefaultSetting.DeserializeObject<QuestDataStats>(data);
             return new CurrentQuestData(questDataStats);
@@ -286,6 +290,12 @@ public class QuestClientController
             List<int> questlist = GetQuestListByNPCId(npc.GetArchetypeID());
             npc.UpdateOngoingQuest(questlist);
         }
+
+        Dictionary<string, string> param = new Dictionary<string, string>();
+        QuestJson questJson = QuestRepo.GetQuestByID(questid);
+        param.Add("questname", questJson == null ? "" : questJson.questname);
+        string systemmsg = GUILocalizationRepo.GetLocalizedSysMsgByName(result ? "sys_QuestComplete_Success" : "sys_QuestComplete_Failed", param);
+        UIManager.ShowSystemMessage(systemmsg);
     }
 
     private void UpdateQuestData(CurrentQuestData newdata, CurrentQuestData olddata, QuestType type, int index)
@@ -321,6 +331,7 @@ public class QuestClientController
         UpdateAvailableQuest();
         ManageNPCQuest(newdata);
         TriggerQuestEvent(newdata);
+        DisplayKillObjectiveMsg(newdata, olddata);
     }
 
     private void UpdateQuestData(Dictionary<int, CurrentQuestData> datalist, CurrentQuestData data, QuestType type, int index)
@@ -389,56 +400,60 @@ public class QuestClientController
             return;
         }
 
+        bool reordernpc = true;
         QuestStatus status = (QuestStatus)questData.Status;
         if (status == QuestStatus.CompletedAllObjective || status == QuestStatus.CompletedWithEvent)
         {
-            return;
+            reordernpc = false;
         }
 
         if (questData.MainObjective == null)
         {
-            return;
+            reordernpc = false;
         }
 
         List<int> npclist = new List<int>();
-        for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
+        if (reordernpc)
         {
-            int objectiveid = questData.MainObjective.ObjectiveIds[i];
-            QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
-            if (objectiveJson.type == QuestObjectiveType.Talk || objectiveJson.type == QuestObjectiveType.Choice)
+            for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
             {
-                if (questData.MainObjective.ProgressCount[i] == 0)
-                {
-                    npclist.Add(objectiveJson.para1);
-                }
-            }
-            else if (objectiveJson.type == QuestObjectiveType.Interact)
-            {
-                if (questData.MainObjective.ProgressCount[i] < objectiveJson.para2)
-                {
-                    npclist.Add(objectiveJson.para3);
-                }
-            }
-        }
-
-        foreach(KeyValuePair<int, CurrentObjectiveData> entry in questData.SubObjective)
-        {
-            for (int i = 0; i < entry.Value.ObjectiveIds.Count; i++)
-            {
-                int objectiveid = entry.Value.ObjectiveIds[i];
+                int objectiveid = questData.MainObjective.ObjectiveIds[i];
                 QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
                 if (objectiveJson.type == QuestObjectiveType.Talk || objectiveJson.type == QuestObjectiveType.Choice)
                 {
-                    if (entry.Value.ProgressCount[i] == 0)
+                    if (questData.MainObjective.ProgressCount[i] == 0)
                     {
                         npclist.Add(objectiveJson.para1);
                     }
                 }
                 else if (objectiveJson.type == QuestObjectiveType.Interact)
                 {
-                    if (entry.Value.ProgressCount[i] == objectiveJson.para2)
+                    if (questData.MainObjective.ProgressCount[i] < objectiveJson.para2)
                     {
                         npclist.Add(objectiveJson.para3);
+                    }
+                }
+            }
+
+            foreach (KeyValuePair<int, CurrentObjectiveData> entry in questData.SubObjective)
+            {
+                for (int i = 0; i < entry.Value.ObjectiveIds.Count; i++)
+                {
+                    int objectiveid = entry.Value.ObjectiveIds[i];
+                    QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
+                    if (objectiveJson.type == QuestObjectiveType.Talk || objectiveJson.type == QuestObjectiveType.Choice)
+                    {
+                        if (entry.Value.ProgressCount[i] == 0)
+                        {
+                            npclist.Add(objectiveJson.para1);
+                        }
+                    }
+                    else if (objectiveJson.type == QuestObjectiveType.Interact)
+                    {
+                        if (entry.Value.ProgressCount[i] < objectiveJson.para2)
+                        {
+                            npclist.Add(objectiveJson.para3);
+                        }
                     }
                 }
             }
@@ -709,12 +724,18 @@ public class QuestClientController
             case QuestRequirementType.Title:
                 return true;
             case QuestRequirementType.SideEffect:
-                return true;
+                if (requirement.para2 == 1 && mPlayer.HasSideEffect(requirement.para1))
+                {
+                    return true;
+                }
+                else if (requirement.para2 == 2 && !mPlayer.HasSideEffect(requirement.para1))
+                {
+                    return true;
+                }
+                break;
             case QuestRequirementType.Companian:
                 return true;
             case QuestRequirementType.Clue:
-                return true;
-            case QuestRequirementType.Outfit:
                 return true;
             case QuestRequirementType.Job:
                 if (requirement.para2 == 1 && mPlayer.PlayerSynStats.jobsect == requirement.para1)
@@ -889,7 +910,8 @@ public class QuestClientController
     public bool IsMainQuestObjectiveCompleted(int questid, int groupid, int sequence)
     {
         ChapterJson selected = QuestRepo.GetChapterByQuestId(questid);
-        ChapterJson current = QuestRepo.GetChapterByQuestId(mMainQuest.QuestId);
+        int currentquestid = mMainQuest == null ? GetUnlockMainQuestId() : mMainQuest.QuestId;
+        ChapterJson current = QuestRepo.GetChapterByQuestId(currentquestid);
         if (selected.groupid < current.groupid)
         {
             return true;
@@ -904,11 +926,7 @@ public class QuestClientController
 
             if (selected.sequence == current.sequence)
             {
-                if (groupid != mMainQuest.GroupdId)
-                {
-                    return true;
-                }
-                else if (groupid == mMainQuest.GroupdId)
+                if (mMainQuest != null && groupid == mMainQuest.GroupdId)
                 {
                     if (sequence < mMainQuest.MainObjective.SequenceNum)
                     {
@@ -1133,16 +1151,19 @@ public class QuestClientController
 
     private int GetObjectiveInteractiveId(CurrentObjectiveData objectiveData, int npcid)
     {
-        for (int i = 0; i < objectiveData.ObjectiveIds.Count; i++)
+        if (objectiveData.ObjectiveIds.Count == objectiveData.ProgressCount.Count)
         {
-            int objectiveid = objectiveData.ObjectiveIds[i];
-            int progress = objectiveData.ProgressCount[i];
-            QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
-            if (objectiveJson != null)
+            for (int i = 0; i < objectiveData.ObjectiveIds.Count; i++)
             {
-                if (objectiveJson.type == QuestObjectiveType.Interact && objectiveJson.para3 == npcid && progress < objectiveJson.para2)
+                int objectiveid = objectiveData.ObjectiveIds[i];
+                int progress = objectiveData.ProgressCount[i];
+                QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
+                if (objectiveJson != null)
                 {
-                    return objectiveJson.para1;
+                    if (objectiveJson.type == QuestObjectiveType.Interact && objectiveJson.para3 == npcid && progress < objectiveJson.para2)
+                    {
+                        return objectiveJson.para1;
+                    }
                 }
             }
         }
@@ -1489,13 +1510,12 @@ public class QuestClientController
                 value = "";
                 break;
             case QuestRequirementType.SideEffect:
-                value = "";
+                value = SideEffectRepo.GetSideEffect(param).localizedname;
                 break;
             case QuestRequirementType.Companian:
-            case QuestRequirementType.Clue:
-            case QuestRequirementType.Outfit:
                 value = StaticNPCRepo.GetStaticNPCById(param).localizedname;
                 break;
+            case QuestRequirementType.Clue:
             case QuestRequirementType.Job:
                 value = "";
                 break;
@@ -1516,7 +1536,6 @@ public class QuestClientController
             case QuestRequirementType.SideEffect:
             case QuestRequirementType.Companian:
             case QuestRequirementType.Clue:
-            case QuestRequirementType.Outfit:
             case QuestRequirementType.Job:
                 value = "";
                 break;
@@ -1540,7 +1559,6 @@ public class QuestClientController
             case QuestRequirementType.SideEffect:
             case QuestRequirementType.Companian:
             case QuestRequirementType.Clue:
-            case QuestRequirementType.Outfit:
             case QuestRequirementType.Job:
                 value = "";
                 break;
@@ -1570,9 +1588,10 @@ public class QuestClientController
                 break;
             case QuestRequirementType.Title:
             case QuestRequirementType.SideEffect:
+                value = progress[requirementDetailJson.requirementid].ToString();
+                break;
             case QuestRequirementType.Companian:
             case QuestRequirementType.Clue:
-            case QuestRequirementType.Outfit:
                 value = "";
                 break;
             case QuestRequirementType.Job:
@@ -1604,9 +1623,17 @@ public class QuestClientController
                 break;
             case QuestRequirementType.Title:
             case QuestRequirementType.SideEffect:
+                if (requirementDetailJson.para2 == 1 && mPlayer.HasSideEffect(requirementDetailJson.para1))
+                {
+                    return 1;
+                }
+                else if (requirementDetailJson.para2 == 2 && mPlayer.HasSideEffect(requirementDetailJson.para1))
+                {
+                    return 1;
+                }
+                break;
             case QuestRequirementType.Companian:
             case QuestRequirementType.Clue:
-            case QuestRequirementType.Outfit:
                 return 0;
             case QuestRequirementType.Job:
                 return mPlayer.PlayerSynStats.jobsect;
@@ -1804,29 +1831,29 @@ public class QuestClientController
         int objectiveid = -1;
         if (questData != null)
         {
-            int eventid = -1;
+            int eventgroupid = -1;
             EventTimingType timingType = EventTimingType.CompleteObjective;
             if (questData.Status == (byte)QuestStatus.NewQuestWithEvent)
             {
                 QuestJson questJson = QuestRepo.GetQuestByID(mQuestEventTriggered);
-                eventid = questJson.eventid;
+                eventgroupid = questJson.eventid;
                 timingType = EventTimingType.StartQuest;
             }
             else if (questData.Status == (byte)QuestStatus.CompletedWithEvent)
             {
                 QuestJson questJson = QuestRepo.GetQuestByID(mQuestEventTriggered);
-                eventid = questJson.eventid;
+                eventgroupid = questJson.eventid;
                 timingType = EventTimingType.CompleteQuest;
             }
             else if (questData.Status == (byte)QuestStatus.NewObjectiveWithEvent)
             {
-                eventid = GetEventId(questData, out objectiveid);
+                eventgroupid = GetEventId(questData, out objectiveid);
                 timingType = EventTimingType.CompleteObjective;
             }
 
-            if (eventid != -1)
+            if (eventgroupid != -1)
             {
-                TriggerQuestEventByType(eventid, timingType, objectiveid);
+                TriggerQuestEventByType(eventgroupid, timingType, objectiveid);
             }
         }
     }
@@ -1846,10 +1873,10 @@ public class QuestClientController
         return -1;
     }
 
-    private void TriggerQuestEventByType(int eventid, EventTimingType timingType, int objectiveid)
+    private void TriggerQuestEventByType(int eventgroupid, EventTimingType timingType, int objectiveid)
     {
         bool canstartnextevent = false;
-        QuestEventDetailJson questEvent = QuestRepo.GetQuestEvent(eventid, timingType, objectiveid);
+        QuestEventDetailJson questEvent = QuestRepo.GetQuestEvent(eventgroupid, timingType, objectiveid);
         if (questEvent != null)
         {
             switch(questEvent.type)
@@ -1907,8 +1934,7 @@ public class QuestClientController
                     RPCFactory.NonCombatRPC.ApplyQuestEventBuff(questEvent.id, mQuestEventTriggered);
                     break;
                 case QuestEventType.Companion:
-                    break;
-                case QuestEventType.Outfit:
+                    RPCFactory.NonCombatRPC.ApplyQuestEventCompanion(questEvent.id, mQuestEventTriggered);
                     break;
                 case QuestEventType.NPC:
                     int npcid;
@@ -1939,6 +1965,7 @@ public class QuestClientController
                     canstartnextevent = true;
                     break;
             }
+            UIManager.ShowSystemMessage(questEvent.msg);
         }
 
         if (canstartnextevent)
@@ -1956,8 +1983,6 @@ public class QuestClientController
                 switch(entry.Key)
                 {
                     case QuestEventType.Companion:
-                        break;
-                    case QuestEventType.Outfit:
                         break;
                     case QuestEventType.NPC:
                         NpcDisplayRollBack();
@@ -2064,11 +2089,6 @@ public class QuestClientController
         {
             RPCFactory.NonCombatRPC.SubmitEmptyObjective(questData.QuestId);
         }
-    }
-
-    public void OnPathFinding(int targetid, byte targettype)
-    {
-        //monster, npc, area
     }
 
     public void CloseNpcTalk()
@@ -2408,5 +2428,77 @@ public class QuestClientController
         }
 
         return false;
+    }
+
+    public QuestJson GetUnlockMainQuest()
+    {
+        foreach(int questid in mUnlockQuestList)
+        {
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
+            if (questJson != null && questJson.type == QuestType.Main)
+            {
+                return questJson;
+            }
+        }
+        return null;
+    }
+
+    private int GetUnlockMainQuestId()
+    {
+        foreach (int questid in mUnlockQuestList)
+        {
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
+            if (questJson != null && questJson.type == QuestType.Main)
+            {
+                return questJson.questid;
+            }
+        }
+        return -1;
+    }
+
+    private string GetKillObjectiveDescription(int objid, int progress)
+    {
+        QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objid);
+        if (objectiveJson != null)
+        {
+            string description = objectiveJson.description;
+            string monstername = NPCRepo.GetArchetypeById(objectiveJson.para1).localizedname;
+            description = description.Replace("%o[p1]%", monstername);
+            description = description.Replace("%o[p2]%", objectiveJson.para2.ToString());
+            description = description.Replace("%pc%", progress.ToString());
+            return description;
+        }
+        return "";
+    }
+
+    private void DisplayKillObjectiveMsg(CurrentQuestData newQuestData, CurrentQuestData oldQuestData)
+    {
+        if (oldQuestData != null)
+        {
+            List<int> oldobjectivelist = new List<int>();
+            List<int> oldprogresslist = new List<int>();
+            oldobjectivelist.AddRange(oldQuestData.MainObjective.ObjectiveIds);
+            oldprogresslist.AddRange(oldQuestData.MainObjective.ProgressCount);
+            foreach (KeyValuePair<int, CurrentObjectiveData> entry in oldQuestData.SubObjective)
+            {
+                oldobjectivelist.AddRange(entry.Value.ObjectiveIds);
+                oldprogresslist.AddRange(entry.Value.ProgressCount);
+            }
+
+            Dictionary<int, int> olddata = new Dictionary<int, int>();
+            for (int i = 0; i < oldobjectivelist.Count; i++)
+            {
+                QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(oldobjectivelist[i]);
+                if (objectiveJson != null && (objectiveJson.type == QuestObjectiveType.Kill || objectiveJson.type == QuestObjectiveType.PercentageKill))
+                {
+                    olddata.Add(oldobjectivelist[i], oldprogresslist[i]);
+                }
+            }
+
+            foreach (KeyValuePair<int, int> entry in olddata)
+            {
+                UIManager.ShowSystemMessage(GetKillObjectiveDescription(entry.Key, entry.Value + 1));
+            }
+        }
     }
 }

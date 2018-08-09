@@ -31,7 +31,7 @@
       <property name="minlv" type="int" uitext="Quest Level"/>
       <property name="requirementid" type="int" uitext="Requirement Group Id"/>
       <property name="frontquest" type="int" uitext="Front Quest" default="-1"/>
-      <property name="nextquest" type="string" uitext="Next Quest"/>
+      <property name="nextquest" type="string" uitext="Next Quest" default="-1"/>
       <property name="isopen" type="bool" uitext="Open" default="true"/>
       <property name="repeat" type="QuestRepeatType" uitext="Repeat" default="0"/>
       <property name="triggertype" type="QuestTriggerType" uitext="Trigger Type"/>
@@ -45,6 +45,7 @@
       <property name="unlockval" type="string" uitext="Unlock Value"/>
       <property name="showae" type="bool" uitext="Is Show AE"/>
       <property name="teleport" type="bool" uitext="Teleport"/>
+      <property name="candelete" type="bool" uitext="Can Delete?"/>
     </element>
 
     <element name="QuestObjective" useexcel="true" collectionkey="objid">
@@ -60,6 +61,7 @@
       <property name="para4" type="string" uitext="Param4" default="0" info="目的id" />
       <property name="eventid" type="int" uitext="Complete Objective Event Group Id"/>
       <property name="requirementid" type="int" uitext="Requirement Group Id"/>
+      <property name="msg" type="localizedstring" uitext="Message"/>
     </element>
     
     <element name="QuestEventDetail" useexcel="true">
@@ -70,6 +72,7 @@
       <property name="para2" type="string" uitext="param2"/>
       <property name="questid" type="int" uitext="Quest Id"/>
       <property name="objectiveid" type="int" uitext="Objective Id"/>
+      <property name="msg" type="localizedstring" uitext="Event Message"/>
     </element>
 
     <element name="QuestTalkDetail" useexcel="true" collectionkey="name">
@@ -91,6 +94,7 @@
       <property name="caller7" type="int" uitext="Caller 7"/>
       <property name="dialogue7" type="localizedstring" uitext="Dialogue 7"/>
       <property name="selectionid" type="int" uitext="Selection Group Id"/>
+      <property name="msg" type="localizedstring" uitext="Message"/>
     </element>
 
     <element name="QuestSelectDetail" useexcel="true">
@@ -138,6 +142,23 @@
       <property name="uicolumn" type="int" uitext="Column"/>
       <property name="uirow" type="int" uitext="Row"/>
       <property name="next" type="string" uitext="Next Block"/>
+    </element>
+  
+   <element name="QuestSignboard" useexcel="true" collectionkey="signboardid">
+      <property name="signboardid" type="int" uitext="Signboard ID" unique="true"/>
+      <property name="groupid" type="int" uitext="Group ID"/>
+      <property name="lvlmin" type="int" uitext="Min Level"/>
+      <property name="lvlmax" type="int" uitext="Max Level"/>
+      <property name="questid" type="int" uitext="Quest ID"/>
+      <property name="probability" type="int" uitext="Probability"/>
+      <property name="iconpath" type="string" uitext="NPC Icon Path"/>
+      <property name="expplus" type="int" uitext="Experince Plus"/>
+    </element>
+  
+    <element name="SignboardLimit" useexcel="true">
+      <property name="lvlmin" type="int" uitext="Min Level"/>
+      <property name="lvlmax" type="int" uitext="Max Level"/>
+      <property name="dailylimit" type="int" uitext="Daily Limit"/>
     </element>
   </data>
 </magicalarea51>

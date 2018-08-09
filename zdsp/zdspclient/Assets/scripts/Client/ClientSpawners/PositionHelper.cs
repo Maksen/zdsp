@@ -3,8 +3,6 @@ using UnityEngine;
 namespace Zealot.Spawners
 {
     public class PositionHelper : MonoBehaviour {
-		[Tooltip("bossName Link to gamedb SpecialBoss table.")]
-		public int id;
         [Tooltip("Radius measured from the monster within which it will be able detect any threats")]
         public float aggroRadius;
         [Tooltip("Radius measured from the spawner within which it is free to engage in combat")]

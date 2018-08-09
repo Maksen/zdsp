@@ -500,16 +500,11 @@ public static class UIManager
         return UIHud.GetComponent<RectTransform>();
     }
 
-    public static void AddItemIncrementToChat(IInventoryItem item)
+    public static void AddToChat(byte msgType, string message)
     {
-        //HUD_Chat hudChat = GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-        //{
-            //Dictionary<string, string> parameters = new Dictionary<string, string>();
-            //parameters.Add("item", string.Format("<{0}>{1}</{0}>", ItemUtils.GetColorTagByRarity(item.ItemRarity), item.LocalizedName));
-            //parameters.Add("increment", item.StackCount.ToString());
-            //hudChat.AddToChatLog((byte)MessageType.System, GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ItemIncrement", parameters), "", "");
-        //}
+        HUD_Chatroom hudChat = GetWidget(HUDWidgetType.Chatroom).GetComponent<HUD_Chatroom>();
+        if (hudChat)
+            hudChat.AddToChatLog(msgType, message, "", "");
     }
 }
 

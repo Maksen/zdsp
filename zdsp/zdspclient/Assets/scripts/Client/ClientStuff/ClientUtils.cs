@@ -8,6 +8,7 @@ using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Repository;
 using Zealot.Audio;
+
 public static class ClientUtils
 {
     //common color
@@ -606,14 +607,14 @@ public static class ClientUtils
     public static string GetLocalizedReformKai(int reformStep)
     {
         System.Text.StringBuilder kaiStr = new System.Text.StringBuilder();
-        kaiStr.AppendFormat("{0}{1}", GUILocalizationRepo.GetLocalizedString("com_Kai"), GetLocalizedNumFromInt(reformStep));
+        kaiStr.AppendFormat("{0}{1}", GUILocalizationRepo.GetLocalizedString("com_Kai"), GetRomanNumFromInt(reformStep));
 
         return kaiStr.ToString();
     }
 
-    private static string GetLocalizedNumFromInt(int number)
+    public static string GetRomanNumFromInt(int number)
     {
-        if(number > 0 && number < 100)
+        if (number > 0 && number <= 100)
         {
             int times = 0;
             while(number > 10)
@@ -625,17 +626,18 @@ public static class ClientUtils
             if(number == 10)
             {
                 ++times;
-                return string.Format("{0}{1}", GetLocalizedSingleDigit(times), GetLocalizedSingleDigit(10));
+
+                return string.Format("{0}", GetRomanDigitTens(times));
             }
             else
             {
                 if(times > 0)
                 {
-                    return string.Format("{0}{1}", GetLocalizedSingleDigit(times), GetLocalizedSingleDigit(number));
+                    return string.Format("{0}{1}", GetRomanDigitTens(times), GetRomanDigitSgl(number));
                 }
                 else
                 {
-                    return GetLocalizedSingleDigit(number);
+                    return GetRomanDigitSgl(number);
                 }
             }
         }
@@ -643,7 +645,7 @@ public static class ClientUtils
         return "Invalid number or number too big!";
     }
 
-    private static string GetLocalizedSingleDigit(int number)
+    private static string GetRomanDigitSgl(int number)
     {
         if(number > 10)
         {
@@ -655,34 +657,81 @@ public static class ClientUtils
         switch(number)
         {
             case 1:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_One");
+                num_str = "I";
                 break;
             case 2:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Two");
+                num_str = "II";
                 break;
             case 3:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Three");
+                num_str = "III";
                 break;
             case 4:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Four");
+                num_str = "IV";
                 break;
             case 5:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Five");
+                num_str = "V";
                 break;
             case 6:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Six");
+                num_str = "VI";
                 break;
             case 7:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Seven");
+                num_str = "VII";
                 break;
             case 8:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Eight");
+                num_str = "VIII";
                 break;
             case 9:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Nine");
+                num_str = "IX";
                 break;
             case 10:
-                num_str = GUILocalizationRepo.GetLocalizedString("com_Ten");
+                num_str = "X";
+                break;
+        }
+
+        return num_str;
+    }
+
+    private static string GetRomanDigitTens(int mul)
+    {
+        // mul > 10 means actual number is > 100
+        if(mul > 10)
+        {
+            return "Num too big!";
+        }
+
+        string num_str = "";
+
+        switch (mul)
+        {
+            case 1:
+                num_str = "X";
+                break;
+            case 2:
+                num_str = "XX";
+                break;
+            case 3:
+                num_str = "XXX";
+                break;
+            case 4:
+                num_str = "XL";
+                break;
+            case 5:
+                num_str = "L";
+                break;
+            case 6:
+                num_str = "LX";
+                break;
+            case 7:
+                num_str = "LXX";
+                break;
+            case 8:
+                num_str = "LXXX";
+                break;
+            case 9:
+                num_str = "XC";
+                break;
+            case 10:
+                num_str = "C";
                 break;
         }
 

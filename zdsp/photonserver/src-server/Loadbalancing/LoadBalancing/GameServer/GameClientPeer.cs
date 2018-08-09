@@ -44,7 +44,7 @@ namespace Photon.LoadBalancing.GameServer
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         private readonly GameApplication application;
-
+        
         #endregion
 
         #region Constructors and Destructors
@@ -507,6 +507,7 @@ namespace Photon.LoadBalancing.GameServer
         public SevenDaysController mSevenDaysController;
         public QuestExtraRewardsController mQuestExtraRewardsCtrler;
         public SocialInventoryData mSocialInventory;
+        public PowerUpController mPowerUpController;
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -533,6 +534,7 @@ namespace Photon.LoadBalancing.GameServer
                             loginDT = DateTime.Now;
                             //InitCharDataFirst(charinfo);
                             mInventory = new ItemInventoryController(this);
+                            mPowerUpController = new PowerUpController(this);
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
@@ -779,7 +781,7 @@ namespace Photon.LoadBalancing.GameServer
             avatarData.InspectCombatStats.Update(mPlayer.LocalCombatStats);
             ZRPC.CombatRPC.SetInspectPlayerInfo(avatarData.SerializeForCharCreation(), recievingPeer);
         }
-
+        
         public string GetOnlinePlayerInfoByName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -919,7 +921,7 @@ namespace Photon.LoadBalancing.GameServer
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Missing_Item_In_Slot"), "", false, mPlayer.Slot);
                 return;
             }
-
+            
             //string equipSlotName = equipItem.LocalizedName;
             int currentLevel = equipItem.UpgradeLevel;
             int upgradeLevel = currentLevel + 1;
@@ -1112,7 +1114,7 @@ namespace Photon.LoadBalancing.GameServer
         //    }
         //}
 
-        public void EquipmentReformEquipment(int slotID, bool isEquipped, int selection)
+        public void OnEquipmentReformEquipment(int slotID, bool isEquipped, int selection)
         {
             // Invalid slot!
             if (slotID <= -1)
@@ -1123,7 +1125,7 @@ namespace Photon.LoadBalancing.GameServer
             Equipment equipItem = isEquipped ? characterData.EquipmentInventory.Slots[slotID] as Equipment : characterData.ItemInventory.Slots[slotID] as Equipment;
             string reformGrp = equipItem.EquipmentJson.evolvegrp;
 
-            if (equipItem == null)
+            if(equipItem == null)
             {
                 // Item is missing from the slot!
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Missing_Item_In_Slot"), "", false, mPlayer.Slot);
@@ -1132,6 +1134,15 @@ namespace Photon.LoadBalancing.GameServer
 
             int currentStep = equipItem.ReformStep;
             int nextStep = currentStep + 1;
+            int maxStep = EquipmentModdingRepo.GetEquipmentReformGroupMaxLevel(reformGrp);
+            int nextEquipId = equipItem.EquipmentJson.evolvechange;
+
+            if(nextStep > maxStep && nextEquipId == -1)
+            {
+                // Item is missing from the slot!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_StepMaxed"), "", false, mPlayer.Slot);
+                return;
+            }
 
             // Get next reform step data
             List<EquipmentReformGroupJson> nextReformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, nextStep);
@@ -1143,17 +1154,17 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            // Check for selection out of bounds (if more than 1 selection)
+            // Check for selection out of bounds (if more than 1 option)
             if(selection < 0 || selection >= nextReformData.Count)
             {
                 return;
             }
 
             // Check for sufficient gold
-            int goldCost = nextReformData[selection].cost;
-            int gold = mPlayer.SecondaryStats.gold;
+            int moneyCost = nextReformData[selection].cost;
+            int money = mPlayer.SecondaryStats.money;
 
-            if(mPlayer.SecondaryStats.IsGoldEnough(goldCost))
+            if(/*!mPlayer.SecondaryStats.IsGoldEnough(moneyCost)*/money < moneyCost)
             {
                 // Not enough gold
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_InsufficientGold"), "", false, mPlayer.Slot);
@@ -1179,12 +1190,32 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             // If success
+            // Deduct money
+            mPlayer.DeductCurrency(CurrencyType.Money, moneyCost, false, "EquipReform");
+            // Use materials
+            List<ItemInfo> matsToUse = new List<ItemInfo>();
+            for(int i = 0; i < materialList.Count; ++i)
+            {
+                EquipModMaterial modMat = materialList[i];
+
+                ItemInfo itemInfo = new ItemInfo();
+                itemInfo.itemId = (ushort)modMat.mItemID;
+                itemInfo.stackCount = modMat.mAmount;
+
+                matsToUse.Add(itemInfo);
+            }
+            EquipmentRules.UseMaterials(matsToUse, this);
             // Update reform step, add side effect and record reform selection (if more than 1 selection)
             // RPC play success animation
             mInventory.UpdateEquipmentProperties((ushort)nextStep, EquipPropertyType.Reform, isEquipped, slotID);
-            // Unable to read materals list!
+            // Reform success
             ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_Success"), "", false, mPlayer.Slot);
             ZRPC.NonCombatRPC.EquipmentReformEquipmentSuccess(mPlayer.Slot);
+        }
+
+        public void OnEquipmentRecycleEquipment(int slotID, bool isEquipped, int selection)
+        {
+
         }
 
         public void OnEquipGemSlotItem(int equipSlotID, int gemGrp, int gemSlot, int gemID)
@@ -2835,6 +2866,46 @@ namespace Photon.LoadBalancing.GameServer
             mPlayer.RespawnOnSpot();
             GameApplication.Instance.ReviveItemController.ConfirmRevived(sessionId);
         }
+        #endregion
+
+        #region PowerUp
+        public void OnPowerUp(int part)
+        {
+            int currPartLevel = characterData.PowerUpInventory.powerUpSlots[part];
+            int nextPartLevel = currPartLevel + 1;
+            PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)part, currPartLevel);
+
+            int playerLevel = mPlayer.PlayerSynStats.Level;
+            if(nextPartLevel > playerLevel)
+            {
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_PowerUp_MaxLevelReached"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            PowerUpJson nextPowerUp = PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)part, nextPartLevel);
+            if(nextPowerUp == null)
+            {
+                return;
+            }
+            
+            List<ItemInfo> useMatList = PowerUpRepo.GetPowerUpMaterialByPartsEffect((PowerUpPartsType)part, nextPartLevel);
+            InvRetval result = mInventory.UseToolItems(useMatList, "PowerUp");
+            if(result.retCode == InvReturnCode.UseFailed)
+            {
+                // Handle use item failure
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_PowerUp_NotEnoughMaterials"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            characterData.PowerUpInventory.powerUpSlots[part] = nextPartLevel;
+            mPlayer.PowerUpStats.powerUpSlots[part] = nextPartLevel;
+            mPlayer.PowerUpStats.powerUpLvl = "0";
+        }
+
+        /*public InvRetval ConsumeMaterial (int id, int useAmount)
+        {
+            return mInventory.UseToolItems((ushort)id, (ushort)useAmount, "PowerUp");
+        }*/
         #endregion
 
         #region CharacterData Helper Functions

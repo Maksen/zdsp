@@ -198,10 +198,6 @@ public class PlayerInput : MonoBehaviour
 
         float moveX = CnInputManager.GetAxis("Horizontal");
         float moveY = CnInputManager.GetAxis("Vertical");
-#if UNITY_EDITOR || UNITY_STANDALONE
-        if (!CanKeyboardMove())  // prevent moving player when typing in chat or any window
-            moveX = moveY = 0;
-#endif
         if (moveX != 0.0f || moveY != 0.0f)
         {
             SetMoveIndicator(Vector3.zero);

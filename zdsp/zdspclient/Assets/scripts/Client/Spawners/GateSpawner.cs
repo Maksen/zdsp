@@ -33,7 +33,9 @@ namespace Zealot.Spawners
             jsonclass.forward = transform.forward;
             jsonclass.width = widthRatio;
             jsonclass.height = heightRatio;
-            jsonclass.prefab = prefab.name;
+#if UNITY_EDITOR
+            jsonclass.prefab = UnityEditor.AssetDatabase.GetAssetPath(prefab).Remove(0, 7);
+#endif
             base.GetJson(jsonclass);
         }
     }

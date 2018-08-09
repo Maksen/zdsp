@@ -113,9 +113,17 @@ namespace Photon.LoadBalancing.GameServer
         //Quest Unlock List
         private List<int> mUnlockQuestList;
 
+        //Signboard Unlock List
+        private List<int> mUnlockSignboardList;
+
+        //Companion Id
+        private int mCompanionId;
+
         private Dictionary<QuestObjectiveType, Dictionary<int, QuestObjectiveData>> mObjectiveListByObjectiveType;
         private List<CompletedQuestData> mCompletedQuestList;
         private Dictionary<QuestType, List<int>> mUpdateList;
+        private int mMaxDailySignboard;
+        private bool mSignboardResetOnDay;
         
         public QuestController(Player player)
         {
@@ -128,23 +136,13 @@ namespace Photon.LoadBalancing.GameServer
             {
                 mObjectiveListByObjectiveType.Add(type, new Dictionary<int, QuestObjectiveData>());
             }
-        }
-
-        private void ResetData(CharacterData characterData)
-        {
-            characterData.QuestInventory.AdventureQuest = "";
-            characterData.QuestInventory.SublineQuest = "";
-            characterData.QuestInventory.GuildQuest = "";
-            characterData.QuestInventory.SignboardQuest = "";
-            characterData.QuestInventory.EventQuest = "";
+            mMaxDailySignboard = 0;
         }
 
         public void InitFromData(CharacterData characterData)
         {
-            //ResetData(characterData);
             characterData.QuestInventory.DeserializeSingleQuestData(QuestType.Main, ref mMainQuest);
             mCompletedMainQuest = characterData.QuestInventory.DeserializeCompletedQuest(QuestType.Main);
-            InitDefaultMainQuest();
 
             characterData.QuestInventory.DeserializeQuestDataList(QuestType.Destiny, ref mAdventureQuest);
             mCompletedAdventureQuest = characterData.QuestInventory.DeserializeCompletedQuest(QuestType.Destiny);
@@ -169,45 +167,55 @@ namespace Photon.LoadBalancing.GameServer
 
             mUnlockQuestList = characterData.QuestInventory.DeseralizeUnlockQuestList();
             mUnlockQuestList = mUnlockQuestList == null ? new List<int>() : mUnlockQuestList;
-            if (!mUnlockQuestList.Contains(6))
+            if (characterData.QuestInventory.IsDefaultData())
             {
-                mUnlockQuestList.Add(6);
+                InitDefaultMainQuest();
             }
+
+            mMaxDailySignboard = QuestRepo.GetSignboardDailyLimit(mPlayer.PlayerSynStats.Level);
+            mUnlockSignboardList = characterData.QuestInventory.DeseralizeUnlockSignboardList();
+            mUnlockSignboardList = mUnlockSignboardList == null ? new List<int>() : mUnlockSignboardList;
+            mSignboardResetOnDay = GameConstantRepo.GetConstantInt("SignboardResetOnDay") == 1 ? true : false;
+            if (mUnlockSignboardList.Count < mMaxDailySignboard)
+            {
+                ResetSignboardList();
+            }
+
+            mCompanionId = characterData.QuestInventory.CompanionId;
 
             InitObjectiveData();
         }
 
         private void InitDefaultMainQuest()
         {
-            if (mMainQuest == null)
-            {
-                TriggerNewQuest(QuestRepo.MainStartQuestRefId, 0, 0, false);
-            }
+            mMainQuest = null;
+            TriggerNewQuest(QuestRepo.MainStartQuestRefId, 0, 0, false);
         }
 
-        public void InitQuestStats(QuestInventoryData questInventoryData, ref QuestSynStats questSynStats)
+        public void InitQuestStats( ref QuestSynStats questSynStats)
         {
             questSynStats.mainQuest = QuestRules.SerializedQuestStats(mMainQuest);
-            questSynStats.completedMain = questInventoryData.CompletedMain;
+            questSynStats.completedMain = QuestRules.SerializedCompletedList(mCompletedMainQuest);
 
             questSynStats.adventureQuest = QuestRules.SerializedQuestStats(mAdventureQuest);
-            questSynStats.completedAdventure = questInventoryData.CompletedAdventure;
+            questSynStats.completedAdventure = QuestRules.SerializedCompletedList(mCompletedAdventureQuest);
 
             questSynStats.sublineQuest = QuestRules.SerializedQuestStats(mSublineQuest);
-            questSynStats.completedSubline = questInventoryData.CompletedSubline;
+            questSynStats.completedSubline = QuestRules.SerializedCompletedList(mCompletedSublineQuest);
 
             questSynStats.guildQuest = QuestRules.SerializedQuestStats(mGuildQuest);
-            questSynStats.completedGuild = questInventoryData.CompletedGuild;
+            questSynStats.completedGuild = QuestRules.SerializedCompletedList(mCompletedGuildQuest);
 
             questSynStats.signboardQuest = QuestRules.SerializedQuestStats(mSignboardQuest);
-            questSynStats.completedSignboard = questInventoryData.CompletedSignboard;
+            questSynStats.completedSignboard = QuestRules.SerializedCompletedList(mCompletedSignboardQuest);
 
             questSynStats.eventQuest = QuestRules.SerializedQuestStats(mEventQuest);
-            questSynStats.completedEvent = questInventoryData.CompletedEvent;
+            questSynStats.completedEvent = QuestRules.SerializedCompletedList(mCompletedEventQuest);
 
-            questSynStats.trackingList = questInventoryData.TrackingList;
-            questSynStats.wonderfulList = questInventoryData.UnlockWonderful;
-            questSynStats.unlockQuestList = questInventoryData.UnlockQuest;
+            questSynStats.trackingList = QuestRules.SerializedCompletedList(mTrackingList);
+            questSynStats.wonderfulList = QuestRules.SerializedCompletedList(mWonderfulList);
+            questSynStats.unlockQuestList = QuestRules.SerializedCompletedList(mUnlockQuestList);
+            questSynStats.unlockSignboardList = QuestRules.SerializedCompletedList(mUnlockSignboardList);
         }
 
         private List<int> GetUnlockQuestList()
@@ -238,6 +246,49 @@ namespace Photon.LoadBalancing.GameServer
             RegroupQuestDataByObjectiveType(mEventQuest);
 
             SyncQuestStats();
+        }
+
+        public void ResetOnNewDay()
+        {
+            RemoveQuestFromCompletedList(QuestRepeatType.OncePerDay);
+            if (mSignboardResetOnDay)
+            {
+                ResetSignboardList(true);
+            }
+        }
+
+        private void RemoveQuestFromCompletedList(QuestRepeatType repeattype)
+        {
+            foreach (QuestType type in Enum.GetValues(typeof(QuestType)))
+            {
+                List<int> completedlist = GetCompletedList(type);
+                List<int> questidtoremove = new List<int>();
+                foreach(int questid in completedlist)
+                {
+                    QuestJson questJson = QuestRepo.GetQuestByID(questid);
+                    if (questJson != null && questJson.repeat == repeattype)
+                    {
+                        questidtoremove.Add(questid);
+                    }
+                }
+
+                if (questidtoremove.Count > 0)
+                {
+                    foreach(int questid in questidtoremove)
+                    {
+                        completedlist.Remove(questid);
+                    }
+                    string result = QuestRules.SerializedCompletedList(completedlist);
+                    mPlayer.QuestStats.UpdateCompletedList(type, result);
+                }
+            }
+        }
+
+        private void ResetSignboardList(bool cleanup = false)
+        {
+            mUnlockSignboardList = cleanup ? new List<int>() : mUnlockSignboardList;
+            List<int> signboardquest = mSignboardQuest.Keys.ToList();
+            mUnlockSignboardList = QuestRules.GetUnlockSignboardList(mPlayer.PlayerSynStats.Level, signboardquest, mMaxDailySignboard, mUnlockSignboardList);
         }
 
         #region Generate Objective Data From Quest Data For Progress Checking
@@ -710,14 +761,7 @@ namespace Photon.LoadBalancing.GameServer
                 switch (questType)
                 {
                     case QuestType.Main:
-                        if (forceDelete && nextid != -1)
-                        {
-                            mMainQuest = null;
-                        }
-                        else if (forceDelete && nextid == -1)
-                        {
-                            mMainQuest = QuestRules.StartNewQuest(questData.QuestId, 0, mPlayer.GetSynchronizedTime(), mPlayer);
-                        }
+                        mMainQuest = null;
                         break;
                     case QuestType.Destiny:
                         if (mAdventureQuest.ContainsKey(questData.QuestId))
@@ -781,6 +825,11 @@ namespace Photon.LoadBalancing.GameServer
                         if (sync)
                         {
                             SyncQuestStats();
+                        }
+                        if (mUnlockQuestList.Contains(questid))
+                        {
+                            mUnlockQuestList.Remove(questid);
+                            SyncUnlockQuestList();
                         }
                         return true;
                     }
@@ -885,9 +934,6 @@ namespace Photon.LoadBalancing.GameServer
             //Update Main Objective Progress Count
             foreach (QuestObjectiveData objectivedata in updatedDatas)
             {
-                if (objectivedata.MainObjectiveId != -1)
-                    break;
-
                 CurrentQuestData questData = UpdateQuestProgressCount(objectivedata);
                 if (questData != null)
                 {
@@ -983,18 +1029,15 @@ namespace Photon.LoadBalancing.GameServer
                 DeleteObjectiveData(objectiveid);
             }
 
-            //if (questForUpdate.ContainsKey(questid))
-            //{
-            //    CurrentQuestData questData = questForUpdate[questid];
-            //    QuestSelectDetailJson selectJson = QuestRepo.GetSelectionById(param3);
-            //    if (selectJson != null && (questData.Status == (byte)QuestStatus.CompletedAllObjective || questData.Status == (byte)QuestStatus.CompletedWithEvent))
-            //    {
-            //        if (selectJson.actiontype == QuestSelectionActionType.Job)
-            //        {
-            //            //change player job
-            //        }
-            //    }
-            //}
+            if (questForUpdate.ContainsKey(questid) && type == UpdateObjectiveType.NPC)
+            {
+                CurrentQuestData questData = questForUpdate[questid];
+                QuestSelectDetailJson selectJson = QuestRepo.GetSelectionByTalkId(talkid, param3);
+                if (selectJson != null && selectJson.actiontype == QuestSelectionActionType.Job)
+                {
+                    mPlayer.UpdateJobSect((byte)selectJson.actionid);
+                }
+            }
 
             foreach (KeyValuePair<int, CurrentQuestData> questdata in questForUpdate)
             {
@@ -1077,6 +1120,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (!mUnlockQuestList.Contains(nextquest))
                 {
                     mUnlockQuestList.Add(nextquest);
+                    AddToTracking(nextquest);
                     SyncUnlockQuestList();
                 }
             }
@@ -1149,6 +1193,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 List<int> questlist = GetUnlockQuestList();
                 TriggerQuestByLevel(questlist);
+                ResetSignboardList(true);
             }
         }
 
@@ -1260,6 +1305,9 @@ namespace Photon.LoadBalancing.GameServer
             questInventory.SerailizeTrackingList(mTrackingList);
             questInventory.SerailizeWonderfulList(mWonderfulList);
             questInventory.SerailizeUnlockQuestList(mUnlockQuestList);
+            questInventory.SerailizeUnlockSignboardList(mUnlockSignboardList);
+            
+            questInventory.CompanionId = mCompanionId;
         }
 
         private void AddToTracking(int questid)
@@ -1387,20 +1435,51 @@ namespace Photon.LoadBalancing.GameServer
         public void ApplyEventSE(int eventid, int questid)
         {
             QuestEventDetailJson questEvent = QuestRepo.GetQuestEventById(eventid);
-            int seid = -1;
-            bool status = false;
-            int.TryParse(questEvent.para1, out seid);
-            status = questEvent.para2 == "1" ? true : false;
-            if (status)
+            if (questEvent.type == QuestEventType.SideEffect)
             {
-                GameRules.ApplySideEffect(seid, mPlayer, mPlayer);
-            }
-           else
-            {
-                mPlayer.RemoveSideEffect(seid);
+                int seid = -1;
+                bool status = false;
+                int.TryParse(questEvent.para1, out seid);
+                status = questEvent.para2 == "1" ? true : false;
+                if (status)
+                {
+                    GameRules.ApplySideEffect(seid, mPlayer, mPlayer);
+                }
+                else
+                {
+                    mPlayer.RemoveSideEffect(seid);
+                }
             }
 
             UpdateQuestEventStatus(questid);
+        }
+
+        public void UpdateCompanion(int eventid, int questid)
+        {
+            QuestEventDetailJson questEvent = QuestRepo.GetQuestEventById(eventid);
+            if (questEvent.type == QuestEventType.Companion)
+            {
+                int npcid = -1;
+                bool status = false;
+                int.TryParse(questEvent.para1, out npcid);
+                status = questEvent.para2 == "1" ? true : false;
+                if (status)
+                {
+                    mCompanionId = npcid;
+                }
+                else
+                {
+                    mCompanionId = -1;
+                }
+                mPlayer.PlayerSynStats.QuestCompanionId = mCompanionId;
+            }
+
+            UpdateQuestEventStatus(questid);
+        }
+
+        public int GetQuestCompanionId()
+        {
+            return mCompanionId;
         }
 
         #region Development

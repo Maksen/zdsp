@@ -37,7 +37,7 @@ public class HeroCircleScroll : MonoBehaviour
 
         cellData = dataList;
         scrollView.UpdateData(cellData, context);  // set contents and context
-        scrollView.SetSelection(0);
+        //scrollView.SetSelection(0);
     }
 
     public void UpdateCell(int id, bool unlocked)
@@ -48,7 +48,16 @@ public class HeroCircleScroll : MonoBehaviour
         scrollView.UpdateData(cellData, context);
     }
 
-    private void SelectCell(int index)
+    public void SelectHero(int heroId)
+    {
+        int index = cellData.FindIndex(x => x.HeroId == heroId);
+        if (index != -1)
+            scrollView.SetSelection(index);
+        else
+            scrollView.SetSelection(0);
+    }
+
+    public void SelectCell(int index)
     {
         if (index >= 0 && index < cellData.Count)
         {
@@ -58,7 +67,15 @@ public class HeroCircleScroll : MonoBehaviour
 
     private void HandleSelectedIndexChanged(int index)
     {
-        if (OnSelectedIndexChanged != null)
-            OnSelectedIndexChanged(cellData[index].HeroId);
+        if (index >= 0 && index < cellData.Count)
+        {
+            if (OnSelectedIndexChanged != null)
+                OnSelectedIndexChanged(cellData[index].HeroId);
+        }
+    }
+
+    public void ResetSelectedIndex()
+    {
+        context.SelectedIndex = -1;
     }
 }

@@ -14,20 +14,21 @@ namespace Zealot.Server.Entities
 {
     public class RealmControllerDungeonDailySpecial : RealmController
     {
-        public DungeonDailySpecialJson mDungeonDailySpecialInfo;
+        //public DungeonDailySpecialJson mDungeonDailySpecialInfo;
 
         public RealmControllerDungeonDailySpecial(RealmControllerJson info, GameLogic instance)
             : base(info, instance)
         {
             if (!IsCorrectController())
                 return;
-            mDungeonDailySpecialInfo = (DungeonDailySpecialJson)mRealmInfo;
+            //mDungeonDailySpecialInfo = (DungeonDailySpecialJson)mRealmInfo;
             mCountDownOnMissionCompleted = 30;
         }
 
         public override bool IsCorrectController()
         {
-            return mRealmInfo.type == RealmType.DungeonDailySpecial;
+            //return mRealmInfo.type == RealmType.DungeonDailySpecial;
+            return false;
         }
 
         public override void OnLifeTimeUp(object arg = null)
@@ -44,16 +45,16 @@ namespace Zealot.Server.Entities
 
             if (!success)
             {
-                foreach (Player player in mPlayers.Values)
-                {
-                    Dictionary<int, RealmInfo> dDailySpecialDict = null;
-                    DungeonType type = mDungeonDailySpecialInfo.dungeontype;
-                    dDailySpecialDict = (type == DungeonType.Daily) ? player.RealmStats.GetDungeonDailyDict()
-                                                                    : player.RealmStats.GetDungeonSpecialDict();
-                    RealmInfo realmInfo = dDailySpecialDict[mDungeonDailySpecialInfo.sequence];
-                    int entry = realmInfo.DailyEntry + realmInfo.ExtraEntry;
-                    LogMissionComplete(player.Slot, mRealmInfo.id, mRealmInfo.reqlvl, entry, entry, false, 0);
-                }
+                //foreach (Player player in mPlayers.Values)
+                //{
+                    //Dictionary<int, RealmInfo> dDailySpecialDict = null;
+                    //DungeonType type = mDungeonDailySpecialInfo.dungeontype;
+                    //dDailySpecialDict = (type == DungeonType.Daily) ? player.RealmStats.GetDungeonDailyDict()
+                    //                                                : player.RealmStats.GetDungeonSpecialDict();
+                    //RealmInfo realmInfo = dDailySpecialDict[mDungeonDailySpecialInfo.sequence];
+                    //int entry = realmInfo.DailyEntry + realmInfo.ExtraEntry;
+                    //LogMissionComplete(player.Slot, mRealmInfo.id, mRealmInfo.reqlvl, entry, entry, false, 0);
+                //}
                 return;
             }
 
@@ -67,15 +68,15 @@ namespace Zealot.Server.Entities
                     int seq = config.mDataList[0];
                     int realmTypeID = config.mDataList[1];
                     int dunTypeID = config.mDataList[6];
-                    if (seq == mDungeonDailySpecialInfo.sequence && realmTypeID == (int)mDungeonDailySpecialInfo.type && dunTypeID == (int)mDungeonDailySpecialInfo.dungeontype)
-                    {
-                        rewardMultiplier = config.mDataList[2];
-                        extraRewardItemID = config.mDataList[3];
-                        extraRewardPercent = config.mDataList[4];
-                        extraRewardStackCount = config.mDataList[5];
-                        isEventOn = true;
-                        break;
-                    }
+                    //if (seq == mDungeonDailySpecialInfo.sequence && realmTypeID == (int)mDungeonDailySpecialInfo.type && dunTypeID == (int)mDungeonDailySpecialInfo.dungeontype)
+                    //{
+                    //    rewardMultiplier = config.mDataList[2];
+                    //    extraRewardItemID = config.mDataList[3];
+                    //    extraRewardPercent = config.mDataList[4];
+                    //    extraRewardStackCount = config.mDataList[5];
+                    //    isEventOn = true;
+                    //    break;
+                    //}
                 }
             }
             // Compute players info
@@ -84,13 +85,13 @@ namespace Zealot.Server.Entities
             {
                 Dictionary<int, RealmInfo> dDailySpecialDict = null;
                 CollectionHandler<object> dDailySpecialList = null;
-                DungeonType type = mDungeonDailySpecialInfo.dungeontype;
-                dDailySpecialDict = (type == DungeonType.Daily) ? player.RealmStats.GetDungeonDailyDict() 
-                                                                : player.RealmStats.GetDungeonSpecialDict();
-                dDailySpecialList = (type == DungeonType.Daily) ? player.RealmStats.DungeonDaily 
-                                                                : player.RealmStats.DungeonSpecial;
+                //DungeonType type = mDungeonDailySpecialInfo.dungeontype;
+                //dDailySpecialDict = (type == DungeonType.Daily) ? player.RealmStats.GetDungeonDailyDict() 
+                //                                                : player.RealmStats.GetDungeonSpecialDict();
+                //dDailySpecialList = (type == DungeonType.Daily) ? player.RealmStats.DungeonDaily 
+                //                                                : player.RealmStats.DungeonSpecial;
 
-                RealmInfo realmInfo = dDailySpecialDict[mDungeonDailySpecialInfo.sequence];
+                /*RealmInfo realmInfo = dDailySpecialDict[mDungeonDailySpecialInfo.sequence];
                 bool deductEntry = false;
                 int entryBefore = realmInfo.DailyEntry + realmInfo.ExtraEntry;
                 if (realmInfo.DailyEntry > 0)
@@ -127,12 +128,11 @@ namespace Zealot.Server.Entities
                 if (type == DungeonType.Daily)
                 {
                     player.Slot.mQuestExtraRewardsCtrler.UpdateTask(QuestExtraType.DailyDungeon);
-                }                    
+                }
                
                 sb.AppendFormat("{0}#{1}#{2}#{3}|", player.Name, player.PlayerSynStats.PortraitID, player.PlayerSynStats.vipLvl, iteminfostr);
 
-                LogMissionComplete(player.Slot, mRealmInfo.id, mRealmInfo.reqlvl, entryBefore, entryAfter, true, mDungeonDailySpecialInfo.rewardgrp);
-
+                LogMissionComplete(player.Slot, mRealmInfo.id, mRealmInfo.reqlvl, entryBefore, entryAfter, true, mDungeonDailySpecialInfo.rewardgrp);*/
             }
 
             string playersInfo = sb.ToString().TrimEnd('|');

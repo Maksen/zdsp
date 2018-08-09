@@ -242,17 +242,17 @@ namespace Photon.LoadBalancing.GameServer
             }
             else if(taskData.TaskType() == QuestExtraType.StoryDungeon)
             {
-                int unlockLvl = RealmRepo.GetStoryDungeonMinReqLvl();
-                if(player.PlayerSynStats.Level < unlockLvl)
-                {
-                    return false;
-                }
-                else
-                {
+                //int unlockLvl = RealmRepo.GetStoryDungeonMinReqLvl();
+                //if(player.PlayerSynStats.Level < unlockLvl)
+                //{
+                //    return false;
+                //}
+                //else
+                //{
                     return true;
-                }
+                //}
             }
-            else if(taskData.TaskType() == QuestExtraType.DailyDungeon)
+            /*else if(taskData.TaskType() == QuestExtraType.DailyDungeon)
             {
                 int unlockLvl = RealmRepo.GetDailyDungeonMinReqLvl();
                 if(player.PlayerSynStats.Level < unlockLvl)
@@ -263,7 +263,7 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     return true;
                 }
-            }
+            }*/
             else if(taskData.TaskType() == QuestExtraType.TalentUpgrade)
             {
                 int unlockLvl = GameConstantRepo.GetConstantInt("Talent_UnlockLvl", 1);

@@ -293,7 +293,7 @@ namespace Zealot.Server.AI
         {
 #if !COMBAT_DEBUG
             BaseServerCastSkill skillAction = mOwner.GetAction() as BaseServerCastSkill;
-            return skillAction == null || target != skillAction.GetTarget() || CombatUtils.IsInvalidTarget(target);
+            return !mOwner.IsAlive() || skillAction == null || target != skillAction.GetTarget() || CombatUtils.IsInvalidTarget(target);
 #else
             return CombatUtils.IsInvalidTarget(target);
 #endif

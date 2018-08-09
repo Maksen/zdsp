@@ -7,6 +7,27 @@ using Zealot.Common;
 using Zealot.Entities;
 using Zealot.Repository;
 
+public struct IconGameObjectPair
+{
+    public GameObject icon;
+    public GameObject entity;
+
+    public IconGameObjectPair(GameObject _icon = null, GameObject _entity = null)
+    {
+        icon = _icon;
+        entity = _entity;
+    }
+
+    public Vector3 IconPos
+    {
+        set { icon.transform.localPosition = value; }
+    }
+    public Vector3 EntityPos
+    {
+        get { return entity.transform.position; }
+    }
+};
+
 public class HUD_Map : MonoBehaviour
 {
     #region +++ Game Objects +++
@@ -85,6 +106,11 @@ public class HUD_Map : MonoBehaviour
     const float MAP_UPDATEPOS_INTERVAL = 1f;
 
     Vector2 mWorld2MapRatio = new Vector2();
+
+    List<IconGameObjectPair> mPlayerPairlst = new List<IconGameObjectPair>();
+    List<IconGameObjectPair> mPartyMemPairlst = new List<IconGameObjectPair>();
+    List<IconGameObjectPair> mMonPairlst = new List<IconGameObjectPair>();
+    List<IconGameObjectPair> mBossPairlst = new List<IconGameObjectPair>();
 
     private void Awake()
     {
@@ -176,7 +202,10 @@ public class HUD_Map : MonoBehaviour
             Vector3 pos = ScalePos_WorldToMap(GameInfo.gLocalPlayer.Position);
             GameObject obj = Instantiate(mMapIconPrefab, pos, Quaternion.identity);
             obj.transform.SetParent(mPlayerGO.transform, false);
-            //Set Rotation
+            //TO-DO: Set Rotation
+            //obj.transform.localRotation = GameInfo.gLocalPlayer.AnimObj.transform.localRotation;
+
+            mPlayerPairlst.Add(new IconGameObjectPair(obj, GameInfo.gLocalPlayer.AnimObj));
         }
 
         //Retrieve all party member name
@@ -194,41 +223,56 @@ public class HUD_Map : MonoBehaviour
         }
 
         //Retrieve net entities position
-        List<Vector3> partyMemPosLst = new List<Vector3>();
-        List<Vector3> dummyLst = new List<Vector3>();
-        List<Vector3> monPosLst = new List<Vector3>();
-        List<Vector3> minibossPosLst = new List<Vector3>();
-        List<Vector3> bossPosLst = new List<Vector3>();
-        GameInfo.gCombat.mEntitySystem.GetRadarVisibleEntities2(nameLst, partyMemPosLst, monPosLst, minibossPosLst, bossPosLst);
+        List<GameObject> partyMemPosLst = new List<GameObject>();
+        List<GameObject> monPosLst = new List<GameObject>();
+        List<GameObject> minibossPosLst = new List<GameObject>();
+        List<GameObject> bossPosLst = new List<GameObject>();
+        GameInfo.gCombat.mEntitySystem.GetRadarVisibleEntities3(nameLst, partyMemPosLst, monPosLst, minibossPosLst, bossPosLst);
 
         //Monster
         //Miniboss + boss
         Vector3 mappos = Vector3.zero;
         for (int i = 0; i < monPosLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(monPosLst[i]);
+            mappos = ScalePos_WorldToMap(monPosLst[i].transform.position);
             GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
             obj.transform.SetParent(mMonsterGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconMonster;
+
+            mMonPairlst.Add(new IconGameObjectPair(obj, monPosLst[i]));
         }
         for (int i = 0; i < minibossPosLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(minibossPosLst[i]);
+            mappos = ScalePos_WorldToMap(minibossPosLst[i].transform.position);
             GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
             obj.transform.SetParent(mMiniBossGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconMiniBoss;
+
+            mBossPairlst.Add(new IconGameObjectPair(obj, minibossPosLst[i]));
         }
         for (int i = 0; i < bossPosLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(bossPosLst[i]);
+            mappos = ScalePos_WorldToMap(bossPosLst[i].transform.position);
             GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
             obj.transform.SetParent(mBossGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconBoss;
+
+            mBossPairlst.Add(new IconGameObjectPair(obj, bossPosLst[i]));
         }
 
         //Party
         for (int i = 0; i < partyMemPosLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(partyMemPosLst[i]);
+            mappos = ScalePos_WorldToMap(partyMemPosLst[i].transform.position);
             GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
             obj.transform.SetParent(mPartyGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconParty;
+
+            mPartyMemPairlst.Add(new IconGameObjectPair(obj, partyMemPosLst[i]));
         }
     }
     private bool LoadStaticMapIcon(LevelInfo lvinfo)
@@ -330,6 +374,25 @@ public class HUD_Map : MonoBehaviour
         }//end NPC
 
         //ReviveSpot
+        Dictionary<int, ServerEntityJson> reviveDic;
+        if (lvinfo.mEntities.TryGetValue("RealmControllerWorldJson", out reviveDic))
+        {
+            //TO-DO: Check for correct realm if map is reused
+            foreach (RealmControllerWorldJson rcw in reviveDic.Values)
+            {
+                if (!rcw.ShowInMap)
+                    continue;
+
+                foreach (Vector3 pos in rcw.spawnPos)
+                {
+                    Vector3 mappos = ScalePos_WorldToMap(pos);
+                    GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
+                    obj.transform.SetParent(mReviveGO.transform, false);
+                    Image img = obj.GetComponent<Image>();
+                    img.sprite = mIconRevive;
+                }
+            }
+        }
 
         return true;
     }
@@ -411,7 +474,12 @@ public class HUD_Map : MonoBehaviour
         if (isOn == false)
             return;
     }
-    
+
+    public void OnClick_Close()
+    {
+        if (mMapCloseCoroutine == null)
+            StartCoroutine(MapCloseCouroutine());
+    }
 
     private Vector3 ScalePos_WorldToMap(Vector3 worldPos)
     {
@@ -485,39 +553,169 @@ public class HUD_Map : MonoBehaviour
 
         return ((mapSprite != null) ? mapSprite : mImgMap.sprite);
     }
+    private void GetPartyMemberNames(List<string> nameLst)
+    {
+        nameLst.Clear();
+        if (GameInfo.gLocalPlayer.IsInParty())
+        {
+            Dictionary<string, PartyMember> pmLst = GameInfo.gLocalPlayer.PartyStats.GetPartyMemberList();
+            foreach (PartyMember mem in pmLst.Values)
+            {
+                if (mem.IsHero())
+                    continue;
+
+                nameLst.Add(mem.GetName());
+            }
+        }
+    }
+    
 
     IEnumerator MapIconPosUpdateCoroutine()
     {
         //Ensure player, monster, miniboss, boss, party members icon position are up-to-date
-        foreach (Transform child in mPlayerGO.transform)
+        while (true)
         {
+            UpdateAddMapIcon();
+            UpdateRemoveMapIcon();
 
+            //Update position every 1 sec
+            yield return new WaitForSeconds(MAP_UPDATEPOS_INTERVAL);
         }
-        foreach (Transform child in mMonsterGO.transform)
-        {
-
-        }
-        foreach (Transform child in mBossGO.transform)
-        {
-
-        }
-        foreach (Transform child in mMiniBossGO.transform)
-        {
-
-        }
-        foreach (Transform child in mPartyGO.transform)
-        {
-
-        }
-
-        //Update position every 1 sec
-        yield return new WaitForSeconds(MAP_UPDATEPOS_INTERVAL);
     }
     IEnumerator MapCloseCouroutine()
     {
         yield return new WaitForSeconds(0.75f);
         this.gameObject.SetActive(false);
         mMapCloseCoroutine = null;
+    }
+    private void UpdateAddMapIcon()
+    {
+        List<string> nameLst = new List<string>();
+        List<GameObject> partyMemPosLst = new List<GameObject>();
+        List<GameObject> monPosLst = new List<GameObject>();
+        List<GameObject> minibossPosLst = new List<GameObject>();
+        List<GameObject> bossPosLst = new List<GameObject>();
+
+        GetPartyMemberNames(nameLst);
+        GameInfo.gCombat.mEntitySystem.GetRadarVisibleEntities3(nameLst, partyMemPosLst, monPosLst, minibossPosLst, bossPosLst);
+
+        //Monster
+        //Miniboss + boss
+        Vector3 mappos = Vector3.zero;
+        for (int i = 0; i < monPosLst.Count; ++i)
+        {
+            if (mMonPairlst.Exists(pair => pair.entity == monPosLst[i]))
+                continue;
+
+            mappos = ScalePos_WorldToMap(monPosLst[i].transform.position);
+            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
+            obj.transform.SetParent(mMonsterGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconMonster;
+
+            mMonPairlst.Add(new IconGameObjectPair(obj, monPosLst[i]));
+        }
+        for (int i = 0; i < minibossPosLst.Count; ++i)
+        {
+            if (mBossPairlst.Exists(pair => pair.entity == minibossPosLst[i]))
+                continue;
+
+            mappos = ScalePos_WorldToMap(minibossPosLst[i].transform.position);
+            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
+            obj.transform.SetParent(mMiniBossGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconMiniBoss;
+
+            mBossPairlst.Add(new IconGameObjectPair(obj, minibossPosLst[i]));
+        }
+        for (int i = 0; i < bossPosLst.Count; ++i)
+        {
+            if (mBossPairlst.Exists(pair => pair.entity == bossPosLst[i]))
+                continue;
+
+            mappos = ScalePos_WorldToMap(bossPosLst[i].transform.position);
+            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
+            obj.transform.SetParent(mBossGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconBoss;
+
+            mBossPairlst.Add(new IconGameObjectPair(obj, bossPosLst[i]));
+        }
+
+        //Party
+        for (int i = 0; i < partyMemPosLst.Count; ++i)
+        {
+            if (mPartyMemPairlst.Exists(pair => pair.entity == partyMemPosLst[i]))
+                continue;
+
+            mappos = ScalePos_WorldToMap(partyMemPosLst[i].transform.position);
+            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
+            obj.transform.SetParent(mPartyGO.transform, false);
+            Image img = obj.GetComponent<Image>();
+            img.sprite = mIconParty;
+
+            mPartyMemPairlst.Add(new IconGameObjectPair(obj, partyMemPosLst[i]));
+        }
+    }
+    private void UpdateRemoveMapIcon()
+    {
+        //Removes player icon if entity is lost
+        for (int i = 0; i < mPlayerPairlst.Count; ++i)
+        {
+            if (mPlayerPairlst[i].entity == null)
+            {
+                Destroy(mPlayerPairlst[i].icon.gameObject);
+                continue;
+            }
+
+            IconGameObjectPair pair = mPlayerPairlst[i];
+            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
+        }
+        mPlayerPairlst.RemoveAll(pair => pair.entity == null);
+
+        //Removes party icon if member leaves party
+        for (int i = 0; i < mPartyMemPairlst.Count; ++i)
+        {
+            if (mPartyMemPairlst[i].entity == null)
+            {
+                Destroy(mPartyMemPairlst[i].icon.gameObject);
+                continue;
+            }
+
+            //Check if party member is still a party member
+
+            IconGameObjectPair pair = mPartyMemPairlst[i];
+            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
+        }
+        mPartyMemPairlst.RemoveAll(pair => pair.entity == null);
+
+        //Removes icon when not visible
+        for (int i = 0; i < mMonPairlst.Count; ++i)
+        {
+            if (mMonPairlst[i].entity == null)
+            {
+                Destroy(mMonPairlst[i].icon.gameObject);
+                continue;
+            }
+
+            IconGameObjectPair pair = mMonPairlst[i];
+            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
+        }
+        mMonPairlst.RemoveAll(pair => pair.entity == null);
+
+        //Remove icon when entity is dead and dissolved in level
+        for (int i = 0; i < mBossPairlst.Count; ++i)
+        {
+            if (mBossPairlst[i].entity == null)
+            {
+                Destroy(mBossPairlst[i].icon.gameObject);
+                continue;
+            }
+
+            IconGameObjectPair pair = mBossPairlst[i];
+            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
+        }
+        mBossPairlst.RemoveAll(pair => pair.entity == null);
     }
 
     /// <summary>
@@ -530,8 +728,8 @@ public class HUD_Map : MonoBehaviour
         else
         {
             mBtnClose.onClick.Invoke();
-            if (mMapCloseCoroutine == null)
-                StartCoroutine(MapCloseCouroutine());
+            //if (mMapCloseCoroutine == null)
+            //    StartCoroutine(MapCloseCouroutine());
         }
     }
 }

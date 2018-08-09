@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common.Entities;
@@ -69,6 +68,7 @@ public class EffectController : MonoBehaviour
     {
         bShowAnim = showAnim;
     }
+
     public void ShowEfx(bool showEfx)
     {
         bShowEfx = showEfx;

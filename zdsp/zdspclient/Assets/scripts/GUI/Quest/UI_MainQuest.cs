@@ -52,6 +52,7 @@ public class UI_MainQuest : MonoBehaviour
     Toggle ChapterDetails;
 
     private QuestClientController mQuestController;
+    private QuestJson mQuestJson;
     private CurrentQuestData mQuestData;
     private Dictionary<int, long> mMOEndTime;
     private Dictionary<int, long> mSOEndTime;
@@ -66,37 +67,59 @@ public class UI_MainQuest : MonoBehaviour
         
         mQuestController = GameInfo.gLocalPlayer.QuestController;
         mQuestData = mQuestController.GetQuestData(QuestType.Main);
-        QuestList.SelectedQuestId = mQuestData.QuestId;
-        QuestList.SelectedChapterId = QuestRepo.GetChapterByQuestId(mQuestData.QuestId).groupid;
-        UpdateMainQuest();
+        if (mQuestData != null)
+        {
+            mQuestJson = QuestRepo.GetQuestByID(mQuestData.QuestId);
+        }
+        else
+        {
+            mQuestJson = mQuestController.GetUnlockMainQuest();
+        }
+
+        if (mQuestJson != null)
+        {
+            QuestList.SelectedQuestId = mQuestJson.questid;
+            QuestList.SelectedChapterId = QuestRepo.GetChapterByQuestId(mQuestJson.questid).groupid;
+            UpdateMainQuest();
+        }
     }
 
     private void UpdateMainQuest()
     {
-        QuestJson questJson = QuestRepo.GetQuestByID(mQuestData.QuestId);
-        ChapterJson chapterJson = QuestRepo.GetChapterByQuestId(mQuestData.QuestId);
+        bool unlockquest = mQuestData == null ? true : false;
+
+        ChapterJson chapterJson = QuestRepo.GetChapterByQuestId(mQuestJson.questid);
 
         ClientUtils.LoadIconAsync(chapterJson.background, UpdateBackground);
         ChapterName.text = chapterJson.name;
-        ChapterProgress.text = QuestRepo.GetChapterProgress(chapterJson.groupid, mQuestData.QuestId);
-        QuestName.text = questJson.questname;
-        mMOEndTime = mQuestController.GetMainObjectiveEndtime(mQuestData);
-        mSOEndTime = mQuestController.GetSubObjectiveEndtime(mQuestData);
-        mDescription = mQuestController.DeserializedDescription(mQuestData);
-        if (mMOEndTime.Count > 0 || mSOEndTime.Count > 0)
+        ChapterProgress.text = QuestRepo.GetChapterProgress(chapterJson.groupid, mQuestJson.questid);
+        QuestName.text = mQuestJson.questname;
+        if (unlockquest)
         {
-            UpdateDescrption();
+            mDescription = mQuestController.GetStartQuestDescription(mQuestJson);
+            ObjectiveDescription.text = mDescription;
         }
         else
         {
-            ObjectiveDescription.text = mDescription;
+            mMOEndTime = mQuestController.GetMainObjectiveEndtime(mQuestData);
+            mSOEndTime = mQuestController.GetSubObjectiveEndtime(mQuestData);
+            mDescription = mQuestController.DeserializedDescription(mQuestData);
+            if (mMOEndTime.Count > 0 || mSOEndTime.Count > 0)
+            {
+                UpdateDescrption();
+            }
+            else
+            {
+                ObjectiveDescription.text = mDescription;
+            }
+            ObjectiveDescription.raycastTarget = true;
+            ObjectiveDescription.ClickedLink.RemoveAllListeners();
+            ObjectiveDescription.ClickedLink.AddListener(OnClickHyperlink);
         }
-        ObjectiveDescription.ClickedLink.RemoveAllListeners();
-        ObjectiveDescription.ClickedLink.AddListener(OnClickHyperlink);
         Experience.text = "0";
         JobExperience.text = "0";
-        
-        if (QuestRepo.MultiQuestRewardGroup(mQuestData.QuestId))
+
+        if (QuestRepo.MultiQuestRewardGroup(mQuestJson.questid))
         {
             RewardDescription.SetActive(true);
             RewardList.SetActive(false);
@@ -106,15 +129,17 @@ public class UI_MainQuest : MonoBehaviour
         {
             RewardDescription.SetActive(false);
             RewardList.SetActive(true);
-            int rewardgroup = QuestRepo.GetQuestReward(mQuestData.QuestId, 0);
-            Reward reward = RewardListRepo.GetRewardByGrpIDJobID(rewardgroup, -1);
+            int rewardgroup = QuestRepo.GetQuestReward(mQuestJson.questid, unlockquest ? 0 : mQuestData.GroupdId);
+            int jobsect = GameInfo.gLocalPlayer == null ? -1 : GameInfo.gLocalPlayer.PlayerSynStats.jobsect;
+            Reward reward = RewardListRepo.GetRewardByGrpIDJobID(rewardgroup, jobsect);
             if (reward != null)
             {
-                int exp = reward.Exp(GameInfo.gLocalPlayer.PlayerSynStats.Level);
-                if (exp > 0)
-                {
-                    Experience.text = exp.ToString();
-                }
+                int level = GameInfo.gLocalPlayer == null ? 1 : GameInfo.gLocalPlayer.PlayerSynStats.Level;
+                int joblevel = GameInfo.gLocalPlayer == null ? 1 : GameInfo.gLocalPlayer.PlayerSynStats.progressJobLevel;
+                int exp = reward.Exp(level);
+                Experience.text = exp > 0 ? exp.ToString() : "0";
+                int jobexp = reward.Jxp(joblevel);
+                JobExperience.text = jobexp > 0 ? jobexp.ToString() : "0";
                 Rewards.Init(reward);
             }
         }
@@ -137,7 +162,16 @@ public class UI_MainQuest : MonoBehaviour
     {
         if (ChapterDetails.isOn)
         {
-            ChapterList.Init(mQuestData);
+            ChapterList.Init(mQuestJson, QuestList, this);
+        }
+    }
+
+    public void OnChapterChanged()
+    {
+        if (ChapterDetails.isOn)
+        {
+            ChapterDetails.isOn = false;
+            QuestDetails.isOn = true;
         }
     }
 

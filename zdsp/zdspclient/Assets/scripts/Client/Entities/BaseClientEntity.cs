@@ -1,5 +1,4 @@
 ﻿using Kopio.JsonContracts;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common.Entities;
@@ -27,10 +26,7 @@ namespace Zealot.Client.Entities
 
         public override Vector3 Position
         {
-            get
-            {
-                return mPos;
-            }
+            get { return mPos; }
             set
             {
                 EntitySystem.UpdateGridId(this, value.x, value.z);
@@ -42,10 +38,7 @@ namespace Zealot.Client.Entities
 
         public override Vector3 Forward
         {
-            get
-            {
-                return mForward;
-            }
+            get { return mForward; }
             set
             {
                 mForward = value;
@@ -71,11 +64,11 @@ namespace Zealot.Client.Entities
                 mShadow.name = "Shadow";
                 mShadow.transform.SetParent(AnimObj.transform, false);
                 Animation anim = AnimObj.GetComponent<Animation>();
-                EffectController ec = AnimObj.AddComponent<EffectController>();
-                ec.Anim = anim;
-                ec.Animator = AnimObj.GetComponent<Animator>();
+                EffectController effectController = AnimObj.AddComponent<EffectController>();
+                effectController.Anim = anim;
+                effectController.Animator = AnimObj.GetComponent<Animator>();
                 //ec.ShowAnimStates();
-                EffectController = ec;
+                EffectController = effectController;
                 var entityRef = AnimObj.AddComponent<GameObjectToEntityRef>();
                 entityRef.mParentEntity = this;
             }
@@ -90,21 +83,17 @@ namespace Zealot.Client.Entities
         public void SetAnimSpeed(string animation, float speed)
         {
             if (AnimObj != null)
-            {
                 EffectController.SetAnimSpeed(animation, speed);
-            }
         }
 
         public virtual void PlayEffect(string animation, string effectName = "", Vector3? effectDir = null, float effectDur = -1, Vector3? targetPos = null, Entity targetEntity = null, bool crossfade = true)
         {
             if (AnimObj != null)
-            {
                 EffectController.PlayEffect(animation, effectName, effectDir, effectDur, targetPos, targetEntity, crossfade);
-            }
         }
 
         /// <summary>
-        /// play effect with orientation not same as parent.
+        /// Play effect with orientation not same as parent.
         /// </summary>
         /// <param name="dir"></param>
         /// <param name="effectname"></param>
@@ -112,17 +101,13 @@ namespace Zealot.Client.Entities
         public virtual void PlaySEEffect(string effectname = "", Vector3? dir = null, float duration = -1, Vector3? targetPos = null, Entity targetEntity = null)
         {
             if (AnimObj != null)
-            {
                 EffectController.PlaySEEffect(effectname, dir, duration, targetPos, targetEntity);
-            }
         }
 
         public virtual void PlayAnimation(string animation, float fadeLength)
         {
             if (AnimObj != null)
-            {
                 EffectController.PlayAnimation(animation, fadeLength);
-            }
         }
 
         public virtual bool CanPlayEffect()
@@ -148,8 +133,8 @@ namespace Zealot.Client.Entities
             if (this == GameInfo.gSelectedEntity)
                 GameInfo.gCombat.OnSelectEntity(null);
 
-            UnityEngine.Object.Destroy(mAnimObj);
-            UnityEngine.Object.Destroy(mShadow);
+            Object.Destroy(mAnimObj);
+            Object.Destroy(mShadow);
         }
 
         public virtual void Show(bool val)
@@ -157,15 +142,14 @@ namespace Zealot.Client.Entities
             if (mAnimObj != null)
             {
                 bShow = val;
-
-                for (int i = 0; i < mAnimObj.transform.childCount; ++i)
+                int count = mAnimObj.transform.childCount;
+                for (int i = 0; i < count; ++i)
                 {
                     Transform tx = mAnimObj.transform.GetChild(i);
                     tx.gameObject.SetActive(val);
                 }
             }
         }
-
 
         public void ShowEffect(bool val)
         {
@@ -189,10 +173,10 @@ namespace Zealot.Client.Entities
             return false;
         }
 
-        public virtual void OnAnimObjLoaded(UnityEngine.Object asset)
+        public virtual void OnAnimObjLoaded(Object asset)
         {
             if (asset != null)
-                AnimObj = (GameObject)UnityEngine.Object.Instantiate(asset);
+                AnimObj = (GameObject)Object.Instantiate(asset);
         }
     }
 
@@ -203,10 +187,10 @@ namespace Zealot.Client.Entities
             InitEntityComponents();
         }
 
-        public override void OnAnimObjLoaded(UnityEngine.Object asset)
+        public override void OnAnimObjLoaded(Object asset)
         {
             if (asset != null)
-                AnimObj = (GameObject)UnityEngine.Object.Instantiate(asset);
+                AnimObj = (GameObject)Object.Instantiate(asset);
             InitAnimObj();
         }
 
@@ -216,7 +200,7 @@ namespace Zealot.Client.Entities
 
     public class StaticClientNPCAlwaysShow : BaseClientEntity
     {
-        public StaticNPCJson staticNPCJson;
+        public StaticNPCJson mArchetype;
 
         protected List<int> mQuestList = new List<int>();
         protected List<int> mAvailableQuest = new List<int>();
@@ -224,20 +208,20 @@ namespace Zealot.Client.Entities
         protected int mActiveQuest;
         protected bool mActiveStatus;
 
-        public override int GetDisplayLevel()
-        {
-            return 0;
-        }
-
         public virtual void InitAnimObj()
         {
             InitEntityComponents();
         }
 
-        public override void OnAnimObjLoaded(UnityEngine.Object asset)
+        public override void OnAnimObjLoaded(Object asset)
         {
             base.OnAnimObjLoaded(asset);
             InitAnimObj();
+        }
+
+        public override int GetDisplayLevel()
+        {
+            return 0;
         }
 
         public virtual void UpdateOngoingQuest(List<int> quests) { }
@@ -255,7 +239,7 @@ namespace Zealot.Client.Entities
 
         public bool GetStartUpDisplay()
         {
-            return staticNPCJson.activeonstartup;
+            return mArchetype.activeonstartup;
         }
 
         public virtual void UpdateDisplayStatus(bool status)
@@ -266,7 +250,7 @@ namespace Zealot.Client.Entities
 
         public void ResetDisplayStatus()
         {
-            mActiveStatus = staticNPCJson.activeonstartup;
+            mActiveStatus = mArchetype.activeonstartup;
             Show(true);
         }
     }

@@ -134,25 +134,25 @@ namespace Photon.LoadBalancing.GameServer
         private long mLastSynchronizedTime;
         private Zealot.Server.Counters.Profiler mEntitySyncStatsProfiler;
         private Zealot.Server.Counters.Profiler mLocalEntityUpdateProfiler;
-        private LevelPVPType mLevelPVPType;
+        private RealmPVPType mRealmPVPType;
 
-        public NetServerSlot(GameClientPeer peer, ServerEntitySystem entitySystem, LevelPVPType levelPVPType, bool isCity)
+        public NetServerSlot(GameClientPeer peer, ServerEntitySystem entitySystem, RealmPVPType pvpType, bool isCity)
         {
             mPeer = peer;
             mEntitysystem = entitySystem;
-            mLevelPVPType = levelPVPType;
+            mRealmPVPType = pvpType;
             if (isCity)
                 MaxSpawnLimitPlayer = 9;
             else
             {
-                switch (mLevelPVPType)
+                switch (mRealmPVPType)
                 {
-                    case LevelPVPType.Peace:
+                    case RealmPVPType.Peace:
                         MaxSpawnLimitPlayer = 4; //for 
                         break;
-                    case LevelPVPType.FreeForAll:
-                    case LevelPVPType.Faction:
-                    case LevelPVPType.Guild:
+                    case RealmPVPType.FreeForAll:
+                    case RealmPVPType.Faction:
+                    case RealmPVPType.Guild:
                         MaxSpawnLimitPlayer = 9;
                         break;
                 }

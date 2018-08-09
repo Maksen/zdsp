@@ -23,6 +23,17 @@ public class GameIcon_MaterialConsumable : GameIcon_Base
             SetClickCallback(onClickCallback);
     }
 
+    // Set stack count to show even if < 2
+    public void SetFullStackCount(int stackCount)
+    {
+        itemStackCount.SetStackCountFull(stackCount);
+    }
+    
+    public void InitWithTooltipViewOnly(int itemId, int stackCount)
+    {
+        Init(itemId, stackCount, false, false, OnClickShowTooltipViewOnly);
+    }
+
     public bool StatusCannotUse
     {
         set { iconStatusCannotuse.SetActive(value); }

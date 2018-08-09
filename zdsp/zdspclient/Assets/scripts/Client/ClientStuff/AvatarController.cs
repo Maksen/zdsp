@@ -50,8 +50,6 @@ public class AvatarSkinPart
 {
     public string PartName;
     public SkinnedMeshRenderer SkinMesh = null;
-    public Mesh DefaultMesh;
-    public Material DefaultMaterial;
 
     [HideInInspector]
     public string MeshLoadingPath = "";
@@ -64,8 +62,8 @@ public class AvatarSkinPart
     {
         MeshLoadingPath = "";
         MaterialLoadingPath = "";
-        SkinMesh.sharedMesh = DefaultMesh;
-        SkinMesh.sharedMaterial = DefaultMaterial;
+        SkinMesh.sharedMesh = null;
+        SkinMesh.sharedMaterial = null;
     }
 
     public void Show(bool show)
@@ -190,16 +188,18 @@ public class AvatarController : MonoBehaviour
             OnBackChanged(equip_back.EquipmentJson.prefabpath);
         else
             Unequip("back");
-
+        
         //Helm
         Equipment fashion_helm = fashionSlots[(int)FashionSlot.Helm];
         Equipment equip_helm = equipmentSlots[(int)EquipmentSlot.Helm];
-        if (fashion_helm != null)
-            OnSkinChanged("helm", fashion_helm.EquipmentJson, gender);
+        if (equipmentInvData.HideHelm)
+            EquipDefaultHelm(0, gender);
+        else if (fashion_helm != null)
+            EquipHelm(fashion_helm.EquipmentJson, gender);
         else if (equip_helm != null)
-            OnSkinChanged("helm", equip_helm.EquipmentJson, gender);
+            EquipHelm(equip_helm.EquipmentJson, gender);
         else
-            Unequip("helm");
+            EquipDefaultHelm(0, gender);
 
         //Body
         Equipment fashion_body = fashionSlots[(int)FashionSlot.Body];
@@ -207,8 +207,6 @@ public class AvatarController : MonoBehaviour
             OnSkinChanged("body", fashion_body.EquipmentJson, gender);
         else
             EquipJobBody(jobtype, gender);
-
-        HideHelm(equipmentInvData.HideHelm);
     }
 
     public void EquipJobBody(JobType jobtype, Gender gender)
@@ -218,6 +216,26 @@ public class AvatarController : MonoBehaviour
             OnSkinChanged("body", jobsectJson.malemeshpath, jobsectJson.malematerialpath);
         else
             OnSkinChanged("body", jobsectJson.femalemeshpath, jobsectJson.femalematerialpath);
+    }
+
+    public void EquipDefaultHelm(int hairStyle, Gender gender)
+    {
+        //todo: base on hairStyle selected in character creation, get path from kopio
+        Unequip("accessory");
+        if (gender == Gender.Male)
+            OnSkinChanged("helm", "Models_Characters/Pc_job/t3_bladeMaster_male_head.fbx", "Models_Characters/Pc_job/Materials/t3_bladeMaster_male_head.mat");
+        else
+            OnSkinChanged("helm", "Models_Characters/Pc_job/t3_bladeMaster_female_head.fbx", "Models_Characters/Pc_job/Materials/t3_bladeMaster_female_head.mat");
+    }
+
+    public void EquipHelm(EquipmentJson equipmentJson, Gender gender)
+    {
+        string accessory_prefabpath = gender == Gender.Male ? equipmentJson.prefabpath : equipmentJson.femaleprefabpath;
+        if (string.IsNullOrEmpty(accessory_prefabpath))
+            Unequip("accessory");
+        else
+            OnAccessoryChanged(accessory_prefabpath);
+        OnSkinChanged("helm", equipmentJson, gender);
     }
 
     public void OnWeaponChanged(string prefabpath)
@@ -239,7 +257,18 @@ public class AvatarController : MonoBehaviour
         if (prefabpath == attachedPart.PrefabLoadingPath) //same prefab as currently loaded/loading
             return;
         attachedPart.PrefabLoadingPath = prefabpath;
-        AssetLoader.Instance.LoadAsync<GameObject>(prefabpath, (prefab) => OnBackLoaded(prefab, prefabpath, attachedPart));
+        AssetLoader.Instance.LoadAsync<GameObject>(prefabpath, (prefab) => OnPrefabLoaded(prefab, prefabpath, attachedPart));
+    }
+
+    public void OnAccessoryChanged(string prefabpath)
+    {
+        AvatarAttachedPart attachedPart = GetAttachedPart("accessory");
+        if (attachedPart == null)
+            return;
+        if (prefabpath == attachedPart.PrefabLoadingPath) //same prefab as currently loaded/loading
+            return;
+        attachedPart.PrefabLoadingPath = prefabpath;
+        AssetLoader.Instance.LoadAsync<GameObject>(prefabpath, (prefab) => OnPrefabLoaded(prefab, prefabpath, attachedPart));
     }
 
     public void OnSkinChanged(string partName, EquipmentJson equipmentJson, Gender gender)
@@ -292,6 +321,13 @@ public class AvatarController : MonoBehaviour
                     return;
                 skinPart.ResetToDefault();
                 break;
+            case "accessory":
+                attachedPart = GetAttachedPart(partName);
+                if (attachedPart == null)
+                    return;
+                attachedPart.PrefabLoadingPath = "";
+                DetachFromBodyPart(attachedPart);
+                break;
             case "body":
                 break;
         }
@@ -327,14 +363,14 @@ public class AvatarController : MonoBehaviour
         }
     }
 
-    private void OnBackLoaded(GameObject prefab, string path, AvatarAttachedPart attachedPart)
+    private void OnPrefabLoaded(GameObject prefab, string path, AvatarAttachedPart attachedPart)
     {
         if (isDestroyed || attachedPart.PrefabLoadingPath != path)
             return;
         DetachFromBodyPart(attachedPart);
         if (prefab == null)
         {
-            Debug.LogErrorFormat("OnBackLoaded prefab path {0} not found!!!", path);
+            Debug.LogErrorFormat("OnPrefabLoaded prefab path {0} not found!!!", path);
             return;
         }
 
@@ -366,14 +402,6 @@ public class AvatarController : MonoBehaviour
             Debug.LogErrorFormat("OnMaterialLoaded material path {0} not found!!!", path);
             return;
         }
-    }
-
-    public void HideHelm(bool hide)
-    {
-        AvatarSkinPart skinPart = GetSkinPart("helm");
-        if (skinPart == null)
-            return;
-        skinPart.Show(!hide);
     }
 
     public void HideWeapon(bool hide)

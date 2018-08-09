@@ -153,9 +153,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSpawnSpecialBoss)]
-    public void ConsoleSpawnSpecialBoss()
+    public void ConsoleSpawnSpecialBoss(string name)
     {
-        ProxyMethod("ConsoleSpawnSpecialBoss");
+        ProxyMethod("ConsoleSpawnSpecialBoss", name);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildList)]
@@ -627,9 +627,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentReformEquipment)]
-    public void EquipmentReformEquipment(int slotId, bool isEquipped)
+    public void EquipmentReformEquipment(int slotId, bool isEquipped, int selection)
     {
-        ProxyMethod("EquipmentReformEquipment", slotId, isEquipped);
+        ProxyMethod("EquipmentReformEquipment", slotId, isEquipped, selection);
     }
 
     //[RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipSlotGem)]
@@ -809,6 +809,12 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("ApplyQuestEventBuff", eventid, questid);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventCompanion)]
+    public void ApplyQuestEventCompanion(int eventid, int questid)
+    {
+        ProxyMethod("ApplyQuestEventCompanion", eventid, questid);
+    }
     #endregion
 
     #region CharacterInfo
@@ -830,6 +836,14 @@ public partial class NonCombatRPC : RPCBase
     public void EquipSkill(int skillid, int slot, int slotGroup)
     {
         ProxyMethod("EquipSkill", skillid, slot, slotGroup);
+    }
+    #endregion
+
+    #region PowerUp
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.PowerUp)]
+    public void PowerUp(int part)
+    {
+        ProxyMethod("PowerUp", part);
     }
     #endregion
 }

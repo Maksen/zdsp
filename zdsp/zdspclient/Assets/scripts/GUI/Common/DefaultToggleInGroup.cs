@@ -9,6 +9,8 @@ public class DefaultToggleInGroup : MonoBehaviour
     [SerializeField]
     List<Toggle> list_toggle;
     [SerializeField]
+    List<GameObject> list_tabcontent;
+    [SerializeField]
     bool defaultAutoEnable = true;
     [SerializeField]
     Toggle defaultToggle;
@@ -76,5 +78,15 @@ public class DefaultToggleInGroup : MonoBehaviour
         }
         if (toggleGroup != null)
             toggleGroup.allowSwitchOff = allowSwitchOff;
+    }
+
+    public bool IsTabOn(int index)
+    {
+        return list_toggle[index].isOn;
+    }
+
+    public GameObject GetPageContent(int index)
+    {
+        return list_tabcontent[index];
     }
 }

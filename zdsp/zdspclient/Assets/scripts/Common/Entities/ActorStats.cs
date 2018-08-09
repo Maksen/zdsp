@@ -375,6 +375,7 @@ namespace Zealot.Common.Entities
             _portraitID = 1;
             _Gender = 0;
             _Party = 0;
+            _QuestCompanionId = -1;
         }
 
         private int _Party;
@@ -449,6 +450,13 @@ namespace Zealot.Common.Entities
         {
             get { return _MountID; }
             set { OnSetAttribute("MountID", value); _MountID = value; }
+        }
+
+        private int _QuestCompanionId;
+        public int QuestCompanionId
+        {
+            get { return _QuestCompanionId; }
+            set { OnSetAttribute("QuestCompanionId", value); _QuestCompanionId = value; }
         }
     }
 
@@ -1526,6 +1534,7 @@ namespace Zealot.Common.Entities
         public string modelPrefab = "";
     }
 
+    #region Quest
     public class QuestSynStats : LocalObject
     {
         private string _mainQuest;
@@ -1559,6 +1568,7 @@ namespace Zealot.Common.Entities
         private string _trackingList;
         private string _wonderfulList;
         private string _unlockQuestList;
+        private string _unlockSignboardList;
 
         public QuestSynStats()
             : base(LOTYPE.QuestSynStats)
@@ -1599,6 +1609,7 @@ namespace Zealot.Common.Entities
             _trackingList = "";
             _wonderfulList = "";
             _unlockQuestList = "";
+            _unlockSignboardList = "";
     }
 
         public string mainQuest
@@ -1695,6 +1706,11 @@ namespace Zealot.Common.Entities
         {
             get { return _unlockQuestList; }
             set { this.OnSetAttribute("unlockQuestList", value); _unlockQuestList = value; }
+        }
+        public string unlockSignboardList
+        {
+            get { return _unlockSignboardList; }
+            set { this.OnSetAttribute("unlockSignboardList", value); _unlockSignboardList = value; }
         }
 
         private void InitCollectionData(QuestType type, Dictionary<int, string> datas)
@@ -1922,6 +1938,33 @@ namespace Zealot.Common.Entities
             }
         }
     }
+    #endregion
+
+    #region Destiny Clue
+    public class DestinyClueSynStats : LocalObject
+    {
+        private string _destinyClues;
+        private string _unlockMemory;
+
+        public DestinyClueSynStats() : base(LOTYPE.DestinyClueSynStats)
+        {
+            _destinyClues = "";
+            _unlockMemory = "";
+        }
+
+        public string destinyClues
+        {
+            get { return _destinyClues; }
+            set { this.OnSetAttribute("destinyClues", value); _destinyClues = value; }
+        }
+
+        public string unlockMemory
+        {
+            get { return _unlockMemory; }
+            set { this.OnSetAttribute("unlockMemory", value); _unlockMemory = value; }
+        }
+    }
+    #endregion
 
     public class SkillSynStats : LocalObject
     {
@@ -2231,7 +2274,7 @@ namespace Zealot.Common.Entities
 
         public CollectionHandler<object> Positives { get; set; }
         public CollectionHandler<object> Negatives { get; set; }
-        //public CollectionHandler<object> StartTime { get; set; } // For positives only        
+        //public CollectionHandler<object> StartTime { get; set; } // For positives only
         //public CollectionHandler<object> Duration { get; set; }
         public CollectionHandler<object> Persistents { get; set; }
         public CollectionHandler<object> PersistentsDur { get; set; }
@@ -2981,6 +3024,34 @@ namespace Zealot.Common.Entities
         {
             get { return _activePts; }
             set { this.OnSetAttribute("activePts", value); _activePts = value; }
+        }
+    }
+
+    #endregion
+
+    #region PowerUp
+
+    public class PowerUpStats : LocalObject
+    {
+        // Method #1
+        private string _powerUpLvl;
+
+        // Method #2
+        public CollectionHandler<object> powerUpSlots { get; set; }
+
+        public PowerUpStats()
+            : base(LOTYPE.PowerUpStats)
+        {
+            _powerUpLvl = "0";
+
+            powerUpSlots = new CollectionHandler<object>(PowerUpInventoryData.MAX_POWERUPSLOTS);
+            powerUpSlots.SetParent(this, "powerUpSlots");
+        }
+
+        public string powerUpLvl
+        {
+            get { return _powerUpLvl; }
+            set { this.OnSetAttribute("powerUpLvl", value); _powerUpLvl = value; }
         }
     }
 

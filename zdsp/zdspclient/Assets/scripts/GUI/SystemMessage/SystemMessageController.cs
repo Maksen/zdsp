@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Zealot.Common;
 
 public class SystemMessageController : MonoBehaviour
 {
@@ -26,11 +27,7 @@ public class SystemMessageController : MonoBehaviour
             countdownTimer = StartCoroutine(ShowMessage());
 
         if (addToChatLog)
-        {
-            //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-            //if (hudChat)
-            //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
-        }
+            UIManager.AddToChat((byte)MessageType.System, message);
     }
 
     private IEnumerator ShowMessage()

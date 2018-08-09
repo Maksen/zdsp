@@ -41,7 +41,7 @@ namespace Photon.LoadBalancing.GameServer
             ushort itemid = (ushort)GameConstantRepo.GetConstantInt("Respawn_Item");
             int itemCount = peer.GetTotalStackCountByItemID(itemid);
 
-            // Gold ocunt
+            // Gold count
             int goldCost = GameConstantRepo.GetConstantInt("Respawn_GoldIngot");
             int gold = player.SecondaryStats.gold;
             int lockGold = player.SecondaryStats.bindgold;
@@ -495,7 +495,7 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClientSendChatMessage)]
-        public async Task ClientSendChatMessage(byte messagetype, string message, string whisperTo, bool voice, GameClientPeer peer)
+        public async Task ClientSendChatMessage(byte msgType, string message, string whisperTo, bool isVoiceChat, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
             if (player == null)
@@ -506,7 +506,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
             PlayerSynStats playerSynStats = player.PlayerSynStats;
-            if (messagetype == (byte)MessageType.Whisper)
+            if (msgType == (byte)MessageType.Whisper)
             {
                 GameClientPeer recipient = GameApplication.Instance.GetCharPeer(whisperTo);
                 if (recipient != null && recipient.mPlayer != null)
@@ -522,7 +522,7 @@ namespace Photon.LoadBalancing.GameServer
 
                         ChatMessage newMsg = new ChatMessage(MessageType.Whisper, message, player.Name, whisperTo,
                                                              playerSynStats.PortraitID, playerSynStats.jobsect,
-                                                             playerSynStats.vipLvl, playerSynStats.faction, voice);
+                                                             playerSynStats.vipLvl, playerSynStats.faction, isVoiceChat);
                         recipient.mPlayer.AddToChatMessageQueue(newMsg);
                         player.AddToChatMessageQueue(newMsg);
                     }
@@ -540,7 +540,7 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     int ccu = GameApplication.Instance.GetOnlineUserCount();
                     log.InfoFormat("{0} requested CCU = {1}, {2}", player.Name, ccu, DateTime.Now);
-                    player.AddToChatMessageQueue(new ChatMessage((MessageType)messagetype, "CCU: " + ccu));
+                    player.AddToChatMessageQueue(new ChatMessage((MessageType)msgType, "CCU: " + ccu));
                     return;
                 }
                 else if (message_lowerCase.Equals("dau"))
@@ -548,7 +548,7 @@ namespace Photon.LoadBalancing.GameServer
                     DateTime now = DateTime.Now;
                     int dau = await GameApplication.dbRepository.Character.GetDAU(now.Date.AddDays(-1), now.Date);
                     log.InfoFormat("{0} requested DAU = {1}, {2}", player.Name, dau, now);
-                    player.AddToChatMessageQueue(new ChatMessage((MessageType)messagetype, "昨日DAU: " + dau));
+                    player.AddToChatMessageQueue(new ChatMessage((MessageType)msgType, "昨日DAU: " + dau));
                     return;
                 }
                 else if (message_lowerCase.Equals("monstercount"))
@@ -568,18 +568,18 @@ namespace Photon.LoadBalancing.GameServer
                     }
                     string monstercount_result = sb.ToString();
                     log.InfoFormat("{0} requested monster = {1}, {2}", player.Name, monstercount_result, DateTime.Now);
-                    player.AddToChatMessageQueue(new ChatMessage((MessageType)messagetype, "Monster = " + monstercount_result));
+                    player.AddToChatMessageQueue(new ChatMessage((MessageType)msgType, "Monster = " + monstercount_result));
                     return;
                 }
 #endif
 
                 // Receive chat messages from client
-                ChatMessage newMsg = new ChatMessage((MessageType)messagetype, message, peer.mChar, whisperTo,
+                ChatMessage newMsg = new ChatMessage((MessageType)msgType, message, peer.mChar, whisperTo,
                                                      playerSynStats.PortraitID, playerSynStats.jobsect,
-                                                     playerSynStats.vipLvl, playerSynStats.faction, voice);
+                                                     playerSynStats.vipLvl, playerSynStats.faction, isVoiceChat);
 
                 // Queue message at GameApplication
-                switch (messagetype)
+                switch (msgType)
                 {
                     case (byte)MessageType.World:
                     case (byte)MessageType.System:
@@ -2025,30 +2025,17 @@ namespace Photon.LoadBalancing.GameServer
             AddHeroTrust((int)args[0], (int)args[1], (GameClientPeer)args[2]);
         }
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeHeroModelTier)]
-        public void ChangeHeroModelTier(int heroId, int tier, GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            if (player != null)
-                player.HeroStats.ChangeHeroModelTier(heroId, tier);
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeHeroModelTier)]
-        public void ChangeHeroModelTierProxy(object[] args)
-        {
-            ChangeHeroModelTier((int)args[0], (int)args[1], (GameClientPeer)args[2]);
-        }
-
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SummonHero)]
-        public void SummonHero(int heroId, GameClientPeer peer)
+        public void SummonHero(int heroId, int tier, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
             if (player != null)
-                player.HeroStats.SummonHero(heroId);
+                player.HeroStats.SummonHero(heroId, tier);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SummonHero)]
         public void SummonHeroProxy(object[] args)
         {
-            SummonHero((int)args[0], (GameClientPeer)args[1]);
+            SummonHero((int)args[0], (int)args[1], (GameClientPeer)args[2]);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ExploreMap)]

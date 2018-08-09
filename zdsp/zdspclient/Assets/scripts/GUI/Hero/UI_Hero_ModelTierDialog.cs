@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Zealot.Repository;
 
 public class UI_Hero_ModelTierDialog : BaseWindowBehaviour
 {
@@ -10,12 +10,11 @@ public class UI_Hero_ModelTierDialog : BaseWindowBehaviour
     [SerializeField] Image currentModelImage;
 
     private Dictionary<int, Hero_ModelTierData> tierDataList = new Dictionary<int, Hero_ModelTierData>();
-    private int selectedTier;
     private Hero hero;
+    private Action<int> OnSelectedCallback;
 
-    public override void OnRegister()
+    private void Awake()
     {
-        base.OnRegister();
         ToggleGroup toggleGroup = dataTransform.GetComponent<ToggleGroup>();
         for (int i = 1; i <= 3; i++)
         {
@@ -26,6 +25,7 @@ public class UI_Hero_ModelTierDialog : BaseWindowBehaviour
         }
     }
 
+    // called by Init which is after Awake
     private void InitSkinItems()
     {
         ToggleGroup toggleGroup = dataTransform.GetComponent<ToggleGroup>();
@@ -44,37 +44,41 @@ public class UI_Hero_ModelTierDialog : BaseWindowBehaviour
         }
     }
 
-    public void Init(Hero hero, Sprite currentSprite)
+    public void Init(Hero hero, int currentTier, Sprite currentSprite, Action<int> callback)
     {
         this.hero = hero;
         currentModelImage.sprite = currentSprite;
+        OnSelectedCallback = callback;
 
         for (int i = 1; i <= 3; i++)
         {
             int reqPts = hero.GetModelTierUnlockPoints(i);
-            bool unlocked = reqPts > 0 && hero.GetTotalSkillPoints() >= reqPts;
+            bool unlocked = hero.SlotIdx != -1 && reqPts > 0 && hero.GetTotalSkillPoints() >= reqPts;
             tierDataList[i].Init(hero.HeroJson, reqPts, unlocked);
         }
 
         InitSkinItems();
 
-        tierDataList[hero.ModelTier].SetToggleOn(true);  // select hero's current model tier
+        EnableTogglesCallback(false);
+        tierDataList[currentTier].SetToggleOn(true);
+        EnableTogglesCallback(true);
+    }
+
+    private void EnableTogglesCallback(bool value)
+    {
+        foreach (var toggle in tierDataList.Values)
+            toggle.EnableToggleCallback(value);
     }
 
     private void OnTierSelected(int tier)
     {
-        //print("selected tier: " + tier);
-        if (hero.IsModelTierUnlocked(tier))
-            selectedTier = tier;
-        else
-            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_SkinIsLocked"));
+        OnSelectedCallback(tier);
+        GetComponent<UIDialog>().ClickClose();
     }
 
     public override void OnCloseWindow()
     {
         base.OnCloseWindow();
-        if (selectedTier != hero.ModelTier)
-            RPCFactory.CombatRPC.ChangeHeroModelTier(hero.HeroId, selectedTier);
 
         string[] skinitems = hero.HeroJson.skinitemid.Split(';');
         for (int i = 0; i < skinitems.Length; i++)

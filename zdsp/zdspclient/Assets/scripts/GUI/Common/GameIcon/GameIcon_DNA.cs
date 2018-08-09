@@ -19,6 +19,11 @@ public class GameIcon_DNA : GameIcon_Base
             SetClickCallback(onClickCallback);
     }
 
+    public void InitWithTooltipViewOnly(int itemId, int level, int evolve)
+    {
+        Init(itemId, level, evolve, OnClickShowTooltipViewOnly);
+    }
+
     public int Level
     {
         set { txtLevel.text = (value > 0) ? value.ToString() : ""; }

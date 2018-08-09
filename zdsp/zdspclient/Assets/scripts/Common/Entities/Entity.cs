@@ -30,6 +30,7 @@ namespace Zealot.Common.Entities
         AnimationObjectGhost = 17 | EntityTypeAttribute.ETA_NET | EntityTypeAttribute.ETA_STATIC | EntityTypeAttribute.ETA_GHOST,
         Hero = 18 | EntityTypeAttribute.ETA_NET,
         HeroGhost = 19 | EntityTypeAttribute.ETA_NET | EntityTypeAttribute.ETA_GHOST,
+        CompanionGhost = 20,
     }
 
     public abstract class Entity

@@ -345,8 +345,7 @@ namespace Zealot.Bot
 
         private bool IsInRealm()
         {
-            return GameInfo.mRealmInfo.type == RealmType.DungeonStory
-                || GameInfo.mRealmInfo.type == RealmType.DungeonDailySpecial;
+            return GameInfo.mRealmInfo.type == RealmType.Dungeon;
                 //|| GameInfo.mRealmInfo.type == RealmType.ActivityWorldBoss
                 //|| GameInfo.mRealmInfo.type == RealmType.ActivityGuildSMBoss
                 //|| GameInfo.mRealmInfo.type == RealmType.EliteMap;

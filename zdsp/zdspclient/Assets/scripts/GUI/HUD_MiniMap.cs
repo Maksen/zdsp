@@ -6,6 +6,8 @@ using System.Collections.Generic;
 public class HUD_MiniMap : MonoBehaviour
 {
     [SerializeField]
+    Image mMap;
+    [SerializeField]
     Text mMapName;
     [SerializeField]
     GameObject mMiniMapIconPrefab;
@@ -39,6 +41,8 @@ public class HUD_MiniMap : MonoBehaviour
     GameObject mMMIconParent_Monster;
     [SerializeField]
     GameObject mMMIconParent_QuestNPC;
+    [SerializeField]
+    GameObject mMMIconParent_ShopNPC;
     [SerializeField]
     GameObject mMMIconParent_Boss;
     [SerializeField]

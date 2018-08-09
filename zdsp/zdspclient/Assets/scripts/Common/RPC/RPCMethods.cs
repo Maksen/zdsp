@@ -468,7 +468,6 @@
         LevelUpHeroSkill,
         ChangeHeroInterest,
         AddHeroTrust,
-        ChangeHeroModelTier,
         SummonHero,
         ExploreMap,
         ClaimExplorationReward,
@@ -712,6 +711,7 @@
         FailQuest,
         SubmitEmptyObjective,
         ApplyQuestEventBuff,
+        ApplyQuestEventCompanion,
         #endregion
 
         #region CharacterInfo
@@ -721,6 +721,10 @@
         #region Skills
         AddToSkillInventory,
         EquipSkill,
+        #endregion
+
+        #region PowerUp
+        PowerUp,
         #endregion
     }
 

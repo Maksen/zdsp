@@ -19,22 +19,27 @@ public class ReformBagData : MonoBehaviour
     [Header("Toggles")]
     public Toggle selectToggle;
 
+    [Header("Text")]
+    public Text reformStatsTxt;
+
     // Private variables
     private int _selection;
     private List<GameObject> _materialList;
 
-    public void Init(UI_EquipmentReform uiEquipReform, int selection, EquipmentReformGroupJson reformData)
+    public void Init(UI_EquipmentReform uiEquipReform, int selection, ToggleGroup reformSelGrp, int reformStep, EquipmentReformGroupJson reformData)
     {
         _selection = selection;
 
-        selectToggle.onValueChanged.RemoveAllListeners();
+        //selectToggle.onValueChanged.RemoveAllListeners();
         selectToggle.onValueChanged.AddListener(delegate
         {
-            uiEquipReform.OnClickSelectReformStep(_selection);
+            uiEquipReform.OnClickSelectReformStep(_selection, selectToggle.isOn);
         });
+        selectToggle.group = reformSelGrp;
 
         // Reform Stats
-
+        EquipReformData equipReformData = new EquipReformData(reformStep, reformData);
+        reformStatsTxt.text = uiEquipReform.FormatSideEffectString(reformStep, equipReformData.GetSideEffects());
 
         // Reform Materials
         List<EquipModMaterial> materialList = EquipmentModdingRepo.GetModdingMaterialsFromStr(reformData.requirement);

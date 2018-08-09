@@ -239,6 +239,7 @@
         GuildStats, // Shared object, shared between guild members
         LootSynStats,
 		QuestSynStats,
+        DestinyClueSynStats,
         LocalCombatStats,
         LocalSkillPassiveStats,
         BuffTimeStats,
@@ -255,6 +256,7 @@
         TongbaoCostBuff,
 
         PortraitDataStats,
+        PowerUpStats,
     }
 
     public static class LocalObjectAllowType

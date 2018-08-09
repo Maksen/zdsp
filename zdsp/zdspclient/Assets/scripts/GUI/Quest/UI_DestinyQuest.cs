@@ -293,15 +293,15 @@ public class UI_DestinyQuest : MonoBehaviour
             case QuestDestinyType.Wei:
                 return MapCountry[1];
             case QuestDestinyType.Zhao:
-                return MapCountry[3];
+                return MapCountry[2];
             case QuestDestinyType.Yan:
-                return MapCountry[4];
+                return MapCountry[3];
             case QuestDestinyType.Qi:
-                return MapCountry[5];
+                return MapCountry[4];
             case QuestDestinyType.Chu:
-                return MapCountry[6];
+                return MapCountry[5];
             case QuestDestinyType.Han:
-                return MapCountry[7];
+                return MapCountry[6];
         }
         return null;
     }
@@ -315,15 +315,15 @@ public class UI_DestinyQuest : MonoBehaviour
             case QuestDestinyType.Wei:
                 return MapCameraPos[1];
             case QuestDestinyType.Zhao:
-                return MapCameraPos[3];
+                return MapCameraPos[2];
             case QuestDestinyType.Yan:
-                return MapCameraPos[4];
+                return MapCameraPos[3];
             case QuestDestinyType.Qi:
-                return MapCameraPos[5];
+                return MapCameraPos[4];
             case QuestDestinyType.Chu:
-                return MapCameraPos[6];
+                return MapCameraPos[5];
             case QuestDestinyType.Han:
-                return MapCameraPos[7];
+                return MapCameraPos[6];
         }
         return null;
     }

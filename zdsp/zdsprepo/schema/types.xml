@@ -200,17 +200,6 @@
       <item key="Magic" value="1"/>
     </enum>
 
-    <enum name="RespawnType">
-      <item key="Spot_City_CountdownSafeZoon" value="0"/>
-      <item key="Spot_City_CountdownCity" value="1"/>
-      <item key="City_CountdownCity" value="2"/>
-      <item key="SafeZoneCost_CountdownSafeZoon" value="3"/>
-      <item key="SafeZoon_CountdownSafeZoon" value="4"/>
-      <item key="CountdownSafeZoon" value="5"/>
-      <item key="SpotCost_CountdownSafeZoon" value="6"/>
-      <item key="None" value="7"/>
-    </enum>
-
     <enum name="CraftingType">
       <item key="Strengthen" value="0"/>
       <item key="Gem" value="1"/>
@@ -686,9 +675,9 @@
       <item key="Frame" value="2"/>
     </enum>
   
-    <enum name="ReturnType">
-      <item key="ReturnCity" value="0"/>
-      <item key="ReturnSafeZone" value="1"/>
+    <enum name="RespawnType">
+      <item key="City" value="0"/>
+      <item key="SafeZone" value="1"/>
     </enum>
 
     <enum name="QuestType">
@@ -813,9 +802,11 @@
     </enum>
 
     <enum name="ClueCondition">
+      <item key="None" value="3"/>
       <item key="Quest" value="0"/>
       <item key="Achivement" value="1"/>
       <item key="Item" value="2"/>
+      
     </enum>
 
     <enum name="ClueCategory">

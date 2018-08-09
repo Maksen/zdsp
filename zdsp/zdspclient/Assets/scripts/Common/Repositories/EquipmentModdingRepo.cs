@@ -166,7 +166,7 @@ namespace Zealot.Repository
         public List<int> GetSideEffects()
         {
             List<int> seIds = new List<int>();
-            List<string> seIdStrList = mReformData.grpid.Split(';').ToList();
+            List<string> seIdStrList = mReformData.sideeffect.Split(';').ToList();
             
             for(int i = 0; i < seIdStrList.Count; ++i)
             {
@@ -187,7 +187,8 @@ namespace Zealot.Repository
         private static Dictionary<EquipmentType, Dictionary<ItemRarity, Dictionary<int, EquipmentUpgradeJson>>> equipUpgradeTypeRarityIDJsonMap;    // Equipment Type -> Rarity -> Upgrade Level -> Json
 
         // Equipment Reform
-        private static Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>   equipReformJsonMap; // Upgrade Gem ID -> Json
+        private static Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>  equipReformJsonMap;     // Reform Group -> Reform Step -> Json List
+        private static Dictionary<string, int>                                              equipReformMaxLvlMap;   // Reform Group -> Max Level
 
         static EquipmentModdingRepo()
         {
@@ -195,7 +196,8 @@ namespace Zealot.Repository
             equipUpgradeTypeRarityIDJsonMap = new Dictionary<EquipmentType, Dictionary<ItemRarity, Dictionary<int, EquipmentUpgradeJson>>>();
 
             // Equipment Reform
-            equipReformJsonMap = new Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>();
+            equipReformJsonMap      = new Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>();
+            equipReformMaxLvlMap    = new Dictionary<string, int>();
         }
 
         public static void Init(GameDBRepo gameData)
@@ -206,7 +208,7 @@ namespace Zealot.Repository
 
         public static void InitUpgrade(GameDBRepo gameData)
         {
-            foreach (KeyValuePair<int, EquipmentUpgradeJson> entry in gameData.EquipmentUpgrade)
+            foreach(KeyValuePair<int, EquipmentUpgradeJson> entry in gameData.EquipmentUpgrade)
             {
                 EquipmentType equipType = entry.Value.type;
                 ItemRarity rarity = entry.Value.rarity;
@@ -232,10 +234,22 @@ namespace Zealot.Repository
 
         public static void InitReform(GameDBRepo gameData)
         {
-            foreach (KeyValuePair<int, EquipmentReformGroupJson> entry in gameData.EquipmentReformGroup)
+            string prevGrpId = "";
+            int maxLvl = 0;
+            foreach(KeyValuePair<int, EquipmentReformGroupJson> entry in gameData.EquipmentReformGroup)
             {
                 string grpId = entry.Value.grpid;
                 int reformStep = entry.Value.reformstep;
+
+                if(!string.IsNullOrEmpty(prevGrpId) && !string.Equals(grpId, prevGrpId))
+                {
+                    if(!equipReformMaxLvlMap.ContainsKey(prevGrpId))
+                    {
+                        equipReformMaxLvlMap.Add(prevGrpId, maxLvl);
+                        maxLvl = 0;
+                    }
+                }
+
                 if(!equipReformJsonMap.ContainsKey(grpId))
                 {
                     Dictionary<int, List<EquipmentReformGroupJson>> newStepJsonMap = new Dictionary<int, List<EquipmentReformGroupJson>>();
@@ -252,7 +266,12 @@ namespace Zealot.Repository
                 {
                     equipReformJsonMap[grpId][reformStep].Add(entry.Value);
                 }
+
+                prevGrpId = grpId;
+                ++maxLvl;
             }
+
+            equipReformMaxLvlMap.Add(prevGrpId, maxLvl);
         }
 
         public static EquipmentUpgradeJson GetEquipmentUpgradeData(EquipmentType equipType, ItemRarity equipRarity, int upgradeLvl)
@@ -489,20 +508,57 @@ namespace Zealot.Repository
             }
 
             Dictionary<int, List<EquipmentReformGroupJson>> relevantData = new Dictionary<int, List<EquipmentReformGroupJson>>();
-            int i = 1;
+            int i = 0;
             foreach(KeyValuePair<int, List<EquipmentReformGroupJson>> entry in reformGroup)
             {
-                if(i > entry.Key)
+                if(i < reformStep)
                 {
-                    break;
+                    relevantData.Add(entry.Key, entry.Value);
                 }
-
-                relevantData.Add(entry.Key, entry.Value);
-
+                
                 ++i;
             }
 
             return relevantData;
+        }
+
+        public static EquipReformData GetEquipmentReformDataSgl(Equipment equipment)
+        {
+            EquipReformData reformData = null;
+
+            string reformGrp = equipment.EquipmentJson.evolvegrp;
+            int reformStep = equipment.ReformStep;
+
+            if (reformStep == 0)
+            {
+                return null;
+            }
+
+            Dictionary<int, List<EquipmentReformGroupJson>> reformGrpData = GetEquipmentReformDataToStep(reformGrp, reformStep);
+            if (reformGrpData == null)
+            {
+                return null;
+            }
+
+            int i = 0;
+            foreach (KeyValuePair<int, List<EquipmentReformGroupJson>> entry in reformGrpData)
+            {
+                List<EquipmentReformGroupJson> reformGrpStepList = entry.Value;
+
+                if (reformGrpStepList.Count == 1)
+                {
+                    reformData = new EquipReformData(entry.Key, entry.Value[0]);
+                }
+                else
+                {
+                    int selection = equipment.Selection[i];
+                    reformData = new EquipReformData(entry.Key, entry.Value[selection]);
+                }
+
+                ++i;
+            }
+
+            return reformData;
         }
 
         public static List<EquipReformData> GetEquipmentReformData(Equipment equipment)
@@ -534,7 +590,7 @@ namespace Zealot.Repository
                 }
                 else
                 {
-                    int selection = equipment.Selection[i];
+                    int selection = equipment.GetSelectionsList()[i];
                     reformDataList.Add(new EquipReformData(entry.Key, entry.Value[selection]));
                 }
 
@@ -587,6 +643,16 @@ namespace Zealot.Repository
             }
 
             return equipReformData[selection].cost;
+        }
+
+        public static int GetEquipmentReformGroupMaxLevel(string reformGrp)
+        {
+            if(equipReformMaxLvlMap.ContainsKey(reformGrp))
+            {
+                return equipReformMaxLvlMap[reformGrp];
+            }
+
+            return -1;
         }
 
         public static List<EquipModMaterial> GetModdingMaterialsFromStr(string matStr)

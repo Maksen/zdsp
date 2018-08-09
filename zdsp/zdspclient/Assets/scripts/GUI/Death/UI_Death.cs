@@ -180,9 +180,9 @@ public class UI_Death : BaseWindowBehaviour
             }
         }
 
-        switch (_respawnData.returntype)
+        switch (_respawnData.respawntype)
         {
-            case ReturnType.ReturnCity:
+            case RespawnType.City:
                 if(GameInfo.mRealmInfo.maptype == MapType.City || GameInfo.mRealmInfo.maptype == MapType.Wilderness)
                 {
                     RPCFactory.CombatRPC.RespawnAtSafeZone();
@@ -192,7 +192,7 @@ public class UI_Death : BaseWindowBehaviour
                     RPCFactory.CombatRPC.RespawnAtCity();
                 }
                 break;
-            case ReturnType.ReturnSafeZone:
+            case RespawnType.SafeZone:
                 RPCFactory.CombatRPC.RespawnAtSafeZone();
                 break;
         }
@@ -277,9 +277,8 @@ public class UI_Death : BaseWindowBehaviour
         return itemList;
     }
 
-    public override void OnCloseWindow()
+    private void OnDisable()
     {
-        base.OnCloseWindow();
         SetHideWhenDeath(true);
     }
 
@@ -313,11 +312,7 @@ public class UI_Death : BaseWindowBehaviour
 
     private void SetHideWhenDeath(bool bShow)
     {
-        GameObject hideWhenDeathHUD = UIManager.GetWidget(HUDWidgetType.HideWhenDeath);
-        if(hideWhenDeathHUD != null)
-        {
-            hideWhenDeathHUD.SetActive(bShow);
-        }
+        UIManager.SetWidgetActive(HUDWidgetType.HideWhenDeath, bShow);
     }
 
     private void ClearItemCurrencyList()

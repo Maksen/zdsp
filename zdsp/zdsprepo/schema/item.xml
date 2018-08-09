@@ -27,10 +27,10 @@
     </element>
     
     <element name="ItemBase" useexcel="true" collectionkey="name">
-      <property name="itemid" type="int" uitext="Item ID" default="1" min="1" max="9999999"/>
-      <property name="name" type="string" uitext="Name" default="#undefined#"/>
-      <property name="localizedname" type="localizedstring" uitext="LocalizedName" default="#undefined#"/>
-      <property name="description" type="localizedstring" uitext="Description" default="#undefined#"/>
+      <property name="itemid" type="int" uitext="Item ID" min="0" max="9999999" unique="true"/>
+      <property name="name" type="string" uitext="Name" default=""/>
+      <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
+      <property name="description" type="localizedstring" uitext="Description" default=""/>
       <constant name="itemtype" type="ItemType" value="ItemType.Invalid"/>
       <property name="bagtype" type="BagType" uitext="Bag Type" default="0"/>
       <property name="rarity" type="ItemRarity" uitext="Item Rarity" default="0"/>

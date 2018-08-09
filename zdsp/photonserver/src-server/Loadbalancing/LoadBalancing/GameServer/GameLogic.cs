@@ -60,7 +60,7 @@
         public string currentlevelname;
         public bool mIsCity = false;
         public int mCurrentLevelID = 0;
-        public LevelPVPType mLevelPVPType = LevelPVPType.Peace;
+        public RealmPVPType mRealmPVPType = RealmPVPType.Peace;
 
         private int mCurrRoamsInFrame;
         private int mCurrGoBacksInFrames;
@@ -433,7 +433,7 @@
                 sp_handler.InstanceStartUp();
             }
             if (mRealmController != null)
-                mLevelPVPType = mRealmController.mRealmInfo.pvptype;
+                mRealmPVPType = mRealmController.mRealmInfo.pvptype;
         }        
         
         
@@ -512,7 +512,7 @@
             string playername = peer.mChar;
             log.DebugFormat("OnClientLevelLoaded: charname = {0}, {1}, {2}", playername, peer.ConnectionId, currentlevelname);
             peer.ResetExitGame();
-            NetServerSlot slot = new NetServerSlot(peer, mEntitySystem, mLevelPVPType, mIsCity);
+            NetServerSlot slot = new NetServerSlot(peer, mEntitySystem, mRealmPVPType, mIsCity);
             Connections.Add(peer, slot);
             //Spawn player at server
             Player player = mEntitySystem.SpawnNetEntity<Player>(true, playername);
@@ -610,10 +610,17 @@
             //lcs.DncFinalDamage;
 
             //-------------------- Quest Stats --------------------//
+            DestinyClueInventory clueInventory = characterData.ClueInventory;
+            player.DestinyClueController.InitFromData(clueInventory);
+            DestinyClueSynStats destinyClueStats = player.DestinyClueStats;
+            player.DestinyClueController.InitDestinyClueStats(ref destinyClueStats);
+
+            //-------------------- Quest Stats --------------------//
             QuestInventoryData questInventory = characterData.QuestInventory;
             player.QuestController.InitFromData(characterData);
             QuestSynStats queststats = player.QuestStats;
-            player.QuestController.InitQuestStats(questInventory, ref queststats);
+            player.QuestController.InitQuestStats(ref queststats);
+            player.PlayerSynStats.QuestCompanionId = player.QuestController.GetQuestCompanionId();
 
             /*********************   GuildStats   ***************************/
             int myGuildId = characterData.GuildId;
@@ -818,6 +825,9 @@
             /*********************   LotteryInventory   ***************************/
             player.InitLotteryStats(characterData.LotteryInventory);
 
+            /*********************   PowerUpInventory   ***************************/
+            player.InitPowerUpStats(characterData.PowerUpInventory);
+
             /*********************   SevenDaysInventory   ***************************/
             //player.InitSevenDaysStats(characterData.SevenDaysInventory);
 
@@ -988,7 +998,6 @@
                         ne.PerformAction(new NonServerAuthoASIdle(entity, cmd));
                     else if(actionType == ACTIONTYPE.WALK)
                         ne.PerformAction(new NonServerAuthoASWalk(entity, cmd));
-
                 }
                 else
                 {   

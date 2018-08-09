@@ -56,11 +56,12 @@ public class Hud_QuestAction : BaseWidgetBehaviour
         if (rate <= mInteractiveJson.successrate)
         {
             RPCFactory.NonCombatRPC.InteractAction(mQuestId, mInteractiveJson.interactiveid);
+            UIManager.ShowSystemMessage(mInteractiveJson.successmsg);
         }
         else
         {
             SetButtonStatus(true);
-            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("quest_interactfailed"));
+            UIManager.ShowSystemMessage(mInteractiveJson.failedmsg);
         }
     }
 

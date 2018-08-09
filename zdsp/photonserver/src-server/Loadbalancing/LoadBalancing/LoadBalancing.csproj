@@ -160,10 +160,12 @@
     <Compile Include="Entities\PersonalMonsterSpawner.cs" />
     <Compile Include="Entities\Triggers\RandomTrigger.cs" />
     <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
+    <Compile Include="GameServer\DestinyClue\DestinyClueController.cs" />
     <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
     <Compile Include="GameServer\NPCStore\NPCStoreManager.cs" />
+    <Compile Include="GameServer\PowerUp\PowerUpController.cs" />
     <Compile Include="GameServer\Quest\QuestController.cs" />
     <Compile Include="GameServer\Revive\ReviveItemController.cs" />
     <Compile Include="MasterServer\ClusterServer\IncomingGamePeer.cs" />
@@ -484,6 +486,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="GameServer\Combat\" />
     <Folder Include="RPC\Receiver\ClientGame\" />
     <Folder Include="RPC\Receiver\ClientMaster\" />
     <Folder Include="RPC\Receiver\ClusterMaster\" />

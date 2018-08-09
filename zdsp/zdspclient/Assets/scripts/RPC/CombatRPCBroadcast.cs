@@ -136,24 +136,14 @@ public partial class ClientMain : MonoBehaviour
         SpecialBossJson info = SpecialBossRepo.GetInfoById(id);
         if (info == null)
             return;
-        /*BossLocationData locationData = LevelReader.GetSpecialBossLocationData(id);
-        LevelJson level_info = LevelRepo.GetInfoByName(locationData.mLevel);
+        LevelJson level_info = LevelRepo.GetInfoById(info.location);
+        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(info.archetypeid);
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("area", level_info.localizedname);
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(info.archetype);
         param.Add("boss", archetypeInfo.localizedname);
         string message = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Boss_Spawn", param);
         //HUD.Combat.SetTickerMessage(message);
-        HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        if (hudChat)
-            hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
-
-        if (GameInfo.mSpecialBossStatus.ContainsKey(id))
-            GameInfo.mSpecialBossStatus[id].isAlive = true;
-        else
-            GameInfo.mSpecialBossStatus.Add(id, new SpecialBossStatus(id, true, ""));
-        //if (WM.Instance.IsActivated(WinPanel.Activity))
-            //WM.Instance[WinPanel.Activity].GetComponent<UI_Activity>().OnSpecialBossStatusChanged(info);*/
+        UIManager.ShowSystemMessage(message, true);
     }
 
     private string GetMonsterKilledMessage(string lvlName, string monName, string killer)
@@ -161,11 +151,7 @@ public partial class ClientMain : MonoBehaviour
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("area", lvlName);
         param.Add("boss", monName);
-        param.Add("ta", "【");
-        param.Add("country", "");
-        param.Add("title", "");
         param.Add("killer", killer);
-        param.Add("tb", "】");
         return GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Boss_Killed", param);
     }
 
@@ -174,24 +160,11 @@ public partial class ClientMain : MonoBehaviour
         SpecialBossJson info = SpecialBossRepo.GetInfoById(id);
         if (info == null)
             return;
-        BossLocationData locationData = LevelReader.GetSpecialBossLocationData(id);
-        LevelJson level_info = LevelRepo.GetInfoByName(locationData.mLevel);
+        LevelJson level_info = LevelRepo.GetInfoById(info.location);
         NPCJson archetypeInfo = NPCRepo.GetArchetypeById(info.archetypeid);
         string message = GetMonsterKilledMessage(level_info.localizedname, archetypeInfo.localizedname, killer);
         //HUD.Combat.SetTickerMessage(message);
-        //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-        //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
-
-        //if (GameInfo.mSpecialBossStatus.ContainsKey(id))
-        //{
-        //    GameInfo.mSpecialBossStatus[id].isAlive = false;
-        //    GameInfo.mSpecialBossStatus[id].lastKiller = killer;
-        //}
-        //else
-        //    GameInfo.mSpecialBossStatus.Add(id, new SpecialBossStatus(id, false, killer));
-        //if (WM.Instance.IsActivated(WinPanel.Activity))
-        //    WM.Instance[WinPanel.Activity].GetComponent<UI_Activity>().OnSpecialBossStatusChanged(info);
+        UIManager.ShowSystemMessage(message, true);
     }
 
     private void BroadcastMyDamage(int archetypeid, string damage)
@@ -201,9 +174,7 @@ public partial class ClientMain : MonoBehaviour
         param.Add("boss", archetypeInfo.localizedname);
         param.Add("damage", damage);
         string message = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Boss_MyDamage", param);
-        //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-        //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
+        UIManager.AddToChat((byte)MessageType.System, message);
     }
 
     private void BroadcastMyScore(string[] parameters_array)
@@ -229,9 +200,7 @@ public partial class ClientMain : MonoBehaviour
             param.Add("myscore", parameters_array[1]);
             message = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Boss_MyScore", param);
         }
-        //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-        //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
+        UIManager.AddToChat((byte)MessageType.System, message);
     }
 
     private void BroadcastMonsterSpawn(int archetypeid, int levelid)
@@ -243,9 +212,7 @@ public partial class ClientMain : MonoBehaviour
         param.Add("boss", archetypeInfo.localizedname);
         string message = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Boss_Spawn", param);
         //HUD.Combat.SetTickerMessage(message);
-        //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-        //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
+        UIManager.AddToChat((byte)MessageType.System, message);
     }
 
     private void BroadcastMonsterKilled(int archetypeid, int levelid, string killer)
@@ -254,9 +221,7 @@ public partial class ClientMain : MonoBehaviour
         LevelJson level_info = LevelRepo.GetInfoById(levelid);
         string message = GetMonsterKilledMessage(level_info.localizedname, archetypeInfo.localizedname, killer);
         //HUD.Combat.SetTickerMessage(message);
-        //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-        //    hudChat.AddToChatLog((byte)MessageType.System, message, "", "");
+        UIManager.AddToChat((byte)MessageType.System, message);
     }
 
     private void BroadcastGMActivityConfigChanged(string configs)
@@ -371,7 +336,7 @@ public partial class ClientMain : MonoBehaviour
         param.Add("time", string.Format("{0:D2}:{1:D2}", endDT.Hour, endDT.Minute));
         string message = GUILocalizationRepo.GetLocalizedString("auction_Begin", param);
         //UIManager.GetWidget(HUDWidgetType.TickerTape).GetComponent<HUD_TickerTape>().SetAnnoucementText(message);
-        //UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>().AddToChatLog((byte)MessageType.System, message, "", "");
+        UIManager.AddToChat((byte)MessageType.System, message);
 
         // set alert
         GameUtils.mAuctionStatus = GameUtils.SetBit(GameUtils.mAuctionStatus, (int)AuctionStatusBit.AuctionOpen);
@@ -395,10 +360,10 @@ public partial class ClientMain : MonoBehaviour
             message = GUILocalizationRepo.GetLocalizedString("auction_Congratulations", param);
             GameUtils.mAuctionStatus = GameUtils.SetBit(GameUtils.mAuctionStatus, (int)AuctionStatusBit.NewRecord);
         }
-        
+
         //if (result != 0)  // only for win bid
-            //UIManager.GetWidget(HUDWidgetType.TickerTape).GetComponent<HUD_TickerTape>().SetAnnoucementText(message);
-       // UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>().AddToChatLog((byte)MessageType.System, message, "", "");
+        //UIManager.GetWidget(HUDWidgetType.TickerTape).GetComponent<HUD_TickerTape>().SetAnnoucementText(message);
+        UIManager.AddToChat((byte)MessageType.System, message);
 
         GameUtils.mAuctionStatus = GameUtils.UnsetBit(GameUtils.mAuctionStatus, (int)AuctionStatusBit.AuctionOpen);
 

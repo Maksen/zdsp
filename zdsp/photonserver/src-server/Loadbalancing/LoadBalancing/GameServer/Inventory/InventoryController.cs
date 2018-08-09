@@ -1026,7 +1026,7 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public UpdateRetval UpdateEquipmentProperties(ushort value, EquipPropertyType ptype, bool isEquipped, int slotID, List<int> buffList = null, bool isMultiSel = false, float currIncr = 0f, float nextIncr = 0f)
+        public UpdateRetval UpdateEquipmentProperties(ushort value, EquipPropertyType ptype, bool isEquipped, int slotID, List<int> buffList = null, bool isMultiSel = false, float currIncr = 0f, float nextIncr = 0f, List<int> reformSEAdd = null, List<int> recycleSERemove = null)
         {
             Equipment equipment = isEquipped ? mEquipInvData.Slots[slotID] as Equipment : mInvData.Slots[slotID] as Equipment;
 
@@ -1289,6 +1289,9 @@ namespace Photon.LoadBalancing.GameServer
                 foreach (KeyValuePair<int, ushort> slot in items)
                     player.UpdateEquipmentStats(slot.Key, mEquipInvData.GetEquipmentBySlotId(slot.Key));
             }
+
+            if (player.IsInParty())
+                player.PartyStats.SetDirty(player.Name);
         }
 
         private void UpdateEquipmentCombatStats(bool added, int invslot, int equipslot)

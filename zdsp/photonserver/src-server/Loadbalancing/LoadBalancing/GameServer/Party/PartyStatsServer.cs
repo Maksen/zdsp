@@ -36,6 +36,17 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+
+        public void SetDirty(string memberName)
+        {
+            PartyMember member = GetPartyMember(memberName);
+            if (member != null)
+            {
+                members[member.slotIdx] = member.ToString();
+                OnDirty();
+            }
+        }
+
         public int GetEmptyMemberSlot()
         {
             for (int i = 0; i < members.Count; i++)
@@ -196,6 +207,17 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+        public void SetMemberAvatar(string name, EquipmentInventoryData equipInvData, JobType job)
+        {
+            PartyMember member = GetPartyMember(name);
+            if (member != null)
+            {
+                member.avatar.equipInvData = equipInvData;
+                member.avatar.jobType = job;
+                members[member.slotIdx] = member.ToString();
+            }
+        }
+
         public void SetMemberAutoFollowSetting(string name, bool isRejectFollow)
         {
             PartyMember member = GetPartyMember(name);
@@ -237,6 +259,11 @@ namespace Photon.LoadBalancing.GameServer
             mPartyMembers.Remove(oldHeroName);
             mPartyMembers[newHero.name] = newHero;
             members[newHero.slotIdx] = newHero.ToString();
+        }
+
+        public bool CanAddMemberHeroToParty(string memberName)
+        {
+            return GetHeroOwnedByMember(memberName) != null || !IsPartyFull();
         }
 
         public List<Player> GetOnlinePartyMembers(string excludeName)

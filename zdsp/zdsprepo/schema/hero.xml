@@ -163,7 +163,7 @@
       <property name="reqmonsterlevel" type="int" uitext="Monster Explore Level Required"/>
       <property name="maxherocount" type="int" uitext="Allowed Hero Count"/>
       <property name="repeatable" type="bool" uitext="Repeatable" default="false"/>
-      <property name="combattimecost" type="int" uitext="Combat Time Cost(min)" info="in min"/>
+      <property name="battletimecost" type="int" uitext="Battle Time Cost(min)" info="in min"/>
       <property name="completetime" type="int" uitext="Complete Time(min)" info="in min"/>
       <property name="reqitemid" type="int" uitext="Item ID Required"/>
       <property name="reqitemcount" type="int" uitext="Item Count Required"/>
@@ -173,6 +173,7 @@
       <property name="chestreqvalue2" type="int" uitext="Chest Requirement Value 2"/>
       <property name="chestreqtype3" type="ChestRequirementType" uitext="Chest Requirement 3"/>
       <property name="chestreqvalue3" type="int" uitext="Chest Requirement Value 3"/>
+      <property name="chestitemid" type="int" uitext="Chest Item ID"/>
       <property name="baseefficiency" type="int" uitext="Base Efficiency(%)"/>
       <property name="levelrelvalue" type="int" uitext="Level Relative Value"/>
       <property name="levelmaxefficiency" type="int" uitext="Level Max Efficiency(%)"/>
@@ -186,9 +187,8 @@
       <property name="exploregroupid" type="int" uitext="Exploration Group"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
-      <property name="chestitemid" type="int" uitext="Chest Item ID"/>
       <property name="rewardgroupid" type="int" uitext="Reward Group ID"/>
-      <property name="looktarget" type="string" uitext="Look Target" default=""/>
+      <property name="lootlinkid" type="int" uitext="LootLink ID"/>
     </element>
 
     <element name="TerrainEfficiency" useexcel="true">

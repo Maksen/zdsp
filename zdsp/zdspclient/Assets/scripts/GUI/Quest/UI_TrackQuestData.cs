@@ -58,15 +58,18 @@ public class UI_TrackQuestData : MonoBehaviour
             else
             {
                 Description.text = mDescription + mLocation;
+                Description.Interactable = true;
             }
             Description.ClickedLink.RemoveAllListeners();
             if (questController.HaveMultipleTarget(questData))
             {
+                Description.raycastTarget = true;
                 Description.ClickedLink.AddListener(OnClickHyperlink);
                 ObjectiveButton.interactable = false;
             }
             else
             {
+                Description.raycastTarget = false;
                 ObjectiveButton.interactable = true;
             }
             DoingQuest.SetActive(false);

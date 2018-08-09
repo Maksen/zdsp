@@ -19,13 +19,12 @@ namespace Zealot.Common
     public enum TerrainType {Tavern = 0, TeaHouse = 1, Town = 2, Forest = 3, Inn = 4, Brothel = 5, Market = 6, Academy = 7, Villa = 8};
     public enum ChestRequirementType {None = 0, HeroID = 1, HeroInterest = 2, HeroTrust = 3};
     public enum ItemOriginType {UI = 0, Monster = 1, Shop = 2};
-    public enum RealmType {RealmWorld = 0, DungeonStory = 1, DungeonDailySpecial = 2};
+    public enum RealmType {World = 0, Dungeon = 1};
+    public enum RealmPVPType {Peace = 0, FreeForAll = 1, Guild = 2, Faction = 3};
     public enum MapType {City = 0, Wilderness = 1, Dungeon = 2, Activity = 3, Others = 4};
-    public enum DungeonDifficulty {Easy = 0, Hard = 1, Hell = 2};
-    public enum LevelPVPType {Peace = 0, FreeForAll = 2, Guild = 4, Faction = 5};
-    public enum DungeonType {Daily = 0, Special = 1};
-    public enum RealmObjectiveType {TimeWithinNoDeath = 0, TimeWithinComplete = 1, HeroUseOnly = 2, HeroCannotUse = 3, HeroTypeCannotUse = 4, SkillCannotUseAny = 5, HeroQualityUseOnly = 6, NPCKills = 7, RealmComplete = 8};
-    public enum ForbiddenUsesType {Item = 0, SideEffect = 1, Skill = 2};
+    public enum DungeonDifficulty {None = 0, Easy = 1, Normal = 2, Hard = 3, Challenger = 4};
+    public enum DungeonType {Story = 0, Daily = 1, Special = 2, ChickenDinner = 3, EndlessTower = 4};
+    public enum LootResetType {None = 0, Daily = 1, Weekly = 2};
     public enum LootCorrectionType {Minus10 = 1, Minus1120 = 2, Minus2130 = 3, Minus3140 = 4, Minus4150 = 5, Minus51 = 6};
     public enum LootType {Normal = 0, Share = 1, Boss = 2, BigBoss = 3, LastHit = 4, Explore = 5};
     public enum LootSourceType {Monster = 0, Chest = 1, Both = 2};
@@ -57,7 +56,6 @@ namespace Zealot.Common
     public enum ActorStatsType {None = 0, Attack = 1, Armor = 2, Critical = 3, Cocritical = 4, CriticalDamage = 5, CocriticalDamage = 6, Evasion = 7, Accuracy = 8};
     public enum AbilityType {Attack = 0, Armor = 1, Accuracy = 2, Evasion = 3, AmplifyDamage = 4, AbsorbDamage = 5, MaxHealth = 6, CriticalPerfect = 7, LevelAttack = 8, LevelArmor = 9, Health = 10, HealthPct = 11, AttackPct = 12, ArmorPct = 13, AccuracyPct = 14, EvasionPct = 15, SkillDamage = 16, SkillDamageReduce = 17, Exdamage = 18, Critical = 19, CriticalDouble = 20};
     public enum AttackType {Physical = 0, Magic = 1};
-    public enum RespawnType {Spot_City_CountdownSafeZoon = 0, Spot_City_CountdownCity = 1, City_CountdownCity = 2, SafeZoneCost_CountdownSafeZoon = 3, SafeZoon_CountdownSafeZoon = 4, CountdownSafeZoon = 5, SpotCost_CountdownSafeZoon = 6, None = 7};
     public enum CraftingType {Strengthen = 0, Gem = 1, Other = 2};
     public enum SkillType {BasicAttack = 0, Active = 1, Passive = 2};
     public enum SkillClass {Normal = 0, Special = 1};
@@ -95,7 +93,7 @@ namespace Zealot.Common
     public enum UIStoreLinkType {NotApplicable = 0, MoneyStore = 1, GuildStore = 2, Lottery = 3, WuLing = 4, WuMen = 5};
     public enum NPCStore {Normal = 0, Random = 1, Barter = 2};
     public enum PositionType {Background = 0, Patten = 1, Frame = 2};
-    public enum ReturnType {ReturnCity = 0, ReturnSafeZone = 1};
+    public enum RespawnType {City = 0, SafeZone = 1};
     public enum QuestType {Main = 0, Destiny = 1, Sub = 2, Guild = 3, Signboard = 4, Event = 5};
     public enum QuestRepeatType {NoRpeat = 0, AlwaysRepeat = 1, OncePerDay = 2, OncePerWeek = 3};
     public enum QuestTriggerType {NPC = 0, Item = 1, Level = 2, Interact = 3, Signboard = 4, Hero = 5, SensorChip = 6};
@@ -110,7 +108,7 @@ namespace Zealot.Common
     public enum AttackStyle {Slice = 0, Pierce = 1, Smash = 2, God = 3, Normal = 4};
     public enum Race {Human = 0, Zombie = 1, Vampire = 2, Animal = 3, Plant = 4};
     public enum Element {None = 0, Metal = 1, Wood = 2, Earth = 3, Water = 4, Fire = 5};
-    public enum ClueCondition {Quest = 0, Achivement = 1, Item = 2};
+    public enum ClueCondition {None = 3, Quest = 0, Achivement = 1, Item = 2};
     public enum ClueCategory {Video = 0, Photo = 1, Sound = 2, Word = 3};
     public enum ClueMemoryType {Non = 0, Event = 1, Special = 2};
 
@@ -2610,7 +2608,7 @@ namespace Kopio.JsonContracts
     {
         public virtual int id { get; set; } 
         
-        public virtual RealmType type { get { return RealmType.RealmWorld; } } 
+        public virtual RealmType type { get { return RealmType.World; } } 
         
         public virtual string excelname { get; set; } 
         
@@ -2621,13 +2619,14 @@ namespace Kopio.JsonContracts
         
         public virtual int reqlvl { get; set; } 
         
-        public virtual LevelPVPType pvptype { get; set; } 
+        public virtual RealmPVPType pvptype { get; set; } 
         
         public virtual int preparation { get; set; } 
         
         public virtual int timelimit { get; set; } 
         
-        public virtual RespawnType respawntype { get; set; } 
+        //type RespawnJson
+        public virtual int respawn { get; set; } 
         
         public virtual int respawncd { get; set; } 
         
@@ -2659,7 +2658,7 @@ namespace Kopio.JsonContracts
         public override int reqlvl { get; set; } 
         
         [JsonProperty("5")]
-        public override LevelPVPType pvptype { get; set; } 
+        public override RealmPVPType pvptype { get; set; } 
         
         [JsonProperty("6")]
         public override int preparation { get; set; } 
@@ -2667,8 +2666,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("7")]
         public override int timelimit { get; set; } 
         
+        //type RespawnJson
         [JsonProperty("8")]
-        public override RespawnType respawntype { get; set; } 
+        public override int respawn { get; set; } 
         
         [JsonProperty("9")]
         public override int respawncd { get; set; } 
@@ -2682,96 +2682,11 @@ namespace Kopio.JsonContracts
         [JsonProperty("12")]
         public override MapType maptype { get; set; } 
         
-        public override RealmType type { get { return RealmType.RealmWorld; } } 
-        
-        [JsonProperty("13")]
-        public int worldseq { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            excelname = (string)vals["excelname"];
-            localizedname = (string)vals["localizedname"];
-            level = (int)vals["level"];
-            reqlvl = (int)vals["reqlvl"];
-            pvptype = (LevelPVPType)vals["pvptype"];
-            preparation = (int)vals["preparation"];
-            timelimit = (int)vals["timelimit"];
-            respawntype = (RespawnType)vals["respawntype"];
-            respawncd = (int)vals["respawncd"];
-            minplayer = (int)vals["minplayer"];
-            maxplayer = (int)vals["maxplayer"];
-            maptype = (MapType)vals["maptype"];
-            worldseq = (int)vals["worldseq"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class DungeonStoryJson : RealmJson
-    {
-        [JsonProperty("0")]
-        public override int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public override string excelname { get; set; } 
-        
-        [JsonProperty("2")]
-        public override string localizedname { get; set; } 
-        
-        //type LevelJson
-        [JsonProperty("3")]
-        public override int level { get; set; } 
-        
-        [JsonProperty("4")]
-        public override int reqlvl { get; set; } 
-        
-        [JsonProperty("5")]
-        public override LevelPVPType pvptype { get; set; } 
-        
-        [JsonProperty("6")]
-        public override int preparation { get; set; } 
-        
-        [JsonProperty("7")]
-        public override int timelimit { get; set; } 
-        
-        [JsonProperty("8")]
-        public override RespawnType respawntype { get; set; } 
-        
-        [JsonProperty("9")]
-        public override int respawncd { get; set; } 
-        
-        [JsonProperty("10")]
-        public override int minplayer { get; set; } 
-        
-        [JsonProperty("11")]
-        public override int maxplayer { get; set; } 
-        
-        [JsonProperty("12")]
-        public override MapType maptype { get; set; } 
-        
-        public override RealmType type { get { return RealmType.DungeonStory; } } 
+        public override RealmType type { get { return RealmType.World; } } 
         
         [JsonProperty("13")]
         public int sequence { get; set; } 
         
-        [AssetData("sprite")]
-        [JsonProperty("14")]
-        public string iconpath { get; set; } 
-        
-        [JsonProperty("15")]
-        public DungeonDifficulty difficulty { get; set; } 
-        
-        [JsonProperty("16")]
-        public int dailyentry { get; set; } 
-        
-        //type RewardGroupJson
-        [JsonProperty("17")]
-        public int displaygrp { get; set; } 
-        
-        //type RewardGroupJson
-        [JsonProperty("18")]
-        public int rewardgrp { get; set; } 
-        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -2779,25 +2694,20 @@ namespace Kopio.JsonContracts
             localizedname = (string)vals["localizedname"];
             level = (int)vals["level"];
             reqlvl = (int)vals["reqlvl"];
-            pvptype = (LevelPVPType)vals["pvptype"];
+            pvptype = (RealmPVPType)vals["pvptype"];
             preparation = (int)vals["preparation"];
             timelimit = (int)vals["timelimit"];
-            respawntype = (RespawnType)vals["respawntype"];
+            respawn = (int)vals["respawn"];
             respawncd = (int)vals["respawncd"];
             minplayer = (int)vals["minplayer"];
             maxplayer = (int)vals["maxplayer"];
             maptype = (MapType)vals["maptype"];
             sequence = (int)vals["sequence"];
-            iconpath = (string)vals["iconpath"];
-            difficulty = (DungeonDifficulty)vals["difficulty"];
-            dailyentry = (int)vals["dailyentry"];
-            displaygrp = (int)vals["displaygrp"];
-            rewardgrp = (int)vals["rewardgrp"];
         }
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class DungeonDailySpecialJson : RealmJson
+    public class DungeonJson : RealmJson
     {
         [JsonProperty("0")]
         public override int id { get; set; } 
@@ -2816,7 +2726,7 @@ namespace Kopio.JsonContracts
         public override int reqlvl { get; set; } 
         
         [JsonProperty("5")]
-        public override LevelPVPType pvptype { get; set; } 
+        public override RealmPVPType pvptype { get; set; } 
         
         [JsonProperty("6")]
         public override int preparation { get; set; } 
@@ -2824,8 +2734,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("7")]
         public override int timelimit { get; set; } 
         
+        //type RespawnJson
         [JsonProperty("8")]
-        public override RespawnType respawntype { get; set; } 
+        public override int respawn { get; set; } 
         
         [JsonProperty("9")]
         public override int respawncd { get; set; } 
@@ -2839,7 +2750,7 @@ namespace Kopio.JsonContracts
         [JsonProperty("12")]
         public override MapType maptype { get; set; } 
         
-        public override RealmType type { get { return RealmType.DungeonDailySpecial; } } 
+        public override RealmType type { get { return RealmType.Dungeon; } } 
         
         [JsonProperty("13")]
         public DungeonType dungeontype { get; set; } 
@@ -2852,36 +2763,60 @@ namespace Kopio.JsonContracts
         public string iconpath { get; set; } 
         
         [JsonProperty("16")]
-        public int dailyentry { get; set; } 
+        public DungeonDifficulty difficulty { get; set; } 
         
-        //type RewardGroupJson
         [JsonProperty("17")]
-        public int displaygrp { get; set; } 
+        public int entrylimit { get; set; } 
         
-        //type RewardGroupJson
+        //type LootItemGroupJson
         [JsonProperty("18")]
-        public int rewardgrp { get; set; } 
+        public int lootdisplayitems { get; set; } 
         
+        //type LootItemGroupJson
         [JsonProperty("19")]
-        public bool isopenday1 { get; set; } 
+        public int lootrewarditems { get; set; } 
         
         [JsonProperty("20")]
-        public bool isopenday2 { get; set; } 
+        public string opendate { get; set; } 
         
         [JsonProperty("21")]
-        public bool isopenday3 { get; set; } 
+        public string closedate { get; set; } 
         
         [JsonProperty("22")]
-        public bool isopenday4 { get; set; } 
+        public string opentime { get; set; } 
         
         [JsonProperty("23")]
-        public bool isopenday5 { get; set; } 
+        public string closetime { get; set; } 
         
         [JsonProperty("24")]
-        public bool isopenday6 { get; set; } 
+        public bool isopenday1 { get; set; } 
         
         [JsonProperty("25")]
+        public bool isopenday2 { get; set; } 
+        
+        [JsonProperty("26")]
+        public bool isopenday3 { get; set; } 
+        
+        [JsonProperty("27")]
+        public bool isopenday4 { get; set; } 
+        
+        [JsonProperty("28")]
+        public bool isopenday5 { get; set; } 
+        
+        [JsonProperty("29")]
+        public bool isopenday6 { get; set; } 
+        
+        [JsonProperty("30")]
         public bool isopenday7 { get; set; } 
+        
+        [JsonProperty("31")]
+        public int lootlimit { get; set; } 
+        
+        [JsonProperty("32")]
+        public LootResetType lootresettype { get; set; } 
+        
+        [JsonProperty("33")]
+        public string lootresettime { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
@@ -2890,10 +2825,10 @@ namespace Kopio.JsonContracts
             localizedname = (string)vals["localizedname"];
             level = (int)vals["level"];
             reqlvl = (int)vals["reqlvl"];
-            pvptype = (LevelPVPType)vals["pvptype"];
+            pvptype = (RealmPVPType)vals["pvptype"];
             preparation = (int)vals["preparation"];
             timelimit = (int)vals["timelimit"];
-            respawntype = (RespawnType)vals["respawntype"];
+            respawn = (int)vals["respawn"];
             respawncd = (int)vals["respawncd"];
             minplayer = (int)vals["minplayer"];
             maxplayer = (int)vals["maxplayer"];
@@ -2901,9 +2836,14 @@ namespace Kopio.JsonContracts
             dungeontype = (DungeonType)vals["dungeontype"];
             sequence = (int)vals["sequence"];
             iconpath = (string)vals["iconpath"];
-            dailyentry = (int)vals["dailyentry"];
-            displaygrp = (int)vals["displaygrp"];
-            rewardgrp = (int)vals["rewardgrp"];
+            difficulty = (DungeonDifficulty)vals["difficulty"];
+            entrylimit = (int)vals["entrylimit"];
+            lootdisplayitems = (int)vals["lootdisplayitems"];
+            lootrewarditems = (int)vals["lootrewarditems"];
+            opendate = (string)vals["opendate"];
+            closedate = (string)vals["closedate"];
+            opentime = (string)vals["opentime"];
+            closetime = (string)vals["closetime"];
             isopenday1 = (bool)vals["isopenday1"];
             isopenday2 = (bool)vals["isopenday2"];
             isopenday3 = (bool)vals["isopenday3"];
@@ -2911,47 +2851,49 @@ namespace Kopio.JsonContracts
             isopenday5 = (bool)vals["isopenday5"];
             isopenday6 = (bool)vals["isopenday6"];
             isopenday7 = (bool)vals["isopenday7"];
+            lootlimit = (int)vals["lootlimit"];
+            lootresettype = (LootResetType)vals["lootresettype"];
+            lootresettime = (string)vals["lootresettime"];
         }
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class RealmObjectiveJson
+    public class RespawnJson
     {
         [JsonProperty("0")]
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public string excelname { get; set; } 
+        public string name { get; set; } 
         
         [JsonProperty("2")]
-        public string localizedname { get; set; } 
+        public int respawnid { get; set; } 
         
         [JsonProperty("3")]
-        public string localizeddescription { get; set; } 
+        public bool siturespawn { get; set; } 
         
         [JsonProperty("4")]
-        public RealmObjectiveType realmobjectivetype { get; set; } 
+        public string deductitem { get; set; } 
         
         [JsonProperty("5")]
-        public int timelimit { get; set; } 
+        public string deductcurrency { get; set; } 
         
-        //type CombatNPCJson
         [JsonProperty("6")]
-        public int monsterid { get; set; } 
+        public RespawnType respawntype { get; set; } 
         
         [JsonProperty("7")]
-        public int monsterkillcnt { get; set; } 
+        public int countdown { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
-            excelname = (string)vals["excelname"];
-            localizedname = (string)vals["localizedname"];
-            localizeddescription = (string)vals["localizeddescription"];
-            realmobjectivetype = (RealmObjectiveType)vals["realmobjectivetype"];
-            timelimit = (int)vals["timelimit"];
-            monsterid = (int)vals["monsterid"];
-            monsterkillcnt = (int)vals["monsterkillcnt"];
+            name = (string)vals["name"];
+            respawnid = (int)vals["respawnid"];
+            siturespawn = (bool)vals["siturespawn"];
+            deductitem = (string)vals["deductitem"];
+            deductcurrency = (string)vals["deductcurrency"];
+            respawntype = (RespawnType)vals["respawntype"];
+            countdown = (int)vals["countdown"];
         }
     }
     
@@ -3275,6 +3217,8 @@ namespace Kopio.JsonContracts
         
         public virtual string localizedname { get; set; } 
         
+        public virtual string localizedtitle { get; set; } 
+        
         public virtual string containerprefabpath { get; set; } 
         
         public virtual string modelprefabpath { get; set; } 
@@ -3313,156 +3257,162 @@ namespace Kopio.JsonContracts
         [JsonProperty("2")]
         public override string localizedname { get; set; } 
         
-        [AssetData("prefab")]
         [JsonProperty("3")]
-        public override string containerprefabpath { get; set; } 
+        public override string localizedtitle { get; set; } 
         
         [AssetData("prefab")]
         [JsonProperty("4")]
+        public override string containerprefabpath { get; set; } 
+        
+        [AssetData("prefab")]
+        [JsonProperty("5")]
         public override string modelprefabpath { get; set; } 
         
-        [JsonProperty("5")]
+        [JsonProperty("6")]
         public override string modelmaterialpath { get; set; } 
         
-        [JsonProperty("6")]
+        [JsonProperty("7")]
         public override float modelscalex { get; set; } 
         
-        [JsonProperty("7")]
+        [JsonProperty("8")]
         public override float modelscaley { get; set; } 
         
-        [JsonProperty("8")]
+        [JsonProperty("9")]
         public override float modelscalez { get; set; } 
         
-        [JsonProperty("9")]
+        [JsonProperty("10")]
         public override string speechbubbletext { get; set; } 
         
-        [JsonProperty("10")]
+        [JsonProperty("11")]
         public override string speechbubblebox { get; set; } 
         
-        [JsonProperty("11")]
+        [JsonProperty("12")]
         public override float speechbubbleheight { get; set; } 
         
-        [JsonProperty("12")]
+        [JsonProperty("13")]
         public override float speechbubbleduration { get; set; } 
         
-        [JsonProperty("13")]
+        [JsonProperty("14")]
         public override float speechbubbleminint { get; set; } 
         
-        [JsonProperty("14")]
+        [JsonProperty("15")]
         public override float speechbubblemaxint { get; set; } 
         
         public override NPCType npctype { get { return NPCType.Combat; } } 
         
-        [JsonProperty("15")]
+        [JsonProperty("16")]
         public MonsterClass monsterclass { get; set; } 
         
-        [JsonProperty("16")]
+        [JsonProperty("17")]
         public Race race { get; set; } 
         
-        [JsonProperty("17")]
+        [JsonProperty("18")]
         public Element element { get; set; } 
         
-        [JsonProperty("18")]
+        [JsonProperty("19")]
         public AttackStyle weakness { get; set; } 
         
-        [JsonProperty("19")]
+        [JsonProperty("20")]
         public float movespeed { get; set; } 
         
-        [JsonProperty("20")]
+        [JsonProperty("21")]
         public float attackspeed { get; set; } 
         
         //type SkillJson
-        [JsonProperty("21")]
+        [JsonProperty("22")]
         public int basicattack { get; set; } 
         
         //type SkillJson
-        [JsonProperty("22")]
+        [JsonProperty("23")]
         public int basicattack2 { get; set; } 
         
-        [JsonProperty("23")]
+        [JsonProperty("24")]
         public int camp { get; set; } 
         
-        [JsonProperty("24")]
+        [JsonProperty("25")]
         public bool broadcast { get; set; } 
         
-        [JsonProperty("25")]
+        [JsonProperty("26")]
         public int level { get; set; } 
         
-        [JsonProperty("26")]
+        [JsonProperty("27")]
         public int healthmax { get; set; } 
         
-        [JsonProperty("27")]
+        [JsonProperty("28")]
         public int attack { get; set; } 
         
-        [JsonProperty("28")]
+        [JsonProperty("29")]
         public int armor { get; set; } 
         
-        [JsonProperty("29")]
+        [JsonProperty("30")]
         public int strength { get; set; } 
         
-        [JsonProperty("30")]
+        [JsonProperty("31")]
         public int agility { get; set; } 
         
-        [JsonProperty("31")]
+        [JsonProperty("32")]
         public int dexterity { get; set; } 
         
-        [JsonProperty("32")]
+        [JsonProperty("33")]
         public int constitution { get; set; } 
         
-        [JsonProperty("33")]
+        [JsonProperty("34")]
         public int intelligence { get; set; } 
         
-        [JsonProperty("34")]
+        [JsonProperty("35")]
         public int accuracy { get; set; } 
         
-        [JsonProperty("35")]
+        [JsonProperty("36")]
         public int evasion { get; set; } 
         
-        [JsonProperty("36")]
+        [JsonProperty("37")]
         public int critical { get; set; } 
         
-        [JsonProperty("37")]
+        [JsonProperty("38")]
         public int criticaldamage { get; set; } 
         
-        [JsonProperty("38")]
+        [JsonProperty("39")]
         public int cocritical { get; set; } 
         
-        [JsonProperty("39")]
+        [JsonProperty("40")]
         public int cocriticaldamage { get; set; } 
         
-        [JsonProperty("40")]
+        [JsonProperty("41")]
         public string immunities { get; set; } 
         
-        [JsonProperty("41")]
+        [JsonProperty("42")]
         public bool dmgbyhitcount { get; set; } 
         
-        [JsonProperty("42")]
+        [JsonProperty("43")]
         public bool recoveronreturn { get; set; } 
         
-        [JsonProperty("43")]
+        [JsonProperty("44")]
         public int hpregenamt { get; set; } 
         
-        [JsonProperty("44")]
+        [JsonProperty("45")]
         public int hpregenamtbypercent { get; set; } 
         
-        [JsonProperty("45")]
+        [JsonProperty("46")]
         public float healthregeninterval { get; set; } 
         
-        [JsonProperty("46")]
-        public int experience { get; set; } 
-        
         [JsonProperty("47")]
-        public string loot { get; set; } 
+        public int exp { get; set; } 
         
         [JsonProperty("48")]
+        public int skillexp { get; set; } 
+        
+        [JsonProperty("49")]
+        public string loot { get; set; } 
+        
+        [JsonProperty("50")]
         public string eventloot { get; set; } 
         
         //type BossAIJson
-        [JsonProperty("49")]
+        [JsonProperty("51")]
         public int bossai1 { get; set; } 
         
         //type BossAIJson
-        [JsonProperty("50")]
+        [JsonProperty("52")]
         public int bossai2 { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -3470,6 +3420,7 @@ namespace Kopio.JsonContracts
             id = (int)vals["id"];
             archetype = (string)vals["archetype"];
             localizedname = (string)vals["localizedname"];
+            localizedtitle = (string)vals["localizedtitle"];
             containerprefabpath = (string)vals["containerprefabpath"];
             modelprefabpath = (string)vals["modelprefabpath"];
             modelmaterialpath = (string)vals["modelmaterialpath"];
@@ -3513,7 +3464,8 @@ namespace Kopio.JsonContracts
             hpregenamt = (int)vals["hpregenamt"];
             hpregenamtbypercent = (int)vals["hpregenamtbypercent"];
             healthregeninterval = Convert.ToSingle((double)vals["healthregeninterval"]);
-            experience = (int)vals["experience"];
+            exp = (int)vals["exp"];
+            skillexp = (int)vals["skillexp"];
             loot = (string)vals["loot"];
             eventloot = (string)vals["eventloot"];
             bossai1 = (int)vals["bossai1"];
@@ -3533,77 +3485,80 @@ namespace Kopio.JsonContracts
         [JsonProperty("2")]
         public override string localizedname { get; set; } 
         
-        [AssetData("prefab")]
         [JsonProperty("3")]
-        public override string containerprefabpath { get; set; } 
+        public override string localizedtitle { get; set; } 
         
         [AssetData("prefab")]
         [JsonProperty("4")]
+        public override string containerprefabpath { get; set; } 
+        
+        [AssetData("prefab")]
+        [JsonProperty("5")]
         public override string modelprefabpath { get; set; } 
         
-        [JsonProperty("5")]
+        [JsonProperty("6")]
         public override string modelmaterialpath { get; set; } 
         
-        [JsonProperty("6")]
+        [JsonProperty("7")]
         public override float modelscalex { get; set; } 
         
-        [JsonProperty("7")]
+        [JsonProperty("8")]
         public override float modelscaley { get; set; } 
         
-        [JsonProperty("8")]
+        [JsonProperty("9")]
         public override float modelscalez { get; set; } 
         
-        [JsonProperty("9")]
+        [JsonProperty("10")]
         public override string speechbubbletext { get; set; } 
         
-        [JsonProperty("10")]
+        [JsonProperty("11")]
         public override string speechbubblebox { get; set; } 
         
-        [JsonProperty("11")]
+        [JsonProperty("12")]
         public override float speechbubbleheight { get; set; } 
         
-        [JsonProperty("12")]
+        [JsonProperty("13")]
         public override float speechbubbleduration { get; set; } 
         
-        [JsonProperty("13")]
+        [JsonProperty("14")]
         public override float speechbubbleminint { get; set; } 
         
-        [JsonProperty("14")]
+        [JsonProperty("15")]
         public override float speechbubblemaxint { get; set; } 
         
         public override NPCType npctype { get { return NPCType.Static; } } 
         
-        [JsonProperty("15")]
+        [JsonProperty("16")]
         public string cameraposintalk { get; set; } 
         
-        [JsonProperty("16")]
+        [JsonProperty("17")]
         public string talktext { get; set; } 
         
-        [JsonProperty("17")]
+        [JsonProperty("18")]
         public string talktextalt { get; set; } 
         
-        [JsonProperty("18")]
+        [JsonProperty("19")]
         public string talktextbox { get; set; } 
         
-        [JsonProperty("19")]
+        [JsonProperty("20")]
         public string npcfunction { get; set; } 
         
-        [JsonProperty("20")]
+        [JsonProperty("21")]
         public string questid { get; set; } 
         
-        [JsonProperty("21")]
+        [JsonProperty("22")]
         public bool activeonstartup { get; set; } 
         
-        [JsonProperty("22")]
+        [JsonProperty("23")]
         public string npccycletime { get; set; } 
         
-        [JsonProperty("23")]
+        [JsonProperty("24")]
         public string npcopentime { get; set; } 
         
-        [JsonProperty("24")]
+        [JsonProperty("25")]
         public string npcclosetime { get; set; } 
         
-        [JsonProperty("25")]
+        [JsonProperty("26")]
         public StaticNPCInteractType interacttype { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -3611,6 +3566,7 @@ namespace Kopio.JsonContracts
             id = (int)vals["id"];
             archetype = (string)vals["archetype"];
             localizedname = (string)vals["localizedname"];
+            localizedtitle = (string)vals["localizedtitle"];
             containerprefabpath = (string)vals["containerprefabpath"];
             modelprefabpath = (string)vals["modelprefabpath"];
             modelmaterialpath = (string)vals["modelmaterialpath"];
@@ -3741,16 +3697,7 @@ namespace Kopio.JsonContracts
         public string icon { get; set; } 
         
         [JsonProperty("14")]
-        public float modelscale { get; set; } 
-        
-        [JsonProperty("15")]
-        public float modelposx { get; set; } 
-        
-        [JsonProperty("16")]
-        public float modelposy { get; set; } 
-        
-        [JsonProperty("17")]
-        public float modelrotatey { get; set; } 
+        public string cameraposintalk { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
@@ -3768,10 +3715,7 @@ namespace Kopio.JsonContracts
             respawntime = (int)vals["respawntime"];
             displayrewardgroupid = (int)vals["displayrewardgroupid"];
             icon = (string)vals["icon"];
-            modelscale = Convert.ToSingle((double)vals["modelscale"]);
-            modelposx = Convert.ToSingle((double)vals["modelposx"]);
-            modelposy = Convert.ToSingle((double)vals["modelposy"]);
-            modelrotatey = Convert.ToSingle((double)vals["modelrotatey"]);
+            cameraposintalk = (string)vals["cameraposintalk"];
         }
     }
     
@@ -4302,6 +4246,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("25")]
         public bool teleport { get; set; } 
         
+        [JsonProperty("26")]
+        public bool candelete { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4330,6 +4277,7 @@ namespace Kopio.JsonContracts
             unlockval = (string)vals["unlockval"];
             showae = (bool)vals["showae"];
             teleport = (bool)vals["teleport"];
+            candelete = (bool)vals["candelete"];
         }
     }
     
@@ -4375,6 +4323,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("12")]
         public int requirementid { get; set; } 
         
+        [JsonProperty("13")]
+        public string msg { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4390,6 +4341,7 @@ namespace Kopio.JsonContracts
             para4 = (string)vals["para4"];
             eventid = (int)vals["eventid"];
             requirementid = (int)vals["requirementid"];
+            msg = (string)vals["msg"];
         }
     }
     
@@ -4453,6 +4405,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("18")]
         public int selectionid { get; set; } 
         
+        [JsonProperty("19")]
+        public string msg { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4474,6 +4429,7 @@ namespace Kopio.JsonContracts
             caller7 = (int)vals["caller7"];
             dialogue7 = (string)vals["dialogue7"];
             selectionid = (int)vals["selectionid"];
+            msg = (string)vals["msg"];
         }
     }
     
@@ -4629,6 +4585,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("7")]
         public int objectiveid { get; set; } 
         
+        [JsonProperty("8")]
+        public string msg { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4639,6 +4598,7 @@ namespace Kopio.JsonContracts
             para2 = (string)vals["para2"];
             questid = (int)vals["questid"];
             objectiveid = (int)vals["objectiveid"];
+            msg = (string)vals["msg"];
         }
     }
     
@@ -4707,59 +4667,134 @@ namespace Kopio.JsonContracts
     }
     
     [JsonObject(MemberSerialization.OptIn)]
+    public class QuestSignboardJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public int signboardid { get; set; } 
+        
+        [JsonProperty("2")]
+        public int groupid { get; set; } 
+        
+        [JsonProperty("3")]
+        public int lvlmin { get; set; } 
+        
+        [JsonProperty("4")]
+        public int lvlmax { get; set; } 
+        
+        [JsonProperty("5")]
+        public int questid { get; set; } 
+        
+        [JsonProperty("6")]
+        public int probability { get; set; } 
+        
+        [JsonProperty("7")]
+        public string iconpath { get; set; } 
+        
+        [JsonProperty("8")]
+        public int expplus { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            signboardid = (int)vals["signboardid"];
+            groupid = (int)vals["groupid"];
+            lvlmin = (int)vals["lvlmin"];
+            lvlmax = (int)vals["lvlmax"];
+            questid = (int)vals["questid"];
+            probability = (int)vals["probability"];
+            iconpath = (string)vals["iconpath"];
+            expplus = (int)vals["expplus"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class SignboardLimitJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public int lvlmin { get; set; } 
+        
+        [JsonProperty("2")]
+        public int lvlmax { get; set; } 
+        
+        [JsonProperty("3")]
+        public int dailylimit { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            lvlmin = (int)vals["lvlmin"];
+            lvlmax = (int)vals["lvlmax"];
+            dailylimit = (int)vals["dailylimit"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
     public class DestinyClueJson
     {
         [JsonProperty("0")]
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public ClueCondition condition1 { get; set; } 
+        public int clueid { get; set; } 
         
         [JsonProperty("2")]
-        public int condition1id { get; set; } 
+        public ClueCondition condition1 { get; set; } 
         
         [JsonProperty("3")]
-        public ClueCondition condition2 { get; set; } 
+        public int condition1id { get; set; } 
         
         [JsonProperty("4")]
-        public int condition2id { get; set; } 
+        public ClueCondition condition2 { get; set; } 
         
         [JsonProperty("5")]
-        public ClueCondition condition3 { get; set; } 
+        public int condition2id { get; set; } 
         
         [JsonProperty("6")]
-        public int condition3id { get; set; } 
+        public ClueCondition condition3 { get; set; } 
         
         [JsonProperty("7")]
-        public string avatarpath { get; set; } 
+        public int condition3id { get; set; } 
         
         [JsonProperty("8")]
-        public ClueCategory category { get; set; } 
+        public string avatarpath { get; set; } 
         
         [JsonProperty("9")]
-        public string text { get; set; } 
+        public ClueCategory category { get; set; } 
         
         [JsonProperty("10")]
-        public string filepath { get; set; } 
+        public string text { get; set; } 
         
         [JsonProperty("11")]
-        public string message { get; set; } 
+        public string filepath { get; set; } 
         
         [JsonProperty("12")]
-        public string task { get; set; } 
+        public string message { get; set; } 
         
         [JsonProperty("13")]
-        public ClueMemoryType memorytype { get; set; } 
+        public string task { get; set; } 
         
         [JsonProperty("14")]
-        public int heroid { get; set; } 
+        public ClueMemoryType memorytype { get; set; } 
         
         [JsonProperty("15")]
+        public int heroid { get; set; } 
+        
+        [JsonProperty("16")]
         public int orderno { get; set; } 
+        
+        [JsonProperty("17")]
+        public int questid { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
+            clueid = (int)vals["clueid"];
             condition1 = (ClueCondition)vals["condition1"];
             condition1id = (int)vals["condition1id"];
             condition2 = (ClueCondition)vals["condition2"];
@@ -4775,6 +4810,7 @@ namespace Kopio.JsonContracts
             memorytype = (ClueMemoryType)vals["memorytype"];
             heroid = (int)vals["heroid"];
             orderno = (int)vals["orderno"];
+            questid = (int)vals["questid"];
         }
     }
     
@@ -4785,24 +4821,24 @@ namespace Kopio.JsonContracts
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public string name { get; set; } 
+        public int heroid { get; set; } 
         
         [JsonProperty("2")]
-        public int orderno { get; set; } 
+        public string name { get; set; } 
         
         [JsonProperty("3")]
-        public string avatarpath { get; set; } 
+        public int orderno { get; set; } 
         
         [JsonProperty("4")]
-        public int questid { get; set; } 
+        public string avatarpath { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
+            heroid = (int)vals["heroid"];
             name = (string)vals["name"];
             orderno = (int)vals["orderno"];
             avatarpath = (string)vals["avatarpath"];
-            questid = (int)vals["questid"];
         }
     }
     
@@ -4813,26 +4849,30 @@ namespace Kopio.JsonContracts
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public int lvl { get; set; } 
+        public int dialogueid { get; set; } 
         
         [JsonProperty("2")]
-        public string avatarpath { get; set; } 
+        public int lvl { get; set; } 
         
         [JsonProperty("3")]
-        public string text { get; set; } 
+        public string avatarpath { get; set; } 
         
         [JsonProperty("4")]
-        public bool isuse { get; set; } 
+        public string text { get; set; } 
         
         [JsonProperty("5")]
-        public int probability { get; set; } 
+        public bool isuse { get; set; } 
         
         [JsonProperty("6")]
+        public int probability { get; set; } 
+        
+        [JsonProperty("7")]
         public int reward { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
+            dialogueid = (int)vals["dialogueid"];
             lvl = (int)vals["lvl"];
             avatarpath = (string)vals["avatarpath"];
             text = (string)vals["text"];
@@ -4849,35 +4889,39 @@ namespace Kopio.JsonContracts
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public string avatarpath { get; set; } 
+        public int dialogueid { get; set; } 
         
         [JsonProperty("2")]
-        public ClueCategory category { get; set; } 
+        public string avatarpath { get; set; } 
         
         [JsonProperty("3")]
-        public string text { get; set; } 
+        public ClueCategory category { get; set; } 
         
         [JsonProperty("4")]
-        public string filepath { get; set; } 
+        public string text { get; set; } 
         
         [JsonProperty("5")]
-        public string message { get; set; } 
+        public string filepath { get; set; } 
         
         [JsonProperty("6")]
-        public string task { get; set; } 
+        public string message { get; set; } 
         
         [JsonProperty("7")]
-        public bool isuse { get; set; } 
+        public string task { get; set; } 
         
         [JsonProperty("8")]
-        public int probability { get; set; } 
+        public bool isuse { get; set; } 
         
         [JsonProperty("9")]
+        public int probability { get; set; } 
+        
+        [JsonProperty("10")]
         public int time { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
+            dialogueid = (int)vals["dialogueid"];
             avatarpath = (string)vals["avatarpath"];
             category = (ClueCategory)vals["category"];
             text = (string)vals["text"];
@@ -5852,7 +5896,7 @@ namespace Kopio.JsonContracts
         public bool repeatable { get; set; } 
         
         [JsonProperty("12")]
-        public int combattimecost { get; set; } 
+        public int battletimecost { get; set; } 
         
         [JsonProperty("13")]
         public int completetime { get; set; } 
@@ -5882,24 +5926,27 @@ namespace Kopio.JsonContracts
         public int chestreqvalue3 { get; set; } 
         
         [JsonProperty("22")]
-        public int baseefficiency { get; set; } 
+        public int chestitemid { get; set; } 
         
         [JsonProperty("23")]
-        public int levelrelvalue { get; set; } 
+        public int baseefficiency { get; set; } 
         
         [JsonProperty("24")]
-        public int levelmaxefficiency { get; set; } 
+        public int levelrelvalue { get; set; } 
         
         [JsonProperty("25")]
-        public int trustrelvalue { get; set; } 
+        public int levelmaxefficiency { get; set; } 
         
         [JsonProperty("26")]
-        public int trustmaxefficiency { get; set; } 
+        public int trustrelvalue { get; set; } 
         
         [JsonProperty("27")]
-        public TerrainType terraintype { get; set; } 
+        public int trustmaxefficiency { get; set; } 
         
         [JsonProperty("28")]
+        public TerrainType terraintype { get; set; } 
+        
+        [JsonProperty("29")]
         public int exploregroupid { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -5916,7 +5963,7 @@ namespace Kopio.JsonContracts
             reqmonsterlevel = (int)vals["reqmonsterlevel"];
             maxherocount = (int)vals["maxherocount"];
             repeatable = (bool)vals["repeatable"];
-            combattimecost = (int)vals["combattimecost"];
+            battletimecost = (int)vals["battletimecost"];
             completetime = (int)vals["completetime"];
             reqitemid = (int)vals["reqitemid"];
             reqitemcount = (int)vals["reqitemcount"];
@@ -5926,6 +5973,7 @@ namespace Kopio.JsonContracts
             chestreqvalue2 = (int)vals["chestreqvalue2"];
             chestreqtype3 = (ChestRequirementType)vals["chestreqtype3"];
             chestreqvalue3 = (int)vals["chestreqvalue3"];
+            chestitemid = (int)vals["chestitemid"];
             baseefficiency = (int)vals["baseefficiency"];
             levelrelvalue = (int)vals["levelrelvalue"];
             levelmaxefficiency = (int)vals["levelmaxefficiency"];
@@ -5953,13 +6001,10 @@ namespace Kopio.JsonContracts
         public string iconpath { get; set; } 
         
         [JsonProperty("4")]
-        public int chestitemid { get; set; } 
-        
-        [JsonProperty("5")]
         public int rewardgroupid { get; set; } 
         
-        [JsonProperty("6")]
-        public string looktarget { get; set; } 
+        [JsonProperty("5")]
+        public int lootlinkid { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
@@ -5967,9 +6012,8 @@ namespace Kopio.JsonContracts
             exploregroupid = (int)vals["exploregroupid"];
             localizedname = (string)vals["localizedname"];
             iconpath = (string)vals["iconpath"];
-            chestitemid = (int)vals["chestitemid"];
             rewardgroupid = (int)vals["rewardgroupid"];
-            looktarget = (string)vals["looktarget"];
+            lootlinkid = (int)vals["lootlinkid"];
         }
     }
     
@@ -7315,46 +7359,6 @@ namespace Kopio.JsonContracts
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class RespawnJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public string name { get; set; } 
-        
-        [JsonProperty("2")]
-        public int respawnid { get; set; } 
-        
-        [JsonProperty("3")]
-        public bool siturespawn { get; set; } 
-        
-        [JsonProperty("4")]
-        public string deductitem { get; set; } 
-        
-        [JsonProperty("5")]
-        public string deductcurrency { get; set; } 
-        
-        [JsonProperty("6")]
-        public ReturnType returntype { get; set; } 
-        
-        [JsonProperty("7")]
-        public int countdown { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            name = (string)vals["name"];
-            respawnid = (int)vals["respawnid"];
-            siturespawn = (bool)vals["siturespawn"];
-            deductitem = (string)vals["deductitem"];
-            deductcurrency = (string)vals["deductcurrency"];
-            returntype = (ReturnType)vals["returntype"];
-            countdown = (int)vals["countdown"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
     public class OnsenJson
     {
         [JsonProperty("0")]
@@ -7427,6 +7431,73 @@ namespace Kopio.JsonContracts
             goldCount = (int)vals["goldCount"];
             goldMax = (int)vals["goldMax"];
             design = (int)vals["design"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class WorldMapCountryMonsterJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        //type WorldMapCountryJson
+        [JsonProperty("1")]
+        public int country { get; set; } 
+        
+        //type CombatNPCJson
+        [JsonProperty("2")]
+        public int archetype { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            country = (int)vals["country"];
+            archetype = (int)vals["archetype"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class WorldMapCountryPlaceJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        //type WorldMapCountryJson
+        [JsonProperty("1")]
+        public int country { get; set; } 
+        
+        [JsonProperty("2")]
+        public string placeiconpath { get; set; } 
+        
+        [JsonProperty("3")]
+        public string placename { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            country = (int)vals["country"];
+            placeiconpath = (string)vals["placeiconpath"];
+            placename = (string)vals["placename"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class WorldMapCountryJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public string countryname { get; set; } 
+        
+        [JsonProperty("2")]
+        public string lv { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            countryname = (string)vals["countryname"];
+            lv = (string)vals["lv"];
         }
     }
     
@@ -7625,13 +7696,10 @@ namespace Kopio.JsonContracts
         public Dictionary<int, RealmWorldJson> RealmWorld = new Dictionary<int, RealmWorldJson>();
 
         [JsonProperty]
-        public Dictionary<int, DungeonStoryJson> DungeonStory = new Dictionary<int, DungeonStoryJson>();
+        public Dictionary<int, DungeonJson> Dungeon = new Dictionary<int, DungeonJson>();
 
         [JsonProperty]
-        public Dictionary<int, DungeonDailySpecialJson> DungeonDailySpecial = new Dictionary<int, DungeonDailySpecialJson>();
-
-        [JsonProperty]
-        public Dictionary<int, RealmObjectiveJson> RealmObjective = new Dictionary<int, RealmObjectiveJson>();
+        public Dictionary<int, RespawnJson> Respawn = new Dictionary<int, RespawnJson>();
 
         [JsonProperty]
         public Dictionary<int, WordFilterJson> WordFilter = new Dictionary<int, WordFilterJson>();
@@ -7734,6 +7802,12 @@ namespace Kopio.JsonContracts
 
         [JsonProperty]
         public Dictionary<int, QuestDestinyJson> QuestDestiny = new Dictionary<int, QuestDestinyJson>();
+
+        [JsonProperty]
+        public Dictionary<int, QuestSignboardJson> QuestSignboard = new Dictionary<int, QuestSignboardJson>();
+
+        [JsonProperty]
+        public Dictionary<int, SignboardLimitJson> SignboardLimit = new Dictionary<int, SignboardLimitJson>();
 
         [JsonProperty]
         public Dictionary<int, DestinyClueJson> DestinyClue = new Dictionary<int, DestinyClueJson>();
@@ -7895,10 +7969,16 @@ namespace Kopio.JsonContracts
         public Dictionary<int, QuestExtraRewardJson> QuestExtraReward = new Dictionary<int, QuestExtraRewardJson>();
 
         [JsonProperty]
-        public Dictionary<int, RespawnJson> Respawn = new Dictionary<int, RespawnJson>();
+        public Dictionary<int, OnsenJson> Onsen = new Dictionary<int, OnsenJson>();
 
         [JsonProperty]
-        public Dictionary<int, OnsenJson> Onsen = new Dictionary<int, OnsenJson>();
+        public Dictionary<int, WorldMapCountryMonsterJson> WorldMapCountryMonster = new Dictionary<int, WorldMapCountryMonsterJson>();
+
+        [JsonProperty]
+        public Dictionary<int, WorldMapCountryPlaceJson> WorldMapCountryPlace = new Dictionary<int, WorldMapCountryPlaceJson>();
+
+        [JsonProperty]
+        public Dictionary<int, WorldMapCountryJson> WorldMapCountry = new Dictionary<int, WorldMapCountryJson>();
 
         [JsonProperty]
         public List<LotteryMain__lotterypointidJson> LotteryMain__lotterypointid = new List<LotteryMain__lotterypointidJson>();
@@ -8093,14 +8173,11 @@ namespace Kopio.JsonContracts
                 case "RealmWorldJson":
                 RealmWorld.Add((item as RealmWorldJson).id, item as RealmWorldJson);
                 break;
-                case "DungeonStoryJson":
-                DungeonStory.Add((item as DungeonStoryJson).id, item as DungeonStoryJson);
+                case "DungeonJson":
+                Dungeon.Add((item as DungeonJson).id, item as DungeonJson);
                 break;
-                case "DungeonDailySpecialJson":
-                DungeonDailySpecial.Add((item as DungeonDailySpecialJson).id, item as DungeonDailySpecialJson);
-                break;
-                case "RealmObjectiveJson":
-                RealmObjective.Add((item as RealmObjectiveJson).id, item as RealmObjectiveJson);
+                case "RespawnJson":
+                Respawn.Add((item as RespawnJson).id, item as RespawnJson);
                 break;
                 case "WordFilterJson":
                 WordFilter.Add((item as WordFilterJson).id, item as WordFilterJson);
@@ -8203,6 +8280,12 @@ namespace Kopio.JsonContracts
                 break;
                 case "QuestDestinyJson":
                 QuestDestiny.Add((item as QuestDestinyJson).id, item as QuestDestinyJson);
+                break;
+                case "QuestSignboardJson":
+                QuestSignboard.Add((item as QuestSignboardJson).id, item as QuestSignboardJson);
+                break;
+                case "SignboardLimitJson":
+                SignboardLimit.Add((item as SignboardLimitJson).id, item as SignboardLimitJson);
                 break;
                 case "DestinyClueJson":
                 DestinyClue.Add((item as DestinyClueJson).id, item as DestinyClueJson);
@@ -8363,11 +8446,17 @@ namespace Kopio.JsonContracts
                 case "QuestExtraRewardJson":
                 QuestExtraReward.Add((item as QuestExtraRewardJson).id, item as QuestExtraRewardJson);
                 break;
-                case "RespawnJson":
-                Respawn.Add((item as RespawnJson).id, item as RespawnJson);
-                break;
                 case "OnsenJson":
                 Onsen.Add((item as OnsenJson).id, item as OnsenJson);
+                break;
+                case "WorldMapCountryMonsterJson":
+                WorldMapCountryMonster.Add((item as WorldMapCountryMonsterJson).id, item as WorldMapCountryMonsterJson);
+                break;
+                case "WorldMapCountryPlaceJson":
+                WorldMapCountryPlace.Add((item as WorldMapCountryPlaceJson).id, item as WorldMapCountryPlaceJson);
+                break;
+                case "WorldMapCountryJson":
+                WorldMapCountry.Add((item as WorldMapCountryJson).id, item as WorldMapCountryJson);
                 break;
                 case "LotteryMain__lotterypointidJson":
                 LotteryMain__lotterypointid.Add(item as LotteryMain__lotterypointidJson);

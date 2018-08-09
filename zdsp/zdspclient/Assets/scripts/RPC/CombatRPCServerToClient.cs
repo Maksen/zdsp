@@ -275,10 +275,10 @@ public partial class ClientMain : MonoBehaviour
         //if(messagetype == (byte)MessageType.System)
         //HUD.Combat.SetTickerMessage(message);
 
-        //HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-        //if (hudChat)
-           // hudChat.AddToChatLog(messagetype, message, sender, whisperTo, portraitId, jobSect, vipLvl,
-               // (FactionType) faction, isVoiceChat);
+        HUD_Chatroom hudChatroom = UIManager.GetWidget(HUDWidgetType.Chatroom).GetComponent<HUD_Chatroom>();
+        if (hudChatroom != null)
+            hudChatroom.AddToChatLog(messagetype, message, sender, whisperTo, portraitId, jobSect, 
+                                     vipLvl, faction, isVoiceChat);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.Ret_SendSystemMessageById)]
@@ -512,15 +512,13 @@ public partial class ClientMain : MonoBehaviour
         if (retCode == OpenSlotRetCode.Success)
         {
             var message = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_OpenNewSlot");
-           // HUD_Chat hudChat = UIManager.GetWidget(HUDWidgetType.Chat).GetComponent<HUD_Chat>();
-            //if (hudChat)
-               // hudChat.AddToChatLog((byte) MessageType.System, message, "", "");
+            UIManager.AddToChat((byte)MessageType.System, message);
 
             //if (UIManager.IsWindowOpen(WindowType.Dialog_CharInfo_UnLockItemBox))
             //    UIManager.CloseDialog(WindowType.Dialog_CharInfo_UnLockItemBox);
 
             //will be called on init and on vipLvl changed amd when there is slot change
-           // GameInfo.gLocalPlayer.clientInvCtrl.StartAutoUnlock(nextOpenTime);
+            // GameInfo.gLocalPlayer.clientInvCtrl.StartAutoUnlock(nextOpenTime);
         }
         else if (retCode == OpenSlotRetCode.Fail_Gold)
         {
@@ -833,52 +831,48 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_GetWorldBossList)]
     public void Ret_GetWorldBossList(string result)
     {
-        result = result.TrimEnd(';');
-        //todo if world boss ui is active decode result to data we want.
-        Dictionary<int, SpecialBossStatus> _specialBossStatus = new Dictionary<int, SpecialBossStatus>();
-        if (!string.IsNullOrEmpty(result))
-        {
-            string[] _bossArray = result.Split(';');
-            for (int index = 0; index < _bossArray.Length; index++)
-            {
-                SpecialBossStatus _bossStatus = SpecialBossStatus.Deserialize(_bossArray[index]);
-                if (_bossStatus != null)
-                    _specialBossStatus[_bossStatus.id] = _bossStatus;
-            } 
-        }
-        //todo refresh world boss ui base on _specialBossStatus, filter by category and order by sequence asc before populate the list;
-        //SpecialBossRepo.GetOrderedBossIdsByCategory(category)  
-        //base on id list and if _specialBossStatus contains the id means can popolate it.
-        GameObject worldbossRankDialogObj = UIManager.GetWindowGameObject(WindowType.DialogWorldBossRanking);
-        UI_DamangeRankData uiDamangeRankData = worldbossRankDialogObj.GetComponent<UI_DamangeRankData>();
-        //-------------------------------------------------------------------------------------------------------------
         GameObject dailyQuestObj = UIManager.GetWindowGameObject(WindowType.DailyQuest);
-        Model_3DAvatar model_3DAvatar = dailyQuestObj.GetComponentInChildren<Model_3DAvatar>();
-        UI_SpecialBoss_Detail uiSpecialBoss = dailyQuestObj.GetComponentInChildren<UI_SpecialBoss_Detail>();
-        BossListData uiSpecialBossData = dailyQuestObj.GetComponentInChildren<BossListData>();
-        
-        if(uiSpecialBoss != null)
+        if (dailyQuestObj.activeInHierarchy)
         {
-            uiSpecialBoss.InitWorldBossList(uiDamangeRankData,_specialBossStatus, model_3DAvatar);
-        }
-        
-        if (uiSpecialBossData != null)
-        {
-            uiSpecialBossData.RefreshWorldBossListData(uiSpecialBoss, uiDamangeRankData , _specialBossStatus);
+            UI_DailyActivity component = dailyQuestObj.GetComponent<UI_DailyActivity>();
+            if (component.TabController.IsTabOn(2))
+            {
+                UIManager.StopHourglass();
+                result = result.TrimEnd(';');
+
+                Dictionary<int, SpecialBossStatus> _specialBossStatus = new Dictionary<int, SpecialBossStatus>();
+                if (!string.IsNullOrEmpty(result))
+                {
+                    string[] _bossArray = result.Split(';');
+                    for (int index = 0; index < _bossArray.Length; index++)
+                    {
+                        SpecialBossStatus _bossStatus = SpecialBossStatus.Deserialize(_bossArray[index]);
+                        if (_bossStatus != null)
+                            _specialBossStatus[_bossStatus.id] = _bossStatus;
+                    }
+                }
+
+                component.Ret_GetWorldBossList(_specialBossStatus);
+            }
         }
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_GetWorldBossDmgList)]
     public void Ret_GetWorldBossDmgList(string result)
     {
-        UIManager.StopHourglass();
-        BossKillData _bossKillData = null;
-        if (!string.IsNullOrEmpty(result))
-            _bossKillData = BossKillData.DeserializeFromDB(result);
-        //todo refresh bossdamagelist with _bossKillData
-        GameObject worldbossRankDialogObj = UIManager.GetWindowGameObject(WindowType.DialogWorldBossRanking);
-        UI_DamangeRankData uiDamangeRankData = worldbossRankDialogObj.GetComponent<UI_DamangeRankData>();
-        uiDamangeRankData.InitDamangeRankData(_bossKillData);
+        GameObject dailyQuestObj = UIManager.GetWindowGameObject(WindowType.DailyQuest);
+        if (dailyQuestObj.activeInHierarchy)
+        {
+            UI_DailyActivity component = dailyQuestObj.GetComponent<UI_DailyActivity>();
+            if (component.TabController.IsTabOn(2))
+            {
+                UIManager.StopHourglass();
+                BossKillData _bossKillData = null;
+                if (!string.IsNullOrEmpty(result))
+                    _bossKillData = BossKillData.DeserializeFromDB(result);
+                UIManager.OpenDialog(WindowType.DialogWorldBossRanking, (dialog) => dialog.GetComponent<UI_WorldBossRanking>().Init(_bossKillData));
+            }
+        }
     }
     #endregion
 

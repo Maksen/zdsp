@@ -25,6 +25,11 @@ namespace Zealot.Server.Rules
             return peer.mPlayer.Slot.mInventory.UseToolItems((ushort)material.mMat.mItemID, (ushort)material.mMat.mAmount, "EquipUpgrade");
         }
 
+        public static InvRetval UseMaterials(List<ItemInfo> materials, GameClientPeer peer)
+        {
+            return peer.mPlayer.Slot.mInventory.UseToolItems(materials, "EquipReform");
+        }
+
         public static bool IsEnoughReformMaterials(List<EquipModMaterial> matList, GameClientPeer peer)
         {
             for(int i = 0; i < matList.Count; ++i)

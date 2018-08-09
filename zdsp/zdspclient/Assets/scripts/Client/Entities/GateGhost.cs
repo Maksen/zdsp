@@ -12,9 +12,7 @@ namespace Zealot.Client.Entities
 
         public void Init(float width, float height, string prefab, Vector3 pos, Vector3 forward)
         {
-            string modelPath = string.Format("Models_piliq/Others/prefabs/{0}.prefab", prefab);
-
-            var gatePrefab = AssetManager.LoadSceneNPC(modelPath);
+            var gatePrefab = AssetManager.LoadSceneNPC(prefab);
             if (gatePrefab != null)
             {
                 AnimObj = (GameObject)UnityEngine.Object.Instantiate(gatePrefab);
@@ -27,7 +25,7 @@ namespace Zealot.Client.Entities
                 AnimObj.transform.localScale = new Vector3(width, height, 1);
             }
             else
-                Debug.LogErrorFormat("{0} not found in SceneNPCContainer", modelPath);
+                Debug.LogErrorFormat("{0} not found in SceneNPCContainer", prefab);
         }
     }
 }

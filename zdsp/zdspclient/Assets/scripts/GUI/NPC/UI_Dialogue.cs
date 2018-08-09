@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Zealot.Client.Entities;
 using Zealot.Repository;
 using Kopio.JsonContracts;
@@ -17,8 +16,6 @@ public class UI_Dialogue : BaseWindowBehaviour
     GameObject SelectionObject;
 
     private QuestNPC mQuestNPC;
-    private UI_DialogueAvatar mNPC;
-    private UI_DialogueAvatar mPlayer;
     private int mStep = 0;
     private int mTotalStep = 0;
     private QuestTalkDetailJson mTalkJson = null;
@@ -48,7 +45,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mQuestNPC = npc;
         mSelectionObjects = new List<GameObject>();
         mTalkJson = QuestRepo.GetQuestTalkByID(talkid);
-        mNPCJson = npc.staticNPCJson;
+        mNPCJson = npc.mArchetype;
         mCompletedAllQuest = completedall;
         mStep = 0;
         mQuestList = questlist;

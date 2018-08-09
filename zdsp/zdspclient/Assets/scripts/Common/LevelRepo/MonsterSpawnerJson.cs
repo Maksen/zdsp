@@ -44,7 +44,6 @@ namespace Zealot.Entities
 
     public class PositionHelperData
     {
-        public int id;
         public float aggroRadius;
         public float combatRadius;
         public Vector3 position;
@@ -55,6 +54,7 @@ namespace Zealot.Entities
         public List<PositionHelperData> positionhelper;
         public bool canroam;
         public bool canpathfind;
+        public bool aggressive;
 
         public override string GetServerClassName() { return "SpecialBossSpawner"; }
     }

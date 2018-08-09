@@ -1,14 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using Zealot.Client.Entities;
 using Zealot.Repository;
 using Kopio.JsonContracts;
+using Zealot.Client.Entities;
+using Zealot.Common;
 
 public class UI_DialogueAvatar : MonoBehaviour
 {
     [SerializeField]
     Transform AvatarContent;
+
+    [SerializeField]
+    Model_3DAvatar PlayerAvatar;
 
     [SerializeField]
     Text Name;
@@ -28,7 +32,7 @@ public class UI_DialogueAvatar : MonoBehaviour
             StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCById(npcid);
             if (npcJson != null)
             {
-                OnNpcLoaded(npcid, AssetManager.LoadSceneNPC(npcJson.modelprefabpath));
+                OnNpcLoaded(npcid, AssetManager.LoadSceneNPC(npcJson.modelprefabpath), npcJson);
             }
         }
     }
@@ -39,8 +43,11 @@ public class UI_DialogueAvatar : MonoBehaviour
         {
             return;
         }
-        
-        OnPlayerLoaded(ClientUtils.InstantiatePlayer(GameInfo.gLocalPlayer.mGender));
+
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        PlayerAvatar.Change(player.mEquipmentInvData, (JobType)player.PlayerSynStats.jobsect, player.mGender, null);
+        mPlayer = PlayerAvatar.GetOutfitModel();
+        mPlayer.SetActive(false);
     }
 
     private void OnPlayerLoaded(GameObject asset)
@@ -52,12 +59,17 @@ public class UI_DialogueAvatar : MonoBehaviour
         }
     }
 
-    private void OnNpcLoaded(int npcid, GameObject asset)
+    private void OnNpcLoaded(int npcid, GameObject asset, StaticNPCJson npcJson)
     {
+        if (asset == null)
+        {
+            asset = AssetManager.LoadAsset<GameObject>(npcJson.containerprefabpath, npcJson.modelprefabpath);
+        }
+
         if (asset != null)
         {
             GameObject go = Instantiate(asset);
-            RemoveComponent(go);
+            //RemoveComponent(go);
             mNpcList.Add(npcid, go);
         }
     }
@@ -110,7 +122,7 @@ public class UI_DialogueAvatar : MonoBehaviour
     {
         if (mPlayer != null)
         {
-            Destroy(mPlayer);
+            PlayerAvatar.Cleanup();
         }
 
         if (mNpcList != null)

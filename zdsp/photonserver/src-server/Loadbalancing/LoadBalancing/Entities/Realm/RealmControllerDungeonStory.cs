@@ -5,7 +5,6 @@ using Zealot.Common;
 using Zealot.Entities;
 using Zealot.Common.Entities;
 using Zealot.Common.Datablock;
-using Zealot.Repository;
 using Zealot.Server.Rules;
 using System.Text;
 using System;
@@ -14,7 +13,7 @@ namespace Zealot.Server.Entities
 {
     public class RealmControllerDungeonStory : RealmControllerBossSlowMotion
     {
-        public DungeonStoryJson mDungeonStoryInfo;
+        public DungeonJson mDungeonStoryInfo;
         public DungeonObjectiveStats mDungeonObjectiveStats;
         private long mElapsedTime = 0;
         private int mPlayerDeathCount;
@@ -25,13 +24,13 @@ namespace Zealot.Server.Entities
         {
             if (!IsCorrectController())
                 return;
-            mDungeonStoryInfo = (DungeonStoryJson)mRealmInfo;
+            mDungeonStoryInfo = (DungeonJson)mRealmInfo;
             mCountDownOnMissionCompleted = 30;
         }
 
         public override bool IsCorrectController()
         {
-            return mRealmInfo.type == RealmType.DungeonStory;
+            return mRealmInfo.type == RealmType.Dungeon;
         }
 
         public override bool CanReconnect()
@@ -184,13 +183,13 @@ namespace Zealot.Server.Entities
                     List<ItemInfo> itemList;
                     if (isEventOn)
                     {
-                        itemList = GameRules.GiveRewardGrp_CheckBagSlotThenMail_WithAdditionalItems(player, new List<int>() { mDungeonStoryInfo.rewardgrp },
+                        itemList = GameRules.GiveRewardGrp_CheckBagSlotThenMail_WithAdditionalItems(player, new List<int>() { mDungeonStoryInfo.lootrewarditems },
                                         "Reward_DungeonStory", null, true, false, string.Format("RealmStory id={0}", mDungeonStoryInfo.id),
                                         rewardMultiplier, extraRewardItemID, extraRewardPercent, extraRewardStackCount);
                     }
                     else
                     {
-                        itemList = GameRules.GiveReward_CheckBagSlotThenMail(player, new List<int>() { mDungeonStoryInfo.rewardgrp },
+                        itemList = GameRules.GiveReward_CheckBagSlotThenMail(player, new List<int>() { mDungeonStoryInfo.lootrewarditems },
                                         "Reward_DungeonStory", null, true, false, string.Format("RealmStory id={0}", mDungeonStoryInfo.id));
                     }
 
@@ -211,7 +210,7 @@ namespace Zealot.Server.Entities
 
                 player.Slot.mQuestExtraRewardsCtrler.UpdateTask(QuestExtraType.StoryDungeon);
 
-                LogMissionComplete(player.Slot, mRealmInfo.id, (int)mDungeonStoryInfo.difficulty, mRealmInfo.reqlvl, entryBefore, entryAfter, true, mDungeonStoryInfo.rewardgrp, stars);
+                LogMissionComplete(player.Slot, mRealmInfo.id, (int)mDungeonStoryInfo.difficulty, mRealmInfo.reqlvl, entryBefore, entryAfter, true, mDungeonStoryInfo.lootrewarditems, stars);
             }
         }
 

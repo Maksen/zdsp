@@ -167,7 +167,7 @@ public class EquipmentModdingScrollView : MonoBehaviour
 
                 isEquipped = displayIdx <= bagStart;
 
-                equipmentRowData.AddData(uiEquipReform, upgEquip.mSlotID, upgEquip.mEquip, isEquipped, toggleGroup);
+                equipmentRowData.AddData(uiEquipReform, uiEquipReform.reformTab.isOn, upgEquip.mSlotID, upgEquip.mEquip, isEquipped, toggleGroup);
             }
         }
     }
@@ -204,7 +204,7 @@ public class EquipmentModdingScrollView : MonoBehaviour
                 }
                 else
                 {
-                    equipmentRowData.UpdateData(c, uiEquipReform, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
+                    equipmentRowData.UpdateData(c, uiEquipReform, uiEquipReform.reformTab.isOn, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
                 }
             }
         }
@@ -412,7 +412,7 @@ public class EquipmentModdingScrollView : MonoBehaviour
             }
             else
             {
-                equipmentRowData.AddData(uiEquipReform, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
+                equipmentRowData.AddData(uiEquipReform, uiEquipReform.reformTab.isOn, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
             }
         }
     }

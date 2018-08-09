@@ -101,6 +101,7 @@ namespace Zealot.Client.Entities
                 mAnimObj.transform.position = Position;
                 mAnimObj.transform.forward = Forward;
                 Name = mHeroJson.localizedname;
+                SetHeadLabel();
 
                 Show(false);
                 Idle();
@@ -192,19 +193,24 @@ namespace Zealot.Client.Entities
         {
             base.Show(val);
             if (HeadLabel != null)
-                mHeadLabel.Show(val);
+                HeadLabel.Show(val);
         }
 
         private void ShowHeadLabelAndShadow(bool value)
         {
             if (HeadLabel != null)
-                mHeadLabel.Show(value);
+                HeadLabel.Show(value);
             ShowShadow(value);
         }
 
         public override int GetDisplayLevel()
         {
             return HeroSynStats.Level;
+        }
+
+        public override void SetHeadLabel(bool init = false)
+        {
+            HeadLabel.SetHeroLabel(this);
         }
 
         public override ICombatStats CombatStats

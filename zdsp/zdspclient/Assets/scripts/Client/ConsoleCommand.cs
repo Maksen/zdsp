@@ -1147,7 +1147,10 @@ public class CommandManager
     [ConsoleCmd("Spawn Special Boss")]
     public void SpawnSpecialBoss(string[] param)
     {
-        RPCFactory.NonCombatRPC.ConsoleSpawnSpecialBoss();
+        if (param.Length == 1)
+            RPCFactory.NonCombatRPC.ConsoleSpawnSpecialBoss(param[0]);
+        else
+            PrintToConsole("Format: \\SpawnSpecialBoss name");
     }
 
     [ConsoleCmd("Create Guild. Parameters: guildname guildicon")]

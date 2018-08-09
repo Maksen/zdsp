@@ -164,9 +164,8 @@ public class ActorNameTagController : MonoBehaviour {
         bool isPartyMember = GameInfo.gLocalPlayer.IsInParty() && GameInfo.gLocalPlayer.PartyStats.IsMember(pg.Name);
         switch (GameInfo.mRealmInfo.type)
         {
-            case RealmType.DungeonDailySpecial:
-            case RealmType.DungeonStory:
-            case RealmType.RealmWorld:
+            case RealmType.Dungeon:
+            case RealmType.World:
                 if (isPartyMember)
                 {
                     mPlayerLabel.SetPartyMember();
@@ -197,10 +196,9 @@ public class ActorNameTagController : MonoBehaviour {
 
         switch (GameInfo.mRealmInfo.type)
         {
-            case RealmType.DungeonDailySpecial:
-            case RealmType.DungeonStory:
+            case RealmType.Dungeon:
             //case RealmType.RealmTutorial:
-            case RealmType.RealmWorld:
+            case RealmType.World:
                 switch (mg.mArchetype.monsterclass)
                 {
                     case MonsterClass.Normal:
@@ -215,6 +213,14 @@ public class ActorNameTagController : MonoBehaviour {
             default:
                 break;
         } // end switch
+    }
+
+    public void SetHeroLabel(HeroGhost hg)
+    {
+        if (hg == null)
+            return;
+
+        mPlayerLabel.Name = hg.Name;
     }
 
     public void Show(bool val)

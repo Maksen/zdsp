@@ -522,6 +522,7 @@ public partial class ClientMain : MonoBehaviour
         GameInfo.gLocalPlayer.InitMap();
         GameInfo.gLocalPlayer.SetHeadLabel(true);
         GameInfo.gLocalPlayer.CheckQuestTeleportAction();
+        GameInfo.gLocalPlayer.UpdatePlayerCompanion();
         //handle auto combat .
         bool startbot = false;
         RealmJson mRealmInfo = GameInfo.mRealmInfo;
@@ -539,8 +540,7 @@ public partial class ClientMain : MonoBehaviour
                 //        TrainingRealmContoller.Instance.RealmStart();
                 //    }
                 //    break;
-                case RealmType.DungeonStory:
-                case RealmType.DungeonDailySpecial:
+                case RealmType.Dungeon:
                 //case RealmType.ActivityGuildSMBoss:
                 //case RealmType.Arena:
                 //case RealmType.InvitePVP:
@@ -962,8 +962,8 @@ public partial class ClientMain : MonoBehaviour
         strFormatParam.Add("lvl", realmJson.reqlvl.ToString());
         areYouSureEnterStr = GameUtils.FormatString(areYouSureEnterStr, strFormatParam);
         StringBuilder sb = new StringBuilder(areYouSureEnterStr);
-        if (realmJson.type == RealmType.DungeonDailySpecial)
-            sb.Append(GUILocalizationRepo.GetLocalizedString("dun_DifficultyWarning"));
+        //if (realmJson.type == RealmType.DungeonDailySpecial)
+        //    sb.Append(GUILocalizationRepo.GetLocalizedString("dun_DifficultyWarning"));
         sb.AppendLine();
         if (!hasEntry)
         {
@@ -1060,7 +1060,6 @@ public partial class ClientMain : MonoBehaviour
             hud_selectTarget.SetTargetHeath(displayHp);
     }
     #endregion
-
 
     public ActorGhost GetClosestValidEnemy(float dist = 12.0f)
     {
@@ -1164,7 +1163,7 @@ public partial class ClientMain : MonoBehaviour
 
     public void OnFinishedTraingingRealm()
     {
-        RPCFactory.CombatRPC.FirstRealmStep((int)Zealot.Common.Trainingstep.Finished);
+        RPCFactory.CombatRPC.FirstRealmStep((int)Trainingstep.Finished);
     }
 
     public void SetUIAmbientLight(bool enable)
@@ -1217,7 +1216,7 @@ public partial class ClientMain : MonoBehaviour
     }
     #endregion
 
-    #region skill casting
+    #region Skill casting
 
     /// <summary>
     /// the function to initial basic attack.
@@ -1316,7 +1315,10 @@ public partial class ClientMain : MonoBehaviour
             return;
         PlayerSkillCDState cdstate = GameInfo.gSkillCDState;
         if (cdstate.IsSkillCoolingDown(skillid))
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CastSkillFail_CD"));
             return;
+        }
         CastSkillCommand castcmd = new CastSkillCommand();
         castcmd.skillid = skillid;
         castcmd.targetpid = targetpid;
@@ -1424,5 +1426,4 @@ public partial class ClientMain : MonoBehaviour
     }
 
     #endregion skill casting
-
 }

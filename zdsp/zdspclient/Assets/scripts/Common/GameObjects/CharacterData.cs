@@ -161,6 +161,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "realminv")]
         public RealmInventoryData RealmInventory { get; set; }
 
+        [JsonProperty(PropertyName = "clueinv")]
+        public DestinyClueInventory ClueInventory { get; set; }
+
         [JsonProperty(PropertyName = "questinv")]
         public QuestInventoryData QuestInventory { get; set; }
 
@@ -190,6 +193,9 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "questextrarewardsinv")]
         public QuestExtraRewardsInvData QuestExtraRewardsInventory { get; set; }
+
+        [JsonProperty(PropertyName = "powerupinv")]
+        public PowerUpInventoryData PowerUpInventory { get; set; }
 
         [JsonProperty(PropertyName = "offlineexpinv2")]
         public OfflineExpInventory2 OfflineExpInv2 { get; set; }
@@ -270,7 +276,7 @@ namespace Zealot.Common
             PortraitData = new PortraitData();
             CharInfoData = new CharacterInfoData();
             HeroInventory = new HeroInvData();
-            
+            PowerUpInventory = new PowerUpInventoryData();
         }
 
         /// <summary>
@@ -278,7 +284,6 @@ namespace Zealot.Common
         /// </summary>
         public void InitDefault(JobType jobsect)
         {
-            BattleTime = 0;
             ItemInventory.InitDefault();
             EquipmentInventory.InitDefault();
             //ItemKindInv.InitDefault();
@@ -292,6 +297,8 @@ namespace Zealot.Common
             //ExchangeShopInv.InitDefault();
             //PortraitData.InitDefault((JobType)jobsect);
             //StoreData.InitDefault();
+            if(PowerUpInventory.powerUpSlots.Count == 0)
+                PowerUpInventory.InitDefault();
         }
 
         public void ValidateDefault()

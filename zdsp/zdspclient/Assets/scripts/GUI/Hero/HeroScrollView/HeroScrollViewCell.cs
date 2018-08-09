@@ -21,6 +21,7 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
     HeroScrollViewContext context;
+    string imagePath = "";
 
     void Start()
     {
@@ -58,9 +59,16 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
             HeroJson heroJson = HeroRepo.GetHeroById(itemData.HeroId);
             if (heroJson != null)
             {
-                Sprite sprite = ClientUtils.LoadIcon(heroJson.portraitpath);
-                if (sprite != null)
-                    image.sprite = sprite;
+                if (imagePath != heroJson.portraitpath)
+                {
+                    Sprite sprite = ClientUtils.LoadIcon(heroJson.portraitpath);
+                    if (sprite != null)
+                        image.sprite = sprite;
+                }
+            }
+            else  // temp to be removed
+            {
+                image.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/HeroCell/zzz_herocell_test.png");
             }
             image.material = itemData.Unlocked ? null : grayScaleMat;
         }

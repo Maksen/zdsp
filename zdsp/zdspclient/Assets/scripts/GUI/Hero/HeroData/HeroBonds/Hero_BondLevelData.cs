@@ -1,20 +1,59 @@
 ﻿using Kopio.JsonContracts;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
+using Zealot.Repository;
 
 public class Hero_BondLevelData : MonoBehaviour
 {
     [SerializeField] Text levelText;
-    [SerializeField] Text reqmt1Text;
-    [SerializeField] Text reqmt2Text;
-    [SerializeField] Text se1Text;
-    [SerializeField] Text se2Text;
+    [SerializeField] Text[] reqmtText;
+    [SerializeField] Text[] seText;
+    [SerializeField] CanvasGroup canvasGroup;
 
-    public void Init(HeroBondJson bondData)
+    public void Init(HeroBondJson bondData, bool unlocked)
     {
+        SetUnlocked(unlocked);
+        levelText.text = bondData.bondlevel.ToString();
+        reqmtText[0].text = GetBondRequirementText(bondData.bondtype1, bondData.bondvalue1);
+        reqmtText[1].text = GetBondRequirementText(bondData.bondtype2, bondData.bondvalue2);
 
+        seText[0].text = ""; // empty out the text first
+        seText[1].text = ""; // empty out the text first
+
+        int index = 0;
+        foreach (SideEffectJson seJson in bondData.sideeffects.Values)
+        {
+            if (index < seText.Length)
+                seText[index++].text = SDGRepo.GetSDGText(seJson);
+        }
     }
-	
+
+    public void SetUnlocked(bool unlocked)
+    {
+        canvasGroup.alpha = unlocked ? 1f : 0.5f;
+    }
+
+    private string GetBondRequirementText(HeroBondType bondType, int value)
+    {
+        string guiname = "";
+        switch (bondType)
+        {
+            case HeroBondType.None:
+                guiname = "";
+                break;
+
+            case HeroBondType.HeroLevel:
+                guiname = "hro_bondreq_herolevel";
+                break;
+
+            case HeroBondType.HeroSkill:
+                guiname = "hro_bondreq_heroskill";
+                break;
+        }
+
+        if (!string.IsNullOrEmpty(guiname))
+            return GUILocalizationRepo.GetLocalizedString(guiname) + GUILocalizationRepo.colon + value;
+        return "";
+    }
 }

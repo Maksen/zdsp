@@ -4,6 +4,8 @@ using System.Collections;
 using Zealot.Common;
 using Zealot.Repository;
 using Kopio.JsonContracts;
+using System.Collections.Generic;
+using Zealot.Client.Entities;
 
 public class UI_ClueMessageData : MonoBehaviour
 {
@@ -28,7 +30,17 @@ public class UI_ClueMessageData : MonoBehaviour
     [SerializeField]
     Sprite SystemIcon;
 
+    [SerializeField]
+    Sprite VideoIcon;
+
+    [SerializeField]
+    Sprite SoundIcon;
+
+    [SerializeField]
+    Sprite PhotoIcon;
+
     private ActivatedClueData mClueData;
+    private long mCountDownTime;
 
     public void Init(ActivatedClueData clueData)
     {
@@ -68,14 +80,14 @@ public class UI_ClueMessageData : MonoBehaviour
             if (clueJson.category == ClueCategory.Word)
             {
                 Message.gameObject.SetActive(true);
-                Message.text = clueJson.message;
+                Message.text = clueJson.text;
                 ClueIcon.gameObject.SetActive(false);
             }
             else
             {
                 Message.gameObject.SetActive(false);
                 ClueIcon.gameObject.SetActive(true);
-                ClientUtils.LoadIconAsync(clueJson.filepath, UpdateClueIcon);
+                ClueIcon.sprite = GetIconSprite(clueJson.category);
             }
             ClockIcon.SetActive(false);
             TimeText.text = mClueData.ActivatedTime;
@@ -100,18 +112,36 @@ public class UI_ClueMessageData : MonoBehaviour
         if (timeClueJson.category == ClueCategory.Word)
         {
             Message.gameObject.SetActive(true);
-            Message.text = timeClueJson.message;
+            Message.text = timeClueJson.text;
             ClueIcon.gameObject.SetActive(false);
         }
         else
         {
             Message.gameObject.SetActive(false);
             ClueIcon.gameObject.SetActive(true);
-            ClientUtils.LoadIconAsync(timeClueJson.filepath, UpdateClueIcon);
+            ClueIcon.sprite = GetIconSprite(timeClueJson.category);
         }
         ClockIcon.SetActive(true);
-        TimeText.text = mClueData.ActivatedTime;
+        mCountDownTime = mClueData.ActivatedDateTime + (timeClueJson.time * 60000);
+        UpdateTime();
         NewClue.SetActive(mClueData.Status == (byte)ClueStatus.New ? true : false);
+    }
+
+    private void UpdateTime()
+    {
+        long currenttime = GameInfo.GetSynchronizedTime();
+        long remaintime = mCountDownTime - currenttime;
+        if (remaintime > 0)
+        {
+            TimeText.text = GUILocalizationRepo.GetShortLocalizedTimeString(remaintime);
+            StartCoroutine(TimeCountDown());
+        }
+    }
+
+    private IEnumerator TimeCountDown()
+    {
+        yield return new WaitForSecondsRealtime(1);
+        UpdateTime();
     }
 
     private void UpdateHeroIcon(Sprite sprite)
@@ -119,14 +149,46 @@ public class UI_ClueMessageData : MonoBehaviour
         HeroIcon.sprite = sprite;
     }
 
-    private void UpdateClueIcon(Sprite sprite)
+    private Sprite GetIconSprite(ClueCategory category)
     {
-        ClueIcon.sprite = sprite;
+        if (category == ClueCategory.Photo)
+        {
+            return PhotoIcon;
+        }
+        else if (category == ClueCategory.Sound)
+        {
+            return SoundIcon;
+        }
+        else if (category == ClueCategory.Video)
+        {
+            return VideoIcon;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public void OnClickClueIcon()
     {
+        RPCFactory.NonCombatRPC.ReadClue(mClueData.ClueId, mClueData.ClueType);
+
         ClueType type = (ClueType)mClueData.ClueType;
-        //open other ui
+        ClueStatus status = (ClueStatus)mClueData.Status;
+        if (type == ClueType.Dialogue)
+        {
+            PlayerGhost player = GameInfo.gLocalPlayer;
+            HeroDialogueClueJson dialogueClueJson = DestinyClueRepo.GetHeroDialogueClueById(mClueData.ClueId);
+            if (dialogueClueJson != null && player != null)
+            {
+                CollectRewardData data = new CollectRewardData(mClueData.ClueId, CollectRewardType.DestinyClue);
+                List<RewardItem> rewardlist = RewardListRepo.GetRewardItemsByGrpIDJobID(dialogueClueJson.reward, player.PlayerSynStats.jobsect);
+                UIManager.OpenDialog(WindowType.DialogClaimReward, (window) => window.GetComponent<UI_ClaimReward>().Init(rewardlist, data, "destinycliamreward_title", status != ClueStatus.Collected ? true : false));
+            }
+        }
+        else
+        {
+            UIManager.OpenDialog(WindowType.DialogMessageFilter, (window) => window.GetComponent<UI_MessageFilter>().Init(mClueData));
+        }
     }
 }

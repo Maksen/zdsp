@@ -1026,7 +1026,7 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public UpdateRetval UpdateEquipmentProperties(ushort value, EquipPropertyType ptype, bool isEquipped, int slotID, List<int> buffList = null, bool isMultiSel = false, float currIncr = 0f, float nextIncr = 0f, List<int> reformSEAdd = null, List<int> recycleSERemove = null)
+        public UpdateRetval UpdateEquipmentProperties(ushort value, EquipPropertyType ptype, bool isEquipped, int slotID, ushort selection = ushort.MaxValue, List<int> buffList = null, bool isMultiSel = false, float currIncr = 0f, float nextIncr = 0f, List<int> reformSEAdd = null, List<int> recycleSERemove = null)
         {
             Equipment equipment = isEquipped ? mEquipInvData.Slots[slotID] as Equipment : mInvData.Slots[slotID] as Equipment;
 
@@ -1042,6 +1042,12 @@ namespace Photon.LoadBalancing.GameServer
                     equipment.EncodeItem();
                     break;
                 case EquipPropertyType.Reform:
+                    equipment.ReformStep = value;
+                    equipment.AddSelection(value, selection);
+                    equipment.EncodeItem();
+                    break;
+                case EquipPropertyType.Recycle:
+                    equipment.RemoveSelection(equipment.ReformStep);
                     equipment.ReformStep = value;
                     equipment.EncodeItem();
                     break;
@@ -1267,10 +1273,12 @@ namespace Photon.LoadBalancing.GameServer
 
         public void OnAddItems(Dictionary<int, int> items)
         {
+            List<int> itemlist = new List<int>();
             foreach (KeyValuePair<int, int> slot in items)
             {
-                mInvData.OnAddItem(slot.Key, slot.Value);
+                itemlist.Add(mInvData.OnAddItem(slot.Key, slot.Value));
             }
+            ItemChanged(itemlist);
         }
 
         private void SyncEquipmentData(Dictionary<int, ushort> items, bool isFashion)
@@ -1461,6 +1469,14 @@ namespace Photon.LoadBalancing.GameServer
                 int slotId = mInvData.GetLeastStackCountSlotIdxByItemId((ushort)itemId);
                 if (slotId != -1)
                     UseItemInInventory(slotId, 1);
+            }
+        }
+
+        private void ItemChanged(List<int> itemlist)
+        {
+            foreach(int itemid in itemlist)
+            {
+                mSlot.mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Item, itemid);
             }
         }
     }

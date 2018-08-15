@@ -14,14 +14,19 @@ public class StoreTestingCube : MonoBehaviour
         
     }
 
+    static bool initkopio = false;
     void GenerateRandomItems()
     {
         //enumerate legal item types
         NPCStoreInfo.SoldCurrencyType[] currencytypes = new NPCStoreInfo.SoldCurrencyType[] { NPCStoreInfo.SoldCurrencyType.Normal, NPCStoreInfo.SoldCurrencyType.Auction };
 
-        //GameRepo.InitLocalizerRepo(gameData.text);
-        GameRepo.SetItemFactory(new ClientItemFactory());
-        GameRepo.InitClient(AssetManager.LoadPiliQGameData());
+        if (!initkopio)
+        {
+            initkopio = true;
+            //GameRepo.InitLocalizerRepo(gameData.text);
+            GameRepo.SetItemFactory(new ClientItemFactory());
+            GameRepo.InitClient(AssetManager.LoadPiliQGameData());
+        }
 
         var randlist = new List<NPCStoreInfo.StandardItem>();
 
@@ -38,23 +43,28 @@ public class StoreTestingCube : MonoBehaviour
                 randitem = GameRepo.ItemFactory.GetInventoryItem(randid);
             }
             newitem.SoldValue = randitem.ItemID;
+            newitem.ItemID = randitem.ItemID;
             newitem.data = randitem;
             newitem.SoldType = currencytypes[Random.Range(0, currencytypes.Length)];
 
             randlist.Add(newitem);
         }
 
-        theshop.init(randlist, NPCStoreInfo.StoreType.Normal);
+        theshop.init("CubeTestShop", randlist, NPCStoreInfo.StoreType.Normal);
     }
 
     private void OnEnable()
     {
         if (RPCFactory.NonCombatRPC != null)
         {
+            var storeid = 1;
             GameInfo.gUIShopSell = theshop;
+            GameInfo.gUIShopSell.id = storeid;
+
             RPCFactory.CombatRPC.AddCurrency((int)CurrencyType.Money, 10000);
-            RPCFactory.NonCombatRPC.NPCStoreInit(1);
-            RPCFactory.NonCombatRPC.NPCStoreGetPlayerTransactions(1);            
+            
+            RPCFactory.NonCombatRPC.NPCStoreInit(storeid);
+            RPCFactory.NonCombatRPC.NPCStoreGetPlayerTransactions(storeid);            
         }
     }
 
@@ -64,8 +74,8 @@ public class StoreTestingCube : MonoBehaviour
     {
         if (generaterandom)
         {
-            GenerateRandomItems();
             generaterandom = false;
+            GenerateRandomItems();            
         }
 	}
 }

@@ -78,6 +78,42 @@ namespace Zealot.Common.Entities
             return mHeroesDict.ContainsKey(heroId);
         }
 
+        public bool HasHeroFulfilledBond(HeroBondJson bond, int heroId)
+        {
+            Hero hero = GetHero(heroId);
+            if (hero != null)
+            {
+                if (bond == null)
+                    return true;
+                else
+                {
+                    return IsBondTypeFulfilledByHero(bond.bondtype1, bond.bondvalue1, hero)
+                         && IsBondTypeFulfilledByHero(bond.bondtype2, bond.bondvalue2, hero);
+                }
+            }
+            else
+                return false;
+        }
+
+        public bool IsBondTypeFulfilledByHero(HeroBondType type, int value, Hero hero)
+        {
+            if (type == HeroBondType.None)
+            {
+                return true;
+            }
+            else if (type == HeroBondType.HeroLevel)
+            {
+                if (hero.Level < value)
+                    return false;
+            }
+            else if (type == HeroBondType.HeroSkill)
+            {
+                if (hero.GetTotalSkillPoints() < value)
+                    return false;
+            }
+            return true;
+        }
+
         public ExploreMapData GetExploringMap(int mapId)
         {
             ExploreMapData map;
@@ -101,7 +137,6 @@ namespace Zealot.Common.Entities
         public HeroBondGroupJson heroBondGroupJson;
         public List<HeroBondJson> heroBondJsonList;  // sorted by level
         public List<int> heroIds;  // id of heroes required
-        private List<Hero> heroListCache;
 
         public HeroBond(HeroBondGroupJson grp)
         {
@@ -113,53 +148,34 @@ namespace Zealot.Common.Entities
             if (grp.hero3 > 0) heroIds.Add(grp.hero3);
             if (grp.hero4 > 0) heroIds.Add(grp.hero4);
             if (grp.hero5 > 0) heroIds.Add(grp.hero5);
-            heroListCache = new List<Hero>();
         }
 
         public HeroBondJson GetHighestFulfilledLevel(HeroStats heroStats)
         {
             HeroBondJson highestLevel = null;
-            for (int i = 0; i < heroIds.Count; i++)
-            {
-                Hero hero = heroStats.GetHero(heroIds[i]);
-                if (hero == null)  // required hero not unlocked so none fulfilled
-                    return null;
-                heroListCache.Add(hero);
-            }
-
             for (int i = 0; i < heroBondJsonList.Count; i++)
             {
-                HeroBondJson current = heroBondJsonList[i];
-                if (IsLevelFulfilled(current.bondtype1, current.bondvalue1, heroListCache)
-                    && IsLevelFulfilled(current.bondtype2, current.bondvalue2, heroListCache))
-                    highestLevel = current;
+                bool fulfilled = true;
+                HeroBondJson currentBond = heroBondJsonList[i];
+                for (int index = 0; index < heroIds.Count; index++)
+                {
+                    if (!heroStats.HasHeroFulfilledBond(currentBond, heroIds[index]))
+                    {
+                        fulfilled = false;
+                        break;
+                    }
+                }
+                if (fulfilled)
+                    highestLevel = currentBond;
                 else
                     break;
             }
-            heroListCache.Clear();
-
             return highestLevel;
         }
 
-        private bool IsLevelFulfilled(HeroBondType type, int value, List<Hero> heroes)
+        public bool IsHeroInvolved(int heroId)
         {
-            if (type == HeroBondType.None)
-                return true;
-
-            for (int i = 0; i < heroes.Count; i++)
-            {
-                if (type == HeroBondType.HeroLevel)
-                {
-                    if (heroes[i].Level < value)
-                        return false;
-                }
-                else if (type == HeroBondType.HeroSkill)
-                {
-                    if (heroes[i].GetTotalSkillPoints() < value)
-                        return false;
-                }
-            }
-            return true;
+            return heroIds.Contains(heroId);
         }
     }
 }

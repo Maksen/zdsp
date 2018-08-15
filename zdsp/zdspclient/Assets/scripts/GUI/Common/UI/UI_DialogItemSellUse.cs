@@ -26,28 +26,28 @@ public class UI_DialogItemSellUse : MonoBehaviour
     Action<int> onClickYesCallback = null;
     Action onClickYesToAllCallback = null;
 
-    public void Init(IInventoryItem item, Action<int> yesCallback, Action yesToAllCallback = null)
+    public void Init(IInventoryItem invItem, Action<int> yesCallback, Action yesToAllCallback = null)
     {
-        if (item == null)
+        if (invItem == null)
             return;
 
-        BagType bagType = item.JsonObject.bagtype;
+        BagType bagType = invItem.JsonObject.bagtype;
         gameIcon = Instantiate(prefabGameicons[(int)bagType-1]);
         switch (bagType)
         {
             case BagType.Equipment:
-                Equipment eq = item as Equipment;
+                Equipment eq = invItem as Equipment;
                 gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false);
                 break;
             case BagType.Consumable:
             case BagType.Material:
-                gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(item.ItemID, item.StackCount);
+                gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invItem.StackCount);
                 break;
         }
         gameIcon.transform.SetParent(parentGameIconSlot, false);
 
-        txtItemName.text = item.JsonObject.localizedname;
-        spinnerInput.Max = item.StackCount;
+        txtItemName.text = invItem.JsonObject.localizedname;
+        spinnerInput.Max = invItem.StackCount;
         spinnerInput.Value = 1;
 
         onClickYesCallback = yesCallback;

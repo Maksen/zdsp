@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
+using Zealot.Repository;
 
 public class InterestCircleScroll : MonoBehaviour
 {
@@ -46,6 +47,16 @@ public class InterestCircleScroll : MonoBehaviour
 
         scrollView.UpdateData(cellData, context);  // set contents and context
         scrollView.SetSelection(0);
+    }
+
+    public void SetCellsApplicable(int interestGroup)
+    {
+        for (int i = 0; i < cellData.Count; i++)
+        {
+            InterestCellDto cell = cellData[i];
+            cell.Applicable = cell.Type == 0 || HeroRepo.IsInterestInGroup(interestGroup, (HeroInterestType)cell.Type);
+        }
+        scrollView.UpdateData(cellData, context);
     }
 
     public void SelectCell(int index)

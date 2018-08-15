@@ -5,7 +5,7 @@ using Zealot.Common;
 
 public class InvRowIcon
 {
-    public BagType kind = BagType.Any;
+    public BagType bagType = BagType.Any;
     public GameObject gameIcon = null;
 }
 
@@ -62,10 +62,10 @@ public class InventoryScrollRow : MonoBehaviour
 
             // Init game icon
             InvDisplayItem invDisplayItem = displayItemList[realIdx];
-            IInventoryItem item = invDisplayItem.item;
-            int originSlotId = invDisplayItem.originSlotId;
-            GameObject gameIcon = null;
-            if (currInvTab == BagType.Any && item == null)
+            int originSlotId = invDisplayItem.OriginSlotId;
+            IInventoryItem invItem = invDisplayItem.InvItem;
+            GameObject gameIcon = null;            
+            if (currInvTab == BagType.Any && invItem == null)
             {
                 gameIcon = Instantiate(prefabGameicons[0]);
                 gameIcon.GetComponent<GameIcon_EmptySlot>().SetLock(realIdx >= unlockSlotCnt);
@@ -78,37 +78,33 @@ public class InventoryScrollRow : MonoBehaviour
                 else if (invQuickSlot.gameObject.activeInHierarchy)
                     callback = () => invQuickSlot.OnSetItemToSlot(originSlotId);
                 else
-                    callback = () => uiInventory.OnClicked_InventoryItem(originSlotId, item);
+                    callback = () => uiInventory.OnClicked_InventoryItem(originSlotId, invItem);
 
-                BagType bagType = item.JsonObject.bagtype;
+                BagType bagType = invItem.JsonObject.bagtype;
                 gameIcon = Instantiate(prefabGameicons[(int)bagType]);
                 switch (bagType)
                 {
                     case BagType.Equipment:
-                        Equipment eq = item as Equipment;
+                        Equipment eq = invItem as Equipment;
                         if(eq != null)
-                        {
                             gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, false, callback);
-                        }
 
-                        Relic relic = item as Relic;
+                        Relic relic = invItem as Relic;
                         if(relic != null)
-                        {
                             gameIcon.GetComponent<GameIcon_Equip>().Init(relic.ItemID, 0, 0, 0, false, false, false, callback);
-                        }
                         break;
                     case BagType.Consumable:
                     case BagType.Material:
-                        gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(item.ItemID, item.StackCount, false, false, callback);
+                        gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, false, false, callback);
                         break;
                     case BagType.DNA:
-                        gameIcon.GetComponent<GameIcon_DNA>().Init(item.ItemID, 0, 0, callback);
+                        gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, callback);
                         break;
                 }
             }
 
             gameIcon.transform.SetParent(parent, false);
-            ChildList.Add(new InvRowIcon { kind = (item != null) ? item.JsonObject.bagtype : BagType.Any, gameIcon = gameIcon });
+            ChildList.Add(new InvRowIcon { bagType = (invItem != null) ? invItem.JsonObject.bagtype : BagType.Any, gameIcon = gameIcon });
         }
     }
 
@@ -123,18 +119,19 @@ public class InventoryScrollRow : MonoBehaviour
         {
             int realIdx = startIndex + i;
             InvDisplayItem invDisplayItem = displayItemList[realIdx];
-            int originSlotId = invDisplayItem.originSlotId;
+            int originSlotId = invDisplayItem.OriginSlotId;
+
             UnityAction callback = null;
             if (invSellPanel.gameObject.activeInHierarchy)
                 callback = () => invSellPanel.OnOpenDialogItemSellUse(realIdx);
             else if (invQuickSlot.gameObject.activeInHierarchy)
                 callback = () => invQuickSlot.OnSetItemToSlot(originSlotId);
             else
-                callback = () => uiInventory.OnClicked_InventoryItem(originSlotId, invDisplayItem.item);
+                callback = () => uiInventory.OnClicked_InventoryItem(originSlotId, invDisplayItem.InvItem);
 
-            BagType kind = ChildList[i].kind;
+            BagType bagType = ChildList[i].bagType;
             GameObject gameIcon = ChildList[i].gameIcon;
-            switch (kind)
+            switch (bagType)
             {
                 case BagType.Equipment:
                     gameIcon.GetComponent<GameIcon_Equip>().SetClickCallback(callback);
@@ -150,7 +147,7 @@ public class InventoryScrollRow : MonoBehaviour
         }
     }
 
-    [System.Obsolete("Used in swap method, only works when there is only one kind of gameobject")]
+    [System.Obsolete("Used in swap method, only works when there is only one type of gameobject as child")]
     public void SetParent(Transform parent)
     {
         InventoryScrollRow parentInvRow = parent.gameObject.GetComponent<InventoryScrollRow>();

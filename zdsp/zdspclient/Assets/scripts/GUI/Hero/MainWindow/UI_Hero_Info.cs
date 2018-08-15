@@ -1,9 +1,8 @@
 ﻿using Kopio.JsonContracts;
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Repository;
 
@@ -18,10 +17,7 @@ public class UI_Hero_Info : MonoBehaviour
     [SerializeField] Hero_SkillIconData[] skillIcons;
 
     [Header("Locked")]
-    [SerializeField] GameObject lockedHeroObj;
-    [SerializeField] Transform unlockItemTranform;
-    [SerializeField] GameObject unlockItemPrefab;
-    [SerializeField] Text unlockItemCountText;
+    [SerializeField] UI_Hero_LockedPanel lockedPanel;
 
     [Header("Unlocked")]
     [SerializeField] GameObject unlockedHeroObj;
@@ -41,20 +37,20 @@ public class UI_Hero_Info : MonoBehaviour
     private int selectedHeroId = -1;
     private HeroJson selectedHeroData;
     private Hero selectedHero;
-    private GameIcon_MaterialConsumable unlockItem;
     private Dictionary<int, int> currentHeroTier = new Dictionary<int, int>();
 
     public void Setup()
     {
-        timelineController.OnBegin += new UITimelineController.TimelineDelegate(() => ShowUICameras(false));
-        timelineController.OnEnd += new UITimelineController.TimelineDelegate(() => ShowUICameras(true));
+        timelineController.OnBegin += new UITimelineController.TimelineDelegate(() => HideObjectsForTimeline(true));
+        timelineController.OnEnd += new UITimelineController.TimelineDelegate(() => HideObjectsForTimeline(false));
     }
 
-    private void ShowUICameras(bool value)
+    private void HideObjectsForTimeline(bool hide)
     {
-        clickBlocker.SetActive(!value);
+        clickBlocker.SetActive(hide);
         for (int i = 0; i < objectsToHide.Length; i++)
-            objectsToHide[i].SetActive(value);
+            objectsToHide[i].SetActive(!hide);
+        UIManager.HideOpenedDialogs(hide);
     }
 
     private List<HeroCellDto> CreateHeroesData()
@@ -71,7 +67,7 @@ public class UI_Hero_Info : MonoBehaviour
 
         for (int i = index; i < 13; i++)
         {
-            HeroCellDto cell = new HeroCellDto(i + 1, "Fake " + (i + 1), false);
+            HeroCellDto cell = new HeroCellDto(i + 1, "Cell " + (i + 1), false);
             list.Add(cell);
         }
 
@@ -84,6 +80,7 @@ public class UI_Hero_Info : MonoBehaviour
         circleScroll.SetUp(heroList, OnHeroSelected);
     }
 
+    // called after Awake and OnEnable
     public void Init()
     {
         heroStats = GameInfo.gLocalPlayer.HeroStats;
@@ -105,19 +102,6 @@ public class UI_Hero_Info : MonoBehaviour
         }
     }
 
-    private void InitUnlockItem(int itemId, int itemCount)
-    {
-        if (unlockItem == null)
-        {
-            ClientUtils.DestroyChildren(unlockItemTranform);
-            GameObject icon = ClientUtils.CreateChild(unlockItemTranform, unlockItemPrefab);
-            unlockItem = icon.GetComponent<GameIcon_MaterialConsumable>();
-        }
-
-        unlockItem.Init(itemId, 1);
-        unlockItemCountText.text = "x" + itemCount;
-    }
-
     private void OnHeroSelected(int heroId)
     {
         //print("selected heroid " + heroId);
@@ -126,16 +110,14 @@ public class UI_Hero_Info : MonoBehaviour
 
         if (selectedHeroData == null)
         {
-            heroNameText.text = "Fake " + heroId;
-            modelAvatar.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+            heroNameText.text = "Placeholder " + heroId;
             modelAvatar.Cleanup();
             SetLocked();
-            InitUnlockItem(0, 0);
+            lockedPanel.Init(0, 0, null);
             SetSkillIcons(null);
         }
         else
         {
-            modelAvatar.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);  // to be removed
             heroNameText.text = selectedHeroData.localizedname;
 
             selectedHero = heroStats.GetHero(heroId);
@@ -150,7 +132,7 @@ public class UI_Hero_Info : MonoBehaviour
             {
                 selectedHero = new Hero(heroId, selectedHeroData);
                 SetLocked();
-                InitUnlockItem(selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount);
+                lockedPanel.Init(selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount, OnClickUnlockHero);
             }
 
             if (!currentHeroTier.ContainsKey(heroId))
@@ -165,7 +147,7 @@ public class UI_Hero_Info : MonoBehaviour
     private void SetLocked()
     {
         unlockedHeroObj.SetActive(false);
-        lockedHeroObj.SetActive(true);
+        lockedPanel.Show(true);
         summonBtn.gameObject.SetActive(false);
         unsummonBtn.SetActive(false);
     }
@@ -173,7 +155,7 @@ public class UI_Hero_Info : MonoBehaviour
     private void SetUnlocked(bool showUnsummonBtn)
     {
         unlockedHeroObj.SetActive(true);
-        lockedHeroObj.SetActive(false);
+        lockedPanel.Show(false);
         summonBtn.gameObject.SetActive(!showUnsummonBtn);
         unsummonBtn.SetActive(showUnsummonBtn);
     }
@@ -213,11 +195,12 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnHeroAdded(Hero hero)
     {
+        timelineController.Play(hero.HeroJson.unlockshow);
+        circleScroll.UpdateCell(hero.HeroId, true);
+
         if (selectedHeroId == hero.HeroId)
         {
             selectedHero = hero;
-            timelineController.Play(hero.HeroJson.unlockshow);
-            circleScroll.UpdateCell(hero.HeroId, true);
             SetUnlocked(false);
             SetSkillIcons(hero);
             skillPointsText.text = hero.SkillPoints.ToString();
@@ -315,7 +298,7 @@ public class UI_Hero_Info : MonoBehaviour
             interestIconImage.sprite = sprite;
 
             GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroInterest);
-            if (dialog != null &&  dialog.activeInHierarchy)
+            if (dialog != null && dialog.activeInHierarchy)
                 dialog.GetComponent<UI_Hero_InterestDialog>().UpdateInterest(selectedHero, sprite, interestDescText.text);
         }
     }
@@ -338,7 +321,7 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnClickAddSkillPoints()
     {
-        UIManager.OpenDialog(WindowType.DialogHeroSkillPoints, 
+        UIManager.OpenDialog(WindowType.DialogHeroSkillPoints,
             (window) => window.GetComponent<UI_Hero_AddSkillPointsDialog>().Init(selectedHero));
     }
 
@@ -378,7 +361,8 @@ public class UI_Hero_Info : MonoBehaviour
         if (selectedHeroData == null)
             return;
 
-        print("hero bonds");
+        UIManager.OpenDialog(WindowType.DialogHeroBonds,
+            (window) => window.GetComponent<UI_Hero_BondsDialog>().Init(selectedHeroId));
     }
 
     public void CleanUp()

@@ -145,6 +145,7 @@ public class CutsceneManager : MonoBehaviour
             OnFinishedCutsceneAction();
 
         UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(true);
+        UIManager.CloseDialog(WindowType.DialogCutscene);
 
         if (isBotEnabled)
         {
@@ -162,6 +163,14 @@ public class CutsceneManager : MonoBehaviour
     public void RegisterCutsceneBroadcaster(CutSceneBroadcaster entity)
     {
         eventCutscenes[entity.EntityId] = entity.cutsceneEntity;
+    }
+
+    public void SkipCutscene()
+    {
+        if (currentPlaying != null)
+        {
+            currentPlaying.SkipCutScene();
+        }
     }
 
     #region Play Cutscene Triggers

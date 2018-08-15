@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Zealot.Repository;
 
 public class UI_WorldMap_MonData : MonoBehaviour
 {
@@ -18,8 +19,15 @@ public class UI_WorldMap_MonData : MonoBehaviour
         set { mIcon.sprite = value; }
     }
 
+    public void Init(WorldMapCountryMonster wmcm)
+    {
+        int id = wmcm.archetype;
+        //mIcon.sprite = ClientUtils.LoadIcon();
+        //mFrame.sprite = ;
+    }
+
     public void OnClick()
     {
-
+        //Auto-pilot player to monsterspawner and start bot
     }
 }

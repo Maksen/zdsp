@@ -1,6 +1,7 @@
 ﻿using Kopio.JsonContracts;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class UI_CutsceneData : MonoBehaviour
 {
@@ -17,7 +18,8 @@ public class UI_CutsceneData : MonoBehaviour
 
     public void Init(WonderfulJson wonderfulJson, bool unlocked)
     {
-        GetComponent<Button>().enabled = unlocked;
+        GetComponent<Button>().enabled = true;
+        GetComponent<Button>().interactable = true;
         ClientUtils.LoadIconAsync(wonderfulJson.background, UpdateBackground);
         Name.text = wonderfulJson.name;
         Description.text = wonderfulJson.description;
@@ -31,6 +33,6 @@ public class UI_CutsceneData : MonoBehaviour
 
     public void OnClickPlay()
     {
-
+        UIManager.OpenDialog(WindowType.DialogVideoPlayer, (window) => window.GetComponent<UI_VideoPlayer>().Init(mPath));
     }
 }

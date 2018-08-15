@@ -51,6 +51,7 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
             circleScroll.SetUp(OnInterestSelected);
             initialized = true;
         }
+        circleScroll.SetCellsApplicable(hero.HeroJson.interestgroup);
     }
 
     public void UpdateInterest(Hero hero, Sprite currentSprite, string currentDesc)
@@ -116,7 +117,7 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         string[] itemids = itemIdStr.Split(';');
         if (itemids.Length > 0 && int.TryParse(itemids[0], out bindItemId))
         {
-            item.Init(bindItemId);
+            item.InitWithTooltipViewOnly(bindItemId, 1);
             itemNameText.text = item.inventoryItem.JsonObject.localizedname;
             hasEnoughItem = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.HasItem((ushort)bindItemId, 1);
             if (!hasEnoughItem && itemids.Length > 1 && int.TryParse(itemids[1], out unbindItemId))

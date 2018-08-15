@@ -38,7 +38,7 @@ public class InvSellPanelScrollRow : MonoBehaviour
     {
         Clear();
 
-        List<IInventoryItem> sellItemList = uiInvSellPanel.SellItemList;
+        List<InvDisplayItem> sellItemList = uiInvSellPanel.SellItemList;
         int totalCount = sellItemList.Count;
 
         Transform parent = gameObject.transform;
@@ -49,23 +49,24 @@ public class InvSellPanelScrollRow : MonoBehaviour
             if (realIdx >= totalCount)
                 break;
 
-            IInventoryItem item = sellItemList[realIdx];
-            BagType bagType = item.JsonObject.bagtype;
+            InvDisplayItem invDisplayItem = sellItemList[realIdx];
+            IInventoryItem invItem = invDisplayItem.InvItem;
+            BagType bagType = invItem.JsonObject.bagtype;
             GameObject gameIcon = Instantiate(prefabGameicons[(int)bagType-1]);
             switch (bagType)
             {
                 case BagType.Equipment:
-                    Equipment eq = item as Equipment;
+                    Equipment eq = invItem as Equipment;
                     gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, false, 
                         () => { uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx); });
                     break;
                 case BagType.Consumable:
                 case BagType.Material:
-                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(item.ItemID, item.StackCount, false, false,
+                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, false, false,
                         () => { uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx); });
                     break;
                 case BagType.DNA:
-                    gameIcon.GetComponent<GameIcon_DNA>().Init(item.ItemID, 0, 0,
+                    gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0,
                         () => { uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx); });
                     break;
             }

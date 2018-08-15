@@ -15,7 +15,6 @@ public class UIShopDetails : MonoBehaviour
 
     public Text itemname, itemtype;
     public Text dailyorweekly;
-    public Text stocklimit;
     public Text limitamountvalue;
     public Text purchasequantity;
     public Spinner purchasequantitywidget;
@@ -23,6 +22,7 @@ public class UIShopDetails : MonoBehaviour
     public Text unitcost;
     public Text totalcost;
     public Text discount;
+    public Text unitsowned;
 
     public GameObject description;
     public GameObject description_value;
@@ -47,8 +47,32 @@ public class UIShopDetails : MonoBehaviour
 		
 	}
 
+    void UpdateItemsOwned(ShopItem item)
+    {
+        if (GameInfo.gLocalPlayer == null || item == null)
+        {
+            unitsowned.text = "0";
+            return;
+        }
+
+        var inv = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.Slots;
+        unitsowned.text = "";
+        foreach (var playeritem in inv)
+        {
+            if (playeritem!= null && playeritem.ItemID == item.itemdata.ItemID)
+            {
+                unitsowned.text = playeritem.StackCount.ToString();
+                break;
+            }
+        }
+        if (unitsowned.text.Length == 0)
+            unitsowned.text = "0";
+    }
+
     public void init(ShopItem item)
     {
+        UpdateItemsOwned(item);
+
         itemname.text = item.itemname.text;
         itemtype.text = item.itemdata.data.JsonObject.itemtype.ToString();
         //description.text = item.itemdata.data.JsonObject.description;
@@ -74,27 +98,36 @@ public class UIShopDetails : MonoBehaviour
 
             purchasequantitywidget.Value = 0;
             totalcost.text = "0";
-            unitcost.text = standarditem.SoldValue.ToString();
-
-            purchasequantitywidget.Max = standarditem.Remaining;
+            unitcost.text = standarditem.SoldValue.ToString();            
 
             switch (standarditem.DailyOrWeekly)
             {
                 case NPCStoreInfo.Frequency.Daily:
+                    purchasequantitywidget.Max = standarditem.Remaining;
                     dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[291].localizedval;
                     limitamountvalue.text = standarditem.Remaining.ToString() + " / " + standarditem.ExCount.ToString();
+
+                    selecteditem = item.itemdata;
+                    UpdateSelectedItemRemaining();
                     break;
 
                 case NPCStoreInfo.Frequency.Weekly:
+                    purchasequantitywidget.Max = standarditem.Remaining;
                     dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[292].localizedval;
                     limitamountvalue.text = standarditem.Remaining.ToString() + " / " + standarditem.ExCount.ToString();
+
+                    selecteditem = item.itemdata;
+                    UpdateSelectedItemRemaining();
                     break;
 
                 case NPCStoreInfo.Frequency.Unlimited:
-                    dailyorweekly.text = "無限";
-                    limitamountvalue.text = "";
+                    purchasequantitywidget.Max = 99;
+                    dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[291].localizedval;
+                    limitamountvalue.text = "無限"; 
                     break;
             }
+
+            purchasequantitywidget.Value = 0;
 
             if (itemiconprefab != null)
             {
@@ -112,7 +145,8 @@ public class UIShopDetails : MonoBehaviour
             }
         }
 
-        selecteditem = item.itemdata;
+        buybutton.onClick.RemoveAllListeners();
+        buybutton.onClick.AddListener(new UnityEngine.Events.UnityAction(BuySelectedItem));
     }
 
     void UpdateTotalCost()
@@ -134,12 +168,15 @@ public class UIShopDetails : MonoBehaviour
             var item = NPCStoreInfo.StandardItem.GetFromBase(selecteditem);
 
             purchasequantitywidget.Max = item.Remaining;
+            purchasequantitywidget.Value = 0;
             UpdateTotalCost();
         }
     }
 
+    public int last_purchase_quantity = 0;
     public void BuySelectedItem()
     {
-        RPCFactory.NonCombatRPC.NPCStoreBuy(selecteditem.ItemListID, selecteditem.StoreID, purchasequantitywidget.Value, GameInfo.gLocalPlayer.Name);
+        last_purchase_quantity = purchasequantitywidget.Value;
+        RPCFactory.NonCombatRPC.NPCStoreBuy(selecteditem.StoreID, selecteditem.ItemListID, purchasequantitywidget.Value, GameInfo.gLocalPlayer.Name);
     }
 }

@@ -224,6 +224,8 @@ namespace Zealot.Client.Entities
             return 0;
         }
 
+        public override bool CanSelect { get { return mActiveStatus; } }
+
         public virtual void UpdateOngoingQuest(List<int> quests) { }
 
         public virtual void RemoveOngoingQuest(int questid) { }

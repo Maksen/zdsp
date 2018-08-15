@@ -17,7 +17,7 @@ public class UI_Party_InviteData : UI_Party_RequestBase
     public void Init(string name, int charlevel, JobType job, int portrait, UnityAction<string> action)
     {
         InitBase(name, charlevel);
-        //portraitImage.sprite = 
+        portraitImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // todo: temp
         jobText.text = JobSectRepo.GetJobLocalizedName(job);
         inviteAction = action;
     }
@@ -25,7 +25,7 @@ public class UI_Party_InviteData : UI_Party_RequestBase
     public void InitHero(Hero hero, UnityAction<int> action)
     {
         InitBase(hero.HeroJson.localizedname, hero.Level);
-        //portraitImage.sprite = // load hero portrait;
+        portraitImage.sprite = ClientUtils.LoadIcon(hero.HeroJson.smallportraitpath);
         jobText.text = "";
         spacer.SetActive(false);
         inviteHeroAction = action;

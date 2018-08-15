@@ -13,8 +13,11 @@ public class DestinyClueClientController
 {
     private List<ActivatedClueData> mDestinyClues;
     private List<int> mUnlockMemory;
+    private List<int> mUnlockClues;
+    private List<int> mUnlockTimeClues;
 
     private bool bInit = false;
+    private int mNewClueCount = 0;
 
     public void Init()
     {
@@ -28,9 +31,16 @@ public class DestinyClueClientController
             case "destinyClues":
                 mDestinyClues = DeserializeClueData(data);
                 CheckForNewDestinyClue();
+                UpdateUI();
                 break;
             case "unlockMemory":
-                mUnlockMemory = DeserializeMemoryData(data);
+                mUnlockMemory = DeserializeListData(data);
+                break;
+            case "unlockClues":
+                mUnlockClues = DeserializeListData(data);
+                break;
+            case "unlockTimeClues":
+                mUnlockTimeClues = DeserializeListData(data);
                 break;
         }
     }
@@ -38,16 +48,14 @@ public class DestinyClueClientController
     private void CheckForNewDestinyClue()
     {
         List<ActivatedClueData> newclues = GetNewClue();
-        newclues = newclues.Where(c => c.ClueType == (byte)ClueType.Normal).ToList();
 
-        if (newclues.Count > 0)
+        if (newclues.Count > 0 && newclues.Count >= mNewClueCount)
         {
-            ActivatedClueData clueData = newclues[newclues.Count - 1];
             if (!UIManager.IsWidgetActived(HUDWidgetType.DestinyNews))
             {
                 UIManager.SetWidgetActive(HUDWidgetType.DestinyNews, true);
             }
-            UIManager.GetWidget(HUDWidgetType.DestinyNews).GetComponent<Hud_DestinyNews>().UpdateClue(clueData);
+            mNewClueCount = newclues.Count;
         }
     }
 
@@ -61,6 +69,14 @@ public class DestinyClueClientController
         return mDestinyClues.OrderBy(c => c.ActivatedDateTime).ToList();
     }
 
+    private void UpdateUI()
+    {
+        if (UIManager.IsWindowOpen(WindowType.Destiny))
+        {
+            UIManager.GetWindowGameObject(WindowType.Destiny).GetComponent<UI_Destiny>().RefreshMessage();
+        }
+    }
+
     private List<ActivatedClueData> DeserializeClueData(string data)
     {
         if (!string.IsNullOrEmpty(data) && data != "{}")
@@ -70,12 +86,34 @@ public class DestinyClueClientController
         return new List<ActivatedClueData>();
     }
     
-    private List<int> DeserializeMemoryData(string data)
+    private List<int> DeserializeListData(string data)
     {
         if (!string.IsNullOrEmpty(data) && data != "{}")
         {
             return JsonConvertDefaultSetting.DeserializeObject<List<int>>(data);
         }
         return new List<int>();
+    }
+
+    public bool IsClueAlreadyUnlock(int clueid)
+    {
+        return mUnlockClues.Contains(clueid);
+    }
+
+    public bool IsTimeClueAlreadyUnlock(int clueid)
+    {
+        return mUnlockTimeClues.Contains(clueid);
+    }
+
+    public ActivatedClueData GetClueData(int clueid, ClueType type)
+    {
+        foreach (ActivatedClueData cluedata in mDestinyClues)
+        {
+            if (cluedata.ClueId == clueid && cluedata.ClueType == (byte)ClueType.Normal)
+            {
+                return cluedata;
+            }
+        }
+        return null;
     }
 }

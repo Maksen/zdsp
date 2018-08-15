@@ -18,6 +18,7 @@ public class UI_Hero_UnlockedPanel : MonoBehaviour
 
     public void ShowSkillPointsPanel(Hero hero, int reqPts)
     {
+        gameObject.SetActive(true);
         SetHero(hero);
         InitSkillPoints(hero, reqPts);
         skillPointsObj.SetActive(true);
@@ -26,6 +27,7 @@ public class UI_Hero_UnlockedPanel : MonoBehaviour
 
     public void ShowLevelUpPanel(Hero hero, int reqLvl)
     {
+        gameObject.SetActive(true);
         SetHero(hero);
         InitLevelUp(hero, reqLvl);
         levelUpObj.SetActive(true);
@@ -34,6 +36,7 @@ public class UI_Hero_UnlockedPanel : MonoBehaviour
 
     public void ShowFullPanel(Hero hero, int reqPts, int reqLvl)
     {
+        gameObject.SetActive(true);
         SetHero(hero);
         InitSkillPoints(hero, reqPts);
         InitLevelUp(hero, reqLvl);
@@ -50,12 +53,21 @@ public class UI_Hero_UnlockedPanel : MonoBehaviour
     public void InitSkillPoints(Hero hero, int reqPts)
     {
         reqSkillPointsText.text = reqPts.ToString();
-        uiSkillPts.Init(hero);
+        uiSkillPts.Init(hero, hero.GetTotalSkillPoints());
     }
 
     public void InitLevelUp(Hero hero, int reqLvl)
     {
         reqLevelText.text = reqLvl.ToString();
+        currentLevelText.text = hero.Level.ToString();
+        HeroGrowthJson data = HeroRepo.GetHeroGrowthData(hero.HeroJson.growthgroup, hero.Level);
+        if (data != null)
+            moneyAmtText.text = data.levelupmoney.ToString("N0");
+    }
+
+    public void UpdatePanel(Hero hero)
+    {
+        uiSkillPts.Init(hero, hero.GetTotalSkillPoints());
         currentLevelText.text = hero.Level.ToString();
         HeroGrowthJson data = HeroRepo.GetHeroGrowthData(hero.HeroJson.growthgroup, hero.Level);
         if (data != null)
@@ -70,19 +82,5 @@ public class UI_Hero_UnlockedPanel : MonoBehaviour
     public void Show(bool bShow)
     {
         gameObject.SetActive(bShow);
-    }
-
-    public void HideSkillPointsPanel()
-    {
-        skillPointsObj.SetActive(false);
-        if (!levelUpObj.activeInHierarchy && !skillPointsObj.activeInHierarchy)
-            Show(false);
-    }
-
-    public void HideLevelUpPanel()
-    {
-        levelUpObj.SetActive(false);
-        if (!levelUpObj.activeInHierarchy && !skillPointsObj.activeInHierarchy)
-            Show(false);
     }
 }

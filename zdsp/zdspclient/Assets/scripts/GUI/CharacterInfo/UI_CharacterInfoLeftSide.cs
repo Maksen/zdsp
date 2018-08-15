@@ -14,6 +14,8 @@ public class UI_CharacterInfoLeftSide : MonoBehaviour
     Image mJobImg;
     [SerializeField]
     Model_3DAvatar m3DAvatar;
+    [SerializeField]
+    Text mJobTitle;
 
     public string Name
     {
@@ -36,6 +38,7 @@ public class UI_CharacterInfoLeftSide : MonoBehaviour
         {
             //Load class icon depending on assigned job index
             //mJobImg.sprite = ;
+            mJobTitle.text = ((JobType)value).ToString();
         }
     }
 
@@ -60,6 +63,7 @@ public class UI_CharacterInfoLeftSide : MonoBehaviour
         var pss = GameInfo.gLocalPlayer.PlayerSynStats;
         Name = pss.name;
         Level = pss.Level;
+        Job = GameInfo.gLocalPlayer.PlayerSynStats.jobsect;
         m3DAvatar.Change(GameInfo.gLocalPlayer.mEquipmentInvData,
                         (JobType)pss.jobsect, 
                         GameInfo.gLocalPlayer.mGender);

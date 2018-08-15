@@ -122,7 +122,7 @@ namespace Zealot.RPC
         }
         #endregion
 
-        #region EquipmentUpgrade
+        #region EquipmentModding
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.EquipmentUpgradeEquipmentFailed)]
         public void EquipmentUpgradeEquipmentFailed(object target)
         {
@@ -285,10 +285,10 @@ namespace Zealot.RPC
             ProxyMethod("Ret_InteractAction", target);
         }
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_QuestFull)]
-        public void Ret_QuestFull(int questid, object target)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_TriggerQuest)]
+        public void Ret_TriggerQuest(int questid, bool result, object target)
         {
-            ProxyMethod("Ret_QuestFull", questid, target);
+            ProxyMethod("Ret_TriggerQuest", questid, result, target);
         }
         #endregion
 
@@ -305,6 +305,14 @@ namespace Zealot.RPC
         public void Ret_AddToSkillInventory(byte result, int skillid, int skillpoint, int money, object target)
         {
             ProxyMethod("Ret_AddToSkillInventory", result, skillid, skillpoint, money, target);
+        }
+        #endregion
+
+        #region Destiny Clue
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_CollectClueReward)]
+        public void Ret_CollectClueReward(int clueid, bool result, object target)
+        {
+            ProxyMethod("Ret_CollectClueReward", clueid, result, target);
         }
         #endregion
     }
@@ -715,7 +723,7 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
-        #region EquipmentUpgrade
+        #region EquipmentModding
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentUpgradeEquipment)]
         public void EquipmentUpgradeEquipment(int slotId, bool isEquipped, bool isUseGenMaterial, bool isSafeUpgrade, bool isSafeUseEquip, bool isSafeGenMat, int safeEquipSlotId, GameClientPeer peer)
         {
@@ -727,6 +735,13 @@ namespace Photon.LoadBalancing.GameServer
         public void EquipmentReformEquipment(int slotId, bool isEquipped, int selection, GameClientPeer peer)
         {
             peer.OnEquipmentReformEquipment(slotId, isEquipped, selection);
+            peer.mPlayer.CombatStats.ComputeAll();
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentRecycleEquipment)]
+        public void EquipmentRecycleEquipment(int slotId, bool isEquipped, GameClientPeer peer)
+        {
+            peer.OnEquipmentRecycleEquipment(slotId, isEquipped);
             peer.mPlayer.CombatStats.ComputeAll();
         }
 
@@ -1068,8 +1083,20 @@ namespace Photon.LoadBalancing.GameServer
                 return;
 
             var npcstores = await NPCStoreManager.InstanceAsync().ConfigureAwait(false);
+
+            if (npcstores.storedata.ContainsKey(storeid) == false)
+            {
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Store not found", peer);
+                return;
+            }
             var store = npcstores.storedata[storeid];
-            var storeentry = npcstores.storedata[storeid].inventory[itemlistid];
+
+            if (store.inventory.ContainsKey(itemlistid) == false)
+            {
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Item not found", peer);
+                return;
+            }
+            var storeentry = store.inventory[itemlistid];
 
             // validate purchase
             var transactions = await GameApplication.dbGM.NPCStoreGMRepo.GetPlayerStoreTransactions(charid).ConfigureAwait(false);
@@ -1081,7 +1108,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 if (transactions[transactionkey].remaining < purchaseamount)
                 {
-                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("purchase limit exceeded", peer);
+                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Purchase limit exceeded", peer);
                     return;
                 }
 
@@ -1122,8 +1149,8 @@ namespace Photon.LoadBalancing.GameServer
             // record transaction            
             var success = GameApplication.dbGM.NPCStoreGMRepo.UpdateTransactions(transactions, charid).ConfigureAwait(false);
 
-            string scString = JsonConvert.SerializeObject("success");
-            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(scString, peer);
+            //string scString = JsonConvert.SerializeObject("Success");
+            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Transaction success", peer);
         }
 
         #endregion
@@ -1322,6 +1349,27 @@ namespace Photon.LoadBalancing.GameServer
         public void ApplyQuestEventCompanion(int eventid, int questid, GameClientPeer peer)
         {
             peer.mPlayer.QuestController.UpdateCompanion(eventid, questid);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]
+        public void ResetQuestEventCompanion(int companionid, GameClientPeer peer)
+        {
+            peer.mPlayer.QuestController.RemoveCompanionId(companionid);
+        }
+        #endregion
+
+        #region Destiny Clue
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ReadClue)]
+        public void ReadClue(int clueid, byte type, GameClientPeer peer)
+        {
+            peer.mPlayer.DestinyClueController.ReadClue(clueid, type);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CollectClueReward)]
+        public void CollectClueReward(int clueid, GameClientPeer peer)
+        {
+            bool result = peer.mPlayer.DestinyClueController.CollectDestinyClueReward(clueid);
+            peer.ZRPC.NonCombatRPC.Ret_CollectClueReward(clueid, result, peer);
         }
         #endregion
     }

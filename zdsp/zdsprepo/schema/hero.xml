@@ -95,6 +95,7 @@
       <property name="exploreaction" type="string" uitext="Explore Action Name" default=""/>
       <property name="randomitemid" type="string" uitext="Random Change Item ID" default="" info="bind;unbind"/>
       <property name="portraitpath" type="asset" uitext="Portrait Path" default="" assettype="sprite"/>
+      <property name="smallportraitpath" type="asset" uitext="Small Portrait Path" default="" assettype="sprite"/>
       <property name="questid" type="string" uitext="Quest ID" default="" info="trust,questid;trust,questid"/>
     </element>
 
@@ -148,7 +149,7 @@
       <property name="bondvalue1" type="int" uitext="Bond Value 1"/>
       <property name="bondtype2" type="HeroBondType" uitext="Bond Type 2"/>
       <property name="bondvalue2" type="int" uitext="Bond Value 2"/>
-      <property name="sideeffectgrp" type="SideEffectGroup" uitext="SideEffect Group" display="name"/>
+      <property name="sideeffects" type="SideEffect" collection="true" uitext="SideEffects" display="name"/>
     </element>
 
     <element name="ExplorationMap" useexcel="true">

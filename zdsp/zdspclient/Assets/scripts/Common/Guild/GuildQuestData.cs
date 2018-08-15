@@ -61,7 +61,7 @@ namespace Zealot.Common
 
         public bool RefreshQuests(int playerlevel, bool deductfreeTimes)
         { 
-            List<GuildQuestJson> avaliableList = new List<Kopio.JsonContracts.GuildQuestJson>();
+            List<GuildQuestJson> avaliableList = new List<GuildQuestJson>();
             foreach (KeyValuePair<int, GuildQuestJson> entry in GuildRepo.mQuestlist)
             {
                 GuildQuestJson qjson = entry.Value;

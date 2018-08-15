@@ -317,7 +317,37 @@ namespace Zealot.Server.Rules
             }
         }
 
-        public static void OnCharacterOnline(string charName, bool isOnline)
+        public static void OnCharacterOnline(GameClientPeer peer, Player player)
+        {
+            int partyId = GetPartyIdByPlayerName(player.Name);
+            if (partyId > 0)
+            {
+                PartyStatsServer partyStats = GetPartyById(partyId);
+                if (partyStats != null)
+                {
+                    partyStats.SetMemberOnline(player.Name, true);
+                    // set avatar in case player has gone to other server and has change equipment in the mean time
+                    partyStats.SetMemberAvatar(player.Name, peer.CharacterData.EquipmentInventory, (JobType)player.PlayerSynStats.jobsect);
+
+                    // set online status of any hero owned by this player
+                    PartyMember hero = partyStats.GetHeroOwnedByMember(player.Name);
+                    if (hero != null)
+                        partyStats.SetMemberOnline(hero.name, true);
+
+                    // if leader is offline, change leader
+                    if (!partyStats.IsLeaderOnline())
+                    {
+                        string newLeader = partyStats.GetNextOnlineMemberName();
+                        if (!string.IsNullOrEmpty(newLeader))
+                            partyStats.leader = newLeader;
+                    }
+
+                    partyStats.OnDirty(player.Name);
+                }
+            }
+        }
+
+        public static void OnCharacterOffline(string charName)
         {
             int partyId = GetPartyIdByPlayerName(charName);
             if (partyId > 0)
@@ -325,18 +355,12 @@ namespace Zealot.Server.Rules
                 PartyStatsServer partyStats = GetPartyById(partyId);
                 if (partyStats != null)
                 {
-                    partyStats.SetMemberOnline(charName, isOnline);
-                    if (isOnline)
-                    {  // set avatar in case player has gone to other server and has change equipment in the mean time
-                        GameClientPeer peer = GameApplication.Instance.GetCharPeer(charName);
-                        if (peer != null)
-                            partyStats.SetMemberAvatar(charName, peer.CharacterData.EquipmentInventory, (JobType)peer.mPlayer.PlayerSynStats.jobsect);
-                    }
+                    partyStats.SetMemberOnline(charName, false);
 
                     // set online status of any hero owned by this player
                     PartyMember hero = partyStats.GetHeroOwnedByMember(charName);
                     if (hero != null)
-                        partyStats.SetMemberOnline(hero.name, isOnline);
+                        partyStats.SetMemberOnline(hero.name, false);
 
                     // if leader is offline, change leader
                     if (!partyStats.IsLeaderOnline())
@@ -627,7 +651,7 @@ namespace Zealot.Server.Rules
                 sb.Append(PartyRepo.GetLocationName(partyStats.mPartySetting.locationId));
                 sb.Append(string.Format(" ({0}/{1})", partyStats.MemberCount(), PartyData.MAX_MEMBERS));
                 string message = GameUtils.GetHyperTextTag(link, sb.ToString());
-                ChatMessage newMsg = new ChatMessage(MessageType.World, message);
+                ChatMessage newMsg = new ChatMessage(MessageType.World, message, player.Name);
                 GameApplication.Instance.BroadcastChatMessage(newMsg);
                 player.Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_RecruitmentSent", "", false, player.Slot);
             }

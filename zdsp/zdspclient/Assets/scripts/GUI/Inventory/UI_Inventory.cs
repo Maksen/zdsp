@@ -9,31 +9,33 @@ using Kopio.JsonContracts;
 
 public class InvDisplayItem
 {
-    public int originSlotId = 0;
-    public IInventoryItem item = null;
+    public int OriginSlotId = 0;
+    public IInventoryItem InvItem = null; // Reference to inventory item
+    public int OriginStackCount = 0;      // For reference when selling
+    public int DisplayStackCount = 0;
 }
 
 public class UI_Inventory : MonoBehaviour
 {
     [Header("Top Section")]
     [SerializeField]
-    UI_Currency uiCurrencyMoney;
+    UI_Currency uiCurrencyMoney = null;
     [SerializeField]
-    UI_Currency uiCurrencyGold;
+    UI_Currency uiCurrencyGold = null;
 
     [Header("Left Section")]
     [SerializeField]
-    Model_3DAvatar avatar;
+    Model_3DAvatar avatar = null;
     [SerializeField]
-    Toggle toggleEquipFashion;
+    Toggle toggleEquipFashion = null;
     [SerializeField]
-    Toggle hideHelm;
+    Toggle hideHelm = null;
     [SerializeField]
-    GameObject[] equipSlots;
+    GameObject[] equipSlots = null;
     [SerializeField]
-    GameObject[] fashionSlots;
+    GameObject[] fashionSlots = null;
     [SerializeField]
-    GameObject equipIconPrefab;
+    GameObject equipIconPrefab = null;
 
     [Header("Right Section")]
     [SerializeField]
@@ -44,6 +46,8 @@ public class UI_Inventory : MonoBehaviour
     DefaultToggleInGroup defaultToggleingrpInvTabs = null;
     [SerializeField]
     Toggle toggleCheckboxQuickSlot = null;
+
+    public Button ButtonSell = null;
     public Button ButtonPowerup = null;
 
     [Header("UI Reference")]   
@@ -109,10 +113,9 @@ public class UI_Inventory : MonoBehaviour
         if (player != null)
         {
             invScrollView.InitScrollView(this);
-            SetUsedSlotsCount(GetUsedSlotsCount(player.clientItemInvCtrl.itemInvData.Slots), 
-                                                player.SecondaryStats.UnlockedSlotCount);           
             if (CurrentInventoryTab == inventoryTab)
                 RefreshRight(player);
+
             toggleCheckboxQuickSlot.isOn = (inventoryTab == BagType.Consumable);
             defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
 
@@ -121,7 +124,7 @@ public class UI_Inventory : MonoBehaviour
         }
     }
 
-    #region Inventory Right side
+    #region Inventory right side
 
     public void SetUsedSlotsCount(int usedSlotCount, int UnlockSlotCount)
     {
@@ -139,58 +142,53 @@ public class UI_Inventory : MonoBehaviour
         return usedSlots;
     }
 
-    public void UpdateDisplayItemListByBagType(List<IInventoryItem> itemList)
+    public void UpdateDisplayItemListByBagType(List<IInventoryItem> invItemList)
     {
         DisplayItemList.Clear();
-        int itemListCnt = itemList.Count;
-        List<Dictionary<int, int>> refList = InvSellPanel.RefList;
-        int refListCnt = (refList != null) ? refList.Count : 0;
-        for (int i = 0; i < itemListCnt; ++i)
+
+        int invItemListCnt = invItemList.Count;
+        List<Dictionary<int, int>> sellRefList = InvSellPanel.SellRefList;
+        List<InvDisplayItem> sellItemList = InvSellPanel.SellItemList;
+        int sellRefListCnt = (sellRefList != null) ? sellRefList.Count : 0;
+        for (int i = 0; i < invItemListCnt; ++i)
         {
-            IInventoryItem invItem = itemList[i];
+            IInventoryItem invItem = invItemList[i];
             if (CurrentInventoryTab == BagType.Any || (invItem != null && CurrentInventoryTab == invItem.JsonObject.bagtype))
             {
-                int stackCnt = (invItem != null) ? invItem.StackCount : 0;
-                // Check sell panel reference
-                for (int j = 0; j < refListCnt; ++j)
+                int stackCount = (invItem != null) ? invItem.StackCount : 0;
+                for (int j = 0; j < sellRefListCnt; ++j)
                 {
-                    Dictionary<int, int> refDict = refList[j];
+                    Dictionary<int, int> refDict = sellRefList[j];            
                     if (refDict.ContainsKey(i))
                     {
-                        if (stackCnt > 0)
-                            stackCnt -= refDict[i];
-                        else
+                        InvDisplayItem invDisplayItem = sellItemList[j];
+                        int result = invDisplayItem.OriginStackCount - invDisplayItem.DisplayStackCount;
+                        if (stackCount == result || stackCount == 0)
                             refDict.Remove(i);
+                        else
+                            stackCount -= refDict[i];
                     }
                 }
 
-                IInventoryItem invItemCopy = (stackCnt != 0) ? GameRepo.ItemFactory.GetInventoryItemCopy(invItem) : null;
-                if (CurrentInventoryTab == BagType.Any || (CurrentInventoryTab != BagType.Any && invItemCopy != null))
-                {
-                    if (invItemCopy != null)
-                        invItemCopy.StackCount = stackCnt;
-                    DisplayItemList.Add(new InvDisplayItem { originSlotId = i, item = invItemCopy });
-                }
+                if (stackCount == 0)
+                    invItem = null;
+                DisplayItemList.Add(new InvDisplayItem { OriginSlotId = i , InvItem = invItem,
+                                                         OriginStackCount = stackCount,
+                                                         DisplayStackCount = stackCount });
             }
         }
     }
 
-    public void RemoveFromDisplayItemList(int index)
-    {
-        if (CurrentInventoryTab == BagType.Any)
-            DisplayItemList[index].item = null;
-        else
-            DisplayItemList.RemoveAt(index);
-    }
-
     public void RefreshRight(PlayerGhost player)
     {
-        UpdateDisplayItemListByBagType(player.clientItemInvCtrl.itemInvData.Slots);
+        List<IInventoryItem> invItemList = player.clientItemInvCtrl.itemInvData.Slots;
+        SetUsedSlotsCount(GetUsedSlotsCount(invItemList),
+                          player.SecondaryStats.UnlockedSlotCount);
+        UpdateDisplayItemListByBagType(invItemList);
+
         if (InvSellPanel.gameObject.activeInHierarchy)
-        {
             InvSellPanel.UpdateSellListFromRefList();
-            InvSellPanel.RefreshSellPanel();
-        }
+
         invScrollView.PopulateRows();
     }
 
@@ -238,7 +236,7 @@ public class UI_Inventory : MonoBehaviour
 
     #endregion
 
-    #region Inventory Left side
+    #region Inventory left side
     public void RefreshLeft(PlayerGhost player)
     {
         EquipmentInventoryData equipmentInvData = player.mEquipmentInvData;

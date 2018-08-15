@@ -34,10 +34,6 @@ public class Dialog_LicenseAgreement : MonoBehaviour
         txtAssetEULA = null;
     }
 
-    // Update is called once per frame
-    void Update()
-    {}
-
     public void OnValueChangedReadAll(bool value)
     {
         buttonAgree.interactable = value;

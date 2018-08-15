@@ -13,11 +13,13 @@ public class ModdingEquipment
 {
     public int mSlotID;
     public Equipment mEquip;
+    public bool mIsEquipped;
 
-    public ModdingEquipment(int slotId, Equipment equipment)
+    public ModdingEquipment(int slotId, Equipment equipment, bool isEquipped)
     {
         mSlotID = slotId;
         mEquip = equipment;
+        mIsEquipped = isEquipped;
     }
 }
 
@@ -31,7 +33,7 @@ public class UI_EquipmentModding : MonoBehaviour
             Equipment equipment = equippedEquipList[i];
             if (equipment != null)
             {
-                equipUpgList.Add(new ModdingEquipment(i, equipment));
+                equipUpgList.Add(new ModdingEquipment(i, equipment, true));
             }
         }
 
@@ -40,7 +42,7 @@ public class UI_EquipmentModding : MonoBehaviour
             Equipment invEquip = invEquipList[i] as Equipment;
             if (invEquip != null)
             {
-                equipUpgList.Add(new ModdingEquipment(i, invEquip));
+                equipUpgList.Add(new ModdingEquipment(i, invEquip, false));
             }
         }
 

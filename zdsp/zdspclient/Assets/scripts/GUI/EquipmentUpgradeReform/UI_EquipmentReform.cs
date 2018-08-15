@@ -188,39 +188,43 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         int currentLevel = equipment.ReformStep;
         equipmentLvlTextObj.SetActive(true);
         equipmentLvlText.text = currentLevel.ToString();
-
-        EquipmentType equipType = equipment.EquipmentJson.equiptype;
-        ItemRarity rarity = equipment.EquipmentJson.rarity;
-        int nextLevel = currentLevel + 1;
-
-        //SetEquipmentUpgradeButtonState(equipment);
     }
 
     public void InitEquipmentReformRefresh(Equipment equipment)
     {
-        rightSideAnimator.Play(_defaultRightSideState);
+        //rightSideAnimator.Play(_defaultRightSideState);
 
         _selectedEquipment = equipment;
 
-        LoadEquipmentDataRefresh(equipment);
+        ClearSelectedEquipment();
+        GenerateSelectedEquipIcon(equipment);
+        LoadEquipmentData(equipment);
+
+        LoadNextReformData(equipment);
+
+        confirmReformBtn.interactable = false;
     }
 
-    private void LoadEquipmentDataRefresh(Equipment equipment)
+    public void InitEquipmentRecycleRefresh(Equipment equipment)
     {
-        string equipName = equipment.GetEquipmentName();
-        equipmentNameTextObj.SetActive(true);
-        equipmentNameText.text = equipName;
+        //rightSideAnimator.Play(_defaultRightSideState);
 
-        int currentLevel = equipment.UpgradeLevel;
-        equipmentLvlTextObj.SetActive(true);
-        equipmentLvlText.text = currentLevel.ToString();
+        _selectedEquipment = equipment;
 
-        EquipmentType equipType = equipment.EquipmentJson.equiptype;
-        ItemRarity rarity = equipment.EquipmentJson.rarity;
-        int nextLevel = currentLevel + 1;
-        float successProb = EquipmentModdingRepo.GetEquipmentUpgradeSuccessProb(equipType, rarity, nextLevel);
+        ClearSelectedEquipment();
+        GenerateSelectedEquipIcon(equipment);
+        LoadEquipmentData(equipment);
 
-        //SetEquipmentUpgradeButtonState(equipment);
+        SetEquipmentRecycleReturns(equipment);
+
+        if(CheckNotLowestStep() == true)
+        {
+            confirmRecycleBtn.interactable = true;
+        }
+        else
+        {
+            confirmRecycleBtn.interactable = false;
+        }
     }
 
     public void LoadEquippedBagInventory()
@@ -369,7 +373,8 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             // Left side
             // Equipment data
             LoadEquipmentData(_selectedEquipment);
-            
+            GenerateSelectedEquipIcon(_selectedEquipment);
+
             // Right side
             selectedEquipText.text = _selectedEquipment.GetEquipmentName();
             
@@ -378,7 +383,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             if(reformGrp != "-1" && reformGrp != "#unnamed#")
             {
                 int currentStep = _selectedEquipment.ReformStep;
-                int nextStep = currentStep + 1;
+                int realCurrStep = currentStep - 1;
 
                 if(currentStep > 0)
                 {
@@ -400,10 +405,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
                     }
 
                     // Recycle returns
-                    ClearRecycleReturnsList();
-
-                    int selection = _selectedEquipment.GetSelectionsList()[currentStep];
-                    GenerateEquipRecycleReturns(reformGrp, currentStep, selection);
+                    SetEquipmentRecycleReturns(_selectedEquipment);
 
                     confirmRecycleBtn.interactable = true;
                 }
@@ -462,6 +464,15 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
                 reformCostText.color = Color.white;
             }
+
+            if(CheckSufficientMaterials(_reformSel) == false)
+            {
+                confirmReformBtn.interactable = false;
+            }
+            else
+            {
+                confirmReformBtn.interactable = true;
+            }
         }
         else
         {
@@ -497,18 +508,28 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         RPCFactory.NonCombatRPC.EquipmentReformEquipment(_slotID, _isEquipped, _reformSel);
     }
 
-    public void PlayEquipmentUpgradeSuccess()
+    public void OnClickEquipmentRecycle()
     {
-        if (successFxObj.activeSelf == false)
+        if(!CheckNotLowestStep(true))
         {
-            successFxObj.SetActive(true);
+            return;
         }
+
+        RPCFactory.NonCombatRPC.EquipmentRecycleEquipment(_slotID, _isEquipped);
     }
 
-    public void Refresh()
+    public void PlayEquipmentReformSuccess()
+    {
+        //if (successFxObj.activeSelf == false)
+        //{
+        //    successFxObj.SetActive(true);
+        //}
+    }
+
+    public void RefreshReform()
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
-        if (player == null)
+        if(player == null)
         {
             return;
         }
@@ -516,6 +537,19 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         Equipment equipment = _isEquipped ? player.mEquipmentInvData.Slots[_slotID] as Equipment : player.clientItemInvCtrl.itemInvData.Slots[_slotID] as Equipment;
 
         InitEquipmentReformRefresh(equipment);
+    }
+
+    public void RefreshRecycle()
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return;
+        }
+
+        Equipment equipment = _isEquipped ? player.mEquipmentInvData.Slots[_slotID] as Equipment : player.clientItemInvCtrl.itemInvData.Slots[_slotID] as Equipment;
+
+        InitEquipmentRecycleRefresh(equipment);
     }
 
     void OnDisable()
@@ -550,9 +584,33 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
         if(nextStep >= maxLevel && reformNextEquip == -1)
         {
-            // Exceeded max upgrade level
+            // Exceeded max reform step
             if (showMessage)
-                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Equip_ReformLevelMaxed"));
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipReform_StepMaxed"));
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool CheckNotLowestStep(bool showMessage = false)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return false;
+        }
+
+        // Check if already maxed out reform steps
+        int currStep = _selectedEquipment.ReformStep;
+        int prevStep = currStep - 1;
+
+        if(currStep == 0 || prevStep < 0)
+        {
+            // Already at lowest reform step
+            if (showMessage)
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipReform_StepLowest"));
 
             return false;
         }
@@ -595,12 +653,12 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
 
         // Check enough materials
-        List<EquipModMaterial> materialList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, nextStep, selection);
+        List<ItemInfo> materialList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, nextStep, selection);
         for(int i = 0; i < materialList.Count; ++i)
         {
-            EquipModMaterial mat = materialList[i];
-            int currMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)mat.mItemID);
-            int reqMatCount = mat.mAmount;
+            ItemInfo mat = materialList[i];
+            int currMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)mat.itemId);
+            int reqMatCount = mat.stackCount;
             if(currMatCount < reqMatCount)
             {
                 if (showMessage)
@@ -687,12 +745,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         if(reformDataList != null)
         {
             StringBuilder statsStr = new StringBuilder();
-            for (int i = 0; i < reformDataList.Count; ++i)
-            {
-                EquipReformData reformData = reformDataList[i];
-
-                statsStr.Append(FormatSideEffectString(reformStep, reformData.GetSideEffects()));
-            }
+            statsStr.Append(FormatSideEffectString(reformDataList));
 
             return statsStr.ToString();
         }
@@ -708,25 +761,45 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         retMoneyObj.transform.SetParent(recycleBagParent, false);
 
         GameIcon_MaterialConsumable retMoneyIcon = retMoneyObj.GetComponent<GameIcon_MaterialConsumable>();
-        retMoneyIcon.SetFullStackCount(recycleMoney);
+        retMoneyIcon.SetFullStackCount(recycleMoney, true);
 
         _recycleReturnsList.Add(retMoneyObj);
         
-        List<EquipModMaterial> recycleReturnsList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, currentStep, selection);
+        List<ItemInfo> recycleReturnsList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, currentStep, selection);
 
         if(recycleReturnsList != null)
         {
             for(int i = 0; i < recycleReturnsList.Count; ++i)
             {
-                EquipModMaterial equipModMat = recycleReturnsList[i];
+                ItemInfo equipModMat = recycleReturnsList[i];
 
                 GameObject retMatObj = Instantiate(equipIconPrefab);
                 retMatObj.transform.SetParent(recycleBagParent, false);
 
                 GameIcon_Equip retMatIcon = retMatObj.GetComponent<GameIcon_Equip>();
-                retMatIcon.Init(equipModMat.mItemID);
+                retMatIcon.Init(equipModMat.itemId);
 
                 _recycleReturnsList.Add(retMatObj);
+            }
+        }
+    }
+
+    private void SetEquipmentRecycleReturns(Equipment equipment)
+    {
+        int currentStep = equipment.ReformStep;
+        int realCurrStep = currentStep - 1;
+        
+        string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+
+        if(reformGrp != "-1" && reformGrp != "#unnamed#")
+        {
+            // Recycle returns
+            ClearRecycleReturnsList();
+
+            if(currentStep > 0)
+            {
+                int selection = _selectedEquipment.GetSelectionsList()[realCurrStep];
+                GenerateEquipRecycleReturns(reformGrp, currentStep, selection);
             }
         }
     }
@@ -756,8 +829,47 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             }
 
             SideEffectJson lastSE = SideEffectRepo.GetSideEffect(seIds[lastPos]);
-            ClientUtils.GetLocalizedReformKai(reformStep);
             statsStr.AppendFormat("{0} {1}+{2}", reformKai, lastSE.localizedname, lastSE.max);
+        }
+
+        return statsStr.ToString();
+    }
+
+    public string FormatSideEffectString(List<EquipReformData> reformDataList)
+    {
+        StringBuilder statsStr = new StringBuilder();
+        string formatNextRow = "{0} {1}+{2}\n";
+        string formatNoNextRow = "{0} {1}+{2}";
+
+        for(int i = 0; i < reformDataList.Count; ++i)
+        {
+            EquipReformData equipReformData = reformDataList[i];
+            List<int> seIds = equipReformData.GetSideEffects();
+            bool isLastReformData = i == (reformDataList.Count - 1);
+            if(seIds.Count > 0)
+            {
+                int lastPos = seIds.Count - 1;
+                string reformKai = ClientUtils.GetLocalizedReformKai(equipReformData.mReformStep);
+
+                if(seIds.Count > 1)
+                {
+                    for (int j = 0; j < lastPos; ++j)
+                    {
+                        SideEffectJson se = SideEffectRepo.GetSideEffect(seIds[j]);
+                        statsStr.AppendFormat(formatNextRow, reformKai, se.localizedname, se.max);
+                    }
+                }
+
+                SideEffectJson lastSE = SideEffectRepo.GetSideEffect(seIds[lastPos]);
+                if (isLastReformData)
+                {
+                    statsStr.AppendFormat(formatNoNextRow, reformKai, lastSE.localizedname, lastSE.max);
+                }
+                else
+                {
+                    statsStr.AppendFormat(formatNextRow, reformKai, lastSE.localizedname, lastSE.max);
+                }
+            }
         }
 
         return statsStr.ToString();

@@ -17,6 +17,7 @@ namespace Zealot.Common
     {
         New,
         Read,
+        Collected,
     }
 
     public class ActivatedClueData
@@ -70,6 +71,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "UnlockClues")]
         public string UnlockClues { get; set; }
 
+        [JsonProperty(PropertyName = "UnlockTimeClues")]
+        public string UnlockTimeClues { get; set; }
+
         public List<ActivatedClueData> DeserializedActivatedClues()
         {
             return string.IsNullOrEmpty(ActivatedClues) ? new List<ActivatedClueData>() : JsonConvertDefaultSetting.DeserializeObject<List<ActivatedClueData>>(ActivatedClues);
@@ -88,6 +92,36 @@ namespace Zealot.Common
         public List<int> DeserializedUnlockClues()
         {
             return string.IsNullOrEmpty(UnlockClues) ? new List<int>() : JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockClues);
+        }
+
+        public List<int> DeserializedUnlockTimeClues()
+        {
+            return string.IsNullOrEmpty(UnlockTimeClues) ? new List<int>() : JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockTimeClues);
+        }
+
+        public void SerializedActivatedClues(List<ActivatedClueData> activatedClueDatas)
+        {
+            ActivatedClues = JsonConvertDefaultSetting.SerializeObject(activatedClueDatas);
+        }
+
+        public void SerializedUnlockMemory(List<int> unlockMemory)
+        {
+            UnlockMemory = JsonConvertDefaultSetting.SerializeObject(unlockMemory);
+        }
+
+        public void SerializedLockedClues(List<LockedClueData> lockedClues)
+        {
+            LockedClues = JsonConvertDefaultSetting.SerializeObject(lockedClues);
+        }
+
+        public void SerializedUnlockClues(List<int> unlockClues)
+        {
+            UnlockClues = JsonConvertDefaultSetting.SerializeObject(unlockClues);
+        }
+
+        public void SerializedUnlockTimeClues(List<int> unlockTimeClues)
+        {
+            UnlockTimeClues = JsonConvertDefaultSetting.SerializeObject(unlockTimeClues);
         }
     }
 }

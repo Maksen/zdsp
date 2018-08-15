@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
+using Zealot.Repository;
 
 public class HUD_PartyPortraitInfo : MonoBehaviour
 {
@@ -26,6 +28,7 @@ public class HUD_PartyPortraitInfo : MonoBehaviour
         SetHP(member.hp);
         SetMP(member.mp);
         SetOnline(member.online);
+        SetPortrait();
     }
 
     private void SetHP(float hp)
@@ -45,6 +48,20 @@ public class HUD_PartyPortraitInfo : MonoBehaviour
             mpBar.Value = mpBar.Max;
         else
             mpBar.Value = (long)(mp * mpBar.Max);  // max is 100
+    }
+
+    private void SetPortrait()
+    {
+        if (thisMember.IsHero())
+        {
+            HeroJson heroData = HeroRepo.GetHeroById(thisMember.heroId);
+            if (heroData != null)
+                portraitImage.sprite = ClientUtils.LoadIcon(heroData.smallportraitpath);
+        }
+        else
+        {
+            portraitImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png"); // temp
+        }
     }
 
     public void SetLeader(string leaderName)

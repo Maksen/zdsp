@@ -250,7 +250,7 @@ namespace Zealot.Server.Rules
                 }
                 questData.MainObjective.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveList, currenttime);
                 bool eventresult = false;
-                foreach (int objectiveid in objectiveids)
+                foreach (int objectiveid in objectiveData.ObjectiveList)
                 {
                     eventresult = QuestRepo.CheckQuestEventByObjectiveId(objectiveid);
                     if (eventresult)
@@ -297,15 +297,6 @@ namespace Zealot.Server.Rules
                 objectiveData.ObjectiveIds = new List<int>();
                 objectiveData.ProgressCount = new List<int>();
                 objectiveData.CompleteTime = new List<long>();
-                bool eventresult = false;
-                foreach (int objectiveid in objectiveids)
-                {
-                    eventresult = QuestRepo.CheckQuestEventByObjectiveId(objectiveid);
-                    if (eventresult)
-                    {
-                        return 1;
-                    }
-                }
                 return 2;
             }
             else if (newobjectiveData.ReturnCode == "Error")
@@ -329,7 +320,7 @@ namespace Zealot.Server.Rules
                 }
                 objectiveData.CompleteTime = GetObjectiveEndTime(newobjectiveData.ObjectiveList, currenttime);
                 bool eventresult = false;
-                foreach (int objectiveid in objectiveids)
+                foreach (int objectiveid in newobjectiveData.ObjectiveList)
                 {
                     eventresult = QuestRepo.CheckQuestEventByObjectiveId(objectiveid);
                     if (eventresult)
@@ -521,11 +512,29 @@ namespace Zealot.Server.Rules
                         }
                         else if (requirementDetailJson.type == QuestRequirementType.Companian)
                         {
-                            progress.Add(requirementDetailJson.requirementid, 0);
+                            int companionprogress = 0;
+                            if (requirementDetailJson.para2 == 1 && player.QuestController.GetQuestCompanionId() == requirementDetailJson.para1)
+                            {
+                                companionprogress = 1;
+                            }
+                            else if (requirementDetailJson.para2 == 2 && player.QuestController.GetQuestCompanionId() != requirementDetailJson.para1)
+                            {
+                                companionprogress = 1;
+                            }
+                            progress.Add(requirementDetailJson.requirementid, companionprogress);
                         }
                         else if (requirementDetailJson.type == QuestRequirementType.Clue)
                         {
-                            progress.Add(requirementDetailJson.requirementid, 0);
+                            int clueprogress = 0;
+                            if (requirementDetailJson.para2 == 1 && player.DestinyClueController.IsClueAlreadyUnlock(requirementDetailJson.para1))
+                            {
+                                clueprogress = 1;
+                            }
+                            else if (requirementDetailJson.para2 == 2 && !player.DestinyClueController.IsClueAlreadyUnlock(requirementDetailJson.para1))
+                            {
+                                clueprogress = 1;
+                            }
+                            progress.Add(requirementDetailJson.requirementid, clueprogress);
                         }
                         else if (requirementDetailJson.type == QuestRequirementType.Job)
                         {
@@ -539,6 +548,19 @@ namespace Zealot.Server.Rules
                                 jobprogress = 1;
                             }
                             progress.Add(requirementDetailJson.requirementid, jobprogress);
+                        }
+                        else if (requirementDetailJson.type == QuestRequirementType.TimeClue)
+                        {
+                            int timeclueprogress = 0;
+                            if (requirementDetailJson.para2 == 1 && player.DestinyClueController.IsTimeClueAlreadyUnlock(requirementDetailJson.para1))
+                            {
+                                timeclueprogress = 1;
+                            }
+                            else if (requirementDetailJson.para2 == 2 && !player.DestinyClueController.IsTimeClueAlreadyUnlock(requirementDetailJson.para1))
+                            {
+                                timeclueprogress = 1;
+                            }
+                            progress.Add(requirementDetailJson.requirementid, timeclueprogress);
                         }
                     }
                 }
@@ -598,8 +620,24 @@ namespace Zealot.Server.Rules
                         }
                         return 0;
                     case QuestRequirementType.Companian:
+                        if (questRequirement.para2 == 1 && player.QuestController.GetQuestCompanionId() == questRequirement.para1)
+                        {
+                            return 1;
+                        }
+                        else if (questRequirement.para2 == 2 && player.QuestController.GetQuestCompanionId() != questRequirement.para1)
+                        {
+                            return 1;
+                        }
                         return 0;
                     case QuestRequirementType.Clue:
+                        if (questRequirement.para2 == 1 && player.DestinyClueController.IsClueAlreadyUnlock(questRequirement.para1))
+                        {
+                            return 1;
+                        }
+                        else if (questRequirement.para2 == 2 && !player.DestinyClueController.IsClueAlreadyUnlock(questRequirement.para1))
+                        {
+                            return 1;
+                        }
                         return 0;
                     case QuestRequirementType.Job:
                         if (questRequirement.para2 == 1 && player.PlayerSynStats.jobsect == questRequirement.para1)
@@ -607,6 +645,16 @@ namespace Zealot.Server.Rules
                             return 1;
                         }
                         else if (questRequirement.para2 == 2 && player.PlayerSynStats.jobsect != questRequirement.para1)
+                        {
+                            return 1;
+                        }
+                        return 0;
+                    case QuestRequirementType.TimeClue:
+                        if (questRequirement.para2 == 1 && player.DestinyClueController.IsTimeClueAlreadyUnlock(questRequirement.para1))
+                        {
+                            return 1;
+                        }
+                        else if (questRequirement.para2 == 2 && !player.DestinyClueController.IsTimeClueAlreadyUnlock(questRequirement.para1))
                         {
                             return 1;
                         }
@@ -770,15 +818,41 @@ namespace Zealot.Server.Rules
                     }
                     break;
                 case QuestRequirementType.Companian:
-                    return true;
+                    if (requirement.para2 == 1 && player.QuestController.GetQuestCompanionId() == requirement.para1)
+                    {
+                        return true;
+                    }
+                    else if (requirement.para2 == 2 && player.QuestController.GetQuestCompanionId() != requirement.para1)
+                    {
+                        return true;
+                    }
+                    break;
                 case QuestRequirementType.Clue:
-                    return true;
+                    if (requirement.para2 == 1 && player.DestinyClueController.IsClueAlreadyUnlock(requirement.para1))
+                    {
+                        return true;
+                    }
+                    else if (requirement.para2 == 2 && !player.DestinyClueController.IsClueAlreadyUnlock(requirement.para1))
+                    {
+                        return true;
+                    }
+                    break;
                 case QuestRequirementType.Job:
                     if (requirement.para2 == 1 && player.PlayerSynStats.jobsect == requirement.para1)
                     {
                         return true;
                     }
                     else if (requirement.para2 == 2 && player.PlayerSynStats.jobsect != requirement.para1)
+                    {
+                        return true;
+                    }
+                    break;
+                case QuestRequirementType.TimeClue:
+                    if (requirement.para2 == 1 && player.DestinyClueController.IsTimeClueAlreadyUnlock(requirement.para1))
+                    {
+                        return true;
+                    }
+                    else if (requirement.para2 == 2 && !player.DestinyClueController.IsTimeClueAlreadyUnlock(requirement.para1))
                     {
                         return true;
                     }
@@ -858,16 +932,14 @@ namespace Zealot.Server.Rules
                 case QuestRequirementType.Title:
                     return true;
                 case QuestRequirementType.SideEffect:
-                    if (requirement.para3 == 1)
-                    {
-                        player.RemoveSideEffect(requirement.para1);
-                    }
                     return true;
                 case QuestRequirementType.Companian:
                     return true;
                 case QuestRequirementType.Clue:
                     return true;
                 case QuestRequirementType.Job:
+                    return true;
+                case QuestRequirementType.TimeClue:
                     return true;
             }
             return false;

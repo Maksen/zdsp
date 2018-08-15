@@ -619,7 +619,7 @@ public partial class NonCombatRPC : RPCBase
     }
     #endregion
 
-    #region EquipmentUpgrade
+    #region EquipmentModding
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentUpgradeEquipment)]
     public void EquipmentUpgradeEquipment(int slotId, bool isEquipped, bool isUseGenMaterial, bool isSafeUpgrade, bool isSafeUseEquip, bool isSafeGenMat, int safeEquipSlotId = -1)
     {
@@ -630,6 +630,12 @@ public partial class NonCombatRPC : RPCBase
     public void EquipmentReformEquipment(int slotId, bool isEquipped, int selection)
     {
         ProxyMethod("EquipmentReformEquipment", slotId, isEquipped, selection);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentRecycleEquipment)]
+    public void EquipmentRecycleEquipment(int slotId, bool isEquipped)
+    {
+        ProxyMethod("EquipmentRecycleEquipment", slotId, isEquipped);
     }
 
     //[RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipSlotGem)]
@@ -738,7 +744,7 @@ public partial class NonCombatRPC : RPCBase
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCStoreBuy)]
     public void NPCStoreBuy(int storeid, int itemlistid, int purchaseamount, string charid)
     {
-        ProxyMethod("NPCStoreBuy", storeid, purchaseamount, itemlistid, charid);
+        ProxyMethod("NPCStoreBuy", storeid, itemlistid, purchaseamount, charid);
     }
 
     #endregion
@@ -815,6 +821,12 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("ApplyQuestEventCompanion", eventid, questid);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]
+    public void ResetQuestEventCompanion(int companionid)
+    {
+        ProxyMethod("ResetQuestEventCompanion", companionid);
+    }
     #endregion
 
     #region CharacterInfo
@@ -844,6 +856,20 @@ public partial class NonCombatRPC : RPCBase
     public void PowerUp(int part)
     {
         ProxyMethod("PowerUp", part);
+    }
+    #endregion
+
+    #region Destiny Clue
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ReadClue)]
+    public void ReadClue(int clueid, byte type)
+    {
+        ProxyMethod("ReadClue", clueid, type);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CollectClueReward)]
+    public void CollectClueReward(int clueid)
+    {
+        ProxyMethod("CollectClueReward", clueid);
     }
     #endregion
 }

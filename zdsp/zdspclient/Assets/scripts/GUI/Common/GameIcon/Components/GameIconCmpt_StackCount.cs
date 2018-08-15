@@ -11,8 +11,8 @@ public class GameIconCmpt_StackCount : MonoBehaviour
         txtStackCount.text = (count > 1) ? ((count > 999) ? "999+" : count.ToString()) : "";
     }
 
-    public void SetStackCountFull(int count)
+    public void SetStackCountFull(int count, bool uncapped = false)
     {
-        txtStackCount.text = (count > 999) ? "999+" : (count < -999) ? "-999+" : count.ToString();
+        txtStackCount.text = (count > 999) ? uncapped ? count.ToString() : "999+" : (count < -999) ? "-999+" : count.ToString();
     }
 }

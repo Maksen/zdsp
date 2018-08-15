@@ -22,7 +22,7 @@ namespace Zealot.Server.Rules
     {
         public static InvRetval UseMaterials(EquipUpgMaterial material, GameClientPeer peer)
         {
-            return peer.mPlayer.Slot.mInventory.UseToolItems((ushort)material.mMat.mItemID, (ushort)material.mMat.mAmount, "EquipUpgrade");
+            return peer.mPlayer.Slot.mInventory.UseToolItems((ushort)material.mMat.itemId, (ushort)material.mMat.stackCount, "EquipUpgrade");
         }
 
         public static InvRetval UseMaterials(List<ItemInfo> materials, GameClientPeer peer)
@@ -30,14 +30,14 @@ namespace Zealot.Server.Rules
             return peer.mPlayer.Slot.mInventory.UseToolItems(materials, "EquipReform");
         }
 
-        public static bool IsEnoughReformMaterials(List<EquipModMaterial> matList, GameClientPeer peer)
+        public static bool IsEnoughReformMaterials(List<ItemInfo> matList, GameClientPeer peer)
         {
             for(int i = 0; i < matList.Count; ++i)
             {
-                EquipModMaterial mat = matList[i];
-                int invItemCount = peer.GetTotalStackCountByItemID(mat.mItemID);
+                ItemInfo mat = matList[i];
+                int invItemCount = peer.GetTotalStackCountByItemID(mat.itemId);
 
-                if(invItemCount < mat.mAmount)
+                if(invItemCount < mat.stackCount)
                 {
                     return false;
                 }

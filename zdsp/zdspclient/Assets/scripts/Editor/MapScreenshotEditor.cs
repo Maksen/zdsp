@@ -36,10 +36,10 @@ public class MapScreenshotEditor : Editor
                 Vector3 mcppos = mcp.transform.position;
                 mcpcam.transform.position = new Vector3(mcppos.x, mcppos.y+1, mcppos.z);
                 mcpcam.transform.LookAt(mcppos, new Vector3(0f, 0f, 1f));
-                
 
-                mcpcam.targetTexture = new RenderTexture(512,
-                                                   512, 24,
+                RectTransform mcprt = mcp.GetComponent<RectTransform>();
+                mcpcam.targetTexture = new RenderTexture((int)mcprt.rect.width,
+                                                   (int)mcprt.rect.height, 24,
                                                    RenderTextureFormat.ARGB32);
 
                 RenderTexture currentRT = RenderTexture.active;

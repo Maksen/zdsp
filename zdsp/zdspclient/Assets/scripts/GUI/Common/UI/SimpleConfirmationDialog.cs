@@ -74,7 +74,6 @@ public class SimpleConfirmationDialog : MonoBehaviour
             int left = mCountDown - mElapsed;
             if (left > 0)
                 Message.text = mMesssage + "\n" + GUILocalizationRepo.GetLocalizedString("com_Confirmation_Countdown").Replace("{countdown}", left.ToString());
-            
         }
     }
 }

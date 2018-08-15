@@ -17,6 +17,8 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
     Button button;
     [SerializeField]
     GameObject highlight;
+    [SerializeField]
+    Material grayScaleMat;
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
     InterestScrollViewContext context;
@@ -64,6 +66,7 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
                     imagePath = json.iconpath;
                     ClientUtils.LoadIconAsync(imagePath, OnImageLoaded);
                 }
+                image.material = itemData.Applicable ? null : grayScaleMat;
             }
             else
             {

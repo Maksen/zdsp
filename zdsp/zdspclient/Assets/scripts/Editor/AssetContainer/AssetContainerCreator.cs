@@ -43,6 +43,11 @@ class AssetContainerCreator
     {
         CreateAssetContainer<TextAssetContainer>("TextAsset");
     }
+    [MenuItem("Assets/Create/Asset Container/VideoClip Container")]
+    public static void CreateVideoClipContainer()
+    {
+        CreateAssetContainer<VideoClipContainer>("VideoClip");
+    }
 
     public static void CreateAssetContainer<T>(string type) where T : ScriptableObject
     {

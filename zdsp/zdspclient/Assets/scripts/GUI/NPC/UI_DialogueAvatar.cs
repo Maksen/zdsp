@@ -55,7 +55,6 @@ public class UI_DialogueAvatar : MonoBehaviour
         if (asset != null)
         {
             mPlayer = Instantiate(asset);
-            RemoveComponent(mPlayer);
         }
     }
 
@@ -63,27 +62,23 @@ public class UI_DialogueAvatar : MonoBehaviour
     {
         if (asset == null)
         {
-            asset = AssetManager.LoadAsset<GameObject>(npcJson.containerprefabpath, npcJson.modelprefabpath);
+            AssetLoader.Instance.LoadAsync<GameObject>(npcJson.containerprefabpath, (obj) => { OnNpcAsyncLoaded(npcid, obj); });
+            return;
         }
-
-        if (asset != null)
+        else
         {
             GameObject go = Instantiate(asset);
-            //RemoveComponent(go);
             mNpcList.Add(npcid, go);
         }
     }
 
-    private void RemoveComponent(GameObject go)
+    private void OnNpcAsyncLoaded(int npcid, GameObject asset)
     {
-        foreach(Component component in go.GetComponents<Component>())
+        if (asset !=null)
         {
-            if (!(component is Transform) && !(component is Animator))
-            {
-                Destroy(component);
-            }
+            GameObject go = Instantiate(asset);
+            mNpcList.Add(npcid, go);
         }
-        go.transform.position = Vector3.zero;
     }
 
     public void ActiveAvatar(int npcid, string message)
@@ -104,7 +99,10 @@ public class UI_DialogueAvatar : MonoBehaviour
             if (mNpcList.ContainsKey(npcid))
             {
                 mAvatar = mNpcList[npcid];
-                StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCById(npcid);
+            }
+            StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCById(npcid);
+            if (npcJson != null)
+            {
                 Name.text = npcJson.localizedname;
             }
         }
@@ -115,7 +113,18 @@ public class UI_DialogueAvatar : MonoBehaviour
             ClientUtils.SetLayerRecursively(mAvatar, AvatarContent.gameObject.layer);
             mAvatar.transform.SetParent(AvatarContent, false);
         }
-        Message.text = message;
+
+        Message.text = CheckReplacementText(message);
+    }
+
+    private string CheckReplacementText(string message)
+    {
+        if (GameInfo.gLocalPlayer!=null)
+        {
+            message = message.Replace("%pc%", GameInfo.gLocalPlayer.PlayerSynStats.name);
+            message = message.Replace("%job%", JobSectRepo.GetJobLocalizedName(GameInfo.gLocalPlayer.GetJobSect()));
+        }
+        return message;
     }
 
     public void DestroyModel()

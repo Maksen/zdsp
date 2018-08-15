@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Zealot.Client.Entities;
@@ -11,7 +10,6 @@ public class HeroStatsClient : HeroStats
 {
     private GameObject windowObj;
     private UI_Hero uiHero;
-
     private PlayerGhost localPlayer;
 
     public void Init()
@@ -30,8 +28,8 @@ public class HeroStatsClient : HeroStats
             }
         }
 
-        UpdateExplorations();
-        UpdateExploredMaps();
+        ParseExplorationsString();
+        ParseExploredString();
     }
 
     public void UpdateHeroesList(byte idx, string value)
@@ -68,19 +66,47 @@ public class HeroStatsClient : HeroStats
     private void UpdateHero(Hero oldHero, string str)
     {
         Debug.Log("Update hero: " + str);
-
         Hero newHero = Hero.ToObject(str);
         newHero.HeroJson = oldHero.HeroJson;
-
         mHeroesDict[newHero.HeroId] = newHero;
 
+        // todo: check whether can put back active check when handle unlock skin item
         uiHero.OnHeroUpdated(oldHero, newHero);
     }
 
-    public void UpdateExplorations()
+    public void UpdateExplorations(string value)
     {
-        //Debug.Log("Update explorations: " + Explorations);
-        ParseExplorationsString();
+        Debug.Log("Update explorations: " + value);
+        var newExplorationDict = JsonConvertDefaultSetting.DeserializeObject<Dictionary<int, ExploreMapData>>(value);
+        foreach (var map in newExplorationDict)
+        {
+            ExploreMapData newMap = map.Value;
+            if (!explorationsDict.ContainsKey(map.Key))  // current not in dict so is new map
+            {
+                newMap.MapData = HeroRepo.GetExplorationMapById(map.Key);
+                explorationsDict.Add(map.Key, newMap);
+            }
+            else // update existing map
+            {
+                newMap.MapData = explorationsDict[map.Key].MapData;
+                explorationsDict[map.Key] = newMap;
+            }
+        }
+
+        int mapIdToRemove = 0;
+        foreach (var map in explorationsDict)
+        {
+            if (!newExplorationDict.ContainsKey(map.Key))  // existing map is not in new dict so is removed
+            {
+                mapIdToRemove = map.Key;
+                break;
+            }
+        }
+        if (mapIdToRemove > 0)
+            explorationsDict.Remove(mapIdToRemove);
+
+        if (windowObj.activeInHierarchy)
+            uiHero.OnExplorationsUpdated();
     }
 
     public void UpdateExploredMaps()

@@ -13,6 +13,12 @@ namespace Zealot.Common
     {
         public void InitFromInventory(PowerUpStats powerUpStats)
         {
+            if (powerUpSlots.Count <= 0)
+            {
+                Console.Write("void InitFromInventory(PowerUpStats powerUpStats) error: powerUpSlots empty");
+                return;
+            }
+
             // Updating 10 elements
             for (int i = 0; i < MAX_POWERUPSLOTS; ++i)
             {
@@ -24,6 +30,12 @@ namespace Zealot.Common
 
         public void InitFromStats(PowerUpStats powerUpStats)
         {
+            if (powerUpSlots.Count <= 0)
+            {
+                Console.Write("void InitFromStats(PowerUpStats powerUpStats) error: powerUpSlots empty");
+                return;
+            }
+
             // Updating 10 elements
             for (int i = 0; i < MAX_POWERUPSLOTS; ++i)
             {

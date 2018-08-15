@@ -74,7 +74,7 @@ namespace Zealot.Repository
                 else
                 {
                     JobTree next_node = m_JobTreeCache[entry.job].AddJobAdvance(entry.nextjob);
-                    m_JobTreeCache.Add(entry.nextjob, next_node);
+                    if(!m_JobTreeCache.ContainsKey(entry.nextjob)) m_JobTreeCache.Add(entry.nextjob, next_node);
                 }
             }
         }

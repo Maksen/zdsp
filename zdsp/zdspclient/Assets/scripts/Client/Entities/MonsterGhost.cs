@@ -458,8 +458,6 @@ namespace Zealot.Client.Entities
             }
         }
 
-	    
-
         public override bool IsInvalidTarget()
         {
             return !IsAlive();

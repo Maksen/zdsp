@@ -37,7 +37,7 @@ public class UI_Hero_SkillDetailsDialog : BaseWindowBehaviour
         for (int i = 0; i < dataPrefabs.Length; i++)
         {
             GameObject obj = ClientUtils.CreateChild(skillDetailsTransform, dataPrefabs[i]);
-            Hero_SkillText skillText = obj.GetComponent<Hero_SkillText>();
+            Hero_Text skillText = obj.GetComponent<Hero_Text>();
             if (skillText != null)
                 skillDetails.skillText.Add(skillText);
             else
@@ -50,14 +50,12 @@ public class UI_Hero_SkillDetailsDialog : BaseWindowBehaviour
     {
         if (skillIcon == null)
         {
-            ClientUtils.DestroyChildren(skillDetailsTransform);
             GameObject obj = ClientUtils.CreateChild(skillIconTransform, skillIconPrefab);
             skillIcon = obj.GetComponent<Hero_SkillDetailsIconData>();
         }
 
         if (skillDetails.Count == 0)
         {
-            ClientUtils.DestroyChildren(skillDetailsTransform);
             for (int i = 0; i < 2; i++)
                 skillDetails.Add(CreateSkillDetail());
         }
@@ -132,7 +130,7 @@ public class UI_Hero_SkillDetailsDialog : BaseWindowBehaviour
 
 public class HeroSkillDetails
 {
-    public List<Hero_SkillText> skillText = new List<Hero_SkillText>();
+    public List<Hero_Text> skillText = new List<Hero_Text>();
     public GameObject lineObj;
 
     private StringBuilder sb = new StringBuilder();
@@ -147,12 +145,21 @@ public class HeroSkillDetails
             sb.AppendFormat("{0}/{1}", skillLevel, maxLevel);
             skillText[0].SetText(sb.ToString());
             skillText[0].gameObject.SetActive(true);
-
             sb.Length = 0;
-            // sideeffect description
-            skillText[1].SetText("SDG NOT READY!");
-            skillText[1].gameObject.SetActive(true);
 
+            // sideeffect description
+            List<SideEffectJson> sideEffects = skill.skills.mTarget;
+            for (int i = 0; i < sideEffects.Count; i++)
+            {
+                if (i < sideEffects.Count - 1)
+                    sb.AppendLine(SDGRepo.GetSDGText(sideEffects[i], skill.skillJson));
+                else
+                    sb.Append(SDGRepo.GetSDGText(sideEffects[i], skill.skillJson));
+            }
+
+            skillText[1].SetText(sb.ToString());
+            skillText[1].gameObject.SetActive(true);
+            sb.Length = 0;
 
             // cooldown
             if (skill.skillgroupJson.skilltype == SkillType.Active)

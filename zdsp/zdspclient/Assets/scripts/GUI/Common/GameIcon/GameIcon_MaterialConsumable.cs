@@ -24,9 +24,9 @@ public class GameIcon_MaterialConsumable : GameIcon_Base
     }
 
     // Set stack count to show even if < 2
-    public void SetFullStackCount(int stackCount)
+    public void SetFullStackCount(int stackCount, bool uncapped = false)
     {
-        itemStackCount.SetStackCountFull(stackCount);
+        itemStackCount.SetStackCountFull(stackCount, uncapped);
     }
     
     public void InitWithTooltipViewOnly(int itemId, int stackCount)

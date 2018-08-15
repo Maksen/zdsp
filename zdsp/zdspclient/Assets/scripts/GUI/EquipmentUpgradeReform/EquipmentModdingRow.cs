@@ -168,7 +168,7 @@ public class EquipmentModdingRow : MonoBehaviour
 
     private void UpdateIconData(GameIcon_Equip equipIcon, UI_EquipmentUpgrade uiEquipUpgrade, int slotId, Equipment equipment, bool isSafeUpgrade, bool isEquipped, ToggleGroup toggleGroup)
     {
-        ModdingEquipment equipToUpgrade = new ModdingEquipment(slotId, equipment);
+        ModdingEquipment equipToUpgrade = new ModdingEquipment(slotId, equipment, isEquipped);
 
         if (equipIcon != null)
         {
@@ -206,7 +206,7 @@ public class EquipmentModdingRow : MonoBehaviour
 
     private void UpdateIconData(GameIcon_Equip equipIcon, UI_EquipmentReform uiEquipReform, bool isReform, int slotId, Equipment equipment, bool isEquipped, ToggleGroup toggleGroup)
     {
-        ModdingEquipment equipToMod = new ModdingEquipment(slotId, equipment);
+        ModdingEquipment equipToMod = new ModdingEquipment(slotId, equipment, isEquipped);
 
         if (equipIcon != null)
         {

@@ -11,8 +11,8 @@ public class UI_CharacterPowerUpButton : MonoBehaviour
 {
     public void BTN_PowerUp()
     {
-        PowerUp(UI_CharacterPowerup_Manager.CP_State);
-        UI_CharacterPowerup_Manager.CharacterToggle.UpdateUI();
+        PowerUp(UI_CharacterPowerup_Manager.nowPartTypeCount);
+        UI_CharacterPowerup_Manager.StaticInit();
     }
     
     //消耗玩家材料，並升級 或 無法升級

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Zealot.Repository;
 
 public class UI_WorldMap_PlaceInterest : MonoBehaviour
 {
@@ -18,8 +19,13 @@ public class UI_WorldMap_PlaceInterest : MonoBehaviour
         set { mName.text = value; }
     }
 
+    public void Init(WorldMapCountryPlaceInterest wmcpi)
+    {
+        mName.text = wmcpi.name;
+    }
+
     public void OnClick()
     {
-
+        //Auto-pilot to area
     }
 }

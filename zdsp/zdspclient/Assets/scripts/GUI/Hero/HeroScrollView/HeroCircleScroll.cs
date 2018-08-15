@@ -21,7 +21,7 @@ public class HeroCircleScroll : MonoBehaviour
                 .ToList();
 
             context = new HeroScrollViewContext();
-            context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
+            //context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
             context.SelectedIndex = 0;
 
             scrollView.UpdateData(cellData, context);  // set contents and context
@@ -37,7 +37,6 @@ public class HeroCircleScroll : MonoBehaviour
 
         cellData = dataList;
         scrollView.UpdateData(cellData, context);  // set contents and context
-        //scrollView.SetSelection(0);
     }
 
     public void UpdateCell(int id, bool unlocked)

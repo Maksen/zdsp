@@ -24,11 +24,13 @@ public class UIShopSell : MonoBehaviour
     public UIShopDetails detailswindow;
     public Dictionary<string, GameObject> SortedGameIcons = new Dictionary<string, GameObject>();
     public List<GameObject> GameIconPrefabs;
-    public Text heldcurrency, heldauctioncurrency;
+    public Text shopname, heldcurrency, heldauctioncurrency;
 
     List<ShopItem> currentitemlist = null;
 
-    NPCStoreInfo.StoreType storetype;    
+    NPCStoreInfo.StoreType storetype;
+
+    public int id;
 
     // Use this for initialization
     void Start ()
@@ -52,21 +54,25 @@ public class UIShopSell : MonoBehaviour
 		
 	}
 
-    public void init(Dictionary<int, NPCStoreInfo.StandardItem> newitemlist, NPCStoreInfo.StoreType store_type)
+    public void init(NPCStoreInfo store)
     {
         List<NPCStoreInfo.StandardItem> arg = new List<NPCStoreInfo.StandardItem>();
 
-        foreach (var item in newitemlist)
+        foreach (var item in store.inventory)
         {
             arg.Add(item.Value);
-        }
+        }        
 
-        init(arg, store_type);
+        init(store.NameCT, arg, store.Type);
     }
 
-    public void init(List<NPCStoreInfo.StandardItem> newitemlist, NPCStoreInfo.StoreType store_type)
+    public void init(string storename, List<NPCStoreInfo.StandardItem> newitemlist, NPCStoreInfo.StoreType store_type)
     {
+        shopname.text = storename;
         storetype = store_type;
+
+        detailswindow.gameObject.SetActive(false);
+        ClearShopList();
 
         if (GameInfo.gLocalPlayer != null)
         {
@@ -75,14 +81,19 @@ public class UIShopSell : MonoBehaviour
         }
 
         if (itemlistparent != null && itemicon_prefab != null && newitemlist != null && newitemlist.Count > 0)
-        {
-            ClearShopList();
+        {            
             currentitemlist = new List<ShopItem>();
 
             foreach (var item in newitemlist)
             {                
                 var solditem = (NPCStoreInfo.StandardItem)item;
                 item.data = GameRepo.ItemFactory.GetInventoryItem(item.ItemID);
+
+                if (item.data == null)
+                {
+                    Debug.LogWarning("Item id: " + item.ItemID.ToString() + " not found");
+                    continue;
+                }
 
                 var icon = Instantiate(itemicon_prefab, itemlistparent);
 
@@ -97,7 +108,7 @@ public class UIShopSell : MonoBehaviour
                 
                 currentitemlist.Add(shopitem);
             }
-        }
+        }        
     }
 
     void ClearShopList()
@@ -113,6 +124,7 @@ public class UIShopSell : MonoBehaviour
         }
     }
 
+    ShopItem current_item_selection = null;
     void OnItemSelected(GameObject selecteditem)
     {
         foreach (var item in currentitemlist)
@@ -150,9 +162,12 @@ public class UIShopSell : MonoBehaviour
                             break;
                     }
 
+                    current_item_selection = item;
+
                     detailswindow.itemiconprefab = itemprefab;
                     detailswindow.gameObject.SetActive(true);
-                    detailswindow.init(item);                    
+                    detailswindow.selecteditem = current_item_selection.itemdata;
+                    detailswindow.init(item);                     
 
                     var animator = detailswindow.gameObject.GetComponent<Animator>();
 
@@ -178,15 +193,30 @@ public class UIShopSell : MonoBehaviour
         animator.Play("ShopSellItemDetail_Close");        
     }
 
-    public void SignalBuySuccess()
+    public void SignalTransactionStatus(string message)
     {
-        UIManager.OpenOkDialog("Transaction success", null);
+        UIManager.OpenOkDialog(message, null);
+
+        RPCFactory.NonCombatRPC.NPCStoreInit(id);
+        RPCFactory.NonCombatRPC.NPCStoreGetPlayerTransactions(id);
+
+        if (message == "Transaction success")
+        {
+            ((NPCStoreInfo.StandardItem)current_item_selection.itemdata).Remaining -= detailswindow.last_purchase_quantity;
+            detailswindow.init(current_item_selection);
+        }
     }
 
     Dictionary<string, NPCStoreInfo.Transaction> playertransactions = null;
     public void UpdateTransactions(Dictionary<string, NPCStoreInfo.Transaction> transactions)
     {
         playertransactions = transactions;
+
+        if (playertransactions == null)
+        {
+            // signal null transaction history returned
+            return;
+        }
 
         foreach (var item in currentitemlist)
         {

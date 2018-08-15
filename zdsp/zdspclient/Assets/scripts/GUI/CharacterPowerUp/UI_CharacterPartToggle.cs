@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 public class UI_CharacterPartToggle : MonoBehaviour {
 
-    public UI_CharacterPowerup_Manager cs_UI_CPM;
+    /*public UI_CharacterPowerup_Manager cs_UI_CPM;
     public PowerUpJson powerupData;
 
     public enum CharacterPart //強化部位
@@ -163,8 +163,8 @@ public class UI_CharacterPartToggle : MonoBehaviour {
                 //若兩個String皆可轉換成Int
                 if (int.TryParse(EndSplit_List[0], out ItemId) && int.TryParse(EndSplit_List[1], out ItemCount))
                 {
-                    /*Debug.Log("有ItemId" + EndSplit_List[0]);
-                    Debug.Log("有ItemCount" + EndSplit_List[1]);*/
+                    //Debug.Log("有ItemId" + EndSplit_List[0]);
+                    //Debug.Log("有ItemCount" + EndSplit_List[1]);
 
                     GameObject reqITemDataObj = Instantiate(cs_UI_CPM.requiredItemDataPrefab);
                     reqITemDataObj.transform.SetParent(cs_UI_CPM.ItemRequirements_Parents, false);
@@ -178,7 +178,7 @@ public class UI_CharacterPartToggle : MonoBehaviour {
                     reqItemData.InitMaterial(ItemId, invAmount, ItemCount); //初始化Material
                 }
                 else 
-                { /*Debug.LogError("Don't have ItemId or ItemCount");*/ }
+                { Debug.LogError("Don't have ItemId or ItemCount"); }
             } //end for
         }
         else
@@ -194,6 +194,6 @@ public class UI_CharacterPartToggle : MonoBehaviour {
         cs_UI_CPM.ShowIconAndPartName(_CharacterPart.ToString()); //顯示ICON &部位名稱
         cs_UI_CPM.Show_PowerUpInfo(_CharacterPart.ToString());    //顯示部位等級/玩家等級 + 下個等級、Effect、Value
         cs_UI_CPM.NotEnoughAnimator(); //顯示材料是否充足
-    }
+    }*/
 
 }

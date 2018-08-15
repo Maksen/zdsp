@@ -2,10 +2,10 @@
 using System;
 using Zealot.Common.Entities;
 
-namespace Zealot.Common {
-
-    public static class CombatFormula {
-
+namespace Zealot.Common
+{
+    public static class CombatFormula
+    {
         // Hack //
         public static bool totalCrit = false;
 
@@ -417,8 +417,7 @@ namespace Zealot.Common {
             float rate = 0;
 
             if (critRate > 0.0f)
-                rate = critRate;
-            
+                rate = critRate;   
             else
                 rate = attacker.CombatStats.GetField(FieldName.Critical) - defender.CombatStats.GetField(FieldName.Cocritical) * 0.01f;
 
@@ -750,11 +749,12 @@ namespace Zealot.Common {
 
         public class BlockCritAttack : LeafNode {
 
-            public BlockCritAttack() {
-                
+            public BlockCritAttack()
+            {              
             }
 
-            public override void Update() {
+            public override void Update()
+            {
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
 
@@ -784,10 +784,12 @@ namespace Zealot.Common {
         }
 
         public class NormalCritAttack : LeafNode {
-            public NormalCritAttack() {
+            public NormalCritAttack()
+            {
             }
 
-            public override void Update() {
+            public override void Update()
+            {
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
 
@@ -818,10 +820,12 @@ namespace Zealot.Common {
         }
 
         public class BlockedAttack : LeafNode {
-            public BlockedAttack() {
+            public BlockedAttack()
+            {
             }
 
-            public override void Update() {
+            public override void Update()
+            {
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
 
@@ -851,11 +855,12 @@ namespace Zealot.Common {
         }
 
         public class NormalAttack : LeafNode {
-            public NormalAttack() {
+            public NormalAttack()
+            {
             }
 
-
-            public override void Update() {
+            public override void Update()
+            {
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
 
@@ -886,8 +891,8 @@ namespace Zealot.Common {
         }
 
         public class SkillHit : LeafNode {
-            public override void Update() {
-
+            public override void Update()
+            {
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
 
@@ -920,7 +925,8 @@ namespace Zealot.Common {
         }
 
         public class SkillBlock : LeafNode {
-            public override void Update() {
+            public override void Update()
+            {
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
 
@@ -953,8 +959,8 @@ namespace Zealot.Common {
 
         public class Missed : LeafNode {
 
-            public override void Update() {
-
+            public override void Update()
+            {
             }
         }
     }

@@ -42,7 +42,7 @@ public class ReformBagData : MonoBehaviour
         reformStatsTxt.text = uiEquipReform.FormatSideEffectString(reformStep, equipReformData.GetSideEffects());
 
         // Reform Materials
-        List<EquipModMaterial> materialList = EquipmentModdingRepo.GetModdingMaterialsFromStr(reformData.requirement);
+        List<ItemInfo> materialList = EquipmentModdingRepo.GetModdingMaterialsFromStr(reformData.requirement);
 
         ClearMaterialList();
 
@@ -50,7 +50,7 @@ public class ReformBagData : MonoBehaviour
         {
             for(int i = 0; i < materialList.Count; ++i)
             {
-                EquipModMaterial matData = materialList[i];
+                ItemInfo matData = materialList[i];
                 if(matData != null)
                 {
                     GameObject equipIconObj = Instantiate(equipIconPrefab);
@@ -59,7 +59,7 @@ public class ReformBagData : MonoBehaviour
                     GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
                     if(equipIcon != null)
                     {
-                        equipIcon.Init(matData.mItemID, 0, 0, 0, false, false);
+                        equipIcon.Init(matData.itemId, 0, 0, 0, false, false);
                     }
 
                     _materialList.Add(equipIconObj);

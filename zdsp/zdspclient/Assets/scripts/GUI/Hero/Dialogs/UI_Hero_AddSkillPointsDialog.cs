@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using Zealot.Client.Entities;
 
-public class UI_Hero_AddSkillPointsDialog : BaseWindowBehaviour
+public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
 {
     [SerializeField] Transform iconTransform;
     [SerializeField] GameObject iconPrefab;
@@ -13,7 +13,7 @@ public class UI_Hero_AddSkillPointsDialog : BaseWindowBehaviour
     private GameIcon_MaterialConsumable item;
     private int heroId;
 
-    public void Init(Hero hero)
+    public void Init(Hero hero, int overrideSkillPts = 0)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         heroId = hero.HeroId;
@@ -26,7 +26,7 @@ public class UI_Hero_AddSkillPointsDialog : BaseWindowBehaviour
         int itemId = hero.HeroJson.upgradeitemid;
         if (itemId > 0)
         {
-            item.Init(itemId, 0);
+            item.InitWithTooltipViewOnly(itemId, 1);
             itemName.text = item.inventoryItem.JsonObject.localizedname;
 
             int count = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)itemId);
@@ -37,7 +37,7 @@ public class UI_Hero_AddSkillPointsDialog : BaseWindowBehaviour
             amtText.text = avail + " / " + hero.HeroJson.upgradeitemcount;
         }
 
-        pointsText.text = hero.SkillPoints.ToString();
+        pointsText.text = overrideSkillPts > 0 ? overrideSkillPts.ToString() : hero.SkillPoints.ToString();
     }
 
     public void OnClickAddSkillPoint()

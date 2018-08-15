@@ -45,7 +45,8 @@
       <property name="unlockval" type="string" uitext="Unlock Value"/>
       <property name="showae" type="bool" uitext="Is Show AE"/>
       <property name="teleport" type="bool" uitext="Teleport"/>
-      <property name="candelete" type="bool" uitext="Can Delete?"/>
+      <property name="candelete" type="bool" uitext="Can Delete?" default="true"/>
+      <property name="canreset" type="bool" uitext="Can Reset?" default="true"/>
     </element>
 
     <element name="QuestObjective" useexcel="true" collectionkey="objid">
@@ -104,6 +105,7 @@
       <property name="isanswer" type="bool" uitext="Is Correct Answer"/>
       <property name="actiontype" type="QuestSelectionActionType" uitext="Action Type"/>
       <property name="actionid" type="int" uitext="Action ID" info="職業id, objective組id"/>
+      <property name="msg" type="localizedstring" uitext="Message"/>
     </element>
 
     <element name="QuestInteractiveDetail" useexcel="true" collectionkey="interactiveid">

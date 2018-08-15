@@ -32,14 +32,15 @@ namespace Photon.LoadBalancing.GameServer
         private HeroEntity summonedHeroEntity;
         private List<IPassiveSideEffect> summonPassiveSEs;
         private Dictionary<int, List<IPassiveSideEffect>> heroPassiveSEs;  // hero id -> list of passives
-
         private HeroInterestType randomSpinResult;
+        private Dictionary<int, List<ItemInfo>> explorationRewards;
 
         public HeroStatsServer() : base()
         {
             fulfilledBonds = new Dictionary<int, HeroBondSideEffect>();
             summonPassiveSEs = new List<IPassiveSideEffect>();
             heroPassiveSEs = new Dictionary<int, List<IPassiveSideEffect>>();
+            explorationRewards = new Dictionary<int, List<ItemInfo>>();
         }
 
         public void Init(Player _player, GameClientPeer _peer, HeroInvData invData)
@@ -117,7 +118,7 @@ namespace Photon.LoadBalancing.GameServer
 
         private bool DeductItem(int itemId, int itemCount)
         {
-            //itemCount = 0;
+            //itemCount = 0; // testing use
             InvRetval retval = peer.mInventory.DeductItem((ushort)itemId, (ushort)itemCount, "Hero");
             return retval.retCode == InvReturnCode.UseSuccess;
         }
@@ -712,20 +713,16 @@ namespace Photon.LoadBalancing.GameServer
         {
             bool needCompute = false;
             List<IPassiveSideEffect> passiveSEs = new List<IPassiveSideEffect>();
-            var seGroup = SideEffectRepo.GetSEGroup(bondData.sideeffectgrp);
-            if (seGroup != null)
+            foreach (SideEffectJson seJson in bondData.sideeffects.Values)
             {
-                foreach (SideEffectJson seJson in seGroup.sideeffects.Values)
+                SideEffect se = SideEffectFactory.CreateSideEffect(seJson, true);
+                IPassiveSideEffect pse = se as IPassiveSideEffect;
+                if (pse != null)
                 {
-                    SideEffect se = SideEffectFactory.CreateSideEffect(seJson, true);
-                    IPassiveSideEffect pse = se as IPassiveSideEffect;
-                    if (pse != null)
-                    {
-                        pse.AddPassive(player);
-                        passiveSEs.Add(pse);
-                        needCompute = true;
-                        GameUtils.DebugWriteLine("Add se: " + se.mSideeffectData.id);
-                    }
+                    pse.AddPassive(player);
+                    passiveSEs.Add(pse);
+                    needCompute = true;
+                    GameUtils.DebugWriteLine("Add se: " + se.mSideeffectData.id);
                 }
             }
             fulfilledBonds[groupId] = new HeroBondSideEffect(bondData.id, passiveSEs);
@@ -794,7 +791,8 @@ namespace Photon.LoadBalancing.GameServer
                     heroes[hero.SlotIdx] = hero.ToString();
                 }
 
-                // todo: to add combat time
+                // deduct combat time
+                player.DeductBattleTime(mapData.battletimecost * 60);
             }
             else
                 peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ItemNotEnough", "", false, peer);

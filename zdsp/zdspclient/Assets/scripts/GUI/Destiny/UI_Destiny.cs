@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Zealot.Common;
 using System.Collections.Generic;
 
@@ -92,5 +91,27 @@ public class UI_Destiny : BaseWindowBehaviour
     private void OnDisable()
     {
         Clean();
+    }
+    
+    public void RefreshMessage()
+    {
+        mClues = mDestinyClueController.GetClues();
+        OrderByDate();
+        UpdateClueData();
+    }
+
+    public void OnClickHero()
+    {
+        UIManager.CloseWindow(WindowType.Destiny);
+        UIManager.OpenWindow(WindowType.Quest);
+    }
+
+    public void OnClickHistory()
+    {
+        if (!UIManager.IsWindowOpen(WindowType.DestinyHistory))
+        {
+            UIManager.CloseWindow(WindowType.Destiny);
+            UIManager.OpenWindow(WindowType.DestinyHistory, (window) => { window.GetComponent<UI_DestinyHistory>().Init(mDestinyClueController); });
+        }
     }
 }

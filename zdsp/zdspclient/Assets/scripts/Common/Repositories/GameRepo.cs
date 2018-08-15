@@ -81,6 +81,7 @@ namespace Zealot.Repository
             DestinyClueRepo.Init(GameData);
 			DestinyClueRepo.Init(GameData);
             PowerUpRepo.Init(GameData);
+            MapRepo.Init(GameData);
             _loaded = true;
         }
 

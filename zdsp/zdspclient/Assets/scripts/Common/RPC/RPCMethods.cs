@@ -667,9 +667,10 @@
         RequestCancelReviveItem,
         #endregion
 
-        #region EquipmentUpgrade
+        #region EquipmentModding
         EquipmentUpgradeEquipment,
         EquipmentReformEquipment,
+        EquipmentRecycleEquipment,
         #endregion
 
         #region Equipment
@@ -712,6 +713,7 @@
         SubmitEmptyObjective,
         ApplyQuestEventBuff,
         ApplyQuestEventCompanion,
+        ResetQuestEventCompanion,
         #endregion
 
         #region CharacterInfo
@@ -725,6 +727,11 @@
 
         #region PowerUp
         PowerUp,
+        #endregion
+
+        #region Destiny Clue
+        ReadClue,
+        CollectClueReward,
         #endregion
     }
 
@@ -815,7 +822,7 @@
         Ret_ResetQuest,
         Ret_CompleteQuest,
         Ret_InteractAction,
-        Ret_QuestFull,
+        Ret_TriggerQuest,
         #endregion
 
         #region CharacterInfo
@@ -824,6 +831,10 @@
 
         #region Skill
         Ret_AddToSkillInventory,
+        #endregion
+
+        #region Destiny Clue
+        Ret_CollectClueReward,
         #endregion
     }
 }

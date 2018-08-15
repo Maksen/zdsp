@@ -1945,11 +1945,15 @@ namespace Zealot.Common.Entities
     {
         private string _destinyClues;
         private string _unlockMemory;
+        private string _unlockClues;
+        private string _unlockTimeClues;
 
         public DestinyClueSynStats() : base(LOTYPE.DestinyClueSynStats)
         {
             _destinyClues = "";
             _unlockMemory = "";
+            _unlockClues = "";
+            _unlockTimeClues = "";
         }
 
         public string destinyClues
@@ -1962,6 +1966,18 @@ namespace Zealot.Common.Entities
         {
             get { return _unlockMemory; }
             set { this.OnSetAttribute("unlockMemory", value); _unlockMemory = value; }
+        }
+
+        public string unlockClues
+        {
+            get { return _unlockClues; }
+            set { this.OnSetAttribute("unlockClues", value); _unlockClues = value; }
+        }
+
+        public string unlockTimeClues
+        {
+            get { return _unlockTimeClues; }
+            set { this.OnSetAttribute("unlockTimeClues", value); _unlockTimeClues = value; }
         }
     }
     #endregion

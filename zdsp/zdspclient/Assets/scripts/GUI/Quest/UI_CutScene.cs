@@ -54,10 +54,13 @@ public class UI_CutScene : MonoBehaviour
 
     private void ClearCutscene()
     {
-        foreach(GameObject obj in mCutsceneList)
+        if (mCutsceneList != null)
         {
-            Destroy(obj);
+            foreach (GameObject obj in mCutsceneList)
+            {
+                Destroy(obj);
+            }
+            mCutsceneList = new List<GameObject>();
         }
-        mCutsceneList = new List<GameObject>();
     }
 }

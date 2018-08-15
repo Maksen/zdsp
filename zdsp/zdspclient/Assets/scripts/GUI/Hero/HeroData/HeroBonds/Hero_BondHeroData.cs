@@ -10,24 +10,32 @@ public class Hero_BondHeroData : MonoBehaviour
     [SerializeField] Text statusText;
     [SerializeField] Material grayscaleMat;
 
-    private Action<int> OnSelectedCallback;
     private int heroId;
     private Toggle toggle;
+    private Action<int, bool> OnSelectedCallback;
+    private Action<int> OnClickCallback;
 
-    public void Setup(ToggleGroup group, Action<int> selectedCallback)
+    public void Init(int heroId, ToggleGroup group, Action<int, bool> selectedCallback)
     {
+        this.heroId = heroId;
         toggle = GetComponent<Toggle>();
         toggle.group = group;
         OnSelectedCallback = selectedCallback;
-    }
-
-    public void Init(int heroId, bool fulfilled)
-    {
-        this.heroId = heroId;
+        toggle.onValueChanged.AddListener(OnToggled);
         HeroJson data = HeroRepo.GetHeroById(heroId);
         if (data != null)
             heroImage.sprite = ClientUtils.LoadIcon(data.portraitpath);
-        SetFulfilled(fulfilled);
+    }
+
+    public void Init(int heroId, Action<int> clickCallback)
+    {
+        this.heroId = heroId;
+        Button button = GetComponent<Button>();
+        OnClickCallback = clickCallback;
+        button.onClick.AddListener(OnClick);
+        HeroJson data = HeroRepo.GetHeroById(heroId);
+        if (data != null)
+            heroImage.sprite = ClientUtils.LoadIcon(data.portraitpath);
     }
 
     public void SetFulfilled(bool fulfilled)
@@ -48,15 +56,23 @@ public class Hero_BondHeroData : MonoBehaviour
 
     public void OnToggled(bool isOn)
     {
-        if (isOn)
-        {
-            if (OnSelectedCallback != null)
-                OnSelectedCallback(heroId);
-        }
+        if (OnSelectedCallback != null)
+            OnSelectedCallback(heroId, isOn);
+    }
+
+    public bool IsToggleOn()
+    {
+        return toggle.isOn;
     }
 
     public void SetToggleOn(bool value)
     {
         toggle.isOn = value;
+    }
+
+    public void OnClick()
+    {
+        if (OnClickCallback != null)
+            OnClickCallback(heroId);
     }
 }

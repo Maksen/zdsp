@@ -15,6 +15,9 @@ public class UI_Dialogue : BaseWindowBehaviour
     [SerializeField]
     GameObject SelectionObject;
 
+    [SerializeField]
+    GameObject Arrow; 
+
     private QuestNPC mQuestNPC;
     private int mStep = 0;
     private int mTotalStep = 0;
@@ -99,10 +102,12 @@ public class UI_Dialogue : BaseWindowBehaviour
         string dialog = GetDialog();
         NPCSide.gameObject.SetActive(true);
         NPCSide.ActiveAvatar(npcid, dialog);
+        Arrow.SetActive(true);
 
         if (mStep == mTotalStep - 1)
         {
             UpdateSelection();
+            Arrow.SetActive(false);
         }
     }
 

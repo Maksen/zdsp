@@ -23,7 +23,7 @@ public partial class ClientMain : MonoBehaviour
         }
     }
 
-    #region EquipmentUpgrade
+    #region EquipmentModding
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.EquipmentUpgradeEquipmentFailed)]
     public void EquipmentUpgradeEquipmentFailed()
     {
@@ -52,16 +52,18 @@ public partial class ClientMain : MonoBehaviour
         }
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.EquipmentReformEquipmentFailed)]
-    public void EquipmentReformEquipmentFailed()
-    {
-
-    }
-
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.EquipmentReformEquipmentSuccess)]
     public void EquipmentReformEquipmentSuccess()
     {
-
+        GameObject uiEquipReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
+        if(uiEquipReformObj != null)
+        {
+            UI_EquipmentReform uiEquipReform = uiEquipReformObj.GetComponent<UI_EquipmentReform>();
+            if (uiEquipReform != null)
+            {
+                uiEquipReform.PlayEquipmentReformSuccess();
+            }
+        }
     }
     #endregion
 
@@ -115,6 +117,15 @@ public partial class ClientMain : MonoBehaviour
             questAction.SetButtonStatus(true);
         }
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_TriggerQuest)]
+    public void Ret_TriggerQuest(int questid, bool result)
+    {
+        if (GameInfo.gLocalPlayer != null)
+        {
+            GameInfo.gLocalPlayer.QuestController.QuestTriggered(questid, result);
+        }
+    }
     #endregion
 
     #region CharacterInfo
@@ -137,7 +148,7 @@ public partial class ClientMain : MonoBehaviour
 
         if (GameInfo.gUIShopSell != null)
         {
-            GameInfo.gUIShopSell.init(store.inventory, store.Type);
+            GameInfo.gUIShopSell.init(store);
         }
     }
     
@@ -158,7 +169,7 @@ public partial class ClientMain : MonoBehaviour
     {
         if (GameInfo.gUIShopSell != null)
         {
-            GameInfo.gUIShopSell.SignalBuySuccess();
+            GameInfo.gUIShopSell.SignalTransactionStatus(scString);
         }
     }
     #endregion
@@ -170,6 +181,26 @@ public partial class ClientMain : MonoBehaviour
         GameObject obj = UIManager.GetWindowGameObject(WindowType.Skill);
         UI_SkillTree ui = obj.GetComponent<UI_SkillTree>();
         ui.OnEventSkillLevelUp(result, skillid, skillpoint, money);
+    }
+    #endregion
+
+    #region Destiny Clue
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_CollectClueReward)]
+    public void Ret_CollectClueReward(int clueid, bool result)
+    {
+        UIManager.StopHourglass();
+        if (result)
+        {
+            if (UIManager.IsWindowOpen(WindowType.DialogClaimReward))
+            {
+                UIManager.CloseDialog(WindowType.DialogClaimReward);
+            }
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_successcollectcluereward"));
+        }
+        else
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));
+        }
     }
     #endregion
 }

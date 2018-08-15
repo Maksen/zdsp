@@ -300,7 +300,7 @@ public class HUD_ItemDetailToolTip : MonoBehaviour
             //Loop all sideeffect in the sideeffect grp, get their description in SDG
             Dictionary<int, SideEffectJson> seGrp = SideEffectRepo.mSideEffectGroups[x].sideeffects;
             foreach (SideEffectJson se in seGrp.Values)
-                sideeffectTxt.text += SDGRepo.GetDescriptionByID(se.sdg);
+                sideeffectTxt.text += SDGRepo.GetSDGText(se);
         }
     }
     private void InitTT_Material(IInventoryItem item)
@@ -603,7 +603,7 @@ public class HUD_ItemDetailToolTip : MonoBehaviour
             //Loop all sideeffect in the sideeffect grp, get their description in SDG
             Dictionary<int, SideEffectJson> seGrp = SideEffectRepo.mSideEffectGroups[x].sideeffects;
             foreach (SideEffectJson se in seGrp.Values)
-                txtStats.text += SDGRepo.GetDescriptionByID(se.sdg);
+                txtStats.text += SDGRepo.GetSDGText(se);
         }
         mNormalStatsLst.Add(txtStats.gameObject);
         mNormalStatsLst.Add(CreateLineNoParent());
@@ -691,7 +691,7 @@ public class HUD_ItemDetailToolTip : MonoBehaviour
             //Loop all sideeffect in the sideeffect grp, get their description in SDG
             Dictionary<int, SideEffectJson> seGrp = SideEffectRepo.mSideEffectGroups[x].sideeffects;
             foreach (SideEffectJson se in seGrp.Values)
-                txtStats.text += SDGRepo.GetDescriptionByID(se.sdg);
+                txtStats.text += SDGRepo.GetSDGText(se);
         }
         mExtraSideEffectLst.Add(txtStats.gameObject);
         mExtraSideEffectLst.Add(CreateLine());

@@ -203,6 +203,9 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
         bool isSafeUpgrade = safeUpgradeTab.isOn;
 
+        ClearSelectedEquipment();
+        GenerateSelectedEquipIcon(equipment);
+
         List<EquipUpgMaterial> requiredMats = EquipmentModdingRepo.GetEquipmentUpgradeMaterials(equipType, rarity, nextLevel, isSafeUpgrade);
 
         if(requiredMats != null)
@@ -584,8 +587,8 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         if (_genMatSel >= 0 && _genMatSel < generalMatList.Count)
         {
             EquipUpgMaterial selectedGenMat = generalMatList[_genMatSel];
-            int genMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedGenMat.mMat.mItemID);
-            if (genMatCount < selectedGenMat.mMat.mAmount)
+            int genMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedGenMat.mMat.itemId);
+            if (genMatCount < selectedGenMat.mMat.stackCount)
             {
                 //UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipUpgrade_InsufficientGenMaterials"));
                 isEnoughGenMat = false;
@@ -606,8 +609,8 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 if (_safeMatSel >= 0 && _safeMatSel < safeMatList.Count)
                 {
                     EquipUpgMaterial selectedSafeMat = safeMatList[_safeMatSel];
-                    int safeMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedSafeMat.mMat.mItemID);
-                    if (safeMatCount < selectedSafeMat.mMat.mAmount)
+                    int safeMatCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedSafeMat.mMat.itemId);
+                    if (safeMatCount < selectedSafeMat.mMat.stackCount)
                     {
                         //UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_EquipUpgrade_InsufficientSafeMaterials"));
                         isEnoughGenMat = false;
@@ -803,7 +806,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             newMatObj.transform.SetParent(parent, false);
 
             GameIcon_MaterialConsumable newMatIcon = newMatObj.GetComponent<GameIcon_MaterialConsumable>();
-            newMatIcon.Init(matData.mMat.mItemID, matData.mMat.mAmount, false, true);
+            newMatIcon.Init(matData.mMat.itemId, matData.mMat.stackCount, false, true);
             GameIconCmpt_SelectCheckmark selectCheckMark = newMatIcon.gameObject.GetComponentInChildren<GameIconCmpt_SelectCheckmark>();
             if (selectCheckMark != null)
             {

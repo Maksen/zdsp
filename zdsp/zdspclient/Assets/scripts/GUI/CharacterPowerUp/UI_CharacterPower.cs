@@ -14,13 +14,13 @@ public class UI_CharacterPower : MonoBehaviour
 
     void OnEnable()
     {
-        print("Open PowerUp Panel");
+        //print("Open PowerUp Panel");
         InitPowerUp();
     }
 
     void OnDisable()
     {
-        print("Close PowerUp Panel");
+        //print("Close PowerUp Panel");
         ClosePowerUp();
     }
 

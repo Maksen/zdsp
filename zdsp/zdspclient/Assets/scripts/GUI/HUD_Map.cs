@@ -239,6 +239,7 @@ public class HUD_Map : MonoBehaviour
             obj.transform.SetParent(mMonsterGO.transform, false);
             Image img = obj.GetComponent<Image>();
             img.sprite = mIconMonster;
+            obj.SetActive(false);
 
             mMonPairlst.Add(new IconGameObjectPair(obj, monPosLst[i]));
         }
@@ -249,6 +250,7 @@ public class HUD_Map : MonoBehaviour
             obj.transform.SetParent(mMiniBossGO.transform, false);
             Image img = obj.GetComponent<Image>();
             img.sprite = mIconMiniBoss;
+            obj.SetActive(false);
 
             mBossPairlst.Add(new IconGameObjectPair(obj, minibossPosLst[i]));
         }
@@ -259,6 +261,7 @@ public class HUD_Map : MonoBehaviour
             obj.transform.SetParent(mBossGO.transform, false);
             Image img = obj.GetComponent<Image>();
             img.sprite = mIconBoss;
+            obj.SetActive(false);
 
             mBossPairlst.Add(new IconGameObjectPair(obj, bossPosLst[i]));
         }
@@ -328,6 +331,7 @@ public class HUD_Map : MonoBehaviour
                 Vector3 mappos = ScalePos_WorldToMap(qnpc.position);
                 GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
                 Image img = obj.GetComponent<Image>();
+                obj.SetActive(false);   //NPC are hidden on start
 
                 //Set icon
                 if (activeQuest != -1)
@@ -415,6 +419,15 @@ public class HUD_Map : MonoBehaviour
                 GameObject obj = Instantiate(mExpanderPrefab, Vector3.zero, Quaternion.identity);
                 obj.transform.SetParent(mExpanderNPCGO.transform, false);
 
+                //Attach ToggleGroup
+                Toggle tg = obj.GetComponent<Toggle>();
+                if (tg == null)
+                {
+                    Debug.LogError("HUD_MAP.LoadMapExpander: Walao, Cannot find Toggle component in ExpanderSubData");
+                    continue;
+                }
+                tg.group = this.mTGExpander;
+
                 //Find the text component in the children, there should be only 1
                 Text txt = obj.GetComponentInChildren<Text>();
                 if (txt == null)
@@ -441,6 +454,15 @@ public class HUD_Map : MonoBehaviour
                 GameObject obj = Instantiate(mExpanderPrefab, Vector3.zero, Quaternion.identity);
                 obj.transform.SetParent(mExpanderMonsterGO.transform, false);
 
+                //Attach ToggleGroup
+                Toggle tg = obj.GetComponent<Toggle>();
+                if (tg == null)
+                {
+                    Debug.LogError("HUD_MAP.LoadMapExpander: Walao, Cannot find Toggle component in ExpanderSubData");
+                    continue;
+                }
+                tg.group = this.mTGExpander;
+
                 //Find the text component in the children, there should be only 1
                 Text txt = obj.GetComponentInChildren<Text>();
                 if (txt == null)
@@ -454,31 +476,32 @@ public class HUD_Map : MonoBehaviour
         }
     }
 
-    public void ExpanderNPC_ToggleOn(bool isOn)
-    {
-        //Make player go to the NPC
-        Toggle tg = mTGExpander.ActiveToggles().First();
-
-        //Do nothing if turning off
-        if (isOn == false)
-            return;
-
-
-    }
-    public void ExpanderMonster_ToggleOn(bool isOn)
-    {
-        //Make player go to the spawner
-        Toggle tg = mTGExpander.ActiveToggles().First();
-
-        //Do nothing if turning off
-        if (isOn == false)
-            return;
-    }
-
     public void OnClick_Close()
     {
         if (mMapCloseCoroutine == null)
             StartCoroutine(MapCloseCouroutine());
+    }
+    public void OnClick_OpenWorldMap()
+    {
+        UIManager.OpenWindow(WindowType.WorldMap);
+    }
+    public void OnToggleNPCExpander(bool isON)
+    {
+        foreach (Transform child in mQuestNPCGO.transform)
+        {
+            child.gameObject.SetActive(isON);
+        }
+        foreach (Transform child in mShopNPCGO.transform)
+        {
+            child.gameObject.SetActive(isON);
+        }
+    }
+    public void OnToggleMonsterExpander(bool isON)
+    {
+        foreach (Transform child in mMonsterGO.transform)
+        {
+            child.gameObject.SetActive(isON);
+        }
     }
 
     private Vector3 ScalePos_WorldToMap(Vector3 worldPos)

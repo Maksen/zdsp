@@ -55,6 +55,7 @@ namespace Zealot.Common
     {
         Upgrade = 0,
         Reform,
+        Recycle,
     }
 
     public enum InventorySlot
@@ -460,7 +461,7 @@ namespace Zealot.Common
             UnlockedSlotCount = unlockedSlotCount;
         }
 
-        public void OnAddItem(int slotIdx, int stackCount)
+        public int OnAddItem(int slotIdx, int stackCount)
         {
             IInventoryItem item = Slots[slotIdx];
             int itemId = item.ItemID;
@@ -469,6 +470,7 @@ namespace Zealot.Common
             if (!itemSlotMap.ContainsKey(itemId))
                 itemSlotMap.Add(itemId, new ItemSlotInfo());
             itemSlotMap[itemId].Add(slotIdx, stackCount);
+            return itemId;
         }
 
         public void OnRemoveItem(int slotIdx, int itemId, int stackCount)

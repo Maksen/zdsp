@@ -191,5 +191,10 @@ namespace Zealot.Audio
                 ResetIsPlaying();
             }
         }
+
+        public AudioSource GetAudioSource()
+        {
+            return source;
+        }
     }
 }

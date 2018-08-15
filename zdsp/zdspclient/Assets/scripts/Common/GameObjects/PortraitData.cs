@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Zealot.Repository;
 
@@ -90,7 +88,7 @@ namespace Zealot.Common
             return false;
         }
 
-        private Dictionary<int, string> GetClassMap(Zealot.Common.JobType job)
+        private Dictionary<int, string> GetClassMap(JobType job)
         {
             Dictionary<int, string> classMap = null;
             switch (job)

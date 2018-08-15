@@ -15,6 +15,8 @@
     Skill = 10,
     Hero = 11,
     Destiny = 12,
+    WorldMap = 13,
+    DestinyHistory = 14,
 
     // Add persistent type window here
     //-----------------------------------
@@ -30,7 +32,7 @@
 
     DialogYesNoOk = 401,
 
-    DialogMoviePlayer = 402,
+    DialogVideoPlayer = 402,
     DialogLicenseAgreement = 403,
     DialogServerSelection = 404,
     DialogUsernamePassword = 405,
@@ -56,6 +58,12 @@
     DialogHeroList = 421,
     DialogHeroTargetList = 422,
     DialogHeroEfficiency = 423,
+
+    DialogHistoryFilter = 424,
+    DialogMessageFilter = 425,
+
+    DialogClaimReward = 440,
+    DialogCutscene = 441,
 
     DialogEnd = 699,
 

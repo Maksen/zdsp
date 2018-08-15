@@ -15,8 +15,10 @@ namespace Zealot.Repository
         public static Dictionary<HeroInterestType, HeroInterestJson> heroInterests;
         public static Dictionary<int, HeroTrustJson> heroTrustLevels;
         public static Dictionary<int, HeroBond> heroBonds;
+        public static List<HeroBond> heroBondsList;  // sorted by sequence
         public static Dictionary<int, List<HeroBond>> heroIdToHeroBonds;  // all bonds this hero is involved in
         public static Dictionary<int, ExplorationMapJson> explorationMaps;
+        public static List<ExplorationMapJson> explorationMapsList; // sorted by sequence
         public static Dictionary<int, ExplorationTargetJson> explorationTargets;
         public static Dictionary<int, List<ExplorationTargetJson>> explorationGroupToTargets;  // group->targets
         public static Dictionary<Pair<TerrainType, HeroInterestType>, float> terrainEfficiencyChart;
@@ -32,8 +34,10 @@ namespace Zealot.Repository
             heroInterests = new Dictionary<HeroInterestType, HeroInterestJson>();
             heroTrustLevels = new Dictionary<int, HeroTrustJson>();
             heroBonds = new Dictionary<int, HeroBond>();
+            heroBondsList = new List<HeroBond>();
             heroIdToHeroBonds = new Dictionary<int, List<HeroBond>>();
             explorationMaps = new Dictionary<int, ExplorationMapJson>();
+            explorationMapsList = new List<ExplorationMapJson>();
             explorationTargets = new Dictionary<int, ExplorationTargetJson>();
             explorationGroupToTargets = new Dictionary<int, List<ExplorationTargetJson>>();
             terrainEfficiencyChart = new Dictionary<Pair<TerrainType, HeroInterestType>, float>();
@@ -48,8 +52,10 @@ namespace Zealot.Repository
             heroInterests.Clear();
             heroTrustLevels.Clear();
             heroBonds.Clear();
+            heroBondsList.Clear();
             heroIdToHeroBonds.Clear();
             explorationMaps.Clear();
+            explorationMapsList.Clear();
             explorationGroupToTargets.Clear();
             terrainEfficiencyChart.Clear();
             terrainTypes.Clear();
@@ -84,27 +90,38 @@ namespace Zealot.Repository
                 heroTrustLevels.Add(entry.trustlevel, entry);
             MAX_TRUST_LEVEL = heroTrustLevels.Count;
 
-            foreach (var entry in gameData.HeroBondGroup)
+            List<HeroBondGroupJson> heroBondGroupList = gameData.HeroBondGroup.Values.OrderBy(x => x.sequence).ToList();
+            foreach (var entry in heroBondGroupList)
             {
-                HeroBond bond = new HeroBond(entry.Value);
-                heroBonds.Add(entry.Key, bond);
-                if (entry.Value.hero1 > 0) AddToHeroIdToHeroBondsMap(entry.Value.hero1, bond);
-                if (entry.Value.hero2 > 0) AddToHeroIdToHeroBondsMap(entry.Value.hero2, bond);
-                if (entry.Value.hero3 > 0) AddToHeroIdToHeroBondsMap(entry.Value.hero3, bond);
-                if (entry.Value.hero4 > 0) AddToHeroIdToHeroBondsMap(entry.Value.hero4, bond);
-                if (entry.Value.hero5 > 0) AddToHeroIdToHeroBondsMap(entry.Value.hero5, bond);
+                HeroBond bond = new HeroBond(entry);
+                heroBonds.Add(entry.id, bond);
+                heroBondsList.Add(bond);
+                if (entry.hero1 > 0) AddToHeroIdToHeroBondsMap(entry.hero1, bond);
+                if (entry.hero2 > 0) AddToHeroIdToHeroBondsMap(entry.hero2, bond);
+                if (entry.hero3 > 0) AddToHeroIdToHeroBondsMap(entry.hero3, bond);
+                if (entry.hero4 > 0) AddToHeroIdToHeroBondsMap(entry.hero4, bond);
+                if (entry.hero5 > 0) AddToHeroIdToHeroBondsMap(entry.hero5, bond);
             }
 
-            foreach (var entry in gameData.HeroBond.Values)
+            var heroBondDict = gameData.HeroBond;
+            for (int i = 0; i < gameData.HeroBond__sideeffects.Count; i++)
+            {
+                var se = gameData.HeroBond__sideeffects[i];
+                if (heroBondDict.ContainsKey(se.herobondid))
+                    heroBondDict[se.herobondid].sideeffects.Add(se.sideeffectsid, SideEffectRepo.GetSideEffect(se.sideeffectsid));
+            }
+
+            foreach (var entry in heroBondDict.Values)
             {
                 HeroBond heroBond = GetHeroBondById(entry.bondgroupid);
                 if (heroBond != null)
                     heroBond.heroBondJsonList.Add(entry);
             }
             foreach (int id in heroBonds.Keys.ToList())
-                heroBonds[id].heroBondJsonList.Sort((x, y) => x.bondlevel.CompareTo(y.bondlevel));
+                heroBonds[id].heroBondJsonList.Sort((x, y) => x.bondlevel.CompareTo(y.bondlevel));  // can use unstable sort since no level will be same
 
             explorationMaps = gameData.ExplorationMap;
+            explorationMapsList = explorationMaps.Values.OrderBy(x => x.sequence).ToList();  // stable sort
 
             explorationTargets = gameData.ExplorationTarget;
             foreach (var entry in gameData.ExplorationTarget.Values)
@@ -247,6 +264,13 @@ namespace Zealot.Repository
             float efficiency;
             terrainEfficiencyChart.TryGetValue(Pair.Create(terrainType, interestType), out efficiency);
             return efficiency;
+        }
+
+        public static TerrainJson GetTerrainByType(TerrainType type)
+        {
+            TerrainJson json;
+            terrainTypes.TryGetValue(type, out json);
+            return json;
         }
     }
 }

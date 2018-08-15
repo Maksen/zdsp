@@ -831,6 +831,10 @@ namespace Photon.LoadBalancing.GameServer
                             mUnlockQuestList.Remove(questid);
                             SyncUnlockQuestList();
                         }
+                        if (mPlayer.Slot != null)
+                        {
+                            mPlayer.Slot.ZRPC.NonCombatRPC.Ret_TriggerQuest(questid, true, mPlayer.Slot);
+                        }
                         return true;
                     }
                 }
@@ -846,7 +850,7 @@ namespace Photon.LoadBalancing.GameServer
                     }
                     else
                     {
-                        mPlayer.Slot.ZRPC.NonCombatRPC.Ret_QuestFull(questid, mPlayer.Slot);
+                        mPlayer.Slot.ZRPC.NonCombatRPC.Ret_TriggerQuest(questid, false, mPlayer.Slot);
                     }
                 }
             }
@@ -1129,6 +1133,8 @@ namespace Photon.LoadBalancing.GameServer
 
             SyncQuestStats(true);
 
+            mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Quest, questid);
+
             return true;
         }
 
@@ -1339,10 +1345,11 @@ namespace Photon.LoadBalancing.GameServer
         public bool DeleteQuest(int questid)
         {
             CurrentQuestData questData = GetQuestDataById(questid);
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
             bool success = false;
-            if (questData != null)
+            if (questData != null && questJson != null)
             {
-                if (questData.QuestType != (byte)QuestType.Main && questData.QuestType != (byte)QuestType.Destiny)
+                if (questJson.candelete)
                 {
                     DeleteQuestData(questData, true);
                     SyncQuestStats();
@@ -1355,12 +1362,16 @@ namespace Photon.LoadBalancing.GameServer
         public bool ResetQuest(int questid)
         {
             CurrentQuestData questData = GetQuestDataById(questid);
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
             bool success = false;
-            if (questData != null)
+            if (questData != null && questJson != null)
             {
-                ResetQuestData(questData);
-                SyncQuestStats();
-                success = true;
+                if (questJson.canreset)
+                {
+                    ResetQuestData(questData);
+                    SyncQuestStats();
+                    success = true;
+                }
             }
             return success;
         }
@@ -1475,6 +1486,15 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             UpdateQuestEventStatus(questid);
+        }
+
+        public void RemoveCompanionId(int companionid)
+        {
+            if (mCompanionId == companionid)
+            {
+                mCompanionId = -1;
+                mPlayer.PlayerSynStats.QuestCompanionId = mCompanionId;
+            }
         }
 
         public int GetQuestCompanionId()

@@ -43,12 +43,12 @@ public class HUD_SelectTarget : MonoBehaviour
         levelText.text = entity.GetDisplayLevel().ToString();
 
         // todo: set portrait for each type
-
         if (entity.IsPlayer())
         {
             PlayerGhost player = entity as PlayerGhost;
             PlayerSynStats playerStats = player.PlayerSynStats;
             SetTargetHeath(playerStats.DisplayHp);
+            SetPortrait("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
 
             // testing
             //SetBuffDebuffIcon(BuffEnum.Buff, 5000, 10);
@@ -61,6 +61,7 @@ public class HUD_SelectTarget : MonoBehaviour
             SetTargetHeath(monster.PlayerStats.DisplayHp);
             SetMonsterElement(npcJson.element);
             SetMonsterWeakness(npcJson.weakness);
+            SetPortrait("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
 
             // testing
             //SetBuffDebuffIcon(BuffEnum.Buff, 5000, 10);
@@ -70,14 +71,15 @@ public class HUD_SelectTarget : MonoBehaviour
         {
             StaticClientNPCAlwaysShow npc = entity as StaticClientNPCAlwaysShow;
             SetTargetHeath(1f);
+            SetPortrait("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
         }
         else if (entity.IsHero())
         {
             HeroGhost hero = entity as HeroGhost;
             HeroJson heroJson = hero.mHeroJson;
-            SetPortrait(heroJson.portraitpath);
             SetTargetHeath(1f);
             SetMonsterElement(heroJson.element);
+            SetPortrait(heroJson.smallportraitpath);
         }
     }
 

@@ -175,9 +175,12 @@ public class Hero
 
     public bool CanAddSkillPoint()
     {
-        int totalMaxSkillLevels = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill1grp);
-        totalMaxSkillLevels += SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill2grp);
-        totalMaxSkillLevels += SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill3grp);
+        int skillpts = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill1grp);
+        int totalMaxSkillLevels = skillpts > 0 ? skillpts : 1;
+        skillpts = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill2grp);
+        totalMaxSkillLevels += skillpts > 0 ? skillpts : 1;
+        skillpts = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill3grp);
+        totalMaxSkillLevels += skillpts > 0 ? skillpts : 1;
         return GetTotalSkillPoints() < totalMaxSkillLevels;
     }
 
@@ -295,6 +298,9 @@ public class ExploreMapData
     [JsonProperty(PropertyName = "end")]
     public DateTime EndTime { get; set; }
 
+    [JsonProperty(PropertyName = "rwd")]
+    public List<ItemInfo> Rewards { get; set; }
+
     //  Non Serialized
     public ExplorationMapJson MapData { get; set; }
 
@@ -356,7 +362,7 @@ public class ExploreMapData
                 fulfilled = heroes.Exists(x => x.Interest == (HeroInterestType)value);
                 break;
             case ChestRequirementType.HeroTrust:
-                fulfilled = heroes.Exists(x => x.TrustLevel == value);
+                fulfilled = heroes.Exists(x => x.TrustLevel >= value);
                 break;
         }
         return fulfilled;

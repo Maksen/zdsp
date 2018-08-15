@@ -836,6 +836,12 @@
             SecondaryStats.BattleTime = Slot.CharacterData.BattleTime;
         }
 
+        public void DeductBattleTime(int timeInSec)
+        {
+            Slot.CharacterData.BattleTime -= timeInSec;
+            SecondaryStats.BattleTime = Slot.CharacterData.BattleTime;
+        }
+
         public void NewDay()
         {
             Slot.CharacterData.ResetOnNewDay();
@@ -968,6 +974,8 @@
             realmInvData.DungeonStory.Clear();
 
             QuestController.SaveQuestInventory(characterData.QuestInventory);
+
+            //DestinyClueController.SaveDestinyClueInventory(characterData.ClueInventory);
 
             foreach (KeyValuePair<int, DungeonStoryInfo> entry in RealmStats.GetDungeonStoryDict())
             {

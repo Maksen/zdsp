@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
 using Zealot.Common;
-using Zealot.Repository;
 
 public class UI_Inventory_SellPanel : MonoBehaviour
 {
@@ -18,9 +18,9 @@ public class UI_Inventory_SellPanel : MonoBehaviour
 
     public UI_Inventory UIInventory { private get; set; }
 
-    public List<IInventoryItem> SellItemList { get; set; }
+    public List<InvDisplayItem> SellItemList { get; set; }
 
-    public List<Dictionary<int, int>> RefList = null; // Dict: originSlotId -> amount
+    public List<Dictionary<int, int>> SellRefList = null; // Dict: originSlotId -> amountToSell
 
     Dictionary<int, int> sellAmtToSlotIdDict = null;
 
@@ -29,8 +29,8 @@ public class UI_Inventory_SellPanel : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        SellItemList = new List<IInventoryItem>();
-        RefList = new List<Dictionary<int, int>>();
+        SellItemList = new List<InvDisplayItem>();
+        SellRefList = new List<Dictionary<int, int>>();
         sellAmtToSlotIdDict = new Dictionary<int, int>();
     }
 
@@ -46,98 +46,105 @@ public class UI_Inventory_SellPanel : MonoBehaviour
         totalSellPrice = 0;
         txtTotalSellVal.text = "0";
 
+        UIInventory.ButtonSell.interactable = false;
         UIInventory.ButtonPowerup.interactable = false;
     }
 
     void OnDisable()
     {
         sellPanelScrollView.Clear();
-        SellItemList.Clear();
-        RefList.Clear();
+        ClearSellPanelList();
 
+        UIInventory.ButtonSell.interactable = true;
         UIInventory.ButtonPowerup.interactable = true;
-    }
-
-    public void RefreshSellPanel()
-    {
-        sellPanelScrollView.PopulateRows();
-        txtTotalSellVal.text = totalSellPrice.ToString();
     }
 
     public void UpdateSellListFromRefList()
     {
-        int refListCount = RefList.Count;
+        int refListCount = SellRefList.Count;
         for (int i = refListCount-1; i >= 0; --i)
         {
             int stackCount = 0;
-            if (RefList[i].Count > 0)
+            Dictionary<int, int> sellRefDict = SellRefList[i];
+            if (sellRefDict.Count > 0)
             {
-                Dictionary<int, int>.ValueCollection refDictVals = RefList[i].Values;
-                foreach (int stack in refDictVals)
-                    stackCount += stack;
+                foreach (KeyValuePair<int, int> kvp in sellRefDict)
+                    stackCount += kvp.Value;
             }
             if (stackCount == 0)
             {
-                SellItemList.RemoveAt(i);
-                RefList.RemoveAt(i);
+                SellRefList.RemoveAt(i);
+                SellItemList.RemoveAt(i);              
             }
             else
-                SellItemList[i].StackCount = stackCount;
+                SellItemList[i].DisplayStackCount = stackCount;
         }
+
+        sellPanelScrollView.PopulateRows();
+        txtTotalSellVal.text = totalSellPrice.ToString();
     }
 
-    public void AddItemToSellList(IInventoryItem item, int itemId, int maxStackCnt, int originSlotId, int amtToAdd)
+    public void AddItemToSellList(IInventoryItem invItem, int originSlotId, int amtToAdd)
     {
+        int itemId = invItem.ItemID;
+        int maxStackCnt = invItem.MaxStackCount;
+        int itemSellPrice = invItem.JsonObject.sellprice;
+
         int sellItemListCnt = SellItemList.Count;
         for (int i = 0; i < sellItemListCnt; ++i)
         {
             if (amtToAdd == 0)
                 break;
 
-            IInventoryItem sellItem = SellItemList[i];
-            int currStackCnt = sellItem.StackCount;
-            if (sellItem.ItemID == itemId && currStackCnt < maxStackCnt)
+            InvDisplayItem sellItem = SellItemList[i];
+            int sellStackCnt = sellItem.DisplayStackCount;
+            if (sellItem.InvItem.ItemID == itemId && sellStackCnt < maxStackCnt)
             {
                 int amtCanAdd = amtToAdd;
-                if (currStackCnt + amtToAdd > maxStackCnt)
-                    amtCanAdd = maxStackCnt - currStackCnt;
+                if (sellStackCnt + amtToAdd > maxStackCnt)
+                    amtCanAdd = maxStackCnt - sellStackCnt;
 
                 amtToAdd -= amtCanAdd; // Leftover to next slot
-                Dictionary<int, int> refDict = RefList[i];
+                Dictionary<int, int> refDict = SellRefList[i];
                 if (refDict.ContainsKey(originSlotId))
                     refDict[originSlotId] += amtCanAdd;
                 else
                     refDict.Add(originSlotId, amtCanAdd);
 
-                SellItemList[i].StackCount += amtCanAdd;             
-                totalSellPrice += sellItem.JsonObject.sellprice * amtCanAdd;
+                SellItemList[i].DisplayStackCount += amtCanAdd;             
+                totalSellPrice += itemSellPrice * amtCanAdd;
             }
         }
 
         // If there is still leftover to add
         if (amtToAdd > 0)
         {
-            RefList.Add(new Dictionary<int, int>() { { originSlotId, amtToAdd } });
-            IInventoryItem newItem = GameRepo.ItemFactory.GetInventoryItemCopy(item);
-            newItem.StackCount = amtToAdd;
-            SellItemList.Add(newItem);
-            totalSellPrice += newItem.JsonObject.sellprice * amtToAdd;
+            SellRefList.Add(new Dictionary<int, int>() { { originSlotId, amtToAdd } });
+            SellItemList.Add(new InvDisplayItem { OriginSlotId = originSlotId, InvItem = invItem,
+                                                  OriginStackCount = invItem.StackCount,
+                                                  DisplayStackCount = amtToAdd }); ;
+            totalSellPrice += itemSellPrice * amtToAdd;
         }
     }
 
-    public void AddItemToSellPanel(int displayItemIdx, int amtToAdd)
+    public void ClearSellPanelList()
     {
-        if (amtToAdd == 0)
+        SellRefList.Clear();
+        SellItemList.Clear();
+    }
+
+    public void AddItemToSellPanel(int displayItemIdx, int amtToSell)
+    {
+        if (amtToSell == 0)
             return;
 
-        InvDisplayItem invDisplayItem = UIInventory.DisplayItemList[displayItemIdx];
-        IInventoryItem displayItem = invDisplayItem.item;
-        displayItem.StackCount -= amtToAdd; // Remove amount from displayItem
+        List<InvDisplayItem> displayItemList = UIInventory.DisplayItemList;
+        InvDisplayItem invDisplayItem = displayItemList[displayItemIdx];
+        invDisplayItem.DisplayStackCount -= amtToSell; // Remove amount from inv displayItem stackcount
+        AddItemToSellList(invDisplayItem.InvItem, invDisplayItem.OriginSlotId, amtToSell);
+        if (invDisplayItem.DisplayStackCount == 0 && UIInventory.CurrentInventoryTab != BagType.Any)
+            displayItemList.RemoveAt(displayItemIdx);
 
-        AddItemToSellList(displayItem, displayItem.ItemID, displayItem.MaxStackCount, invDisplayItem.originSlotId, amtToAdd);
-
-        if (displayItem.StackCount == 0)
-            UIInventory.RemoveFromDisplayItemList(displayItemIdx);
         UIInventory.UpdateVisibleInvRows();
     }
 
@@ -150,19 +157,18 @@ public class UI_Inventory_SellPanel : MonoBehaviour
             int itemListCnt = invItemList.Count;
             for (int i = 0; i < itemListCnt; ++i)
             {
-                IInventoryItem item = invItemList[i];
-                if (item != null && item.JsonObject.rarity == rarity)
+                IInventoryItem invItem = invItemList[i];
+                if (invItem != null && invItem.JsonObject.rarity == rarity)
                 {
-                    int amtLeftToAdd = item.StackCount, maxStackCnt = item.MaxStackCount;
-                    int refListCnt = RefList.Count;
-                    for (int j = 0; j < refListCnt; ++j)
+                    int amtLeftToAdd = invItem.StackCount, maxStackCnt = invItem.MaxStackCount;
+                    int sellRefListCnt = SellRefList.Count;
+                    for (int j = 0; j < sellRefListCnt; ++j)
                     {
-                        Dictionary<int, int> refDict = RefList[j];
+                        Dictionary<int, int> refDict = SellRefList[j];
                         if (refDict.ContainsKey(i))
                             amtLeftToAdd -= refDict[i];
                     }
-
-                    AddItemToSellList(item, item.ItemID, item.MaxStackCount, i, amtLeftToAdd);
+                    AddItemToSellList(invItem, i, amtLeftToAdd);
                 }
             }
 
@@ -172,34 +178,27 @@ public class UI_Inventory_SellPanel : MonoBehaviour
 
     public void RemoveFromSellPanelByIndex(int index)
     {
-        RefList.RemoveAt(index);
-        IInventoryItem sellItem = SellItemList[index];
-        totalSellPrice -= sellItem.JsonObject.sellprice * sellItem.StackCount;
+        SellRefList.RemoveAt(index);
+        InvDisplayItem sellItem = SellItemList[index];
+        totalSellPrice -= sellItem.InvItem.JsonObject.sellprice * sellItem.DisplayStackCount;
         SellItemList.RemoveAt(index);
 
-        UIInventory.UpdateVisibleInvRows();
-    }
-
-    public void RemoveAllFromSellpanel()
-    {
-        RefList.Clear();
-        SellItemList.Clear();
         UIInventory.UpdateVisibleInvRows();
     }
 
     public void RemoveFromSellPanelByRarity(ItemRarity rarity)
     {
         int sellItemCnt = SellItemList.Count;
-        for (int i = 0; i < sellItemCnt; ++i)
+        for (int i = sellItemCnt-1; i >= 0; --i)
         {
-            if (SellItemList[i].JsonObject.rarity == rarity)
+            InvDisplayItem sellItem = SellItemList[i];
+            ItemBaseJson itemJson = sellItem.InvItem.JsonObject;
+            if (itemJson.rarity == rarity)
             {
-                RefList.RemoveAt(i);
-                IInventoryItem sellItem = SellItemList[i];
-                totalSellPrice -= sellItem.JsonObject.sellprice * sellItem.StackCount;
+                SellRefList.RemoveAt(i);
+                totalSellPrice -= itemJson.sellprice * sellItem.DisplayStackCount;
                 SellItemList.RemoveAt(i);
                 sellItemCnt = SellItemList.Count;
-                --i;
             }
         }
 
@@ -228,12 +227,12 @@ public class UI_Inventory_SellPanel : MonoBehaviour
     {
         sellAmtToSlotIdDict.Clear();
 
-        int refListCount = RefList.Count;
-        if (refListCount > 0)
+        int sellRefListCount = SellRefList.Count;
+        if (sellRefListCount > 0)
         {
-            for (int i = 0; i < refListCount; ++i)
+            for (int i = 0; i < sellRefListCount; ++i)
             {
-                Dictionary<int, int> refDict = RefList[i];
+                Dictionary<int, int> refDict = SellRefList[i];
                 foreach (KeyValuePair<int, int> kvp in refDict)
                 {
                     int slotId = kvp.Key;
@@ -244,22 +243,23 @@ public class UI_Inventory_SellPanel : MonoBehaviour
                 }
             }
             RPCFactory.CombatRPC.MassSellItems(sellAmtToSlotIdDict);
+
+            gameObject.SetActive(false); // Close sell panel when sell items
         }
     }
 
     public void OnClickClosePanel()
     {
         gameObject.SetActive(false);
-        RemoveAllFromSellpanel();     
+        ClearSellPanelList();
+        UIInventory.UpdateVisibleInvRows();
     }
 
     public void OnOpenDialogItemSellUse(int displayItemIdx)
     {
         UIManager.OpenDialog(WindowType.DialogItemSellUse, (GameObject window) => {
-            window.GetComponent<UI_DialogItemSellUse>().Init(UIInventory.DisplayItemList[displayItemIdx].item,
-                (int amount) => {
-                    AddItemToSellPanel(displayItemIdx, amount);
-                });
+            window.GetComponent<UI_DialogItemSellUse>().Init(UIInventory.DisplayItemList[displayItemIdx].InvItem,
+                (int amount) => { AddItemToSellPanel(displayItemIdx, amount); });
         });
     }
 }

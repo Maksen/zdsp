@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Kopio.JsonContracts;
 using Newtonsoft.Json;
 using Zealot.Common;
@@ -679,9 +680,28 @@ namespace Zealot.Repository
 
     public static class SDGRepo
     {
+        private enum SDGEnum
+        {
+            duration,
+            min_max,
+            min,
+            max,
+            interval,
+            percentage,
+            skilleffect,
+            maxtargets,
+            sideeffectblock,
+            weaponaffect,
+            skillaffect,
+            maxtarget,
+            parameter,
+        }
+        private const string BREAKCHAR = "{br}";
+
         public static Dictionary<int, SkillDescriptionGroupJson> mIdMap;
         private static Dictionary<int, string> mDescriptionByID;
         private static Dictionary<string, string> mDescriptionByName;
+
         public static void Init(GameDBRepo gameData)
         {
             mIdMap = gameData.SkillDescriptionGroup;
@@ -716,6 +736,158 @@ namespace Zealot.Repository
                 return mDescriptionByID[id];
             else
                 return "";
+        }
+
+        public static string GetSDGText(SideEffectJson sideeffect, SkillJson skill = null, bool ignorenewline = true)
+        {
+            if (sideeffect.sdg == 0)
+                return "";
+
+            string description = SDGRepo.GetDescriptionByID(sideeffect.sdg);
+            if (ignorenewline == false)
+            {
+                description.Replace(BREAKCHAR, "\n");
+            }
+            else
+            {
+                description.Replace(BREAKCHAR, ";");
+            }
+            int startindex = 0;
+            while (true)
+            {
+                if (startindex <= 0)//starting
+                {
+                    startindex = description.IndexOf('{', 0);//find the char { from 0
+                }
+                else
+                {
+                    startindex = description.IndexOf('{', startindex + 1);//find the char { from index
+                }
+                if (startindex < 0)//cannot find {
+                    break;
+                else
+                {
+                    int endIndex = description.IndexOf('}', startindex);
+                    string paraText = description.Substring(startindex + 1, endIndex - startindex - 1);//
+                    if (string.IsNullOrEmpty(paraText) == false)
+                    {
+                        if (paraText[0] == '#')//start color
+                        {
+                            description = ReplaceColor(description, paraText, startindex, endIndex, true);
+                        }
+                        else if (paraText[0] == '/')//end color
+                        {
+                            description = ReplaceColor(description, paraText, startindex, endIndex, false);
+                        }
+                        else
+                        {
+                            description = ReplaceText(sideeffect, skill, description, paraText, startindex, endIndex);
+                        }
+                    }
+
+                }
+            }
+
+            return description;
+        }
+
+        private static string ReplaceText(SideEffectJson sideeffect, SkillJson skill, string wholetext, string text, int startindex, int endIndex)
+        {
+            string result = wholetext.Remove(startindex, endIndex - startindex + 1);
+            SDGEnum MyStatus = (SDGEnum)Enum.Parse(typeof(SDGEnum), text, true);
+            //Enum.GetNames(typeof(SDGEnum)).Any(x => x.ToLower() == text);
+            switch (MyStatus)
+            {
+                case SDGEnum.duration:
+                    result = result.Insert(startindex, sideeffect.duration.ToString());
+                    break;
+                case SDGEnum.min:
+                    result = result.Insert(startindex, sideeffect.min.ToString());
+                    break;
+                case SDGEnum.max:
+                    result = result.Insert(startindex, sideeffect.max.ToString());
+                    break;
+                case SDGEnum.interval:
+                    result = result.Insert(startindex, sideeffect.interval.ToString());
+                    break;
+                case SDGEnum.percentage:
+                    result = result.Insert(startindex, sideeffect.procchance.ToString());
+                    break;
+                case SDGEnum.skilleffect:
+                    result = result.Insert(startindex, sideeffect.basicskilldamageperc.ToString());
+                    break;
+                case SDGEnum.min_max:
+                    if (sideeffect.max > sideeffect.min)
+                    {
+                        string output = sideeffect.min + "~" + sideeffect.max;
+                        result = result.Insert(startindex, output);
+                    }
+                    else
+                    {
+                        result = result.Insert(startindex, sideeffect.max.ToString());
+                    }
+                    break;
+                case SDGEnum.maxtargets:
+                    if (skill != null)
+                        result = result.Insert(startindex, skill.maxtargets.ToString());
+                    break;
+                case SDGEnum.sideeffectblock:
+                    string effecttype = sideeffect.effecttype.ToString();
+                    string[] ETarr = effecttype.Split('_');
+                    if (ETarr.Length >= 2)
+                    {
+                        string type = GUILocalizationRepo.GetLocalizedString(ETarr[0]);
+                        string block = GUILocalizationRepo.GetLocalizedString(ETarr[1]);
+                        result = result.Insert(startindex, type + block);
+                    }
+                    break;
+                case SDGEnum.weaponaffect:
+                    break;
+                case SDGEnum.parameter:
+                    result = result.Insert(startindex, sideeffect.parameter);
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        private static string ReplaceColor(string wholetext, string text, int startindex, int endindex, bool isStart)
+        {
+            string result = wholetext.Remove(startindex, endindex - startindex + 1);
+            result = isStart ? result.Insert(startindex, "<color=" + text + ">")
+                : result.Insert(startindex, "</color>");
+            return result;
+        }
+
+        public static string ReplaceText(string description, string text, float amount)
+        {
+            string result = description;
+            int startindex = 0;
+            while (true)
+            {
+                if (startindex <= 0)//starting
+                {
+                    startindex = description.IndexOf('{', 0);//find the char { from 0
+                }
+                else
+                {
+                    startindex = description.IndexOf('{', startindex + 1);//find the char { from index
+                }
+                if (startindex < 0)//cannot find {
+                    return result;
+                else
+                {
+                    int endIndex = description.IndexOf('}', startindex);
+                    string paraText = description.Substring(startindex + 1, endIndex - startindex - 1);//
+                    if (paraText == text)
+                    {
+                        result = description.Remove(startindex, endIndex - startindex + 1);
+                        return result.Insert(startindex, amount.ToString());
+                    }
+                }
+            }
         }
     }
 

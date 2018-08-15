@@ -439,6 +439,7 @@ namespace Zealot.Common
             equipAttr.newItem = (byte)(newItem ? 1 : 0);
             equipAttr.upgradeLevel = UpgradeLevel;
             equipAttr.reformStep = ReformStep;
+            EncodeSelectionForSync();
 
             var arrProperties = getBytes(ref equipAttr);
             if (base64encode)
@@ -542,6 +543,58 @@ namespace Zealot.Common
             }
 
             return selections;
+        }
+
+        public void CompileSelectionsList(List<ushort> selectionsList)
+        {
+            StringBuilder selStr = new StringBuilder();
+            for(int i = 0; i < selectionsList.Count; ++i)
+            {
+                ushort sel = selectionsList[i];
+                if(sel == ushort.MaxValue)
+                {
+                    selStr.Append("-");
+                }
+                else
+                {
+                    selStr.Append(sel.ToString());
+                }
+
+                if(i < selectionsList.Count - 1)
+                {
+                    selStr.Append("|");
+                }
+            }
+
+            Selection = selStr.ToString();
+        }
+
+        public ushort GetSelectionByReformStep(int reformStep)
+        {
+            int currStep = reformStep - 1;
+
+            if(currStep > 0)
+            {
+                return GetSelectionsList()[currStep];
+            }
+
+            return ushort.MaxValue;
+        }
+
+        public void AddSelection(int reformStep, ushort selection)
+        {
+            int realStep = reformStep - 1;
+            List<ushort> selections = GetSelectionsList();
+            selections[realStep] = selection;
+            CompileSelectionsList(selections);
+        }
+
+        public void RemoveSelection(int reformStep)
+        {
+            int realStep = reformStep - 1;
+            List<ushort> selections = GetSelectionsList();
+            selections[realStep] = ushort.MaxValue;
+            CompileSelectionsList(selections);
         }
 
         private string DecodeSelection(ushort selection)

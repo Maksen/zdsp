@@ -81,8 +81,11 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
     public override void UpdatePosition(float position)
     {
         currentPosition = position;
-        animator.Play(scrollTriggerHash, -1, position);
-        animator.speed = 0;
+        if (gameObject.activeInHierarchy)
+        {
+            animator.Play(scrollTriggerHash, -1, position);
+            animator.speed = 0;
+        }
     }
 
     // GameObject が非アクティブになると Animator がリセットされてしまうため

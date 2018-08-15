@@ -161,7 +161,7 @@ public class UI_DestinyQuest : MonoBehaviour
             {
                 Marker.transform.localPosition = new Vector3(destinyJson.posx, destinyJson.posy, 0);
                 HeroName.text = destinyJson.name;
-                Country.text = GetCountryName(destinyJson.type);
+                Country.text = destinyJson.site;
                 QuestJson questJson = QuestRepo.GetQuestByID(destinyJson.questid);
                 if (questJson != null)
                 {

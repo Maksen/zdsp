@@ -91,7 +91,6 @@ public class EquipmentModdingScrollView : MonoBehaviour
     private UI_EquipmentReform uiEquipReform = null;
     private List<ModdingEquipment> equipmentList = null;
     private bool isSafeUpgrade = false;
-    private bool isEquipped = false;
     private ToggleGroup toggleGroup = null;
     public void Populate(UI_EquipmentUpgrade uiEquipUpgrade, List<ModdingEquipment> equipmentList, int bagStart, bool isSafeUpgrade, ToggleGroup toggleGroup)
     {
@@ -125,10 +124,8 @@ public class EquipmentModdingScrollView : MonoBehaviour
                 {
                     continue;
                 }
-
-                isEquipped = displayIdx <= bagStart;
                 
-                equipmentRowData.AddData(uiEquipUpgrade, upgEquip.mSlotID, upgEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+                equipmentRowData.AddData(uiEquipUpgrade, upgEquip.mSlotID, upgEquip.mEquip, isSafeUpgrade, upgEquip.mIsEquipped, toggleGroup);
             }
         }
     }
@@ -165,9 +162,7 @@ public class EquipmentModdingScrollView : MonoBehaviour
                     continue;
                 }
 
-                isEquipped = displayIdx <= bagStart;
-
-                equipmentRowData.AddData(uiEquipReform, uiEquipReform.reformTab.isOn, upgEquip.mSlotID, upgEquip.mEquip, isEquipped, toggleGroup);
+                equipmentRowData.AddData(uiEquipReform, uiEquipReform.reformTab.isOn, upgEquip.mSlotID, upgEquip.mEquip, upgEquip.mIsEquipped, toggleGroup);
             }
         }
     }
@@ -200,11 +195,11 @@ public class EquipmentModdingScrollView : MonoBehaviour
 
                 if (isUpgrade == true)
                 {
-                    equipmentRowData.UpdateData(c, uiEquipUpgrade, modEquip.mSlotID, modEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+                    equipmentRowData.UpdateData(c, uiEquipUpgrade, modEquip.mSlotID, modEquip.mEquip, isSafeUpgrade, modEquip.mIsEquipped, toggleGroup);
                 }
                 else
                 {
-                    equipmentRowData.UpdateData(c, uiEquipReform, uiEquipReform.reformTab.isOn, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
+                    equipmentRowData.UpdateData(c, uiEquipReform, uiEquipReform.reformTab.isOn, modEquip.mSlotID, modEquip.mEquip, modEquip.mIsEquipped, toggleGroup);
                 }
             }
         }
@@ -408,11 +403,11 @@ public class EquipmentModdingScrollView : MonoBehaviour
 
             if(isUpgrade == true)
             {
-                equipmentRowData.AddData(uiEquipUpgrade, modEquip.mSlotID, modEquip.mEquip, isSafeUpgrade, isEquipped, toggleGroup);
+                equipmentRowData.AddData(uiEquipUpgrade, modEquip.mSlotID, modEquip.mEquip, isSafeUpgrade, modEquip.mIsEquipped, toggleGroup);
             }
             else
             {
-                equipmentRowData.AddData(uiEquipReform, uiEquipReform.reformTab.isOn, modEquip.mSlotID, modEquip.mEquip, isEquipped, toggleGroup);
+                equipmentRowData.AddData(uiEquipReform, uiEquipReform.reformTab.isOn, modEquip.mSlotID, modEquip.mEquip, modEquip.mIsEquipped, toggleGroup);
             }
         }
     }

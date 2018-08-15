@@ -77,6 +77,9 @@ public class UIWindow : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Call this to close window by code
+    /// </summary>
     public void ClickClose()
     {
         if (closeButton.Length > 0 && closeButton[0] != null)

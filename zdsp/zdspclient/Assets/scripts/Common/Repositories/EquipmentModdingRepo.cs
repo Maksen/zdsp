@@ -17,12 +17,14 @@ namespace Zealot.Repository
     public class EquipUpgMaterial
     {
         public EquipUpgradeMatType mType;
-        public EquipModMaterial mMat;
+        public ItemInfo mMat;
 
         public EquipUpgMaterial(EquipUpgradeMatType type, int amount)
         {
             mType = type;
-            mMat = new EquipModMaterial(GetItemIdByMaterialType(type), amount);
+            mMat = new ItemInfo();
+            mMat.itemId = (ushort)GetItemIdByMaterialType(type);
+            mMat.stackCount = amount;
         }
 
         private int GetItemIdByMaterialType(EquipUpgradeMatType type)
@@ -140,17 +142,17 @@ namespace Zealot.Repository
         }
     }
 
-    public class EquipModMaterial
-    {
-        public int mItemID;
-        public int mAmount;
+    //public class EquipModMaterial
+    //{
+    //    public int mItemID;
+    //    public int mAmount;
 
-        public EquipModMaterial(int itemId, int amount)
-        {
-            mItemID = itemId;
-            mAmount = amount;
-        }
-    }
+    //    public EquipModMaterial(int itemId, int amount)
+    //    {
+    //        mItemID = itemId;
+    //        mAmount = amount;
+    //    }
+    //}
 
     public class EquipReformData
     {
@@ -600,7 +602,7 @@ namespace Zealot.Repository
             return reformDataList;
         }
 
-        public static List<EquipModMaterial> GetEquipmentReformMaterials(string reformGrp, int reformStep, int selection)
+        public static List<ItemInfo> GetEquipmentReformMaterials(string reformGrp, int reformStep, int selection)
         {
             List<EquipmentReformGroupJson> equipReformData = GetEquipmentReformDataByGroupStep(reformGrp, reformStep);
             if(equipReformData == null)
@@ -614,7 +616,7 @@ namespace Zealot.Repository
             }
 
             List<string> reformMaterialsDataStrList = equipReformData[selection].requirement.Split(';').ToList();
-            List<EquipModMaterial> reformMaterialsList = new List<EquipModMaterial>();
+            List<ItemInfo> reformMaterialsList = new List<ItemInfo>();
             for(int i = 0; i < reformMaterialsDataStrList.Count; ++i)
             {
                 List<string> reformMatData = reformMaterialsDataStrList[i].Split('#').ToList();
@@ -622,7 +624,10 @@ namespace Zealot.Repository
                 int amount = 0;
                 if(int.TryParse(reformMatData[0], out itemId) && int.TryParse(reformMatData[1], out amount))
                 {
-                    reformMaterialsList.Add(new EquipModMaterial(itemId, amount));
+                    ItemInfo newMat = new ItemInfo();
+                    newMat.itemId = (ushort)itemId;
+                    newMat.stackCount = amount;
+                    reformMaterialsList.Add(newMat);
                 }
             }
 
@@ -655,7 +660,7 @@ namespace Zealot.Repository
             return -1;
         }
 
-        public static List<EquipModMaterial> GetModdingMaterialsFromStr(string matStr)
+        public static List<ItemInfo> GetModdingMaterialsFromStr(string matStr)
         {
             if(string.IsNullOrEmpty(matStr))
             {
@@ -663,7 +668,7 @@ namespace Zealot.Repository
             }
 
             List<string> matStrList = matStr.Split(';').ToList();
-            List<EquipModMaterial> materialList = new List<EquipModMaterial>();
+            List<ItemInfo> materialList = new List<ItemInfo>();
             for(int i = 0; i < matStrList.Count; ++i)
             {
                 string currStr = matStrList[i];
@@ -682,7 +687,10 @@ namespace Zealot.Repository
                 int amount = 0;
                 if(int.TryParse(matDataList[0], out itemId) && int.TryParse(matDataList[1], out amount))
                 {
-                    materialList.Add(new EquipModMaterial(itemId, amount));
+                    ItemInfo newMat = new ItemInfo();
+                    newMat.itemId = (ushort)itemId;
+                    newMat.stackCount = amount;
+                    materialList.Add(newMat);
                 }
             }
 

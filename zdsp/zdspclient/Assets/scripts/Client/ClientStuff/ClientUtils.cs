@@ -8,6 +8,7 @@ using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Repository;
 using Zealot.Audio;
+using UnityEngine.Video;
 
 public static class ClientUtils
 {
@@ -239,6 +240,27 @@ public static class ClientUtils
         if (item == null)
             return null;
         return ClientUtils.LoadIcon(item.iconspritepath);
+    }
+
+    public static void LoadVideoAsync(string assetName, Action<VideoClip> callback)
+    {
+        if (string.IsNullOrEmpty(assetName))
+            return;
+        AssetLoader.Instance.LoadAsync<VideoClip>(assetName, callback);
+    }
+
+    public static VideoClip LoadVideo(string assetName)
+    {
+        if (string.IsNullOrEmpty(assetName))
+            return null;
+        return AssetLoader.Instance.Load<VideoClip>(assetName) as VideoClip;
+    }
+
+    public static AudioClip LoadAudio(string audiopath)
+    {
+        if (string.IsNullOrEmpty(audiopath))
+            return null;
+        return AssetLoader.Instance.Load<AudioClip>(audiopath) as AudioClip;
     }
 
     public static Sprite LoadQualityIcon(ItemType type, ItemRarity quality)

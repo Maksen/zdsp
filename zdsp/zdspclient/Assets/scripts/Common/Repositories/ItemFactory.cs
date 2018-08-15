@@ -183,12 +183,6 @@ namespace Zealot.Repository
             return null;
         }
 
-        public IInventoryItem GetInventoryItemCopy(IInventoryItem invItem)
-        {
-            invItem.EncodeItem();
-            return GetItemFromCode(invItem.GetItemCodeForLocalObj());
-        }
-
         public int GetItemSortTableLength()
         {
             return itemSortTable.Count;

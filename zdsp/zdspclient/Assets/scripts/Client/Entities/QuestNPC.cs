@@ -87,7 +87,7 @@ namespace Zealot.Client.Entities
             Show(true);
             ShowEffect(true);
             PreloadEffect();          
-            mShadow.SetActive(!string.IsNullOrEmpty(mModelPath) && mModelPath != "Models/Npcs/Prefabs/npc_null.prefab");
+            mShadow.SetActive(!string.IsNullOrEmpty(mModelPath) && mModelPath != "Models/Npcs/Prefabs/npc_null.prefab" && mActiveStatus);
             UpdateQuestMarker();
         }
 
@@ -152,6 +152,7 @@ namespace Zealot.Client.Entities
                 }
             }
 
+            UIManager.CloseAllWindows();
             if (talkid != -1)
             {
                 UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, mActiveQuest, ongoingquest));

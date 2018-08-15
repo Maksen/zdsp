@@ -506,6 +506,20 @@ public static class UIManager
         if (hudChat)
             hudChat.AddToChatLog(msgType, message, "", "");
     }
+
+    public static void OpenCutsceneDialog(bool buttonstatus = true)
+    {
+        if (IsAnyWindowOpened())
+        {
+            CloseAllWindows();
+        }
+        if (IsAnyDialogOpened())
+        {
+            CloseAllDialogs();
+        }
+
+        OpenDialog(WindowType.DialogCutscene, (window) => window.GetComponent<UI_Cutscene>().Init(buttonstatus));
+    }
 }
 
 internal class WindowStack<T> : System.Collections.IEnumerable

@@ -102,7 +102,7 @@ namespace Zealot.Common
     public enum QuestEventType {Cutscene = 0, Playmaker = 1, Monster = 2, Teleport = 3, SideEffect = 4, Companion = 5, Outfit = 6, NPC = 7};
     public enum EventTimingType {StartQuest = 0, CompleteObjective = 1, CompleteQuest = 2};
     public enum QuestInteractiveType {StartQuest = 0, EndQuest = 1};
-    public enum QuestRequirementType {Level = 0, Item = 1, Equipment = 2, Hero = 3, Title = 4, SideEffect = 5, Companian = 6, Clue = 7, Outfit = 8, Job = 9};
+    public enum QuestRequirementType {Level = 0, Item = 1, Equipment = 2, Hero = 3, Title = 4, SideEffect = 5, Companian = 6, Clue = 7, Outfit = 8, Job = 9, TimeClue = 10};
     public enum QuestSelectionActionType {Non = 0, Job = 1, ObjectiveGroup = 2, SubmitObjective = 3};
     public enum StaticNPCInteractType {Talk = 0, Area = 1, Target = 2};
     public enum AttackStyle {Slice = 0, Pierce = 1, Smash = 2, God = 3, Normal = 4};
@@ -4249,6 +4249,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("26")]
         public bool candelete { get; set; } 
         
+        [JsonProperty("27")]
+        public bool canreset { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4278,6 +4281,7 @@ namespace Kopio.JsonContracts
             showae = (bool)vals["showae"];
             teleport = (bool)vals["teleport"];
             candelete = (bool)vals["candelete"];
+            canreset = (bool)vals["canreset"];
         }
     }
     
@@ -4458,6 +4462,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("6")]
         public int actionid { get; set; } 
         
+        [JsonProperty("7")]
+        public string msg { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4467,6 +4474,7 @@ namespace Kopio.JsonContracts
             isanswer = (bool)vals["isanswer"];
             actiontype = (QuestSelectionActionType)vals["actiontype"];
             actionid = (int)vals["actionid"];
+            msg = (string)vals["msg"];
         }
     }
     
@@ -4918,6 +4926,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("10")]
         public int time { get; set; } 
         
+        [JsonProperty("11")]
+        public int questid { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -4931,6 +4942,7 @@ namespace Kopio.JsonContracts
             isuse = (bool)vals["isuse"];
             probability = (int)vals["probability"];
             time = (int)vals["time"];
+            questid = (int)vals["questid"];
         }
     }
     
@@ -5589,7 +5601,11 @@ namespace Kopio.JsonContracts
         [JsonProperty("43")]
         public string portraitpath { get; set; } 
         
+        [AssetData("sprite")]
         [JsonProperty("44")]
+        public string smallportraitpath { get; set; } 
+        
+        [JsonProperty("45")]
         public string questid { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -5638,6 +5654,7 @@ namespace Kopio.JsonContracts
             exploreaction = (string)vals["exploreaction"];
             randomitemid = (string)vals["randomitemid"];
             portraitpath = (string)vals["portraitpath"];
+            smallportraitpath = (string)vals["smallportraitpath"];
             questid = (string)vals["questid"];
         }
     }
@@ -5839,9 +5856,7 @@ namespace Kopio.JsonContracts
         [JsonProperty("6")]
         public int bondvalue2 { get; set; } 
         
-        //type SideEffectGroupJson
-        [JsonProperty("7")]
-        public int sideeffectgrp { get; set; } 
+        public Dictionary<int,SideEffectJson> sideeffects = new Dictionary<int,SideEffectJson> ();
         
         public void Load(Dictionary<string, object> vals)
         {
@@ -5852,7 +5867,6 @@ namespace Kopio.JsonContracts
             bondvalue1 = (int)vals["bondvalue1"];
             bondtype2 = (HeroBondType)vals["bondtype2"];
             bondvalue2 = (int)vals["bondvalue2"];
-            sideeffectgrp = (int)vals["sideeffectgrp"];
         }
     }
     
@@ -7502,62 +7516,76 @@ namespace Kopio.JsonContracts
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class LotteryMain__lotterypointidJson
+    public class HeroBond__sideeffectsJson
     {
         [JsonProperty("0")]
-        public int lotterymainid { get; set; } 
+        public int herobondid { get; set; } 
         
         [JsonProperty("1")]
-        public int lotterypointidid { get; set; } 
+        public int sideeffectsid { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
-            lotterymainid = (int)vals["lotterymainid"];
-            lotterypointidid = (int)vals["lotterypointidid"];
+            herobondid = (int)vals["herobondid"];
+            sideeffectsid = (int)vals["sideeffectsid"];
         }
         }[JsonObject(MemberSerialization.OptIn)]
-        public class Skill__selfsideeffectJson
+        public class LotteryMain__lotterypointidJson
         {
             [JsonProperty("0")]
-            public int skillid { get; set; } 
+            public int lotterymainid { get; set; } 
             
             [JsonProperty("1")]
-            public int selfsideeffectid { get; set; } 
+            public int lotterypointidid { get; set; } 
             
             public void Load(Dictionary<string, object> vals)
             {
-                skillid = (int)vals["skillid"];
-                selfsideeffectid = (int)vals["selfsideeffectid"];
+                lotterymainid = (int)vals["lotterymainid"];
+                lotterypointidid = (int)vals["lotterypointidid"];
             }
             }[JsonObject(MemberSerialization.OptIn)]
-            public class Skill__sideeffectsJson
+            public class Skill__selfsideeffectJson
             {
                 [JsonProperty("0")]
                 public int skillid { get; set; } 
                 
                 [JsonProperty("1")]
-                public int sideeffectsid { get; set; } 
+                public int selfsideeffectid { get; set; } 
                 
                 public void Load(Dictionary<string, object> vals)
                 {
                     skillid = (int)vals["skillid"];
-                    sideeffectsid = (int)vals["sideeffectsid"];
+                    selfsideeffectid = (int)vals["selfsideeffectid"];
                 }
                 }[JsonObject(MemberSerialization.OptIn)]
-                public class SideEffectGroup__sideeffectsJson
+                public class Skill__sideeffectsJson
                 {
                     [JsonProperty("0")]
-                    public int sideeffectgroupid { get; set; } 
+                    public int skillid { get; set; } 
                     
                     [JsonProperty("1")]
                     public int sideeffectsid { get; set; } 
                     
                     public void Load(Dictionary<string, object> vals)
                     {
-                        sideeffectgroupid = (int)vals["sideeffectgroupid"];
+                        skillid = (int)vals["skillid"];
                         sideeffectsid = (int)vals["sideeffectsid"];
                     }
-                }
+                    }[JsonObject(MemberSerialization.OptIn)]
+                    public class SideEffectGroup__sideeffectsJson
+                    {
+                        [JsonProperty("0")]
+                        public int sideeffectgroupid { get; set; } 
+                        
+                        [JsonProperty("1")]
+                        public int sideeffectsid { get; set; } 
+                        
+                        public void Load(Dictionary<string, object> vals)
+                        {
+                            sideeffectgroupid = (int)vals["sideeffectgroupid"];
+                            sideeffectsid = (int)vals["sideeffectsid"];
+                        }
+                    }
 
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -7979,6 +8007,9 @@ namespace Kopio.JsonContracts
 
         [JsonProperty]
         public Dictionary<int, WorldMapCountryJson> WorldMapCountry = new Dictionary<int, WorldMapCountryJson>();
+
+        [JsonProperty]
+        public List<HeroBond__sideeffectsJson> HeroBond__sideeffects = new List<HeroBond__sideeffectsJson>();
 
         [JsonProperty]
         public List<LotteryMain__lotterypointidJson> LotteryMain__lotterypointid = new List<LotteryMain__lotterypointidJson>();
@@ -8457,6 +8488,9 @@ namespace Kopio.JsonContracts
                 break;
                 case "WorldMapCountryJson":
                 WorldMapCountry.Add((item as WorldMapCountryJson).id, item as WorldMapCountryJson);
+                break;
+                case "HeroBond__sideeffectsJson":
+                HeroBond__sideeffects.Add(item as HeroBond__sideeffectsJson);
                 break;
                 case "LotteryMain__lotterypointidJson":
                 LotteryMain__lotterypointid.Add(item as LotteryMain__lotterypointidJson);

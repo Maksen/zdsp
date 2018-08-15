@@ -34,7 +34,7 @@ public class ItemInventoryController
         itemInvData.Slots[slotIdx] = item;
     }
 
-    #region tooltip action
+    #region Tooltip action
     public bool OnClicked_UseItem(int slotId, IInventoryItem item)
     {
         IInventoryItem _item = itemInvData.Slots[slotId];

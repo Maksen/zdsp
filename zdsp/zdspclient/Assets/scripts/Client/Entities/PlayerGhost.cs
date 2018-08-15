@@ -505,30 +505,6 @@ namespace Zealot.Client.Entities
             IInventoryItem item = GameRepo.ItemFactory.GetItemFromCode(value);
             int slotid = (lotype - LOTYPE.InventoryStats) * (int)InventorySlot.COLLECTION_SIZE + idx;
             clientItemInvCtrl.UpdateItemInv(slotid, item); 
-
-            Equipment equipment = GameRepo.ItemFactory.GetItemFromCode(value) as Equipment;
-            if(equipment != null)
-            {
-                GameObject uiEquipUpgradeObj = UIManager.GetWindowGameObject(WindowType.EquipUpgrade);
-                if(uiEquipUpgradeObj != null && uiEquipUpgradeObj.activeSelf == true)
-                {
-                    UI_EquipmentUpgrade uiEquipUpgrade = uiEquipUpgradeObj.GetComponent<UI_EquipmentUpgrade>();
-                    if(uiEquipUpgrade != null)
-                    {
-                        uiEquipUpgrade.Refresh();
-                    }
-                }
-
-                GameObject uiEquipReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
-                if (uiEquipReformObj != null && uiEquipReformObj.activeSelf == true)
-                {
-                    UI_EquipmentReform uiEquipReform = uiEquipReformObj.GetComponent<UI_EquipmentReform>();
-                    if (uiEquipReform != null)
-                    {
-                        uiEquipReform.Refresh();
-                    }
-                }
-            }
         }
 
         public void OnInventoryStatsLocalObjectChanged()
@@ -569,12 +545,29 @@ namespace Zealot.Client.Entities
                 }
 
                 GameObject uiEquipUpgradeObj = UIManager.GetWindowGameObject(WindowType.EquipUpgrade);
-                if (uiEquipUpgradeObj != null && uiEquipUpgradeObj.activeSelf == true)
+                if(uiEquipUpgradeObj != null && uiEquipUpgradeObj.activeSelf == true)
                 {
                     UI_EquipmentUpgrade uiEquipUpgrade = uiEquipUpgradeObj.GetComponent<UI_EquipmentUpgrade>();
-                    if (uiEquipUpgrade != null)
+                    if(uiEquipUpgrade != null)
                     {
                         uiEquipUpgrade.Refresh();
+                    }
+                }
+
+                GameObject uiEquipReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
+                if(uiEquipReformObj != null && uiEquipReformObj.activeSelf == true)
+                {
+                    UI_EquipmentReform uiEquipReform = uiEquipReformObj.GetComponent<UI_EquipmentReform>();
+                    if(uiEquipReform != null)
+                    {
+                        if(uiEquipReform.reformTab.isOn)
+                        {
+                            uiEquipReform.RefreshReform();
+                        }
+                        else
+                        {
+                            uiEquipReform.RefreshRecycle();
+                        }
                     }
                 }
             }
@@ -819,7 +812,7 @@ namespace Zealot.Client.Entities
                 UI_CharacterPowerup_Manager uiPowerUp = uiPowerUpObj.GetComponentInChildren<UI_CharacterPowerup_Manager>();
                 if (uiPowerUp != null)
                 {
-                    uiPowerUp.CS_CharacterToggle.CS_MG_ToggleSelected(UI_CharacterPowerup_Manager.CP_State);
+                    uiPowerUp.Init(UI_CharacterPowerup_Manager.nowPartTypeCount);
                 }
             }
         }
@@ -841,7 +834,7 @@ namespace Zealot.Client.Entities
                 UI_CharacterPowerup_Manager uiPowerUp = uiPowerUpObj.GetComponentInChildren<UI_CharacterPowerup_Manager>();
                 if(uiPowerUp != null)
                 {
-                    uiPowerUp.CS_CharacterToggle.CS_MG_ToggleSelected(UI_CharacterPowerup_Manager.CP_State);
+                    uiPowerUp.Init(UI_CharacterPowerup_Manager.nowPartTypeCount);
                 }
             }
             //UI_CharacterPowerup_Manager.CharacterToggle.CS_MG_ToggleSelected(UI_CharacterPowerup_Manager.CP_State);
@@ -875,7 +868,7 @@ namespace Zealot.Client.Entities
                     HeroStats.OnSummonedHeroChanged();
                     break;
                 case "Explorations":
-                    HeroStats.UpdateExplorations();
+                    HeroStats.UpdateExplorations((string)value);
                     break;
                 case "Explored":
                     HeroStats.UpdateExploredMaps();
@@ -1977,6 +1970,10 @@ namespace Zealot.Client.Entities
 
         public IEnumerator PlayCutscene(string name, int delay, int questid)
         {
+            ForceIdle();
+            Bot.StopBot();
+            UIManager.OpenCutsceneDialog();
+
             yield return new WaitForSecondsRealtime(delay);
 
             GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));

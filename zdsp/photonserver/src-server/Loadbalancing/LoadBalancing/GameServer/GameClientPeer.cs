@@ -601,7 +601,7 @@ namespace Photon.LoadBalancing.GameServer
 
                 // Save logout time                   
                 GuildRules.OnCharacterLogout(characterData, logoutDT);
-                PartyRules.OnCharacterOnline(mChar, false);
+                PartyRules.OnCharacterOffline(mChar);
                 SaveCharacter();
                 application.RemoveCharPeer(mChar, this);
                 log.InfoFormat("ClearChar {0}", mChar);
@@ -961,9 +961,9 @@ namespace Photon.LoadBalancing.GameServer
             //int currMatCount = mInventory.GetItemStackcountByItemId((ushort)upgradeMaterial.mItemID);
 
             EquipUpgMaterial upgradeMaterial = EquipmentModdingRepo.GetEquipmentUpgradeMaterial(equipType, rarity, upgradeLevel, isUseGenMaterial, isSafeUpgrade, isSafeUseEquip);
-            int currMatCount = mInventory.GetItemStackCountByItemId((ushort)upgradeMaterial.mMat.mItemID);
+            int currMatCount = mInventory.GetItemStackCountByItemId((ushort)upgradeMaterial.mMat.itemId);
 
-            if (currMatCount < upgradeMaterial.mMat.mAmount)
+            if (currMatCount < upgradeMaterial.mMat.stackCount)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipUpgrade_InsufficientMaterials"), "", false, mPlayer.Slot);
                 return;
@@ -974,9 +974,9 @@ namespace Photon.LoadBalancing.GameServer
                 if(!isSafeUseEquip)
                 {
                     EquipUpgMaterial safeUpgMat = EquipmentModdingRepo.GetEquipmentUpgradeSafeMaterial(equipType, rarity, upgradeLevel, isSafeGenMat);
-                    int safeMatCount = mInventory.GetItemStackCountByItemId((ushort)safeUpgMat.mMat.mItemID);
+                    int safeMatCount = mInventory.GetItemStackCountByItemId((ushort)safeUpgMat.mMat.itemId);
 
-                    if (safeMatCount < safeUpgMat.mMat.mAmount)
+                    if (safeMatCount < safeUpgMat.mMat.stackCount)
                     {
                         ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipUpgrade_InsufficientSafeMaterials"), "", false, mPlayer.Slot);
                         return;
@@ -1011,7 +1011,7 @@ namespace Photon.LoadBalancing.GameServer
             if(res == EquipUpgProbResult.Success)
             {
                 float currIncrease = currentLevel > 0 ? currentData.increase : 0f;
-                mInventory.UpdateEquipmentProperties((ushort)upgradeLevel, EquipPropertyType.Upgrade, isEquipped, slotID, buffList, false, currIncrease, upgradeData.increase);
+                mInventory.UpdateEquipmentProperties((ushort)upgradeLevel, EquipPropertyType.Upgrade, isEquipped, slotID, ushort.MaxValue, buffList, false, currIncrease, upgradeData.increase);
 
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipUpgrade_Success"), "", false, mPlayer.Slot);
                 ZRPC.NonCombatRPC.EquipmentUpgradeEquipmentSuccess(mPlayer.Slot);
@@ -1027,11 +1027,11 @@ namespace Photon.LoadBalancing.GameServer
                         if (droppedLevel > 0)
                         {
                             EquipmentUpgradeJson dropUpgData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, droppedLevel);
-                            mInventory.UpdateEquipmentProperties((ushort)droppedLevel, EquipPropertyType.Upgrade, isEquipped, slotID, buffList, false, currentData.increase, dropUpgData.increase);
+                            mInventory.UpdateEquipmentProperties((ushort)droppedLevel, EquipPropertyType.Upgrade, isEquipped, slotID, ushort.MaxValue, buffList, false, currentData.increase, dropUpgData.increase);
                         }
                         else
                         {
-                            mInventory.UpdateEquipmentProperties((ushort)droppedLevel, EquipPropertyType.Upgrade, isEquipped, slotID, buffList, false, currentData.increase, 0);
+                            mInventory.UpdateEquipmentProperties((ushort)droppedLevel, EquipPropertyType.Upgrade, isEquipped, slotID, ushort.MaxValue, buffList, false, currentData.increase, 0);
                         }
                     }
                 }
@@ -1123,7 +1123,6 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             Equipment equipItem = isEquipped ? characterData.EquipmentInventory.Slots[slotID] as Equipment : characterData.ItemInventory.Slots[slotID] as Equipment;
-            string reformGrp = equipItem.EquipmentJson.evolvegrp;
 
             if(equipItem == null)
             {
@@ -1132,6 +1131,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
+            string reformGrp = equipItem.EquipmentJson.evolvegrp;
             int currentStep = equipItem.ReformStep;
             int nextStep = currentStep + 1;
             int maxStep = EquipmentModdingRepo.GetEquipmentReformGroupMaxLevel(reformGrp);
@@ -1150,7 +1150,7 @@ namespace Photon.LoadBalancing.GameServer
             if(nextReformData == null)
             {
                 // Next step data not found!
-                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_NextStep_NotFound"), "", false, mPlayer.Slot);
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_Step_NotFound"), "", false, mPlayer.Slot);
                 return;
             }
 
@@ -1173,7 +1173,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             // Check for sufficient materials
-            List<EquipModMaterial> materialList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, nextStep, selection);
+            List<ItemInfo> materialList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, nextStep, selection);
             if(materialList == null)
             {
                 // Unable to read materals list!
@@ -1193,29 +1193,97 @@ namespace Photon.LoadBalancing.GameServer
             // Deduct money
             mPlayer.DeductCurrency(CurrencyType.Money, moneyCost, false, "EquipReform");
             // Use materials
-            List<ItemInfo> matsToUse = new List<ItemInfo>();
-            for(int i = 0; i < materialList.Count; ++i)
-            {
-                EquipModMaterial modMat = materialList[i];
-
-                ItemInfo itemInfo = new ItemInfo();
-                itemInfo.itemId = (ushort)modMat.mItemID;
-                itemInfo.stackCount = modMat.mAmount;
-
-                matsToUse.Add(itemInfo);
-            }
-            EquipmentRules.UseMaterials(matsToUse, this);
+            EquipmentRules.UseMaterials(materialList, this);
             // Update reform step, add side effect and record reform selection (if more than 1 selection)
             // RPC play success animation
-            mInventory.UpdateEquipmentProperties((ushort)nextStep, EquipPropertyType.Reform, isEquipped, slotID);
+            mInventory.UpdateEquipmentProperties((ushort)nextStep, EquipPropertyType.Reform, isEquipped, slotID, (ushort)selection);
             // Reform success
             ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_Success"), "", false, mPlayer.Slot);
             ZRPC.NonCombatRPC.EquipmentReformEquipmentSuccess(mPlayer.Slot);
         }
 
-        public void OnEquipmentRecycleEquipment(int slotID, bool isEquipped, int selection)
+        public void OnEquipmentRecycleEquipment(int slotID, bool isEquipped)
         {
+            // Invalid slot!
+            if (slotID <= -1)
+            {
+                return;
+            }
 
+            Equipment equipItem = isEquipped ? characterData.EquipmentInventory.Slots[slotID] as Equipment : characterData.ItemInventory.Slots[slotID] as Equipment;
+
+            if(equipItem == null)
+            {
+                // Item is missing from the slot!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Missing_Item_In_Slot"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            string reformGrp = equipItem.EquipmentJson.evolvegrp;
+            int currentStep = equipItem.ReformStep;
+            int prevStep = currentStep - 1;
+
+            if(currentStep == 0 || prevStep < 0)
+            {
+                // Item is missing from the slot!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_StepLowest"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            // Get next reform step data
+            List<EquipmentReformGroupJson> currReformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, currentStep);
+
+            if(currReformData == null)
+            {
+                // Next step data not found!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_Step_NotFound"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            int selection = currReformData.Count != 1 ? equipItem.GetSelectionByReformStep(currentStep) : 0;
+
+            if(selection == ushort.MaxValue)
+            {
+                // Item is missing from the slot!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_InvalidSelection"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            // Inventory full
+            if (!mInventory.mInvData.HasEmptySlot())
+            {
+                // Inventory is full!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_BagInventoryFull"), "", false, mPlayer.Slot);
+                return;
+            }
+            
+            List<ItemInfo> materialList = EquipmentModdingRepo.GetEquipmentReformMaterials(reformGrp, currentStep, selection);
+            if(materialList == null)
+            {
+                // Unable to read materals list!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipReform_Material_Data_Read_Failed"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            if(!characterData.ItemInventory.CanAdd(materialList))
+            {
+                // Inventory is full!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_BagInventoryFull"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            // Add money
+            int moneyCost = EquipmentModdingRepo.GetEquipmentReformCost(reformGrp, currentStep, selection);
+            mPlayer.AddCurrency(CurrencyType.Money, moneyCost, "EquipRecycle");
+
+            // Add materials
+            InvRetval result = mInventory.AddItemsIntoInventory(materialList, true, "EquipRecycle");
+            if(result.retCode == InvReturnCode.AddFailed)
+            {
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_BagInventoryFull"), "", false, mPlayer.Slot);
+            }
+
+            mInventory.UpdateEquipmentProperties((ushort)prevStep, EquipPropertyType.Recycle, isEquipped, slotID);
         }
 
         public void OnEquipGemSlotItem(int equipSlotID, int gemGrp, int gemSlot, int gemID)

@@ -56,13 +56,41 @@ public class Hud_QuestAction : BaseWidgetBehaviour
         if (rate <= mInteractiveJson.successrate)
         {
             RPCFactory.NonCombatRPC.InteractAction(mQuestId, mInteractiveJson.interactiveid);
-            UIManager.ShowSystemMessage(mInteractiveJson.successmsg);
+            UIManager.ShowSystemMessage(CheckReplacementText(mInteractiveJson.successmsg, true));
         }
         else
         {
             SetButtonStatus(true);
-            UIManager.ShowSystemMessage(mInteractiveJson.failedmsg);
+            UIManager.ShowSystemMessage(CheckReplacementText(mInteractiveJson.failedmsg, false));
         }
+    }
+
+    private string CheckReplacementText(string message, bool success)
+    {
+        QuestObjectiveJson objectiveJson = null;
+        int progress = 0;
+        if (GameInfo.gLocalPlayer != null)
+        {
+            GameInfo.gLocalPlayer.QuestController.GetInteractData(mQuestId, mInteractiveJson.interactiveid, out objectiveJson, out progress);
+            if (objectiveJson != null && success)
+            {
+                progress += 1;
+            }
+        }
+
+        message = message.Replace("%pc%", progress.ToString());
+        message = message.Replace("%o[p2]%", objectiveJson == null ? "" : objectiveJson.para2.ToString());
+        if (objectiveJson != null)
+        {
+            StaticNPCJson staticNPCJson = StaticNPCRepo.GetStaticNPCById(objectiveJson.para3);
+            message = message.Replace("%o[p1]%", staticNPCJson == null ? "" : staticNPCJson.localizedname);
+        }
+        else
+        {
+            message = message.Replace("%o[p1]%", "");
+        }
+
+        return message;
     }
 
     public void SetButtonStatus(bool active)

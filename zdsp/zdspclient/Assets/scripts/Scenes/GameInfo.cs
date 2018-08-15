@@ -50,6 +50,11 @@ public static class GameInfo
     private static UnityEvent playerStatsChangedEvent;
     private static UnityEvent combatStatsChangedEvent;
 
+    public static QuestTeleportAction mTeleportAction = null;
+    public static Dictionary<int, List<int>> mNpcQuestStatus = new Dictionary<int, List<int>>();
+    public static Dictionary<int, int> mSideEffectQuestStatus = new Dictionary<int, int>();
+    public static Dictionary<int, int> mCompanionQuestStatus = new Dictionary<int, int>();
+
     public static void OnQuitGame()
     {
         OnLevelChanged();

@@ -10,17 +10,24 @@ public class UI_Hero_LockedPanel : MonoBehaviour
 
     private GameIcon_MaterialConsumable unlockItem;
     private Action OnClickCallback;
+    private Color origColor = Color.clear;
 
     public void Init(int itemId, int itemCount, Action clickCallback)
     {
+        if (origColor == Color.clear)
+            origColor = itemCountText.color;
+
         if (unlockItem == null)
         {
             GameObject icon = ClientUtils.CreateChild(itemSlotTransform, itemIconPrefab);
             unlockItem = icon.GetComponent<GameIcon_MaterialConsumable>();
         }
 
-        unlockItem.Init(itemId, 1);
+        unlockItem.InitWithTooltipViewOnly(itemId, 1);
+        bool hasEnoughItem = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.HasItem((ushort)itemId, itemCount);
         itemCountText.text = "x" + itemCount;
+        itemCountText.color = hasEnoughItem ? origColor : Color.red;
+
         OnClickCallback = clickCallback;
     }
 

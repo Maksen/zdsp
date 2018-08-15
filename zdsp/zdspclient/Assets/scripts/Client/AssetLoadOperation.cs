@@ -78,7 +78,6 @@ public class AssetLoadOperation
                         Debug.LogError("AssetLoadOperation.StartLoad : container is not found | " + containerName);
                     }
                 }
-
             }
             else
             {

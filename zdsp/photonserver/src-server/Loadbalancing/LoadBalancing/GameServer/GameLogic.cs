@@ -795,7 +795,7 @@
             {
                 player.PlayerSynStats.Party = partyId;
                 player.PartyStats = PartyRules.GetPartyById(partyId);
-                PartyRules.OnCharacterOnline(playername, true);
+                PartyRules.OnCharacterOnline(peer, player);
             }
 
             /******* end stats *******/

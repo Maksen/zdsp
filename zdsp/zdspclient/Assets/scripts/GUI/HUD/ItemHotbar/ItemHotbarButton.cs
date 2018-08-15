@@ -43,8 +43,7 @@ public class ItemHotbarButton : MonoBehaviour
                 RPCFactory.CombatRPC.UseItemHotbar(QuickSlotIdx);
             else
             {
-                GameObject windowObj = UIManager.GetWindowGameObject(WindowType.Inventory);
-                windowObj.GetComponent<UI_Inventory>().InitOnEnable = false;
+                UIManager.GetWindowGameObject(WindowType.Inventory).GetComponent<UI_Inventory>().InitOnEnable = false;
                 UIManager.OpenWindow(WindowType.Inventory, 
                     (window) => window.GetComponent<UI_Inventory>().Init(BagType.Consumable));
             }

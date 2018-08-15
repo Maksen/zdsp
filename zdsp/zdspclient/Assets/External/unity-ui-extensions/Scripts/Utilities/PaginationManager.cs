@@ -45,7 +45,7 @@ namespace UnityEngine.UI.Extensions
             scrollSnap.OnSelectionChangeEndEvent.AddListener(OnPageChangeEnd);
 
             // add selectables to list
-            m_PaginationChildren = GetComponentsInChildren<Toggle>().ToList<Toggle>();
+            m_PaginationChildren = GetComponentsInChildren<Toggle>(true).ToList<Toggle>();
             for (int i = 0; i < m_PaginationChildren.Count; i++)
             {
                 m_PaginationChildren[i].onValueChanged.AddListener(ToggleClick);
@@ -57,8 +57,8 @@ namespace UnityEngine.UI.Extensions
             SetToggleGraphics(CurrentPage);
 
             // warn user that they have uneven amount of pagination toggles to page count
-            if (m_PaginationChildren.Count != scrollSnap._scroll_rect.content.childCount)
-                Debug.LogWarning("Uneven pagination icon to page count");
+            //if (m_PaginationChildren.Count != scrollSnap._scroll_rect.content.childCount)
+            //    Debug.LogWarning("Uneven pagination icon to page count:" + scrollSnap._scroll_rect.content.childCount);
         }
 
 
@@ -126,6 +126,17 @@ namespace UnityEngine.UI.Extensions
         private void OnPageChangeEnd(int pageNo)
         {
             isAClick = false;
+        }
+
+        public void OffAllToggles()
+        {
+            this.allowSwitchOff = true;
+            for (int i = 0; i < m_PaginationChildren.Count; i++)
+            {
+                m_PaginationChildren[i].isOn = false;
+                m_PaginationChildren[i].gameObject.SetActive(false);
+            }
+            this.allowSwitchOff = false;
         }
     }
 }

@@ -242,7 +242,7 @@ GameObject:
   - component: {fileID: 114790764770540750}
   - component: {fileID: 114385172325111440}
   m_Layer: 5
-  m_Name: Text_HeaderText
+  m_Name: Text_RelicName
   m_TagString: Highlight
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -934,7 +934,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1.3
-  m_Text: "\u5496\u54E9"
+  m_Text: "\u5496\u54E9\u5496\u54E9"
 --- !u!114 &114325087943926334
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1421,7 +1421,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1.3
-  m_Text: "\u5496\u54E9"
+  m_Text: "\u5496\u54E9\u5496\u54E9"
 --- !u!114 &114503909583283040
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1484,7 +1484,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 114503909583283040}
   toggleTransition: 1
   graphic: {fileID: 0}
   m_Group: {fileID: 0}

@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 106646213}
   - component: {fileID: 106646212}
   m_Layer: 22
-  m_Name: Panel_3_NearbyChannel
+  m_Name: Panel_5_NearbyChannel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -147,7 +147,7 @@ RectTransform:
   - {fileID: 2016954131}
   - {fileID: 1740081000}
   m_Father: {fileID: 1468566130}
-  m_RootOrder: 2
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -252,7 +252,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2093401620}
+      - m_Target: {fileID: 1803947620}
         m_MethodName: set_isOn
         m_Mode: 0
         m_Arguments:
@@ -472,8 +472,8 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 518183382}
-        m_MethodName: CenterOnToggledIndex
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnValueChangedChannels
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -495,7 +495,7 @@ RectTransform:
   m_GameObject: {fileID: 195468043}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99999654, y: 0.99999654, z: 0.99999654}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1509802924}
   m_Father: {fileID: 383442370}
@@ -1032,7 +1032,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">6\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+  m_Text: 
   m_DefaultStyles: {fileID: 0}
   m_QuadRenderersPool: []
   m_Interactable: 1
@@ -1044,11 +1044,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_TextProcessor:
     m_LinkKeywordCollections: []
-    m_InputText: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">6\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+    m_InputText: 
     m_InputTextSourceObject: {fileID: 0}
     m_IsDynamicFontDesired: 1
     m_IsRichTextDesired: 1
-    m_OutputText: "\u5496\u54E9\u9B5A\u982D6\u5496\u54E9\u9B5A\u982D\u982D\u5496\u54E9\u9B5A"
+    m_OutputText: 
     m_QuadKeywordCollections: []
     m_ReferenceFontSize: 18
     m_ShouldOverrideStylesFontSize: 0
@@ -1237,7 +1237,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 379857830}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnClickOpenChatroom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &379857830
@@ -1534,7 +1545,7 @@ RectTransform:
   m_GameObject: {fileID: 540250278}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.0000302, y: 1.0000302, z: 1.0000302}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 132391584}
   m_Father: {fileID: 383442370}
@@ -1588,8 +1599,8 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 518183382}
-        m_MethodName: CenterOnToggledIndex
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnValueChangedChannels
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1887,6 +1898,7 @@ GameObject:
   - component: {fileID: 648765434}
   - component: {fileID: 648765436}
   - component: {fileID: 648765435}
+  - component: {fileID: 648765437}
   m_Layer: 22
   m_Name: HUD_ChatroomMini
   m_TagString: Untagged
@@ -1944,6 +1956,32 @@ MonoBehaviour:
   widgetType: 6
   ActiveOnStartup: 1
   toggle: {fileID: 2013819281}
+--- !u!114 &648765437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 648765433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bfdbd1e289c9cb4387485a8de1b7333, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carouselToggler: {fileID: 518183382}
+  openChatroomButtons:
+  - {fileID: 1872498139}
+  - {fileID: 928311210}
+  - {fileID: 1080549192}
+  - {fileID: 379857827}
+  - {fileID: 2016954130}
+  - {fileID: 881789720}
+  hyperTxtChannels:
+  - {fileID: 2043921980}
+  - {fileID: 958667359}
+  - {fileID: 1243550335}
+  - {fileID: 1080823103}
+  - {fileID: 1740081001}
+  - {fileID: 346639490}
 --- !u!1 &659367675
 GameObject:
   m_ObjectHideFlags: 0
@@ -2230,7 +2268,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 881789723}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnClickOpenChatroom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &881789723
@@ -2434,7 +2483,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 928311213}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnClickOpenChatroom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &928311213
@@ -2602,7 +2662,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">2\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+  m_Text: 
   m_DefaultStyles: {fileID: 0}
   m_QuadRenderersPool: []
   m_Interactable: 1
@@ -2614,11 +2674,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_TextProcessor:
     m_LinkKeywordCollections: []
-    m_InputText: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">2\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+    m_InputText: 
     m_InputTextSourceObject: {fileID: 0}
     m_IsDynamicFontDesired: 1
     m_IsRichTextDesired: 1
-    m_OutputText: "\u5496\u54E9\u9B5A\u982D2\u5496\u54E9\u9B5A\u982D\u982D\u5496\u54E9\u9B5A"
+    m_OutputText: 
     m_QuadKeywordCollections: []
     m_ReferenceFontSize: 18
     m_ShouldOverrideStylesFontSize: 0
@@ -2720,8 +2780,8 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 518183382}
-        m_MethodName: CenterOnToggledIndex
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnValueChangedChannels
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2828,7 +2888,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1080549195}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnClickOpenChatroom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1080549195
@@ -2931,7 +3002,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">5\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+  m_Text: 
   m_DefaultStyles: {fileID: 0}
   m_QuadRenderersPool: []
   m_Interactable: 1
@@ -2943,11 +3014,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_TextProcessor:
     m_LinkKeywordCollections: []
-    m_InputText: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">5\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+    m_InputText: 
     m_InputTextSourceObject: {fileID: 0}
     m_IsDynamicFontDesired: 1
     m_IsRichTextDesired: 1
-    m_OutputText: "\u5496\u54E9\u9B5A\u982D5\u5496\u54E9\u9B5A\u982D\u982D\u5496\u54E9\u9B5A"
+    m_OutputText: 
     m_QuadKeywordCollections: []
     m_ReferenceFontSize: 18
     m_ShouldOverrideStylesFontSize: 0
@@ -3003,7 +3074,7 @@ GameObject:
   - component: {fileID: 1108402546}
   - component: {fileID: 1108402545}
   m_Layer: 22
-  m_Name: Panel_5_PartyChannel
+  m_Name: Panel_4_PartyChannel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3023,7 +3094,7 @@ RectTransform:
   - {fileID: 379857828}
   - {fileID: 1080823102}
   m_Father: {fileID: 1468566130}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3128,7 +3199,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1803947620}
+      - m_Target: {fileID: 195468044}
         m_MethodName: set_isOn
         m_Mode: 0
         m_Arguments:
@@ -3553,6 +3624,10 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 154472, guid: b8db37aafbdb58c4fa0e714bd87e2d2f, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b8db37aafbdb58c4fa0e714bd87e2d2f, type: 2}
   m_IsPrefabParent: 0
@@ -3628,7 +3703,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">4\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+  m_Text: 
   m_DefaultStyles: {fileID: 0}
   m_QuadRenderersPool: []
   m_Interactable: 1
@@ -3640,11 +3715,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_TextProcessor:
     m_LinkKeywordCollections: []
-    m_InputText: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">4\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+    m_InputText: 
     m_InputTextSourceObject: {fileID: 0}
     m_IsDynamicFontDesired: 1
     m_IsRichTextDesired: 1
-    m_OutputText: "\u5496\u54E9\u9B5A\u982D4\u5496\u54E9\u9B5A\u982D\u982D\u5496\u54E9\u9B5A"
+    m_OutputText: 
     m_QuadKeywordCollections: []
     m_ReferenceFontSize: 18
     m_ShouldOverrideStylesFontSize: 0
@@ -3888,9 +3963,9 @@ RectTransform:
   m_Children:
   - {fileID: 319791216}
   - {fileID: 233711238}
-  - {fileID: 106646211}
   - {fileID: 2007567829}
   - {fileID: 1108402544}
+  - {fileID: 106646211}
   - {fileID: 316221389}
   m_Father: {fileID: 518183387}
   m_RootOrder: 0
@@ -4186,8 +4261,8 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 518183382}
-        m_MethodName: CenterOnToggledIndex
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnValueChangedChannels
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4209,7 +4284,7 @@ RectTransform:
   m_GameObject: {fileID: 1698162370}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99999654, y: 0.99999654, z: 0.99999654}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 634999747}
   m_Father: {fileID: 383442370}
@@ -4287,7 +4362,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">3\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+  m_Text: 
   m_DefaultStyles: {fileID: 0}
   m_QuadRenderersPool: []
   m_Interactable: 1
@@ -4299,11 +4374,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_TextProcessor:
     m_LinkKeywordCollections: []
-    m_InputText: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">3\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+    m_InputText: 
     m_InputTextSourceObject: {fileID: 0}
     m_IsDynamicFontDesired: 1
     m_IsRichTextDesired: 1
-    m_OutputText: "\u5496\u54E9\u9B5A\u982D3\u5496\u54E9\u9B5A\u982D\u982D\u5496\u54E9\u9B5A"
+    m_OutputText: 
     m_QuadKeywordCollections: []
     m_ReferenceFontSize: 18
     m_ShouldOverrideStylesFontSize: 0
@@ -4511,7 +4586,7 @@ RectTransform:
   m_GameObject: {fileID: 1803947618}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99999654, y: 0.99999654, z: 0.99999654}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 179199569}
   m_Father: {fileID: 383442370}
@@ -4565,8 +4640,8 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 518183382}
-        m_MethodName: CenterOnToggledIndex
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnValueChangedChannels
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4721,7 +4796,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1872498142}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnClickOpenChatroom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1872498142
@@ -4843,7 +4929,7 @@ GameObject:
   - component: {fileID: 2007567831}
   - component: {fileID: 2007567830}
   m_Layer: 22
-  m_Name: Panel_4_GuildChannel
+  m_Name: Panel_3_GuildChannel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4863,7 +4949,7 @@ RectTransform:
   - {fileID: 1080549193}
   - {fileID: 1243550334}
   m_Father: {fileID: 1468566130}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -4968,7 +5054,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 195468044}
+      - m_Target: {fileID: 2093401620}
         m_MethodName: set_isOn
         m_Mode: 0
         m_Arguments:
@@ -5188,7 +5274,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2016954133}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnClickOpenChatroom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &2016954133
@@ -5291,7 +5388,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">1\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+  m_Text: 
   m_DefaultStyles: {fileID: 0}
   m_QuadRenderersPool: []
   m_Interactable: 1
@@ -5303,11 +5400,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_TextProcessor:
     m_LinkKeywordCollections: []
-    m_InputText: "\u5496\u54E9\u9B5A\u982D<a name=\"link\">1\u5496\u54E9\u9B5A\u982D</a>\u982D\u5496\u54E9\u9B5A"
+    m_InputText: 
     m_InputTextSourceObject: {fileID: 0}
     m_IsDynamicFontDesired: 1
     m_IsRichTextDesired: 1
-    m_OutputText: "\u5496\u54E9\u9B5A\u982D1\u5496\u54E9\u9B5A\u982D\u982D\u5496\u54E9\u9B5A"
+    m_OutputText: 
     m_QuadKeywordCollections: []
     m_ReferenceFontSize: 18
     m_ShouldOverrideStylesFontSize: 0
@@ -5481,8 +5578,8 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 518183382}
-        m_MethodName: CenterOnToggledIndex
+      - m_Target: {fileID: 648765437}
+        m_MethodName: OnValueChangedChannels
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5504,7 +5601,7 @@ RectTransform:
   m_GameObject: {fileID: 2093401619}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99999654, y: 0.99999654, z: 0.99999654}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 351369840}
   m_Father: {fileID: 383442370}

@@ -1,40 +1,36 @@
 {
   "mEntities": {
-    "MonsterSpawnerJson": {
-      "-218158": {
-        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
-        "archetypeGroup": "",
-        "aggroRadius": 8.0,
-        "combatRadius": 10.0,
-        "spawnRadius": 10.0,
-        "population": 5,
-        "respawnTime": 1000,
-        "respawnCount": -1,
-        "forward": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 1.0
+    "MapInfoJson": {
+      "-223002": {
+        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
+        "centerPoint": {
+          "x": 86.0,
+          "y": 100.0,
+          "z": 119.7
         },
-        "archetype": "m_026",
-        "activeOnStartup": true,
-        "EntityLinks_Server": {},
-        "ObjectID": -218158,
+        "mapScale": {
+          "x": 0.45,
+          "y": 0.227995828,
+          "z": 0.45
+        },
+        "width": 512.0,
+        "height": 512.0,
+        "ObjectID": -223002,
         "position": {
-          "x": 181.266022,
-          "y": -0.106078207,
-          "z": 119.988312
-        },
-        "ShowInMap": true
+          "x": 143.366013,
+          "y": 97.5389557,
+          "z": 151.458313
+        }
       }
     },
     "RealmControllerWorldJson": {
-      "-218116": {
+      "-212240": {
         "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
         "spawnPos": [
           {
-            "x": 210.269989,
-            "y": 1.41000009,
-            "z": 113.619995
+            "x": 177.37,
+            "y": 0.73999995,
+            "z": 64.39
           }
         ],
         "spawnDir": [
@@ -50,28 +46,28 @@
           "z": 1.0
         },
         "EntityLinks_Server": {},
-        "ObjectID": -218116,
+        "ObjectID": -212240,
         "position": {
-          "x": 32.9,
-          "y": 0.67,
-          "z": 49.23
+          "x": 0.0,
+          "y": -5.96046448E-08,
+          "z": 0.0
         },
         "ShowInMap": true
       }
     },
     "PlayerSpawnerJson": {
-      "-218114": {
+      "-212238": {
         "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
         "forward": {
           "x": -4.76837158E-07,
           "y": 0.0,
           "z": -1.0
         },
-        "ObjectID": -218114,
+        "ObjectID": -212238,
         "position": {
-          "x": 210.269989,
-          "y": 1.41000009,
-          "z": 113.619995
+          "x": 177.37,
+          "y": 0.73999995,
+          "z": 64.39
         },
         "ShowInMap": true
       }

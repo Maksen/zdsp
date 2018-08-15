@@ -38,6 +38,7 @@ GameObject:
   - component: {fileID: 224644313866056674}
   - component: {fileID: 222916260987218506}
   - component: {fileID: 114330358548221750}
+  - component: {fileID: 114627344264870494}
   m_Layer: 5
   m_Name: SkillIconData
   m_TagString: Untagged
@@ -144,6 +145,22 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114627344264870494
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1068495856247902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d15b85a633b393f4bac8ba1ae6377e52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 114095238377667958}
+  frameImage: {fileID: 114149813025330890}
+  frameSprite:
+  - {fileID: 21300000, guid: 527eed5b15efa474ca3acec348f904b1, type: 3}
+  - {fileID: 21300000, guid: b59ef9f48af01824a86ef0fa60502e6d, type: 3}
 --- !u!114 &114945734734331038
 MonoBehaviour:
   m_ObjectHideFlags: 1

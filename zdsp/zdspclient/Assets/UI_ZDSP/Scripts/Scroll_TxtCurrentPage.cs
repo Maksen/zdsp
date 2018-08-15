@@ -13,6 +13,10 @@ public class Scroll_TxtCurrentPage : MonoBehaviour {
     [SerializeField]
     ScrollSnapBase scrollSnap;
 
+    //if true user will need to call Init() method manually (in case the content of the scrollview is generated from code or requires special initialization)
+    [SerializeField]
+    bool initByUser = false;
+
     Text txtComp;
     int totalPage = 0;
 
@@ -20,17 +24,26 @@ public class Scroll_TxtCurrentPage : MonoBehaviour {
     {
         txtComp = GetComponent<Text>();
     }
-    // Use this for initialization
     void Start ()
     {
+        if (initByUser)
+            return;
+
         scrollSnap.OnSelectionPageChangedEvent.AddListener(SetToggleGraphics);
         totalPage = scrollSnap.ChildObjects.Length;
     }
-	
-	// Update is called once per frame
-	void SetToggleGraphics(int pageNum) {
 
-        txtComp.text = string.Format(localString, pageNum+1 , totalPage);
-
+    public void Init()
+    {
+        scrollSnap.OnSelectionPageChangedEvent.RemoveListener(SetToggleGraphics);
+        scrollSnap.OnSelectionPageChangedEvent.AddListener(SetToggleGraphics);
+        totalPage = scrollSnap.ChildObjects.Length;
     }
+
+	void SetToggleGraphics(int pageNum)
+    {
+        txtComp.text = string.Format(localString, pageNum+1 , totalPage);
+    }
+
+
 }

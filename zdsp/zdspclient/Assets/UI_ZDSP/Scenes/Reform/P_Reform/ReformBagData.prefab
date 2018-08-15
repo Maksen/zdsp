@@ -188,7 +188,7 @@ GameObject:
   - component: {fileID: 114388060568407644}
   - component: {fileID: 222480486320277116}
   - component: {fileID: 114243641668947190}
-  - component: {fileID: 114781080778399392}
+  - component: {fileID: 114381949932189014}
   m_Layer: 5
   m_Name: ReformBagData
   m_TagString: Untagged
@@ -489,6 +489,22 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114381949932189014
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1914466345139876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cd0c53cbb6bb2c4689acda1ef0562ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equipIconPrefab: {fileID: 1707756757330234, guid: b0bdd33dd9825024c8eb9d43cb606399,
+    type: 2}
+  equipIconParent: {fileID: 224117086420738828}
+  selectToggle: {fileID: 114516729807105682}
+  reformStatsTxt: {fileID: 114992001148432486}
 --- !u!114 &114388060568407644
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -709,21 +725,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Horizontal: 1
   m_Veritical: 1
---- !u!114 &114781080778399392
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1914466345139876}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8cd0c53cbb6bb2c4689acda1ef0562ca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  equipIconPrefab: {fileID: 1707756757330234, guid: b0bdd33dd9825024c8eb9d43cb606399,
-    type: 2}
-  equipIconParent: {fileID: 224117086420738828}
-  selectToggle: {fileID: 114516729807105682}
 --- !u!114 &114784058684593268
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4495,7 +4496,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 10, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224139523719920756
@@ -4631,7 +4632,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 10, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!225 &225668556808291940

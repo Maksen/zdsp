@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 114484870153404650}
   - component: {fileID: 114290297851444174}
   - component: {fileID: 114075505471137738}
+  - component: {fileID: 114010846170925272}
   m_Layer: 5
   m_Name: MonstersData
   m_TagString: Untagged
@@ -64,6 +65,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114010846170925272
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1337348600667322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0610e6deaa984c14e96e7173835249bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mFrame: {fileID: 114660134904409006}
+  mIcon: {fileID: 114872383988240184}
 --- !u!114 &114075505471137738
 MonoBehaviour:
   m_ObjectHideFlags: 1

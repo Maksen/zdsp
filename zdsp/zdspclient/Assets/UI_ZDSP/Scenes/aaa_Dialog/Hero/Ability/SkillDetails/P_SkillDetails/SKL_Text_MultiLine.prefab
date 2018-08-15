@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 114271086089866178}
   - component: {fileID: 114131972941077176}
   - component: {fileID: 114473872160681366}
+  - component: {fileID: 114387405658515356}
   m_Layer: 5
   m_Name: SKL_Text_MultiLine
   m_TagString: Untagged
@@ -77,6 +78,18 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1.3
   m_Text: "\u5496\u54E9\u9B5A\u982D\u5496666666\u5496\u54E9\u9B5A\u982D\u5496\n\u5496\u54E9\u9B5A\u982D\u5496666666\u5496\u54E9\u9B5A\u982D\u5496"
+--- !u!114 &114387405658515356
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1818154163860782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46a57882f082ae14599100548abacc62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  valueText: {fileID: 114271086089866178}
 --- !u!114 &114473872160681366
 MonoBehaviour:
   m_ObjectHideFlags: 1

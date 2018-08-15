@@ -585,7 +585,18 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114736489702901528}
+        m_MethodName: OnToggleChanged
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
@@ -600,11 +611,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4652fdbe0d3b53a4a902f0ddbe7f2903, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BossTypeSprites:
+  - {fileID: 21300000, guid: d603d3ae06a4dec43a2c3abfb647c562, type: 3}
+  - {fileID: 21300000, guid: de3a5784b5bd3f948b56914a49e61d32, type: 3}
+  Toggle: {fileID: 114734130709799168}
+  MiniIcon: {fileID: 114303990572147408}
+  BossIcon: {fileID: 114182571999479470}
   LevelName: {fileID: 114871924554103298}
   SpawnTime: {fileID: 114801020724501044}
-  BossIcon: {fileID: 114182571999479470}
-  DeadMaterial: {fileID: 2100000, guid: 26027f729c5348140b9eac266d23706e, type: 2}
-  BossListToggle: {fileID: 114734130709799168}
 --- !u!114 &114801020724501044
 MonoBehaviour:
   m_ObjectHideFlags: 1

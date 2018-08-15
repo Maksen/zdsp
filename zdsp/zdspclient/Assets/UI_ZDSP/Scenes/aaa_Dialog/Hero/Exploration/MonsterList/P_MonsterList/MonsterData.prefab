@@ -93,6 +93,7 @@ GameObject:
   - component: {fileID: 222865782279714558}
   - component: {fileID: 114451186856544630}
   - component: {fileID: 114720181326323466}
+  - component: {fileID: 114746396200794860}
   m_Layer: 5
   m_Name: MonsterData
   m_TagString: Untagged
@@ -525,6 +526,21 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114746396200794860
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1404295252912828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aae62e084ccc9404594f0d6aa8ffce9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 114592556136336570}
+  nameText: {fileID: 114204967362699028}
+  noteText: {fileID: 114976125955400092}
+  button: {fileID: 114386268707218942}
 --- !u!114 &114766892674841700
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -255,6 +255,14 @@ public class ZDGUIContextMenu : EditorWindow
         Selection.activeGameObject.GetComponent<Text>().text = "咖哩魚頭";
     }
 
+	//Image_REFFFFFFFFFFFFFFFFFF
+    [MenuItem("GameObject/ZDGUI/EditorOnly/Image_REFFFFFFFFFFFFFFFF", false, -110)]
+    static void ImageREFFFFF()
+    {
+        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/Image_REFFFFFFFFFFFFFFFFFF.prefab", typeof(GameObject));
+        CreateAsChild(uiWidget);
+    }
+	
 	//3D Cube
     [MenuItem("GameObject/ZDGUI/EditorOnly/3DCube", false, -110)]
     static void EDITORONLY3DTEST()
@@ -568,7 +576,7 @@ public class ZDGUIContextMenu : EditorWindow
     [MenuItem("GameObject/ZDGUI/Scrollview/ScrollviewS (Scroll Snap)", false, 304)]
     static void ScrollSnap()
     {
-        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/ScrollView/ScrollviewS.prefab", typeof(GameObject));
+        Object uiWidget = AssetDatabase.LoadAssetAtPath("Assets/UI_ZDSP/Widgets/ScrollView/newnew/ScrollviewS.prefab", typeof(GameObject));
         CreateAsChild(uiWidget);
     }
     //####################################################################

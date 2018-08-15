@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cf735eacc49c7c4293d9d77b1d91259, type: 3}
+  m_Name: Movies
+  m_EditorClassIdentifier: 
+  preload: 1
+  build: 1
+  individualAssetBundle: 1
+  containerAssetsPath: Movies
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: comics.mp4
+    asset: {fileID: 32900000, guid: 91f3cfb966335764cada171b6326d87b, type: 3}
+  - assetPath: open.mp4
+    asset: {fileID: 32900000, guid: 7678bcd5bb6de1b4caad2413dce96a03, type: 3}
+  VideoClipList:
+  - {fileID: 32900000, guid: 91f3cfb966335764cada171b6326d87b, type: 3}
+  - {fileID: 32900000, guid: 7678bcd5bb6de1b4caad2413dce96a03, type: 3}

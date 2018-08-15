@@ -485,6 +485,7 @@ GameObject:
   - component: {fileID: 45803918}
   - component: {fileID: 45803919}
   - component: {fileID: 45803920}
+  - component: {fileID: 45803921}
   m_Layer: 5
   m_Name: GameObject_LeftSide
   m_TagString: Untagged
@@ -535,8 +536,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AvatarContent: {fileID: 682206503}
+  PlayerAvatar: {fileID: 45803921}
   Name: {fileID: 20331197}
   Message: {fileID: 1672031385}
+--- !u!114 &45803921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 45803917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69f4dda280bcfd148b7098f9f9050446, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modelParent: {fileID: 682206503}
 --- !u!1 &95238262
 GameObject:
   m_ObjectHideFlags: 0
@@ -1275,6 +1289,7 @@ MonoBehaviour:
   SelectionContent: {fileID: 889999074}
   SelectionObject: {fileID: 1046108093080508, guid: 2ae1bc1cb409d2c43a036e1273053401,
     type: 2}
+  Arrow: {fileID: 9847790}
 --- !u!114 &1134866480
 MonoBehaviour:
   m_ObjectHideFlags: 0

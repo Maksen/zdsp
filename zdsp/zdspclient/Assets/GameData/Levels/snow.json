@@ -1,14 +1,79 @@
 {
   "mEntities": {
+    "MapInfoJson": {
+      "-149332": {
+        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
+        "centerPoint": {
+          "x": 20.9,
+          "y": 100.0,
+          "z": -5.7
+        },
+        "mapScale": {
+          "x": 0.32,
+          "y": 0.227995828,
+          "z": 0.32
+        },
+        "width": 512.0,
+        "height": 512.0,
+        "ObjectID": -149332,
+        "position": {
+          "x": 111.166016,
+          "y": 98.2089539,
+          "z": 75.2883148
+        }
+      }
+    },
+    "QuestNPCSpawnerDescJson": {
+      "-147028": {
+        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+        "archetype": "snow_n001",
+        "ObjectID": -147028,
+        "position": {
+          "x": 92.00602,
+          "y": 12.2937822,
+          "z": 122.538315
+        }
+      },
+      "-147026": {
+        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+        "archetype": "snow_n002",
+        "ObjectID": -147026,
+        "position": {
+          "x": 68.83601,
+          "y": 14.8819542,
+          "z": 107.538315
+        }
+      }
+    },
+    "RealmControllerWorldJson": {
+      "-146996": {
+        "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
+        "spawnPos": [],
+        "spawnDir": [],
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "EntityLinks_Server": {},
+        "ObjectID": -146996,
+        "position": {
+          "x": 90.2660141,
+          "y": -1.79104614,
+          "z": 80.98831
+        },
+        "ShowInMap": true
+      }
+    },
     "PlayerSpawnerJson": {
-      "266726": {
+      "-146994": {
         "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
         "forward": {
           "x": 0.0,
           "y": 0.0,
           "z": 1.0
         },
-        "ObjectID": 266726,
+        "ObjectID": -146994,
         "position": {
           "x": 118.9,
           "y": 5.48,

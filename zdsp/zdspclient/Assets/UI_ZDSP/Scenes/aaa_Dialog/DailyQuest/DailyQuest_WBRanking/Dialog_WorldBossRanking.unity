@@ -838,27 +838,27 @@ Prefab:
     - target: {fileID: 224340069390638816, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224340069390638816, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224340069390638816, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -20.65934
       objectReference: {fileID: 0}
     - target: {fileID: 224340069390638816, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 337.92
+      value: 338.67703
       objectReference: {fileID: 0}
     - target: {fileID: 224679919922972524, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 377.92
+      value: 378.67703
       objectReference: {fileID: 0}
     - target: {fileID: 224679919922972524, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
@@ -1234,13 +1234,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leaderboard_Name: {fileID: 833618408}
-  PartyPersonal_NameRank: {fileID: 1754025494}
-  PartyPersonalData_Rnak: {fileID: 966755799}
-  PartyPersonalData_Name: {fileID: 2927774}
-  PartyPersonalData_DamangePartyScore: {fileID: 1640746501}
-  Boss_id: 0
-  RankDataContent: {fileID: 1507603428}
-  Me_RankDataContent: {fileID: 1122343578}
+  Header_Name: {fileID: 2927774}
+  Header_Score: {fileID: 1640746501}
+  Header_MyRank: {fileID: 1754025494}
+  RankDataContent: {fileID: 1507603429}
+  Me_RankDataContent: {fileID: 1122343579}
   RankDataPrefab: {fileID: 1162742197894572, guid: f7ffdbb7072c2cf4890f48d14a776387,
     type: 2}
 --- !u!1 &1507603428

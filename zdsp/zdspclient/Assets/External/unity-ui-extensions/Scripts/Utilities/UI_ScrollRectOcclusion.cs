@@ -88,6 +88,9 @@ namespace UnityEngine.UI.Extensions
 
         void DisableGridComponents()
         {
+            if (items.Count == 0)
+                return;
+
             if (_isVertical)
                 _disableMarginY = _scrollRect.GetComponent<RectTransform>().rect.height / 2 + items[0].sizeDelta.y;
 
@@ -160,6 +163,12 @@ namespace UnityEngine.UI.Extensions
                     }
                 }
             }
+        }
+
+        public void CleanUp()
+        {
+            _scrollRect.onValueChanged.RemoveListener(OnScroll);
+            items.Clear();
         }
     }
 }

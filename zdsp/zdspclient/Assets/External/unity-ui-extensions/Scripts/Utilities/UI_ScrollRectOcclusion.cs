@@ -45,7 +45,6 @@ namespace UnityEngine.UI.Extensions
                 return;
 
             Init();
-
         }
 
         public void Init()
@@ -78,7 +77,6 @@ namespace UnityEngine.UI.Extensions
                 {
                     _contentSizeFitter = _scrollRect.content.GetComponent<ContentSizeFitter>();
                 }
-
             }
             else
             {
@@ -118,11 +116,11 @@ namespace UnityEngine.UI.Extensions
 
         public void OnScroll(Vector2 pos)
         {
-
             if (!hasDisabledGridComponents)
                 DisableGridComponents();
 
-            for (int i = 0; i < items.Count; i++)
+            int count = items.Count;
+            for (int i = 0; i < count; ++i)
             {
                 if (_isVertical && _isHorizontal)
                 {
@@ -167,7 +165,7 @@ namespace UnityEngine.UI.Extensions
 
         public void CleanUp()
         {
-            _scrollRect.onValueChanged.RemoveListener(OnScroll);
+            _scrollRect.onValueChanged.RemoveAllListeners();
             items.Clear();
         }
     }

@@ -1,18 +1,90 @@
 {
   "mEntities": {
+    "MapInfoJson": {
+      "-214470": {
+        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
+        "centerPoint": {
+          "x": 198.895721,
+          "y": 100.67,
+          "z": 194.93
+        },
+        "mapScale": {
+          "x": 0.227995813,
+          "y": 0.227995828,
+          "z": 0.227995828
+        },
+        "width": 512.0,
+        "height": 512.0,
+        "ObjectID": -214470,
+        "position": {
+          "x": 198.895721,
+          "y": 100.67,
+          "z": 194.93
+        }
+      }
+    },
+    "RealmControllerWorldJson": {
+      "-214464": {
+        "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
+        "spawnPos": [],
+        "spawnDir": [],
+        "forward": {
+          "x": -0.680434048,
+          "y": 0.0,
+          "z": 0.7328093
+        },
+        "EntityLinks_Server": {},
+        "ObjectID": -214464,
+        "position": {
+          "x": 274.2,
+          "y": -0.00586140156,
+          "z": 119.829971
+        }
+      }
+    },
     "PlayerSpawnerJson": {
-      "80242": {
+      "-214458": {
         "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
         "forward": {
-          "x": -4.76837158E-07,
+          "x": 0.0,
           "y": 0.0,
-          "z": -1.0
+          "z": 1.0
         },
-        "ObjectID": 80242,
+        "ObjectID": -214458,
         "position": {
-          "x": 280.72,
-          "y": 0.479000032,
-          "z": 113.69
+          "x": 273.750031,
+          "y": -0.00586140156,
+          "z": 120.059967
+        }
+      }
+    },
+    "PortalExitJson": {
+      "-214394": {
+        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
+        "myName": "handan_exit_01",
+        "forward": {
+          "x": 0.6990992,
+          "y": 0.0,
+          "z": 0.7150247
+        },
+        "ObjectID": -214394,
+        "position": {
+          "x": 118.35,
+          "y": -0.00999999,
+          "z": 113.399994
+        }
+      }
+    },
+    "PortalEntryJson": {
+      "-214390": {
+        "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
+        "myName": "handan_01",
+        "exitName": "handan_field_exit_01",
+        "ObjectID": -214390,
+        "position": {
+          "x": 114.989975,
+          "y": -0.00586140156,
+          "z": 110.429977
         },
         "ShowInMap": true
       }

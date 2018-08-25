@@ -1214,6 +1214,12 @@ RectTransform:
   m_PrefabParentObject: {fileID: 224633611518003154, guid: e919a1dfaa59aba47b3ec1418c4eef35,
     type: 2}
   m_PrefabInternal: {fileID: 644123959}
+--- !u!114 &644123961 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114513122764811458, guid: e919a1dfaa59aba47b3ec1418c4eef35,
+    type: 2}
+  m_PrefabInternal: {fileID: 644123959}
+  m_Script: {fileID: 2109663825, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1 &644123962 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1588499889086282, guid: e919a1dfaa59aba47b3ec1418c4eef35,
@@ -1968,6 +1974,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1112163792}
+  - component: {fileID: 1112163793}
   m_Layer: 22
   m_Name: GameObject_MapIcon
   m_TagString: Untagged
@@ -2002,6 +2009,17 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1112163793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1112163791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -146154839, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1150620537
 GameObject:
   m_ObjectHideFlags: 0
@@ -2405,6 +2423,12 @@ RectTransform:
   m_PrefabParentObject: {fileID: 224633611518003154, guid: e919a1dfaa59aba47b3ec1418c4eef35,
     type: 2}
   m_PrefabInternal: {fileID: 1216791107}
+--- !u!114 &1216791109 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114513122764811458, guid: e919a1dfaa59aba47b3ec1418c4eef35,
+    type: 2}
+  m_PrefabInternal: {fileID: 1216791107}
+  m_Script: {fileID: 2109663825, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1 &1216791110 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1588499889086282, guid: e919a1dfaa59aba47b3ec1418c4eef35,
@@ -2663,8 +2687,11 @@ MonoBehaviour:
   mTxtChannelName: {fileID: 1987440929}
   mImgMap: {fileID: 1815152591}
   mTGExpander: {fileID: 1943838844}
+  mNPCExpanderTg: {fileID: 1216791109}
+  mMonsterExpanderTg: {fileID: 644123961}
   mBtnWorldMap: {fileID: 1083767892}
   mBtnClose: {fileID: 1081454135}
+  mMapPosPicker: {fileID: 1815152593}
   mExpanderNPCGO: {fileID: 1216791110}
   mExpanderMonsterGO: {fileID: 644123962}
   mTeleportGO: {fileID: 45532706}
@@ -2932,6 +2959,7 @@ GameObject:
   - component: {fileID: 1815152590}
   - component: {fileID: 1815152592}
   - component: {fileID: 1815152591}
+  - component: {fileID: 1815152593}
   m_Layer: 22
   m_Name: Image_Map
   m_TagString: Untagged
@@ -2991,6 +3019,17 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1815152589}
+--- !u!114 &1815152593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1815152589}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ba01013889220409fec99037f7f583, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1925416341
 GameObject:
   m_ObjectHideFlags: 0

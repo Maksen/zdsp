@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 114569243556414590}
   - component: {fileID: 95606309227971812}
   - component: {fileID: 114781267915079098}
+  - component: {fileID: 114584236890332334}
   m_Layer: 5
   m_Name: DungeonData
   m_TagString: Untagged
@@ -442,7 +443,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114058070119925848}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114584236890332334}
+        m_MethodName: OnClickOpenDungeonUI
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114569243556414590
@@ -472,6 +484,20 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114584236890332334
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1567063847471672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9aa73a64a91d57a4997ebe13fa9425e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 95606309227971812}
+  imgIcon: {fileID: 114868350651985504}
+  txtDescription: {fileID: 114023775161442684}
 --- !u!114 &114668006524729360
 MonoBehaviour:
   m_ObjectHideFlags: 1

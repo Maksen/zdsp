@@ -1072,7 +1072,7 @@ Prefab:
         type: 2}
       propertyPath: m_TargetGraphic
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1069881191}
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -1081,7 +1081,7 @@ Prefab:
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClicked_Yes
+      value: OnClickYes
       objectReference: {fileID: 0}
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
@@ -1115,6 +1115,12 @@ GameObject:
   m_PrefabParentObject: {fileID: 1032071954315080, guid: 447addfcd3cabe545b6900a2be10abc1,
     type: 2}
   m_PrefabInternal: {fileID: 1069881188}
+--- !u!114 &1069881191 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114677625833088506, guid: 447addfcd3cabe545b6900a2be10abc1,
+    type: 2}
+  m_PrefabInternal: {fileID: 1069881188}
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1 &1110520110
 GameObject:
   m_ObjectHideFlags: 0
@@ -1323,8 +1329,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1313517880}
   - component: {fileID: 1313517882}
-  - component: {fileID: 1313517883}
   - component: {fileID: 1313517881}
+  - component: {fileID: 1313517883}
   m_Layer: 5
   m_Name: Dialog_YesNoOk
   m_TagString: Untagged
@@ -1435,7 +1441,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 140.8, y: 2.2562943}
+  m_AnchoredPosition: {x: 140.8, y: 2.2563019}
   m_SizeDelta: {x: 75, y: 2}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1322528777
@@ -1862,7 +1868,7 @@ Prefab:
     - target: {fileID: 224088748305904146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 390
+      value: 335
       objectReference: {fileID: 0}
     - target: {fileID: 224088748305904146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
@@ -1970,7 +1976,7 @@ Prefab:
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClicked_Ok
+      value: OnClickOk
       objectReference: {fileID: 0}
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
@@ -2032,7 +2038,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 282.6, y: 2.2562943}
+  m_AnchoredPosition: {x: 282.6, y: 2.2563019}
   m_SizeDelta: {x: 75, y: 2}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1756655023
@@ -2168,7 +2174,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 16.199997, y: 2.256279}
+  m_AnchoredPosition: {x: 16.199997, y: 2.2562866}
   m_SizeDelta: {x: 75, y: 2}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1891849103
@@ -2530,7 +2536,7 @@ Prefab:
         type: 2}
       propertyPath: m_TargetGraphic
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2137250536}
     - target: {fileID: 114621250321252602, guid: 5f3990b0a6fd519409879493fab3a3c4,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -2539,7 +2545,7 @@ Prefab:
     - target: {fileID: 114621250321252602, guid: 5f3990b0a6fd519409879493fab3a3c4,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClicked_No
+      value: OnClickNo
       objectReference: {fileID: 0}
     - target: {fileID: 114621250321252602, guid: 5f3990b0a6fd519409879493fab3a3c4,
         type: 2}
@@ -2573,3 +2579,9 @@ GameObject:
   m_PrefabParentObject: {fileID: 1777191131131358, guid: 5f3990b0a6fd519409879493fab3a3c4,
     type: 2}
   m_PrefabInternal: {fileID: 2137250533}
+--- !u!114 &2137250536 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114129514731197158, guid: 5f3990b0a6fd519409879493fab3a3c4,
+    type: 2}
+  m_PrefabInternal: {fileID: 2137250533}
+  m_Script: {fileID: -765806418, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}

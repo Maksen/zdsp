@@ -37,7 +37,7 @@ namespace FancyScrollView
         [SerializeField]
         float scrollSensitivity = 1f;
         [SerializeField]
-        bool inertia = true;
+        public bool inertia = true;
         [SerializeField, Tooltip("Only used when inertia is enabled")]
         float decelerationRate = 0.03f;
         [SerializeField, Tooltip("Only used when inertia is enabled")]
@@ -59,6 +59,8 @@ namespace FancyScrollView
             get { return canDrag; }
             set { canDrag = value; }
         }
+
+        public bool AutoSpin { get; set; }
 
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
         {
@@ -207,7 +209,8 @@ namespace FancyScrollView
             if (autoScrollState.Enable)
             {
                 var alpha = Mathf.Clamp01((Time.unscaledTime - autoScrollState.StartTime) / Mathf.Max(autoScrollState.Duration, float.Epsilon));
-                var position = Mathf.Lerp(dragStartScrollPosition, autoScrollState.EndScrollPosition, EaseInOutCubic(0, 1, alpha));
+                alpha = AutoSpin ? alpha : EaseInOutCubic(0, 1, alpha);
+                var position = Mathf.Lerp(dragStartScrollPosition, autoScrollState.EndScrollPosition, alpha);
                 UpdatePosition(position);
 
                 if (Mathf.Approximately(alpha, 1f))
@@ -266,6 +269,14 @@ namespace FancyScrollView
             {
                 prevScrollPosition = currentScrollPosition;
             }
+        }
+
+        public float scrollDuration = 0.4f;
+        public int scrollToIndex = 0;
+        [ContextMenu("ScrollTo")]
+        public void ScrollTo()
+        {
+            ScrollTo(scrollToIndex, scrollDuration);
         }
 
         public void ScrollTo(int index, float duration)

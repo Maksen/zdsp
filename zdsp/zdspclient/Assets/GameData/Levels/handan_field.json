@@ -1,30 +1,7 @@
 {
   "mEntities": {
-    "MapInfoJson": {
-      "-174622": {
-        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
-        "centerPoint": {
-          "x": 164.3,
-          "y": 100.0,
-          "z": 165.1
-        },
-        "mapScale": {
-          "x": 0.42,
-          "y": 0.227995828,
-          "z": 0.42
-        },
-        "width": 512.0,
-        "height": 512.0,
-        "ObjectID": -174622,
-        "position": {
-          "x": 164.3,
-          "y": 100.0,
-          "z": 165.1
-        }
-      }
-    },
     "MonsterSpawnerJson": {
-      "-162060": {
+      "-473470": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 5.0,
@@ -43,7 +20,7 @@
         "archetype": "BM013_lv008",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162060,
+        "ObjectID": -473470,
         "position": {
           "x": 152.7,
           "y": 13.74017,
@@ -51,7 +28,7 @@
         },
         "ShowInMap": true
       },
-      "-162050": {
+      "-473460": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -70,7 +47,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162050,
+        "ObjectID": -473460,
         "position": {
           "x": 187.5,
           "y": 9.936414,
@@ -78,7 +55,34 @@
         },
         "ShowInMap": true
       },
-      "-162096": {
+      "-473520": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 5.0,
+        "combatRadius": 8.0,
+        "spawnRadius": 5.0,
+        "population": 8,
+        "respawnTime": 1000,
+        "respawnCount": -1,
+        "respawnAll": true,
+        "canroam": true,
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "archetype": "handan_field_mb01",
+        "activeOnStartup": true,
+        "EntityLinks_Server": {},
+        "ObjectID": -473520,
+        "position": {
+          "x": 205.27,
+          "y": 9.935476,
+          "z": 96.44
+        },
+        "ShowInMap": true
+      },
+      "-473516": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -97,7 +101,7 @@
         "archetype": "BM013_lv001",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162096,
+        "ObjectID": -473516,
         "position": {
           "x": 123.299995,
           "y": 8.210251,
@@ -105,7 +109,7 @@
         },
         "ShowInMap": true
       },
-      "-162098": {
+      "-473518": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -124,7 +128,7 @@
         "archetype": "BM013_lv008",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162098,
+        "ObjectID": -473518,
         "position": {
           "x": 125.7,
           "y": 13.7429495,
@@ -132,7 +136,7 @@
         },
         "ShowInMap": true
       },
-      "-162056": {
+      "-473466": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -151,7 +155,7 @@
         "archetype": "BM013_lv004",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162056,
+        "ObjectID": -473466,
         "position": {
           "x": 189.16,
           "y": 13.7252464,
@@ -159,7 +163,7 @@
         },
         "ShowInMap": true
       },
-      "-162090": {
+      "-473510": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -178,7 +182,7 @@
         "archetype": "BM013_lv001",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162090,
+        "ObjectID": -473510,
         "position": {
           "x": 108.700005,
           "y": 8.210251,
@@ -186,7 +190,7 @@
         },
         "ShowInMap": true
       },
-      "-162044": {
+      "-473454": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 5.0,
@@ -205,7 +209,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162044,
+        "ObjectID": -473454,
         "position": {
           "x": 206.4,
           "y": 9.935476,
@@ -213,7 +217,7 @@
         },
         "ShowInMap": true
       },
-      "-162076": {
+      "-473496": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 5.0,
@@ -232,7 +236,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162076,
+        "ObjectID": -473496,
         "position": {
           "x": 196.6,
           "y": 9.935476,
@@ -240,7 +244,7 @@
         },
         "ShowInMap": true
       },
-      "-162052": {
+      "-473462": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -259,7 +263,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162052,
+        "ObjectID": -473462,
         "position": {
           "x": 174.700012,
           "y": 8.217746,
@@ -267,7 +271,7 @@
         },
         "ShowInMap": true
       },
-      "-162062": {
+      "-473472": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -286,7 +290,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162062,
+        "ObjectID": -473472,
         "position": {
           "x": 157.4,
           "y": 8.210251,
@@ -294,7 +298,7 @@
         },
         "ShowInMap": true
       },
-      "-162040": {
+      "-473450": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 5.0,
@@ -313,7 +317,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162040,
+        "ObjectID": -473450,
         "position": {
           "x": 165.8,
           "y": 8.210251,
@@ -321,7 +325,7 @@
         },
         "ShowInMap": true
       },
-      "-162088": {
+      "-473508": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -340,7 +344,7 @@
         "archetype": "BM013_lv004",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162088,
+        "ObjectID": -473508,
         "position": {
           "x": 197.700012,
           "y": 13.9700441,
@@ -348,7 +352,7 @@
         },
         "ShowInMap": true
       },
-      "-162092": {
+      "-473512": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 5.0,
@@ -367,7 +371,7 @@
         "archetype": "BM013_lv008",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162092,
+        "ObjectID": -473512,
         "position": {
           "x": 141.9,
           "y": 13.74017,
@@ -375,7 +379,7 @@
         },
         "ShowInMap": true
       },
-      "-162038": {
+      "-473448": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 5.0,
@@ -394,7 +398,7 @@
         "archetype": "BM013_lv008",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162038,
+        "ObjectID": -473448,
         "position": {
           "x": 167.6,
           "y": 13.7401686,
@@ -402,7 +406,7 @@
         },
         "ShowInMap": true
       },
-      "-162054": {
+      "-473464": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -421,7 +425,7 @@
         "archetype": "BM013_lv001",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162054,
+        "ObjectID": -473464,
         "position": {
           "x": 146.2,
           "y": 8.210251,
@@ -429,7 +433,7 @@
         },
         "ShowInMap": true
       },
-      "-162046": {
+      "-473456": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -448,7 +452,7 @@
         "archetype": "BM013_lv002",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162046,
+        "ObjectID": -473456,
         "position": {
           "x": 153.4,
           "y": 8.210251,
@@ -456,7 +460,7 @@
         },
         "ShowInMap": true
       },
-      "-162064": {
+      "-473474": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -475,7 +479,7 @@
         "archetype": "BM013_lv008",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162064,
+        "ObjectID": -473474,
         "position": {
           "x": 135.6,
           "y": 12.9000893,
@@ -483,7 +487,7 @@
         },
         "ShowInMap": true
       },
-      "-162094": {
+      "-473514": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -502,7 +506,7 @@
         "archetype": "BM013_lv004",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162094,
+        "ObjectID": -473514,
         "position": {
           "x": 182.8,
           "y": 13.74017,
@@ -510,7 +514,7 @@
         },
         "ShowInMap": true
       },
-      "-162058": {
+      "-473468": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 6.0,
@@ -529,7 +533,7 @@
         "archetype": "BM013_lv004",
         "activeOnStartup": true,
         "EntityLinks_Server": {},
-        "ObjectID": -162058,
+        "ObjectID": -473468,
         "position": {
           "x": 197.200012,
           "y": 13.7468061,
@@ -538,11 +542,35 @@
         "ShowInMap": true
       }
     },
-    "QuestNPCSpawnerDescJson": {
-      "-161894": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+    "PersonalMonsterSpawnerJson": {
+      "-473522": {
+        "$type": "Zealot.Entities.PersonalMonsterSpawnerJson, Assembly-CSharp",
+        "aggroRadius": 5.0,
+        "combatRadius": 8.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "aggressive": true,
+        "forward": {
+          "x": -0.966276348,
+          "y": 0.0,
+          "z": -0.2575078
+        },
+        "archetype": "handan_field_mb02",
+        "ObjectID": -473522,
+        "position": {
+          "x": 229.98999,
+          "y": 16.5287056,
+          "z": 187.7
+        },
+        "ShowInMap": true
+      }
+    },
+    "StaticClientNPCSpawnerJson": {
+      "-473284": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n008",
-        "ObjectID": -161894,
+        "radius": 2.0,
+        "ObjectID": -473284,
         "position": {
           "x": 166.9,
           "y": 11.4053736,
@@ -550,10 +578,11 @@
         },
         "ShowInMap": true
       },
-      "-161882": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473270": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n003",
-        "ObjectID": -161882,
+        "radius": 2.0,
+        "ObjectID": -473270,
         "position": {
           "x": 98.09999,
           "y": 8.210251,
@@ -561,10 +590,11 @@
         },
         "ShowInMap": true
       },
-      "-161908": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473298": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n004",
-        "ObjectID": -161908,
+        "radius": 2.0,
+        "ObjectID": -473298,
         "position": {
           "x": 96.18,
           "y": 8.210251,
@@ -572,21 +602,22 @@
         },
         "ShowInMap": true
       },
-      "-161886": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473276": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_032_01",
-        "ObjectID": -161886,
+        "ObjectID": -473276,
         "position": {
-          "x": 135.48999,
-          "y": 8.210251,
-          "z": 117.069992
+          "x": 142.35997,
+          "y": 8.21025,
+          "z": 120.439995
         },
         "ShowInMap": true
       },
-      "-161878": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473266": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n006",
-        "ObjectID": -161878,
+        "radius": 2.0,
+        "ObjectID": -473266,
         "position": {
           "x": 125.44,
           "y": 8.210251,
@@ -594,10 +625,10 @@
         },
         "ShowInMap": true
       },
-      "-161892": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473282": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_005_01",
-        "ObjectID": -161892,
+        "ObjectID": -473282,
         "position": {
           "x": 231.01001,
           "y": 16.5291958,
@@ -605,21 +636,21 @@
         },
         "ShowInMap": true
       },
-      "-161898": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473288": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_001_02",
-        "ObjectID": -161898,
+        "ObjectID": -473288,
         "position": {
-          "x": 164.51001,
+          "x": 163.579987,
           "y": 8.210251,
-          "z": 102.659988
+          "z": 103.099991
         },
         "ShowInMap": true
       },
-      "-161912": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473302": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_012_03",
-        "ObjectID": -161912,
+        "ObjectID": -473302,
         "position": {
           "x": 169.739975,
           "y": 8.210251,
@@ -627,10 +658,10 @@
         },
         "ShowInMap": true
       },
-      "-161890": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473280": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_012_04",
-        "ObjectID": -161890,
+        "ObjectID": -473280,
         "position": {
           "x": 190.599991,
           "y": 13.7329826,
@@ -638,21 +669,21 @@
         },
         "ShowInMap": true
       },
-      "-161868": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473256": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_001_01",
-        "ObjectID": -161868,
+        "ObjectID": -473256,
         "position": {
-          "x": 124.519989,
+          "x": 125.039993,
           "y": 8.210251,
-          "z": 150.0
+          "z": 150.149979
         },
         "ShowInMap": true
       },
-      "-161870": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473258": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_018_02",
-        "ObjectID": -161870,
+        "ObjectID": -473258,
         "position": {
           "x": 175.039978,
           "y": 8.210251,
@@ -660,10 +691,10 @@
         },
         "ShowInMap": true
       },
-      "-161970": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473366": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_012_02",
-        "ObjectID": -161970,
+        "ObjectID": -473366,
         "position": {
           "x": 112.019981,
           "y": 8.210251,
@@ -671,10 +702,10 @@
         },
         "ShowInMap": true
       },
-      "-161888": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473278": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_001_03",
-        "ObjectID": -161888,
+        "ObjectID": -473278,
         "position": {
           "x": 157.79,
           "y": 8.210251,
@@ -682,21 +713,21 @@
         },
         "ShowInMap": true
       },
-      "-161944": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473340": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_012_05",
-        "ObjectID": -161944,
+        "ObjectID": -473340,
         "position": {
-          "x": 222.53,
-          "y": 16.54234,
-          "z": 174.04
+          "x": 218.449982,
+          "y": 16.43267,
+          "z": 190.819992
         },
         "ShowInMap": true
       },
-      "-161906": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473296": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_032_02",
-        "ObjectID": -161906,
+        "ObjectID": -473296,
         "position": {
           "x": 206.22,
           "y": 9.935476,
@@ -704,10 +735,11 @@
         },
         "ShowInMap": true
       },
-      "-161942": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473332": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n007",
-        "ObjectID": -161942,
+        "radius": 2.0,
+        "ObjectID": -473332,
         "position": {
           "x": 124.959991,
           "y": 8.210251,
@@ -715,10 +747,11 @@
         },
         "ShowInMap": true
       },
-      "-161896": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473286": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n002",
-        "ObjectID": -161896,
+        "radius": 2.0,
+        "ObjectID": -473286,
         "position": {
           "x": 120.01,
           "y": 8.210251,
@@ -726,21 +759,22 @@
         },
         "ShowInMap": true
       },
-      "-161862": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473244": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_018_01",
-        "ObjectID": -161862,
+        "ObjectID": -473244,
         "position": {
-          "x": 101.349991,
+          "x": 99.65999,
           "y": 8.210251,
-          "z": 118.98999
+          "z": 120.009995
         },
         "ShowInMap": true
       },
-      "-161876": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473264": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n009",
-        "ObjectID": -161876,
+        "radius": 2.0,
+        "ObjectID": -473264,
         "position": {
           "x": 186.11,
           "y": 13.7351656,
@@ -748,32 +782,32 @@
         },
         "ShowInMap": true
       },
-      "-161864": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473248": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_m_026_01",
-        "ObjectID": -161864,
+        "ObjectID": -473248,
         "position": {
-          "x": 93.409996,
+          "x": 93.2299957,
           "y": 8.210251,
-          "z": 130.11
+          "z": 132.18
         },
         "ShowInMap": true
       },
-      "-161880": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473268": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_044_01",
-        "ObjectID": -161880,
+        "ObjectID": -473268,
         "position": {
-          "x": 206.569992,
-          "y": 9.537148,
-          "z": 90.39
+          "x": 210.569992,
+          "y": 9.369841,
+          "z": 96.5099945
         },
         "ShowInMap": true
       },
-      "-161884": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473274": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n010",
-        "ObjectID": -161884,
+        "ObjectID": -473274,
         "position": {
           "x": 107.519981,
           "y": 8.210251,
@@ -781,10 +815,11 @@
         },
         "ShowInMap": true
       },
-      "-161860": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473242": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n001",
-        "ObjectID": -161860,
+        "radius": 2.0,
+        "ObjectID": -473242,
         "position": {
           "x": 169.63,
           "y": 8.210251,
@@ -792,10 +827,11 @@
         },
         "ShowInMap": true
       },
-      "-161874": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473262": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "handan_field_n005",
-        "ObjectID": -161874,
+        "radius": 2.0,
+        "ObjectID": -473262,
         "position": {
           "x": 94.16,
           "y": 8.210251,
@@ -803,10 +839,10 @@
         },
         "ShowInMap": true
       },
-      "-161910": {
-        "$type": "Zealot.Entities.QuestNPCSpawnerDescJson, Assembly-CSharp",
+      "-473300": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "Q013_s_012_01",
-        "ObjectID": -161910,
+        "ObjectID": -473300,
         "position": {
           "x": 124.45,
           "y": 8.210251,
@@ -815,8 +851,39 @@
         "ShowInMap": true
       }
     },
+    "PortalExitJson": {
+      "-473246": {
+        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
+        "myName": "handan_field_exit_01",
+        "forward": {
+          "x": 0.265264362,
+          "y": 0.0,
+          "z": -0.9641757
+        },
+        "ObjectID": -473246,
+        "position": {
+          "x": 122.31,
+          "y": 13.7438917,
+          "z": 225.289978
+        }
+      }
+    },
+    "PortalEntryJson": {
+      "-473272": {
+        "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
+        "myName": "handan_field_01",
+        "exitName": "handan_exit_01",
+        "ObjectID": -473272,
+        "position": {
+          "x": 120.3,
+          "y": 13.74017,
+          "z": 228.48
+        },
+        "ShowInMap": true
+      }
+    },
     "RealmControllerWorldJson": {
-      "-161754": {
+      "-473114": {
         "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
         "spawnPos": [
           {
@@ -838,7 +905,7 @@
           "z": 1.0
         },
         "EntityLinks_Server": {},
-        "ObjectID": -161754,
+        "ObjectID": -473114,
         "position": {
           "x": -212.470016,
           "y": 0.0,
@@ -847,15 +914,38 @@
         "ShowInMap": true
       }
     },
+    "MapInfoJson": {
+      "-473126": {
+        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
+        "centerPoint": {
+          "x": 164.3,
+          "y": 100.0,
+          "z": 165.1
+        },
+        "mapScale": {
+          "x": 0.42,
+          "y": 0.227995828,
+          "z": 0.42
+        },
+        "width": 512.0,
+        "height": 512.0,
+        "ObjectID": -473126,
+        "position": {
+          "x": 164.3,
+          "y": 100.0,
+          "z": 165.1
+        }
+      }
+    },
     "PlayerSpawnerJson": {
-      "-161760": {
+      "-473120": {
         "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
         "forward": {
           "x": -4.76837158E-07,
           "y": 0.0,
           "z": -1.0
         },
-        "ObjectID": -161760,
+        "ObjectID": -473120,
         "position": {
           "x": 125.93,
           "y": 8.33,

@@ -26,6 +26,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1134754021350938
+GameObject:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 224706757030603294}
+  m_Layer: 5
+  m_Name: GameObject_ShopNPC
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1241001857012868
 GameObject:
   m_ObjectHideFlags: 1
@@ -274,6 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mMap: {fileID: 114976604776564634}
+  mMapTransform: {fileID: 224477437443703314}
   mMapName: {fileID: 114764416792281124}
   mMiniMapIconPrefab: {fileID: 1206512999350504, guid: 06d61d9991fe7a74ebf68c4bb1d0188d,
     type: 2}
@@ -290,7 +306,7 @@ MonoBehaviour:
   mMMIconParent_Teleport: {fileID: 1003907091372482}
   mMMIconParent_Monster: {fileID: 1280260542767904}
   mMMIconParent_QuestNPC: {fileID: 1967605828598820}
-  mMMIconParent_ShopNPC: {fileID: 0}
+  mMMIconParent_ShopNPC: {fileID: 1134754021350938}
   mMMIconParent_Boss: {fileID: 1708103757236012}
   mMMIconParent_MiniBoss: {fileID: 1468134105945550}
   mMMIconParent_Party: {fileID: 1373208857337186}
@@ -465,7 +481,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: c1d470e0e587c054a8c3571275512210, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 76990936be649b44f8b6559860c87208, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -567,7 +583,7 @@ RectTransform:
   - {fileID: 224491908900111700}
   - {fileID: 224144831351103882}
   - {fileID: 224440085734992940}
-  - {fileID: 224889792051531518}
+  - {fileID: 224706757030603294}
   m_Father: {fileID: 224477437443703314}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -697,6 +713,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224477437443703314}
+  - {fileID: 224889792051531518}
   m_Father: {fileID: 224338535831084292}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -744,6 +761,24 @@ RectTransform:
   m_AnchoredPosition: {x: -140.1, y: -18}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 1, y: 0.5}
+--- !u!224 &224706757030603294
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1134754021350938}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 224254370029027908}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0.0000076293945}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224889792051531518
 RectTransform:
   m_ObjectHideFlags: 1
@@ -754,11 +789,11 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 224254370029027908}
-  m_RootOrder: 6
+  m_Father: {fileID: 224540611867742114}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 126, y: 126}
   m_Pivot: {x: 0.5, y: 0.5}

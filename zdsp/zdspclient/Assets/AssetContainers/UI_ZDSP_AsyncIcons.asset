@@ -77,15 +77,13 @@ MonoBehaviour:
     asset: {fileID: 21300000, guid: 240838cf52c2f8f4bb0fd18130381a56, type: 3}
   - assetPath: Skill/skill_wallpaper.tif
     asset: {fileID: 21300000, guid: 6f19713e507d9054db1f72c0734e6c77, type: 3}
-  - assetPath: Skins/skin_01.png
-    asset: {fileID: 21300000, guid: 2fb4d635039f1f14da9dd9ffd392d0d6, type: 3}
   - assetPath: Skill/slaughter.png
     asset: {fileID: 21300000, guid: 74e08b0b56b775346a84a96317dc9b96, type: 3}
   - assetPath: Skill/soldier.png
     asset: {fileID: 21300000, guid: 5531eb6744e47214c8763fa0f091871c, type: 3}
   - assetPath: Skill/specialforce.png
     asset: {fileID: 21300000, guid: ecdeb35213d03724d87281efbd385113, type: 3}
-  - assetPath: Skins/stats.png
+  - assetPath: Assets/UI_ZDSP/Textures/Atlas_ETC2_1/Hero/stats.png
     asset: {fileID: 21300000, guid: df1519e4709250c47964aac39e76275e, type: 3}
   - assetPath: Skill/strategist.png
     asset: {fileID: 21300000, guid: 4da88fbea575ed541835b7304614e250, type: 3}
@@ -103,22 +101,6 @@ MonoBehaviour:
     asset: {fileID: 21300000, guid: e90288915e418bc48a98417c69c67bb7, type: 3}
   - assetPath: Quest/CutsceneThumbnail/zzz_CutsceneThumbnailTest.png
     asset: {fileID: 21300000, guid: 05a45ef62b4b74d4085a8edef52fc105, type: 3}
-  - assetPath: Destiny/picture_screenschots/zzz_destiny_picture_test.png
-    asset: {fileID: 21300000, guid: c2d53d834fae1ff46944fee17666c497, type: 3}
-  - assetPath: Destiny/video_screenschots/zzz_destiny_video_test.png
-    asset: {fileID: 21300000, guid: 8134f6aa600e05f408f25ca8c76db3a4, type: 3}
-  - assetPath: Quest/Heroes/zzz_HeroesTest.png
-    asset: {fileID: 21300000, guid: 896796d824c39994ea1737927221b879, type: 3}
-  - assetPath: InterestCell/zzz_interestcell_test.png
-    asset: {fileID: 21300000, guid: d3c5b3c915ebdcc4c904449eb5900244, type: 3}
-  - assetPath: InterestCell/zzz_interestcell_test_Random.png
-    asset: {fileID: 21300000, guid: b194937fdd806e54192c17ea2619de57, type: 3}
-  - assetPath: Dungeon/zzzdungeon_test.png
-    asset: {fileID: 21300000, guid: 8d3bb8519b1869048950be53d4a4d4c9, type: 3}
-  - assetPath: Dungeon/Story/zzzdungeonstory_test.png
-    asset: {fileID: 21300000, guid: aef820afa19afda4cab7710a3660e4fd, type: 3}
-  - assetPath: HeroJobIcon/zzzherojob_test.png
-    asset: {fileID: 21300000, guid: 22c0d04fbe2a80b40bb711d8a4aace22, type: 3}
   - assetPath: Destiny/History/zzz_destiny_history_audio.png
     asset: {fileID: 21300000, guid: c959bb58b5451ea4a87055f8cd09a9b3, type: 3}
   - assetPath: Destiny/History/zzz_destiny_history_icon_completed.png
@@ -137,6 +119,22 @@ MonoBehaviour:
     asset: {fileID: 21300000, guid: 17b439e67b4ca01419b7c9c8df14b479, type: 3}
   - assetPath: Destiny/History/zzz_destiny_history_video.png
     asset: {fileID: 21300000, guid: 67856f7642f78174f85181d6039f253e, type: 3}
+  - assetPath: Destiny/picture_screenschots/zzz_destiny_picture_test.png
+    asset: {fileID: 21300000, guid: c2d53d834fae1ff46944fee17666c497, type: 3}
+  - assetPath: Destiny/video_screenschots/zzz_destiny_video_test.png
+    asset: {fileID: 21300000, guid: 8134f6aa600e05f408f25ca8c76db3a4, type: 3}
+  - assetPath: Quest/Heroes/zzz_HeroesTest.png
+    asset: {fileID: 21300000, guid: 896796d824c39994ea1737927221b879, type: 3}
+  - assetPath: InterestCell/zzz_interestcell_test.png
+    asset: {fileID: 21300000, guid: d3c5b3c915ebdcc4c904449eb5900244, type: 3}
+  - assetPath: InterestCell/zzz_interestcell_test_Random.png
+    asset: {fileID: 21300000, guid: b194937fdd806e54192c17ea2619de57, type: 3}
+  - assetPath: Dungeon/zzzdungeon_test.png
+    asset: {fileID: 21300000, guid: 8d3bb8519b1869048950be53d4a4d4c9, type: 3}
+  - assetPath: Dungeon/Story/zzzdungeonstory_test.png
+    asset: {fileID: 21300000, guid: aef820afa19afda4cab7710a3660e4fd, type: 3}
+  - assetPath: HeroJobIcon/zzzherojob_test.png
+    asset: {fileID: 21300000, guid: 22c0d04fbe2a80b40bb711d8a4aace22, type: 3}
   SpriteList:
   - {fileID: 21300000, guid: d603d3ae06a4dec43a2c3abfb647c562, type: 3}
   - {fileID: 21300000, guid: de3a5784b5bd3f948b56914a49e61d32, type: 3}
@@ -168,7 +166,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b817b750c5c589143bb20d37c57efd3b, type: 3}
   - {fileID: 21300000, guid: 240838cf52c2f8f4bb0fd18130381a56, type: 3}
   - {fileID: 21300000, guid: 6f19713e507d9054db1f72c0734e6c77, type: 3}
-  - {fileID: 21300000, guid: 2fb4d635039f1f14da9dd9ffd392d0d6, type: 3}
   - {fileID: 21300000, guid: 74e08b0b56b775346a84a96317dc9b96, type: 3}
   - {fileID: 21300000, guid: 5531eb6744e47214c8763fa0f091871c, type: 3}
   - {fileID: 21300000, guid: ecdeb35213d03724d87281efbd385113, type: 3}
@@ -181,14 +178,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: c1d470e0e587c054a8c3571275512210, type: 3}
   - {fileID: 21300000, guid: e90288915e418bc48a98417c69c67bb7, type: 3}
   - {fileID: 21300000, guid: 05a45ef62b4b74d4085a8edef52fc105, type: 3}
-  - {fileID: 21300000, guid: c2d53d834fae1ff46944fee17666c497, type: 3}
-  - {fileID: 21300000, guid: 8134f6aa600e05f408f25ca8c76db3a4, type: 3}
-  - {fileID: 21300000, guid: 896796d824c39994ea1737927221b879, type: 3}
-  - {fileID: 21300000, guid: d3c5b3c915ebdcc4c904449eb5900244, type: 3}
-  - {fileID: 21300000, guid: b194937fdd806e54192c17ea2619de57, type: 3}
-  - {fileID: 21300000, guid: 8d3bb8519b1869048950be53d4a4d4c9, type: 3}
-  - {fileID: 21300000, guid: aef820afa19afda4cab7710a3660e4fd, type: 3}
-  - {fileID: 21300000, guid: 22c0d04fbe2a80b40bb711d8a4aace22, type: 3}
   - {fileID: 21300000, guid: c959bb58b5451ea4a87055f8cd09a9b3, type: 3}
   - {fileID: 21300000, guid: 22fa439ce74512f44a19c3a576497e0a, type: 3}
   - {fileID: 21300000, guid: a31dbe3bcbf0d774aa352ef31684bcb7, type: 3}
@@ -198,3 +187,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8edc272b5b828ca41bd9d6c58ab0d0ab, type: 3}
   - {fileID: 21300000, guid: 17b439e67b4ca01419b7c9c8df14b479, type: 3}
   - {fileID: 21300000, guid: 67856f7642f78174f85181d6039f253e, type: 3}
+  - {fileID: 21300000, guid: c2d53d834fae1ff46944fee17666c497, type: 3}
+  - {fileID: 21300000, guid: 8134f6aa600e05f408f25ca8c76db3a4, type: 3}
+  - {fileID: 21300000, guid: 896796d824c39994ea1737927221b879, type: 3}
+  - {fileID: 21300000, guid: d3c5b3c915ebdcc4c904449eb5900244, type: 3}
+  - {fileID: 21300000, guid: b194937fdd806e54192c17ea2619de57, type: 3}
+  - {fileID: 21300000, guid: 8d3bb8519b1869048950be53d4a4d4c9, type: 3}
+  - {fileID: 21300000, guid: aef820afa19afda4cab7710a3660e4fd, type: 3}
+  - {fileID: 21300000, guid: 22c0d04fbe2a80b40bb711d8a4aace22, type: 3}

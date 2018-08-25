@@ -1102,17 +1102,30 @@ namespace Photon.LoadBalancing.GameServer
             var transactions = await GameApplication.dbGM.NPCStoreGMRepo.GetPlayerStoreTransactions(charid).ConfigureAwait(false);
             if (transactions == null) transactions = new Dictionary<string, NPCStoreInfo.Transaction>();
 
-            var transactionkey = storeentry.Key();
+			if (storeentry.Show == false)
+			{
+				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Invalid item", peer);
+				return;
+			}
+			if (System.DateTime.Now > storeentry.EndTime || System.DateTime.Now < storeentry.StartTime)
+			{
+				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Item not on sale for this time period", peer);
+				return;
+			}
+
+			var transactionkey = storeentry.Key();
             NPCStoreInfo.Transaction transaction = null;
             if (transactions.ContainsKey(transactionkey))
             {
-                if (transactions[transactionkey].remaining < purchaseamount)
+                if (transactions[transactionkey].remaining < purchaseamount && storeentry.DailyOrWeekly != NPCStoreInfo.Frequency.Unlimited)
                 {
                     peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Purchase limit exceeded", peer);
                     return;
                 }
 
-                transactions[transactionkey].remaining -= purchaseamount;
+                if(storeentry.DailyOrWeekly != NPCStoreInfo.Frequency.Unlimited)
+                    transactions[transactionkey].remaining -= purchaseamount;
+
                 transaction = transactions[transactionkey];
             }
             else
@@ -1120,19 +1133,21 @@ namespace Photon.LoadBalancing.GameServer
                 var bought_time = DateTime.Now;
 
                 var t = new NPCStoreInfo.Transaction();
-                t.storeitem = storeentry;
-                transactions.Add(t.storeitem.Key(), t);
+                t.solditem = storeentry;
+                transactions.Add(t.solditem.Key(), t);
             }
+
+            var totalcost = purchaseamount * storeentry.SoldValue;
 
             bool buyresult = false;
             switch (storeentry.SoldType)
             {
                 case NPCStoreInfo.SoldCurrencyType.Normal:
-                    buyresult = peer.mPlayer.DeductMoney(storeentry.SoldValue, "NPCStoreBuy");
+                    buyresult = peer.mPlayer.DeductMoney(totalcost, "NPCStoreBuy");
                     break;
 
                 case NPCStoreInfo.SoldCurrencyType.Auction:
-                    buyresult = peer.mPlayer.DeductGold(storeentry.SoldValue, false, true, "NPCStoreBuy");
+                    buyresult = peer.mPlayer.DeductGold(totalcost, false, true, "NPCStoreBuy");
                     break;
             }
 
@@ -1143,8 +1158,10 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
+            var totalstackcount = purchaseamount * storeentry.ItemValue;
+
             // transaction legal, give the item
-            InvRetval retval = peer.mInventory.AddItemsIntoInventory((ushort)storeentry.ItemID, storeentry.ItemValue, true, "NPCStoreBuy");
+            InvRetval retval = peer.mInventory.AddItemsIntoInventory((ushort)storeentry.ItemID, totalstackcount, true, "NPCStoreBuy");
                 
             // record transaction            
             var success = GameApplication.dbGM.NPCStoreGMRepo.UpdateTransactions(transactions, charid).ConfigureAwait(false);
@@ -1271,6 +1288,14 @@ namespace Photon.LoadBalancing.GameServer
         public void PowerUp(int part, GameClientPeer peer)
         {
             peer.OnPowerUp(part);
+        }
+        #endregion
+
+        #region EquipmentCraft
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentCraft)]
+        public void EquipmentCraft(int itemId, GameClientPeer peer)
+        {
+            peer.OnEquipmentCraft(itemId);
         }
         #endregion
 

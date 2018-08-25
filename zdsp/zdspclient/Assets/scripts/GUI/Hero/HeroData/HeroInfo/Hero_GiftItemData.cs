@@ -21,7 +21,7 @@ public class Hero_GiftItemData : MonoBehaviour
             GameObject icon = ClientUtils.CreateChild(iconTransform, iconPrefab);
             item = icon.GetComponent<GameIcon_MaterialConsumable>();
         }
-        item.Init(itemid, itemcount);
+        item.InitWithoutCallback(itemid, itemcount);
         itemNameText.text = item.inventoryItem.JsonObject.localizedname;
         itemDescText.text = item.inventoryItem.JsonObject.description;
         OnSendItemCallback = callback;
@@ -35,6 +35,6 @@ public class Hero_GiftItemData : MonoBehaviour
 
     public void OnUsed(int countLeft)
     {
-        item.Init(itemId, countLeft);
+        item.SetStackCount(countLeft);
     }
 }

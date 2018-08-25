@@ -1,17 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using Zealot.Common;
 
 namespace Zealot.Repository
 {
     public static class ExchangeShopRepo
     {
-        public static Dictionary<int, ExchangeShopCategoryJson> mExchangeShopClassMap; //categoryid => class json
         public static Dictionary<int, ExchangeShopItemJson> mExchangeShopItemMap;   //ex id => item json
-        
+        public static Dictionary<int, ExchangeShopCategoryJson> mExchangeShopClassMap; //categoryid => class json
+
         public static Dictionary<ExchangeShopCategoryJson, List<ExchangeShopItemJson>> mExchangeShopInventoryMap; //class json => list<item json>
         public static Dictionary<int, List<ExchangeShopItemJson>> mExchangeShopInventoryMap2; //categoryid => list<item json>
         public static Dictionary<int, int> mExchangeShopItemToClassMap; //item id => categoryid

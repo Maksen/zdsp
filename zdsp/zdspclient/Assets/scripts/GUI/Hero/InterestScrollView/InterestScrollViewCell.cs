@@ -19,6 +19,9 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
     GameObject highlight;
     [SerializeField]
     Material grayScaleMat;
+    [SerializeField]
+    Sprite[] sprites;
+
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
     InterestScrollViewContext context;
@@ -54,32 +57,28 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
 
         if (context != null)
         {
-            var isSelected = context.SelectedIndex == DataIndex;
-            highlight.SetActive(isSelected);
-            HeroInterestType type = (HeroInterestType)itemData.Type;
+            if (context.HighlightSelected)
+            {
+                var isSelected = context.SelectedIndex == DataIndex;
+                highlight.SetActive(isSelected);
+            }
+            else
+            {
+                highlight.SetActive(DataIndex == 0);
+            }
 
-            HeroInterestJson json = HeroRepo.GetInterestByType(type);
+            HeroInterestJson json = HeroRepo.GetInterestByType((HeroInterestType)itemData.Type);
             if (json != null)
             {
-                if (imagePath != json.iconpath)
-                {
-                    imagePath = json.iconpath;
-                    ClientUtils.LoadIconAsync(imagePath, OnImageLoaded);
-                }
+                image.sprite = sprites[(int)json.interesttype];
                 image.material = itemData.Applicable ? null : grayScaleMat;
             }
             else
             {
                 image.sprite = null;
-                imagePath = "";
+                image.material = grayScaleMat;
             }
         }
-    }
-
-    private void OnImageLoaded(Sprite sprite)
-    {
-        if (sprite != null)
-            image.sprite = sprite;
     }
 
     /// <summary>

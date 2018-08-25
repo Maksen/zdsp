@@ -21,7 +21,7 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
 
     private struct SKLChunk
     {
-        public HUD_ItemDetail_TextColonValue m_Level;
+        public UI_DialogItemDetail_TextValue m_Level;
         public Text m_Descriptor; // --> 2 lines, take note
         public HUD_SkillCoolDown m_CoolDown;
     }
@@ -69,7 +69,7 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         SKLChunk chunk = new SKLChunk();
 
         // generate level text
-        HUD_ItemDetail_TextColonValue lv = SKLPoolLv.RequestObject().GetComponent<HUD_ItemDetail_TextColonValue>();
+        UI_DialogItemDetail_TextValue lv = SKLPoolLv.RequestObject().GetComponent<UI_DialogItemDetail_TextValue>();
         chunk.m_Level = lv;
         chunk.m_Level.Value = level.ToString() + "/" + "10";
         chunk.m_Level.transform.parent = this.transform;

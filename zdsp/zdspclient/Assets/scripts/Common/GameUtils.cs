@@ -972,7 +972,7 @@ namespace Zealot.Common
             {
                 string[] arr = data.Split(delimiter);
                 int length = arr.Length;
-                for (int index = 0; index < length; index++)
+                for (int index = 0; index < length; ++index)
                 {
                     int temp;
                     if (int.TryParse(arr[index], out temp))

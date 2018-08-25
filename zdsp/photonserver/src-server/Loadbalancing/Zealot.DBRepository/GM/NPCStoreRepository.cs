@@ -27,36 +27,100 @@ namespace Zealot.DBRepository.GM.NPCStore
             var normalitemrows = await GetSoldItemsAsync().ConfigureAwait(false);
             foreach (var row in normalitemrows)
             {
-                var storeid = (int)row["storeid"];
+                try
+                {
+                    var storeid = (int)row["storeid"];
 
-                var a = storeid;
-                var b = (int)row["entryid"];
-                var c = (bool)row["show"];
-                var d = (int)row["itemid"];
-                var e = NPCStoreInfo.ItemStoreType.Normal;
-                var f = (int)row["itemvalue"];
-                var g = (NPCStoreInfo.SoldCurrencyType)((string)row["soldtype"]).ToCharArray()[0];
-                var h = (int)row["soldvalue"];
-                var i = (double)row["discount"];
-                var j = (int)row["sortnumber"];
-                var k = (DateTime)row["starttime"];
-                var l = (DateTime)row["endtime"];
-                var m = (int)row["excount"];
-                var n = (NPCStoreInfo.Frequency)((string)row["dailyorweekly"]).ToCharArray()[0];
+                    var a = storeid;
+                    var b = (int)row["entryid"];
+                    var c = (bool)row["show"];
+                    var d = (int)row["itemid"];
+                    var e = NPCStoreInfo.ItemStoreType.Normal;
+                    var f = (int)row["itemvalue"];
+                    var g = (NPCStoreInfo.SoldCurrencyType)((string)row["soldtype"]).ToCharArray()[0];
+                    var h = (int)row["soldvalue"];
+                    var i = (double)row["discount"];
+                    var j = (int)row["sortnumber"];
+                    var k = (DateTime)row["starttime"];
+                    var l = (DateTime)row["endtime"];
+                    var m = (int)row["excount"];
+                    var n = (NPCStoreInfo.Frequency)((string)row["dailyorweekly"]).ToCharArray()[0];
 
-                ret[storeid].inventory.Add(b, new Zealot.Common.NPCStoreInfo.StandardItem(a, b, c, d, e, f, g, h, (float)i, j, k, l, m, n));
+                    if (ret[storeid].inventory.ContainsKey(b) == false)
+                    {
+                        ret[storeid].inventory.Add(b, new NPCStoreInfo.StandardItem(a, b, c, d, e, f, g, h, (float)i, j, k, l, m, n));
+                    }
+                    else
+                    {
+                        // signal duplicate store item
+                        throw new Exception("NPCStore Exception: Duplicate item entry id: " + b.ToString() + " for npc store id: " + storeid.ToString() + " found. Rectify with GMTools.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    GameUtils.DebugWriteLine(ex.Message);
+                }
             }
 
-            return ret;
+			var barters = await GetBarterData().ConfigureAwait(false);
+
+			foreach (var barter in barters)
+			{
+				var key = barter.ItemListID;
+				var storeid = barter.StoreID;
+
+				if (ret.ContainsKey(storeid))
+				{
+					if (ret[storeid].inventory.ContainsKey(key))
+					{
+						var breq = new NPCStoreInfo.BarterReq
+						{
+							StoreID = storeid,
+							ItemListID = key,
+							ReqItemID = barter.ReqItemID,
+							ReqItemValue = barter.ReqItemValue };
+
+						ret[storeid].inventory[key].required_items.Add(breq);
+					}
+				}
+			}
+
+			return ret;
         }
 
-        public async Task<List<Dictionary<string, object>>> GetStoresAsync()
+		public async Task<List<NPCStoreInfo.BarterReq>> GetBarterData()
+		{
+			List<NPCStoreInfo.BarterReq> ret = new List<NPCStoreInfo.BarterReq>();
+
+			var rows = await GetStoreBartersAsync().ConfigureAwait(false);
+			foreach (var entry in rows)
+			{
+				var a = (int)entry["storeid"];
+				var b = (int)entry["itemlistid"];
+				var c = (int)entry["requireditemid"];
+				var d = (int)entry["requireditemvalue"];
+
+				NPCStoreInfo.BarterReq barter = new NPCStoreInfo.BarterReq { StoreID = a, ItemListID = b, ReqItemID = c, ReqItemValue = d };
+
+				ret.Add(barter);
+			}
+
+			return ret;
+		}
+
+		public async Task<List<Dictionary<string, object>>> GetStoreBartersAsync()
         {
-            var tablename = "Store";
+            var tablename = "StoreBarters";
             return await PullGMTable(tablename);
         }
 
-        public async Task<List<Dictionary<string, object>>> GetSoldItemsAsync()
+		public async Task<List<Dictionary<string, object>>> GetStoresAsync()
+		{
+			var tablename = "Store";
+			return await PullGMTable(tablename);
+		}
+
+		public async Task<List<Dictionary<string, object>>> GetSoldItemsAsync()
         {
             var tablename = "StoreStandardItems";
 

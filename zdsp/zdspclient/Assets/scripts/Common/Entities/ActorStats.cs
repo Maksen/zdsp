@@ -3073,6 +3073,27 @@ namespace Zealot.Common.Entities
 
     #endregion
 
+    #region EquipmentCraft
+    public class EquipmentCraftStats : LocalObject
+    {
+        private bool _finishedCraft;
+
+        public Dictionary<int, int> equipmentCraftList { get; set; }
+
+        public EquipmentCraftStats() : base(LOTYPE.EquipmentCraftStats)
+        {
+            _finishedCraft = false;
+            equipmentCraftList = new Dictionary<int, int>(EquipmentCraftInventoryData.MAX_EQUIPMENTCRAFTSLOTS_LEN);
+        }
+
+        public bool finishedCraft
+        {
+            get { return _finishedCraft; }
+            set { this.OnSetAttribute("finishedCraft", value); _finishedCraft = value; }
+        }
+    }
+    #endregion
+
     public class TongbaoCostBuffInfo : LocalObject
     {
         public int _id;

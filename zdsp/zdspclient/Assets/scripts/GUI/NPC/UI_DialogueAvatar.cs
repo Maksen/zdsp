@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 using Zealot.Client.Entities;
 using Zealot.Common;
 
@@ -27,24 +27,20 @@ public class UI_DialogueAvatar : MonoBehaviour
     public void SpawnNpc(List<int> npclist)
     {
         mNpcList = new Dictionary<int, GameObject>();
-        foreach (int npcid in npclist)
+        foreach (int npcId in npclist)
         {
-            StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCById(npcid);
+            StaticNPCJson npcJson = StaticNPCRepo.GetNPCById(npcId);
             if (npcJson != null)
-            {
-                OnNpcLoaded(npcid, AssetManager.LoadSceneNPC(npcJson.modelprefabpath), npcJson);
-            }
+                OnNpcLoaded(npcId, AssetManager.LoadSceneNPC(npcJson.modelprefabpath), npcJson);
         }
     }
 
     public void SpawnPlayer()
     {
-        if(GameInfo.gLocalPlayer == null)
-        {
-            return;
-        }
-
         PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player == null)
+            return;
+
         PlayerAvatar.Change(player.mEquipmentInvData, (JobType)player.PlayerSynStats.jobsect, player.mGender, null);
         mPlayer = PlayerAvatar.GetOutfitModel();
         mPlayer.SetActive(false);
@@ -53,9 +49,7 @@ public class UI_DialogueAvatar : MonoBehaviour
     private void OnPlayerLoaded(GameObject asset)
     {
         if (asset != null)
-        {
             mPlayer = Instantiate(asset);
-        }
     }
 
     private void OnNpcLoaded(int npcid, GameObject asset, StaticNPCJson npcJson)
@@ -63,7 +57,6 @@ public class UI_DialogueAvatar : MonoBehaviour
         if (asset == null)
         {
             AssetLoader.Instance.LoadAsync<GameObject>(npcJson.containerprefabpath, (obj) => { OnNpcAsyncLoaded(npcid, obj); });
-            return;
         }
         else
         {
@@ -74,14 +67,14 @@ public class UI_DialogueAvatar : MonoBehaviour
 
     private void OnNpcAsyncLoaded(int npcid, GameObject asset)
     {
-        if (asset !=null)
+        if (asset != null)
         {
             GameObject go = Instantiate(asset);
             mNpcList.Add(npcid, go);
         }
     }
 
-    public void ActiveAvatar(int npcid, string message)
+    public void ActiveAvatar(int npcId, string message)
     {
         if (mAvatar != null)
         {
@@ -89,18 +82,18 @@ public class UI_DialogueAvatar : MonoBehaviour
             mAvatar.SetActive(false);
         }
 
-        if (npcid == 0)
+        if (npcId == 0)
         {
             mAvatar = mPlayer;
             Name.text = GameInfo.gLocalPlayer.PlayerSynStats.name;
         }
         else
         {
-            if (mNpcList.ContainsKey(npcid))
+            if (mNpcList.ContainsKey(npcId))
             {
-                mAvatar = mNpcList[npcid];
+                mAvatar = mNpcList[npcId];
             }
-            StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCById(npcid);
+            StaticNPCJson npcJson = StaticNPCRepo.GetNPCById(npcId);
             if (npcJson != null)
             {
                 Name.text = npcJson.localizedname;

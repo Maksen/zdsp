@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Zealot.Common;
 
@@ -14,14 +14,14 @@ namespace Zealot.Repository
             public int SubId;
         }
 
-        static Dictionary<int, CraftingJson> mAllCrafting;
-        static Dictionary<int, CraftingCategoryJson> mAllCraftingCategory;
-        static Dictionary<CraftingType, Dictionary<int, List<CraftingJson>>> mAllCraftingType;//the inner dictionary key contain CraftingCategoryJson id
-        static Dictionary<CraftingType,string> mAllCraftingTypeName;
-        static Dictionary<int, CraftedItemInfo> mAllCraftedItem;//key = itemid
+        public static Dictionary<int, CraftingJson> mAllCrafting;
+        public static Dictionary<int, CraftingCategoryJson> mAllCraftingCategory;
+        public static Dictionary<CraftingType, Dictionary<int, List<CraftingJson>>> mAllCraftingType;//the inner dictionary key contain CraftingCategoryJson id
+        public static Dictionary<CraftingType,string> mAllCraftingTypeName;
+        public static Dictionary<int, CraftedItemInfo> mAllCraftedItem;//key = itemid
+
         CraftingRepo()
-        {
-          
+        {   
         }
 
         public static void Init(GameDBRepo gameData)

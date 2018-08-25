@@ -9,10 +9,10 @@ public class ShopItem : MonoBehaviour {
     public GameObject on, off;
     public Text itemname, price;
     public CurrencyIcon currencyicon;
-    public GameIcon_Base itemicon;
+    public Transform itemicon_parent;
     public OnEnableScript selectionEnabled;
 
-    public NPCStoreInfo.Item itemdata;
+    public NPCStoreInfo.StandardItem itemdata;
 
     // Use this for initialization
     void Start () {

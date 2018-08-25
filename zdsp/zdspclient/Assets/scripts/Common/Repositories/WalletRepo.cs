@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
 using Zealot.Common;
 
@@ -8,8 +6,9 @@ namespace Zealot.Repository
 {
     public class WalletRepo
     {
-        static Dictionary<int, CurrencyWalletJson> mCurrencyWallet;
-        static Dictionary<CurrencyType, LinkUIType> mCurrencyWindow;
+        public static Dictionary<int, CurrencyWalletJson> mCurrencyWallet;
+        public static Dictionary<CurrencyType, LinkUIType> mCurrencyWindow;
+
         public static void Init(GameDBRepo gameData)
         {
             mCurrencyWallet = new Dictionary<int, CurrencyWalletJson>();
@@ -35,6 +34,5 @@ namespace Zealot.Repository
             mCurrencyWindow.TryGetValue(type, out result);
             return result;
         }
-
     }
 }

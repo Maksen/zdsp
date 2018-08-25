@@ -15,7 +15,7 @@ public class InvDisplayItem
     public int DisplayStackCount = 0;
 }
 
-public class UI_Inventory : MonoBehaviour
+public class UI_Inventory : BaseWindowBehaviour
 {
     [Header("Top Section")]
     [SerializeField]
@@ -55,7 +55,7 @@ public class UI_Inventory : MonoBehaviour
     public UI_Inventory_QuickSlot InvQuickSlot = null;
 
     public BagType CurrentInventoryTab { get; private set; }
-    public List<InvDisplayItem> DisplayItemList { get; set; }
+    public List<InvDisplayItem> DisplayItemList { get; private set; }
 
     [NonSerialized]
     public bool InitOnEnable = true;
@@ -104,6 +104,16 @@ public class UI_Inventory : MonoBehaviour
         InitOnEnable = true;
     }
 
+    public override void OnShowWindow()
+    {
+        base.OnShowWindow();
+        
+        // Need to re-play standby animation because animation is reset as model is disabled when UI canvas is hidden
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player != null)
+            avatar.PlayAnimation(ClientUtils.GetStandbyAnimationByWeaponType(player.WeaponTypeUsed));
+    }
+
     public void Init(BagType inventoryTab)
     {
         InvSellPanel.UIInventory = this;
@@ -114,10 +124,12 @@ public class UI_Inventory : MonoBehaviour
         {
             invScrollView.InitScrollView(this);
             if (CurrentInventoryTab == inventoryTab)
+            {
+                toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagType.Consumable);
                 RefreshRight(player);
-
-            toggleCheckboxQuickSlot.isOn = (inventoryTab == BagType.Consumable);
-            defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
+            }
+            else
+                defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
 
             RefreshLeft(player);
             hideHelm.isOn = !player.mEquipmentInvData.HideHelm;
@@ -172,9 +184,10 @@ public class UI_Inventory : MonoBehaviour
 
                 if (stackCount == 0)
                     invItem = null;
-                DisplayItemList.Add(new InvDisplayItem { OriginSlotId = i , InvItem = invItem,
-                                                         OriginStackCount = stackCount,
-                                                         DisplayStackCount = stackCount });
+                if (CurrentInventoryTab == BagType.Any || invItem != null)
+                    DisplayItemList.Add(new InvDisplayItem { OriginSlotId = i , InvItem = invItem,
+                                                             OriginStackCount = stackCount,
+                                                             DisplayStackCount = stackCount });
             }
         }
     }
@@ -183,7 +196,8 @@ public class UI_Inventory : MonoBehaviour
     {
         List<IInventoryItem> invItemList = player.clientItemInvCtrl.itemInvData.Slots;
         SetUsedSlotsCount(GetUsedSlotsCount(invItemList),
-                          player.SecondaryStats.UnlockedSlotCount);
+                          player.SecondaryStats.UnlockedSlotCount);  
+
         UpdateDisplayItemListByBagType(invItemList);
 
         if (InvSellPanel.gameObject.activeInHierarchy)
@@ -192,11 +206,15 @@ public class UI_Inventory : MonoBehaviour
         invScrollView.PopulateRows();
     }
 
-    public void UpdateVisibleInvRows()
+    public void UpdateVisibleInvRows(bool toggleQuickSlot = true)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         if (player != null)
+        {
+            if (toggleQuickSlot)
+                toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagType.Consumable);
             RefreshRight(player);
+        }
     }
 
     public void UpdateScrollViewCallback()
@@ -219,8 +237,15 @@ public class UI_Inventory : MonoBehaviour
 
         CurrentInventoryTab = (BagType)index;
         UpdateVisibleInvRows();
+    }
 
-        //Debug.LogFormat("Current Bag Type: {0}", CurrentInventoryTab.ToString());
+    public void OnValueChangedToggleQuickSlot(bool value)
+    {
+        if (value)
+        {
+            if (CurrentInventoryTab != BagType.Consumable)
+                defaultToggleingrpInvTabs.GoToPage((byte)BagType.Consumable);
+        }
     }
 
     public void OnClickSortInventory()
@@ -264,7 +289,7 @@ public class UI_Inventory : MonoBehaviour
             {
                 _baseIcon.SetActive(false);
                 _equipIcon.SetActive(true);
-                _equipIcon.GetComponent<GameIcon_Equip>().Init(_item.ItemID, 0, 0, _item.UpgradeLevel, false, false);
+                _equipIcon.GetComponent<GameIcon_Equip>().InitWithoutCallback(_item.ItemID, 0, 0, _item.UpgradeLevel);
             }
         }
     }
@@ -283,7 +308,7 @@ public class UI_Inventory : MonoBehaviour
         var _item = player.mEquipmentInvData.GetEquipmentBySlotId(slotid);
         if (_item != null)
             UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-                OnClicked_InitTooltipEquipment(window.GetComponent<HUD_ItemDetailToolTip>(), slotid, _item, false);
+                OnClicked_InitTooltipEquipment(window.GetComponent<UI_DialogItemDetailToolTip>(), slotid, _item, false);
             });
     }
 
@@ -293,7 +318,7 @@ public class UI_Inventory : MonoBehaviour
         var _item = player.mEquipmentInvData.GetFashionSlot(slotid);
         if (_item != null)
             UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-                OnClicked_InitTooltipEquipment(window.GetComponent<HUD_ItemDetailToolTip>(), slotid, _item, true);
+                OnClicked_InitTooltipEquipment(window.GetComponent<UI_DialogItemDetailToolTip>(), slotid, _item, true);
             });
     }
     #endregion
@@ -302,11 +327,11 @@ public class UI_Inventory : MonoBehaviour
     public void OnClicked_InventoryItem(int slotid, IInventoryItem item)
     {
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            OnClicked_InitTooltip(window.GetComponent<HUD_ItemDetailToolTip>(), slotid, item);
+            OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), slotid, item);
         });
     }
 
-    private void OnClicked_InitTooltipEquipment(HUD_ItemDetailToolTip component, int slotid, IInventoryItem item, bool fashionslot)
+    private void OnClicked_InitTooltipEquipment(UI_DialogItemDetailToolTip component, int slotid, IInventoryItem item, bool fashionslot)
     {
         component.InitTooltip(item);
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
@@ -323,7 +348,7 @@ public class UI_Inventory : MonoBehaviour
         component.SetButtonCallback(_buttons);
     }
 
-    private void OnClicked_InitTooltip(HUD_ItemDetailToolTip component, int slotid, IInventoryItem item)
+    private void OnClicked_InitTooltip(UI_DialogItemDetailToolTip component, int slotid, IInventoryItem item)
     {
         component.InitTooltip(item);
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
@@ -368,9 +393,10 @@ public class UI_Inventory : MonoBehaviour
             case ItemType.QuestItem:
                 AddUse(_buttons, slotid, item);
                 break;
-            case ItemType.MercenaryItem:
-                AddMercenaryUI(_buttons, slotid, item);
-                AddMercenaryGift(_buttons, slotid, item);
+            case ItemType.MercenaryItem:                    
+                AddHeroUI(_buttons, slotid, item);
+                AddHeroGift(_buttons, slotid, item);
+                AddHeroSkin(_buttons, slotid, item);
                 break;
             case ItemType.InstanceItem:
                 AddTeleport(_buttons, slotid, item);
@@ -442,7 +468,7 @@ public class UI_Inventory : MonoBehaviour
         buttons.Add(_button);
     }
 
-    private void AddMercenaryUI(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddHeroUI(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
     {
         HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
         ItemDetailsButton _button = new ItemDetailsButton();
@@ -450,39 +476,37 @@ public class UI_Inventory : MonoBehaviour
         _button.icon = "ButtonB_UseItem";
         _button.callback = () =>
         {
-            bool canOpen = ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Achievement); //todo replace with hero LinkUIType
-            if (canOpen)
+            switch (heroItemJson.heroitemtype)
             {
-                switch (heroItemJson.heroitemtype)
-                {
-                    case HeroItemType.Shard:
-                        int _heroid;
-                        if (int.TryParse(heroItemJson.heroid, out _heroid))
-                        {
-                            //todo go to hero detail base on heroid
-                        }
-                        break;
-                    case HeroItemType.Gift:
-                        break;
-                    case HeroItemType.Onigiri:
-                        //todo goto explore 
-                        break;
-                }
+                case HeroItemType.Shard:
+                case HeroItemType.HeroSkin:
+                    int _heroid;
+                    if (int.TryParse(heroItemJson.heroid, out _heroid) && _heroid > 0)
+                        ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Hero, _heroid.ToString());
+                    else
+                        ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Hero);
+                    break;
+                case HeroItemType.Gift:
+                    ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Hero);
+                    break;
+                case HeroItemType.Onigiri:
+                    ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Hero_Explore);
+                    break;
             }
         };
         buttons.Add(_button);
     }
 
-    private void AddMercenaryGift(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddHeroGift(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
     {
         HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
-        if (heroItemJson.heroitemtype != HeroItemType.Gift || string.IsNullOrEmpty(heroItemJson.heroid) || heroItemJson.heroid == "-1")
+        if (heroItemJson.heroitemtype != HeroItemType.Gift || heroItemJson.ischangelike != 0 || string.IsNullOrEmpty(heroItemJson.heroid))
             return;
 
         ItemDetailsButton _button = new ItemDetailsButton();
         buttons.Add(_button);
         int _heroid;
-        if (int.TryParse(heroItemJson.heroid, out _heroid))
+        if (int.TryParse(heroItemJson.heroid, out _heroid) && _heroid > 0)
         {
             _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_DirectGift");
             _button.icon = "ButtonB_UseItem";
@@ -492,7 +516,24 @@ public class UI_Inventory : MonoBehaviour
         {
             _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_GoToGift");
             _button.icon = "ButtonB_UseItem";
-            _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Achievement);//todo replace with hero LinkUIType
+            _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Hero);
+        }
+    }
+
+    private void AddHeroSkin(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    {
+        HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
+        if (heroItemJson.heroitemtype != HeroItemType.HeroSkin || string.IsNullOrEmpty(heroItemJson.heroid) || heroItemJson.heroid == "-1")
+            return;
+
+        ItemDetailsButton _button = new ItemDetailsButton();
+        buttons.Add(_button);
+        int _heroid;
+        if (int.TryParse(heroItemJson.heroid, out _heroid))
+        {
+            _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_GetHeroSkin");
+            _button.icon = "ButtonB_UseItem";
+            _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotid, item);
         }
     }
 

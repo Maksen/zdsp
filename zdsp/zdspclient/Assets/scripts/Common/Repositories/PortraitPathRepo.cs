@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
 using Zealot.Common;
 
@@ -16,7 +13,7 @@ namespace Zealot.Repository
         public static Dictionary<int, string> mHeroMap;
         public static Dictionary<int, string> mGeneralMap;
 
-        public static Dictionary<int, CharPortraitType> mPortraitTypeMap;
+        static Dictionary<int, CharPortraitType> mPortraitTypeMap;
 
         static PortraitPathRepo()
         {
@@ -29,6 +26,7 @@ namespace Zealot.Repository
             mGeneralMap = new Dictionary<int, string>();
             mPortraitTypeMap = new Dictionary<int, CharPortraitType>();
         }
+
         public static void Init(GameDBRepo gameData)
         {
             Dictionary<int, PortraitJson> mPortraitJson = gameData.Portrait;
@@ -65,6 +63,7 @@ namespace Zealot.Repository
                 mPortraitTypeMap.Add(pair.Value.pid, pair.Value.pclass);
             }
         }
+
         public static string GetPath(int portraitID)
         {
             if (mGeneralMap.ContainsKey(portraitID))
@@ -72,6 +71,7 @@ namespace Zealot.Repository
 
             return string.Empty;
         }
+
         public static string GetPath(CharPortraitType e, int portraitID)
         {
             Dictionary<int, string> dic = null;
@@ -107,6 +107,7 @@ namespace Zealot.Repository
 
             return CharPortraitType.None;
         }
+
         public static int GetFirstDefaultPortrait(CharPortraitType e)
         {
             Dictionary<int, string> dic = null;
@@ -134,6 +135,7 @@ namespace Zealot.Repository
 
             return -1;
         }
+
         public static int GetFirstDefaultPortrait(JobType e)
         {
             return 1;

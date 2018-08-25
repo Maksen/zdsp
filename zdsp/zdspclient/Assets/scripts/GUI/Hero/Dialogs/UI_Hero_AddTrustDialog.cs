@@ -74,7 +74,7 @@ public class UI_Hero_AddTrustDialog : BaseWindowBehaviour
         if (heroItem != null && heroItem.HeroItemJson.heroitemtype == HeroItemType.Gift)
         {
             string[] heroids = heroItem.HeroItemJson.heroid.Split(';');
-            return heroids.Contains(heroId.ToString());
+            return heroItem.HeroItemJson.heroid == "-1" || heroids.Contains(heroId.ToString());
         }
         return false;
     }

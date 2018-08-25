@@ -9,6 +9,8 @@ public class UI_Hero : BaseWindowBehaviour
     private UI_Hero_HeroBonds uiHeroBonds;
     private UI_Hero_Exploration uiExploration;
 
+    public int SelectHero { get; set; }
+
     public override void OnRegister()
     {
         base.OnRegister();
@@ -22,7 +24,8 @@ public class UI_Hero : BaseWindowBehaviour
     public override void OnOpenWindow()
     {
         base.OnOpenWindow();
-        uiHeroInfo.Init();
+        uiHeroInfo.Init(SelectHero);
+        SelectHero = 0; // reset for next window open
     }
 
     public override void OnCloseWindow()
@@ -31,6 +34,11 @@ public class UI_Hero : BaseWindowBehaviour
         uiHeroInfo.CleanUp();
         uiHeroBonds.CleanUp();
         uiExploration.CleanUp();
+    }
+
+    public void GoToTab(int index)
+    {
+        tabController.GoToPage(index);
     }
 
     public void OnSummonedHeroChanged()

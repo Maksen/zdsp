@@ -10,7 +10,6 @@ using Zealot.Server.Entities;
 using Zealot.Repository;
 using System.Linq;
 using System.Text;
-using Photon.Hive;
 
 namespace Zealot.Server.Rules
 {
@@ -365,28 +364,28 @@ namespace Zealot.Server.Rules
             if (realm == null || realm.type != RealmType.Dungeon) // Can only add extry entry for dungeon story
                 return;
 
-            DungeonJson dungeonJson = (DungeonJson)realm;
-            int seq = dungeonJson.sequence;
-            Dictionary<int, int> extraEntryFeesDict = RealmRepo.GetExtraEntryFeesBySeq(seq);
-            DungeonStoryInfo dungeonStoryInfo = player.RealmStats.GetDungeonStoryDict()[seq];
+            //DungeonJson dungeonJson = (DungeonJson)realm;
+            //int seq = dungeonJson.sequence;
+            //Dictionary<int, int> extraEntryFeesDict = RealmRepo.GetExtraEntryFeesBySeq(seq);
+            //DungeonStoryInfo dungeonStoryInfo = player.RealmStats.GetDungeonStoryDict()[seq];
             //int dailyLimit = VIPRepo.GetVIPPrivilege("DungeonStory", player.PlayerSynStats.vipLvl);
             //if (dungeonStoryInfo.DailyExtraEntry >= dailyLimit) // Check daily limit
             //{
             //    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Dun_DailyExtraEntryVipLimit", "", false, peer);
             //    return;
             //}
-            int addFee = 0;
-            if (extraEntryFeesDict.TryGetValue(dungeonStoryInfo.DailyExtraEntry+1, out addFee))
-            {
-                if (player.DeductGold(addFee, true, true, "Realm_AddEntry"))
-                {
-                    ++dungeonStoryInfo.DailyExtraEntry;
-                    player.RealmStats.AddExtraEntry(realm.type, seq, 1);
-                    LogStoryAddExtraEntry(peer, realmId, dungeonStoryInfo.DailyExtraEntry, dungeonStoryInfo.ExtraEntry);
-                }
-                else
-                    peer.ZRPC.CombatRPC.OpenUIWindow((byte)LinkUIType.GoTopUp, -1, peer);
-            }
+            //int addFee = 0;
+            //if (extraEntryFeesDict.TryGetValue(dungeonStoryInfo.DailyExtraEntry+1, out addFee))
+            //{
+            //    if (player.DeductGold(addFee, true, true, "Realm_AddEntry"))
+            //    {
+            //        ++dungeonStoryInfo.DailyExtraEntry;
+            //        player.RealmStats.AddExtraEntry(realm.type, seq, 1);
+            //        LogStoryAddExtraEntry(peer, realmId, dungeonStoryInfo.DailyExtraEntry, dungeonStoryInfo.ExtraEntry);
+            //    }
+            //    else
+            //        peer.ZRPC.CombatRPC.OpenUIWindow((byte)LinkUIType.GoTopUp, -1, peer);
+            //}
         }
 
         public static bool OnDungeonRaid(int realmId, GameClientPeer peer)
@@ -738,7 +737,7 @@ namespace Zealot.Server.Rules
                     peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_RewardAlreadyClaimed", "", false, peer);
                     return;
                 }
-                Dictionary<int, int> starRewardsDict = RealmRepo.GetStarRewardsBySeq(seq);
+                /*Dictionary<int, int> starRewardsDict = RealmRepo.GetStarRewardsBySeq(seq);
                 int rewardGrpId = 0;
                 if (starRewardsDict.TryGetValue(starCount, out rewardGrpId))
                 {
@@ -756,7 +755,7 @@ namespace Zealot.Server.Rules
                         peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
                         return;
                     }
-                }
+                }*/
             }
         }
 
@@ -933,19 +932,19 @@ namespace Zealot.Server.Rules
 
         public static void InitRealmStats(RealmStats realmStats)
         {
-            Dictionary<int, Dictionary<DungeonDifficulty, DungeonJson>> dungeonSeq = RealmRepo.mDungeon;
-            int count = dungeonSeq.Count;
-            Dictionary<int, DungeonStoryInfo> dStoryDict = realmStats.GetDungeonStoryDict();
-            for (int i = 0; i < count; ++i)
-            {
-                int seq = i+1;
-                if (dStoryDict.Count == i)
-                {
-                    dStoryDict.Add(seq, new DungeonStoryInfo(dungeonSeq[seq][DungeonDifficulty.Easy].entrylimit, 0, 0, false, false, false,
-                                                             false, false, false, false, false, false, "", i));
-                    realmStats.DungeonStory[i] = dStoryDict[seq].ToString();
-                }
-            }
+            //Dictionary<int, Dictionary<DungeonDifficulty, DungeonJson>> dungeonSeq = RealmRepo.mDungeonStory;
+            //int count = dungeonSeq.Count;
+            //Dictionary<int, DungeonStoryInfo> dStoryDict = realmStats.GetDungeonStoryDict();
+            //for (int i = 0; i < count; ++i)
+            //{
+            //    int seq = i+1;
+            //    if (dStoryDict.Count == i)
+            //    {
+            //        dStoryDict.Add(seq, new DungeonStoryInfo(dungeonSeq[seq][DungeonDifficulty.Easy].entrylimit, 0, 0, false, false, false,
+            //                                                 false, false, false, false, false, false, "", i));
+            //        realmStats.DungeonStory[i] = dStoryDict[seq].ToString();
+            //    }
+            //}
 
             //Dictionary<int, List<DungeonDailySpecialJson>> dDailySeq = RealmRepo.mDungeonDaily;
             //count = dDailySeq.Count;

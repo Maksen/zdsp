@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
 using System.Linq;
 using System.Globalization;
-//using ExitGames.Logging;
 
 namespace Zealot.Repository
 {
@@ -97,7 +96,6 @@ namespace Zealot.Repository
 
     public static class LotteryMainRepo
     {
-        //private static readonly ILogger log = LogManager.GetCurrentClassLogger();
         public static Dictionary<int, LotteryMainJson> mLotteryMainsRaw;
         public static Dictionary<int, LotteryItemJson> mLotteryItemsRaw;
         public static Dictionary<int, LotteryMainData> mLotteryMains;

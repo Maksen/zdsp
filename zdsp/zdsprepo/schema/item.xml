@@ -2,15 +2,17 @@
 <magicalarea51>
   <data>
     <enum name="ItemOriginType">      
-      <item key="UI" value="0"/>
-      <item key="Monster" value="1"/>
-      <item key="Shop" value="2"/>
+      <item key="Monster" value="0"/>
+      <item key="Item" value="1"/>
+      <item key="NPC" value="2"/>
+      <item key="UI" value="3"/>
+      <item key="Auction" value="4"/>
     </enum>
       
     <element name="ItemOrigin" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name" default=""/>
       <property name="origintype" type="ItemOriginType" uitext="Origin Type" default="0"/>
-      <property name="param" type="string" uitext="Param" default="" info="UI-uiid，Monster-archetype, Shop-archetype"/>
+      <property name="param" type="string" uitext="Param" default="" info="UI-uiid，Monster-archetype, NPC-archetype"/>
     </element>
     
     <element name="LinkUI" useexcel="true">
@@ -20,13 +22,13 @@
     </element>    
     
     <element name="ItemSort" useexcel="true">
-      <property name="itemsortid" type="int" uitext="Item Sort Id" unique="true"/>
+      <property name="itemsortid" type="int" uitext="Item Sort Id" unique="true" default="0"/>
       <property name="name" type="string" uitext="Name" default=""/>
       <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
-      <property name="sortorder" type="int" uitext="Sorting Order"/>
+      <property name="sortorder" type="int" uitext="Sorting Order" default="0"/>
     </element>
     
-    <element name="ItemBase" useexcel="true" collectionkey="name">
+    <element name="ItemBase" useexcel="true" collectionkey="name" localizeexport="itemid">
       <property name="itemid" type="int" uitext="Item ID" min="0" max="9999999" unique="true"/>
       <property name="name" type="string" uitext="Name" default=""/>
       <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
@@ -51,32 +53,32 @@
       <property name="generateuid" type="bool" uitext="Generate UID" default="false"/>
     </element>
     
-    <element name="PotionFood" inherit="ItemBase">
+    <element name="PotionFood" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.PotionFood"/>
       <property name="cdtime" type="float" uitext="Cooldown Time" default="1"/>
       <property name="gcdtime" type="float" uitext="Global Cooldown Time" default="1"/>
       <property name="gcdtype" type="GCDType" uitext="GCD Type"/>
-      <property name="segrpid" type="string" uitext="Side Effect Group ID" default=""/>
+      <property name="seid" type="string" uitext="Side Effect ID" default=""/>
     </element>
     
-    <element name="Material" inherit="ItemBase">
+    <element name="Material" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Material"/>
       <property name="tooltiptype" type="ToolTipType" uitext="Tooltip Type"/>
       <property name="mattype" type="MaterialType" uitext="Material Type"/>
       <property name="uiid" type="int" uitext="Open UI" default="0"/>
-      <property name="reqval" type="int" uitext="Required Value" default="0"/>
-      <property name="exchitemid" type="int" uitext="Exchanged Item ID" default="1"/>
+      <property name="reqval" type="int" uitext="Required Value" default="-1"/>
+      <property name="exchitemid" type="int" uitext="Exchanged Item ID" default="-1"/>
       <property name="upgitemrate" type="float" uitext="Upgrade Item Rate" default="1"/>
       <property name="addinstancetime" type="string" uitext="Add Instance Time" default=""/>
     </element>
     
-    <element name="LuckyPick" inherit="ItemBase">
+    <element name="LuckyPick" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.LuckyPick"/>
       <property name="luckypickgroup" type="string" uitext="LootGroup ids" default="" info="id1;id2"/>
       <property name="currency" type="string" uitext="Currency" default="" info ="Format: 1|500;2|1000"/>
     </element>
     
-    <element name="Henshin" inherit="ItemBase">
+    <element name="Henshin" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Henshin"/>
       <property name="henshinname" type="localizedstring" uitext="Henshin Name (Localized)" default=""/>
       <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
@@ -84,12 +86,12 @@
       <property name="prefabpath" type="asset" uitext="Prefab Path" default="" assettype="prefab"/>
     </element>
     
-    <element name="Features" inherit="ItemBase">
+    <element name="Features" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Features"/>
       <property name="uiid" type="int" uitext="Open UI" default="0"/>
     </element>
     
-    <element name="Equipment" inherit="ItemBase">
+    <element name="Equipment" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Equipment"/>
       <property name="equiptype" type="EquipmentType" uitext="Equipment Type"/>
       <property name="partstype" type="PartsType" uitext="Parts Type"/>
@@ -103,15 +105,15 @@
       <property name="socketspace" type="string" uitext="Socket Space" default="-1" info ="Format: 初始洞數|最大洞數|需求數量"/>
       <property name="evolvegrp" type="string" uitext="Evolve Group" default="-1"/>
       <property name="evolvechange" type="int" uitext="Evolve Change" default="-1"/>
-      <property name="prefabpath" type="asset" uitext="Prefab Path" default="-1" assettype="prefab"/>
-      <property name="femaleprefabpath" type="asset" uitext="Female Prefab Path" default="-1" assettype="prefab"/>
-      <property name="malemeshpath" type="asset" uitext="Male Mesh Path" default="-1" assettype="mesh"/>
-      <property name="malematerialpath" type="asset" uitext="Male Material Path" default="-1" assettype="material"/>
-      <property name="femalemeshpath" type="asset" uitext="Female Mesh Path" default="-1" assettype="mesh"/>
-      <property name="femalematerialpath" type="asset" uitext="Female Material Path" default="-1" assettype="material"/>
+      <property name="prefabpath" type="asset" uitext="Prefab Path" default="" assettype="prefab"/>
+      <property name="femaleprefabpath" type="asset" uitext="Female Prefab Path" default="" assettype="prefab"/>
+      <property name="malemeshpath" type="asset" uitext="Male Mesh Path" default="" assettype="mesh"/>
+      <property name="malematerialpath" type="asset" uitext="Male Material Path" default="" assettype="material"/>
+      <property name="femalemeshpath" type="asset" uitext="Female Mesh Path" default="" assettype="mesh"/>
+      <property name="femalematerialpath" type="asset" uitext="Female Material Path" default="" assettype="material"/>
     </element>
     
-    <element name="DNA" inherit="ItemBase">
+    <element name="DNA" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.DNA"/>
       <property name="dnatype" type="DNAType" uitext="DNA Type" default="0"/>
       <property name="exp" type="int" uitext="Exp" default="0"/>
@@ -122,7 +124,7 @@
       <property name="negative" type="string" uitext="Negative" default=""/>
     </element>
     
-    <element name="Relic" inherit="ItemBase">
+    <element name="Relic" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Relic"/>
       <property name="relictype" type="RelicType" uitext="Relic Type" default="0"/>
       <property name="sockability" type="string" uitext="Socket Ability" default="null"/>
@@ -130,12 +132,17 @@
       <property name="recycle" type="bool" uitext="Recycle" default="true"/>
     </element>
     
-    <element name="QuestItem" inherit="ItemBase">
+    <element name="QuestItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.QuestItem"/>
-      <property name="questid" type="int" uitext="Quest ID" default="0"/>
+      <property name="delquesttype" type="int" uitext="Delete Quest Type" default="-1"/>
+      <property name="delquestval" type="int" uitext="Delete Quest Value" default="-1"/>
+      <property name="addquesttype" type="int" uitext="Add Quest Type" default="-1"/>
+      <property name="addquestval" type="int" uitext="Add Quest Value" default="-1"/>
+      <property name="addquestid" type="int" uitext="Add Quest ID" default="-1"/>
+      <property name="addobjid" type="int" uitext="Add Objective ID" default="-1"/>
     </element>
     
-    <element name="HeroItem" inherit="ItemBase">
+    <element name="HeroItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.MercenaryItem"/>
       <property name="heroitemtype" type="HeroItemType" uitext="Hero Item Type"/>
       <property name="heroid" type="string" uitext="Hero ID" default="-1" info="Format: HeroID1;HeroID2;HeroID3…"/>
@@ -146,7 +153,7 @@
       <property name="heroimagepath" type="asset" uitext="Hero Image Path" default="" assettype="sprite"/>
     </element>
     
-    <element name="InstanceItem" inherit="ItemBase">
+    <element name="InstanceItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.InstanceItem"/>
       <property name="coordinate" type="string" uitext="Coordinate" default="-1"/>
     </element>

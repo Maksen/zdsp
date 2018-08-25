@@ -1,10 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-
-
-
 
 namespace Zealot.Repository
 {
@@ -30,8 +25,8 @@ namespace Zealot.Repository
             {
                 string Archetype = entry.Value.archetype;
                 mTeleportNPCList.Add(Archetype, entry.Key);
-                string Path = StaticNPCRepo.GetNPCArchetypePathByName(Archetype);
-                mTeleportNPCPModelPrefabPath.Add(Archetype, Path);
+                //string Path = StaticNPCRepo.GetNPCArchetypePathByName(Archetype);
+                //mTeleportNPCPModelPrefabPath.Add(Archetype, Path);
             }
         }
 
@@ -63,4 +58,3 @@ namespace Zealot.Repository
         //}
     }
 }
-

@@ -27,7 +27,7 @@ public class UI_WorldBossList_Data : MonoBehaviour
         Toggle.group = group;
         var level_info = LevelRepo.GetInfoById(boss_info.location);
         LevelName.text = level_info.localizedname;
-        MiniIcon.sprite = boss_info.category == BossCategory.BIGBOSS ? BossTypeSprites[0] : BossTypeSprites[1];
+        MiniIcon.sprite = boss_info.bosstype == BossType.BigBoss ? BossTypeSprites[0] : BossTypeSprites[1];
         BossIcon.sprite = ClientUtils.LoadIcon(boss_info.icon);
 
         if (bossStatus.isAlive)

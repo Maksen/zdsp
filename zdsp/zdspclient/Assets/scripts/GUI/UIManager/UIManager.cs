@@ -237,12 +237,12 @@ public static class UIManager
 
     #region Open specific windows
 
-    public static void OpenYesNoDialog(string content, Action yes_callback, Action no_callback = null,
-                                       int countdown = 0, Action cd_callback = null)
+    public static void OpenYesNoDialog(string content, Action yes_callback, Action no_callback = null, int countdown = 0, 
+                                       Action cd_callback = null)
     {
         OpenDialog(WindowType.DialogYesNoOk, (GameObject window) =>
         {
-            window.GetComponent<UI_YesNoDialog>().InitYesNoDialog(content, yes_callback, no_callback, countdown, cd_callback);
+            window.GetComponent<UI_DialogYesNo>().InitDialogYesNo(content, yes_callback, no_callback, countdown, cd_callback);
         });
     }
 
@@ -250,7 +250,7 @@ public static class UIManager
     {
         OpenDialog(WindowType.DialogYesNoOk, (GameObject window) =>
         {
-            window.GetComponent<UI_YesNoDialog>().InitOkDialog(content, ok_callback);
+            window.GetComponent<UI_DialogYesNo>().InitDialogOk(content, ok_callback);
         });
     }
 

@@ -157,10 +157,10 @@ namespace Zealot.Repository
     public class WelfareRepo
     {
         // Welfare Continuous Login
-        private static Dictionary<int, Dictionary<int, Dictionary<int, SignInPrizeJson>>> _yearMonthDayJsonMap;
+        public static Dictionary<int, Dictionary<int, Dictionary<int, SignInPrizeJson>>> _yearMonthDayJsonMap;
 
         // Welfare Online Reward
-        private static Dictionary<int, OnlinePrizeJson> _orderJsonMap; // Online Order -> Json
+        public static Dictionary<int, OnlinePrizeJson> _orderJsonMap; // Online Order -> Json
 
         static WelfareRepo()
         {

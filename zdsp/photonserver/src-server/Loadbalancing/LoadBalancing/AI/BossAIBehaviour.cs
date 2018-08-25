@@ -652,15 +652,17 @@ namespace Zealot.Server.AI
             int idx = 0;
             if (mMonster.mArchetype.bossai1 > 0)
             {
-                BossAIJson data = NPCRepo.GetBossAIByID(mMonster.mArchetype.bossai1);
+                BossAIJson data = CombatNPCRepo.GetBossAIByID(mMonster.mArchetype.bossai1);
                 BaseSkillCondition inst = CreateInstanceByData(idx++, data);
-                if (inst != null) mAISkillConditions.Add(inst);
+                if (inst != null)
+                    mAISkillConditions.Add(inst);
             }
             if (mMonster.mArchetype.bossai2 > 0)
             {
-                BossAIJson data = NPCRepo.GetBossAIByID(mMonster.mArchetype.bossai2);
+                BossAIJson data = CombatNPCRepo.GetBossAIByID(mMonster.mArchetype.bossai2);
                 BaseSkillCondition inst = CreateInstanceByData(idx++, data);
-                if (inst != null) mAISkillConditions.Add(inst);
+                if (inst != null)
+                    mAISkillConditions.Add(inst);
             }
         }
 

@@ -212,10 +212,10 @@ namespace Zealot.Common
         #region InitFromCode
         public virtual void InitFromCode(int itemCode)
         {
+            ItemID = (ushort)(itemCode & (int)ItemCodeMask.ID);
             StackCount = (ushort)((itemCode >> (int)ItemBits.StackShift) & (int)ItemCodeMask.STACK);
-            Bound = (itemCode & (int)ItemCodeMask.BOUND) > 0 ? true : false;
-            newItem = (itemCode & (int)ItemCodeMask.NEW) > 0 ? true : false;
-            ItemID = (ushort)(itemCode & (uint)ItemCodeMask.ID);
+            Bound = (uint)(itemCode & (int)ItemCodeMask.BOUND) > 0 ? true : false;
+            newItem = (uint)(itemCode & (int)ItemCodeMask.NEW) > 0 ? true : false;
         }
 
         public virtual void InitFromCode(string itemCode, bool base64encode = false)

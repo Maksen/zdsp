@@ -16,9 +16,9 @@ namespace Zealot.Entities
         public override string GetServerClassName() { return "RealmControllerWorld"; }
     }
 
-    public class RealmControllerDungeonStoryJson : RealmControllerJson
+    public class RealmControllerDungeonJson : RealmControllerJson
     {
-        public override string GetServerClassName() { return "RealmControllerDungeonStory"; }
+        public override string GetServerClassName() { return "RealmControllerDungeon"; }
     }
 
     public class RealmControllerDungeonDailySpecialJson : RealmControllerJson

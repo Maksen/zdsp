@@ -197,6 +197,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "powerupinv")]
         public PowerUpInventoryData PowerUpInventory { get; set; }
 
+        [JsonProperty(PropertyName = "equipmentcraftinv")]
+        public EquipmentCraftInventoryData EquipmentCraftInventory { get; set; }
+
         [JsonProperty(PropertyName = "offlineexpinv2")]
         public OfflineExpInventory2 OfflineExpInv2 { get; set; }
 
@@ -255,6 +258,7 @@ namespace Zealot.Common
             CurrencyInventory = new CurrencyInventoryData();
             ItemInventory = new ItemInventoryData();
             EquipmentInventory = new EquipmentInventoryData();
+            EquipmentCraftInventory = new EquipmentCraftInventoryData();
             RealmInventory = new RealmInventoryData();
             QuestInventory = new QuestInventoryData();
             SideEffectInventory = new SideEffectInventoryData();
@@ -299,6 +303,10 @@ namespace Zealot.Common
             //StoreData.InitDefault();
             if(PowerUpInventory.powerUpSlots.Count == 0)
                 PowerUpInventory.InitDefault();
+            if (EquipmentCraftInventory.EquipmentCraftSlots.Count == 0)
+            {
+                EquipmentCraftInventory.InitDefault();
+            }
         }
 
         public void ValidateDefault()

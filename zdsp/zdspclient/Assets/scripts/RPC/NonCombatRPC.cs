@@ -859,6 +859,14 @@ public partial class NonCombatRPC : RPCBase
     }
     #endregion
 
+    #region EquipmentCraft
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentCraft)]
+    public void EquipmentCraft(int itemId)
+    {
+        ProxyMethod("EquipmentCraft", itemId);
+    }
+    #endregion
+
     #region Destiny Clue
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ReadClue)]
     public void ReadClue(int clueid, byte type)

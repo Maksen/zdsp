@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
 using System.Linq;
-using Kopio.JsonContracts;
 
 namespace Zealot.Repository
 {

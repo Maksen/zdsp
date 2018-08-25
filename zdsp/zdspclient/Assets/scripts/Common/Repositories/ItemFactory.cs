@@ -1,70 +1,61 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Kopio.JsonContracts;
 using Zealot.Common;
 
 namespace Zealot.Repository
 {
     public abstract class BaseItemFactory
     {
-        private Dictionary<int, ItemBaseJson> itemTable = new Dictionary<int, ItemBaseJson>();
-        private Dictionary<int, ItemSortJson> itemSortTable = new Dictionary<int, ItemSortJson>();
-        private Dictionary<int, ItemOriginJson> itemOriginTable = new Dictionary<int, ItemOriginJson>();
-        private Dictionary<int, LinkUIJson> linkUITable = new Dictionary<int, LinkUIJson>();
-
-        public Dictionary<int, ItemBaseJson> ItemTable
-        {
-            get { return itemTable; }
-        }
-        public Dictionary<int, ItemSortJson> ItemSortTable
-        {
-            get { return itemSortTable; }
-        }
+        public Dictionary<int, ItemBaseJson> ItemTable = new Dictionary<int, ItemBaseJson>();
+        public Dictionary<int, ItemSortJson> ItemSortTable = new Dictionary<int, ItemSortJson>();
+        public Dictionary<int, ItemOriginJson> ItemOriginTable = new Dictionary<int, ItemOriginJson>();
+        public Dictionary<int, LinkUIJson> LinkUITable = new Dictionary<int, LinkUIJson>();
 
         public void InitGameData(GameDBRepo gameData)
         {
-            linkUITable.Clear();
-            itemTable.Clear();
-            itemSortTable = gameData.ItemSort;
-            itemOriginTable = gameData.ItemOrigin;
+            ItemTable.Clear();
+            ItemSortTable = gameData.ItemSort;
+            ItemOriginTable = gameData.ItemOrigin;
+            LinkUITable.Clear();
 
             foreach (KeyValuePair<int, LinkUIJson> kvp in gameData.LinkUI)
-                linkUITable.Add(kvp.Value.uiid, kvp.Value);      
+                LinkUITable.Add(kvp.Value.uiid, kvp.Value);      
 
             foreach (KeyValuePair<int, PotionFoodJson> kvp in gameData.PotionFood)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, MaterialJson> kvp in gameData.Material)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, LuckyPickJson> kvp in gameData.LuckyPick)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, HenshinJson> kvp in gameData.Henshin)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, FeaturesJson> kvp in gameData.Features)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
             
             foreach (KeyValuePair<int, EquipmentJson> kvp in gameData.Equipment)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, DNAJson> kvp in gameData.DNA)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, RelicJson> kvp in gameData.Relic)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, QuestItemJson> kvp in gameData.QuestItem)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, HeroItemJson> kvp in gameData.HeroItem)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, InstanceItemJson> kvp in gameData.InstanceItem)
-                itemTable.Add(kvp.Value.itemid, kvp.Value);        
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);        
         }
 
         public int GetItemMaxStackCount(BagType type)
@@ -72,16 +63,16 @@ namespace Zealot.Repository
             return (type != BagType.Equipment) ? GameConstantRepo.ItemMaxStackCount : 1;
         }
 
-        public ItemBaseJson GetItemById(int itemid)
+        public ItemBaseJson GetItemById(int itemId)
         {
-            if (itemTable.ContainsKey(itemid))
-                return itemTable[itemid];
-            return null;
+            ItemBaseJson itemBaseJson;
+            ItemTable.TryGetValue(itemId, out itemBaseJson);
+            return itemBaseJson;
         }
 
-        public IInventoryItem GetInventoryItem(int itemid)
+        public IInventoryItem GetInventoryItem(int itemId)
         {
-            ItemBaseJson itemjson = GetItemById(itemid);
+            ItemBaseJson itemjson = GetItemById(itemId);
             if (itemjson != null)
             {
                 IInventoryItem retItem;
@@ -132,8 +123,8 @@ namespace Zealot.Repository
 
         public IInventoryItem GetInventoryItem(JObject jObject)
         {
-            int itemid = (int)jObject["id"];
-            ItemBaseJson itemjson = GetItemById(itemid);
+            int itemId = (int)jObject["id"];
+            ItemBaseJson itemjson = GetItemById(itemId);
             if (itemjson != null)
             {
                 IInventoryItem retItem;
@@ -185,38 +176,38 @@ namespace Zealot.Repository
 
         public int GetItemSortTableLength()
         {
-            return itemSortTable.Count;
+            return ItemSortTable.Count;
         }
 
         public int GetItemOrderById(int id)
         {
-            if (itemSortTable.ContainsKey(id))
-                return itemSortTable[id].sortorder;
+            if (ItemSortTable.ContainsKey(id))
+                return ItemSortTable[id].sortorder;
             return 0;
         }
 
-        public LinkUIJson GetLinkUI(int uiid)
+        public LinkUIJson GetLinkUI(int UIId)
         {
             LinkUIJson _ret = null;
-            linkUITable.TryGetValue(uiid, out _ret);
+            LinkUITable.TryGetValue(UIId, out _ret);
             return null;    
         }
 
-        public List<ItemOriginJson> GetItemOriginJson(int itemid)
+        public List<ItemOriginJson> GetItemOriginJson(int itemId)
         {
             List<ItemOriginJson> _result = new List<ItemOriginJson>();
-            ItemBaseJson _itemJson = GetItemById(itemid);
+            ItemBaseJson _itemJson = GetItemById(itemId);
             if (_itemJson != null)
             {
                 string _origin = _itemJson.origin;
                 if (_origin != "-1" && _origin != "")
                 {
                     string[] _originids = _origin.Split(';');
-                    for (int index = 0; index < _originids.Length; index++)
+                    for (int index = 0; index < _originids.Length; ++index)
                     {
                         int _originid;
-                        if (int.TryParse(_originids[index], out _originid) && itemOriginTable.ContainsKey(_originid))
-                            _result.Add(itemOriginTable[_originid]);
+                        if (int.TryParse(_originids[index], out _originid) && ItemOriginTable.ContainsKey(_originid))
+                            _result.Add(ItemOriginTable[_originid]);
                     }
                 }
             }
@@ -249,7 +240,7 @@ namespace Zealot.Repository
     {
         private int GetItemIdFromCode(int itemCode)
         {
-            return (int)(itemCode & (uint)ItemCodeMask.ID);
+            return itemCode & (int)ItemCodeMask.ID;
         }
 
         /// <summary>

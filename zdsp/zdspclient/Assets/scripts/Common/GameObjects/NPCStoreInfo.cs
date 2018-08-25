@@ -22,18 +22,26 @@ namespace Zealot.Common
             public int ItemListID;
             public bool Show;
             public int ItemID;
+            public int Remaining;
+            public int ExCount;
             public ItemStoreType Type;
+            public Frequency DailyOrWeekly;
             public IInventoryItem data;
 
-            public Item(int storeid, int itemlistid, bool show, int itemid, ItemStoreType type)
+            public Item(int storeid, int itemlistid, bool show, int itemid, int remaining, int excount, ItemStoreType type, Frequency freq)
             {
-                StoreID = storeid; ItemListID = itemlistid; Show = show; ItemID = itemid; Type = type;
+                StoreID = storeid; ItemListID = itemlistid; Show = show; ItemID = itemid; Remaining = remaining; ExCount = excount; Type = type; DailyOrWeekly = freq;
             }
 
             public string Key() { return string.Format("{0} {1}", StoreID.ToString(), ItemListID.ToString()); }
         };
 
-        public class StandardItem : Item
+		public class BarterReq
+		{
+			public int StoreID, ItemListID;
+			public int ReqItemID, ReqItemValue;
+		};
+		public class StandardItem : Item
         {
             public int ItemValue;
             public NPCStoreInfo.SoldCurrencyType SoldType;
@@ -42,11 +50,10 @@ namespace Zealot.Common
             public int SortNumber;
             public DateTime StartTime;
             public DateTime EndTime;
-            public int ExCount;
-            public int Remaining;
-            public NPCStoreInfo.Frequency DailyOrWeekly;
 
-            public StandardItem(int storeid, int itemlistid, bool show, int itemid, ItemStoreType type,
+			public List<BarterReq> required_items = new List<BarterReq>();
+
+			public StandardItem(int storeid, int itemlistid, bool show, int itemid, ItemStoreType type,
                 int itemvalue,
                 NPCStoreInfo.SoldCurrencyType soldtype,
                 int soldvalue,
@@ -55,8 +62,8 @@ namespace Zealot.Common
                 DateTime start,
                 DateTime end,
                 int excount,
-                NPCStoreInfo.Frequency dailyorweekly
-                ) : base(storeid, itemlistid, show, itemid, type)
+                Frequency dailyorweekly
+                ) : base(storeid, itemlistid, show, itemid, excount, excount, type, dailyorweekly)
             {
                 ItemValue = itemvalue;
                 SoldType = soldtype;
@@ -65,41 +72,27 @@ namespace Zealot.Common
                 SortNumber = sortnumber;
                 StartTime = start;
                 EndTime = end;
-                Remaining = ExCount = excount;
-                DailyOrWeekly = dailyorweekly;
+                ExCount = excount;
             }
 
             public static StandardItem GetFromBase(Item i)
             {
-                if (i.Type == NPCStoreInfo.ItemStoreType.Normal)
+                if (i.Type == ItemStoreType.Normal)
                 {
-                    return (NPCStoreInfo.StandardItem)i;
+                    return (StandardItem)i;
                 }
                 else
                     return null;
             }
         };
 
-        public class RandomItem : Item
-        {
-            public RandomItem(int storeid, int itemlistid, bool show, int itemid, ItemStoreType type) : base(storeid, itemlistid, show, itemid, type)
-            {
-
-            }
-        };
-
-        public class BarterItem : Item
-        {
-            public BarterItem(int storeid, int itemlistid, bool show, int itemid, ItemStoreType type) : base(storeid, itemlistid, show, itemid, type)
-            {
-
-            }
-        };
-
         public class Transaction
         {
+            ItemStoreType itemtype;
             public DateTime bought;
-            public StandardItem storeitem;
+            public StandardItem solditem = null;
+            public StandardItem barteritem = null;
+
             public int remaining;
         };
 
@@ -120,4 +113,3 @@ namespace Zealot.Common
         }
     };    
 }
-

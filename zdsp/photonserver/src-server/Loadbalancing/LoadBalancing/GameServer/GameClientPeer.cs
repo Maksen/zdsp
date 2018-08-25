@@ -508,6 +508,7 @@ namespace Photon.LoadBalancing.GameServer
         public QuestExtraRewardsController mQuestExtraRewardsCtrler;
         public SocialInventoryData mSocialInventory;
         public PowerUpController mPowerUpController;
+        public EquipmentCraftController mEquipmentCraftController;
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -535,6 +536,7 @@ namespace Photon.LoadBalancing.GameServer
                             //InitCharDataFirst(charinfo);
                             mInventory = new ItemInventoryController(this);
                             mPowerUpController = new PowerUpController(this);
+                            mEquipmentCraftController = new EquipmentCraftController(this);
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
@@ -2969,6 +2971,45 @@ namespace Photon.LoadBalancing.GameServer
             mPlayer.PowerUpStats.powerUpSlots[part] = nextPartLevel;
             mPlayer.PowerUpStats.powerUpLvl = "0";
         }
+
+        #region EquipmentCraft
+        public void OnEquipmentCraft(int itemId)
+        {
+            if (EquipmentCraftRepo.GetEquipmentMaterial(itemId) == null)
+            {
+                return;
+            }
+
+            List<ItemInfo> useMatList = EquipmentCraftRepo.GetEquipmentMaterial(itemId);
+
+            for (int i = 0; i < useMatList.Count; ++i)
+            {
+                bool hasEnoughItem = mInventory.mInvData.HasItem(useMatList[i].itemId, useMatList[i].stackCount);
+                if (!hasEnoughItem)
+                {
+                    return;
+                }
+            }
+
+            if (!mInventory.mInvData.HasEmptySlot())
+            {
+                // Inventory is full!
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_BagInventoryFull"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            InvRetval result = mInventory.UseToolItems(useMatList, "EquipmentCraft");
+            if (result.retCode == InvReturnCode.UseFailed)
+            {
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipmentCraft_NotEnoughMaterials"), "", false, mPlayer.Slot);
+                return;
+            }
+            //GivePlayerEquipment
+            IInventoryItem giveItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
+            mInventory.AddItemsIntoInventory(giveItem, true, "EquipmentCraft");
+            mPlayer.EquipmentCraftStats.finishedCraft = true;
+        }
+        #endregion
 
         /*public InvRetval ConsumeMaterial (int id, int useAmount)
         {

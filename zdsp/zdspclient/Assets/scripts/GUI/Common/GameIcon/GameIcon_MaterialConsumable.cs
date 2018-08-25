@@ -12,26 +12,36 @@ public class GameIcon_MaterialConsumable : GameIcon_Base
     [SerializeField]
     GameIconCmpt_SelectCheckmark toggleSelect = null;
 
-    public void Init(int itemId, int stackCount, bool statusCannotUse = false, bool isToggleSelectOn = false, UnityAction onClickCallback = null)
+    public void Init(int itemId, int stackCount, bool statusCannotUse, bool isNew, bool isToggleSelectOn, UnityAction onClickCallback = null)
     {
-        Init(itemId);
+        Init(itemId, isNew);
         StatusCannotUse = statusCannotUse;
-        itemStackCount.SetStackCount(stackCount);
+        SetStackCount(stackCount);
         if (toggleSelect != null)
             SetToggleSelectOn(isToggleSelectOn);
         if (onClickCallback != null)
             SetClickCallback(onClickCallback);
     }
 
+    public void InitWithoutCallback(int itemId, int stackCount)
+    {
+        Init(itemId, stackCount, false, false, false);
+    }
+
+    public void InitWithToolTipView(int itemId, int stackCount)
+    {
+        Init(itemId, stackCount, false, false, false, OnClickShowItemToolTip);
+    }
+
+    public void SetStackCount(int count)
+    {
+        itemStackCount.SetStackCount(count);
+    }
+
     // Set stack count to show even if < 2
     public void SetFullStackCount(int stackCount, bool uncapped = false)
     {
         itemStackCount.SetStackCountFull(stackCount, uncapped);
-    }
-    
-    public void InitWithTooltipViewOnly(int itemId, int stackCount)
-    {
-        Init(itemId, stackCount, false, false, OnClickShowTooltipViewOnly);
     }
 
     public bool StatusCannotUse

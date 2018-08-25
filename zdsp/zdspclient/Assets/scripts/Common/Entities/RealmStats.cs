@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using System.Text;
-using Kopio.JsonContracts;
+using System.Linq;
 using Zealot.Common.Datablock;
 using Zealot.Repository;
-using System.Linq;
 
 namespace Zealot.Common.Entities
 {
@@ -57,7 +57,7 @@ namespace Zealot.Common.Entities
             starRewardSb.Length = 0;
             string[] starInfo = starRewardCollected.Split('|');
             int starInfoLen = starInfo.Length;          
-            Dictionary<int, int> starRewards = RealmRepo.GetStarRewardsBySeq(localObjIdx+1);
+            /*Dictionary<int, int> starRewards = RealmRepo.GetStarRewardsBySeq(localObjIdx+1);
             if(starRewards != null)
             {
                 bool isFirst = true;
@@ -76,7 +76,7 @@ namespace Zealot.Common.Entities
                     starRewardSb.AppendFormat("{0}|{1}", starCnt, result);
                     starCollectedDict[starCnt] = (result != 0);
                 }
-            }          
+            }*/        
             StarRewardCollected = starRewardSb.ToString();
         }
 

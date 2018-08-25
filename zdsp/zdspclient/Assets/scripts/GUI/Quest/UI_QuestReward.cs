@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
 using Zealot.Repository;
 using Zealot.Common;
 
@@ -27,59 +27,42 @@ public class UI_QuestReward : MonoBehaviour
         foreach (RewardItem item in reward.itemRewardLst)
         {
             ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(item.id);
-            switch(itemJson.itemtype)
+            GameObject icon = null;
+            switch(itemJson.bagtype)
             {
-                case ItemType.Material:
-                    mRewards.Add(GenerateMaterialIcon(item.id, item.count));
+                case BagType.Equipment:
+                    icon = Instantiate(EquipIcon);
+                    icon.GetComponent<GameIcon_Equip>().InitWithoutCallback(item.id, 0, 0, 0);
                     break;
-                case ItemType.Equipment:
-                    mRewards.Add(GenerateEquipIcon(item.id));
+                case BagType.Consumable:
+                    icon = Instantiate(ConsumableIcon);
+                    icon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(item.id, item.count);
                     break;
-                case ItemType.PotionFood:
-                case ItemType.LuckyPick:
-                case ItemType.Henshin:
-                case ItemType.Features:
-                case ItemType.DNA:
-                case ItemType.Relic:
-                case ItemType.QuestItem:
-                case ItemType.MercenaryItem:
-                case ItemType.PetItem:
-                    mRewards.Add(GenerateConsumableIcon(item.id, item.count));
+                case BagType.Material:
+                    icon = Instantiate(MaterialIcon);
+                    icon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(item.id, item.count);
+                    break;
+                case BagType.DNA:
                     break;
             }
+            icon.transform.SetParent(transform, false);
+            mRewards.Add(icon);
         }
+    }
+
+    void OnDisable()
+    {
+        Clear();
     }
 
     private void Clear()
     {
-        foreach(GameObject reward in mRewards)
+        if (mRewards != null)
         {
-            GameObject.Destroy(reward);
+            foreach (GameObject reward in mRewards)
+                Destroy(reward);
+
+            mRewards.Clear();
         }
-        mRewards = new List<GameObject>();
-    }
-
-    private GameObject GenerateMaterialIcon(int itemid, int stackcount)
-    {
-        GameObject icon = Instantiate(MaterialIcon);
-        icon.GetComponent<GameIcon_MaterialConsumable>().Init(itemid, stackcount, false);
-        icon.transform.SetParent(transform, false);
-        return icon;
-    }
-
-    private GameObject GenerateConsumableIcon(int itemid, int stackcount)
-    {
-        GameObject icon = Instantiate(ConsumableIcon);
-        icon.GetComponent<GameIcon_MaterialConsumable>().Init(itemid, stackcount, false);
-        icon.transform.SetParent(transform, false);
-        return icon;
-    }
-
-    private GameObject GenerateEquipIcon(int itemid)
-    {
-        GameObject icon = Instantiate(EquipIcon);
-        icon.GetComponent<GameIcon_Equip>().Init(itemid, 0, 0, 0, false, false);
-        icon.transform.SetParent(transform, false);
-        return icon;
     }
 }

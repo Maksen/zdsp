@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -8,7 +8,7 @@ namespace Zealot.Repository
     {
         //static Dictionary<int, LevelUpJson> mLevelUpJson;
         //static Dictionary<int, LevelUpIconJson> mLevelUpIconJson;
-        static Dictionary<JobType, JobCombatStatsJson> mAllJobParameterJson;
+        public static Dictionary<JobType, JobCombatStatsJson> mAllJobParameterJson;
 
         static ExperienceRepo()
         {

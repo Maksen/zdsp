@@ -313,7 +313,7 @@ namespace Photon.LoadBalancing.GameServer.Lottery
                 {
                     int itemId = iteminfo.itemId, itemCount = iteminfo.count;
                     // Check PrizeGuarantee
-                    Zealot.Server.Rules.PrizeGuaranteeRules.GetPrizeGuarantee(player.Slot, PrizeGuaranteeType.Activity, ID, ref itemId, ref itemCount);
+                    //Zealot.Server.Rules.PrizeGuaranteeRules.GetPrizeGuarantee(player.Slot, PrizeGuaranteeType.Activity, ID, ref itemId, ref itemCount);
                     ItemInfo _iteminfo = additems.Find(x => x.itemId == itemId);
                     if (_iteminfo != null)
                         _iteminfo.stackCount += itemCount;

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
@@ -33,14 +34,14 @@ namespace Photon.LoadBalancing.GameServer
         private List<IPassiveSideEffect> summonPassiveSEs;
         private Dictionary<int, List<IPassiveSideEffect>> heroPassiveSEs;  // hero id -> list of passives
         private HeroInterestType randomSpinResult;
-        private Dictionary<int, List<ItemInfo>> explorationRewards;
+        private Dictionary<int, Timer> explorationEndTimers;
 
         public HeroStatsServer() : base()
         {
             fulfilledBonds = new Dictionary<int, HeroBondSideEffect>();
             summonPassiveSEs = new List<IPassiveSideEffect>();
             heroPassiveSEs = new Dictionary<int, List<IPassiveSideEffect>>();
-            explorationRewards = new Dictionary<int, List<ItemInfo>>();
+            explorationEndTimers = new Dictionary<int, Timer>();
         }
 
         public void Init(Player _player, GameClientPeer _peer, HeroInvData invData)
@@ -68,14 +69,15 @@ namespace Photon.LoadBalancing.GameServer
 
             ApplyHeroBondSEs();
 
-            for (int i = 0; i < invData.InProgressMaps.Count; i++)
+            int count = invData.OngoingMaps.Count;
+            for (int i = 0; i < count; i++)
             {
-                ExploreMapData map = invData.InProgressMaps[i];
+                ExploreMapData map = invData.OngoingMaps[i];
                 ExplorationMapJson mapData = HeroRepo.GetExplorationMapById(map.MapId);
-                if (mapData != null)
+                if (mapData != null)  // ensure valid map
                 {
-                    map.MapData = mapData;
                     explorationsDict.Add(map.MapId, map);
+                    SetExplorationTimer(map);
                 }
             }
             if (explorationsDict.Count > 0)
@@ -123,20 +125,34 @@ namespace Photon.LoadBalancing.GameServer
             return retval.retCode == InvReturnCode.UseSuccess;
         }
 
-        private bool DeductHeroGiftItem(string itemStr)
+        private bool DeductItem(string itemStr, int itemCount)
         {
-            int bindItemId, unbindItemId;
+            ushort bindItemId;
             string[] itemIds = itemStr.Split(';');
-            if (itemIds.Length > 0 && int.TryParse(itemIds[0], out bindItemId))
+            if (itemIds.Length > 0 && ushort.TryParse(itemIds[0], out bindItemId))
             {
-                if (DeductItem(bindItemId, 1))
+                if (DeductItem(bindItemId, itemCount))
                     return true;
                 else
                 {
-                    if (itemIds.Length > 1 && int.TryParse(itemIds[1], out unbindItemId))
+                    ushort unbindItemId;
+                    if (itemIds.Length > 1 && ushort.TryParse(itemIds[1], out unbindItemId))
                     {
-                        if (DeductItem(unbindItemId, 1))
+                        int currBindItemCount = peer.mInventory.GetItemStackCountByItemId(bindItemId);
+                        int currUnbindItemCount = peer.mInventory.GetItemStackCountByItemId(unbindItemId);
+                        if (currBindItemCount >= itemCount - currUnbindItemCount)  // check total is enough
+                        {
+                            int remainingAmt = itemCount;
+                            if (currBindItemCount > 0)
+                            {
+                                remainingAmt -= currBindItemCount;
+                                DeductItem(bindItemId, currBindItemCount);  // deduct all current bind amount
+                            }
+                            DeductItem(unbindItemId, remainingAmt); // deduct remaining amt of unbind
                             return true;
+                        }
+                        else
+                            return false;
                     }
                 }
             }
@@ -230,15 +246,24 @@ namespace Photon.LoadBalancing.GameServer
             if (hero == null)
                 return;
 
-            if (!hero.CanAddSkillPoint())
+            int itemCount = HeroRepo.GetItemCountForSkillPointByHeroId(heroId, hero.GetTotalSkillPoints() + 1);
+            if (itemCount <= 0)
             {
-                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_SkillPointsMaxed", "", false, peer);
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_MaxSkillPoints", "", false, peer);
                 return;
             }
 
-            if (DeductItem(hero.HeroJson.upgradeitemid, hero.HeroJson.upgradeitemcount))
+            if (DeductItem(hero.HeroJson.upgradeitemid, itemCount))
             {
                 hero.SkillPoints++;
+
+                int highestUnlockedTier = hero.GetHighestUnlockedTier();
+                if (hero.ModelTier != highestUnlockedTier)
+                {
+                    hero.ModelTier = highestUnlockedTier;
+                    if (IsHeroSummoned(heroId))
+                        SummonHero(heroId, highestUnlockedTier);
+                }
                 heroes[hero.SlotIdx] = hero.ToString();
 
                 PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
@@ -323,11 +348,11 @@ namespace Photon.LoadBalancing.GameServer
                         randomSpinResult = HeroRepo.GetRandomInterestByGroup(hero.HeroJson.interestgroup, hero.Interest);  // exclude current interest
                         if (randomSpinResult == HeroInterestType.Random)
                         {
-                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_InterestCannotChange", "", false, peer);
+                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_InterestChangeFailed", "", false, peer);
                             return;
                         }
 
-                        if (DeductHeroGiftItem(hero.HeroJson.randomitemid))
+                        if (DeductItem(hero.HeroJson.randomitemid, 1))
                             peer.ZRPC.CombatRPC.Ret_RandomInterestResult((byte)randomSpinResult, peer);
                         else
                             peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
@@ -341,7 +366,7 @@ namespace Photon.LoadBalancing.GameServer
                         if (!HeroRepo.IsInterestInGroup(hero.HeroJson.interestgroup, interest))  // assigned interest not in hero's interest group
                             return;
 
-                        if (DeductHeroGiftItem(interestData.assigneditemid))
+                        if (DeductItem(interestData.assigneditemid, 1))
                         {
                             hero.Interest = interest;
                             heroes[hero.SlotIdx] = hero.ToString();
@@ -353,13 +378,13 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public void AddHeroTrust(int heroId, int itemId)
+        public void AddHeroTrust(int heroId, int itemId, bool deductItem = true)
         {
             Hero hero = GetHero(heroId);
             HeroItem giftItem = GameRepo.ItemFactory.GetInventoryItem(itemId) as HeroItem;
             if (hero != null && giftItem != null)
             {
-                if (hero.TrustLevel >= HeroRepo.MAX_TRUST_LEVEL)
+                if (!hero.CanAddTrust())
                 {
                     peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_MaxTrustLevel", "", false, peer);
                     return;
@@ -367,35 +392,42 @@ namespace Photon.LoadBalancing.GameServer
 
                 // check item used is a gift and is applicable for this hero
                 string[] applicableHeros = giftItem.HeroItemJson.heroid.Split(';');
-                if (giftItem.HeroItemJson.heroitemtype != HeroItemType.Gift || !applicableHeros.Contains(heroId.ToString()))
-                    return;
-
-                if (DeductItem(itemId, 1))
+                if (giftItem.HeroItemJson.heroitemtype == HeroItemType.Gift
+                    && (giftItem.HeroItemJson.heroid == "-1" || applicableHeros.Contains(heroId.ToString())))
                 {
-                    hero.TrustExp += giftItem.HeroItemJson.giftexp;
-                    HeroTrustJson trustLevelData = HeroRepo.GetTrustLevelData(hero.TrustLevel);
-                    int nextLevelExp = trustLevelData == null ? 0 : trustLevelData.reqtrustexp;
-                    if (nextLevelExp > 0 && hero.TrustExp >= nextLevelExp)
+                    if (!deductItem || DeductItem(itemId, 1))
                     {
-                        while (hero.TrustLevel < HeroRepo.MAX_TRUST_LEVEL && hero.TrustExp >= nextLevelExp)
+                        int totalExpAdded = giftItem.HeroItemJson.giftexp;
+                        hero.TrustExp += giftItem.HeroItemJson.giftexp;
+                        HeroTrustJson trustLevelData = HeroRepo.GetTrustLevelData(hero.TrustLevel);
+                        int nextLevelExp = trustLevelData == null ? 0 : trustLevelData.reqtrustexp;
+                        if (nextLevelExp > 0 && hero.TrustExp >= nextLevelExp)
                         {
-                            hero.TrustExp -= nextLevelExp;
-                            hero.TrustLevel++;
-                            int triggeredQuest = hero.GetTriggeredQuest();
-                            if (triggeredQuest > 0)
-                                player.QuestController.TriggerNewQuest(triggeredQuest, heroId);
+                            while (hero.TrustLevel < HeroRepo.MAX_TRUST_LEVEL && hero.TrustExp >= nextLevelExp)
+                            {
+                                hero.TrustExp -= nextLevelExp;
+                                hero.TrustLevel++;
+                                int triggeredQuest = hero.GetTriggeredQuest();
+                                if (triggeredQuest > 0)
+                                    player.QuestController.TriggerNewQuest(triggeredQuest, heroId);
 
-                            trustLevelData = HeroRepo.GetTrustLevelData(hero.TrustLevel);
-                            nextLevelExp = trustLevelData == null ? 0 : trustLevelData.reqtrustexp;
+                                trustLevelData = HeroRepo.GetTrustLevelData(hero.TrustLevel);
+                                nextLevelExp = trustLevelData == null ? 0 : trustLevelData.reqtrustexp;
+                            }
                         }
-                    }
 
-                    if (hero.TrustLevel == HeroRepo.MAX_TRUST_LEVEL)
-                        hero.TrustExp = 0;
-                    heroes[hero.SlotIdx] = hero.ToString();
+                        if (hero.TrustLevel == HeroRepo.MAX_TRUST_LEVEL)
+                        {
+                            totalExpAdded = giftItem.HeroItemJson.giftexp - hero.TrustExp;
+                            hero.TrustExp = 0;
+                        }
+                        heroes[hero.SlotIdx] = hero.ToString();
+                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftSuccess",
+                            string.Format("hero;{0};exp;{1}", hero.HeroJson.localizedname, totalExpAdded), false, player.Slot);
+                    }
+                    else
+                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
                 }
-                else
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
             }
         }
 
@@ -407,15 +439,20 @@ namespace Photon.LoadBalancing.GameServer
                 string[] skinitems = hero.HeroJson.skinitemid.Split(';');
                 for (int i = 0; i < skinitems.Length; i++)
                 {
-                    int skinItemId;
-                    if (int.TryParse(skinitems[i], out skinItemId))
+                    string[] itemids = skinitems[i].Split(',');
+                    int bindItemId = 0, unbindItemId = 0;  // get bind and unbind id of the skin item
+                    if (itemids.Length > 0)
+                        int.TryParse(itemids[0], out bindItemId);
+                    if (itemids.Length > 1)
+                        int.TryParse(itemids[1], out unbindItemId);
+                    // item used is one of bind and unbind item and has previously not used this item
+                    if ((itemId == bindItemId || itemId == unbindItemId) && !hero.UnlockedSkinItems.Contains(itemId))
                     {
-                        if (skinItemId == itemId && !hero.UnlockedSkinItems.Contains(skinItemId))
-                        {
-                            hero.UnlockedSkinItems.Add(skinItemId);
-                            heroes[hero.SlotIdx] = hero.ToString();
-                            break;
-                        }
+                        hero.UnlockedSkinItems.Add(bindItemId); // add bind id
+                        if (unbindItemId > 0)
+                            hero.UnlockedSkinItems.Add(unbindItemId); // add unbind id if have
+                        heroes[hero.SlotIdx] = hero.ToString();
+                        break;
                     }
                 }
             }
@@ -438,12 +475,6 @@ namespace Photon.LoadBalancing.GameServer
             {
                 if (SummonedHeroId > 0)
                 {
-                    Hero hero = GetHero(SummonedHeroId);
-                    if (hero.ModelTier != hero.GetFirstModelTier())
-                    {
-                        hero.ModelTier = hero.GetFirstModelTier();   // reset to first tier
-                        heroes[hero.SlotIdx] = hero.ToString();
-                    }
                     SummonedHeroId = 0;
                     UnSummonHeroEntity();
 
@@ -464,9 +495,8 @@ namespace Photon.LoadBalancing.GameServer
 
                 if (!hero.CanSummon(player.PlayerSynStats.Level))
                 {
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("player level need " + hero.HeroJson.summonlevel, "", false, peer);
-                    //peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_SummonLevelNotReached",
-                    //        string.Format("level;{0}", hero.HeroData.summonlevel), false, peer);
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_SummonLevelNotReached",
+                            string.Format("level;{0}", hero.HeroJson.summonlevel), false, peer);
                     return;
                 }
 
@@ -486,15 +516,7 @@ namespace Photon.LoadBalancing.GameServer
                             tier = hero.ModelTier;
 
                         if (SummonedHeroId != heroId)
-                        {
-                            Hero prevHero = GetHero(SummonedHeroId);
-                            if (prevHero != null && prevHero.ModelTier != prevHero.GetFirstModelTier())
-                            {
-                                prevHero.ModelTier = prevHero.GetFirstModelTier();
-                                heroes[prevHero.SlotIdx] = prevHero.ToString();
-                            }
                             SummonedHeroId = heroId;  // for record
-                        }
 
                         if (hero.ModelTier != tier)
                         {
@@ -691,19 +713,19 @@ namespace Photon.LoadBalancing.GameServer
                         if (RemoveBondSEs(groupId))  // remove existing passives
                         {
                             needComputeAll = true;
-                            GameUtils.DebugWriteLine("Remove se from groupId: " + groupId);
+                            //GameUtils.DebugWriteLine("Remove se from groupId: " + groupId);
                         }
 
                         if (highestLevelId > 0 && AddBondSEs(groupId, highestLevelData)) // add new passives
                             needComputeAll = true;
-                        GameUtils.DebugWriteLine("Update groupId/highestLevelId: " + groupId + "/" + highestLevelId);
+                        //GameUtils.DebugWriteLine("Update groupId/highestLevelId: " + groupId + "/" + highestLevelId);
                     }
                 }
                 else if (highestLevelData != null)  // new bond, add side effects
                 {
                     if (AddBondSEs(groupId, highestLevelData))
                         needComputeAll = true;
-                    GameUtils.DebugWriteLine("Add groupId: " + groupId);
+                    //GameUtils.DebugWriteLine("Add groupId: " + groupId);
                 }
             }
             return needComputeAll;
@@ -722,7 +744,7 @@ namespace Photon.LoadBalancing.GameServer
                     pse.AddPassive(player);
                     passiveSEs.Add(pse);
                     needCompute = true;
-                    GameUtils.DebugWriteLine("Add se: " + se.mSideeffectData.id);
+                    //GameUtils.DebugWriteLine("Add se: " + se.mSideeffectData.id);
                 }
             }
             fulfilledBonds[groupId] = new HeroBondSideEffect(bondData.id, passiveSEs);
@@ -750,7 +772,11 @@ namespace Photon.LoadBalancing.GameServer
             ExplorationMapJson mapData = HeroRepo.GetExplorationMapById(mapId);
             if (mapData == null)
                 return;
-
+            if (explorationsDict.Count >= HeroRepo.EXPLORE_LIMIT)
+            {
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ReachedExploreLimit", "", false, peer);
+                return;
+            }
             if (IsExploringMap(mapId))  // check whether map is already currently in progross
                 return;
             if (!mapData.repeatable && HasExploredMap(mapId))  // check one time map cannot be explored again
@@ -760,83 +786,206 @@ namespace Photon.LoadBalancing.GameServer
             if (heroIds.Count > mapData.maxherocount)  // check sent heroes not more than max allowed
                 return;
 
+            List<Hero> heroesList = new List<Hero>();
             for (int i = 0; i < heroIds.Count; i++) // check heros meet map requirements
             {
                 Hero hero = GetHero(heroIds[i]);
-                if (hero == null)
+                if (hero == null)  // should not happen
                     return;
                 if (hero.Level < mapData.reqherolevel || hero.TrustLevel < mapData.reqherotrust)
-                {
-                    GameUtils.DebugWriteLine("hero " + hero.HeroId + " do not meet requirements");
                     return;
-                }
+                heroesList.Add(hero);
             }
 
-            // todo: check player adventure level
+            // todo: have specific monster target, check player achievement level
+            if (targetId > 0 && player.PlayerSynStats.vipLvl < mapData.reqmonsterlevel)
+                return;
 
             if (DeductItem(mapData.reqitemid, mapData.reqitemcount))
             {
-                DateTime endTime = DateTime.Now.AddMinutes(mapData.completetime);
-                ExploreMapData map = new ExploreMapData(mapId, targetId, heroIds, endTime, mapData);
-                explorationsDict.Add(mapId, map);
-                Explorations = JsonConvertDefaultSetting.SerializeObject(explorationsDict);
-
-                // set used heroes as away
-                for (int i = 0; i < heroIds.Count; i++) // check heros meet map requirements
-                {
-                    Hero hero = GetHero(heroIds[i]);
-                    if (hero == null)  // should not happen
-                        continue;
-                    hero.IsAway = true;
-                    heroes[hero.SlotIdx] = hero.ToString();
-                }
-
                 // deduct combat time
                 player.DeductBattleTime(mapData.battletimecost * 60);
+
+                // determine end time and add map to ongoing explorations
+                DateTime endTime = DateTime.Now.AddMinutes(mapData.completetime);
+                ExploreMapData map = new ExploreMapData(mapId, targetId, heroIds, endTime);
+                SetExplorationTimer(map); // set end time timer
+
+                // determine rewards and set heroes as away
+                DetermineTargetRewards(targetId, heroesList, map, mapData);
+
+                explorationsDict.Add(mapId, map);
+                Explorations = JsonConvertDefaultSetting.SerializeObject(explorationsDict);
             }
             else
-                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ItemNotEnough", "", false, peer);
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ExploreItemNotEnough", "", false, peer);
+        }
+
+        private void SetExplorationTimer(ExploreMapData map)
+        {
+            double remainingTime = (map.EndTime - DateTime.Now).TotalMilliseconds;
+            if (remainingTime > 0)
+            {
+                Timer timer = new Timer(remainingTime);
+                timer.Elapsed += delegate { OnExplorationEnd(map.MapId); };
+                timer.AutoReset = false;
+                timer.Start();
+                explorationEndTimers.Add(map.MapId, timer);
+            }
+            else
+                map.Completed = true;
+        }
+
+        private void OnExplorationEnd(int mapId)
+        {
+            Timer timer;
+            if (explorationEndTimers.TryGetValue(mapId, out timer))
+            {
+                timer.Stop();
+                explorationEndTimers.Remove(mapId);
+                ExploreMapData map = GetExploringMap(mapId);
+                if (map != null)
+                {
+                    map.Completed = true;
+                    Explorations = JsonConvertDefaultSetting.SerializeObject(explorationsDict);
+                }
+            }
+        }
+
+        private int GetFulfilledChestCount(ExplorationMapJson mapData, List<Hero> heroesList)
+        {
+            int count = 1;  // minimum 1
+            if (IsChestRequirementFulfilled(mapData.chestreqtype1, mapData.chestreqvalue1, heroesList))
+                count++;
+            if (IsChestRequirementFulfilled(mapData.chestreqtype2, mapData.chestreqvalue2, heroesList))
+                count++;
+            if (IsChestRequirementFulfilled(mapData.chestreqtype3, mapData.chestreqvalue3, heroesList))
+                count++;
+            return count;
+        }
+
+        private void DetermineTargetRewards(int targetId, List<Hero> heroesList, ExploreMapData map, ExplorationMapJson mapData)
+        {
+            // calculate efficiency
+            float efficiency = mapData.baseefficiency * 0.01f;
+            for (int i = 0; i < heroesList.Count; i++)
+            {
+                Hero hero = heroesList[i];
+                hero.IsAway = true; // set used heroes as away
+                heroes[hero.SlotIdx] = hero.ToString();
+                efficiency += hero.GetTotalExploreEfficiency(mapData);
+            }
+
+            Dictionary<CurrencyType, int> currencyToAdd = new Dictionary<CurrencyType, int>();
+            List<ItemInfo> rewardToAdd = new List<ItemInfo>();
+            
+            // add any fulfilled chest
+            int chestCount = GetFulfilledChestCount(mapData, heroesList);  // at least 1
+            rewardToAdd.Add(new ItemInfo { itemId = (ushort)mapData.chestitemid, stackCount = chestCount });
+
+            // get target info
+            ExplorationTargetJson target = null;
+            if (targetId == 0) // explore all, so random pick one target
+            {
+                var targetList = HeroRepo.GetExplorationTargetsByGroup(mapData.exploregroupid);
+                if (targetList.Count > 0)
+                    target = targetList[GameUtils.RandomInt(0, targetList.Count - 1)];
+            }
+            else // has specific target
+                target = HeroRepo.GetExplorationTargetById(targetId);
+
+            if (target != null)  // add rewards items from target
+            {
+                if (target.rewardgroupid > 0)
+                {
+                    Dictionary<int, int> rewardlistItems = new Dictionary<int, int>();
+                    List<ItemInfo> itemInfoList = new List<ItemInfo>();
+                    GameRules.GenerateRewardByRewardGrpID(target.rewardgroupid, player.PlayerSynStats.Level, player.PlayerSynStats.progressJobLevel, player.PlayerSynStats.jobsect,
+                        itemInfoList, currencyToAdd);
+                    // add up items from reward list
+                    for (int i = 0; i < itemInfoList.Count; i++)
+                    {
+                        ItemInfo item = itemInfoList[i];
+                        if (item.stackCount > 0)
+                        {
+                            if (rewardlistItems.ContainsKey(item.itemId))
+                                rewardlistItems[item.itemId] += item.stackCount;
+                            else
+                                rewardlistItems.Add(item.itemId, item.stackCount);
+                        }
+                    }
+                    foreach (int itemid in rewardlistItems.Keys.ToList())
+                        rewardlistItems[itemid] = (int)Math.Floor(rewardlistItems[itemid] * efficiency);
+                    foreach (var item in rewardlistItems)
+                    {
+                        int index = rewardToAdd.FindIndex(x => x.itemId == item.Key);
+                        if (index != -1) // has item already in list so just add up the count
+                            rewardToAdd[index].stackCount += item.Value;
+                        else
+                            rewardToAdd.Add(new ItemInfo { itemId = (ushort)item.Key, stackCount = item.Value });
+                    }
+                }
+                LootLink lootLink = LootRepo.GetLootLink(target.lootlinkid);
+                if (lootLink != null)  // add any item from loot link
+                {
+                    Dictionary<int, int> lootItems = new Dictionary<int, int>();
+                    LootRules.GenerateLootItem(lootLink.gids, lootItems, currencyToAdd);
+                    // modify loot item count by efficiency
+                    foreach (int itemid in lootItems.Keys.ToList())
+                        lootItems[itemid] = (int)Math.Floor(lootItems[itemid] * efficiency);
+                    List<ItemInfo> itemInfoList = LootRules.GetItemInfoListToAdd(lootItems, true); // check for limited items
+                    for (int i = 0; i < itemInfoList.Count; i++)
+                    {
+                        int index = rewardToAdd.FindIndex(x => x.itemId == itemInfoList[i].itemId);
+                        if (index != -1) // has item already in list so just add up the count
+                            rewardToAdd[index].stackCount += itemInfoList[i].stackCount;
+                        else
+                            rewardToAdd.Add(itemInfoList[i]);
+                    }
+                }
+            }
+
+            map.Rewards = new ExploreReward(rewardToAdd, currencyToAdd);
         }
 
         public void ClaimExplorationReward(int mapId)
         {
-            ExplorationMapJson mapData = HeroRepo.GetExplorationMapById(mapId);
-            if (mapData == null)
-                return;
             ExploreMapData map = GetExploringMap(mapId);
             if (map == null)
                 return;
 
-            if (map.IsCompleted())
+            if (map.Completed)
             {
-                float efficiency = mapData.baseefficiency * 0.01f;
-                List<Hero> heroesList = new List<Hero>();
-                for (int i = 0; i < map.HeroIdList.Count; i++)
+                // try give rewards
+                InvRetval retValue = player.Slot.mInventory.AddItemsIntoInventory(map.Rewards.items, true, "Exploration");
+                if (retValue.retCode == InvReturnCode.AddSuccess)
                 {
-                    Hero hero = GetHero(map.HeroIdList[i]);
-                    if (hero == null)  // should not happen
-                        continue;
-                    hero.IsAway = false; // release heros
-                    heroes[hero.SlotIdx] = hero.ToString();
-                    efficiency += map.GetHeroEfficiency(hero);
-                    heroesList.Add(hero);
+                    // add currency
+                    foreach (var currency in map.Rewards.currency)
+                        player.AddCurrency(currency.Key, currency.Value, "Exploration");
+
+                    List<Hero> heroesList = new List<Hero>();
+                    int count = map.HeroIdList.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        Hero hero = GetHero(map.HeroIdList[i]);
+                        if (hero == null)  // should not happen
+                            continue;
+                        hero.IsAway = false;  // release heroes
+                        heroes[hero.SlotIdx] = hero.ToString();
+                    }
+
+                    if (!HasExploredMap(mapId))  // add to explored maps
+                    {
+                        exploredMaps.Add(mapId);
+                        Explored = JsonConvertDefaultSetting.SerializeObject(exploredMaps);
+                    }
+
+                    explorationsDict.Remove(mapId); // remove from in progress maps
+                    Explorations = JsonConvertDefaultSetting.SerializeObject(explorationsDict);
                 }
-
-                if (!HasExploredMap(mapId))  // add to explored maps
-                {
-                    exploredMaps.Add(mapId);
-                    Explored = JsonConvertDefaultSetting.SerializeObject(exploredMaps);
-                }
-
-                explorationsDict.Remove(mapId); // remove from in progress maps
-                Explorations = JsonConvertDefaultSetting.SerializeObject(explorationsDict);
-
-                int chestCount = map.GetFulfilledChestCount(heroesList);
-                GameUtils.DebugWriteLine("chest count: " + chestCount);
-
-                GameUtils.DebugWriteLine("efficiency: " + efficiency);
-
-                // todo: check reward group and target rewards
+                else
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
             }
         }
         #endregion Exploration

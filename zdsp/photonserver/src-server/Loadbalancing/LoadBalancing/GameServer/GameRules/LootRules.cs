@@ -176,7 +176,7 @@ namespace Zealot.Server.Rules
                     case MonsterClass.Normal:
                         lootCorrectionPercent = lootCorrectionJson.normalmonster;
                         break;
-                    case MonsterClass.Mini:
+                    case MonsterClass.MiniBoss:
                         lootCorrectionPercent = lootCorrectionJson.boss;
                         break;
                 }
@@ -291,7 +291,7 @@ namespace Zealot.Server.Rules
         }
 
         //doesn't check LootCorrection and battle time 
-        public static void GenerateLootItem(Player player, List<int> grpIds, Dictionary<int, int> itemIdCount, Dictionary<CurrencyType, int> currencyToAdd)
+        public static void GenerateLootItem(List<int> grpIds, Dictionary<int, int> itemIdCount, Dictionary<CurrencyType, int> currencyToAdd)
         {
             var itemList = LootRepo.RandomItems(grpIds);
             int itemListCount = itemList.Count;
@@ -314,10 +314,13 @@ namespace Zealot.Server.Rules
                 }
                 else if (lootItem.currencyType != CurrencyType.None)
                 {
-                    if (currencyToAdd.ContainsKey(lootItem.currencyType))
-                        currencyToAdd[lootItem.currencyType] += stackCount;
-                    else
-                        currencyToAdd[lootItem.currencyType] = stackCount;
+                    if (currencyToAdd != null)
+                    {
+                        if (currencyToAdd.ContainsKey(lootItem.currencyType))
+                            currencyToAdd[lootItem.currencyType] += stackCount;
+                        else
+                            currencyToAdd[lootItem.currencyType] = stackCount;
+                    }
                 }
             }
         }

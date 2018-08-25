@@ -10,18 +10,23 @@ public class GameIcon_DNA : GameIcon_Base
     [SerializeField]
     Text txtEvolve = null;
 
-    public void Init(int itemId, int level, int evolve, UnityAction onClickCallback = null)
+    public void Init(int itemId, int level, int evolve, bool isNew, UnityAction onClickCallback = null)
     {
-        Init(itemId);
+        Init(itemId, isNew);
         Level = level;
         Evolve = evolve;
         if (onClickCallback != null)
             SetClickCallback(onClickCallback);
     }
 
-    public void InitWithTooltipViewOnly(int itemId, int level, int evolve)
+    public void InitWithoutCallback(int itemId, int level, int evolve)
     {
-        Init(itemId, level, evolve, OnClickShowTooltipViewOnly);
+        Init(itemId, level, evolve, false);
+    }
+
+    public void InitWithToolTipView(int itemId, int level, int evolve)
+    {
+        Init(itemId, level, evolve, false, OnClickShowItemToolTip);
     }
 
     public int Level

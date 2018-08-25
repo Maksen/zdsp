@@ -7,10 +7,10 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEditor.SceneManagement;
 using Zealot.ClientSpawners;
 using Zealot.Spawners;
 using Zealot.Repository;
-using UnityEditor.SceneManagement;
 
 class SceneNPCTools
 {
@@ -62,14 +62,14 @@ class SceneNPCTools
         var sourcePrefab = PrefabUtility.GetPrefabParent(entitiesPrefab);
 
         LevelRepo.Init(gamedb);
-        NPCRepo.Init(gamedb);
+        RealmRepo.Init(gamedb);
+        CombatNPCRepo.Init(gamedb);
         StaticNPCRepo.Init(gamedb);
         RealmNPCGroupRepo.Init(gamedb);
-        RealmRepo.Init(gamedb);
-
+        
         #region Add Containers
         //add scene npc container
-        var results = GameObject.FindObjectsOfType<SceneNPCContainer>();
+        var results = UnityEngine.Object.FindObjectsOfType<SceneNPCContainer>();
         foreach (var go in results)
             GameObject.DestroyImmediate(go.gameObject);
 
@@ -79,7 +79,7 @@ class SceneNPCTools
         gameObject.transform.SetParent(entitiesPrefab.transform);
 
         //add scene asset container
-        var findresults = GameObject.FindObjectsOfType<SceneAssetContainer>();
+        var findresults = UnityEngine.Object.FindObjectsOfType<SceneAssetContainer>();
         foreach (var go in findresults)
             GameObject.DestroyImmediate(go.gameObject);
 
@@ -91,19 +91,19 @@ class SceneNPCTools
 
         progress = 0.1f;
         if (showProgressBar)
-            EditorUtility.DisplayProgressBar("Compile Level Assets", "Finding all monster spawners...", progress);
+            EditorUtility.DisplayProgressBar("Compile Level Assets", "Finding all spawners...", progress);
 
         LevelJson levelJson = LevelRepo.GetInfoByName(scene.name);
         int levelID = levelJson != null ? levelJson.id : -1;
         List<int> realmIds = new List<int>();
 
         List<string> modelpaths = new List<string>();
-        var monsterpaths = GetSceneNPCSpawners(gamedb, levelID);
+        var monsterpaths = GetSceneSpawners(gamedb, levelID);
         modelpaths.AddRange(monsterpaths.Keys);        
 
         progress = 0.2f;
         if (showProgressBar)
-            EditorUtility.DisplayProgressBar("Compile Level Assets", "Finding all npc spawners...", progress);
+            EditorUtility.DisplayProgressBar("Compile Level Assets", "Finding all client spawners...", progress);
 
         var staticNPCs = GetSceneClientSpawners();
         modelpaths.AddRange(staticNPCs);
@@ -278,31 +278,31 @@ class SceneNPCTools
     private static List<string> GetSceneClientSpawners()
     {
         List<string> results = new List<string>();
-        ClientSpawnerDesc[] clientSpawners = GameObject.FindObjectsOfType(typeof(ClientSpawnerDesc)) as ClientSpawnerDesc[];
+        ClientSpawnerBase[] clientSpawners = UnityEngine.Object.FindObjectsOfType(typeof(ClientSpawnerBase)) as ClientSpawnerBase[];
         foreach (var spawner in clientSpawners)
         {
             string archetype = "";
-            if (spawner is QuestNPCSpawnerDesc)
-                archetype = ((QuestNPCSpawnerDesc)spawner).archetype;
+            if (spawner is StaticNPCSpawner)
+                archetype = ((StaticNPCSpawner)spawner).archetype;
 
-            string modelpath = StaticNPCRepo.GetNPCArchetypePathByName(archetype);
+            string modelpath = StaticNPCRepo.GetModelPrefabPathByArchetype(archetype);
             if (!string.IsNullOrEmpty(modelpath))
                 results.Add(modelpath);
         }
         return results.Distinct().ToList();
     }
 
-    private static Dictionary<string, Type> GetSceneNPCSpawners(GameDBRepo gamedb, int levelID)
+    private static Dictionary<string, Type> GetSceneSpawners(GameDBRepo gamedb, int levelID)
     {
         Dictionary<string, Type> results = new Dictionary<string, Type>();
-        ServerEntity[] points = GameObject.FindObjectsOfType(typeof(ServerEntity)) as ServerEntity[];
+        ServerEntity[] points = UnityEngine.Object.FindObjectsOfType(typeof(ServerEntity)) as ServerEntity[];
         foreach (var spawner in points)
         {
             Type spawnerType = spawner.GetType();
             if (spawner is GoblinSpawner)
             {
                 string archetype = ((GoblinSpawner)spawner).archetype;
-                var npcinfo = NPCRepo.GetArchetypeByName(archetype);
+                var npcinfo = CombatNPCRepo.GetNPCByArchetype(archetype);
                 if (npcinfo != null && !string.IsNullOrEmpty(npcinfo.modelprefabpath))
                 {
                     results[npcinfo.modelprefabpath] = typeof(GoblinSpawner);
@@ -313,7 +313,7 @@ class SceneNPCTools
                 var monsterspawner = spawner as MonsterSpawner;
                 if (!string.IsNullOrEmpty(monsterspawner.archetype))
                 {
-                    var npcinfo = NPCRepo.GetArchetypeByName(monsterspawner.archetype);
+                    var npcinfo = CombatNPCRepo.GetNPCByArchetype(monsterspawner.archetype);
                     if (npcinfo != null)
                     {
                         if(!string.IsNullOrEmpty(npcinfo.modelprefabpath))
@@ -326,7 +326,7 @@ class SceneNPCTools
                     {
                         if (realminfo.level == levelID)
                         {
-                            var npcinfo = RealmNPCGroupRepo.GetArchetypeByNameAndRealmID(monsterspawner.archetypeGroup, realminfo.id);
+                            var npcinfo = RealmNPCGroupRepo.GetNPCByGroupNameAndRealmId(monsterspawner.archetypeGroup, realminfo.id);
                             if (npcinfo != null && !string.IsNullOrEmpty(npcinfo.modelprefabpath))
                             {
                                 results[npcinfo.modelprefabpath] = typeof(MonsterSpawner);
@@ -341,7 +341,7 @@ class SceneNPCTools
                 var specialBossInfo = gamedb.SpecialBoss.Values.FirstOrDefault(x => x.name == bossName);
                 if (specialBossInfo != null)
                 {
-                    var npcinfo = NPCRepo.GetArchetypeById(specialBossInfo.archetypeid);
+                    var npcinfo = CombatNPCRepo.GetNPCById(specialBossInfo.archetypeid);
                     if (npcinfo != null && !string.IsNullOrEmpty(npcinfo.modelprefabpath))
                     {
                         results[npcinfo.modelprefabpath] = typeof(SpecialBossSpawner);
@@ -353,7 +353,7 @@ class SceneNPCTools
                 var smbossspawner = spawner as SMBossSpawner;
                 if (!string.IsNullOrEmpty(smbossspawner.archetype))
                 {
-                    var npcinfo = NPCRepo.GetArchetypeByName(smbossspawner.archetype);
+                    var npcinfo = CombatNPCRepo.GetNPCByArchetype(smbossspawner.archetype);
                     if (npcinfo != null)
                     {
                         if (!string.IsNullOrEmpty(npcinfo.modelprefabpath))
@@ -372,7 +372,7 @@ class SceneNPCTools
             else if (spawnerType == typeof(PersonalMonsterSpawner))
             {
                 string archetype = ((PersonalMonsterSpawner)spawner).archetype;
-                var npcinfo = NPCRepo.GetArchetypeByName(archetype);
+                var npcinfo = CombatNPCRepo.GetNPCByArchetype(archetype);
                 if (npcinfo != null && !string.IsNullOrEmpty(npcinfo.modelprefabpath))
                 {
                     results[npcinfo.modelprefabpath] = typeof(PersonalMonsterSpawner);

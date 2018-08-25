@@ -13,6 +13,8 @@ public class UI_WorldMap : MonoBehaviour
     GameObject mCountryParent;
     [SerializeField]
     Image mMapAreaViewImg;
+    [SerializeField]
+    ToggleGroup mCountryHighlightToggleGrp;
 
     [Header("Country Selected GameObject")]
     #region Country Selected GameObject
@@ -35,9 +37,14 @@ public class UI_WorldMap : MonoBehaviour
             obj.transform.SetParent(mCountryParent.transform, false);
 
             UI_WorldMap_Country wmcc = obj.GetComponent<UI_WorldMap_Country>();
+            GameObject bigCountry = mBigCountryList[i];
+            GameObject camPos = mCamPosList[i + 1]; //mCamPosList[0] is zoom-out cam position
             wmcc.Init(worldMapLst[i], ()=> {
-                ZoomToCountry(mBigCountryList[i], mCamPosList[i+1]);    //mCamPosList[0] is zoom-out cam position
+                ZoomToCountry(bigCountry, camPos);    
             });
+
+            Toggle tg = obj.GetComponent<Toggle>();
+            tg.group = mCountryHighlightToggleGrp;
         }
     }
 

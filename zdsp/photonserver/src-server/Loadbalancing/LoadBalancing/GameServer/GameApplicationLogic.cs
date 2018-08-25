@@ -257,7 +257,6 @@ namespace Photon.LoadBalancing.GameServer
             Task auctionInit = AuctionRules.Init();
             Task itemMallInit = ItemMall.ItemMallManager.Instance.ServerInit_ItemMall();
             itemMallInit.Wait();
-            RandomBoxReward.RandomBoxRewardManager.Instance.Init();
             Lottery.LotteryManager.Instance.Init();
             ReviveItemController = new ReviveItemController();
 
@@ -344,7 +343,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             CreateDefaultRoom("lobby"); // This should be the only default room
 
-            foreach (KeyValuePair<string, RealmWorldJson> entry in RealmRepo.mRealmWorld)
+            foreach (KeyValuePair<string, RealmWorldJson> entry in RealmRepo.mRealmWorldByName)
             {
                 string sceneName = entry.Key;
                 if (LevelReader.levels.ContainsKey(sceneName))

@@ -9,24 +9,23 @@ namespace Zealot.Client.Entities
 {
     public class StaticAreaGhost : StaticClientNPCAlwaysShow
     {
-        protected string mArchetypeName;
-        public int mArchetypeID;
         private float mRadius;
+
+        public string ArchetypeName { get; private set; }
 
         public StaticAreaGhost()
         {
             this.EntityType = EntityType.StaticNPC;
         }
 
-        public string ArchetypeName { get { return mArchetypeName; } }
-
-        public void Init(string archetype, Vector3 pos, Vector3 forward, float radius)
+        public void Init(StaticNPCJson npcInfo, Vector3 pos, Vector3 forward, float radius)
         {
-            mArchetype = StaticNPCRepo.GetStaticNPCByName(archetype);
-            mArchetypeName = archetype;
-            this.mArchetypeID = mArchetype == null ? 0 : mArchetype.id;
-            this.Name = mArchetype == null ? "" : mArchetype.localizedname;
+            mArchetype = npcInfo;
+            ArchetypeName = mArchetype.archetype;
+            mArchetypeId = mArchetype.id;
+            Name = mArchetype.localizedname;
             mRadius = radius;
+
             mActiveQuest = -1;
             mActiveStatus = mArchetype.activeonstartup;
             GetQuestList();
@@ -44,14 +43,13 @@ namespace Zealot.Client.Entities
             AnimObj.transform.position = Position;
             AnimObj.transform.forward = Forward;
             AnimObj.tag = "NPC";
-            AnimObj.name = mArchetypeName;
+            AnimObj.name = ArchetypeName;
 
             base.InitAnimObj();
-            GameObject go = new GameObject();
-            go.name = "playerDetecter";
+
+            GameObject go = new GameObject("playerDetecter");
             go.transform.SetParent(AnimObj.transform, false);
-            NpcPlayerDetect detect = go.AddComponent<NpcPlayerDetect>();
-            detect.Init(this, mRadius);
+            go.AddComponent<NpcPlayerDetect>().Init(this, mRadius);
             
             Show(true);
             ShowEffect(false);
@@ -128,7 +126,7 @@ namespace Zealot.Client.Entities
             {
                 if (mOngoingQuest.Contains(mActiveQuest))
                 {
-                    return GameInfo.gLocalPlayer.QuestController.GetInteractiveId(mActiveQuest, mArchetypeID);
+                    return GameInfo.gLocalPlayer.QuestController.GetInteractiveId(mActiveQuest, mArchetypeId);
                 }
                 else if (mAvailableQuest.Contains(mActiveQuest))
                 {
@@ -171,11 +169,6 @@ namespace Zealot.Client.Entities
                 if (!string.IsNullOrEmpty(id))
                     mQuestList.Add(int.Parse(id));
             }
-        }
-
-        public override int GetArchetypeID()
-        {
-            return mArchetypeID;
         }
 
         public void OnPlayerNear()

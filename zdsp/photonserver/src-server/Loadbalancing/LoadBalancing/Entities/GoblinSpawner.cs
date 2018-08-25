@@ -1,9 +1,9 @@
-﻿using Zealot.Entities;
+﻿using UnityEngine;
+using Zealot.Entities;
 using Zealot.Common.Entities;
-using Photon.LoadBalancing.GameServer;
-using UnityEngine;
 using Zealot.Repository;
 using Zealot.Server.AI;
+using Photon.LoadBalancing.GameServer;
 
 namespace Zealot.Server.Entities
 {
@@ -17,7 +17,7 @@ namespace Zealot.Server.Entities
             : base(info, instance)
         {
             mGoblinSpawnerJson = info;
-            mArchetype = NPCRepo.GetArchetypeByName(info.archetype);
+            mArchetype = CombatNPCRepo.GetNPCByArchetype(info.archetype);
             LevelInfo linfo = LevelReader.GetLevel(mInstance.currentlevelname);
             mPath = linfo.mEntities["PathStraightJson"][mGoblinSpawnerJson.path] as PathStraightJson;
         }
@@ -58,8 +58,7 @@ namespace Zealot.Server.Entities
                 if (mGoblinSpawnerJson.spawnInterval == 0)
                     SpawnMonster();
                 else
-                    timer = mInstance.SetTimer(mGoblinSpawnerJson.spawnInterval, (arg) =>
-                    {
+                    timer = mInstance.SetTimer(mGoblinSpawnerJson.spawnInterval, (arg) => {
                         timer = null; 
                         SpawnMonster();
                     }, null);

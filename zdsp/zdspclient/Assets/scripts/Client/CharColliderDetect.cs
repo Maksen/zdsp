@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Zealot.Client.Actions;
+using Zealot.Client.Entities;
 
-public class CharColliderDetect : MonoBehaviour {
+public class CharColliderDetect : MonoBehaviour
+{
+    private ActorGhost mGhost;
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
@@ -18,16 +20,12 @@ public class CharColliderDetect : MonoBehaviour {
             {
                 ClientAuthoDashAttack action = mGhost.GetAction() as ClientAuthoDashAttack;
                 if (action != null)
-                {
-                    ((ClientAuthoDashAttack)action).OnCollide();
-                }
+                    action.OnCollide();
             }
         }
-        
     }
 
-    private Zealot.Client.Entities.ActorGhost mGhost;
-    public void SetGhost(Zealot.Client.Entities.ActorGhost ghost)
+    public void SetGhost(ActorGhost ghost)
     {
         mGhost = ghost;
     }

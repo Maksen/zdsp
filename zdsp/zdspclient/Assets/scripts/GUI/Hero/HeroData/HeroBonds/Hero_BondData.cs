@@ -14,7 +14,7 @@ public class Hero_BondData : MonoBehaviour
     [SerializeField] GameObject heroDataPrefab;
     [SerializeField] Transform bondLevelDataParent;
     [SerializeField] GameObject bondLevelDataPrefab;
-    [SerializeField] ScrollRect bondScrollRect;
+    [SerializeField] UI_SnapToScrollviewChild scrollviewSnap;
 
     private HeroStatsClient heroStats;
     private List<Hero_BondHeroData> heroList = new List<Hero_BondHeroData>();
@@ -24,6 +24,7 @@ public class Hero_BondData : MonoBehaviour
     private int currentLevel;
     private UI_Hero_BondsDialog parent;
     private int selectedHeroId = -1;
+    private int childIndex;
 
     public void Init(HeroBond bond, UI_Hero_BondsDialog myParent)
     {
@@ -43,12 +44,13 @@ public class Hero_BondData : MonoBehaviour
         if (currentLevelBond != null)
         {
             currentLevel = currentLevelBond.bondlevel;
-            int index = heroBond.heroBondJsonList.IndexOf(currentLevelBond);
-            nextLevelBond = index + 1 < heroBond.heroBondJsonList.Count ? heroBond.heroBondJsonList[index + 1] : null;
+            childIndex = heroBond.heroBondJsonList.IndexOf(currentLevelBond);
+            nextLevelBond = childIndex + 1 < heroBond.heroBondJsonList.Count ? heroBond.heroBondJsonList[childIndex + 1] : null;
         }
         else
         {
             currentLevel = 0;
+            childIndex = 0;
             nextLevelBond = heroBond.heroBondJsonList.Count > 0 ? heroBond.heroBondJsonList[0] : null;
         }
         bondLevelText.text = nextLevelBond != null ? nextLevelBond.bondlevel.ToString() : currentLevel.ToString();
@@ -56,8 +58,6 @@ public class Hero_BondData : MonoBehaviour
 
     private void InitHeroList()
     {
-        ClientUtils.DestroyChildren(heroDataParent);
-        heroList.Clear();
         ToggleGroup toggleGroup = heroDataParent.GetComponent<ToggleGroup>();
         int totalCount = heroBond.heroIds.Count;
         int fulfulledHeroCount = 0;
@@ -77,8 +77,6 @@ public class Hero_BondData : MonoBehaviour
 
     private void InitBondLevelList()
     {
-        ClientUtils.DestroyChildren(bondLevelDataParent);
-        bondList.Clear();
         int totalCount = heroBond.heroBondJsonList.Count;
         for (int i = 0; i < totalCount; i++)
         {
@@ -88,6 +86,7 @@ public class Hero_BondData : MonoBehaviour
             data.Init(bond, bond.bondlevel <= currentLevel);
             bondList.Add(data);
         }
+        scrollviewSnap.SnapToChild(childIndex);
     }
 
     public void Refresh()
@@ -128,8 +127,8 @@ public class Hero_BondData : MonoBehaviour
                     parent.ShowLockedPanel(heroId);
                 else
                 {
-                    bool type1Passed = heroStats.IsBondTypeFulfilledByHero(nextLevelBond.bondtype1, nextLevelBond.bondvalue1, hero);
-                    bool type2Passed = heroStats.IsBondTypeFulfilledByHero(nextLevelBond.bondtype2, nextLevelBond.bondvalue2, hero);
+                    bool type1Passed = hero.HasFulfilledBondType(nextLevelBond.bondtype1, nextLevelBond.bondvalue1);
+                    bool type2Passed = hero.HasFulfilledBondType(nextLevelBond.bondtype2, nextLevelBond.bondvalue2);
                     if (type1Passed && type2Passed)
                     {
                         parent.HideSubPanels();

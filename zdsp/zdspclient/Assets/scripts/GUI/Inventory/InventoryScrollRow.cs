@@ -87,18 +87,18 @@ public class InventoryScrollRow : MonoBehaviour
                     case BagType.Equipment:
                         Equipment eq = invItem as Equipment;
                         if(eq != null)
-                            gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, false, callback);
+                            gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, eq.IsNew, false, callback);
 
                         Relic relic = invItem as Relic;
                         if(relic != null)
-                            gameIcon.GetComponent<GameIcon_Equip>().Init(relic.ItemID, 0, 0, 0, false, false, false, callback);
+                            gameIcon.GetComponent<GameIcon_Equip>().Init(relic.ItemID, 0, 0, 0, false, false, eq.IsNew, false, callback);
                         break;
                     case BagType.Consumable:
                     case BagType.Material:
-                        gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, false, false, callback);
+                        gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, false, invItem.IsNew, false, callback);
                         break;
                     case BagType.DNA:
-                        gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, callback);
+                        gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, invItem.IsNew, callback);
                         break;
                 }
             }

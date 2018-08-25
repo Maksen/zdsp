@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
-using System;
-using System.Linq;
-using Zealot.Common;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 
 namespace Zealot.Repository
 {
     public class RespawnRepo
     {
-        private static Dictionary<int, RespawnJson> respawnIDJsonMap; // RespawnID -> Json
+        public static Dictionary<int, RespawnJson> respawnIDJsonMap; // RespawnID -> Json
 
         static RespawnRepo()
         {

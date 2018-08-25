@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using System.Globalization;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -125,25 +124,25 @@ namespace Zealot.Repository
         }
 
         //mStoreSetting[cat]
-        public static Dictionary<int, StoreSetting> mStoreSetting { get; private set; }
+        public static Dictionary<int, StoreSetting> mStoreSetting;
 
         //dic_Products[shopid] = product
-        public static Dictionary<int, StoreProduct> dic_Products { get; private set; }
-        
+        public static Dictionary<int, StoreProduct> dic_Products;
+
         //dic_RefreshCost[cat] = list of price
-        public static Dictionary<int, List<int>> dic_RefreshCost { get; private set; }
+        public static Dictionary<int, List<int>> dic_RefreshCost;
 
         //dic_storeProducts[cat] = list<StoreProduct>
-        public static Dictionary<int, List<StoreProduct>> dic_storeProducts { get; private set; }//change to int if ex.
+        public static Dictionary<int, List<StoreProduct>> dic_storeProducts; //change to int if ex.
 
         //dic_shortStoreProducts[cat][shelfNum] = short product
-        public static Dictionary<int, Dictionary<int, List<ShortStoreProduct>>> dic_shortStoreProducts { get; private set; }
+        public static Dictionary<int, Dictionary<int, List<ShortStoreProduct>>> dic_shortStoreProducts;
 
         //dic_HeroIDToStoreSetting[heroid] = storeorder
-        public static Dictionary<int, int> dic_HeroIDToStoreSetting { get; private set; }
+        public static Dictionary<int, int> dic_HeroIDToStoreSetting;
 
         //dic_ShopTypeToStoreSetting[shoptype] = storeorder
-        public static Dictionary<UIStoreLinkType, int> dic_ShopTypeToStoreSetting { get; private set; }
+        public static Dictionary<UIStoreLinkType, int> dic_ShopTypeToStoreSetting;
 
         public static void Init(GameDBRepo gameData)
         {
@@ -219,7 +218,6 @@ namespace Zealot.Repository
                 dic_shortStoreProducts[cat][shelveNoList[i]].Add(new ShortStoreProduct(product.storeID, 
                                                                                         product.probability));
             }
-            
         }
 
         public static StoreProduct GetProduct(int storeID)

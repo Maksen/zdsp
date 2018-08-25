@@ -1,12 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 using Zealot.Client.Entities;
 using Zealot.Entities;
-using System;
 
 public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
 {
@@ -37,7 +36,7 @@ public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
         TalksStated = new Dictionary<int, bool>();
         foreach (QuestObjectiveJson objective in listofobjectives)
         {
-            if (objective.type == Zealot.Common.QuestObjectiveType.Talk)
+            if (objective.type == QuestObjectiveType.Talk)
             {
                 TalksStated.Add(objective.para2, false);
             }
@@ -87,7 +86,7 @@ public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
             //validate the talknpc is at current level and start talk. otherwise endRealm
             Vector3 targetnpcpos = Vector3.zero;
             string levelname = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            string archetype = StaticNPCRepo.GetStaticNPCById(talknpcid).archetype;
+            string archetype = StaticNPCRepo.GetNPCById(talknpcid).archetype;
             string level_target = "";
             bool find = NPCPosMap.FindNearestStaticNPC(archetype, levelname, localplayer.Position, ref level_target, ref targetnpcpos);
             if (find && levelname == level_target)
@@ -276,9 +275,9 @@ public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
     {
         foreach (QuestObjectiveJson obj in listofobjectives)
         {
-            if (obj.type == Zealot.Common.QuestObjectiveType.Talk && obj.para2 == talkid && talkid !=48)
+            if (obj.type == QuestObjectiveType.Talk && obj.para2 == talkid && talkid !=48)
             {
-                GameInfo.gCombat.HideClientSpawner(StaticNPCRepo.GetStaticNPCById(obj.para1).archetype);
+                GameInfo.gCombat.HideClientSpawner(StaticNPCRepo.GetNPCById(obj.para1).archetype);
                 break;
             }
         }

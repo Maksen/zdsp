@@ -21,13 +21,13 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     //Reward Icon
     public UI_RewardDisplay RewardDisplay;
 
-    //boss list
+    //Boss list
     public Transform BossListContent;
     public GameObject BossListPrefab;
     public ToggleGroup BossListToggleGroup;
 
     private Dictionary<int, SpecialBossStatus> mBossStatusAll;
-    private BossCategory mBossCategorySelected = BossCategory.BIGBOSS;
+    private BossType mBossCategorySelected = BossType.BigBoss;
     private SpecialBossStatus mBossStatusSelected;
     private SpecialBossJson mBossSelected;
 
@@ -48,7 +48,7 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     {
         if (!ison)
             return;
-        mBossCategorySelected = BossCategory.BIGBOSS;
+        mBossCategorySelected = BossType.BigBoss;
         LastKillHeader.text = GUILocalizationRepo.GetLocalizedString("wb_PartyScore");
         RefreshAll();
     }
@@ -57,7 +57,7 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     {
         if (!ison)
             return;
-        mBossCategorySelected = BossCategory.BOSS;
+        mBossCategorySelected = BossType.BigBoss;
         LastKillHeader.text = GUILocalizationRepo.GetLocalizedString("wb_DamageScore");
         RefreshAll();
     }
@@ -72,7 +72,7 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     {
         Clear();
 
-        List<SpecialBossJson> idList = SpecialBossRepo.GetOrderedBossIdsByCategory(mBossCategorySelected);
+        List<SpecialBossJson> idList = SpecialBossRepo.GetOrderedBossIdsByType(mBossCategorySelected);
         int count = idList.Count;
         for (int index = 0; index < count; index++)
         {
@@ -102,10 +102,10 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     {
         mBossStatusSelected = status;
         mBossSelected = bossJson;
-        var npc_info = NPCRepo.GetArchetypeById(mBossSelected.archetypeid);
-        BossName.text = npc_info.localizedname;
-        BossLevel.text = npc_info.level.ToString();
-        m3DAvatar.Change(npc_info.containerprefabpath, OnModelLoaded);
+        CombatNPCJson npcInfo = CombatNPCRepo.GetNPCById(mBossSelected.archetypeid);
+        BossName.text = npcInfo.localizedname;
+        BossLevel.text = npcInfo.level.ToString();
+        m3DAvatar.Change(npcInfo.containerprefabpath, OnModelLoaded);
         if (status != null)
         {
             if (!string.IsNullOrEmpty(status.killer))

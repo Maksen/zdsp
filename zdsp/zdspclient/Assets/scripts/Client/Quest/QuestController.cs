@@ -1,10 +1,10 @@
-﻿using Candlelight.UI;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zealot.Bot;
 using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Common.Entities;
@@ -279,7 +279,7 @@ public class QuestClientController
         foreach (StaticClientNPCAlwaysShow npc in npclist)
         {
             npc.UpdateAvailableQuestList();
-            List<int> questlist = GetQuestListByNPCId(npc.GetArchetypeID());
+            List<int> questlist = GetQuestListByNPCId(npc.mArchetypeId);
             npc.UpdateOngoingQuest(questlist);
         }
 
@@ -1365,13 +1365,13 @@ public class QuestClientController
         {
             case QuestObjectiveType.Kill:
             case QuestObjectiveType.PercentageKill:
-                targetname = NPCRepo.GetArchetypeById(param).localizedname;
+                targetname = CombatNPCRepo.GetNPCById(param).localizedname;
                 ishyperlink = true;
                 break;
             case QuestObjectiveType.Talk:
             case QuestObjectiveType.Choice:
             case QuestObjectiveType.QuickTalk:
-                targetname = StaticNPCRepo.GetStaticNPCById(param).localizedname;
+                targetname = StaticNPCRepo.GetNPCById(param).localizedname;
                 ishyperlink = true;
                 break;
             case QuestObjectiveType.Interact:
@@ -1435,7 +1435,7 @@ public class QuestClientController
                 ishyperlink = false;
                 break;
             case QuestObjectiveType.Interact:
-                targetname = StaticNPCRepo.GetStaticNPCById(param).localizedname;
+                targetname = StaticNPCRepo.GetNPCById(param).localizedname;
                 ishyperlink = true;
                 break;
         }
@@ -1543,7 +1543,7 @@ public class QuestClientController
                 value = SideEffectRepo.GetSideEffect(param).localizedname;
                 break;
             case QuestRequirementType.Companian:
-                value = StaticNPCRepo.GetStaticNPCById(param).localizedname;
+                value = StaticNPCRepo.GetNPCById(param).localizedname;
                 break;
             case QuestRequirementType.Clue:
             case QuestRequirementType.Job:
@@ -1721,7 +1721,7 @@ public class QuestClientController
         {
             case QuestTriggerType.NPC:
                 ishyperlink = true;
-                targetname = StaticNPCRepo.GetStaticNPCById(questJson.triggercaller).localizedname;
+                targetname = StaticNPCRepo.GetNPCById(questJson.triggercaller).localizedname;
                 break;
             case QuestTriggerType.Item:
                 targetname = GameRepo.ItemFactory.GetItemById(questJson.triggercaller).localizedname;
@@ -1944,11 +1944,11 @@ public class QuestClientController
                 case QuestEventType.Playmaker:
                     break;
                 case QuestEventType.Monster:
-                    int mosterid = -1;
+                    int monsterid = -1;
                     int monsterstatus = 0;
-                    int.TryParse(questEvent.para1, out mosterid);
+                    int.TryParse(questEvent.para1, out monsterid);
                     int.TryParse(questEvent.para2, out monsterstatus);
-                    NPCJson npcJson = NPCRepo.GetArchetypeById(mosterid);
+                    NPCJson npcJson = CombatNPCRepo.GetNPCById(monsterid);
                     if (npcJson != null)
                     {
                         if (monsterstatus == 1 || monsterstatus == 2)
@@ -2019,7 +2019,7 @@ public class QuestClientController
                     StaticClientNPCAlwaysShow staticnpc = GameInfo.gCombat.mEntitySystem.GetStaticClientNPC(npcid);
                     if (staticnpc != null)
                     {
-                        bool startupdisplay = staticnpc.GetStartUpDisplay();
+                        bool startupdisplay = staticnpc.StartUpDisplay;
                         if (startupdisplay != status)
                         {
                             if (!GameInfo.mNpcQuestStatus.ContainsKey(npcid))
@@ -2082,7 +2082,7 @@ public class QuestClientController
                 StaticClientNPCAlwaysShow staticnpc = GameInfo.gCombat.mEntitySystem.GetStaticClientNPC(npcid);
                 if (staticnpc != null)
                 {
-                    staticnpc.UpdateDisplayStatus(staticnpc.GetStartUpDisplay());
+                    staticnpc.UpdateDisplayStatus(staticnpc.StartUpDisplay);
                 }
             }
         }
@@ -2398,27 +2398,26 @@ public class QuestClientController
         }
     }
 
-    private void ProceedToQuestTarget(int targetid, int questid, bool teleport, bool isnpc, byte type, bool isobjective = true)
+    private void ProceedToQuestTarget(int targetId, int questId, bool teleport, bool isCombat, byte type, bool isobjective = true)
     {
-        string currentlevel = SceneManager.GetActiveScene().name;
+        string levelName = SceneManager.GetActiveScene().name;
         string targetlevel = "";
         Vector3 targetpos = Vector3.zero;
+
         bool foundtarget = false;
-        if (isnpc)
+        if (isCombat)
         {
-            StaticNPCJson staticNPCJson = StaticNPCRepo.GetStaticNPCById(targetid);
-            if (staticNPCJson != null)
-            {
-                foundtarget = NPCPosMap.FindNearestStaticNPC(staticNPCJson.archetype, currentlevel, mPlayer.Position, ref targetlevel, ref targetpos);
-            }
+            NPCJson npcJson = CombatNPCRepo.GetNPCById(targetId);
+            if (npcJson != null)
+                foundtarget = NPCPosMap.FindNearestMonster(npcJson.archetype, levelName, mPlayer.Position, 
+                    ref targetlevel, ref targetpos);
         }
         else
         {
-            NPCJson npcJson = NPCRepo.GetArchetypeById(targetid);
-            if (npcJson != null)
-            {
-                foundtarget = NPCPosMap.FindNearestMonster(npcJson.archetype, currentlevel, mPlayer.Position, ref targetlevel, ref targetpos);
-            }
+            StaticNPCJson staticNPCJson = StaticNPCRepo.GetNPCById(targetId);
+            if (staticNPCJson != null)
+                foundtarget = NPCPosMap.FindNearestStaticNPC(staticNPCJson.archetype, levelName, mPlayer.Position, 
+                    ref targetlevel, ref targetpos);
         }
 
         if (!foundtarget)
@@ -2431,39 +2430,34 @@ public class QuestClientController
             mPlayer.ForceIdle();
             mPlayer.Bot.StopBot();
 
-            if (currentlevel == targetlevel)
+            if (levelName == targetlevel)
             {
-                if (isnpc)
+                if (isCombat)
                 {
-                    mPlayer.ProceedToTarget(targetpos, targetid, CallBackAction.Interact);
-                }
-                else
-                {
-                    mPlayer.PathFindToTarget(targetpos, -1, 0, false, true, () =>
-                    {
+                    mPlayer.PathFindToTarget(targetpos, -1, 0, false, true, () => {
                         if (GameSettings.AutoBotEnabled)
-                        {
                             mPlayer.Bot.StartBot();
-                        }
                     });
                 }
+                else
+                    mPlayer.ProceedToTarget(targetpos, targetId, CallBackAction.Interact);
             }
             else
             {
                 if (teleport)
                 {
-                    GameInfo.mTeleportAction = new QuestTeleportAction(type, targetid, questid, isobjective);
+                    GameInfo.mTeleportAction = new QuestTeleportAction(type, targetId, questId, isobjective);
                     RPCFactory.CombatRPC.OnTeleportToLevel(targetlevel);
                 }
                 else
                 {
-                    Zealot.Bot.BotController.TheDijkstra.DoRouter(currentlevel, targetlevel, out foundtarget);
+                    BotController.TheDijkstra.DoRouter(levelName, targetlevel, out foundtarget);
                     if (foundtarget)
                     {
-                        Zealot.Bot.BotController.DestLevel = targetlevel;
-                        Zealot.Bot.BotController.DestMapPos = targetpos;
-                        Zealot.Bot.BotController.DestMonsterOrNPC = isnpc ? Zealot.Bot.ReachTargetAction.NPC_Interact : Zealot.Bot.ReachTargetAction.StartBot;
-                        Zealot.Bot.BotController.DestArchtypeID = isnpc ? targetid : -1;
+                        BotController.DestLevel = targetlevel;
+                        BotController.DestMapPos = targetpos;
+                        BotController.DestMonsterOrNPC = isCombat ? ReachTargetAction.StartBot : ReachTargetAction.NPC_Interact;
+                        BotController.DestArchtypeID = isCombat ? -1 : targetId;
                         GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
                     }
                     else
@@ -2621,7 +2615,7 @@ public class QuestClientController
         if (objectiveJson != null)
         {
             string description = string.IsNullOrEmpty(objectiveJson.msg) || objectiveJson.msg == "#unlocalized#" ? objectiveJson.description : objectiveJson.msg;
-            string monstername = NPCRepo.GetArchetypeById(objectiveJson.para1).localizedname;
+            string monstername = CombatNPCRepo.GetNPCById(objectiveJson.para1).localizedname;
             description = description.Replace("%o[p1]%", monstername);
             description = description.Replace("%o[p2]%", objectiveJson.para2.ToString());
             description = description.Replace("%pc%", progress.ToString());

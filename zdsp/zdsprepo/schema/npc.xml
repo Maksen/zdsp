@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <magicalarea51>
   <data>  
-    <enum name="BossCategory">
-      <item key="BIGBOSS" value="1"/>
-      <item key="BOSS" value="2"/>
+    <enum name="BossType">
+      <item key="Boss" value="0"/>
+      <item key="BigBoss" value="1"/>
     </enum> 
 
     <enum name="BossSpawnType">
@@ -20,7 +20,7 @@
 
     <enum name="MonsterClass">
       <item key="Normal" value="0"/>
-      <item key="Mini" value="1"/>
+      <item key="MiniBoss" value="1"/>
       <item key="Boss" value="2"/>
     </enum>
 
@@ -30,6 +30,7 @@
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="localizedtitle" type="localizedstring" uitext="Title(Localized)"/>
       <property name="remark" type="string" uitext="Remarks(not exported)" default="" noexport="true"/>
+      <property name="portraitpath" type="asset" uitext="Portrait Path" default="" assettype="sprite"/>
 	    <property name="containerprefabpath" type="asset" uitext="Container Prefab Path" default="" assettype="prefab" />
       <property name="modelprefabpath" type="asset" uitext="Model Prefab Path" default="" assettype="prefab"/>
       <property name="modelmaterialpath" type="string" uitext="Model Material Path" default="" assettype="material" info="To replace original npc's material"/>   
@@ -80,9 +81,9 @@
       <property name="hpregenamtbypercent" type="int" uitext="HP Regen Amount by Percentage" default="0" info="Regen percentage per interval"/>
       <property name="healthregeninterval" type="float" uitext="Health Regen Interval" default="0" info="In seconds"/>
       <property name="exp" type="int" uitext="Experience" default="0" />
-      <property name="skillexp" type="int" uitext="Skill Experience" default="0" />
-      <property name="loot" type="string" uitext="LootLink Ids" default="" info="id1;id2"/>
-      <property name="eventloot" type="string" uitext="EventLootLink ids" default="" info="id1;id2"/>
+      <property name="skillexp" type="int" uitext="Skill Experience" default="0"/>
+      <property name="lootids" type="string" uitext="LootLink Ids" default="" info="id1;id2"/>
+      <property name="eventlootids" type="string" uitext="EventLootLink Ids" default="" info="id1;id2"/>
       
       <property name="bossai1" type="BossAI" uitext="Boss AI 1" display="name" info="For boss skill AI"/>
       <property name="bossai2" type="BossAI" uitext="Boss AI 2" display="name" info="For boss skill AI"/>
@@ -113,7 +114,7 @@
       <property name="name" type="string" uitext="Name" unique="true"/>
       <property name="archetypeid" type="CombatNPC" uitext="Boss Archetype" display="archetype"/>
       <property name="location" type="Level" uitext="Location" display="unityscene"/>
-      <property name="category" type="BossCategory" uitext="Category"/>
+      <property name="bosstype" type="BossType" uitext="Boss Type" default="0"/>
       <property name="sequence" type="int" uitext="Display Sequence"/>
       <property name="spawntype" type="BossSpawnType" uitext="Spawn Type"/>
       <property name="spawndaily" type="string" uitext="Spawn Daily" default="09:00|15:00" info="hour:minute|hour:minute"/>
@@ -121,7 +122,7 @@
       <property name="spawnstart" type="string" uitext="Spawn Start" default=""/>
       <property name="spawnend" type="string" uitext="Spawn End" default=""/>
       <property name="respawntime" type="int" uitext="Respawn Time"/>
-      <property name="displayrewardgroupid" type="int" uitext="Display Reward Group id"/>
+      <property name="displayrewardgroupid" type="int" uitext="Display Reward Group Id"/>
       <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="0;0;0;1" info="x;y;rotatey;scale"/>
     </element>

@@ -119,6 +119,12 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\RealmStats.cs">
       <Link>Entities\RealmStats.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory.cs">
+      <Link>EquipmentCraft\EquipmentCraftInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory_Methods.cs">
+      <Link>EquipmentCraft\EquipmentCraftInventory_Methods.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ArenaInventory.cs">
       <Link>GameObjects\ArenaInventory.cs</Link>
     </Compile>
@@ -323,11 +329,11 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\DestinyClueRepo.cs">
       <Link>Repositories\DestinyClueRepo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\DonateRewardRepo.cs">
-      <Link>Repositories\DonateRewardRepo.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ElementalChartRepo.cs">
       <Link>Repositories\ElementalChartRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipmentCraftRepo.cs">
+      <Link>Repositories\EquipmentCraftRepo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipmentModdingRepo.cs">
       <Link>Repositories\EquipmentModdingRepo.cs</Link>
@@ -398,9 +404,6 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PowerUpRepo.cs">
       <Link>Repositories\PowerUpRepo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PrizeGuaranteeRepository.cs">
-      <Link>Repositories\PrizeGuaranteeRepository.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\PushNotificationRepo.cs">
       <Link>Repositories\PushNotificationRepo.cs</Link>
     </Compile>
@@ -409,9 +412,6 @@
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\QuestRepo.cs">
       <Link>Repositories\QuestRepo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RandomBoxRewardRepo.cs">
-      <Link>Repositories\RandomBoxRewardRepo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RareItemNotificationRepo.cs">
       <Link>Repositories\RareItemNotificationRepo.cs</Link>

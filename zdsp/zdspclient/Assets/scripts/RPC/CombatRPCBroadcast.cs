@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
-using Kopio.JsonContracts;
 using Zealot.Common;
 using Zealot.Common.RPC;
-using Zealot.Entities;
 using Zealot.Repository;
 using Newtonsoft.Json;
 
@@ -137,7 +136,7 @@ public partial class ClientMain : MonoBehaviour
         if (info == null)
             return;
         LevelJson level_info = LevelRepo.GetInfoById(info.location);
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(info.archetypeid);
+        NPCJson archetypeInfo = CombatNPCRepo.GetNPCById(info.archetypeid);
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("area", level_info.localizedname);
         param.Add("boss", archetypeInfo.localizedname);
@@ -161,7 +160,7 @@ public partial class ClientMain : MonoBehaviour
         if (info == null)
             return;
         LevelJson level_info = LevelRepo.GetInfoById(info.location);
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(info.archetypeid);
+        NPCJson archetypeInfo = CombatNPCRepo.GetNPCById(info.archetypeid);
         string message = GetMonsterKilledMessage(level_info.localizedname, archetypeInfo.localizedname, killer);
         //HUD.Combat.SetTickerMessage(message);
         UIManager.ShowSystemMessage(message, true);
@@ -169,7 +168,7 @@ public partial class ClientMain : MonoBehaviour
 
     private void BroadcastMyDamage(int archetypeid, string damage)
     {
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(archetypeid);
+        NPCJson archetypeInfo = CombatNPCRepo.GetNPCById(archetypeid);
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("boss", archetypeInfo.localizedname);
         param.Add("damage", damage);
@@ -179,7 +178,7 @@ public partial class ClientMain : MonoBehaviour
 
     private void BroadcastMyScore(string[] parameters_array)
     {
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(int.Parse(parameters_array[0]));
+        NPCJson archetypeInfo = CombatNPCRepo.GetNPCById(int.Parse(parameters_array[0]));
         string message = "";
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("boss", archetypeInfo.localizedname);
@@ -205,7 +204,7 @@ public partial class ClientMain : MonoBehaviour
 
     private void BroadcastMonsterSpawn(int archetypeid, int levelid)
     {
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(archetypeid);
+        NPCJson archetypeInfo = CombatNPCRepo.GetNPCById(archetypeid);
         LevelJson level_info = LevelRepo.GetInfoById(levelid);
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("area", level_info.localizedname);
@@ -217,7 +216,7 @@ public partial class ClientMain : MonoBehaviour
 
     private void BroadcastMonsterKilled(int archetypeid, int levelid, string killer)
     {
-        NPCJson archetypeInfo = NPCRepo.GetArchetypeById(archetypeid);
+        NPCJson archetypeInfo = CombatNPCRepo.GetNPCById(archetypeid);
         LevelJson level_info = LevelRepo.GetInfoById(levelid);
         string message = GetMonsterKilledMessage(level_info.localizedname, archetypeInfo.localizedname, killer);
         //HUD.Combat.SetTickerMessage(message);
@@ -385,7 +384,6 @@ public partial class ClientMain : MonoBehaviour
         {
             DateTime beginDt = DateTime.ParseExact(parameters, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
             int seconds = (int)(beginDt.Subtract(DateTime.Now).TotalSeconds);
-           
         }
     }
 

@@ -15,9 +15,9 @@ namespace Zealot.Repository
         public static Dictionary<string, int> mNameMapMyCard;
         public static Dictionary<int, TopUpItemMyCardJson> mIdMapMyCard;
 
-        private static List<TopUpItemAndroidJson> _uiOrderedTopUpItemsAndroid;
-        private static List<TopUpItemAppleJson> _uiOrderedTopUpItemsApple;
-        private static List<TopUpItemMyCardJson> _uiOrderedTopUpItemsMyCard;
+        public static List<TopUpItemAndroidJson> _uiOrderedTopUpItemsAndroid;
+        public static List<TopUpItemAppleJson> _uiOrderedTopUpItemsApple;
+        public static List<TopUpItemMyCardJson> _uiOrderedTopUpItemsMyCard;
 
         static TopUpRepo()
         {

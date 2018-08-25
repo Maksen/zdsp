@@ -1,14 +1,13 @@
-#define YAO_HPBAR_TEST
-using UnityEngine;
-using System.Collections.Generic;
 using Kopio.JsonContracts;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Common.Datablock;
 using Zealot.Common.Actions;
 using Zealot.Repository;
 using Zealot.Client.Actions;
-using System;
 
 namespace Zealot.Client.Entities
 {
@@ -21,7 +20,7 @@ namespace Zealot.Client.Entities
 
         public override bool CanSelect { get { return !IsInvalidTarget(); } }
 
-        public MonsterGhost():base()
+        public MonsterGhost() : base()
 		{
 			this.EntityType = EntityType.MonsterGhost;
             mSkillIndicator120 = null;
@@ -151,11 +150,11 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void Init(int archetypeid, Vector3 pos, Vector3 dir, int health)
+        public void Init(int archetypeId, Vector3 pos, Vector3 dir, int health)
 		{                    
             Position = pos;
             Forward = dir;
-            mArchetype = NPCRepo.GetArchetypeById(archetypeid);
+            mArchetype = CombatNPCRepo.GetNPCById(archetypeId);
             //Radius = mArchetype.radius;
 
             base.Init ();
@@ -252,13 +251,13 @@ namespace Zealot.Client.Entities
                     List<int> skillidList = new List<int>();
                     if (mArchetype.bossai1 != 0)
                     {
-                        BossAIJson aijson = NPCRepo.GetBossAIByID(mArchetype.bossai1);
+                        BossAIJson aijson = CombatNPCRepo.GetBossAIByID(mArchetype.bossai1);
                         skillidList.Add(aijson.skillid);
                         
                     }
                     if (mArchetype.bossai2 != 0)
                     {
-                        BossAIJson aijson = NPCRepo.GetBossAIByID(mArchetype.bossai2);
+                        BossAIJson aijson = CombatNPCRepo.GetBossAIByID(mArchetype.bossai2);
                         skillidList.Add(aijson.skillid);                        
                     }
                     foreach (int skillid in skillidList)
@@ -299,6 +298,7 @@ namespace Zealot.Client.Entities
                 for(int i = 0; i < ac.animationClips.Length; ++i) {
                     if(ac.animationClips[i].name == "dying") {
                         dyingduration = (long)ac.animationClips[i].length * 1000;
+                        break;
                     }
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Zealot.Common;
 
 public class InvSellPanelScrollRow : MonoBehaviour
@@ -52,26 +53,26 @@ public class InvSellPanelScrollRow : MonoBehaviour
             InvDisplayItem invDisplayItem = sellItemList[realIdx];
             IInventoryItem invItem = invDisplayItem.InvItem;
             BagType bagType = invItem.JsonObject.bagtype;
+            UnityAction callback = () => uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx);
+
             GameObject gameIcon = Instantiate(prefabGameicons[(int)bagType-1]);
+            gameIcon.transform.SetParent(parent, false);
             switch (bagType)
             {
                 case BagType.Equipment:
                     Equipment eq = invItem as Equipment;
-                    gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, false, 
-                        () => { uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx); });
+                    gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, eq.IsNew, false, callback);
                     break;
                 case BagType.Consumable:
                 case BagType.Material:
-                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, false, false,
-                        () => { uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx); });
+                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, 
+                        false, invItem.IsNew, false, callback);
                     break;
                 case BagType.DNA:
-                    gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0,
-                        () => { uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx); });
+                    gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, invItem.IsNew, callback);
                     break;
             }
-
-            gameIcon.transform.SetParent(parent, false);
+              
             ChildList.Add(gameIcon);
         }
     }

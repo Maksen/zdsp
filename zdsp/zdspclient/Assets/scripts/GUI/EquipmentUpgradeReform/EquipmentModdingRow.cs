@@ -174,7 +174,7 @@ public class EquipmentModdingRow : MonoBehaviour
         {
             if (!isSafeUpgrade)
             {
-                equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
+                equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, false, true);
                 GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
                 if (selectCheckMark != null)
                 {
@@ -189,7 +189,7 @@ public class EquipmentModdingRow : MonoBehaviour
             }
             else
             {
-                equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
+                equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, false, true);
                 GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
                 if (selectCheckMark != null)
                 {
@@ -210,7 +210,7 @@ public class EquipmentModdingRow : MonoBehaviour
 
         if (equipIcon != null)
         {
-            equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
+            equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, false, true);
             GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
             if (selectCheckMark != null)
             {

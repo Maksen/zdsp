@@ -146,9 +146,9 @@ public partial class ClientMain : MonoBehaviour
         JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         var store = JsonConvert.DeserializeObject<NPCStoreInfo>(scString, jsonSetting);
 
-        if (GameInfo.gUIShopSell != null)
+        if (GameInfo.gUIShop != null)
         {
-            GameInfo.gUIShopSell.init(store);
+            GameInfo.gUIShop.init(store);
         }
     }
     
@@ -158,18 +158,18 @@ public partial class ClientMain : MonoBehaviour
         JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
         var trans = JsonConvert.DeserializeObject<Dictionary<string, NPCStoreInfo.Transaction>>(scString, jsonSetting);
 
-        if (GameInfo.gUIShopSell != null)
+        if (GameInfo.gUIShop != null)
         {
-            GameInfo.gUIShopSell.UpdateTransactions(trans);
+            GameInfo.gUIShop.UpdateTransactions(trans);
         }
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_NPCStoreBuy)]
     public void Ret_NPCStoreBuy(string scString)
     {
-        if (GameInfo.gUIShopSell != null)
+        if (GameInfo.gUIShop != null)
         {
-            GameInfo.gUIShopSell.SignalTransactionStatus(scString);
+            GameInfo.gUIShop.SignalTransactionStatus(scString);
         }
     }
     #endregion

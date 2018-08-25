@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using Zealot.Repository;
 using Kopio.JsonContracts;
 using Zealot.Common;
@@ -82,7 +81,7 @@ public class Hud_QuestAction : BaseWidgetBehaviour
         message = message.Replace("%o[p2]%", objectiveJson == null ? "" : objectiveJson.para2.ToString());
         if (objectiveJson != null)
         {
-            StaticNPCJson staticNPCJson = StaticNPCRepo.GetStaticNPCById(objectiveJson.para3);
+            StaticNPCJson staticNPCJson = StaticNPCRepo.GetNPCById(objectiveJson.para3);
             message = message.Replace("%o[p1]%", staticNPCJson == null ? "" : staticNPCJson.localizedname);
         }
         else

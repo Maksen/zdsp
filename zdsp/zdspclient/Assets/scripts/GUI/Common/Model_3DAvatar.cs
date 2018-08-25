@@ -37,17 +37,18 @@ public class Model_3DAvatar : MonoBehaviour
         model.GetComponent<AvatarController>().InitAvatar(equipmentInvData, jobtype, gender);
         var _weapon = equipmentInvData.Slots[(int)EquipmentSlot.Weapon];
         PartsType _weaponType = (_weapon != null) ? _weapon.EquipmentJson.partstype : PartsType.Blade;
-        model.GetComponent<Animator>().PlayFromStart(ClientUtils.GetStandbyAnimationByWeapnType(_weaponType));
+        model.GetComponent<Animator>().PlayFromStart(ClientUtils.GetStandbyAnimationByWeaponType(_weaponType));
         if (afterLoad != null)
             afterLoad(model);
     }
 
     private HeroJson heroJson;
-    public void ChangeHero(int heroId, int tier)
+
+    public bool ChangeHero(int heroId, int tier)
     {
         heroJson = HeroRepo.GetHeroById(heroId);
         if (heroJson == null)
-            return;
+            return false;
 
         string prefabPath = "";
         switch (tier)
@@ -62,6 +63,9 @@ public class Model_3DAvatar : MonoBehaviour
                 break;
         }
 
+        if (string.IsNullOrEmpty(prefabPath))
+            return false;
+
         if (model != null && modelpath != prefabPath)
         {
             Destroy(model);
@@ -74,6 +78,7 @@ public class Model_3DAvatar : MonoBehaviour
             AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, OnModelLoaded, true);
             modelpath = prefabPath;
         }
+        return true;
     }
 
     public void Change(string prefabPath, Action<GameObject> afterLoad = null)
@@ -87,7 +92,8 @@ public class Model_3DAvatar : MonoBehaviour
 
         if (model == null)
         {
-            AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, (obj) => {
+            AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, (obj) =>
+            {
                 OnModelLoaded(obj);
                 if (model != null && afterLoad != null)
                     afterLoad(model);
@@ -122,5 +128,11 @@ public class Model_3DAvatar : MonoBehaviour
     public GameObject GetOutfitModel()
     {
         return model;
+    }
+
+    public void PlayAnimation(string animation)
+    {
+        if (model != null)
+            model.GetComponent<Animator>().PlayFromStart(animation);
     }
 }

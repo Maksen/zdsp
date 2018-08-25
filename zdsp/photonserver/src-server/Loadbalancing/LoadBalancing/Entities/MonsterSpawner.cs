@@ -18,9 +18,9 @@ namespace Zealot.Server.Entities
         {
             mMonsterSpawnerJson = info;
             if(info.archetype != "")
-                mArchetype = NPCRepo.GetArchetypeByName(info.archetype);
+                mArchetype = CombatNPCRepo.GetNPCByArchetype(info.archetype);
             else if(instance.mRoom.RealmID > 0)
-                mArchetype = RealmNPCGroupRepo.GetArchetypeByNameAndRealmID(info.archetypeGroup, instance.mRoom.RealmID);
+                mArchetype = RealmNPCGroupRepo.GetNPCByGroupNameAndRealmId(info.archetypeGroup, instance.mRoom.RealmID);
             mRespawnedCount = mMonsterSpawnerJson.respawnCount;
         }
 
@@ -40,7 +40,7 @@ namespace Zealot.Server.Entities
 
         public override void SpawnMonster()
         {
-            //Spawn monster at server
+            // Spawn monster at server
             bool logflag = mArchetype.monsterclass == MonsterClass.Boss;
             Monster monster = mInstance.mEntitySystem.SpawnNetEntity<Monster>(logflag, mArchetype.archetype);
             NPCSynStats playerStats = new NPCSynStats();            
@@ -53,15 +53,16 @@ namespace Zealot.Server.Entities
             MonsterClass monsterClass = mArchetype.monsterclass;
             //if (monsterClass == MonsterClass.Destructible)
             //    monster.SetAIBehaviour(new NullAIBehaviour(monster));
-            if (monsterClass == MonsterClass.Normal || monsterClass == MonsterClass.Mini)
+            if (monsterClass == MonsterClass.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if(monsterClass == MonsterClass.Boss)
+            else if(monsterClass == MonsterClass.Boss || monsterClass == MonsterClass.MiniBoss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
             //else if(monsterClass == MonsterClass.Escape)
             //    monster.SetAIBehaviour(new MonsterEscapeAIBehaviour(monster));
 
             if (mArchetype.broadcast)
                 GameApplication.Instance.BroadcastMessage(BroadcastMessageType.MonsterSpawn, mArchetype.id + ";" + mInstance.mCurrentLevelID);
+
             maChildren.Add(monster);
         }
 
@@ -219,7 +220,7 @@ namespace Zealot.Server.Entities
         {
             if (parameters != null)
             {
-                mArchetype = NPCRepo.GetArchetypeById((int)parameters[0]);
+                mArchetype = CombatNPCRepo.GetNPCById((int)parameters[0]);
             }
         }
 
@@ -227,7 +228,7 @@ namespace Zealot.Server.Entities
         {
             if (parameters != null)
             {
-                mArchetype = NPCRepo.GetArchetypeById((int)parameters[0]);
+                mArchetype = CombatNPCRepo.GetNPCById((int)parameters[0]);
                 SpawnAllMonster();
             }
         }

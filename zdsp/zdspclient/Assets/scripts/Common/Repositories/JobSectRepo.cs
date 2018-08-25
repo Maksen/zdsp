@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -8,7 +8,6 @@ namespace Zealot.Repository
     {
         public static Dictionary<JobType, JobsectJson> mJobTypeMap;
         public static Dictionary<Gender, GenderInfoJson> mGenderMap;
-
         public static Dictionary<JobType, JobTree> m_JobTreeCache;
 
         public class JobTree
@@ -49,7 +48,6 @@ namespace Zealot.Repository
             mJobTypeMap = new Dictionary<JobType, JobsectJson>();
             mGenderMap = new Dictionary<Gender, GenderInfoJson>();
             m_JobTreeCache = new Dictionary<JobType, JobTree>();
-            
         }
 
 		public static void Init(GameDBRepo gameData)

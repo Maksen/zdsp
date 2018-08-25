@@ -35,51 +35,6 @@
 		  <property name="score"           type="int"    uitext="Score"/>
 		  <property name="rewardgroupid"   type="string" uitext="Reward Group ID"/>
 	  </element>
-	
-	  <enum name="RewardType">
-      <item key="All" value="0"/>
-      <item key="Random" value="1"/>
-      <item key="Weight" value="2"/>
-    </enum>
-	
-    <element name="RewardGroup" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Name"/>
-      <property name="rewardids" type="string" uitext="RewardList_IDs"/>
-    </element>
-
-    <element name="RandomBoxReward" useexcel="true"  collectionkey="boxcontinued">
-      <property name="boxcontinued" type="int" uitext="Box Continued"/>
-      <property name="boxtimemin" type="int" uitext="Box Time Min"/>
-      <property name="boxtimemax" type="int" uitext="Box Time Max"/>
-      <property name="rewardgroupid" type="int" uitext="RewardGroupID"/>
-    </element>
-    
-    <element name="PrizeGuarantee" useexcel="true"  collectionkey="itemid">
-      <property name="name" type="string" uitext="Name"/>
-      <property name="reset" type="bool" uitext="Reset" default="false"/>
-      <property name="type" type="PrizeGuaranteeType" uitext="Type"/>
-      <property name="itemid" type="int" uitext="Item ID"/>
-      <property name="prizeid1" type="ItemBase" uitext="Prize Id1" display="name"/>
-      <property name="prizecount1" type="int" uitext="Prize Count1"/>
-      <property name="threshold1" type="int" uitext="Threshold1"/>
-      <property name="prizeid2" type="ItemBase" uitext="Prize Id2" display="name"/>
-      <property name="prizecount2" type="int" uitext="Prize Count2"/>
-      <property name="threshold2" type="int" uitext="Threshold2"/>
-      <property name="prizeid3" type="ItemBase" uitext="Prize Id3" display="name"/>
-      <property name="prizecount3" type="int" uitext="Prize Count3"/>
-      <property name="threshold3" type="int" uitext="Threshold3"/>
-      <property name="prizeid4" type="ItemBase" uitext="Prize Id4" display="name"/>
-      <property name="prizecount4" type="int" uitext="Prize Count4"/>
-      <property name="threshold4" type="int" uitext="Threshold4"/>
-      <property name="prizeid5" type="ItemBase" uitext="Prize Id5" display="name"/>
-      <property name="prizecount5" type="int" uitext="Prize Count5"/>
-      <property name="threshold5" type="int" uitext="Threshold5"/>
-    </element>
-
-    <element name="DonateRewardId" useexcel="true">
-      <!--<property name="heroquality" type="HeroQuality" uitext="Hero Quality"/>-->
-      <property name="rewardlistid" type="RewardList" uitext="Reward List ID" display="name"/>
-    </element>
     
   </data>
 </magicalarea51>

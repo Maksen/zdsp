@@ -18,7 +18,7 @@ public class UI_Dialogue : BaseWindowBehaviour
     [SerializeField]
     GameObject Arrow; 
 
-    private QuestNPC mQuestNPC;
+    private StaticNPCGhost mQuestNPC;
     private int mStep = 0;
     private int mTotalStep = 0;
     private QuestTalkDetailJson mTalkJson = null;
@@ -43,7 +43,7 @@ public class UI_Dialogue : BaseWindowBehaviour
     private DialogueAction mDialogueAction = DialogueAction.None;
     private int mQuestionTalkId = -1;
 
-    public void Init(QuestNPC npc, int talkid, int questid, bool ongoingquest, List<int> questlist = null, bool completedall = false)
+    public void Init(StaticNPCGhost npc, int talkid, int questid, bool ongoingquest, List<int> questlist = null, bool completedall = false)
     {
         mQuestNPC = npc;
         mSelectionObjects = new List<GameObject>();
@@ -52,7 +52,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mCompletedAllQuest = completedall;
         mStep = 0;
         mQuestList = questlist;
-        mNPCId = npc.mArchetypeID;
+        mNPCId = npc.mArchetypeId;
         mQuestId = questid;
         mOngoingQuest = ongoingquest;
         mDialogueAction = DialogueAction.None;

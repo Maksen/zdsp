@@ -27,7 +27,8 @@ namespace Zealot.Repository
         public static string localizedNum4 = "";
         public static string localizedNum5 = "";
         public static string localizedNum6 = "";
-        public static string localizedDay = ""; // 日
+        public static string localizedDay = "";  // 日
+        public static string localizedWeek = ""; // 週
         public static string localizedMonth = "";
         public static string localizedYear = "";
 
@@ -74,6 +75,7 @@ namespace Zealot.Repository
             localizedNum5 = GetLocalizedString("com_Five");
             localizedNum6 = GetLocalizedString("com_Six");
             localizedDay = GetLocalizedString("com_Day");
+            localizedWeek = GetLocalizedString("com_Week");
             localizedMonth = GetLocalizedString("com_Month");
             localizedYear = GetLocalizedString("com_Year");
 
@@ -83,7 +85,7 @@ namespace Zealot.Repository
         public static string GetLocalizedString(string guiname)
         {
             string result = "";
-            if(mLocalizedStrMap.TryGetValue(guiname, out result) == true)
+            if(mLocalizedStrMap.TryGetValue(guiname, out result))
                 return result;
             else
                 return "#" + guiname; // when someone see this, pls add entry into guilocalization
@@ -129,6 +131,20 @@ namespace Zealot.Repository
             if (id <= 0)
                 return string.Format("#{0}", name);
             return GetLocalizedSysMsgById(id, param);
+        }
+
+        public static string GetLocalizedNumber(int number)
+        {
+            switch (number)
+            {
+                case 1: return localizedNum1;
+                case 2: return localizedNum2;
+                case 3: return localizedNum3;
+                case 4: return localizedNum4;
+                case 5: return localizedNum5;
+                case 6: return localizedNum6;
+                default: return "";
+            }
         }
 
         public static string GetLocalizedTimeString(double totalSeconds)

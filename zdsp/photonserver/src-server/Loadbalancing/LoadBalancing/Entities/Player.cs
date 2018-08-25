@@ -37,6 +37,7 @@
         public SecondaryStats SecondaryStats { get; private set; }
         public InventoryStats[] InventoryStats { get; private set; }
         public EquipmentStats EquipmentStats { get; set; }
+        public EquipmentCraftStats EquipmentCraftStats { get; private set; }
         public ItemHotbarStats ItemHotbarStats { get; set; }
         public QuestSynStatsServer QuestStats { get; private set; }
         public SkillSynStats SkillStats { get; private set; }
@@ -282,6 +283,9 @@
 
             DestinyClueStats = new DestinyClueSynStats();
             LOStats.Add(LOTYPE.DestinyClueSynStats, DestinyClueStats);
+
+            EquipmentCraftStats = new EquipmentCraftStats();
+            LOStats.Add(LOTYPE.EquipmentCraftStats, EquipmentCraftStats);
         }
 
         void InitInvStats()
@@ -518,28 +522,9 @@
             base.OnKilled(attacker);
             RealmController realmController = mInstance.mRealmController;
             if (realmController != null)
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             {
                 int respawnId = realmController.mRealmInfo.respawn;
                 mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
-                
-                
                 string attackername = attacker.Name == null ? "" : attacker.Name;
                 Slot.ZRPC.CombatRPC.OnPlayerDead(attackername, (byte)respawnId, Slot);
                 if(mRespawnInfo.respawntype == RespawnType.City)
@@ -1032,9 +1017,9 @@
             foreach (Hero hero in HeroStats.GetHeroesDict().Values)
                 heroInv.HeroesList.Add(hero);
             heroInv.SummonedHero = HeroStats.SummonedHeroId;
-            heroInv.InProgressMaps.Clear();
+            heroInv.OngoingMaps.Clear();
             foreach (ExploreMapData map in HeroStats.GetExplorationsDict().Values)
-                heroInv.InProgressMaps.Add(map);
+                heroInv.OngoingMaps.Add(map);
             heroInv.ExploredMaps = HeroStats.Explored;
 
 
@@ -1092,6 +1077,9 @@
 
             // PowerUp
             characterData.PowerUpInventory.SaveToInventory(PowerUpStats);
+
+            //EquipmentCraft
+            characterData.EquipmentCraftInventory.SaveToInventory(EquipmentCraftStats);
 
             Slot.mCanSaveDB = true;
         }
@@ -1652,6 +1640,11 @@
         public void InitPowerUpStats(PowerUpInventoryData powerupInv)
         {
             powerupInv.InitFromInventory(PowerUpStats);
+        }
+
+        public void InitEquipmentCraftStats (EquipmentCraftInventoryData equipmentCraftInv)
+        {
+            equipmentCraftInv.InitFormInventory(EquipmentCraftStats);
         }
 
         // LotteryShopStats

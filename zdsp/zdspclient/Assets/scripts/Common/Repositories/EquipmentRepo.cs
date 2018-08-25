@@ -1,24 +1,16 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
-using System;
-using System.Linq;
+﻿using Kopio.JsonContracts;
 using Zealot.Common;
 
 namespace Zealot.Repository
 {
-
     public static class EquipmentRepo
     {
-
-
         static EquipmentRepo()
         {
-
         }
 
         public static void Init(GameDBRepo gameData)
         {
-
         }
 
         public static WeaponType GetWeaponTypeByPartType(PartsType partType)

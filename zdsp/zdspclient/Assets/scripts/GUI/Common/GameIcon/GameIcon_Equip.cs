@@ -26,9 +26,9 @@ public class GameIcon_Equip : GameIcon_Base
     GameIconCmpt_SelectCheckmark toggleSelect = null;
 
     public void Init(int itemId, int powerUp, int evolve, int upgrade, bool statusCannotUse, bool statusBreak, 
-        bool isToggleSelectOn = false, UnityAction onClickCallback = null)
+        bool isNew, bool isToggleSelectOn, UnityAction onClickCallback = null)
     {
-        Init(itemId);
+        Init(itemId, isNew);
         StatusCannotUse = statusCannotUse;
         StatusBreak = statusBreak;
         PowerUp = powerUp;
@@ -40,9 +40,14 @@ public class GameIcon_Equip : GameIcon_Base
             SetClickCallback(onClickCallback);
     }
 
-    public void InitWithTooltipViewOnly(int itemId)
+    public void InitWithoutCallback(int itemId, int powerUp, int evolve, int upgrade)
     {
-        Init(itemId, 0, 0, 0, false, false, false, OnClickShowTooltipViewOnly);
+        Init(itemId, powerUp, evolve, upgrade, false, false, false, false);
+    }
+
+    public void InitWithToolTipView(int itemId, int powerUp, int evolve, int upgrade)
+    {
+        Init(itemId, powerUp, evolve, upgrade, false, false, false, false, OnClickShowItemToolTip);
     }
 
     public bool StatusCannotUse

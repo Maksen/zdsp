@@ -1,25 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Zealot.Client.Entities;
 using System.Collections.Generic;
 using Zealot.Common;
 
-public class ClientTrigger : MonoBehaviour {
-
-    // Use this for initialization
+public class ClientTrigger : MonoBehaviour
+{
     [SerializeField]
     public List<GameObject> listOfObjects;
     public ClientTriggerTypes triggerType = ClientTriggerTypes.TutorialStepTrigger;
     private SphereCollider _collider; 
     public float triggerRadius = 3.0f;
-	void Start () {
+
+    // Use this for initialization
+    void Start()
+    {
         if (_collider == null)
         {
             _collider = gameObject.AddComponent<SphereCollider>();
             _collider.radius = triggerRadius;
             _collider.isTrigger = true;
-        }
-        
+        }       
     }
 	
     /// <summary>
@@ -43,7 +43,6 @@ public class ClientTrigger : MonoBehaviour {
                     listOfObjects.Clear();
                 }
             }
-            
         }
     }
 

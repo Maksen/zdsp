@@ -4,7 +4,8 @@ using Zealot.Entities;
 namespace Zealot.Spawners
 {
     [AddComponentMenu("Spawners at Server/MonsterSpawner")]
-    public class MonsterSpawner : ServerEntityWithEvent {
+    public class MonsterSpawner : ServerEntityWithEvent
+    {
 		public bool activeOnStartup = true;
 		[Tooltip("Archetype Link to gamedb NPC table.")]
 		public string archetype;

@@ -487,7 +487,7 @@ namespace Zealot.Bot
                 if (ghost != null && ghost.IsAlive() && CombatUtils.IsValidEnemyTarget(mLocalPlayer, ghost))
                 { 
                     MonsterClass monsterClass = ghost.mArchetype.monsterclass;
-                    if (!includeEliteAndBoss && (monsterClass == MonsterClass.Mini || monsterClass == MonsterClass.Boss))
+                    if (!includeEliteAndBoss && (monsterClass == MonsterClass.MiniBoss || monsterClass == MonsterClass.Boss))
                         return false; 
                     return true;
                 }

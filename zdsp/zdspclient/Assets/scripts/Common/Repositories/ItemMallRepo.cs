@@ -1,8 +1,5 @@
 ﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using System.Linq;
-using System;
-using System.Globalization;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -10,9 +7,9 @@ namespace Zealot.Repository
     public static class ItemMallRepo
     {
         //Kopio
-        public static Dictionary<int, ItemMall_Item> mItemMap { get; private set; }
-                
-        static Dictionary<ItemMallShoppingType, int> treasurePoints;
+        public static Dictionary<int, ItemMall_Item> mItemMap;
+
+        public static Dictionary<ItemMallShoppingType, int> treasurePoints;
         
         static ItemMallRepo()
         {

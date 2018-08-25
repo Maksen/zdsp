@@ -15,7 +15,7 @@ public class EffectSandbox : EditorWindow
             Debug.LogError("please select an model prefeb with animation");
             return;
         }
-        Animation animtion = selection.GetComponent<Animation>();
+        Animator animtion = selection.GetComponent<Animator>();
         if (animtion != null)
         {
             PlayAnimationSandbox temp = selection.GetComponentInChildren<PlayAnimationSandbox>();

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace Zealot.Entities
 {
 	public class LevelInfo
@@ -55,7 +54,6 @@ namespace Zealot.Entities
 		public static Dictionary<string, PortalEntryData> mEntries;
 		public static Dictionary<string, LocationData> mExits;
         
-
 		static PortalInfos()
 		{
             mEntries = new Dictionary<string, PortalEntryData>();
@@ -96,22 +94,24 @@ namespace Zealot.Entities
 
         public static void AddPortal(string level, LevelInfo info)
 		{
-            Dictionary<int, ServerEntityJson> aPortalEntryJson;
-			if (info.mEntities.TryGetValue ("PortalEntryJson", out aPortalEntryJson)) {
+            Dictionary<int, ServerEntityJson> portalEntries;
+			if (info.mEntities.TryGetValue("PortalEntryJson", out portalEntries))
+            {
                 string entryName;
-				foreach(PortalEntryJson entry in aPortalEntryJson.Values)
+				foreach(PortalEntryJson entry in portalEntries.Values)
 				{
                     entryName = entry.myName;
                     if (string.IsNullOrEmpty(entryName))
                         continue;
-                    mEntries.Add(entryName, new PortalEntryData(entry.position, level, entry.exitName,entryName));
+                    mEntries.Add(entryName, new PortalEntryData(entry.position, level, entry.exitName, entryName));
 				}
 			}
 
-            Dictionary<int, ServerEntityJson> aPortalExitJson;
-			if (info.mEntities.TryGetValue ("PortalExitJson", out aPortalExitJson)) {
+            Dictionary<int, ServerEntityJson> portalExits;
+			if (info.mEntities.TryGetValue ("PortalExitJson", out portalExits))
+            {
 				string exitName;
-				foreach(PortalExitJson entry in aPortalExitJson.Values)
+				foreach(PortalExitJson entry in portalExits.Values)
 				{
 					exitName = entry.myName;
 					if(string.IsNullOrEmpty(exitName))
@@ -121,18 +121,18 @@ namespace Zealot.Entities
 			}
 		}
     }
+
     public class SafeZoneData
     {
         public float radius;
         public Vector3 pos;
         public Vector3 size;
        
-        public SafeZoneData(Vector3 _pos, float rad,Vector3 _size)
+        public SafeZoneData(Vector3 _pos, float rad, Vector3 _size)
         {
             radius = rad;
             pos = _pos;
             size = _size;
-      
         }
     }
 
@@ -146,8 +146,7 @@ namespace Zealot.Entities
 
         public static void Clear()
         {
-            mySafeZoneData.Clear();
-            
+            mySafeZoneData.Clear();          
         }
 
         public static void AddSafeZone(string level, LevelInfo info)
@@ -223,10 +222,10 @@ namespace Zealot.Entities
                     mMonsterLocationMap[archetype][level].Add(value.position);
                 }
             }
-            Dictionary<int, ServerEntityJson> questNPCSpawners;
-            if (info.mEntities.TryGetValue("QuestNPCSpawnerDescJson", out questNPCSpawners))
+            Dictionary<int, ServerEntityJson> staticNPCSpawners;
+            if (info.mEntities.TryGetValue("StaticClientNPCSpawnerJson", out staticNPCSpawners))
             {
-                foreach (QuestNPCSpawnerDescJson value in questNPCSpawners.Values)
+                foreach (StaticClientNPCSpawnerJson value in staticNPCSpawners.Values)
                 {
                     string archetype = value.archetype;
                     if (string.IsNullOrEmpty(archetype))

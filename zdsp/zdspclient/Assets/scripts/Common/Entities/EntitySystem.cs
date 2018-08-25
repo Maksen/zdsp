@@ -3,7 +3,6 @@
 namespace Zealot.Common.Entities
 {
     using System.Collections.Generic;
-    using Zealot.Common.Actions;
     
     public class EntitySystem
     {

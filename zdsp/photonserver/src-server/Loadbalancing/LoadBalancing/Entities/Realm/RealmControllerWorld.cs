@@ -7,7 +7,7 @@ namespace Zealot.Server.Entities
 {
     public class RealmControllerWorld : RealmController
     {
-        private RealmControllerWorldJson mUnityData;
+        private RealmControllerWorldJson mLevelData;
         private int mPlaySpawnerCount = 0;
         public RealmWorldJson mRealmWorldInfo;
 
@@ -16,8 +16,8 @@ namespace Zealot.Server.Entities
         {
             if (!IsCorrectController())
                 return;
-            mUnityData = (RealmControllerWorldJson)mPropertyInfos;
-            mPlaySpawnerCount = mUnityData.spawnPos == null ? 0 : mUnityData.spawnPos.Length;
+            mLevelData = (RealmControllerWorldJson)mPropertyInfos;
+            mPlaySpawnerCount = mLevelData.spawnPos == null ? 0 : mLevelData.spawnPos.Length;
             mRealmWorldInfo = (RealmWorldJson)mRealmInfo;
         }
 
@@ -35,8 +35,8 @@ namespace Zealot.Server.Entities
                 int index = 0;
                 if (mPlaySpawnerCount > 1)
                     index = GameUtils.RandomInt(0, mPlaySpawnerCount - 1);
-                player.Position = mUnityData.spawnPos[index];
-                player.Forward = mUnityData.spawnDir[index];
+                player.Position = mLevelData.spawnPos[index];
+                player.Forward = mLevelData.spawnDir[index];
             }
         }
     }

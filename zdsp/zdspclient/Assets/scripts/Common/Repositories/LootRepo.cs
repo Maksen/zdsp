@@ -281,7 +281,12 @@ namespace Zealot.Repository
             mLimitedItems.TryGetValue(itemid, out json);
             return json;
         }
+
+        public static LootItemGroup GetLootItemGroup(int gid)
+        {
+            LootItemGroup lootItemGroup;
+            mLootItemGroup.TryGetValue(gid, out lootItemGroup);
+            return lootItemGroup;
+        }
     }
 }
-
-

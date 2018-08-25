@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using UnityEngine;
 using Photon.LoadBalancing.GameServer;
-using Kopio.JsonContracts;
 using Zealot.Common;
 using Zealot.Entities;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.AI;
 using Zealot.Server.Rules;
-using System.Linq;
 
 namespace Zealot.Server.Entities
 {
@@ -26,9 +25,8 @@ namespace Zealot.Server.Entities
             if (info.archetype != "")
             {
                 mSpecialBossInfo = SpecialBossRepo.GetInfoByName(info.archetype);
-                if (mSpecialBossInfo == null)
-                    return;
-                mArchetype = NPCRepo.GetArchetypeById(mSpecialBossInfo.archetypeid);
+                if (mSpecialBossInfo != null)
+                    mArchetype = CombatNPCRepo.GetNPCById(mSpecialBossInfo.archetypeid);
             }
         }
 
@@ -78,7 +76,9 @@ namespace Zealot.Server.Entities
             if (_count > 1)
             {
                 do
+                {
                     _randomIndex = GameUtils.RandomInt(0, _count - 1);
+                }
                 while (mRandomIndex == _randomIndex); //prevent random same position
             }
             mPositionHelperData = mSpecialBossSpawnerJson.positionhelper[_randomIndex];
@@ -96,7 +96,7 @@ namespace Zealot.Server.Entities
             {
                 BossKillData _bossKillData = new BossKillData();
                 string _killer = "";
-                if (mSpecialBossInfo.category == BossCategory.BIGBOSS)
+                if (mSpecialBossInfo.bosstype == BossType.BigBoss)
                 {
                     string _name = "";
                     if (child.mPartyScoreRank.Count > 0)
@@ -138,7 +138,7 @@ namespace Zealot.Server.Entities
             if (attacker != null)
             {
                 string attackerName = "";
-                if (mSpecialBossInfo.category == BossCategory.BIGBOSS)
+                if (mSpecialBossInfo.bosstype == BossType.BigBoss)
                 {
                     if (child.mPartyScoreRank.Count > 0)
                         attackerName = child.mPartyScoreRank[0].Key;

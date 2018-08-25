@@ -19,7 +19,7 @@ namespace Zealot.Server.Entities
         {
             mSMBossSpawnerJson = info;
             if (info.archetype != "")
-                mArchetype = NPCRepo.GetArchetypeByName(info.archetype);
+                mArchetype = CombatNPCRepo.GetNPCByArchetype(info.archetype);
         }
 
         public override int GetPopulation()
@@ -87,14 +87,15 @@ namespace Zealot.Server.Entities
             MonsterClass monsterClass = mArchetype.monsterclass;
             //if (monsterClass == MonsterClass.Destructible)
             //    monster.SetAIBehaviour(new NullAIBehaviour(monster));
-            if (monsterClass == MonsterClass.Normal || monsterClass == MonsterClass.Mini)
+            if (monsterClass == MonsterClass.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if (monsterClass == MonsterClass.Boss)
+            else if (monsterClass == MonsterClass.Boss || monsterClass == MonsterClass.MiniBoss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
             //else if (monsterClass == MonsterClass.Escape)
             //    monster.SetAIBehaviour(new MonsterEscapeAIBehaviour(monster));
             else 
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
+
             maChildren.Add(monster);
         }
 

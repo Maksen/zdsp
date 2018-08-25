@@ -9,13 +9,14 @@ public class Hero_ModelTierData : MonoBehaviour
 {
     [SerializeField] Image modelImage;
     [SerializeField] Text unlockText;
-    [SerializeField] Material grayscaleMat;
+    [SerializeField] string lockedColorHex;
 
     private Toggle toggle;
     private Action<int> OnSelectedCallback;
     private int tier;
     private int heroId;
     private Color origTextColor;
+    private Color lockedColor;
 
     public void Setup(int tier, ToggleGroup toggleGrp, Action<int> callback)
     {
@@ -25,6 +26,7 @@ public class Hero_ModelTierData : MonoBehaviour
         OnSelectedCallback = callback;
         origTextColor = unlockText.color;
         gameObject.SetActive(false);
+        ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
     }
 
     public void EnableToggleCallback(bool value)
@@ -50,13 +52,13 @@ public class Hero_ModelTierData : MonoBehaviour
                     case 2: imagePath = heroJson.t2imagepath; break;
                     case 3: imagePath = heroJson.t3imagepath; break;
                 }
-                ClientUtils.LoadIconAsync(imagePath, OnImageLoaded);
+                modelImage.sprite = ClientUtils.LoadIcon(imagePath);
                 unlockText.text = GUILocalizationRepo.GetLocalizedString("hro_unlock_skin_requirement") + reqPts;
             }
             else
                 gameObject.SetActive(false);
         }
-        modelImage.material = unlocked ? null : grayscaleMat;
+        modelImage.color = unlocked ? Color.white : lockedColor;
         unlockText.color = unlocked ? origTextColor : Color.red;
     }
 
@@ -66,17 +68,11 @@ public class Hero_ModelTierData : MonoBehaviour
         HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
         if (skinItem != null)
         {
-            ClientUtils.LoadIconAsync(skinItem.HeroItemJson.heroimagepath, OnImageLoaded);
+            modelImage.sprite = ClientUtils.LoadIcon(skinItem.HeroItemJson.heroimagepath);
             unlockText.text = GUILocalizationRepo.GetLocalizedString("id_useitem") + skinItem.HeroItemJson.localizedname;
         }
-        modelImage.material = unlocked ? null : grayscaleMat;
+        modelImage.color = unlocked ? Color.white : lockedColor;
         unlockText.color = unlocked ? origTextColor : Color.red;
-    }
-
-    private void OnImageLoaded(Sprite sprite)
-    {
-        if (sprite != null)
-            modelImage.sprite = sprite;
     }
 
     private void OnToggled(bool isOn)

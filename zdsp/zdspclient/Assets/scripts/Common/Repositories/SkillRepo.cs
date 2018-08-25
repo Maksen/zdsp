@@ -28,7 +28,8 @@ namespace Zealot.Repository
         }
     }
 
-    public class SkillSideEffect {
+    public class SkillSideEffect
+    {
         public List<SideEffectJson> mSelf;
         public List<SideEffectJson> mTarget;
 
@@ -63,10 +64,10 @@ namespace Zealot.Repository
 
         public static Dictionary<int, List<int>> m_SkillGroupToSkill;
 
-
         public static Dictionary<PartsType, Dictionary<int, int>> mWeaponTypeGetSkillID;
 
         public static Dictionary<int, Dictionary<WeaponType, int>> mWeapontypeToSId;
+
         static SkillRepo()
         {
             mSkills = new Dictionary<int, SkillData>();
@@ -784,7 +785,6 @@ namespace Zealot.Repository
                             description = ReplaceText(sideeffect, skill, description, paraText, startindex, endIndex);
                         }
                     }
-
                 }
             }
 

@@ -1,5 +1,4 @@
 ﻿using Kopio.JsonContracts;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Zealot.Common;
@@ -11,6 +10,7 @@ namespace Zealot.Repository
     {
         public static Dictionary<int, HeroJson> heroes;
         public static Dictionary<int, Dictionary<int, HeroGrowthJson>> growthGroupToLevels; // groupId->levels , level->info
+        public static Dictionary<Pair<int, int>, int> heroSkillPtsToItemCount;
         public static Dictionary<int, List<HeroInterestGroupJson>> interestGroupToTypes;
         public static Dictionary<HeroInterestType, HeroInterestJson> heroInterests;
         public static Dictionary<int, HeroTrustJson> heroTrustLevels;
@@ -19,17 +19,21 @@ namespace Zealot.Repository
         public static Dictionary<int, List<HeroBond>> heroIdToHeroBonds;  // all bonds this hero is involved in
         public static Dictionary<int, ExplorationMapJson> explorationMaps;
         public static List<ExplorationMapJson> explorationMapsList; // sorted by sequence
+        public static HashSet<int> predecessorMaps;
         public static Dictionary<int, ExplorationTargetJson> explorationTargets;
         public static Dictionary<int, List<ExplorationTargetJson>> explorationGroupToTargets;  // group->targets
         public static Dictionary<Pair<TerrainType, HeroInterestType>, float> terrainEfficiencyChart;
+        public static Dictionary<TerrainType, float> terrainMaxEfficiencies;
         public static Dictionary<TerrainType, TerrainJson> terrainTypes;
 
         public static int MAX_TRUST_LEVEL;
+        public static int EXPLORE_LIMIT;
 
         static HeroRepo()
         {
             heroes = new Dictionary<int, HeroJson>();
             growthGroupToLevels = new Dictionary<int, Dictionary<int, HeroGrowthJson>>();
+            heroSkillPtsToItemCount = new Dictionary<Pair<int, int>, int>();
             interestGroupToTypes = new Dictionary<int, List<HeroInterestGroupJson>>();
             heroInterests = new Dictionary<HeroInterestType, HeroInterestJson>();
             heroTrustLevels = new Dictionary<int, HeroTrustJson>();
@@ -38,9 +42,11 @@ namespace Zealot.Repository
             heroIdToHeroBonds = new Dictionary<int, List<HeroBond>>();
             explorationMaps = new Dictionary<int, ExplorationMapJson>();
             explorationMapsList = new List<ExplorationMapJson>();
+            predecessorMaps = new HashSet<int>();
             explorationTargets = new Dictionary<int, ExplorationTargetJson>();
             explorationGroupToTargets = new Dictionary<int, List<ExplorationTargetJson>>();
             terrainEfficiencyChart = new Dictionary<Pair<TerrainType, HeroInterestType>, float>();
+            terrainMaxEfficiencies = new Dictionary<TerrainType, float>();
             terrainTypes = new Dictionary<TerrainType, TerrainJson>();
         }
 
@@ -48,6 +54,7 @@ namespace Zealot.Repository
         {
             heroes.Clear();
             growthGroupToLevels.Clear();
+            heroSkillPtsToItemCount.Clear();
             interestGroupToTypes.Clear();
             heroInterests.Clear();
             heroTrustLevels.Clear();
@@ -56,8 +63,11 @@ namespace Zealot.Repository
             heroIdToHeroBonds.Clear();
             explorationMaps.Clear();
             explorationMapsList.Clear();
+            predecessorMaps.Clear();
+            explorationTargets.Clear();
             explorationGroupToTargets.Clear();
             terrainEfficiencyChart.Clear();
+            terrainMaxEfficiencies.Clear();
             terrainTypes.Clear();
         }
 
@@ -65,7 +75,8 @@ namespace Zealot.Repository
         {
             ClearDictionaries();
 
-            heroes = gameData.Hero;
+            foreach (var entry in gameData.Hero.Values)
+                heroes.Add(entry.heroid, entry);
 
             foreach (var entry in gameData.HeroGrowth.Values)
             {
@@ -74,6 +85,9 @@ namespace Zealot.Repository
                 else
                     growthGroupToLevels.Add(entry.growthgroup, new Dictionary<int, HeroGrowthJson>() { { entry.herolevel, entry } });
             }
+
+            foreach (var entry in gameData.HeroSkillUpgrade.Values)
+                heroSkillPtsToItemCount.Add(Pair.Create(entry.heroid, entry.skillpoint), entry.itemcount);
 
             foreach (var entry in gameData.HeroInterestGroup.Values)
             {
@@ -120,8 +134,17 @@ namespace Zealot.Repository
             foreach (int id in heroBonds.Keys.ToList())
                 heroBonds[id].heroBondJsonList.Sort((x, y) => x.bondlevel.CompareTo(y.bondlevel));  // can use unstable sort since no level will be same
 
-            explorationMaps = gameData.ExplorationMap;
+            foreach (var entry in gameData.ExplorationMap.Values)
+                explorationMaps.Add(entry.mapid, entry);
+
             explorationMapsList = explorationMaps.Values.OrderBy(x => x.sequence).ToList();  // stable sort
+
+            for (int i = 0; i < explorationMapsList.Count; i++)
+            {
+                int prevMapId = explorationMapsList[i].prevmapid;
+                if (prevMapId > 0 && explorationMaps.ContainsKey(prevMapId) && !predecessorMaps.Contains(prevMapId))
+                    predecessorMaps.Add(prevMapId);
+            }
 
             explorationTargets = gameData.ExplorationTarget;
             foreach (var entry in gameData.ExplorationTarget.Values)
@@ -133,10 +156,21 @@ namespace Zealot.Repository
             }
 
             foreach (var entry in gameData.TerrainEfficiency.Values)
+            {
                 terrainEfficiencyChart.Add(Pair.Create(entry.terraintype, entry.interesttype), entry.efficiency);
+                if (terrainMaxEfficiencies.ContainsKey(entry.terraintype))
+                {
+                    if (entry.efficiency > terrainMaxEfficiencies[entry.terraintype])
+                        terrainMaxEfficiencies[entry.terraintype] = entry.efficiency;
+                }
+                else
+                    terrainMaxEfficiencies.Add(entry.terraintype, entry.efficiency);
+            }
 
             foreach (var entry in gameData.Terrain.Values)
                 terrainTypes.Add(entry.terraintype, entry);
+
+            EXPLORE_LIMIT = GameConstantRepo.GetConstantInt("HeroExploreLimit");
         }
 
         private static void AddToHeroIdToHeroBondsMap(int heroId, HeroBond bond)
@@ -166,13 +200,42 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static bool IsInterestInGroup(int groupId, HeroInterestType type)
+        public static int GetItemCountForSkillPointByHeroId(int heroId, int skillPoint)
+        {
+            int itemCount;
+            heroSkillPtsToItemCount.TryGetValue(Pair.Create(heroId, skillPoint), out itemCount);
+            return itemCount;
+        }
+
+        public static int GetHighestModelTierByHeroId(int heroId)
+        {
+            HeroJson heroData = GetHeroById(heroId);
+            if (heroData != null)
+            {
+                string[] unlockpts = heroData.tierunlockpts.Split(';');
+                for (int i = unlockpts.Length - 1; i >= 0; i--)
+                {
+                    int reqPts;
+                    if (int.TryParse(unlockpts[i], out reqPts) && reqPts > 0)
+                        return i + 1;
+                }
+            }
+            return 0;
+        }
+
+        public static List<HeroInterestGroupJson> GetInterestsInGroup(int groupId)
         {
             List<HeroInterestGroupJson> interestList;
             if (interestGroupToTypes.TryGetValue(groupId, out interestList))
-            {
+                return interestList;
+            return new List<HeroInterestGroupJson>();
+        }
+
+        public static bool IsInterestInGroup(int groupId, HeroInterestType type)
+        {
+            List<HeroInterestGroupJson> interestList = GetInterestsInGroup(groupId);
+            if (interestList != null)
                 return interestList.Exists(x => x.interesttype == type);
-            }
             return false;
         }
 
@@ -237,11 +300,16 @@ namespace Zealot.Repository
             return new List<HeroBond>();
         }
 
-        public static ExplorationMapJson GetExplorationMapById(int id)
+        public static ExplorationMapJson GetExplorationMapById(int mapId)
         {
             ExplorationMapJson json;
-            explorationMaps.TryGetValue(id, out json);
+            explorationMaps.TryGetValue(mapId, out json);
             return json;
+        }
+
+        public static bool IsPredecessorMap(int mapId)
+        {
+            return predecessorMaps.Contains(mapId);
         }
 
         public static ExplorationTargetJson GetExplorationTargetById(int id)
@@ -263,6 +331,13 @@ namespace Zealot.Repository
         {
             float efficiency;
             terrainEfficiencyChart.TryGetValue(Pair.Create(terrainType, interestType), out efficiency);
+            return efficiency;
+        }
+
+        public static float GetTerrainMaxEfficiency(TerrainType terrainType)
+        {
+            float efficiency;
+            terrainMaxEfficiencies.TryGetValue(terrainType, out efficiency);
             return efficiency;
         }
 

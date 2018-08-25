@@ -33,6 +33,6 @@ public class UI_CutsceneData : MonoBehaviour
 
     public void OnClickPlay()
     {
-        UIManager.OpenDialog(WindowType.DialogVideoPlayer, (window) => window.GetComponent<UI_VideoPlayer>().Init(mPath));
+        UIManager.OpenDialog(WindowType.DialogVideoPlayer, (window) => window.GetComponent<UI_DialogVideoPlayer>().Init(mPath));
     }
 }

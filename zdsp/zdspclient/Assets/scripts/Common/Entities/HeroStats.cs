@@ -1,6 +1,5 @@
 ﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using System.Text;
 using Zealot.Common.Datablock;
 
 namespace Zealot.Common.Entities
@@ -11,10 +10,18 @@ namespace Zealot.Common.Entities
         private string _explorations;
         private string _explored;
 
-        public Dictionary<int, Hero> GetHeroesDict() { return mHeroesDict; }
+        public Dictionary<int, Hero> GetHeroesDict()
+        {
+            return mHeroesDict;
+        }
+
         protected Dictionary<int, Hero> mHeroesDict;
 
-        public Dictionary<int, ExploreMapData> GetExplorationsDict() { return explorationsDict; }
+        public Dictionary<int, ExploreMapData> GetExplorationsDict()
+        {
+            return explorationsDict;
+        }
+
         protected Dictionary<int, ExploreMapData> explorationsDict;
 
         protected HashSet<int> exploredMaps;
@@ -87,31 +94,12 @@ namespace Zealot.Common.Entities
                     return true;
                 else
                 {
-                    return IsBondTypeFulfilledByHero(bond.bondtype1, bond.bondvalue1, hero)
-                         && IsBondTypeFulfilledByHero(bond.bondtype2, bond.bondvalue2, hero);
+                    return hero.HasFulfilledBondType(bond.bondtype1, bond.bondvalue1)
+                         && hero.HasFulfilledBondType(bond.bondtype2, bond.bondvalue2);
                 }
             }
             else
                 return false;
-        }
-
-        public bool IsBondTypeFulfilledByHero(HeroBondType type, int value, Hero hero)
-        {
-            if (type == HeroBondType.None)
-            {
-                return true;
-            }
-            else if (type == HeroBondType.HeroLevel)
-            {
-                if (hero.Level < value)
-                    return false;
-            }
-            else if (type == HeroBondType.HeroSkill)
-            {
-                if (hero.GetTotalSkillPoints() < value)
-                    return false;
-            }
-            return true;
         }
 
         public ExploreMapData GetExploringMap(int mapId)
@@ -129,6 +117,24 @@ namespace Zealot.Common.Entities
         public bool HasExploredMap(int mapId)
         {
             return exploredMaps.Contains(mapId);
+        }
+
+        public bool IsChestRequirementFulfilled(ChestRequirementType type, int value, List<Hero> heroes)
+        {
+            bool fulfilled = false;
+            switch (type)
+            {
+                case ChestRequirementType.HeroID:
+                    fulfilled = heroes.Exists(x => x.HeroId == value);
+                    break;
+                case ChestRequirementType.HeroInterest:
+                    fulfilled = heroes.Exists(x => x.Interest == (HeroInterestType)value);
+                    break;
+                case ChestRequirementType.HeroTrust:
+                    fulfilled = heroes.Exists(x => x.TrustLevel >= value);
+                    break;
+            }
+            return fulfilled;
         }
     }
 
@@ -179,4 +185,3 @@ namespace Zealot.Common.Entities
         }
     }
 }
-

@@ -2,11 +2,15 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Zealot.Entities;
+using Zealot.Repository;
 
 public class HUD_MiniMap : MonoBehaviour
 {
     [SerializeField]
     Image mMap;
+    [SerializeField]
+    RectTransform mMapTransform;
     [SerializeField]
     Text mMapName;
     [SerializeField]
@@ -51,81 +55,60 @@ public class HUD_MiniMap : MonoBehaviour
     GameObject mMMIconParent_Party;
     [SerializeField]
     GameObject mMMIconParent_Player;
-    
 
-    const int MAX_ICON = 128;
-    List<Image> mMiniMapIconLst = new List<Image>(MAX_ICON);
+    List<Image> mPlayerIconLst = new List<Image>();
+    List<Image> mPartyIconLst = new List<Image>();
+    List<Image> mMonsterIconLst = new List<Image>();
+    List<Image> mMiniBossIconLst = new List<Image>();
+    List<Image> mBossIconLst = new List<Image>();
 
-    #region interface
+    Coroutine mMiniMapUpdateCoroutine = null;
+    Coroutine mMiniMapIconUpdateCoroutine = null;
+    Coroutine mMiniMapStaticIconInitCoroutine = null;
+    const float MINIMAP_UPDATE_INTERVAL = 0.1f;
+    const float MINIMAPICON_UPDATE_INTERVAL = 1f;
+
     public void InitMap()
     {
-        var realm = GameInfo.mRealmInfo;
-        if (realm == null)
-            return;
+        string lvname = ClientUtils.GetCurrentLevelName();
+        Kopio.JsonContracts.LevelJson curLvJson = LevelRepo.GetInfoByName(lvname);
 
-        mMapName.text = realm.localizedname;
+        mMapName.text = curLvJson.localizedname;
+        HUD_MapController.LoadMapAsync();
+        mMiniMapStaticIconInitCoroutine = StartCoroutine(MiniMapInitStaticIconCoroutine());
+        mMiniMapUpdateCoroutine = StartCoroutine(MiniMapUpdateCoroutine());
+        
     }
-    public int AddIcon(IconType type, Vector3 worldpos)
+    public void OnDestroy()
     {
-        if (GameInfo.mRealmInfo == null)
-            return -1;
+        if (mMiniMapUpdateCoroutine != null)
+            StopCoroutine(mMiniMapUpdateCoroutine);
+        if (mMiniMapIconUpdateCoroutine != null)
+            StopCoroutine(mMiniMapIconUpdateCoroutine);
 
-        //Get a icon index that is not in use
-        int idx = FindFreeIconSlot();
+        //Delete all game icons
+        DeleteAllChildren( mMMIconParent_Teleport );
+        DeleteAllChildren( mMMIconParent_Monster );
+        DeleteAllChildren( mMMIconParent_QuestNPC );
+        DeleteAllChildren( mMMIconParent_ShopNPC );
+        DeleteAllChildren( mMMIconParent_Boss );
+        DeleteAllChildren( mMMIconParent_MiniBoss );
+        DeleteAllChildren( mMMIconParent_Party );
+        DeleteAllChildren( mMMIconParent_Player );
 
-        //if cannot find one, create one
-        if (idx < 0)
-        {
-            GameObject obj = Instantiate(mMiniMapIconPrefab, Vector3.zero, Quaternion.identity);
-            Image img = obj.GetComponent<Image>();
-
-            //Set the icon sprite using type
-            SetIcon(type, img);
-
-            //Calculate and set its position on the map, given its world pos
-            Vector2 miniMapPos = Vector2.zero;
-            obj.transform.localPosition = new Vector3(miniMapPos.x, miniMapPos.y, 0f);
-
-            mMiniMapIconLst.Add(img);
-            idx = mMiniMapIconLst.Count - 1;
-        }
-
-        return idx;
+        mPartyIconLst.Clear();
+        mMonsterIconLst.Clear();
+        mMiniBossIconLst.Clear();
+        mBossIconLst.Clear();
     }
-    public void DeleteIcon(int index)
-    {
-        if (index >= mMiniMapIconLst.Count || mMiniMapIconLst[index] == null)
-            return;
-
-        mMiniMapIconLst[index].sprite = null;
-        mMiniMapIconLst[index].gameObject.SetActive(false);
-    }
-    public void ChangeIconSprite(int index, IconType type)
-    {
-        if (index >= mMiniMapIconLst.Count || mMiniMapIconLst[index] == null)
-            return;
-
-        SetIcon(type, mMiniMapIconLst[index]);
-    }
-    public void ChangeIconPosition(int index, Vector3 newpos)
-    {
-        if (index >= mMiniMapIconLst.Count || mMiniMapIconLst[index] == null)
-            return;
-
-        mMiniMapIconLst[index].transform.position = newpos;
-    }
-    #endregion
 
     #region Helper function
-    private int FindFreeIconSlot()
+    private Image CreateIcon()
     {
-        for (int i = 0; i < mMiniMapIconLst.Count; ++i)
-        {
-            if (mMiniMapIconLst[i] != null && mMiniMapIconLst[i].sprite == null)
-                return i;
-        }
+        GameObject obj = Instantiate(mMiniMapIconPrefab, Vector3.zero, Quaternion.identity);
+        Image img = obj.GetComponent<Image>();
 
-        return -1;
+        return img;
     }
     private void SetIcon(IconType type, Image img)
     {
@@ -163,6 +146,11 @@ public class HUD_MiniMap : MonoBehaviour
                 img.sprite = mSprCompleteQuest;
                 img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
+            case IconType.LOCKED_QUEST:
+                img.sprite = null;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                img.gameObject.SetActive(false);
+                break;
             case IconType.SHOP:
                 //img.sprite = mSpr
                 img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
@@ -178,6 +166,232 @@ public class HUD_MiniMap : MonoBehaviour
         }
 
         img.gameObject.SetActive(true);
+    }
+    private void SetIconPos(Image img, Vector3 pos)
+    {
+        img.gameObject.transform.localPosition = pos;
+    }
+    private void DeleteAllChildren(GameObject parent)
+    {
+        if (parent == null)
+            return;
+
+        foreach (Transform child in parent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    #endregion
+
+    #region Coroutine function
+    IEnumerator MiniMapUpdateCoroutine()
+    {
+        while (true)
+        {
+            if (HUD_MapController.isControllerInitialized())
+            {
+                //Set the map if different map
+                if (mMap.sprite != HUD_MapController.mMap)
+                    mMap.sprite = HUD_MapController.mMap;
+
+                //displace the map from the player position
+                Vector3 invPlayerMapPos = -HUD_MapController.ScalePos_WorldToMap(GameInfo.gLocalPlayer.AnimObj.transform.position);
+
+                mMapTransform.localPosition = invPlayerMapPos;
+            }
+
+            yield return new WaitForSeconds(MINIMAP_UPDATE_INTERVAL);
+        }
+    }
+    IEnumerator MiniMapUpdateIconCoroutine()
+    {
+        while (true)
+        {
+            //create icons and set their position according to HUD_MapController
+            if (HUD_MapController.isControllerInitialized())
+            {
+                //Player icon should not move
+                /*** Player ***/
+                for (int i = 0; i < HUD_MapController.mPlayerPairLst.Count; ++i)
+                {
+                    if (i >= mPlayerIconLst.Count)
+                    {
+                        Image icon = CreateIcon();
+                        SetIcon(IconType.PLAYER, icon);
+                        mPlayerIconLst.Add(icon);
+                    }
+
+                    if (GameInfo.gLocalPlayer.AnimObj != HUD_MapController.mPlayerPairLst[i].entity)
+                        SetIconPos(mPlayerIconLst[i], HUD_MapController.mPlayerPairLst[i].iconPos);
+                    mPlayerIconLst[i].gameObject.SetActive(true);
+                }
+                for (int i = HUD_MapController.mPlayerPairLst.Count; i < mPlayerIconLst.Count; ++i)
+                {
+                    mPlayerIconLst[i].gameObject.SetActive(false);
+                }
+
+                /*** Party ***/
+                for (int i = 0; i < HUD_MapController.mPartyMemPairLst.Count; ++i)
+                {
+                    if (i >= mPartyIconLst.Count)
+                    {
+                        Image icon = CreateIcon();
+                        SetIcon(IconType.PARTY, icon);
+                        mPartyIconLst.Add(icon);
+                    }
+
+                    SetIconPos(mPartyIconLst[i], HUD_MapController.mPartyMemPairLst[i].iconPos);
+                    mPartyIconLst[i].gameObject.SetActive(true);
+                }
+                for (int i = HUD_MapController.mPartyMemPairLst.Count; i < mPartyIconLst.Count; ++i)
+                {
+                    mPartyIconLst[i].gameObject.SetActive(false);
+                }
+
+                /*** Monster ***/
+                for (int i = 0; i < HUD_MapController.mMonPairLst.Count; ++i)
+                {
+                    if (i >= mMonsterIconLst.Count)
+                    {
+                        Image icon = CreateIcon();
+                        SetIcon(IconType.MONSTER, icon);
+                        mMonsterIconLst.Add(icon);
+                    }
+
+                    SetIconPos(mMonsterIconLst[i], HUD_MapController.mMonPairLst[i].iconPos);
+                    mMonsterIconLst[i].gameObject.SetActive(true);
+                }
+                for (int i = HUD_MapController.mMonPairLst.Count; i < mMonsterIconLst.Count; ++i)
+                {
+                    mMonsterIconLst[i].gameObject.SetActive(false);
+                }
+
+                /*** Mini-Boss ***/
+                for (int i = 0; i < HUD_MapController.mMiniBossPairLst.Count; ++i)
+                {
+                    if (i >= mMiniBossIconLst.Count)
+                    {
+                        Image icon = CreateIcon();
+                        SetIcon(IconType.MINIBOSS, icon);
+                        mMiniBossIconLst.Add(icon);
+                    }
+
+                    SetIconPos(mMiniBossIconLst[i], HUD_MapController.mMiniBossPairLst[i].iconPos);
+                    mMiniBossIconLst[i].gameObject.SetActive(true);
+                }
+                for (int i = HUD_MapController.mMiniBossPairLst.Count; i < mMiniBossIconLst.Count; ++i)
+                {
+                    mMiniBossIconLst[i].gameObject.SetActive(false);
+                }
+
+                /*** Boss ***/
+                for (int i = 0; i < HUD_MapController.mBossPairLst.Count; ++i)
+                {
+                    if (i >= mBossIconLst.Count)
+                    {
+                        Image icon = CreateIcon();
+                        SetIcon(IconType.BOSS, icon);
+                        mBossIconLst.Add(icon);
+                    }
+
+                    SetIconPos(mBossIconLst[i], HUD_MapController.mBossPairLst[i].iconPos);
+                    mBossIconLst[i].gameObject.SetActive(true);
+                }
+                for (int i = HUD_MapController.mBossPairLst.Count; i < mBossIconLst.Count; ++i)
+                {
+                    mBossIconLst[i].gameObject.SetActive(false);
+                }
+
+                /*** NPC ***/
+                //** QuestNPC may become active from ShopNPC **
+                //** QuestNPC may become ShopNPC after quest complete **
+                //HUD_MapController during update causes mShopNPCPosLst to change its contents(add/remove)
+                for (int i = 0; i < HUD_MapController.mShopNPCPosLst.Count; ++i)
+                {
+                    //if there are more shop NPCs now than when created initially
+                    if (i >= mMMIconParent_ShopNPC.transform.childCount)
+                    {
+                        Image newicon = CreateIcon();
+                        SetIcon(IconType.SHOP, newicon); //Parents new icon to mMMIconParent_ShopNPC
+                    }
+
+                    Transform child = mMMIconParent_ShopNPC.transform.GetChild(i);
+                    Image icon = child.GetComponent<Image>();
+                    SetIconPos(icon, HUD_MapController.mShopNPCPosLst[i].iconPos);
+                    child.gameObject.SetActive(true);
+                }
+                for (int i = HUD_MapController.mShopNPCPosLst.Count; i < mMMIconParent_ShopNPC.transform.childCount; ++i)
+                {
+                    //Turn off extra shopNPC map icons
+                    Transform child = mMMIconParent_ShopNPC.transform.GetChild(i);
+                    child.gameObject.SetActive(false);
+                }
+                
+
+                //QuestNPC may become active from nothing
+                //QuestNPC may become inactive after quest complete
+                //QuestNPC may become ShopNPC after quest complete
+                for (int i = 0; i < HUD_MapController.mQuestNPCPosLst.Count; ++i)
+                {
+                    //if there are more quest NPCs now than when created initially
+                    if (i >= mMMIconParent_QuestNPC.transform.childCount)
+                    {
+                        Image newicon = CreateIcon();
+                        if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
+                        {
+                            SetIcon(IconType.HAS_QUEST, newicon);
+                        }
+                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
+                        {
+                            SetIcon(IconType.QUEST_COMPLETED, newicon);
+                        }
+                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuest())
+                        {
+                            SetIcon(IconType.LOCKED_QUEST, newicon);
+                        }
+                    }
+
+                    Transform child = mMMIconParent_QuestNPC.transform.GetChild(i);
+                    Image icon = child.GetComponent<Image>();
+                    SetIconPos(icon, HUD_MapController.mQuestNPCPosLst[i].iconPos);
+                    child.gameObject.SetActive(true);
+                }
+            }
+            for (int i = HUD_MapController.mQuestNPCPosLst.Count; i < mMMIconParent_QuestNPC.transform.childCount; ++i)
+            {
+                //Turn off extra shopNPC map icons
+                Transform child = mMMIconParent_QuestNPC.transform.GetChild(i);
+                child.gameObject.SetActive(false);
+            }
+
+
+            yield return new WaitForSeconds(MINIMAPICON_UPDATE_INTERVAL);
+        }
+    }
+    IEnumerator MiniMapInitStaticIconCoroutine()
+    {
+        //Wait until MapController finish with LoadMapAsync
+        while (!HUD_MapController.isControllerInitialized())
+        {
+            yield return new WaitForSeconds(MINIMAPICON_UPDATE_INTERVAL);
+        }
+
+        //Init all static icons that wont get changed at all
+        for (int i = 0; i < HUD_MapController.mPortalPosLst.Count; ++i)
+        {
+            Image icon = CreateIcon();
+            SetIcon(IconType.TELEPORT, icon);
+            SetIconPos(icon, HUD_MapController.mPortalPosLst[i]);
+        }
+        for (int i = 0; i < HUD_MapController.mRevivePosLst.Count; ++i)
+        {
+            Image icon = CreateIcon();
+            SetIcon(IconType.REVIVE, icon);
+            SetIconPos(icon, HUD_MapController.mRevivePosLst[i]);
+        }
+
+        //Start coroutine update once init is done
+        mMiniMapIconUpdateCoroutine = StartCoroutine(MiniMapUpdateIconCoroutine());
     }
     #endregion
 
@@ -203,6 +417,7 @@ public class HUD_MiniMap : MonoBehaviour
         TELEPORT,
         HAS_QUEST,
         QUEST_COMPLETED,
+        LOCKED_QUEST,
         SHOP,
         REVIVE,
 

@@ -1929,11 +1929,9 @@ public class CommandManager
         PlayerGhost playerghost = GameInfo.gLocalPlayer;
 
         if(actorghost == null)
-        {
             return;
-        }
 
-        Dictionary<int, IInventoryItem> itemList = playerghost.clientItemInvCtrl.itemInvData.FindItemByItemId(1);
+        //Dictionary<int, IInventoryItem> itemList = playerghost.clientItemInvCtrl.itemInvData.FindItemByItemId(1);
         //if(itemList.Count == 0)
         //{
         //    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("reviveItem_NotEnoughItem"));
@@ -1990,6 +1988,13 @@ public class CommandManager
             RPCFactory.NonCombatRPC.ConsoleAddSkillPoint(amt);
         }
     }
+
+    [ConsoleCmd("Logout")]
+    public void Logout(string[] param)
+    {
+        PhotonNetwork.networkingPeer.Disconnect();
+    }
+
 #endif
         #endregion
     }

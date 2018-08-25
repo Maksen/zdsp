@@ -2078,12 +2078,12 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetRandomBoxReward)]
         public void GetRandomBoxReward(int reward_id, GameClientPeer peer)
         {
-            Player player = peer.mPlayer;
-            if (player == null)
-                return;
+            //Player player = peer.mPlayer;
+            //if (player == null)
+            //    return;
 
-            int result = RandomBoxReward.RandomBoxRewardManager.Instance.GetRewards(reward_id, player);
-            peer.ZRPC.CombatRPC.Ret_GetRandomBoxReward((byte)result, reward_id, peer);
+            //int result = RandomBoxReward.RandomBoxRewardManager.Instance.GetRewards(reward_id, player);
+            //peer.ZRPC.CombatRPC.Ret_GetRandomBoxReward((byte)result, reward_id, peer);
         }
 
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetRandomBoxReward)]

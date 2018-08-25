@@ -555,7 +555,10 @@ namespace Photon.LoadBalancing.GameServer
             {
                 case ItemType.Equipment:
                     retval = useAmount == 0 ? SwapFashionFromInventory(slotId) : SwapEquipmentFromInventory(slotId);
-                    break;       
+                    break;
+                case ItemType.MercenaryItem:
+                    retval = UseItems(slotId, useAmount);
+                    break;
                 case ItemType.PotionFood:
                 //    Player player = mSlot.mPlayer;
                 //    int health = player.GetHealth();
@@ -578,12 +581,11 @@ namespace Photon.LoadBalancing.GameServer
                 //    }
                 //    else
                 //        retval.retcode = InvReturnCode.UseFailed;
+
                     break;
                 default:
-                    {
-                        retval.retCode = InvReturnCode.UseFailed;
-                        break;
-                    }
+                    retval.retCode = InvReturnCode.UseFailed;
+                    break;
             }
 
             return retval;
@@ -624,6 +626,23 @@ namespace Photon.LoadBalancing.GameServer
                 bool used = false;
                 switch (item.JsonObject.itemtype)
                 {
+                    case ItemType.MercenaryItem:
+                        HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
+                        int heroId;
+                        if (int.TryParse(heroItemJson.heroid, out heroId) && heroId > 0)
+                        {
+                            if (heroItemJson.heroitemtype == HeroItemType.Gift && heroItemJson.ischangelike == 0)
+                            {
+                                mSlot.mPlayer.HeroStats.AddHeroTrust(heroId, item.ItemID, false);
+                                used = true;
+                            }
+                            else if (heroItemJson.heroitemtype == HeroItemType.HeroSkin)
+                            {
+                                mSlot.mPlayer.HeroStats.UnlockHeroSkin(heroId, item.ItemID);
+                                used = true;
+                            }
+                        }
+                        break;
                     case ItemType.PotionFood:
                 //        var potionItem = item as PotionItem;
                 //        int healAbsolute = mSlot.mPlayer.AddHealthPercentage(potionItem.Heal);

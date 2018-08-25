@@ -48,7 +48,7 @@ public class ParticleHoming : MonoBehaviour
         {
             bullet.position = _targetPos;
             enabled = false;
-            bullet.gameObject.SetActive(false);
+            //bullet.gameObject.SetActive(false);
         }
         else
         {
@@ -57,7 +57,7 @@ public class ParticleHoming : MonoBehaviour
             {
                 bullet.position = _targetPos;
                 enabled = false;
-                bullet.gameObject.SetActive(false);
+                //bullet.gameObject.SetActive(false);
             }
             else
                 bullet.position += mDir * dt / mTimeLeft;

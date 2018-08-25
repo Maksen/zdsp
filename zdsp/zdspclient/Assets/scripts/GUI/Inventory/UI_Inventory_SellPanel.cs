@@ -145,7 +145,7 @@ public class UI_Inventory_SellPanel : MonoBehaviour
         if (invDisplayItem.DisplayStackCount == 0 && UIInventory.CurrentInventoryTab != BagType.Any)
             displayItemList.RemoveAt(displayItemIdx);
 
-        UIInventory.UpdateVisibleInvRows();
+        UIInventory.UpdateVisibleInvRows(false);
     }
 
     public void AddItemtoSellPanelByRarity(ItemRarity rarity)
@@ -183,7 +183,7 @@ public class UI_Inventory_SellPanel : MonoBehaviour
         totalSellPrice -= sellItem.InvItem.JsonObject.sellprice * sellItem.DisplayStackCount;
         SellItemList.RemoveAt(index);
 
-        UIInventory.UpdateVisibleInvRows();
+        UIInventory.UpdateVisibleInvRows(false);
     }
 
     public void RemoveFromSellPanelByRarity(ItemRarity rarity)
@@ -202,7 +202,7 @@ public class UI_Inventory_SellPanel : MonoBehaviour
             }
         }
 
-        UIInventory.UpdateVisibleInvRows();
+        UIInventory.UpdateVisibleInvRows(false);
     }
 
     public void OnValueChangedSelectAllCommon(bool value)
@@ -252,13 +252,13 @@ public class UI_Inventory_SellPanel : MonoBehaviour
     {
         gameObject.SetActive(false);
         ClearSellPanelList();
-        UIInventory.UpdateVisibleInvRows();
+        UIInventory.UpdateVisibleInvRows(false);
     }
 
     public void OnOpenDialogItemSellUse(int displayItemIdx)
     {
         UIManager.OpenDialog(WindowType.DialogItemSellUse, (GameObject window) => {
-            window.GetComponent<UI_DialogItemSellUse>().Init(UIInventory.DisplayItemList[displayItemIdx].InvItem,
+            window.GetComponent<UI_DialogItemSellUse>().Init(UIInventory.DisplayItemList[displayItemIdx],
                 (int amount) => { AddItemToSellPanel(displayItemIdx, amount); });
         });
     }

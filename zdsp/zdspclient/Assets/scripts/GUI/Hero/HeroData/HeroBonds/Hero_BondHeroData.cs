@@ -8,12 +8,13 @@ public class Hero_BondHeroData : MonoBehaviour
 {
     [SerializeField] Image heroImage;
     [SerializeField] Text statusText;
-    [SerializeField] Material grayscaleMat;
+    [SerializeField] string lockedColorHex;
 
     private int heroId;
     private Toggle toggle;
     private Action<int, bool> OnSelectedCallback;
     private Action<int> OnClickCallback;
+    private Color lockedColor = Color.clear;
 
     public void Init(int heroId, ToggleGroup group, Action<int, bool> selectedCallback)
     {
@@ -40,17 +41,20 @@ public class Hero_BondHeroData : MonoBehaviour
 
     public void SetFulfilled(bool fulfilled)
     {
+        if (lockedColor == Color.clear)
+            ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
+
         if (fulfilled)
         {
             statusText.text = GUILocalizationRepo.GetLocalizedString("hro_bond_fulfilled");
             statusText.color = Color.white;
-            heroImage.material = null;
+            heroImage.color = Color.white;
         }
         else
         {
             statusText.text = GUILocalizationRepo.GetLocalizedString("hro_bond_unfulfilled");
             statusText.color = Color.red;
-            heroImage.material = grayscaleMat;
+            heroImage.color = lockedColor;
         }
     }
 

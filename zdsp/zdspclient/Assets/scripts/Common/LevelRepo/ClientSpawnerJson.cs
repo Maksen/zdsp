@@ -1,12 +1,8 @@
-using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
 namespace Zealot.Entities
 {
-    public class QuestNPCSpawnerDescJson : ServerEntityJson
+    public class StaticClientNPCSpawnerJson : ServerEntityJson
     {
         public string archetype;
+        public float radius;
     }
 }

@@ -1,6 +1,9 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
+using Zealot.Common;
+using Zealot.Repository;
 
 public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
 {
@@ -12,6 +15,8 @@ public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
 
     private GameIcon_MaterialConsumable item;
     private int heroId;
+    private int bindItemId, unbindItemId;
+    private bool showSpendConfirmation;
 
     public void Init(Hero hero, int overrideSkillPts = 0)
     {
@@ -23,24 +28,56 @@ public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
             item = icon.GetComponent<GameIcon_MaterialConsumable>();
         }
 
-        int itemId = hero.HeroJson.upgradeitemid;
-        if (itemId > 0)
+        string itemIds = hero.HeroJson.upgradeitemid;
+        if (!string.IsNullOrEmpty(itemIds))
         {
-            item.InitWithTooltipViewOnly(itemId, 1);
-            itemName.text = item.inventoryItem.JsonObject.localizedname;
+            string[] itemids = itemIds.Split(';');
+            if (itemids.Length > 0 && int.TryParse(itemids[0], out bindItemId))
+            {
+                item.InitWithToolTipView(bindItemId, 1);
+                itemName.text = item.inventoryItem.JsonObject.localizedname;
 
-            int count = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)itemId);
-            string avail = count > 999 ? "999+" : count.ToString();
-            bool enough = count >= hero.HeroJson.upgradeitemcount;
-            if (!enough)
-                avail = string.Format("<color=red>{0}</color>", avail);
-            amtText.text = avail + " / " + hero.HeroJson.upgradeitemcount;
+                int bindCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)bindItemId);
+                int unbindCount = 0;
+                if (itemids.Length > 1 && int.TryParse(itemids[1], out unbindItemId))
+                    unbindCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)unbindItemId);
+                int totalCount = bindCount + unbindCount;
+                string avail = totalCount > 999 ? "999+" : totalCount.ToString();
+                int requiredItemCount = HeroRepo.GetItemCountForSkillPointByHeroId(hero.HeroId, hero.GetTotalSkillPoints() + 1);
+                bool enough = totalCount >= requiredItemCount;
+                if (!enough)
+                    avail = string.Format("<color=red>{0}</color>", avail);
+                string req = requiredItemCount > 0 ? requiredItemCount.ToString() : "-";
+                amtText.text = avail + " / " + req;
+                showSpendConfirmation = enough && bindCount < requiredItemCount;  // show confirmation whether want to spend unbind
+            }
         }
 
         pointsText.text = overrideSkillPts > 0 ? overrideSkillPts.ToString() : hero.SkillPoints.ToString();
     }
 
     public void OnClickAddSkillPoint()
+    {
+        if (showSpendConfirmation)
+        {
+            IInventoryItem bindItem = item.inventoryItem;
+            IInventoryItem unbindItem = GameRepo.ItemFactory.GetInventoryItem(unbindItemId);
+            if (bindItem != null && unbindItem != null)
+            {
+                Dictionary<string, string> param = new Dictionary<string, string>();
+                param.Add("bind", bindItem.JsonObject.localizedname);
+                param.Add("unbind", unbindItem.JsonObject.localizedname);
+                string message = GUILocalizationRepo.GetLocalizedString("hro_confirmUseUnbindToAddSkillPoint", param);
+                UIManager.OpenYesNoDialog(message, OnConfirm);
+            }
+        }
+        else
+        {
+            OnConfirm();
+        }
+    }
+
+    private void OnConfirm()
     {
         RPCFactory.CombatRPC.AddHeroSkillPoint(heroId);
     }

@@ -2,7 +2,6 @@
 <magicalarea51>
   <presentation>
     <menu>
-
       <category uitext="Item">   
         <option uitext="LinkUI" datasource="LinkUI"/>
         <option uitext="Item Origin" datasource="ItemOrigin"/>
@@ -30,10 +29,20 @@
         <option uitext="ProductSetting" datasource="ProductSetting"/>
         <option uitext="StoreRefresh" datasource="StoreRefresh"/>
       </category>
-      
+
+      <category uitext="Equipment Craft">
+        <option uitext="Equipment Craft" datasource="EquipmentCraft"/>
+      </category>
+
       <category uitext="Equipment Upgrade">
         <option uitext="Equipment Upgrade" datasource="EquipmentUpgrade"/>
         <option uitext="Equipment Reform Group" datasource="EquipmentReformGroup"/>
+      </category>
+
+      <category uitext="DNA and Relic">
+        <option uitext="DNA Upgrade" datasource="DNAUpgrade"/>
+        <option uitext="DNA Evolve" datasource="DNAEvolve"/>
+        <option uitext="Relic Recycle" datasource="RelicRecycle"/>
       </category>
 
       <category uitext="Exchange Shop">
@@ -80,12 +89,10 @@
         <option uitext="Realm World" datasource="RealmWorld"/>
         <option uitext="Dungeon" datasource="Dungeon"/>
         <!--<option uitext="Realm Objective" datasource="RealmObjective"/>
-        <option uitext="Extra Entry Fees" datasource="ExtraEntryFees"/>
-        <option uitext="Star Reward" datasource="StarReward"/>
         <option uitext="Arena" datasource="Arena"/>
         <option uitext="ArenaFakeRank" datasource="ArenaFakeRank"/>
         <option uitext="Tutorial" datasource="Tutorial"/>
-        <option uitext="Activity Guard War" datasource="ActivityGuardWar"/>
+        <option uitext="Activity Guild War" datasource="ActivityGuildWar"/>
         <option uitext="Activity Guild SMBoss" datasource="ActivityGuildSMBoss"/>    
         <option uitext="Activity World Boss" datasource="ActivityWorldBoss"/>
         <option uitext="Activity Notification" datasource="ActivityNotification"/>
@@ -105,10 +112,6 @@
         <option uitext="Reward List" datasource="RewardList"/>
         <option uitext="Experience Rate" datasource="ExperienceRate"/>
 		    <option uitext="ActivityReward" datasource="ActivityReward"/>
-		    <option uitext="Reward Group" datasource="RewardGroup"/>
-        <option uitext="Random Box Reward" datasource="RandomBoxReward"/>
-        <option uitext="Prize Guarantee" datasource="PrizeGuarantee"/>
-        <option uitext="Donate RewardId" datasource="DonateRewardId"/>
       </category>
 
       <category uitext="NPC">
@@ -176,6 +179,7 @@
       <category uitext="Hero">
         <option uitext="Hero" datasource="Hero"/>
         <option uitext="Hero Growth" datasource="HeroGrowth"/>
+        <option uitext="Hero Skill Upgrade" datasource="HeroSkillUpgrade"/>
         <option uitext="Hero Interest Group" datasource="HeroInterestGroup"/>
         <option uitext="Hero Interest" datasource="HeroInterest"/>
         <option uitext="Hero Trust" datasource="HeroTrust"/>
@@ -256,11 +260,11 @@
         <option uitext="Onsen" datasource="Onsen"/>
       </category>
 	  
-	  <category uitext="Map">
-		<option uitext="WorldMapCountryMonster" datasource="WorldMapCountryMonster"/>
-		<option uitext="WorldMapCountryPlace" datasource="WorldMapCountryPlace"/>
-		<option uitext="WorldMapCountry" datasource="WorldMapCountry"/>
-	  </category>
+	    <category uitext="Map">
+		    <option uitext="WorldMapCountryMonster" datasource="WorldMapCountryMonster"/>
+		    <option uitext="WorldMapCountryPlace" datasource="WorldMapCountryPlace"/>
+		    <option uitext="WorldMapCountry" datasource="WorldMapCountry"/>
+	    </category>
 	  
     </menu>
   </presentation>

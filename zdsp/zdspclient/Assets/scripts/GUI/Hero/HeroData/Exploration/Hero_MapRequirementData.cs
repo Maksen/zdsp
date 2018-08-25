@@ -30,10 +30,10 @@ public class Hero_MapRequirementData : MonoBehaviour
                 descriptionText.text = interestData.localizedname;
                 break;
             case ChestRequirementType.HeroTrust:
-                ClientUtils.LoadIconAsync("UI_ZDSP_AsyncIcons/InterestCell/zzz_interestcell_test.png", OnImageLoaded);  // temp
+                reqmtImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
                 reqmtValueText.gameObject.SetActive(true);
                 reqmtValueText.text = value.ToString();
-                descriptionText.text = "Trust " + value;
+                descriptionText.text = GUILocalizationRepo.GetLocalizedString("hro_relationship") + " " + value;
                 break;
         }
     }

@@ -17,6 +17,8 @@
     Destiny = 12,
     WorldMap = 13,
     DestinyHistory = 14,
+    Dungeon = 15,
+    DungeonStory = 16,
 
     // Add persistent type window here
     //-----------------------------------
@@ -44,6 +46,7 @@
 
     DialogItemDetail = 410,
     DialogItemSellUse = 411,
+
     DialogNpcTalk = 412,
 
     DialogWorldBossRanking = 413,

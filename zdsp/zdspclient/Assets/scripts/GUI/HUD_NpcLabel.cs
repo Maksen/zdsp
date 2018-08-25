@@ -168,10 +168,10 @@ public class HUD_NpcLabel : MonoBehaviour
             ChatOn = false;
     }
 
-    public void InitChatWithMonsterNPC(string name, bool toggleOn = true)
+    public void InitChatWithMonsterNPC(string archetype, bool toggleOn = true)
     {
         //Get Monster NPC by name
-        CombatNPCJson monsJson = NPCRepo.GetArchetypeByName(name);
+        CombatNPCJson monsJson = CombatNPCRepo.GetNPCByArchetype(archetype);
         Chat = monsJson.speechbubbletext;
 
         if (Chat != "")

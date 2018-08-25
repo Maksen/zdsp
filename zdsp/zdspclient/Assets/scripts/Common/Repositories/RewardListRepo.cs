@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Kopio.JsonContracts;
-using Zealot.Common;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 
 namespace Zealot.Repository
 {
@@ -16,6 +14,7 @@ namespace Zealot.Repository
             count = _count;
         }
     }
+
     public class Reward
     {
         public bool isExpGrade;
@@ -48,9 +47,10 @@ namespace Zealot.Repository
             if (json.itemid5 != 0)
                 itemRewardLst.Add(new RewardItem(json.itemid5, json.itemcount5));
         }
+
         public void Append(RewardListJson json)
         {
-            job += json.job;
+            job = json.job;
             baseExperience += json.experience;
             baseJobExperience += json.jobexperience;
             money += json.money;
@@ -69,6 +69,18 @@ namespace Zealot.Repository
                 itemRewardLst.Add(new RewardItem(json.itemid5, json.itemcount5));
         }
 
+        public void Append(Reward rwd)
+        {
+            job = rwd.job;
+            baseExperience += rwd.baseExperience;
+            baseJobExperience += rwd.baseJobExperience;
+            money += rwd.money;
+            donatepoint += rwd.donatepoint;
+            guildactivepoint += rwd.guildactivepoint;
+
+            itemRewardLst.AddRange(rwd.itemRewardLst);
+        }
+
         public int Exp(int level)
         {
             if (!RewardListRepo.mExpRate.ContainsKey(level) || !isExpGrade)
@@ -85,6 +97,7 @@ namespace Zealot.Repository
             return (int)(baseJobExperience * RewardListRepo.mExpRate[jlevel].jexprate);
         }
     }
+
     public class ActivityScoreReward
     {
         public int score = 0;
@@ -108,10 +121,10 @@ namespace Zealot.Repository
     
     public static class RewardListRepo
     {
-        public static Dictionary<int, RewardListJson> mIdMap { get; private set; }
-        public static Dictionary<int, ExperienceRateJson> mExpRate { get; private set; }
-        public static Dictionary<int, Dictionary<int, Reward>> mRewardGrp { get; private set; }
-        public static Dictionary<int, List<ActivityScoreReward>> mActivityReward { get; private set; }
+        public static Dictionary<int, RewardListJson> mIdMap;
+        public static Dictionary<int, ExperienceRateJson> mExpRate;
+        public static Dictionary<int, Dictionary<int, Reward>> mRewardGrp;
+        public static Dictionary<int, List<ActivityScoreReward>> mActivityReward;
 
         static RewardListRepo()
         {
@@ -138,6 +151,24 @@ namespace Zealot.Repository
                 }
 
                 mRewardGrp[j.rewardgroupid][j.job].Append(j);
+            }
+
+            //If reward group contains both job and all job rewards, append all job rewards to individual job
+            foreach (Dictionary<int, Reward> rwdLst in mRewardGrp.Values)
+            {
+                //Do nothing if there are no "all job" reward
+                //Or there is only "all job" rewards
+                if (!rwdLst.ContainsKey(-1) || rwdLst.Count <= 1)
+                    continue;
+
+                //Append all job reward to individual job reward
+                foreach (Reward rwd in rwdLst.Values)
+                {
+                    rwd.Append(rwdLst[-1]);
+                }
+
+                //Remove all job reward from rwdLst
+                rwdLst.Remove(-1);
             }
 
             foreach (ExperienceRateJson j in gameData.ExperienceRate.Values)

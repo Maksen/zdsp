@@ -729,6 +729,10 @@
         PowerUp,
         #endregion
 
+        #region EquipmentCraft
+        EquipmentCraft,
+        #endregion
+
         #region Destiny Clue
         ReadClue,
         CollectClueReward,

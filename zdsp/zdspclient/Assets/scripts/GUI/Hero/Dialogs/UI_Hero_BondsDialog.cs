@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,8 +51,16 @@ public class UI_Hero_BondsDialog : BaseWindowBehaviour
             currentPage.Init();
         else
             currentPage.gameObject.SetActive(false); // disable in case no data
-        horizontalScroll.GoToScreen(startingPageIndex);
         totalBuffPanel.Init();
+
+        if (startingPageIndex > 0)
+            StartCoroutine(GoToPage(startingPageIndex));
+    }
+
+    private IEnumerator GoToPage(int index)
+    {
+        yield return null;
+        horizontalScroll.GoToScreen(index);
     }
 
     public void Refresh(Hero hero, bool isNewlyAdded)
@@ -87,7 +96,7 @@ public class UI_Hero_BondsDialog : BaseWindowBehaviour
 
         HeroJson heroJson = HeroRepo.GetHeroById(heroId);
         if (heroJson != null)
-            lockedPanel.Init(heroJson.unlockitemid, heroJson.unlockitemcount, () => RPCFactory.CombatRPC.UnlockHero(heroId));
+            lockedPanel.Init(heroJson.localizedname, heroJson.unlockitemid, heroJson.unlockitemcount, () => RPCFactory.CombatRPC.UnlockHero(heroId));
     }
 
     public void ShowSkillPointsPanel(Hero hero, int reqPts)

@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System;
-using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 using Zealot.Common;
 
 namespace Zealot.Repository
 {
     public class PowerUpRepo
     {
-        private static Dictionary<PowerUpPartsType, Dictionary<int, PowerUpJson>> partsLvlMap;
-        private static Dictionary<PowerUpPartsType, Dictionary<int, SideEffectJson>> partsEffectMap;
+        public static Dictionary<PowerUpPartsType, Dictionary<int, PowerUpJson>> partsLvlMap;
+        public static Dictionary<PowerUpPartsType, Dictionary<int, SideEffectJson>> partsEffectMap;
+
         static PowerUpRepo()
         {
             partsLvlMap = new Dictionary<PowerUpPartsType, Dictionary<int, PowerUpJson>>();
@@ -44,7 +44,6 @@ namespace Zealot.Repository
                 }
             }
             
-
             return null;
         }
 
@@ -77,7 +76,6 @@ namespace Zealot.Repository
                     return materialList;
                 }
             }
-
 
             return null;
         }

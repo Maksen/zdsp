@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 
 namespace Zealot.Repository
 {
@@ -68,4 +68,3 @@ namespace Zealot.Repository
         }
     }
 }
-

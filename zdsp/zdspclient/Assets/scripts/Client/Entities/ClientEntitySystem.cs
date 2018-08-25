@@ -1,6 +1,7 @@
 using Zealot.Client.Entities;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Zealot.Common.Entities
 {
@@ -14,6 +15,7 @@ namespace Zealot.Common.Entities
             MONSTER,
             OTHERPLAYER
         }
+
         public int MAX_ENTITY { get; set; }
         public int TotalQuestNPCSpawner { get; set; }
         List<MonsterGhost> mAllBoss;
@@ -64,7 +66,7 @@ namespace Zealot.Common.Entities
         public void RemoveAllNetEntities()
         {
             List<int> pids = mNetEntities.Keys.ToList();
-            for (int index = pids.Count - 1; index >= 0; index--)
+            for (int index = pids.Count - 1; index >= 0; --index)
                 RemoveEntityByPID(pids[index]);
         }
 
@@ -82,7 +84,7 @@ namespace Zealot.Common.Entities
             //}
         }
 
-        public void AddNPC(QuestNPC npc)
+        public void AddNPC(StaticNPCGhost npc)
         {
             //if (npc != null)
             //    mAllNPC.Add(npc);
@@ -176,8 +178,8 @@ namespace Zealot.Common.Entities
         }
 
         //For map to get all nearby radar visible entities
-        public void GetRadarVisibleEntities(List<string> partyMemberNames, List<UnityEngine.Vector3> pmembers,
-                                            List<UnityEngine.Vector3> players, List<UnityEngine.Vector3> monsters, List<UnityEngine.Vector3> crystal)
+        public void GetRadarVisibleEntities(List<string> partyMemberNames, List<Vector3> pmembers,
+                                            List<Vector3> players, List<Vector3> monsters, List<Vector3> crystal)
         {
             foreach (Entity e in mNetEntities.Values)
             {
@@ -203,9 +205,9 @@ namespace Zealot.Common.Entities
             }
         }
 
-        public void GetRadarVisibleEntities2(List<string> partyMemberNames, List<UnityEngine.Vector3> pmembers,
-                                             List<UnityEngine.Vector3> monsters, List<UnityEngine.Vector3> miniboss,
-                                             List<UnityEngine.Vector3> boss)
+        public void GetRadarVisibleEntities2(List<string> partyMemberNames, List<Vector3> pmembers,
+                                             List<Vector3> monsters, List<Vector3> miniboss,
+                                             List<Vector3> boss)
         {
             foreach (Entity e in mNetEntities.Values)
             {
@@ -220,7 +222,7 @@ namespace Zealot.Common.Entities
                         case MonsterClass.Normal:
                             monsters.Add(e.Position);
                             break;
-                        case MonsterClass.Mini:
+                        case MonsterClass.MiniBoss:
                             miniboss.Add(e.Position);
                             break;
                         case MonsterClass.Boss:
@@ -239,9 +241,9 @@ namespace Zealot.Common.Entities
             }
         }
 
-        public void GetRadarVisibleEntities3(List<string> partyMemberNames, List<UnityEngine.GameObject> pmembers,
-                                             List<UnityEngine.GameObject> monsters, List<UnityEngine.GameObject> miniboss,
-                                             List<UnityEngine.GameObject> boss)
+        public void GetRadarVisibleEntities3(List<string> partyMemberNames, List<GameObject> pmembers,
+                                             List<GameObject> monsters, List<GameObject> miniboss,
+                                             List<GameObject> boss)
         {
             foreach (Entity e in mNetEntities.Values)
             {
@@ -256,7 +258,7 @@ namespace Zealot.Common.Entities
                         case MonsterClass.Normal:
                             monsters.Add(mg.AnimObj);
                             break;
-                        case MonsterClass.Mini:
+                        case MonsterClass.MiniBoss:
                             miniboss.Add(mg.AnimObj);
                             break;
                         case MonsterClass.Boss:
@@ -522,18 +524,18 @@ namespace Zealot.Common.Entities
             //CheckPriority();
         }
 
-        public List<QuestNPC> GetAllQuestNPC()
+        public List<StaticNPCGhost> GetAllQuestNPC()
         {
-            return mEntities.Values.Where(entity => entity.GetType() == typeof(QuestNPC)).Select(entity => entity as QuestNPC).ToList();
+            return mEntities.Values.Where(entity => entity.GetType() == typeof(StaticNPCGhost)).Select(entity => entity as StaticNPCGhost).ToList();
         }
 
-        public QuestNPC GetQuestNPC(string archetype)
+        public StaticNPCGhost GetQuestNPC(string archetype)
         {
             foreach (KeyValuePair<int, Entity> entity in mEntities)
             {
-                if (entity.Value.GetType() == typeof(QuestNPC))
+                if (entity.Value.GetType() == typeof(StaticNPCGhost))
                 {
-                    QuestNPC questnpc = entity.Value as QuestNPC;
+                    StaticNPCGhost questnpc = entity.Value as StaticNPCGhost;
                     if (questnpc.ArchetypeName == archetype)
                         return questnpc;
                 }
@@ -545,34 +547,35 @@ namespace Zealot.Common.Entities
         {
             foreach (KeyValuePair<int, Entity> entity in mEntities)
             {
-                if (entity.Value.GetType() == typeof(QuestNPC))
+                if (entity.Value.GetType() == typeof(StaticNPCGhost))
                 {
-                    QuestNPC questnpc = entity.Value as QuestNPC;
-                    if (questnpc.mArchetypeID == archetypeid)
+                    StaticNPCGhost questnpc = entity.Value as StaticNPCGhost;
+                    if (questnpc.mArchetypeId == archetypeid)
                         return questnpc;
                 }
                 else if (entity.Value.GetType() == typeof(StaticAreaGhost))
                 {
                     StaticAreaGhost staticarea = entity.Value as StaticAreaGhost;
-                    if (staticarea.mArchetypeID == archetypeid)
+                    if (staticarea.mArchetypeId == archetypeid)
                         return staticarea;
                 }
                 else if (entity.Value.GetType() == typeof(StaticTargetGhost))
                 {
                     StaticTargetGhost statictarget = entity.Value as StaticTargetGhost;
-                    if (statictarget.mArchetypeID == archetypeid)
+                    if (statictarget.mArchetypeId == archetypeid)
                         return statictarget;
                 }
             }
             return null;
         }
+
         public StaticClientNPCAlwaysShow GetStaticClientNPC(string archetypeName)
         {
             foreach (KeyValuePair<int, Entity> entity in mEntities)
             {
-                if (entity.Value.GetType() == typeof(QuestNPC))
+                if (entity.Value.GetType() == typeof(StaticNPCGhost))
                 {
-                    QuestNPC questnpc = entity.Value as QuestNPC;
+                    StaticNPCGhost questnpc = entity.Value as StaticNPCGhost;
                     if (string.Compare(questnpc.ArchetypeName, archetypeName) == 0)
                         return questnpc;
                 }
@@ -597,7 +600,9 @@ namespace Zealot.Common.Entities
             List<StaticClientNPCAlwaysShow> npclist = new List<StaticClientNPCAlwaysShow>();
             foreach (KeyValuePair<int, Entity> entity in mEntities)
             {
-                if (entity.Value.GetType() == typeof(QuestNPC) || entity.Value.GetType() == typeof(StaticAreaGhost) || entity.Value.GetType() == typeof(StaticTargetGhost))
+                if (entity.Value.GetType() == typeof(StaticNPCGhost) || 
+                    entity.Value.GetType() == typeof(StaticAreaGhost) || 
+                    entity.Value.GetType() == typeof(StaticTargetGhost))
                 {
                     StaticClientNPCAlwaysShow staticnpc = entity.Value as StaticClientNPCAlwaysShow;
                     if (staticnpc.IsVisible())

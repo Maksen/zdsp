@@ -30,7 +30,7 @@ public static class GameInfo
     public static Login gLogin;
     public static UI_Login gUILogin;
 
-    public static UIShopSell gUIShopSell = null;
+    public static UIShop gUIShop = null;
 
     public static BaseClientEntity gSelectedEntity;
 

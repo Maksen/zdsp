@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using Photon.LoadBalancing.GameServer;
 using Zealot.Repository;
 using Zealot.Entities;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Server.AI;
-using System.Collections.Generic;
 
 namespace Zealot.Server.Entities
 {
@@ -20,7 +20,7 @@ namespace Zealot.Server.Entities
         {
             mPersonalMonsterSpawnerJson = info;
             if(info.archetype != "")
-                mArchetype = NPCRepo.GetArchetypeByName(info.archetype);
+                mArchetype = CombatNPCRepo.GetNPCByArchetype(info.archetype);
             mPopulation = mPersonalMonsterSpawnerJson.population;
             mSummonerMonsters = new Dictionary<string, List<Monster>>();
         }
@@ -43,7 +43,8 @@ namespace Zealot.Server.Entities
             List<Monster> monsters;
             if (mSummonerMonsters.TryGetValue(playername, out monsters))
             {
-                for (int index = 0; index < monsters.Count; index++)
+                int monCount = monsters.Count;
+                for (int index = 0; index < monCount; ++index)
                     monsters[index].CleanUp();
                 monsters.Clear();
             }
@@ -52,7 +53,7 @@ namespace Zealot.Server.Entities
                 monsters = new List<Monster>();
                 mSummonerMonsters.Add(playername, monsters);
             }
-            for (int count = 1; count <= population; count++)
+            for (int count = 1; count <= population; ++count)
                 SpawnMonster(playername, monsters, aggressive, player);
         }
 
@@ -70,14 +71,14 @@ namespace Zealot.Server.Entities
             monster.Init(this, null, mLiveDuration);
 
             MonsterClass monsterClass = mArchetype.monsterclass;
-            if (monsterClass == MonsterClass.Normal || monsterClass == MonsterClass.Mini)
+            if (monsterClass == MonsterClass.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if(monsterClass == MonsterClass.Boss)
+            else if(monsterClass == MonsterClass.Boss || monsterClass == MonsterClass.MiniBoss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
+
             if (aggressive)
-            {
                 monster.OnAttacked(player, 1);
-            }
+
             monsters.Add(monster);
         }
 
@@ -144,7 +145,8 @@ namespace Zealot.Server.Entities
                 List<Monster> monsters;
                 if (mSummonerMonsters.TryGetValue(att.Name, out monsters))
                 {
-                    for (int index = 0; index < monsters.Count; index++)
+                    int count = monsters.Count;
+                    for (int index = 0; index < count; ++index)
                         monsters[index].OnGroupAggro(pid, att);
                 }               
             }

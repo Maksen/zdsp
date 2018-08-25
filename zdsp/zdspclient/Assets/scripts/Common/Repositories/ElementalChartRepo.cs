@@ -1,17 +1,16 @@
-﻿using System;
-using System.Text;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using Kopio.JsonContracts;
 using Zealot.Common;
 
-namespace Zealot.Repository { 
-    class ElementalChartRepo {
-        private static Dictionary<Element, Dictionary<Element, int>> elementChart = new Dictionary<Element, Dictionary<Element, int>>();
-        private static Dictionary<AttackStyle, Dictionary<AttackStyle, int>> weaknessChart = new Dictionary<AttackStyle, Dictionary<AttackStyle, int>>();
+namespace Zealot.Repository
+{ 
+    class ElementalChartRepo
+    {
+        public static Dictionary<Element, Dictionary<Element, int>> elementChart = new Dictionary<Element, Dictionary<Element, int>>();
+        public static Dictionary<AttackStyle, Dictionary<AttackStyle, int>> weaknessChart = new Dictionary<AttackStyle, Dictionary<AttackStyle, int>>();
 
-        public static void Init(GameDBRepo gameData) {
-            
+        public static void Init(GameDBRepo gameData)
+        {    
             foreach(KeyValuePair<int, ElementChartJson> kvp in gameData.ElementChart) {
                 elementChart.Add(kvp.Value.elementid, new Dictionary<Element, int>());
                 elementChart[kvp.Value.elementid].Add(Element.None, kvp.Value.none);
@@ -32,11 +31,13 @@ namespace Zealot.Repository {
             }
         }
 
-        public static float ElementChartQuery(Element attacker, Element defender) {
+        public static float ElementChartQuery(Element attacker, Element defender)
+        {
             return elementChart[attacker][defender] * 0.01f;
         }
 
-        public static float WeaknessChartQuery(AttackStyle attacker, AttackStyle defender) {
+        public static float WeaknessChartQuery(AttackStyle attacker, AttackStyle defender)
+        {
             return weaknessChart[attacker][defender] * 0.01f;
         }
     }

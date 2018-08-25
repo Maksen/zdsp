@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using Zealot.Common;
@@ -186,11 +186,11 @@ namespace Zealot.Repository
     public class EquipmentModdingRepo
     {
         // Equipment Upgrade
-        private static Dictionary<EquipmentType, Dictionary<ItemRarity, Dictionary<int, EquipmentUpgradeJson>>> equipUpgradeTypeRarityIDJsonMap;    // Equipment Type -> Rarity -> Upgrade Level -> Json
+        public static Dictionary<EquipmentType, Dictionary<ItemRarity, Dictionary<int, EquipmentUpgradeJson>>> equipUpgradeTypeRarityIDJsonMap;    // Equipment Type -> Rarity -> Upgrade Level -> Json
 
         // Equipment Reform
-        private static Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>  equipReformJsonMap;     // Reform Group -> Reform Step -> Json List
-        private static Dictionary<string, int>                                              equipReformMaxLvlMap;   // Reform Group -> Max Level
+        public static Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>  equipReformJsonMap;     // Reform Group -> Reform Step -> Json List
+        public static Dictionary<string, int>                                              equipReformMaxLvlMap;   // Reform Group -> Max Level
 
         static EquipmentModdingRepo()
         {

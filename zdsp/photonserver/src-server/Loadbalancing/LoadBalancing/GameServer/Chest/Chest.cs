@@ -21,7 +21,7 @@ namespace Photon.LoadBalancing.GameServer.Chest
             //2.與保底機制溝通 寶箱或福袋ID 及 獎勵清單
             //3.真正發獎給玩家
             List<ItemInfo> rewardList = GetRewardList(itemId);
-            PrizeGuaranteeRules.GetPrizeGuarantee(mSlot, PrizeGuaranteeType.Chest, itemId, rewardList);
+            //PrizeGuaranteeRules.GetPrizeGuarantee(mSlot, PrizeGuaranteeType.Chest, itemId, rewardList);
             SendItemToPlayerInv(mSlot.mPlayer, rewardList);
         }
         private List<ItemInfo> GetRewardList(int itemId)

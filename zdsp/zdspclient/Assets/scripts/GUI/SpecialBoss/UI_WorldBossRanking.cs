@@ -25,7 +25,7 @@ public class UI_WorldBossRanking : MonoBehaviour
         {
             string myName = GameInfo.gLocalPlayer.Name;
             SpecialBossJson boss = SpecialBossRepo.GetInfoById(_bossKillData.bossId);
-            if (boss.category == BossCategory.BOSS)
+            if (boss.bosstype == BossType.Boss)
             {
                 Leaderboard_Name.text = GUILocalizationRepo.GetLocalizedString("wb_BossTitle");
                 Header_Name.text = GUILocalizationRepo.GetLocalizedString("wb_PersonalName");

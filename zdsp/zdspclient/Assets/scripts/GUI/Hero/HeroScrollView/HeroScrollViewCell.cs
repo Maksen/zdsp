@@ -6,22 +6,17 @@ using Zealot.Repository;
 
 public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollViewContext>
 {
-    [SerializeField]
-    Animator animator;
-    [SerializeField]
-    Text message;
-    [SerializeField]
-    Image image;
-    [SerializeField]
-    Button button;
-    [SerializeField]
-    GameObject highlight;
-    [SerializeField]
-    Material grayScaleMat;
+    [SerializeField] Animator animator;
+    [SerializeField] Text message;
+    [SerializeField] Image image;
+    [SerializeField] Button button;
+    [SerializeField] GameObject highlight;
+    [SerializeField] string lockedColorHex;
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
     HeroScrollViewContext context;
     string imagePath = "";
+    Color lockedColor;
 
     void Start()
     {
@@ -30,8 +25,8 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
         rectTransform.anchorMin = Vector2.zero;
         rectTransform.anchoredPosition3D = Vector3.zero;
         UpdatePosition(0);
-
         button.onClick.AddListener(OnPressedCell);
+        ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
     }
 
     /// <summary>
@@ -70,7 +65,7 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
             {
                 image.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/HeroCell/zzz_herocell_test.png");
             }
-            image.material = itemData.Unlocked ? null : grayScaleMat;
+            image.color = itemData.Unlocked ? Color.white : lockedColor;
         }
     }
 

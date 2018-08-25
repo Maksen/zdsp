@@ -35,7 +35,7 @@ public class Hero_MapData : MonoBehaviour
         previousHighlight.SetActive(false);
     }
 
-    public void SetAsPrevious()
+    public void SetAsPredecessor()
     {
         ongoingHighlight.SetActive(false);
         previousHighlight.SetActive(true);

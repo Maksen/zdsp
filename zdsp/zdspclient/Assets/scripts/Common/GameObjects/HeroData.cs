@@ -93,7 +93,7 @@ public class Hero
         SkillPoints = 1;
         Interest = HeroRepo.GetRandomInterestByGroup(HeroJson.interestgroup);
         TrustLevel = 1;
-        ModelTier = GetFirstModelTier();
+        ModelTier = GetHighestUnlockedTier();
         UnlockedSkinItems = new List<int>();
         ComputeCombatStats();
     }
@@ -108,7 +108,7 @@ public class Hero
         Skill1Level = 1;
         Skill2Level = 1;
         Skill3Level = 1;
-        ModelTier = GetFirstModelTier();
+        ModelTier = GetHighestUnlockedTier();
         UnlockedSkinItems = new List<int>();
         ComputeCombatStats();
     }
@@ -173,27 +173,22 @@ public class Hero
         return !SkillRepo.IsSkillMaxLevel(skillgroupid, currentLevel);
     }
 
-    public bool CanAddSkillPoint()
+    public bool CanAddTrust()
     {
-        int skillpts = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill1grp);
-        int totalMaxSkillLevels = skillpts > 0 ? skillpts : 1;
-        skillpts = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill2grp);
-        totalMaxSkillLevels += skillpts > 0 ? skillpts : 1;
-        skillpts = SkillRepo.GetSkillGroupMaxLevel(HeroJson.skill3grp);
-        totalMaxSkillLevels += skillpts > 0 ? skillpts : 1;
-        return GetTotalSkillPoints() < totalMaxSkillLevels;
+        return TrustLevel < HeroRepo.MAX_TRUST_LEVEL;
     }
 
-    public int GetFirstModelTier()
+    public int GetHighestUnlockedTier()
     {
+        int highest = 0;
         string[] unlockpts = HeroJson.tierunlockpts.Split(';');
         for (int i = 0; i < unlockpts.Length; i++)
         {
-            int pts = -1;
-            if (int.TryParse(unlockpts[i], out pts) && pts > 0)
-                return i + 1;
+            int reqPts;
+            if (int.TryParse(unlockpts[i], out reqPts) && reqPts > 0 && GetTotalSkillPoints() >= reqPts)
+                highest = i + 1;
         }
-        return -1;
+        return highest;
     }
 
     public int GetModelTierUnlockPoints(int tier)
@@ -222,6 +217,12 @@ public class Hero
         {
             return UnlockedSkinItems.Contains(tier);
         }
+    }
+
+    public bool CanChangeInterest()
+    {
+        List<HeroInterestGroupJson> interestList = HeroRepo.GetInterestsInGroup(HeroJson.interestgroup);
+        return interestList.Exists(x => x.interesttype != Interest);
     }
 
     public int GetTriggeredQuest()
@@ -281,12 +282,71 @@ public class Hero
             SynCombatStats.IgnoreArmor = CombatStats.GetField(FieldName.IgnoreArmor);
         }
     }
+
+    public bool HasFulfilledBondType(HeroBondType type, int value)
+    {
+        if (type == HeroBondType.None)
+            return true;
+        else if (type == HeroBondType.HeroLevel)
+            return Level >= value;
+        else if (type == HeroBondType.HeroSkill)
+            return GetTotalSkillPoints() >= value;
+        else
+            return false;
+    }
+
+    public int GetNoOfMapCriteriaMet(ExplorationMapJson map)
+    {
+        int count = 0;
+        if (HasFulfilledChestRequirement(map.chestreqtype1, map.chestreqvalue1))
+            count++;
+        if (HasFulfilledChestRequirement(map.chestreqtype2, map.chestreqvalue2))
+            count++;
+        if (HasFulfilledChestRequirement(map.chestreqtype3, map.chestreqvalue3))
+            count++;
+        return count;
+    }
+
+    public bool HasFulfilledChestRequirement(ChestRequirementType type, int value)
+    {
+        if (type == ChestRequirementType.HeroID)
+            return HeroId == value;
+        else if (type == ChestRequirementType.HeroInterest)
+            return Interest == (HeroInterestType)value;
+        else if (type == ChestRequirementType.HeroTrust)
+            return TrustLevel >= value;
+        else
+            return false;
+    }
+
+    public float GetExploreTerrainEfficiency(ExplorationMapJson map)
+    {
+        return HeroRepo.GetTerrainEfficiency(map.terraintype, Interest) * 0.01f;
+    }
+
+    public float GetExploreLevelEfficiency(ExplorationMapJson map)
+    {
+        return Math.Min((float)Level * map.levelmaxefficiency / map.levelrelvalue, map.levelmaxefficiency) * 0.01f;
+    }
+
+    public float GetExploreTrustEfficiency(ExplorationMapJson map)
+    {
+        return Math.Min((float)TrustLevel * map.trustmaxefficiency / map.trustrelvalue, map.trustmaxefficiency) * 0.01f;
+    }
+
+    public float GetTotalExploreEfficiency(ExplorationMapJson map)
+    {
+        float terrainEff = GetExploreTerrainEfficiency(map);
+        float levelEff = GetExploreLevelEfficiency(map);
+        float trustEff = GetExploreTrustEfficiency(map);
+        return (levelEff + trustEff) * terrainEff;
+    }
 }
 
 [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
 public class ExploreMapData
 {
-    [JsonProperty(PropertyName = "map")]
+    [JsonProperty(PropertyName = "id")]
     public int MapId { get; set; }
 
     [JsonProperty(PropertyName = "tgt")]
@@ -299,90 +359,44 @@ public class ExploreMapData
     public DateTime EndTime { get; set; }
 
     [JsonProperty(PropertyName = "rwd")]
-    public List<ItemInfo> Rewards { get; set; }
+    public ExploreReward Rewards { get; set; }
 
-    //  Non Serialized
-    public ExplorationMapJson MapData { get; set; }
+    [JsonProperty(PropertyName = "cmp")]
+    public bool Completed { get; set; }
 
-    public ExploreMapData() { }
-
-    public ExploreMapData(int map, int target, List<int> heroIds, DateTime end, ExplorationMapJson mapJson)
+    public ExploreMapData(int map, int target, List<int> heroIds, DateTime end)
     {
         MapId = map;
         TargetId = target;
         HeroIdList = heroIds;
         EndTime = end;
-        MapData = mapJson;
     }
+}
 
-    public static ExploreMapData ToObject(string str)
-    {
-        return JsonConvertDefaultSetting.DeserializeObject<ExploreMapData>(str);
-    }
+public class ExploreReward
+{
+    public List<ItemInfo> items;
+    public Dictionary<CurrencyType, int> currency;
 
-    public override string ToString()
+    public ExploreReward(List<ItemInfo> itemList, Dictionary<CurrencyType, int> currencyToAdd)
     {
-        return JsonConvertDefaultSetting.SerializeObject(this);
+        items = itemList;
+        currency = currencyToAdd;
     }
-
-    public bool IsCompleted()
-    {
-        return DateTime.Now >= EndTime;
-    }
-
-    public float GetHeroEfficiency(Hero hero)
-    {
-        float terrainEff = HeroRepo.GetTerrainEfficiency(MapData.terraintype, hero.Interest) * 0.01f;
-        float levelEff = Math.Min((float)hero.Level * MapData.levelmaxefficiency / MapData.levelrelvalue, MapData.levelmaxefficiency);
-        float trustEff = Math.Min((float)hero.TrustLevel * MapData.trustmaxefficiency / MapData.trustrelvalue, MapData.trustmaxefficiency);
-        return (levelEff + trustEff) * terrainEff * 0.01f;
-    }
-
-    public int GetFulfilledChestCount(List<Hero> heroesList)
-    {
-        int count = 0;
-        if (IsChestRequirementFulfilled(MapData.chestreqtype1, MapData.chestreqvalue1, heroesList))
-            count++;
-        if (IsChestRequirementFulfilled(MapData.chestreqtype2, MapData.chestreqvalue2, heroesList))
-            count++;
-        if (IsChestRequirementFulfilled(MapData.chestreqtype3, MapData.chestreqvalue3, heroesList))
-            count++;
-        return count;
-    }
-
-    private bool IsChestRequirementFulfilled(ChestRequirementType type, int value, List<Hero> heroes)
-    {
-        bool fulfilled = false;
-        switch (type)
-        {
-            case ChestRequirementType.HeroID:
-                fulfilled = heroes.Exists(x => x.HeroId == value);
-                break;
-            case ChestRequirementType.HeroInterest:
-                fulfilled = heroes.Exists(x => x.Interest == (HeroInterestType)value);
-                break;
-            case ChestRequirementType.HeroTrust:
-                fulfilled = heroes.Exists(x => x.TrustLevel >= value);
-                break;
-        }
-        return fulfilled;
-    }
-    
 }
 
 [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
 public class HeroInvData
 {
-    [JsonProperty(PropertyName = "heroes")]
+    [JsonProperty(PropertyName = "hero")]
     public List<Hero> HeroesList = new List<Hero>();
 
     [JsonProperty(PropertyName = "summon")]
     public int SummonedHero { get; set; }
 
-    [JsonProperty(PropertyName = "inprogress")]
-    public List<ExploreMapData> InProgressMaps = new List<ExploreMapData>();
+    [JsonProperty(PropertyName = "map")]
+    public List<ExploreMapData> OngoingMaps = new List<ExploreMapData>();
 
-    [JsonProperty(PropertyName = "explored")]
+    [JsonProperty(PropertyName = "expld")]
     public string ExploredMaps { get; set; }
-
 }

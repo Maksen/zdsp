@@ -61,7 +61,7 @@ public class HUD_SelectTarget : MonoBehaviour
             SetTargetHeath(monster.PlayerStats.DisplayHp);
             SetMonsterElement(npcJson.element);
             SetMonsterWeakness(npcJson.weakness);
-            SetPortrait("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
+            SetPortrait(npcJson.portraitpath);
 
             // testing
             //SetBuffDebuffIcon(BuffEnum.Buff, 5000, 10);
@@ -71,7 +71,7 @@ public class HUD_SelectTarget : MonoBehaviour
         {
             StaticClientNPCAlwaysShow npc = entity as StaticClientNPCAlwaysShow;
             SetTargetHeath(1f);
-            SetPortrait("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
+            SetPortrait(npc.mArchetype.portraitpath);
         }
         else if (entity.IsHero())
         {

@@ -11,28 +11,25 @@ namespace Zealot.Client.Entities
 {
     public class StaticTargetGhost : StaticClientNPCAlwaysShow
     {
-        protected string mModelPath;
-        protected string mArchetypeName;
-        public int mArchetypeID;
         private float mRadius;
         private ActorNameTagController mHeadLabel;
         private QuestLabelType mQuestLabelType = QuestLabelType.None;
 
-        public string ArchetypeName { get { return mArchetypeName; } }
+        public string ArchetypeName { get; private set; }
 
         public StaticTargetGhost()
         {
             this.EntityType = EntityType.StaticNPC;
         }
 
-        public void Init(string archetype, Vector3 pos, Vector3 forward, float radius)
+        public void Init(StaticNPCJson npcInfo, Vector3 pos, Vector3 forward, float radius)
         {
-            mArchetype = StaticNPCRepo.GetStaticNPCByName(archetype);
-            mArchetypeName = archetype;
-            mModelPath = mArchetype == null ? "" : mArchetype.modelprefabpath;
-            this.mArchetypeID = mArchetype == null ? 0 : mArchetype.id;
-            this.Name = mArchetype == null ? "" : mArchetype.localizedname;
+            mArchetype = npcInfo;
+            ArchetypeName = mArchetype.archetype;
+            mArchetypeId = mArchetype.id;
+            Name = mArchetype.localizedname;
             mRadius = radius;
+
             mActiveQuest = -1;
             mActiveStatus = mArchetype.activeonstartup;
             GetQuestList();
@@ -42,7 +39,7 @@ namespace Zealot.Client.Entities
             Forward = forward;
 
             base.Init();
-            OnAnimObjLoaded(AssetManager.LoadSceneNPC(mModelPath));
+            OnAnimObjLoaded(AssetManager.LoadSceneNPC(mArchetype.modelprefabpath));
         }
 
         public override void InitAnimObj()
@@ -51,14 +48,14 @@ namespace Zealot.Client.Entities
             AnimObj.transform.position = Position;
             AnimObj.transform.forward = Forward;
             AnimObj.tag = "NPC";
-            AnimObj.name = mArchetypeName;
+            AnimObj.name = ArchetypeName;
 
             mHeadLabel = AnimObj.AddComponent<ActorNameTagController>();
             mHeadLabel.CreatePlayerLabel();
             if (mHeadLabel.mPlayerLabel != null)
             {
                 mHeadLabel.mPlayerLabel.SetNPC();
-                mHeadLabel.mPlayerLabel.Name = StaticNPCRepo.GetStaticNPCById(mArchetypeID).localizedname;
+                mHeadLabel.mPlayerLabel.Name = Name;
                 Transform effectRef = AnimObj.transform.Find("root/effect_buff");
                 float heightOffset = 3.8f;
                 if (effectRef != null)
@@ -73,11 +70,9 @@ namespace Zealot.Client.Entities
             scollider.radius = 2f;
             scollider.center = new Vector3(0, 1.0f, 0);
 
-            GameObject go = new GameObject();
-            go.name = "playerDetecter";
+            GameObject go = new GameObject("playerDetecter");
             go.transform.SetParent(AnimObj.transform, false);
-            NpcPlayerDetect detect = go.AddComponent<NpcPlayerDetect>();
-            detect.Init(this, mRadius);
+            go.AddComponent<NpcPlayerDetect>().Init(this, mRadius);
 
             Show(true);
             ShowEffect(true);
@@ -100,11 +95,6 @@ namespace Zealot.Client.Entities
             base.Show(mActiveStatus);
             if (mHeadLabel != null)
                 mHeadLabel.Show(mActiveStatus);
-        }
-
-        public override int GetArchetypeID()
-        {
-            return mArchetypeID;
         }
 
         public override bool Interact()
@@ -181,7 +171,7 @@ namespace Zealot.Client.Entities
         private void GetOngoingQuest()
         {
             mOngoingQuest = (GameInfo.gLocalPlayer != null)
-                ? GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeID) : new List<int>();
+                ? GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeId) : new List<int>();
         }
 
         public override void UpdateOngoingQuest(List<int> quests)
@@ -295,7 +285,7 @@ namespace Zealot.Client.Entities
             {
                 if (mOngoingQuest.Contains(mActiveQuest))
                 {
-                    return GameInfo.gLocalPlayer.QuestController.GetInteractiveId(mActiveQuest, mArchetypeID);
+                    return GameInfo.gLocalPlayer.QuestController.GetInteractiveId(mActiveQuest, mArchetypeId);
                 }
                 else if (mAvailableQuest.Contains(mActiveQuest))
                 {

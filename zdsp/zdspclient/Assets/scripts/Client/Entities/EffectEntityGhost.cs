@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Zealot.Client.Actions;
+﻿using UnityEngine;
 using Zealot.Common;
-using Zealot.Common.Actions;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 
@@ -22,10 +19,10 @@ namespace Zealot.Client.Entities
             this.EntityType = EntityType.ShopNPC;
         }
 
-        public void Init(int archetypeid, Vector3 pos, Vector3 forward, float dur)
+        public void Init(int archetypeId, Vector3 pos, Vector3 forward, float dur)
         {        
-            this.prefabPath = StaticNPCRepo.GetNPCArchetypePathById(archetypeid);
-            this.mArchetypeID = archetypeid;
+            prefabPath = StaticNPCRepo.GetModelPrefabPathById(archetypeId);
+            mArchetypeID = archetypeId;
 
             Position = pos;
             Forward = forward;
@@ -55,8 +52,7 @@ namespace Zealot.Client.Entities
             
             removeTimer = GameInfo.gCombat.mTimers.SetTimer(mRemoveDur, onTimeUp, null);//5 second to determine ending of combat
         }
-
-        
+      
         public override void OnRelevant()
         {
             //Do nothing
@@ -69,8 +65,7 @@ namespace Zealot.Client.Entities
 
         private void onTimeUp(object args)
         {
-            EntitySystem.RemoveEntityByID(ID);
-            
+            EntitySystem.RemoveEntityByID(ID);         
         }       
 
         public override int GetDisplayLevel()

@@ -1,7 +1,8 @@
+using Kopio.JsonContracts;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
+using System.Collections;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Common.Actions;
@@ -9,7 +10,6 @@ using Zealot.Common.Datablock;
 using Zealot.Client.Actions;
 using Zealot.Bot;
 using Zealot.Repository;
-using System.Collections;
 
 namespace Zealot.Client.Entities
 {
@@ -20,6 +20,7 @@ namespace Zealot.Client.Entities
         public SecondaryStats SecondaryStats { get; set; }
         public InventoryStats[] InventoryStats { get; private set; }
         public EquipmentStats EquipmentStats { get; set; }
+        public EquipmentCraftStats EquipmentCraftStats { get; set; }
         public ItemHotbarStats ItemHotbarStats { get; set; }
         public SkillSynStats SkillStats { get; set; }
         public QuestSynStatsClient QuestStats { get; set; }
@@ -46,6 +47,7 @@ namespace Zealot.Client.Entities
         // Controllers
         public ItemInventoryController clientItemInvCtrl;
         public PowerUpController clientPowerUpCtrl;
+        public EquipmentCraftController clientEquipmentCraftCtrl;
         public QuestClientController QuestController { get; private set; }
         public DestinyClueClientController DestinyClueController { get; private set; }
         private BotController mBotController;
@@ -55,7 +57,7 @@ namespace Zealot.Client.Entities
         public DateTime mArenaLastRewardDT;
 
         /// <summary>
-        /// use for non local player only
+        /// Use for non local player only
         /// </summary>
         public SystemSwitchData mSysSwitch;
         public EquipmentInventoryData mEquipmentInvData;
@@ -245,6 +247,11 @@ namespace Zealot.Client.Entities
                     GameObject windowObj = UIManager.GetWindowGameObject(WindowType.Inventory);
                     if (windowObj.activeInHierarchy)
                         windowObj.GetComponent<UI_Inventory>().UpdateCurrencyAmount(CurrencyType.Money);
+
+                    if (GameInfo.gUIShop != null)
+                    {
+                        GameInfo.gUIShop.UpdateCurrencyDisplay();
+                    }
                     break;
                 case "bindgold":
                 case "gold":
@@ -840,6 +847,28 @@ namespace Zealot.Client.Entities
             //UI_CharacterPowerup_Manager.CharacterToggle.CS_MG_ToggleSelected(UI_CharacterPowerup_Manager.CP_State);
         }
 
+        public void OnEquipmentCraftStatsChanged()
+        {
+            clientEquipmentCraftCtrl.InitFromStats(EquipmentCraftStats);
+
+            if (EquipmentCraftStats.finishedCraft)
+            {
+                UI_CharacterEquipmentCraftManager.AfterCraft();
+                EquipmentCraftStats.finishedCraft = false;
+            }
+        }
+
+        public void OnEquipmentCraftStatsCollectionChanged(string field, byte idx, object value)
+        {
+            clientEquipmentCraftCtrl.EquipmentCraftInventory.EquipmentCrafted = (bool)value;
+
+            if (EquipmentCraftStats.finishedCraft)
+            {
+                UI_CharacterEquipmentCraftManager.AfterCraft();
+                EquipmentCraftStats.finishedCraft = false;
+            }
+        }
+
         public void OnLotteryInfoStatsChanged(int stat_index)
         {
         }
@@ -1134,6 +1163,7 @@ namespace Zealot.Client.Entities
             {
                 InitItemInvCtrl();
                 InitPowerUpCtrl();
+                InitEquipmentCraftCtrl();
                 QuestController = new QuestClientController(this);
                 DestinyClueController = new DestinyClueClientController();
             }
@@ -1162,6 +1192,12 @@ namespace Zealot.Client.Entities
                     EquipmentStats.OnCollectionChanged = OnEquipmentStatsCollectionChanged;
                     EquipmentStats.OnLocalObjectChanged = OnEquipmentStatsLocalObjectChanged;
                     mylocalobj = EquipmentStats;
+                    break;
+                case LOTYPE.EquipmentCraftStats:
+                    EquipmentCraftStats = new EquipmentCraftStats();
+                    EquipmentCraftStats.OnLocalObjectChanged = OnEquipmentCraftStatsChanged;
+                    EquipmentCraftStats.OnCollectionChanged = OnEquipmentCraftStatsCollectionChanged;
+                    mylocalobj = EquipmentCraftStats;
                     break;
                 case LOTYPE.ItemHotbarStats:
                     ItemHotbarStats = new ItemHotbarStats();
@@ -1323,6 +1359,17 @@ namespace Zealot.Client.Entities
 
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
+
+        private void InitEquipmentCraftCtrl()
+        {
+            clientEquipmentCraftCtrl = new EquipmentCraftController();
+            if (clientEquipmentCraftCtrl == null)
+                Debug.LogError("EquipmentCraftCtrl is null");
+
+            InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
+
+        }
+
         protected override void PlayStunEffect(bool bplay)
         {
         }
@@ -1371,14 +1418,8 @@ namespace Zealot.Client.Entities
         public void InitMap()
         {
             GameObject obj = UIManager.GetWidget(HUDWidgetType.MiniMap);
-            HUD_MiniMap hudMM = obj.GetComponent<HUD_MiniMap>();
-
-            if (IsLocal)
-            {
-                hudMM.InitMap();
-            }
-
-            hudMM.AddIcon(HUD_MiniMap.IconType.PLAYER, this.Position);
+            HUD_MiniMap mmMap = obj.GetComponent<HUD_MiniMap>();
+            mmMap.InitMap();
         }
 
         public void PathFindToTarget(Vector3 position, int targetid, float range, bool targetsafe, bool movedirectonpathfound, Common.Actions.Action.CompleteCallBackDelegate callback)
@@ -1994,7 +2035,7 @@ namespace Zealot.Client.Entities
 
         public void UpdatePlayerCompanion()
         {
-            StaticNPCJson staticNPC = StaticNPCRepo.GetStaticNPCById(PlayerSynStats.QuestCompanionId);
+            StaticNPCJson staticNPC = StaticNPCRepo.GetNPCById(PlayerSynStats.QuestCompanionId);
             if (staticNPC != null)
             {
                 if (mCompanionGhost != null && mCompanionGhost.GetNpcId() != staticNPC.id)

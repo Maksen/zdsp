@@ -29,14 +29,16 @@ public class ComboBoxA : MonoBehaviour
     }
 
     private string selectedValue;
-
     public string SelectedValue
     {
         get { return selectedValue; }
         set
         {
             selectedValue = value;
-            selectedIndex = ItemList.FindIndex(x => x.Value == value);
+            int foundIndex = ItemList.FindIndex(x => x.Value == value);
+            if (foundIndex == -1)
+                foundIndex = 0;
+            selectedIndex = foundIndex;
             SelectedItem = ItemList[selectedIndex];
             titleText.text = SelectedItem.Text;
         }

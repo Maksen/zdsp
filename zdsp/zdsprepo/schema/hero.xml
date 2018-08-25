@@ -57,10 +57,9 @@
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="description" type="localizedstring" uitext="Description(Localized)"/>
       <property name="rarity" type="HeroRarity" uitext="Rarity"/>
-      <property name="unlockitemid" type="int" uitext="Unlock Item ID"/>
+      <property name="unlockitemid" type="string" uitext="Unlock Item ID" default="" info="bind;unbind"/>
       <property name="unlockitemcount" type="int" uitext="Unlock Item Count"/>
-      <property name="upgradeitemid" type="int" uitext="Upgrade Item ID"/>
-      <property name="upgradeitemcount" type="int" uitext="Upgrade Item Count"/>
+      <property name="upgradeitemid" type="string" uitext="Upgrade Item ID" default="" info="bind;unbind"/>
       <property name="basicattack" type="Skill" uitext="Basic Attack" display="name"/>
       <property name="skill1grp" type="SkillGroup" uitext="Skill 1" display="name"/>
       <property name="skill2grp" type="SkillGroup" uitext="Skill 2(SummonPassive)" display="name"/>
@@ -113,6 +112,12 @@
       <property name="critical" type="int" uitext="Critical" default="0"/>
     </element>
 
+    <element name="HeroSkillUpgrade" useexcel="true">
+      <property name="heroid" type ="int" uitext="Hero ID"/>
+      <property name="skillpoint" type ="int" uitext="Total Skill Point"/>
+      <property name="itemcount" type ="int" uitext="Item Count Required"/>
+    </element>
+
     <element name="HeroInterestGroup" useexcel="true">
       <property name="interestgroup" type="int" uitext="Interest Group"/>
       <property name="interesttype" type ="HeroInterestType" uitext="Interest Type"/>
@@ -153,7 +158,7 @@
     </element>
 
     <element name="ExplorationMap" useexcel="true">
-      <property name="mapid" type="int" uitext="Exploration Map ID"/>
+      <property name="mapid" type="int" uitext="Exploration Map ID" unique="true" info="must be unique"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="localizedsubname" type="localizedstring" uitext="Sub Name(Localized)"/>
       <property name="localizeddescription" type="localizedstring" uitext="Description(Localized)"/>
@@ -166,7 +171,7 @@
       <property name="repeatable" type="bool" uitext="Repeatable" default="false"/>
       <property name="battletimecost" type="int" uitext="Battle Time Cost(min)" info="in min"/>
       <property name="completetime" type="int" uitext="Complete Time(min)" info="in min"/>
-      <property name="reqitemid" type="int" uitext="Item ID Required"/>
+      <property name="reqitemid" type="string" uitext="Item ID Required" default="" info="bind;unbind"/>
       <property name="reqitemcount" type="int" uitext="Item Count Required"/>
       <property name="chestreqtype1" type="ChestRequirementType" uitext="Chest Requirement 1"/>
       <property name="chestreqvalue1" type="int" uitext="Chest Requirement Value 1"/>

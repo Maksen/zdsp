@@ -1,23 +1,24 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 
 namespace Zealot.Repository
 {
     public static class LevelRepo
     {
-        public static Dictionary<string, int> mNameMap;
         public static Dictionary<int, LevelJson> mIdMap;
+        public static Dictionary<string, int> mNameMap;
 
         static LevelRepo()
         {
-            mNameMap = new Dictionary<string, int>();
             mIdMap = new Dictionary<int, LevelJson>();
+            mNameMap = new Dictionary<string, int>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
             mIdMap = gameData.Level;
             mNameMap.Clear();
+
             foreach (KeyValuePair<int, LevelJson> entry in gameData.Level)
             {
                 mNameMap.Add(entry.Value.unityscene, entry.Key);
@@ -35,6 +36,13 @@ namespace Zealot.Repository
         {
             if (mIdMap.ContainsKey(id))
                 return mIdMap[id];
+            return null;
+        }
+
+        public static string GetSceneById(int id)
+        {
+            if (mIdMap.ContainsKey(id))
+                return mIdMap[id].unityscene;
             return null;
         }
 

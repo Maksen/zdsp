@@ -15,7 +15,7 @@ public class AnimEffectSoundPair
 }
 #endif
 
-[RequireComponent(typeof(Animation))]
+[RequireComponent(typeof(Animator))]
 public class PlayAnimationSandbox : MonoBehaviour
 {
 #if UNITY_EDITOR
@@ -60,11 +60,11 @@ public class PlayAnimationSandbox : MonoBehaviour
     public void Init()
     {
         animSoundList = new List<AnimEffectSoundPair>();
-        Animation animation = target.GetComponent<Animation>();
-        foreach (AnimationState astate in animation)
+        Animator animation = target.GetComponent<Animator>();
+        foreach (var clip in animation.runtimeAnimatorController.animationClips)
         {
             AnimEffectSoundPair t = new AnimEffectSoundPair();
-            t.animationName = astate.name;
+            t.animationName = clip.name;
             animSoundList.Add(t);
         }
     }
@@ -95,7 +95,7 @@ public class PlayAnimationSandbox : MonoBehaviour
         {
             Animator animator = target.GetComponent<Animator>();
             if (animator.HasState(clip))
-            {
+            { 
                 Debug.Log("playing " + clip);
                 animator.CrossFade(clip, 0.2f);
             }

@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
 
 namespace Zealot.Repository
 {
@@ -21,17 +20,17 @@ namespace Zealot.Repository
         public static List<int> mLevelAccumStatsLst = new List<int>();
         public static List<int> mLevelSkillExpLst = new List<int>();
         public static List<int> mLevelAccumSkillExpLst = new List<int>();
-        private static List<PartyShareLevelInfo> mPartyShareLst = new List<PartyShareLevelInfo>();
+        public static List<PartyShareLevelInfo> mPartyShareLst = new List<PartyShareLevelInfo>();
 
         static CharacterLevelRepo()
         {
-            mLevelExpLst                = new List<int>();
-            mLevelAccumExpLst           = new List<int>();
-            mLevelStatsPtLst            = new List<int>();
-            mLevelAccumStatsLst         = new List<int>();
-            mLevelSkillExpLst           = new List<int>();
-            mLevelAccumSkillExpLst      = new List<int>();
-            mPartyShareLst              = new List<PartyShareLevelInfo>();
+            mLevelExpLst            = new List<int>();
+            mLevelAccumExpLst       = new List<int>();
+            mLevelStatsPtLst        = new List<int>();
+            mLevelAccumStatsLst     = new List<int>();
+            mLevelSkillExpLst       = new List<int>();
+            mLevelAccumSkillExpLst  = new List<int>();
+            mPartyShareLst          = new List<PartyShareLevelInfo>();
         }
 
         public static void Init(GameDBRepo gameData)
@@ -69,7 +68,6 @@ namespace Zealot.Repository
             {
                 mLevelAccumSkillExpLst.Add(mLevelAccumSkillExpLst[i-1] + mLevelSkillExpLst[i]);
             }
-
 
             foreach (var share in gameData.ExpMonsterLvDifference)
             {

@@ -680,7 +680,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         newEquipObj.transform.SetParent(selectEquipIconParent, false);
 
         GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectEquipment);
+        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, false, OnClickOpenSelectEquipment);
 
         _selectedEquipmentIcon = newEquipObj;
     }
@@ -777,7 +777,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
                 retMatObj.transform.SetParent(recycleBagParent, false);
 
                 GameIcon_Equip retMatIcon = retMatObj.GetComponent<GameIcon_Equip>();
-                retMatIcon.Init(equipModMat.itemId);
+                retMatIcon.InitWithoutCallback(equipModMat.itemId, 0, 0 , 0);
 
                 _recycleReturnsList.Add(retMatObj);
             }

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -11,6 +11,7 @@ namespace Zealot.Repository
         public static int MAX_REQUEST = 12;
         public static int MAX_APPLY = 5;
         public static int CreateGuildMinLevel = 20;
+
         public static Dictionary<PositionType, Dictionary<int, string>> mGuildIcons;
         public static Dictionary<string, int> mConstants;
         public static Dictionary<int, GuildSMBossJson> mSMBossLvlMap; // SMBoss lvl <- GuildSMBossJson
@@ -20,7 +21,7 @@ namespace Zealot.Repository
         public static int DreamHouseTotalFavourability = 0;
         public static List<int> mGuildDreamhouseUsedRewards;
         public static Dictionary<int, GuildQuestJson> mQuestlist;
-        private static int maxprob = 0;
+        public static int maxprob = 0;
 
         static GuildRepo()
 		{

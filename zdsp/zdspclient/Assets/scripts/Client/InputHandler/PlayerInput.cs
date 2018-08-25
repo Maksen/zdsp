@@ -15,8 +15,9 @@ public class PlayerInput : MonoBehaviour
     private ZDSPJoystick joystick;
     private Vector3 moveDirection;
     private Vector3 moveStartPos;
-    const float bufferDist = 4;
-    const float sqrBufferDist = (bufferDist - 1) * (bufferDist - 1);
+    private const float bufferDist = 4;
+    private const float sqrBufferDist = (bufferDist - 1) * (bufferDist - 1);
+    private const float relevanceBoundaryRadiusSq = 25.0f * 25.0f;
 
     //private HUD_Skills SkillButtons;
 
@@ -235,20 +236,16 @@ public class PlayerInput : MonoBehaviour
             }
         }
 
-        //CheckSelectedEntityRelevance();
+        CheckSelectedEntityRelevance();
     }
 
     private void CheckSelectedEntityRelevance()
     {
         Entity entity = GameInfo.gSelectedEntity;
-        if (entity == null)
+        if (entity == null || !entity.IsNPC())  // only check for StaticNPCs as others will be removed by server when not relevent
             return;
 
-        PlayerGhost localplayer = GameInfo.gLocalPlayer;
-        if (localplayer == null)
-            return;
-
-        if ((entity.Position - localplayer.Position).sqrMagnitude > 196 + entity.Radius * entity.Radius) //14m + entity radius
+        if ((entity.Position - mPlayerGhost.Position).sqrMagnitude > relevanceBoundaryRadiusSq)
             GameInfo.gCombat.OnSelectEntity(null);
     }
 

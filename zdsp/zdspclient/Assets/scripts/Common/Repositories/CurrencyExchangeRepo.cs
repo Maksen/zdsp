@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Kopio.JsonContracts;
-using Zealot.Common;
-using Zealot.Repository;
 
 namespace Zealot.Repository
 {
     public static class CurrencyExchangeRepo
     {
         //dic_currencyExchange[numOfTime] = new List(){reqGold,rewardMoney};
-        public static Dictionary<int, List<int>> dic_currencyExchange { get; private set; }
+        public static Dictionary<int, List<int>> dic_currencyExchange;
+
+        static CurrencyExchangeRepo()
+        {
+            dic_currencyExchange = new Dictionary<int, List<int>>();
+        }
 
         public static void Init(GameDBRepo gameData)
         {
-            dic_currencyExchange = new Dictionary<int, List<int>>();
             foreach (var entry in gameData.CurrencyExchange)
             {
                 if (dic_currencyExchange.ContainsKey(entry.Value.exchangetimes) == false)

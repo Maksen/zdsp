@@ -1,12 +1,12 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
 
 namespace Zealot.Repository
 {
     public class RareItemNotificationRepo
     {
-        static List<int> _data = new List<int>();
+        public static List<int> _data = new List<int>();
+
         public static void Init(GameDBRepo gameData)
         {
             foreach(var data in gameData.RareItemNotification.Values)

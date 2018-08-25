@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using Kopio.JsonContracts;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Zealot.Common;
 
@@ -340,12 +340,12 @@ namespace Zealot.Repository
     public class QuestExtraRewardsRepo
     {
         // Quest Extra Task
-        private static Dictionary<int, QuestExtraTaskJson> _idTaskMap;
-        private static QETaskDataList _questExtraTaskList;
+        public static Dictionary<int, QuestExtraTaskJson> _idTaskMap;
+        public static QETaskDataList _questExtraTaskList;
 
         // Quest Extra Reward
-        private static Dictionary<int, QuestExtraRewardJson> _idRewardMap;
-        private static QERewardDataList _questExtraRewardList;
+        public static Dictionary<int, QuestExtraRewardJson> _idRewardMap;
+        public static QERewardDataList _questExtraRewardList;
 
         static QuestExtraRewardsRepo()
         {

@@ -161,6 +161,7 @@
     <Compile Include="Entities\Triggers\RandomTrigger.cs" />
     <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
     <Compile Include="GameServer\DestinyClue\DestinyClueController.cs" />
+    <Compile Include="GameServer\EquipmentCraft\EquipmentCraftController.cs" />
     <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
@@ -196,7 +197,7 @@
     <Compile Include="Entities\Realm\RealmControllerArena.cs" />
     <Compile Include="Entities\Realm\RealmControllerBossSlowMotion.cs" />
     <Compile Include="Entities\Realm\RealmControllerDungeonDailySpecial.cs" />
-    <Compile Include="Entities\Realm\RealmControllerDungeonStory.cs" />
+    <Compile Include="Entities\Realm\RealmControllerDungeon.cs" />
     <Compile Include="Entities\Realm\RealmControllerEliteMap.cs" />
     <Compile Include="Entities\Realm\RealmControllerEndlessTower.cs" />
     <Compile Include="Entities\Realm\RealmControllerGuildSMBoss.cs" />
@@ -233,7 +234,6 @@
     <Compile Include="GameServer\GameRules\GuildRules.cs" />
     <Compile Include="GameServer\GameRules\LadderRule.cs" />
     <Compile Include="GameServer\GameRules\NewServerEventRules.cs" />
-    <Compile Include="GameServer\GameRules\PrizeGuaranteeRules.cs" />
     <Compile Include="GameServer\GameRules\QuestExtraRewardsRules.cs" />
     <Compile Include="GameServer\GameRules\RareItemNotificationRules.cs" />
     <Compile Include="GameServer\GameRules\RealmRules.cs" />
@@ -294,7 +294,6 @@
     <Compile Include="GameServer\PathManager\PathManager.cs" />
     <Compile Include="GameServer\QAClientPeer.cs" />
     <Compile Include="GameServer\QuestExtraRewards\QuestExtraRewardsController.cs" />
-    <Compile Include="GameServer\RandomBoxReward\RandomBoxRewardManager.cs" />
     <Compile Include="GameServer\SystemSwitch\SystemSwitch.cs" />
     <Compile Include="GameServer\TickerTape\TickerTapeSystem.cs" />
     <Compile Include="GameServer\TongbaoCostBuff.cs" />

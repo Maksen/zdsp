@@ -296,7 +296,6 @@
       <item key="Stats_HealingIncome"         value="81"/>
       <item key="Stats_HealingIncome_Debuff"  value="82"/>
       
-
       <item key="Rejuvenate_HealthPotion"   value="100"/>
       <item key="Rejuvenate_ManaPotion"     value="101"/>
       <item key="Rejuvenate_Healing"        value="102"/>
@@ -490,14 +489,12 @@
     </enum>
 
     <enum name="DNAType">
-      <item key="Locked" value="0"/>
-      <item key="Head" value="1"/>
-      <item key="Shoulders" value="2"/>
-      <item key="Chest" value="3"/>
-      <item key="Arms" value="4"/>
-      <item key="Body" value="5"/>
-      <item key="Legs" value="6"/>
-      <item key="Feet" value="7"/>
+      <item key="InheritedDNA" value="1"/>
+      <item key="StructuralDNA" value="2"/>
+      <item key="ControlDNA" value="3"/>
+      <item key="SplitDNA" value="4"/>
+      <item key="SensorDNA" value="5"/>
+      <item key="StackableDNA" value="6"/>
     </enum>
 
     <enum name="RelicType">
@@ -607,6 +604,8 @@
       <item key="Realm" value="7"/>
       <item key="GoTopUp" value="8"/>
       <item key="Achievement" value="9"/>
+      <item key="Hero" value="10"/>
+      <item key="Hero_Explore" value="11"/>
     </enum>    
 
     <enum name="ItemMallCategory">
@@ -667,6 +666,27 @@
       <item key="Normal" value="0"/>
       <item key="Random" value="1"/>
       <item key="Barter" value="2"/>
+    </enum>
+	
+	  <enum name="NPCFunctionType">
+		  <item key="Shop" value="0"/>
+		  <item key="Teleport" value="1"/>
+		  <item key="ClassChange" value="2"/>
+		  <item key="Storage" value="3"/>
+		  <item key="Crafting" value="4"/>
+		  <item key="StatsReset" value="5"/>
+		  <item key="SkillReset" value="6"/>
+		  <item key="PlasticSurgery" value="7"/>
+		  <item key="Salon" value="8"/>
+		  <item key="HotSpring" value="9"/>
+		  <item key="TrainingGround" value="10"/>
+		  <item key="CashShopGamble" value="11"/>
+	  </enum>
+    
+    <enum name="StaticNPCInteractType">
+      <item key="Talk" value="0"/>
+      <item key="Area" value="1"/>
+      <item key="Target" value="2"/>
     </enum>
 
     <enum name="PositionType">
@@ -770,13 +790,7 @@
       <item key="ObjectiveGroup" value="2"/>
       <item key="SubmitObjective" value="3"/>
     </enum>
-  
-    <enum name="StaticNPCInteractType">
-      <item key="Talk" value="0"/>
-      <item key="Area" value="1"/>
-      <item key="Target" value="2"/>
-    </enum>
-  
+
     <enum name="AttackStyle">
       <item key="Slice" value="0"/>
       <item key="Pierce" value="1"/>
@@ -806,8 +820,7 @@
       <item key="None" value="3"/>
       <item key="Quest" value="0"/>
       <item key="Achivement" value="1"/>
-      <item key="Item" value="2"/>
-      
+      <item key="Item" value="2"/>     
     </enum>
 
     <enum name="ClueCategory">

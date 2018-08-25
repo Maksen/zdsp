@@ -1,32 +1,11 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Zealot.Common;
 using Zealot.Entities;
 using Zealot.Repository;
-
-public struct IconGameObjectPair
-{
-    public GameObject icon;
-    public GameObject entity;
-
-    public IconGameObjectPair(GameObject _icon = null, GameObject _entity = null)
-    {
-        icon = _icon;
-        entity = _entity;
-    }
-
-    public Vector3 IconPos
-    {
-        set { icon.transform.localPosition = value; }
-    }
-    public Vector3 EntityPos
-    {
-        get { return entity.transform.position; }
-    }
-};
 
 public class HUD_Map : MonoBehaviour
 {
@@ -41,9 +20,15 @@ public class HUD_Map : MonoBehaviour
     [SerializeField]
     ToggleGroup mTGExpander;
     [SerializeField]
+    Toggle mNPCExpanderTg;
+    [SerializeField]
+    Toggle mMonsterExpanderTg;
+    [SerializeField]
     Button mBtnWorldMap;
     [SerializeField]
     Button mBtnClose;
+    [SerializeField]
+    MapPointerEvent mMapPosPicker;
     #endregion
     #region +++ Parent Game Objects +++
     [Header("Parents")]
@@ -101,16 +86,19 @@ public class HUD_Map : MonoBehaviour
     Sprite mIconQuestComplete;
     #endregion
 
+    MapInfoJson mMapInfo = null;
+    List<Image> mPlayerIconLst = new List<Image>();
+    List<Image> mPartyIconLst = new List<Image>();
+    List<Image> mMonsterIconLst = new List<Image>();
+    List<Image> mMiniBossIconLst = new List<Image>();
+    List<Image> mBossIconLst = new List<Image>();
+    List<Image> mQuestNPCIconLst = new List<Image>();
+    List<Image> mShopNPCIconLst = new List<Image>();
+    string mLevelName;
+
     Coroutine mMapCloseCoroutine = null;
     Coroutine mMapUpdateCoroutine = null;
     const float MAP_UPDATEPOS_INTERVAL = 1f;
-
-    Vector2 mWorld2MapRatio = new Vector2();
-
-    List<IconGameObjectPair> mPlayerPairlst = new List<IconGameObjectPair>();
-    List<IconGameObjectPair> mPartyMemPairlst = new List<IconGameObjectPair>();
-    List<IconGameObjectPair> mMonPairlst = new List<IconGameObjectPair>();
-    List<IconGameObjectPair> mBossPairlst = new List<IconGameObjectPair>();
 
     private void Awake()
     {
@@ -119,7 +107,7 @@ public class HUD_Map : MonoBehaviour
     private void OnEnable()
     {
         //Load map if map changed
-        if (string.Compare(mTxtMapName.text, ClientUtils.GetCurrentLevelName()) != 0)
+        if (string.Compare(mLevelName, ClientUtils.GetCurrentLevelName()) != 0)
         {
             if (!LoadMap())
                 return;
@@ -139,18 +127,21 @@ public class HUD_Map : MonoBehaviour
 
     private bool LoadMap()
     {
-        //Set basic data
-        mTxtMapName.text = ClientUtils.GetCurrentLevelName();
-        mTxtChannelName.text = "Test Channel #n"; //Waiting for channel to be implemented
-        mImgMap.sprite = LoadMapSprite();
-
         //Retrieve all info about the level
-        LevelInfo lvinfo = LevelReader.GetLevel(mTxtMapName.text);
+        mLevelName = ClientUtils.GetCurrentLevelName();
+        LevelJson curLvJson = LevelRepo.GetInfoByName(ClientUtils.GetCurrentLevelName());
+        LevelInfo lvinfo = LevelReader.GetLevel(mLevelName);
         if (lvinfo == null)
+        {
+            Debug.LogError("HUD_Map.LoadMap: Walaoeh! LevelReader.GetLevel return null!");
             return false;
+        }
 
-        //Get map scale
-        LoadMapScale(lvinfo);
+        //Set basic data
+        mTxtMapName.text = curLvJson.localizedname;
+        mTxtChannelName.text = "Test Channel #n"; //Waiting for channel to be implemented
+        mImgMap.sprite = HUD_MapController.mMap;
+        mMapPosPicker.OnDown += OnMapClick;
 
         //Create all expander
         CleanAllExpander();
@@ -158,247 +149,74 @@ public class HUD_Map : MonoBehaviour
 
         //delete and create all map icon
         CleanAllMapIcons();
-        LoadStaticMapIcon(lvinfo);
+        LoadStaticMapIcon();
         LoadMapIcon();
-
-        return true;
-    }
-    private bool LoadMapScale(LevelInfo lvinfo)
-    {
-        //Dictionary<int, ServerEntityJson> mapJsonDic;
-        //lvinfo.mEntities.TryGetValue("MapInfoJson", out mapJsonDic);
-        //if (mapJsonDic == null || mapJsonDic.Count == 0 || mapJsonDic.Count > 1)
-        //{
-        //    Debug.LogError("HUD_Map.LoadMap: Walao, Cannot find MapInfoJson in level info or too many MapInfoJson in level");
-        //    return false;
-        //}
-        //foreach (ServerEntityJson data in mapJsonDic.Values)
-        //{
-        //    //Set the map info
-        //    //Each level should have only 1 mapinfo
-        //    mMapInfo = data as MapInfoJson;
-        //    break;
-        //}
-
-        //Texture length and width
-        //Vector2 mapSpriteDim = new Vector2(mImgMap.sprite.texture.width, mImgMap.sprite.texture.height);
-        //Map level's length and width
-        Vector2 worldMapDim = new Vector2(1f, 1f);
-        //Get size of map viewport
-        RectTransform uimapRT = mImgMap.GetComponent<RectTransform>();
-        float uiMapSizeX = uimapRT.sizeDelta.x;
-        float uiMapSizeY = uimapRT.sizeDelta.y;
-
-        //Set scale
-        mWorld2MapRatio.x = uiMapSizeX / worldMapDim.x;
-        mWorld2MapRatio.y = uiMapSizeY / worldMapDim.y;
 
         return true;
     }
     private void LoadMapIcon()
     {
-        if (GameInfo.gLocalPlayer != null)
+        for (int i = 0; i < HUD_MapController.mPlayerPairLst.Count; ++i)
         {
-            Vector3 pos = ScalePos_WorldToMap(GameInfo.gLocalPlayer.Position);
-            GameObject obj = Instantiate(mMapIconPrefab, pos, Quaternion.identity);
-            obj.transform.SetParent(mPlayerGO.transform, false);
-            //TO-DO: Set Rotation
-            //obj.transform.localRotation = GameInfo.gLocalPlayer.AnimObj.transform.localRotation;
-
-            mPlayerPairlst.Add(new IconGameObjectPair(obj, GameInfo.gLocalPlayer.AnimObj));
-        }
-
-        //Retrieve all party member name
-        List<string> nameLst = new List<string>();
-        if (GameInfo.gLocalPlayer.IsInParty())
-        {
-            Dictionary<string, PartyMember> pmLst = GameInfo.gLocalPlayer.PartyStats.GetPartyMemberList();
-            foreach (PartyMember mem in pmLst.Values)
+            if (i >= mPlayerIconLst.Count)
             {
-                if (mem.IsHero())
-                    continue;
-
-                nameLst.Add(mem.GetName());
+                Image icon = CreateIcon();
+                SetIcon(IconType.PLAYER, icon);
+                mPlayerIconLst.Add(icon);
             }
+
+            SetIconPos(mPlayerIconLst[i], HUD_MapController.mPlayerPairLst[i].iconPos);
         }
-
-        //Retrieve net entities position
-        List<GameObject> partyMemPosLst = new List<GameObject>();
-        List<GameObject> monPosLst = new List<GameObject>();
-        List<GameObject> minibossPosLst = new List<GameObject>();
-        List<GameObject> bossPosLst = new List<GameObject>();
-        GameInfo.gCombat.mEntitySystem.GetRadarVisibleEntities3(nameLst, partyMemPosLst, monPosLst, minibossPosLst, bossPosLst);
-
-        //Monster
-        //Miniboss + boss
-        Vector3 mappos = Vector3.zero;
-        for (int i = 0; i < monPosLst.Count; ++i)
+        for (int i = 0; i < HUD_MapController.mPartyMemPairLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(monPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mMonsterGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconMonster;
-            obj.SetActive(false);
+            if (i >= mPartyIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.PARTY, icon);
+                mPartyIconLst.Add(icon);
+            }
 
-            mMonPairlst.Add(new IconGameObjectPair(obj, monPosLst[i]));
+            SetIconPos(mPartyIconLst[i], HUD_MapController.mPartyMemPairLst[i].iconPos);
         }
-        for (int i = 0; i < minibossPosLst.Count; ++i)
+        for (int i = 0; i < HUD_MapController.mMonPairLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(minibossPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mMiniBossGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconMiniBoss;
-            obj.SetActive(false);
+            if (i >= mMonsterIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.MONSTER, icon);
+                mMonsterIconLst.Add(icon);
+            }
 
-            mBossPairlst.Add(new IconGameObjectPair(obj, minibossPosLst[i]));
+            SetIconPos(mMonsterIconLst[i], HUD_MapController.mMonPairLst[i].iconPos);
         }
-        for (int i = 0; i < bossPosLst.Count; ++i)
+        for (int i = 0; i < HUD_MapController.mBossPairLst.Count; ++i)
         {
-            mappos = ScalePos_WorldToMap(bossPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mBossGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconBoss;
-            obj.SetActive(false);
+            if (i >= mBossIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.BOSS, icon);
+                mBossIconLst.Add(icon);
+            }
 
-            mBossPairlst.Add(new IconGameObjectPair(obj, bossPosLst[i]));
-        }
-
-        //Party
-        for (int i = 0; i < partyMemPosLst.Count; ++i)
-        {
-            mappos = ScalePos_WorldToMap(partyMemPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mPartyGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconParty;
-
-            mPartyMemPairlst.Add(new IconGameObjectPair(obj, partyMemPosLst[i]));
+            SetIconPos(mBossIconLst[i], HUD_MapController.mBossPairLst[i].iconPos);
         }
     }
-    private bool LoadStaticMapIcon(LevelInfo lvinfo)
+    private void LoadStaticMapIcon()
     {
-        if (lvinfo == null)
-            return false;
-
-        //Create all static map icons
-        Dictionary<int, ServerEntityJson> portalEntryDic;
-        Dictionary<int, ServerEntityJson> portalExitDic;
-        Dictionary<int, ServerEntityJson> npcDic;
-        if (lvinfo.mEntities.TryGetValue("PortalEntryJson", out portalEntryDic))
+        //Portal
+        for (int i = 0; i < HUD_MapController.mPortalPosLst.Count; ++i)
         {
-            foreach (PortalEntryJson porta in portalEntryDic.Values)
-            {
-                Vector3 mappos = ScalePos_WorldToMap(porta.position);
-                GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-                obj.transform.SetParent(mTeleportGO.transform, false);
-
-            }
+            Image icon = CreateIcon();
+            SetIcon(IconType.TELEPORT, icon);
+            SetIconPos(icon, HUD_MapController.mPortalPosLst[i]);
         }
-        if (lvinfo.mEntities.TryGetValue("PortalExitJson", out portalExitDic))
+        //Revive
+        for (int i = 0; i < HUD_MapController.mRevivePosLst.Count; ++i)
         {
-            foreach (PortalExitJson porta in portalExitDic.Values)
-            {
-                Vector3 mappos = ScalePos_WorldToMap(porta.position);
-                GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-                obj.transform.SetParent(mTeleportGO.transform, false);
-            }
+            Image icon = CreateIcon();
+            SetIcon(IconType.REVIVE, icon);
+            SetIconPos(icon, HUD_MapController.mRevivePosLst[i]);
         }
-        //QuestNPC + ShopNPC goes here
-        if (lvinfo.mEntities.TryGetValue("QuestNPCSpawnerDescJson", out npcDic))
-        {
-            foreach (QuestNPCSpawnerDescJson qnpc in npcDic.Values)
-            {
-                //skip if not selected to show in map
-                if (!qnpc.ShowInMap)
-                    continue;
-
-                //Determine if NPC is a shop NPC and a quest NPC
-                //Determine if NPC is a shop NPC via StaticNPCJson's npcFunction variable
-                //Determine if NPC is a quest NPC via StaticClientNPCAlwaysShow.ActiveQuest
-                Kopio.JsonContracts.StaticNPCJson npcJson = StaticNPCRepo.GetStaticNPCByName(qnpc.archetype);
-                Zealot.Client.Entities.StaticClientNPCAlwaysShow npc = GameInfo.gCombat.mEntitySystem.GetStaticClientNPC(qnpc.archetype);
-                if (npc == null)
-                    Debug.LogError("HUD_Map.LoadStaticMapIcon: Walaoeh, cannot find npc from archetype");
-                int activeQuest = (npc != null) ? npc.ActiveQuest : -1;
-                //Do not create icon if it doesnt have a quest nor a shop
-                if (npcJson.npcfunction.Length == 0 && activeQuest < 0)
-                    continue;
-
-                //Create icon
-                Vector3 mappos = ScalePos_WorldToMap(qnpc.position);
-                GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-                Image img = obj.GetComponent<Image>();
-                obj.SetActive(false);   //NPC are hidden on start
-
-                //Set icon
-                if (activeQuest != -1)
-                {
-                    obj.transform.SetParent(mQuestNPCGO.transform, false);
-                    if (GameInfo.gLocalPlayer.QuestController.IsQuestAvailable(activeQuest))
-                        img.sprite = mIconQuest;
-                    else if (GameInfo.gLocalPlayer.QuestController.IsQuestCanSubmit(activeQuest))
-                        img.sprite = mIconQuestComplete;
-                }
-                else
-                {
-                    obj.transform.SetParent(mShopNPCGO.transform, false);
-                    string[] allFuncStr = npcJson.npcfunction.Split(';');
-                    foreach (string funcStr in allFuncStr)
-                    {
-                        //Until NPC function has an enum
-                        switch (funcStr[0])
-                        {
-                            //Shop
-                            case '1':
-                                img.sprite = mIconShop;
-                                break;
-                            //Teleport
-                            case '2':
-                                img.sprite = mIconTeleport;
-                                break;
-                            //Job change
-                            case '3':
-                                //img.sprite = ;
-                                break;
-                            //Storage
-                            case '4':
-                                //img.sprite = ;
-                                break;
-                            //Special item service
-                            case '5':
-                                //img.sprite = ;
-                                break;
-                        }
-                    }
-                }
-            }//end for-loop
-        }//end NPC
-
-        //ReviveSpot
-        Dictionary<int, ServerEntityJson> reviveDic;
-        if (lvinfo.mEntities.TryGetValue("RealmControllerWorldJson", out reviveDic))
-        {
-            //TO-DO: Check for correct realm if map is reused
-            foreach (RealmControllerWorldJson rcw in reviveDic.Values)
-            {
-                if (!rcw.ShowInMap)
-                    continue;
-
-                foreach (Vector3 pos in rcw.spawnPos)
-                {
-                    Vector3 mappos = ScalePos_WorldToMap(pos);
-                    GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-                    obj.transform.SetParent(mReviveGO.transform, false);
-                    Image img = obj.GetComponent<Image>();
-                    img.sprite = mIconRevive;
-                }
-            }
-        }
-
-        return true;
     }
     private void LoadMapExpander(LevelInfo lvinfo)
     {
@@ -407,12 +225,12 @@ public class HUD_Map : MonoBehaviour
 
         //NPC
         Dictionary<int, ServerEntityJson> npcDic;
-        if (lvinfo.mEntities.TryGetValue("QuestNPCSpawnerDescJson", out npcDic))
+        if (lvinfo.mEntities.TryGetValue("StaticClientNPCSpawnerJson", out npcDic))
         {
-            foreach (QuestNPCSpawnerDescJson qnpc in npcDic.Values)
+            foreach (StaticClientNPCSpawnerJson snpc in npcDic.Values)
             {
                 //Check if archetype is valid
-                Kopio.JsonContracts.NPCJson npcJson = NPCRepo.GetArchetypeByName(qnpc.archetype);
+                StaticNPCJson npcJson = StaticNPCRepo.GetNPCByArchetype(snpc.archetype);
                 if (npcJson == null)
                     continue;
 
@@ -427,6 +245,11 @@ public class HUD_Map : MonoBehaviour
                     continue;
                 }
                 tg.group = this.mTGExpander;
+                tg.onValueChanged.AddListener((toggleOn) =>
+                {
+                    if (toggleOn)
+                        OnMapExpanderClick(snpc.position);
+                });
 
                 //Find the text component in the children, there should be only 1
                 Text txt = obj.GetComponentInChildren<Text>();
@@ -447,7 +270,7 @@ public class HUD_Map : MonoBehaviour
             foreach (MonsterSpawnerJson ms in monDic.Values)
             {
                 //Check if monster archetype is valid
-                Kopio.JsonContracts.CombatNPCJson monJson = NPCRepo.GetArchetypeByName(ms.archetype);
+                CombatNPCJson monJson = CombatNPCRepo.GetNPCByArchetype(ms.archetype);
                 if (monJson == null)
                     continue;
 
@@ -462,6 +285,11 @@ public class HUD_Map : MonoBehaviour
                     continue;
                 }
                 tg.group = this.mTGExpander;
+                tg.onValueChanged.AddListener((toggleOn)=>
+                {
+                    if (toggleOn)
+                        OnMapExpanderClick(ms.position);
+                });
 
                 //Find the text component in the children, there should be only 1
                 Text txt = obj.GetComponentInChildren<Text>();
@@ -476,6 +304,7 @@ public class HUD_Map : MonoBehaviour
         }
     }
 
+    #region Button Toggle function
     public void OnClick_Close()
     {
         if (mMapCloseCoroutine == null)
@@ -503,16 +332,91 @@ public class HUD_Map : MonoBehaviour
             child.gameObject.SetActive(isON);
         }
     }
+    #endregion
 
-    private Vector3 ScalePos_WorldToMap(Vector3 worldPos)
+    #region Helper function
+    private Image CreateIcon()
     {
-        Vector3 mappos = Vector3.zero;
+        GameObject obj = Instantiate(mMapIconPrefab, Vector3.zero, Quaternion.identity);
+        Image img = obj.GetComponent<Image>();
 
-        mappos.x = worldPos.x * mWorld2MapRatio.x;
-        mappos.y = worldPos.y * mWorld2MapRatio.y;
-        mappos.z = 0f;
+        return img;
+    }
+    private void SetIcon(IconType type, Image img)
+    {
+        switch (type)
+        {
+            case IconType.PLAYER:
+                img.sprite = mIconPlayer;
+                img.gameObject.transform.SetParent(mPlayerGO.transform, false);
+                break;
+            case IconType.MONSTER:
+                img.sprite = mIconMonster;
+                img.gameObject.transform.SetParent(mMonsterGO.transform, false);
+                break;
+            case IconType.PARTY:
+                img.sprite = mIconParty;
+                img.gameObject.transform.SetParent(mPartyGO.transform, false);
+                break;
+            case IconType.MINIBOSS:
+                img.sprite = mIconMiniBoss;
+                img.gameObject.transform.SetParent(mMiniBossGO.transform, false);
+                break;
+            case IconType.BOSS:
+                img.sprite = mIconBoss;
+                img.gameObject.transform.SetParent(mBossGO.transform, false);
+                break;
+            case IconType.TELEPORT:
+                img.sprite = mIconTeleport;
+                img.gameObject.transform.SetParent(mTeleportGO.transform, false);
+                break;
+            case IconType.HAS_QUEST:
+                img.sprite = mIconQuest;
+                img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
+                break;
+            case IconType.QUEST_COMPLETED:
+                img.sprite = mIconQuestComplete;
+                img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
+                break;
+            case IconType.LOCKED_QUEST:
+                img.sprite = null;
+                img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
+                img.gameObject.SetActive(false);
+                break;
+            case IconType.SHOP:
+                //img.sprite = mSpr
+                img.gameObject.transform.SetParent(mShopNPCGO.transform, false);
+                break;
+            case IconType.REVIVE:
+                img.sprite = mIconRevive;
+                img.gameObject.transform.SetParent(mReviveGO.transform, false);
+                break;
+            case IconType.EMPTY:
+                img.sprite = null;
+                img.gameObject.SetActive(false);
+                return;
+        }
 
-        return mappos;
+        img.gameObject.SetActive(true);
+    }
+    private void SetIconPos(Image img, Vector3 pos)
+    {
+        img.gameObject.transform.localPosition = pos;
+    }
+    private void GetPartyMemberNames(List<string> nameLst)
+    {
+        nameLst.Clear();
+        if (GameInfo.gLocalPlayer.IsInParty())
+        {
+            Dictionary<string, PartyMember> pmLst = GameInfo.gLocalPlayer.PartyStats.GetPartyMemberList();
+            foreach (PartyMember mem in pmLst.Values)
+            {
+                if (mem.IsHero())
+                    continue;
+
+                nameLst.Add(mem.GetName());
+            }
+        }
     }
     private void CleanAllMapIcons()
     {
@@ -552,6 +456,12 @@ public class HUD_Map : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        mPlayerIconLst.Clear();
+        mPartyIconLst.Clear();
+        mMonsterIconLst.Clear();
+        mMiniBossIconLst.Clear();
+        mBossIconLst.Clear();
     }
     private void CleanAllExpander()
     {
@@ -564,42 +474,15 @@ public class HUD_Map : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
-    private Sprite LoadMapSprite()
-    {
-        Kopio.JsonContracts.LevelJson lvJson = LevelRepo.GetInfoByName(mTxtMapName.text);
-        if (lvJson == null)
-        {
-            Debug.LogError("HUD_Map.LoadMap: Walao, Cannot find LevelJson in level Repo");
-            return null;
-        }
-        Sprite mapSprite = ClientUtils.LoadIcon(lvJson.maptexture);
+    #endregion
 
-        return ((mapSprite != null) ? mapSprite : mImgMap.sprite);
-    }
-    private void GetPartyMemberNames(List<string> nameLst)
-    {
-        nameLst.Clear();
-        if (GameInfo.gLocalPlayer.IsInParty())
-        {
-            Dictionary<string, PartyMember> pmLst = GameInfo.gLocalPlayer.PartyStats.GetPartyMemberList();
-            foreach (PartyMember mem in pmLst.Values)
-            {
-                if (mem.IsHero())
-                    continue;
-
-                nameLst.Add(mem.GetName());
-            }
-        }
-    }
-    
-
+    #region Coroutine
     IEnumerator MapIconPosUpdateCoroutine()
     {
         //Ensure player, monster, miniboss, boss, party members icon position are up-to-date
         while (true)
         {
-            UpdateAddMapIcon();
-            UpdateRemoveMapIcon();
+            UpdateAddRemoveMapIcon();
 
             //Update position every 1 sec
             yield return new WaitForSeconds(MAP_UPDATEPOS_INTERVAL);
@@ -611,136 +494,150 @@ public class HUD_Map : MonoBehaviour
         this.gameObject.SetActive(false);
         mMapCloseCoroutine = null;
     }
-    private void UpdateAddMapIcon()
+    private void UpdateAddRemoveMapIcon()
     {
-        List<string> nameLst = new List<string>();
-        List<GameObject> partyMemPosLst = new List<GameObject>();
-        List<GameObject> monPosLst = new List<GameObject>();
-        List<GameObject> minibossPosLst = new List<GameObject>();
-        List<GameObject> bossPosLst = new List<GameObject>();
-
-        GetPartyMemberNames(nameLst);
-        GameInfo.gCombat.mEntitySystem.GetRadarVisibleEntities3(nameLst, partyMemPosLst, monPosLst, minibossPosLst, bossPosLst);
-
-        //Monster
-        //Miniboss + boss
-        Vector3 mappos = Vector3.zero;
-        for (int i = 0; i < monPosLst.Count; ++i)
+        //Player
+        for (int i = 0; i < HUD_MapController.mPlayerPairLst.Count; ++i)
         {
-            if (mMonPairlst.Exists(pair => pair.entity == monPosLst[i]))
-                continue;
+            if (i >= mPlayerIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.PLAYER, icon);
+                mPlayerIconLst.Add(icon);
+            }
 
-            mappos = ScalePos_WorldToMap(monPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mMonsterGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconMonster;
-
-            mMonPairlst.Add(new IconGameObjectPair(obj, monPosLst[i]));
+            SetIconPos(mPlayerIconLst[i], HUD_MapController.mPlayerPairLst[i].iconPos);
+            mPlayerIconLst[i].gameObject.SetActive(true);
         }
-        for (int i = 0; i < minibossPosLst.Count; ++i)
+        for (int i = HUD_MapController.mPlayerPairLst.Count; i < mPlayerIconLst.Count; ++i)
         {
-            if (mBossPairlst.Exists(pair => pair.entity == minibossPosLst[i]))
-                continue;
-
-            mappos = ScalePos_WorldToMap(minibossPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mMiniBossGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconMiniBoss;
-
-            mBossPairlst.Add(new IconGameObjectPair(obj, minibossPosLst[i]));
+            mPlayerIconLst[i].gameObject.SetActive(false);
         }
-        for (int i = 0; i < bossPosLst.Count; ++i)
-        {
-            if (mBossPairlst.Exists(pair => pair.entity == bossPosLst[i]))
-                continue;
-
-            mappos = ScalePos_WorldToMap(bossPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mBossGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconBoss;
-
-            mBossPairlst.Add(new IconGameObjectPair(obj, bossPosLst[i]));
-        }
-
         //Party
-        for (int i = 0; i < partyMemPosLst.Count; ++i)
+        for (int i = 0; i < HUD_MapController.mPartyMemPairLst.Count; ++i)
         {
-            if (mPartyMemPairlst.Exists(pair => pair.entity == partyMemPosLst[i]))
-                continue;
+            if (i >= mPartyIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.PARTY, icon);
+                mPartyIconLst.Add(icon);
+            }
 
-            mappos = ScalePos_WorldToMap(partyMemPosLst[i].transform.position);
-            GameObject obj = Instantiate(mMapIconPrefab, mappos, Quaternion.identity);
-            obj.transform.SetParent(mPartyGO.transform, false);
-            Image img = obj.GetComponent<Image>();
-            img.sprite = mIconParty;
+            SetIconPos(mPartyIconLst[i], HUD_MapController.mPartyMemPairLst[i].iconPos);
+            mPartyIconLst[i].gameObject.SetActive(true);
+        }
+        for (int i = HUD_MapController.mPartyMemPairLst.Count; i < mPartyIconLst.Count; ++i)
+        {
+            mPartyIconLst[i].gameObject.SetActive(false);
+        }
+        //Monster
+        for (int i = 0; i < HUD_MapController.mMonPairLst.Count; ++i)
+        {
+            if (i >= mMonsterIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.MONSTER, icon);
+                mMonsterIconLst.Add(icon);
+            }
 
-            mPartyMemPairlst.Add(new IconGameObjectPair(obj, partyMemPosLst[i]));
+            SetIconPos(mMonsterIconLst[i], HUD_MapController.mMonPairLst[i].iconPos);
+            mMonsterIconLst[i].gameObject.SetActive(mMonsterExpanderTg.isOn);
+        }
+        for (int i = HUD_MapController.mMonPairLst.Count; i < mMonsterIconLst.Count; ++i)
+        {
+            mMonsterIconLst[i].gameObject.SetActive(false);
+        }
+        //Miniboss
+        for (int i = 0; i < HUD_MapController.mMiniBossPairLst.Count; ++i)
+        {
+            if (i >= mMiniBossIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.MINIBOSS, icon);
+                mMiniBossIconLst.Add(icon);
+            }
+
+            SetIconPos(mMiniBossIconLst[i], HUD_MapController.mMiniBossPairLst[i].iconPos);
+            mMiniBossIconLst[i].gameObject.SetActive(true);
+        }
+        for (int i = HUD_MapController.mMiniBossPairLst.Count; i < mMiniBossIconLst.Count; ++i)
+        {
+            mMiniBossIconLst[i].gameObject.SetActive(false);
+        }
+        //Boss
+        for (int i = 0; i < HUD_MapController.mBossPairLst.Count; ++i)
+        {
+            if (i >= mBossIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.BOSS, icon);
+                mBossIconLst.Add(icon);
+            }
+
+            SetIconPos(mBossIconLst[i], HUD_MapController.mBossPairLst[i].iconPos);
+            mBossIconLst[i].gameObject.SetActive(true);
+        }
+        for (int i = HUD_MapController.mBossPairLst.Count; i < mBossIconLst.Count; ++i)
+        {
+            mBossIconLst[i].gameObject.SetActive(false);
+        }
+        //QuestNPC
+        for (int i = 0; i < HUD_MapController.mQuestNPCPosLst.Count; ++i)
+        {
+            if (i >= mQuestNPCIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
+                    SetIcon(IconType.HAS_QUEST, icon);
+                else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
+                    SetIcon(IconType.QUEST_COMPLETED, icon);
+                else if (HUD_MapController.mQuestNPCPosLst[i].hasQuest())
+                    SetIcon(IconType.LOCKED_QUEST, icon);
+                mQuestNPCIconLst.Add(icon);
+            }
+
+            SetIconPos(mQuestNPCIconLst[i], HUD_MapController.mQuestNPCPosLst[i].iconPos);
+            mQuestNPCIconLst[i].gameObject.SetActive(mNPCExpanderTg.isOn);
+        }
+        for (int i = HUD_MapController.mQuestNPCPosLst.Count; i < mQuestNPCIconLst.Count; ++i)
+        {
+            mQuestNPCIconLst[i].gameObject.SetActive(false);
+        }
+        //ShopNPC
+        for (int i = 0; i < HUD_MapController.mShopNPCPosLst.Count; ++i)
+        {
+            if (i >= mShopNPCIconLst.Count)
+            {
+                Image icon = CreateIcon();
+                SetIcon(IconType.SHOP, icon);
+                mShopNPCIconLst.Add(icon);
+            }
+
+            SetIconPos(mShopNPCIconLst[i], HUD_MapController.mShopNPCPosLst[i].iconPos);
+            mShopNPCIconLst[i].gameObject.SetActive(mNPCExpanderTg.isOn);
+        }
+        for (int i = HUD_MapController.mShopNPCPosLst.Count; i < mShopNPCIconLst.Count; ++i)
+        {
+            mShopNPCIconLst[i].gameObject.SetActive(false);
         }
     }
-    private void UpdateRemoveMapIcon()
+    #endregion
+
+    public void OnMapClick(Vector2 pos)
     {
-        //Removes player icon if entity is lost
-        for (int i = 0; i < mPlayerPairlst.Count; ++i)
-        {
-            if (mPlayerPairlst[i].entity == null)
-            {
-                Destroy(mPlayerPairlst[i].icon.gameObject);
-                continue;
-            }
-
-            IconGameObjectPair pair = mPlayerPairlst[i];
-            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
-        }
-        mPlayerPairlst.RemoveAll(pair => pair.entity == null);
-
-        //Removes party icon if member leaves party
-        for (int i = 0; i < mPartyMemPairlst.Count; ++i)
-        {
-            if (mPartyMemPairlst[i].entity == null)
-            {
-                Destroy(mPartyMemPairlst[i].icon.gameObject);
-                continue;
-            }
-
-            //Check if party member is still a party member
-
-            IconGameObjectPair pair = mPartyMemPairlst[i];
-            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
-        }
-        mPartyMemPairlst.RemoveAll(pair => pair.entity == null);
-
-        //Removes icon when not visible
-        for (int i = 0; i < mMonPairlst.Count; ++i)
-        {
-            if (mMonPairlst[i].entity == null)
-            {
-                Destroy(mMonPairlst[i].icon.gameObject);
-                continue;
-            }
-
-            IconGameObjectPair pair = mMonPairlst[i];
-            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
-        }
-        mMonPairlst.RemoveAll(pair => pair.entity == null);
-
-        //Remove icon when entity is dead and dissolved in level
-        for (int i = 0; i < mBossPairlst.Count; ++i)
-        {
-            if (mBossPairlst[i].entity == null)
-            {
-                Destroy(mBossPairlst[i].icon.gameObject);
-                continue;
-            }
-
-            IconGameObjectPair pair = mBossPairlst[i];
-            pair.IconPos = ScalePos_WorldToMap(pair.EntityPos);
-        }
-        mBossPairlst.RemoveAll(pair => pair.entity == null);
+        Vector3 mapPos = new Vector3(pos.x, 0f, pos.y);
+        OnMapClick(mapPos);
     }
-
+    public void OnMapClick(Vector3 pos)
+    {
+        //SetIconPos(mPlayerIconLst[0], pos);
+        Vector3 worldPos = HUD_MapController.ScalePos_MapToWorld(pos);
+        GameInfo.gLocalPlayer.PathFindToTarget(worldPos, -1, 0f, false, false, null);
+    }
+    public void OnMapExpanderClick(Vector3 pos)
+    {
+        GameInfo.gLocalPlayer.PathFindToTarget(pos, -1, 0f, false, false, null);
+    }
     /// <summary>
     /// Meant for clicking minimap 2nd time to close map
     /// </summary>
@@ -754,5 +651,23 @@ public class HUD_Map : MonoBehaviour
             //if (mMapCloseCoroutine == null)
             //    StartCoroutine(MapCloseCouroutine());
         }
+    }
+
+    public enum IconType
+    {
+        PLAYER,
+        MONSTER,
+        PARTY,
+        BOSS,
+        MINIBOSS,
+
+        TELEPORT,
+        HAS_QUEST,
+        QUEST_COMPLETED,
+        LOCKED_QUEST,
+        SHOP,
+        REVIVE,
+
+        EMPTY,
     }
 }

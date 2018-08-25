@@ -30,8 +30,6 @@ public class InterestScrollView : FancyScrollView<InterestCellDto, InterestScrol
     public void UpdateSelection(int selectedCellIndex)
     {
         scrollPositionController.ScrollTo(selectedCellIndex, scrollToDuration);
-        //context.SelectedIndex = selectedCellIndex;
-        //UpdateContents();
     }
 
     public void SetSelection(int selectedCellIndex)
@@ -56,5 +54,11 @@ public class InterestScrollView : FancyScrollView<InterestCellDto, InterestScrol
     {
         scrollPositionController.CanDrag = value;
         isActive = value;
+    }
+
+    public void SetAutoSpin(bool value)
+    {
+        scrollPositionController.AutoSpin = value;
+        scrollPositionController.inertia = !value;
     }
 }

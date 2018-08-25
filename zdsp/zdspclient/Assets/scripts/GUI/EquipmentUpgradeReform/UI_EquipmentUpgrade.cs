@@ -1,13 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.Events;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Zealot.Common;
 using Zealot.Client.Entities;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 
 public class UI_EquipmentUpgrade : BaseWindowBehaviour
 {
@@ -498,7 +495,8 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             newEquipObj.transform.SetParent(selectSafeEquipIconParent, false);
             
             GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-            equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectSafeUpgradeEquipment);
+            equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, false, 
+                false, OnClickOpenSelectSafeUpgradeEquipment);
 
             _safeEquipMatIcon = newEquipObj;
         }
@@ -517,7 +515,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             GameIcon_MaterialConsumable matIcon = newMaterialObj.GetComponent<GameIcon_MaterialConsumable>();
             int selectedMatId = _safeMatSel == 0 ? GameConstantRepo.GetConstantInt("safe_gem_general") : GameConstantRepo.GetConstantInt("safe_gem_advanced");
             int matCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedMatId);
-            matIcon.Init(selectedMatId, matCount, false, false, OnClickOpenSelectSafeUpgradeEquipment);
+            matIcon.Init(selectedMatId, matCount, false, false, false, OnClickOpenSelectSafeUpgradeEquipment);
 
             _safeEquipMatIcon = newMaterialObj;
         }
@@ -790,7 +788,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         newEquipObj.transform.SetParent(selectEquipIconParent, false);
 
         GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectUpgradeEquipment);
+        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, false, OnClickOpenSelectUpgradeEquipment);
 
         _selectedEquipmentIcon = newEquipObj;
     }
@@ -806,7 +804,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             newMatObj.transform.SetParent(parent, false);
 
             GameIcon_MaterialConsumable newMatIcon = newMatObj.GetComponent<GameIcon_MaterialConsumable>();
-            newMatIcon.Init(matData.mMat.itemId, matData.mMat.stackCount, false, true);
+            newMatIcon.Init(matData.mMat.itemId, matData.mMat.stackCount, false, false, true);
             GameIconCmpt_SelectCheckmark selectCheckMark = newMatIcon.gameObject.GetComponentInChildren<GameIconCmpt_SelectCheckmark>();
             if (selectCheckMark != null)
             {
@@ -829,7 +827,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         newSafeMatGenIconObj.transform.SetParent(parent, false);
 
         GameIcon_MaterialConsumable safeMatGenIcon = newSafeMatGenIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        safeMatGenIcon.Init(safeMatGenId, safeMatGenCount, false, true);
+        safeMatGenIcon.Init(safeMatGenId, safeMatGenCount, false, false, true);
         GameIconCmpt_SelectCheckmark genIconCheckmark = safeMatGenIcon.GetToggleSelect();
         if (genIconCheckmark != null)
         {
@@ -847,7 +845,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         newSafeMatAdvIconObj.transform.SetParent(parent, false);
 
         GameIcon_MaterialConsumable safeMatAdvIcon = newSafeMatAdvIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        safeMatAdvIcon.Init(safeMatAdvId, safeMatAdvCount, false, true);
+        safeMatAdvIcon.Init(safeMatAdvId, safeMatAdvCount, false, false, true);
         GameIconCmpt_SelectCheckmark advIconCheckmark = safeMatAdvIcon.GetToggleSelect();
         if (advIconCheckmark != null)
         {

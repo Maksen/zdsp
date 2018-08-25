@@ -19,15 +19,16 @@ public class ItemInventoryController
         if (item != null && item.IsNew)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            string color = ItemUtils.GetStrColorByRarity(item.JsonObject.rarity);
-            parameters.Add("item", string.Format("<color={0}>{1}</color>", color, item.JsonObject.localizedname));
-            int increment = 1;
+            ItemBaseJson itemBaseJson = item.JsonObject;
+            string color = ItemUtils.GetStrColorByRarity(itemBaseJson.rarity);
+            parameters.Add("item", string.Format("<color={0}>{1}</color>", color, itemBaseJson.localizedname));
+            int incrementAmt = 1;
             IInventoryItem old_item = itemInvData.Slots[slotIdx];
             if (old_item != null && old_item.ItemID == item.ItemID)
-                increment = item.StackCount - old_item.StackCount;
+                incrementAmt = item.StackCount - old_item.StackCount;
             else
-                increment = item.StackCount;
-            parameters.Add("increment", increment.ToString());
+                incrementAmt = item.StackCount;
+            parameters.Add("increment", incrementAmt.ToString());
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ItemIncrement", parameters), true);
         }
 
@@ -69,6 +70,40 @@ public class ItemInventoryController
                         {
                             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));
                             return false;
+                        }
+                        break;
+                    case ItemType.MercenaryItem:
+                        HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
+                        int heroId;
+                        if (int.TryParse(heroItemJson.heroid, out heroId) && heroId > 0)
+                        {
+                            Hero hero = GameInfo.gLocalPlayer.HeroStats.GetHero(heroId);
+                            if (hero == null)
+                            {
+                                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_HeroNotUnlocked"));
+                                return false;
+                            }
+                            if (heroItemJson.heroitemtype == HeroItemType.Gift && heroItemJson.ischangelike == 0)
+                            {
+                                if (!hero.CanAddTrust())
+                                {
+                                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_MaxTrustLevel"));
+                                    return false;
+                                }
+                            }
+                            else if (heroItemJson.heroitemtype == HeroItemType.HeroSkin && !string.IsNullOrEmpty(heroItemJson.heroskinpath))
+                            {
+                                if (hero.IsModelTierUnlocked(item.ItemID))
+                                {
+                                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_SkinAlreadyUnlocked"));
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_UseItemFailed"));
+                                return false;
+                            }
                         }
                         break;
                 }

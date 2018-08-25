@@ -112,8 +112,8 @@
       <property name="iconpath" type="asset" uitext="UI Icon Path" default="" assettype="sprite"/>
       <property name="difficulty" type="DungeonDifficulty" uitext="Difficulty"/>
       <property name="entrylimit" type="int" uitext="Entry limit" default="3" info="-1 means no limit"/>
-      <property name="lootdisplayitems" type="LootItemGroup" uitext="Loot Display Items" display="remark"/>
-      <property name="lootrewarditems" type="LootItemGroup" uitext="Loot Reward Items" display="remark"/>
+      <property name="lootdisplayids" type="string" uitext="LootLink Display Ids" default="" info="id1;id2"/>
+      <property name="lootrewardids" type="string" uitext="LootLink Reward Ids" default="" info="id1;id2"/>
       <property name="opendate" type="string" uitext="Open Date" info="Usage: 0101 to 1231"/>
       <property name="closedate" type="string" uitext="Close Date" info="Usage: 0101 to 1231"/>
       <property name="opentime" type="string" uitext="Open Time" info="Usage: 0000 to 2359"/>

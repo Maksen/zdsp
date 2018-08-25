@@ -1,12 +1,11 @@
 ﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Zealot.Repository
 {
     public static class OnsenRepo
     {
-        public static List<OnsenJson> m_OnsenData;
+        static List<OnsenJson> m_OnsenData;
 
         static OnsenRepo()
         {

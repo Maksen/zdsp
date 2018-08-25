@@ -57,10 +57,7 @@ public class ReformBagData : MonoBehaviour
                     equipIconObj.transform.SetParent(equipIconParent, false);
 
                     GameIcon_Equip equipIcon = equipIconObj.GetComponent<GameIcon_Equip>();
-                    if(equipIcon != null)
-                    {
-                        equipIcon.Init(matData.itemId, 0, 0, 0, false, false);
-                    }
+                    equipIcon.InitWithoutCallback(matData.itemId, 0, 0, 0);
 
                     _materialList.Add(equipIconObj);
                 }

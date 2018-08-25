@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Kopio.JsonContracts;
 
 /// <summary>
 /// GameDB Repository. This class is shared between server and client
@@ -14,6 +14,7 @@ namespace Zealot.Repository
         public static bool IsLoaded { get { return _loaded; } }
 
         public static BaseItemFactory ItemFactory;
+
         static GameRepo()
         {
         }
@@ -53,16 +54,16 @@ namespace Zealot.Repository
             ProfilerUtils.LogIncrementSize("RealmRepo", ref heapsize);
             JobSectRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("JobSectRepo", ref heapsize);
-            StaticNPCRepo.Init(GameData);
-            ProfilerUtils.LogIncrementSize("StaticNPCRepo", ref heapsize);
             SDGRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("SDGRepo", ref heapsize);
             SideEffectRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("SideEffectRepo", ref heapsize);
             SkillRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("SkillRepo", ref heapsize);
-            NPCRepo.Init(GameData);           
-            ProfilerUtils.LogIncrementSize("NPCRepo", ref heapsize);
+            CombatNPCRepo.Init(GameData);           
+            ProfilerUtils.LogIncrementSize("CombatNPCRepo", ref heapsize);
+            StaticNPCRepo.Init(GameData);
+            ProfilerUtils.LogIncrementSize("StaticNPCRepo", ref heapsize);
             SpecialBossRepo.Init(GameData);
             RealmNPCGroupRepo.Init(GameData);
             NPCSkillsRepo.Init(GameData);
@@ -76,12 +77,13 @@ namespace Zealot.Repository
             HeroRepo.Init(GameData);
             EquipmentModdingRepo.Init(GameData);
             LootRepo.Init(GameData);
-            ProfilerUtils.LogIncrementSize("others", ref heapsize);
             RewardListRepo.Init(GameData);
             DestinyClueRepo.Init(GameData);
 			DestinyClueRepo.Init(GameData);
             PowerUpRepo.Init(GameData);
+            EquipmentCraftRepo.Init(GameData);
             MapRepo.Init(GameData);
+            ProfilerUtils.LogIncrementSize("Other Repos", ref heapsize);
             _loaded = true;
         }
 

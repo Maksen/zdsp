@@ -225,6 +225,7 @@
         InventoryStatsEnd = InventoryStats + 3, // Item Inventory, (total 300 slots)
 
         EquipmentStats, // Equipment Inventory
+        EquipmentCraftStats,
         AvatarStats, // Avatar Inventory
         ItemHotbarStats, // Item Hotbar
         RealmPartyDamageList, // Shared object, record damage list of a realm party after realm created.

@@ -1,21 +1,21 @@
 ﻿
 namespace Zealot.Server.Entities
 {
+    using Kopio.JsonContracts;
     using UnityEngine;
+    using System;
+    using System.Text;
     using System.Collections.Generic;
+    using System.Linq;
     using Zealot.Common;
     using Zealot.Common.RPC;
     using Zealot.Common.Actions;
     using Zealot.Common.Entities;
     using Zealot.Server.Actions;
     using Photon.LoadBalancing.GameServer;
-    using Kopio.JsonContracts;
     using Zealot.Server.AI;
-    using System.Linq;
     using Rules;
-    using System.Text;
     using Repository;
-    using System;
     using EventMessage;
 
     public class BigBossScoreRecord
@@ -180,7 +180,7 @@ namespace Zealot.Server.Entities
             if (bossSpawner != null)
             {
                 mIsBoss = true;
-                mIsBigBossLoot = bossSpawner.mSpecialBossInfo.category == BossCategory.BIGBOSS;
+                mIsBigBossLoot = bossSpawner.mSpecialBossInfo.bosstype == BossType.BigBoss;
                 mBossNoDmgCountdownConst = SpecialBossRepo.BossNoDmgRandomPos * 1000;
                 mBossNoDmgCountdown = mBossNoDmgCountdownConst;
             }
@@ -465,7 +465,7 @@ namespace Zealot.Server.Entities
                     validPlayers[index].OnNPCKilled(mArchetype, 0);
             }
 
-            NPCLootLink npcLootLink = NPCRepo.GetNPCLootLink(mArchetype.id);
+            NPCLootLink npcLootLink = CombatNPCRepo.GetNPCLootLink(mArchetype.id);
             if (npcLootLink == null)
                 return;
 

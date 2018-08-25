@@ -52,41 +52,6 @@ namespace Zealot.Server.Rules
         public static void Init()
         {
             PartyIDPool.AllocID();  // reserve invalid id 0
-
-            // for testing, create fake parties
-            if (useFake)
-            {
-                for (int i = 0; i < 30; i++)
-                    CreateFakeParty();
-            }
-        }
-
-        // for testing use
-        static bool useFake = false;
-        private static void CreateFakeParty()
-        {
-            PartyStatsServer party = new PartyStatsServer();
-            int partyId = PartyIDPool.AllocID();
-            party.partyId = partyId;
-            string fakeLeaderName = "FakeLeader" + partyId;
-            EquipmentInventoryData invData = new EquipmentInventoryData();
-            invData.InitDefault();
-            AvatarInfo avatar = new AvatarInfo(invData, JobType.Newbie, Gender.Male);
-            PartyMember leader = new PartyMember(fakeLeaderName, 1, 1, avatar, 1f, 1f, "");
-            party.leader = fakeLeaderName;
-            party.mPartySetting.autoAcceptType = (AutoAcceptType)GameUtils.RandomInt(0, 2);//AutoAcceptType.All;
-            party.mPartySetting.minLevel = GameUtils.RandomInt(1, 50);
-            party.mPartySetting.locationId = 0;//GameUtils.RandomInt(0, 2);
-            party.partySetting = party.mPartySetting.ToString();
-            party.AddPartyMember(leader);
-
-            int memberCount = GameUtils.RandomInt(0, PartyData.MAX_MEMBERS - 1);  // random member count
-            for (int i = 1; i <= memberCount; i++)
-            {
-                PartyMember member = new PartyMember("FakePlayer" + i, 1, 1, avatar, 1f, 1f, "");
-                party.AddPartyMember(member);
-            }
-            PartyList.Add(partyId, party);
         }
 
         public static PartyStatsServer GetPartyById(int partyId)
@@ -242,9 +207,8 @@ namespace Zealot.Server.Rules
             if (partyStats == null)
                 return;
 
-            PartyRequest request = partyStats.GetPartyRequest(player.Name);  // get any request from this player
-            if (request != null)
-                partyStats.RemovePartyRequest(player.Name);  // remove request from this player
+            partyStats.RemovePartyRequest(player.Name);  // remove any request from this player to this party
+            RemoveAllPartyRequestsByPlayer(player.Name, partyId);  // remove this player's requests to all other parties
 
             PlayerSynStats playerStats = player.PlayerSynStats;
             AvatarInfo playerAvatar = new AvatarInfo(player.Slot.CharacterData.EquipmentInventory, (JobType)playerStats.jobsect, (Gender)playerStats.Gender);
@@ -283,22 +247,24 @@ namespace Zealot.Server.Rules
         public static void ProcessMemberRequest(int partyId, string charName, bool isAccept, Player player)
         {
             PartyStatsServer partyStats = GetPartyById(partyId);
-            if (partyStats != null && partyStats.GetPartyRequest(charName) != null)  // ensure valid request
+            if (partyStats != null)
             {
                 if (partyStats.IsLeader(player.Name))  // ensure sender is leader
                 {
                     if (isAccept)
                     {
-                        // check party is not full
-                        if (partyStats.IsPartyFull())
-                        {
-                            player.Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_PartyFull", "", false, player.Slot);
-                            return;
-                        }
+                        // note: applied player's request may not exist anymore if he has already joined other parties
                         // check applied player is not already in a party
                         if (GetPartyIdByPlayerName(charName) > 0) // already have party
                         {
                             player.Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_TargetAlreadyHasParty", "", false, player.Slot);
+                            return;
+                        }
+
+                        // check party is not full
+                        if (partyStats.IsPartyFull())
+                        {
+                            player.Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_PartyFull", "", false, player.Slot);
                             return;
                         }
 
@@ -313,6 +279,23 @@ namespace Zealot.Server.Rules
                         partyStats.RemovePartyRequest(charName);
                         partyStats.OnDirty();
                     }
+                }
+            }
+        }
+
+        private static void RemoveAllPartyRequestsByPlayer(string charName, int excludeParty)
+        {
+            foreach (int partyId in PartyList.Keys)
+            {
+                if (partyId == excludeParty)
+                    continue;
+                PartyStatsServer partyStats = PartyList[partyId];
+                // check whether has any request from this player
+                PartyRequest request = partyStats.GetPartyRequest(charName);
+                if (request != null)
+                {
+                    partyStats.RemovePartyRequest(charName);
+                    partyStats.OnDirty();
                 }
             }
         }
@@ -408,12 +391,7 @@ namespace Zealot.Server.Rules
                     {
                         GameClientPeer leaderPeer = GameApplication.Instance.GetCharPeer(x.leader);
                         if (leaderPeer == null || leaderPeer.mPlayer == null || leaderPeer.mPlayer.mInstance == null)
-                        {
-                            if (useFake)  // to be deleted
-                                return x.mPartySetting.minLevel >= minLevel && x.mPartySetting.autoAcceptType == AutoAcceptType.All && !x.IsPartyFull();
-                            else
-                                return false;
-                        }
+                            return false;
                         else
                         {   // is in same room
                             return leaderPeer.mPlayer.mInstance.mRoom.Guid == currentRoom && x.mPartySetting.minLevel >= minLevel
@@ -427,12 +405,7 @@ namespace Zealot.Server.Rules
                     {
                         GameClientPeer leaderPeer = GameApplication.Instance.GetCharPeer(x.leader);
                         if (leaderPeer == null || leaderPeer.mPlayer == null || leaderPeer.mPlayer.mInstance == null)
-                        {
-                            if (useFake)
-                                return x.mPartySetting.minLevel >= minLevel;
-                            else
-                                return false;
-                        }
+                            return false;
                         else // is in same room
                             return leaderPeer.mPlayer.mInstance.mRoom.Guid == currentRoom && x.mPartySetting.minLevel >= minLevel;
                     }).ToList();
@@ -465,7 +438,7 @@ namespace Zealot.Server.Rules
                 filteredList = tempList;
             }
 
-            filteredList.Sort(new PartySizeComparer());  // sort by party size 4>3>2>1>5
+            filteredList = filteredList.OrderBy(x => x, new PartySizeComparer()).ToList();  // sort by party size 4>3>2>1>5
             for (int i = 0; i < filteredList.Count; i++)
             {
                 PartyInfo info = new PartyInfo(filteredList[i]);
@@ -532,8 +505,8 @@ namespace Zealot.Server.Rules
                         PartyMember currHeroMember = partyStats.GetHeroOwnedByMember(player.Name);
                         // if player already have a hero in party, will replaced with this new hero
                         // else can only add this hero if party still have space
-                        if (currHeroMember != null || !partyStats.IsPartyFull())  
-                            player.HeroStats.SummonHero(heroId); // will replace or add hero to party                        
+                        if (currHeroMember != null || !partyStats.IsPartyFull())
+                            player.HeroStats.SummonHero(heroId); // will replace or add hero to party
                         else
                             player.Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_PartyFull", "", false, player.Slot);
                     }

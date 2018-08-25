@@ -152,13 +152,13 @@ namespace Photon.LoadBalancing.GameServer
 
         private List<ClueWeightData> ReorderDialogueClue(List<HeroDialogueClueJson> dialogueclues, out int maxweight)
         {
-            List<HeroDialogueClueJson> cluelist = dialogueclues;
+            List<HeroDialogueClueJson> cluelist = dialogueclues.CloneJson();
             List<HeroDialogueClueJson> weightlist = new List<HeroDialogueClueJson>();
             List<ClueWeightData> weightdata = new List<ClueWeightData>();
 
             while (cluelist.Count > 0)
             {
-                int result = RandomClueOrder(cluelist.Count);
+                int result = RandomClueOrder(cluelist.Count - 1);
                 HeroDialogueClueJson clue = cluelist[result];
                 weightlist.Add(clue);
                 cluelist.RemoveAt(result);
@@ -244,13 +244,13 @@ namespace Photon.LoadBalancing.GameServer
 
         private List<ClueWeightData> ReorderTimeClue(List<TimeClueJson> timeclues, out int maxweight)
         {
-            List<TimeClueJson> cluelist = timeclues;
+            List<TimeClueJson> cluelist = timeclues.CloneJson();
             List<TimeClueJson> weightlist = new List<TimeClueJson>();
             List<ClueWeightData> weightdata = new List<ClueWeightData>();
 
             while (cluelist.Count > 0)
             {
-                int result = RandomClueOrder(cluelist.Count);
+                int result = RandomClueOrder(cluelist.Count - 1);
                 TimeClueJson clue = cluelist[result];
                 weightlist.Add(clue);
                 cluelist.RemoveAt(result);

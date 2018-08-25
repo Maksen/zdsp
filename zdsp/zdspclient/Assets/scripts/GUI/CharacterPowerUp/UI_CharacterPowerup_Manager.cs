@@ -308,7 +308,12 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
             TXT_NowValue.text = powerupData.value.ToString();
         }
 
-        string effectName = SideEffectRepo.GetSideEffect(powerupData.effect).localizedname.ToString();
+        string effectName = "";
+        if (SideEffectRepo.GetSideEffect(powerupData.effect).localizedname.ToString() != null)
+        {
+            effectName = SideEffectRepo.GetSideEffect(powerupData.effect).localizedname;
+        }
+
         if (effectName != null)
         {
             TXT_Effect.text = effectName;

@@ -13,19 +13,8 @@ public class GameIconCmpt_Rarity : MonoBehaviour
 
     public void SetRarity(BagType bagType, ItemRarity itemRarity)
     {
-        StringBuilder sb = new StringBuilder("UI_ZDSP_Icons/GameIcon/quality_");
-        if (bagType == BagType.Equipment) sb.Append("equip_");
-        else sb.Append("default_");
-
-        switch (itemRarity)
-        {
-            case ItemRarity.Common: sb.Append("common.tif"); break;
-            case ItemRarity.Uncommon: sb.Append("uncommon.tif"); break;
-            case ItemRarity.Rare: sb.Append("rare.tif"); break;
-            case ItemRarity.Epic: sb.Append("epic.tif"); break;
-            case ItemRarity.Celestial: sb.Append("celestial.tif"); break;
-            case ItemRarity.Legendary: sb.Append("legendary.tif"); break;
-        }
-        imgRarity.sprite = ClientUtils.LoadIcon(sb.ToString());
+        Sprite sprite = ClientUtils.LoadItemQualityIcon(bagType, itemRarity);
+        if (sprite != null)
+            imgRarity.sprite = sprite;
     }
 }

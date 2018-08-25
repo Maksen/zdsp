@@ -625,7 +625,7 @@ public partial class ClientMain : MonoBehaviour
             //CollectionHandler<object> buffStartTime = player.BuffTimeStats.StartTime;
             //CollectionHandler<object> durations = player.BuffTimeStats.Duration;
             long now = mTimers.GetSynchronizedTime();
-            for (int i = 0; i < positives.Count; i++)
+            for (int i = 0; i < positives.Count; ++i)
             {
                 int id = (int)positives[i];
                 if (id > 0)
@@ -645,8 +645,8 @@ public partial class ClientMain : MonoBehaviour
     //These spawners are responsible for spawning the actual entities e.g. quest npc, shop npc when local player is near.
     private void SpawnClientSpawners()
     {
-        ClientSpawnerDesc[] spawners = GameObject.FindObjectsOfType(typeof(ClientSpawnerDesc)) as ClientSpawnerDesc[];
-        foreach (ClientSpawnerDesc spawner in spawners)
+        ClientSpawnerBase[] spawners = FindObjectsOfType(typeof(ClientSpawnerBase)) as ClientSpawnerBase[];
+        foreach (ClientSpawnerBase spawner in spawners)
         {
             spawner.Spawn(mEntitySystem);
         }
@@ -654,14 +654,14 @@ public partial class ClientMain : MonoBehaviour
 
     public void HideClientSpawner(string archetype)
     {
-        ClientSpawnerDesc[] spawners = GameObject.FindObjectsOfType(typeof(ClientSpawnerDesc)) as ClientSpawnerDesc[];
-        foreach (ClientSpawnerDesc spawner in spawners)
+        ClientSpawnerBase[] spawners = FindObjectsOfType(typeof(ClientSpawnerBase)) as ClientSpawnerBase[];
+        foreach (ClientSpawnerBase spawner in spawners)
         {
-            if (spawner is QuestNPCSpawnerDesc)
+            if (spawner is StaticNPCSpawner)
             {
-                QuestNPCSpawnerDesc desc = spawner as QuestNPCSpawnerDesc;
-                if (desc.archetype == archetype)
-                    desc.Show(false);
+                StaticNPCSpawner staticNPCSpawner = spawner as StaticNPCSpawner;
+                if (staticNPCSpawner.archetype == archetype)
+                    staticNPCSpawner.Show(false);
             }
         }
     }
@@ -689,7 +689,8 @@ public partial class ClientMain : MonoBehaviour
             return (re != null);
         }, qr);
 
-        for (int i = 0; i < qr.Count; i++)
+        int count = qr.Count;
+        for (int i = 0; i < count; ++i)
         {
             var entity = qr[i];
             if (mRelevanceObjects.ContainsKey(entity.ID))
@@ -712,12 +713,11 @@ public partial class ClientMain : MonoBehaviour
         {
             RelevanceObjectState os = kvp.Value;
             if (tick - os.lastTimeFoundRelevant > RelevantTimeOut)
-            {
                 removeIDs.Add(kvp.Key);
-            }
         }
 
-        for (int i = 0; i < removeIDs.Count; i++)
+        count = removeIDs.Count;
+        for (int i = 0; i < count; ++i)
         {
             int id = removeIDs[i];
             RelevanceObjectState os = mRelevanceObjects[id];
@@ -903,7 +903,7 @@ public partial class ClientMain : MonoBehaviour
                 int memberCount = int.Parse(partyInfo[1]);
                 int idx = 2;
                 List<PartyMemberInfo> members = new List<PartyMemberInfo>();
-                for (int i = 0; i < memberCount; i++)
+                for (int i = 0; i < memberCount; ++i)
                 {
                     string name = partyInfo[idx++];
                     int level = int.Parse(partyInfo[idx++]);
@@ -985,6 +985,7 @@ public partial class ClientMain : MonoBehaviour
             mNetClient.CleanUp();
             mNetClient = null;
         }
+        HUD_MapController.FreeMapController();
         GameInfo.gCombat = null;
         gameObject.SetActive(false);
     }

@@ -1,18 +1,15 @@
-using System;
 //#define clientrpc 0
-using UnityEngine;
+using Kopio.JsonContracts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.RPC;
 using Zealot.Client.Entities;
-using Zealot.Common.Datablock;
 using Zealot.Common.Actions;
 using Zealot.Repository;
 using Zealot.Client.Actions;
-using Newtonsoft.Json;
-using Kopio.JsonContracts;
-using System.Linq;
 
 public partial class ClientMain : MonoBehaviour
 {
@@ -45,7 +42,7 @@ public partial class ClientMain : MonoBehaviour
         Vector3 pos = rpcpos.ToVector3();
         Vector3 forward = rpcdir.ToVector3();
 
-        Debug.Log("SpawnHeroEntity pid = " + pid + ", heroid = " + heroid + ",pos = (" + pos.x + ", " + pos.y + "," + pos.z);
+        //Debug.Log("SpawnHeroEntity pid = " + pid + ", heroid = " + heroid + ",pos = " + pos.x + ", " + pos.y + "," + pos.z);
         HeroGhost ghost = mEntitySystem.SpawnNetEntityGhost<HeroGhost>(pid);
         ghost.SetOwnerID(ownerpid);
         ghost.IsLocal = false;
@@ -413,9 +410,6 @@ public partial class ClientMain : MonoBehaviour
     {
        // GameInfo.gLocalPlayer.clientChestCtrl.ServerResult(code);
     }
-
-
-
 
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.Ret_GetArenaChallenger)]
     public void Ret_GetArenaChallenger(int myrank, int entries, int cooldown, string result)

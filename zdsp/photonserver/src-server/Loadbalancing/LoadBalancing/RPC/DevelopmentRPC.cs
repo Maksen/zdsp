@@ -80,7 +80,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ActiveRandomBox)]
         public void ActiveRandomBox(bool active, GameClientPeer peer)
         {
-            RandomBoxReward.RandomBoxRewardManager.Instance.SetActive(active);
+            //RandomBoxReward.RandomBoxRewardManager.Instance.SetActive(active);
         }
 
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ActiveRandomBox)]
@@ -332,7 +332,7 @@ namespace Photon.LoadBalancing.GameServer
                 switch (type)
                 {
                     case RealmType.Dungeon:
-                        ((RealmControllerDungeonStory)mRealmController).OnMissionCompleted(true, true);
+                        ((RealmControllerDungeon)mRealmController).OnMissionCompleted(true, true);
                         break;
                 }
             }
@@ -577,7 +577,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetPrizeGuarantee)]
         public void ConsoleResetPrizeGuarantee(GameClientPeer peer)
         {
-            PrizeGuaranteeRules.ResetPrizeGuarantee(peer);
+            //PrizeGuaranteeRules.ResetPrizeGuarantee(peer);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleDonateReset)]

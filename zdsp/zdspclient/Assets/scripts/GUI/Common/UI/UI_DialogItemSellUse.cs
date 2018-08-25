@@ -26,28 +26,32 @@ public class UI_DialogItemSellUse : MonoBehaviour
     Action<int> onClickYesCallback = null;
     Action onClickYesToAllCallback = null;
 
-    public void Init(IInventoryItem invItem, Action<int> yesCallback, Action yesToAllCallback = null)
+    public void Init(InvDisplayItem invDisplayItem, Action<int> yesCallback, Action yesToAllCallback = null)
     {
+        IInventoryItem invItem = invDisplayItem.InvItem;
         if (invItem == null)
             return;
 
         BagType bagType = invItem.JsonObject.bagtype;
         gameIcon = Instantiate(prefabGameicons[(int)bagType-1]);
+        gameIcon.transform.SetParent(parentGameIconSlot, false);
         switch (bagType)
         {
             case BagType.Equipment:
                 Equipment eq = invItem as Equipment;
-                gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false);
+                gameIcon.GetComponent<GameIcon_Equip>().InitWithoutCallback(eq.ItemID, 0, 0, eq.UpgradeLevel);
                 break;
             case BagType.Consumable:
             case BagType.Material:
-                gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invItem.StackCount);
+                gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(invItem.ItemID, invDisplayItem.DisplayStackCount);
+                break;
+            case BagType.DNA:
+                gameIcon.GetComponent<GameIcon_DNA>().InitWithoutCallback(invItem.ItemID, 0, 0);
                 break;
         }
-        gameIcon.transform.SetParent(parentGameIconSlot, false);
 
         txtItemName.text = invItem.JsonObject.localizedname;
-        spinnerInput.Max = invItem.StackCount;
+        spinnerInput.Max = invDisplayItem.DisplayStackCount;
         spinnerInput.Value = 1;
 
         onClickYesCallback = yesCallback;

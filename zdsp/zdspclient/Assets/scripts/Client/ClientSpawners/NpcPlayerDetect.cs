@@ -1,18 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Zealot.Client.Entities;
-public class NpcPlayerDetect : MonoBehaviour {
 
-    // Use this for initialization
+public class NpcPlayerDetect : MonoBehaviour
+{
     private SphereCollider _collider;
     public StaticClientNPCAlwaysShow Target = null;
 
     public void Init(StaticClientNPCAlwaysShow target, float radius)
     {
         if (_collider == null)
-        {
             _collider = gameObject.AddComponent<SphereCollider>();
-        }
 
         Target = target;
         _collider.radius = radius;
@@ -22,9 +20,9 @@ public class NpcPlayerDetect : MonoBehaviour {
     IEnumerator NextFrameTrigger()
     {
         yield return null;
-        if (Target.GetType() == typeof(QuestNPC))
+        if (Target.GetType() == typeof(StaticNPCGhost))
         {
-            (Target as QuestNPC).OnPlayerNear();
+            (Target as StaticNPCGhost).OnPlayerNear();
         }
         else if(Target.GetType() == typeof(StaticAreaGhost))
         {
@@ -46,9 +44,9 @@ public class NpcPlayerDetect : MonoBehaviour {
         if (other.CompareTag("LocalPlayer"))
         {
             //Debug.Log("Player Exit");
-            if (Target.GetType() == typeof(QuestNPC))
+            if (Target.GetType() == typeof(StaticNPCGhost))
             {
-                (Target as QuestNPC).OnPlayerAway();
+                (Target as StaticNPCGhost).OnPlayerAway();
             }
             else if (Target.GetType() == typeof(StaticAreaGhost))
             {

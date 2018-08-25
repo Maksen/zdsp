@@ -15,7 +15,8 @@ public class MapCenterPointDesc : ServerEntity
     public void GetJson(MapInfoJson jsonclass)
     {
         RectTransform rt = GetComponent<RectTransform>();
-        jsonclass.centerPoint = rt.anchoredPosition3D;
+        //jsonclass.centerPoint = transform.TransformPoint(rt.anchoredPosition3D);
+        jsonclass.centerPoint = gameObject.transform.position;
 
         rt = transform.GetChild(0).GetComponent<RectTransform>();
         jsonclass.mapScale = rt.localScale;

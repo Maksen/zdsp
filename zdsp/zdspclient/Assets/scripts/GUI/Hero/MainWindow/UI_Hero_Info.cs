@@ -1,6 +1,7 @@
 ﻿using Kopio.JsonContracts;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
@@ -12,9 +13,9 @@ public class UI_Hero_Info : MonoBehaviour
     [SerializeField] Text heroNameText;
     [SerializeField] Model_3DAvatar modelAvatar;
     [SerializeField] Image modelImage;
-    [SerializeField] Material grayscaleMat;
     [SerializeField] HeroCircleScroll circleScroll;
     [SerializeField] Hero_SkillIconData[] skillIcons;
+    [SerializeField] string lockedColorHex;
 
     [Header("Locked")]
     [SerializeField] UI_Hero_LockedPanel lockedPanel;
@@ -38,11 +39,13 @@ public class UI_Hero_Info : MonoBehaviour
     private HeroJson selectedHeroData;
     private Hero selectedHero;
     private Dictionary<int, int> currentHeroTier = new Dictionary<int, int>();
+    private Color lockedColor;
 
     public void Setup()
     {
         timelineController.OnBegin += new UITimelineController.TimelineDelegate(() => HideObjectsForTimeline(true));
         timelineController.OnEnd += new UITimelineController.TimelineDelegate(() => HideObjectsForTimeline(false));
+        ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
     }
 
     private void HideObjectsForTimeline(bool hide)
@@ -55,23 +58,25 @@ public class UI_Hero_Info : MonoBehaviour
 
     private List<HeroCellDto> CreateHeroesData()
     {
-        List<HeroCellDto> list = new List<HeroCellDto>();
+        List<HeroCellDto> cellList = new List<HeroCellDto>();
         int index = 0;
 
-        foreach (int heroid in HeroRepo.heroes.Keys)
+        List<HeroJson> sortedList = HeroRepo.heroes.Values.OrderBy(x => x.heroid).ToList();
+        for (int i = 0; i < sortedList.Count; i++)
         {
+            int heroid = sortedList[i].heroid;
             HeroCellDto cell = new HeroCellDto(heroid, "Hero " + heroid, GameInfo.gLocalPlayer.HeroStats.IsHeroUnlocked(heroid));
-            list.Add(cell);
+            cellList.Add(cell);
             index++;
         }
 
         for (int i = index; i < 13; i++)
         {
             HeroCellDto cell = new HeroCellDto(i + 1, "Cell " + (i + 1), false);
-            list.Add(cell);
+            cellList.Add(cell);
         }
 
-        return list;
+        return cellList;
     }
 
     private void Awake()
@@ -81,10 +86,14 @@ public class UI_Hero_Info : MonoBehaviour
     }
 
     // called after Awake and OnEnable
-    public void Init()
+    public void Init(int selectHeroId)
     {
         heroStats = GameInfo.gLocalPlayer.HeroStats;
-        circleScroll.SelectHero(GetFirstHeroToSelect());
+
+        if (selectHeroId > 0)
+            circleScroll.SelectHero(selectHeroId);
+        else
+            circleScroll.SelectHero(GetFirstHeroToSelect());
     }
 
     private int GetFirstHeroToSelect()
@@ -113,7 +122,7 @@ public class UI_Hero_Info : MonoBehaviour
             heroNameText.text = "Placeholder " + heroId;
             modelAvatar.Cleanup();
             SetLocked();
-            lockedPanel.Init(0, 0, null);
+            lockedPanel.Init("", "0", 0, null);
             SetSkillIcons(null);
         }
         else
@@ -132,7 +141,7 @@ public class UI_Hero_Info : MonoBehaviour
             {
                 selectedHero = new Hero(heroId, selectedHeroData);
                 SetLocked();
-                lockedPanel.Init(selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount, OnClickUnlockHero);
+                lockedPanel.Init(selectedHeroData.localizedname, selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount, OnClickUnlockHero);
             }
 
             if (!currentHeroTier.ContainsKey(heroId))
@@ -240,45 +249,44 @@ public class UI_Hero_Info : MonoBehaviour
             dialog = UIManager.GetWindowGameObject(WindowType.DialogHeroSkillDetails);
             if (dialog != null && dialog.activeInHierarchy)
                 dialog.GetComponent<UI_Hero_SkillDetailsDialog>().Refresh(newHero);
+
+            if (oldHero.ModelTier != newHero.ModelTier)
+                UpdateModelTier(newHero.ModelTier);
         }
     }
 
     private void UpdateModelTier(int tier)
     {
-        currentHeroTier[selectedHeroId] = tier;
-        modelAvatar.ChangeHero(selectedHeroId, tier);
-        string imagePath = "";
-        switch (tier)
+        if (modelAvatar.ChangeHero(selectedHeroId, tier))  // true if have model path
         {
-            case 1: imagePath = selectedHeroData.t1imagepath; break;
-            case 2: imagePath = selectedHeroData.t2imagepath; break;
-            case 3: imagePath = selectedHeroData.t3imagepath; break;
-            default:
-                HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
-                if (skinItem != null)
-                    imagePath = skinItem.HeroItemJson.heroimagepath;
-                break;
+            currentHeroTier[selectedHeroId] = tier;
+            string imagePath = "";
+            switch (tier)
+            {
+                case 1: imagePath = selectedHeroData.t1imagepath; break;
+                case 2: imagePath = selectedHeroData.t2imagepath; break;
+                case 3: imagePath = selectedHeroData.t3imagepath; break;
+                default:
+                    HeroItem skinItem = GameRepo.ItemFactory.GetInventoryItem(tier) as HeroItem;
+                    if (skinItem != null)
+                        imagePath = skinItem.HeroItemJson.heroimagepath;
+                    break;
+            }
+            modelImage.sprite = ClientUtils.LoadIcon(imagePath);
+            CheckModelTierUnlocked(tier);
         }
-        ClientUtils.LoadIconAsync(imagePath, OnModelImageLoaded);
-        CheckModelTierUnlocked(tier);
     }
 
     private void CheckModelTierUnlocked(int currentTier)
     {
         bool unlocked = selectedHero.IsModelTierUnlocked(currentTier);
-        modelImage.material = selectedHero.SlotIdx == -1 || !unlocked ? grayscaleMat : null;
+        modelImage.color = selectedHero.SlotIdx == -1 || !unlocked ? lockedColor : Color.white;
         summonBtn.interactable = unlocked;
         if (heroStats.IsHeroSummoned(selectedHeroId))
         {
             unsummonBtn.SetActive(selectedHero.ModelTier == currentTier);
             summonBtn.gameObject.SetActive(selectedHero.ModelTier != currentTier);
         }
-    }
-
-    private void OnModelImageLoaded(Sprite sprite)
-    {
-        if (sprite != null)
-            modelImage.sprite = sprite;
     }
 
     private void UpdateInterest(HeroInterestType type)
@@ -314,8 +322,7 @@ public class UI_Hero_Info : MonoBehaviour
     {
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("cost", selectedHeroData.resetskillmoney.ToString());
-        //string message = GUILocalizationRepo.GetLocalizedString("hero_confirmResetSkillPoints", param);
-        string message = "Confirm spend " + param["cost"] + " to reset skill points?";
+        string message = GUILocalizationRepo.GetLocalizedString("hro_confirmResetSkillPoints", param);
         UIManager.OpenYesNoDialog(message, () => RPCFactory.CombatRPC.ResetHeroSkillPoints(selectedHeroId));
     }
 

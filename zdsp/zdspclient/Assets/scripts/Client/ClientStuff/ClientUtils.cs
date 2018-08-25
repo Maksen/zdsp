@@ -1,14 +1,14 @@
+using Kopio.JsonContracts;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Kopio.JsonContracts;
+using UnityEngine.Video;
 using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Repository;
 using Zealot.Audio;
-using UnityEngine.Video;
 
 public static class ClientUtils
 {
@@ -154,8 +154,8 @@ public static class ClientUtils
 
     public static bool CanTeleportToLevel(string sceneName)
     {
-        LevelJson lvlJ = LevelRepo.GetInfoByName(sceneName);
-        if (lvlJ == null)
+        LevelJson lvlJson = LevelRepo.GetInfoByName(sceneName);
+        if (lvlJson == null)
         {
             UIManager.ShowSystemMessage("Debug: Level<" + sceneName + "> is not loaded at client.", true);
             return false;
@@ -224,7 +224,7 @@ public static class ClientUtils
     {
         if (string.IsNullOrEmpty(assetName))
             return null;
-        return AssetLoader.Instance.Load<Sprite>(assetName) as Sprite;
+        return AssetLoader.Instance.Load<Sprite>(assetName);
     }
 
     public static void LoadIconAsync(string assetName, Action<Sprite> callback)
@@ -239,7 +239,46 @@ public static class ClientUtils
         var item = GameRepo.ItemFactory.GetItemById(itemid);
         if (item == null)
             return null;
-        return ClientUtils.LoadIcon(item.iconspritepath);
+        return LoadIcon(item.iconspritepath);
+    }
+
+    public static Sprite LoadItemQualityIcon(BagType bagType, ItemRarity rarity)
+    {
+        string path = "";
+        switch (rarity)
+        {
+            case ItemRarity.Common:
+                path = (bagType == BagType.Equipment)
+                    ? "UI_ZDSP_Icons/GameIcon/quality_equip_common.tif"
+                    : "UI_ZDSP_Icons/GameIcon/quality_default_common.tif";
+                break;
+            case ItemRarity.Uncommon:
+                path = (bagType == BagType.Equipment)
+                    ? "UI_ZDSP_Icons/GameIcon/quality_equip_uncommon.tif"
+                    : "UI_ZDSP_Icons/GameIcon/quality_default_uncommon.tif";
+                break;
+            case ItemRarity.Rare:
+                path = (bagType == BagType.Equipment)
+                    ? "UI_ZDSP_Icons/GameIcon/quality_equip_rare.tif"
+                    : "UI_ZDSP_Icons/GameIcon/quality_default_rare.tif";
+                break;
+            case ItemRarity.Epic:
+                path = (bagType == BagType.Equipment)
+                    ? "UI_ZDSP_Icons/GameIcon/quality_equip_epic.tif"
+                    : "UI_ZDSP_Icons/GameIcon/quality_default_epic.tif";
+                break;
+            case ItemRarity.Celestial:
+                path = (bagType == BagType.Equipment)
+                    ? "UI_ZDSP_Icons/GameIcon/quality_equip_celestial.tif"
+                    : "UI_ZDSP_Icons/GameIcon/quality_default_celestial.tif";
+                break;
+            case ItemRarity.Legendary:
+                path = (bagType == BagType.Equipment)
+                    ? "UI_ZDSP_Icons/GameIcon/quality_equip_legendary.tif"
+                    : "UI_ZDSP_Icons/GameIcon/quality_default_legendary.tif";
+                break;
+        }
+        return LoadIcon(path);
     }
 
     public static void LoadVideoAsync(string assetName, Action<VideoClip> callback)
@@ -263,200 +302,40 @@ public static class ClientUtils
         return AssetLoader.Instance.Load<AudioClip>(audiopath) as AudioClip;
     }
 
-    public static Sprite LoadQualityIcon(ItemType type, ItemRarity quality)
-    {
-        string path = "";
-        if (type == ItemType.Equipment)
-        {
-            switch (quality)
-            {
-                case ItemRarity.Common:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_equip_common.tif";
-                    break;
-                case ItemRarity.Uncommon:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_equip_uncommon.tif";
-                    break;
-                case ItemRarity.Rare:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_equip_rare.tif";
-                    break;
-                case ItemRarity.Epic:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_equip_epic.tif";
-                    break;
-                case ItemRarity.Celestial:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_equip_celestial.tif";
-                    break;
-                case ItemRarity.Legendary:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_equip_legendary.tif";
-                    break;
-            }
-        }
-        else
-        {
-            switch (quality)
-            {
-                case ItemRarity.Common:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_default_common.tif";
-                    break;
-                case ItemRarity.Uncommon:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_default_uncommon.tif";
-                    break;
-                case ItemRarity.Rare:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_default_rare.tif";
-                    break;
-                case ItemRarity.Epic:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_default_epic.tif";
-                    break;
-                case ItemRarity.Celestial:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_default_celestial.tif";
-                    break;
-                case ItemRarity.Legendary:
-                    path = "UI_ZDSP_Icons/GameIcon/quality_default_legendary.tif";
-                    break;
-            }
-        }
-        return LoadIcon(path);
-    }
-
     public static bool OpenUIWindowByLinkUI(LinkUIType linkUI, string param = "")
     {
         bool canOpen = true;
         switch (linkUI)
         {
-            //case LinkUIType.Equipment_Gem_Equip:
-            //    canOpen = UIManager.OpenWindow(WindowType.Equipment, (window) =>
-            //    {
-            //        var ui = window.GetComponent<UI_Equipment>();
-            //        ui.GemToggle.isOn = true;
-            //        ui.GemToggle.GetComponent<UIAddons.CustomToggle>().OnValueChanged(true);
-            //    });
-            //    break;
-            //case LinkUIType.Alchemy:
-            //    canOpen =  UIManager.OpenWindow(WindowType.Alchemy);
-            //    break;
-            //case LinkUIType.GoTopUp:
-            //    UIManager.OpenDialog(WindowType.DialogGoTopUpAlchemy, (window) => window.GetComponent<UI_DialogGoTopUpAlchemy>().InitGoTopUp());
-            //    break;
-            //case LinkUIType.GoAlchemy:
-            //    UIManager.OpenDialog(WindowType.DialogGoTopUpAlchemy, (window) => window.GetComponent<UI_DialogGoTopUpAlchemy>().InitGoAlchemy());
-            //    break;
-            //case LinkUIType.GuildStore:
-            //    {
-            //        UIManager.GetWindowGameObject(WindowType.Store).GetComponent<UI_Store>().OpenAndLoadStoreCategory(UIStoreLinkType.GuildStore);
-            //        canOpen =  UIManager.OpenWindow(WindowType.Store);
-            //    }
-            //    break;
-            //case LinkUIType.LotteryStore:
-            //    {
-            //        UIManager.GetWindowGameObject(WindowType.Store).GetComponent<UI_Store>().OpenAndLoadStoreCategory(UIStoreLinkType.Lottery);
-            //        canOpen =  UIManager.OpenWindow(WindowType.Store);
-            //    }
-            //    break;
-            //case LinkUIType.HonorStore:
-            //    {
-            //        UIManager.GetWindowGameObject(WindowType.Store).GetComponent<UI_Store>().OpenAndLoadStoreCategory(UIStoreLinkType.WuLing);
-            //        canOpen =  UIManager.OpenWindow(WindowType.Store);
-            //    }
-            //    break;
-            //case LinkUIType.BattleStore:
-            //    {
-            //        UIManager.GetWindowGameObject(WindowType.Store).GetComponent<UI_Store>().OpenAndLoadStoreCategory(UIStoreLinkType.WuMen);
-            //        canOpen =  UIManager.OpenWindow(WindowType.Store);
-            //    }
-            //    break;
-            //case LinkUIType.Potion:
-            //    UIManager.OpenDialog(WindowType.DialogBotSetting);
-            //    break;
-            //case LinkUIType.Equipment_Upgrade:
-            //    canOpen = UIManager.OpenWindow(WindowType.Equipment, (window) =>
-            //    {
-            //        var ui = window.GetComponent<UI_Equipment>();
-            //        ui.EquipToggle.isOn = true;
-            //    });
-            //    break;
-            //case LinkUIType.Dungeon:
-            //    canOpen = UIManager.OpenWindow(WindowType.Dungeon);
-            //    break;
-            //case LinkUIType.WorldBoss:
-            //    if (!GameInfo.gLocalPlayer.worldBossController.IsEventOpen())
-            //    {
-            //        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_activity_End"));
-            //        return false;
-            //    }
-            //    canOpen = UIManager.OpenWindow(WindowType.WorldBoss);
-            //    break;
-            //case LinkUIType.ItemMall:
-            //    canOpen = UIManager.OpenWindow(WindowType.PersistentItemMall);
-            //    break;
-            //case LinkUIType.Lottery:
-            //    canOpen = UIManager.OpenWindow(WindowType.PersistentItemMall, (window) =>
-            //    {
-            //        window.GetComponent<UI_Mall>().OnOpenLottery();
-            //    });
-            //    break;
-            //case LinkUIType.Spend_Gold:
-            //    canOpen = UIManager.OpenWindow(WindowType.PersistentItemMall);
-            //    break;
-            //case LinkUIType.StoryDungeon:
-            //    int realmid = 0;
-            //    if (!string.IsNullOrEmpty(param) && int.TryParse(param, out realmid) && realmid > 0)
-            //    {
-            //        RealmJson realmJson = RealmRepo.GetInfoById(realmid);
-            //        if (realmJson != null && GameInfo.gLocalPlayer.GetAccumulatedLevel() < realmJson.reqlvl)
-            //        {
-            //            ShowFeatureLocked(realmJson.reqlvl);
-            //            return false;
-            //        }
-            //    }
-            //    canOpen = UIManager.OpenWindow(WindowType.Dungeon, (window) =>
-            //    {
-            //        if (realmid > 0)
-            //            window.GetComponent<UI_Dungeons>().GoToSpecificRealm(realmid);
-            //        else
-            //            window.GetComponent<UI_Dungeons>().OnClickStoryDungeon();
-            //    });
-            //    break;
-            //case LinkUIType.DailyDungeon:
-            //    int dungeon_realmid = 0;
-            //    if (!string.IsNullOrEmpty(param) && int.TryParse(param, out dungeon_realmid) && dungeon_realmid > 0)
-            //    {
-            //        RealmJson realmJson = RealmRepo.GetInfoById(dungeon_realmid);
-            //        if (realmJson != null && GameInfo.gLocalPlayer.GetAccumulatedLevel() < realmJson.reqlvl)
-            //        {
-            //            ShowFeatureLocked(realmJson.reqlvl);
-            //            return false;
-            //        }
-            //    }
-            //    canOpen = UIManager.OpenWindow(WindowType.Dungeon, (window) =>
-            //    {
-            //        if (dungeon_realmid > 0)
-            //            window.GetComponent<UI_Dungeons>().GoToSpecificRealm(dungeon_realmid);
-            //        else
-            //            window.GetComponent<UI_Dungeons>().OnClickDailyDungeon();
-            //    });
-            //    break;
-            //case LinkUIType.QuestExtraReward:
-            //    canOpen = UIManager.OpenWindow(WindowType.QuestExtraRewards);
-            //    break;
-            //case LinkUIType.OfflineExp:
-            //    canOpen = UIManager.OpenWindow(WindowType.OfflineExp);
-            //    break;
-            //case LinkUIType.TimeCity:
-            //    int eliteMapMinLvl = GameConstantRepo.GetConstantInt("EliteMap_UnlockLvl", 1);
-            //    if(GameInfo.gLocalPlayer.PlayerSynStats.progressLevel<eliteMapMinLvl)
-            //    {
-            //        ShowFeatureLocked(eliteMapMinLvl);
-            //        return false;
-            //    }
-
-            //    canOpen = UIManager.OpenWindow(WindowType.MainMenu, (window) =>
-            //    {
-            //        window.GetComponent<UI_MenuOthers>().GoToTab(1);
-            //    });
-            //    break;
-            //case LinkUIType.Crafting:
-            //    canOpen = UIManager.OpenWindow(WindowType.Crafting);
-            //    break;
-            default:
+            case LinkUIType.Equipment_Upgrade:
+                break;
+            case LinkUIType.Equipment_Reform:
+                break;
+            case LinkUIType.Equipment_Socket:
+                break;
+            case LinkUIType.DNA:
+                break;
+            case LinkUIType.Shop:
+                break;
+            case LinkUIType.Skill:
+                break;
+            case LinkUIType.Realm:
+                break;
+            case LinkUIType.GoTopUp:
+                break;
+            case LinkUIType.Achievement:
+                break;
+            case LinkUIType.Hero:
+                int heroId;
+                if (!string.IsNullOrEmpty(param) && int.TryParse(param, out heroId) && heroId > 0)
+                {
+                    UI_Hero uiHero = UIManager.GetWindowGameObject(WindowType.Hero).GetComponent<UI_Hero>();
+                    uiHero.SelectHero = heroId;
+                }
+                canOpen = UIManager.OpenWindow(WindowType.Hero);
+                break;
+            case LinkUIType.Hero_Explore:
+                canOpen = UIManager.OpenWindow(WindowType.Hero, (window) => window.GetComponent<UI_Hero>().GoToTab(2));
                 break;
         }
         return canOpen;
@@ -496,7 +375,33 @@ public static class ClientUtils
         }
     }
 
-    public static string GetStandbyAnimationByWeapnType(PartsType type)
+    public static List<string> weaponPrefix = new List<string>() { "sword", "blade", "lance", "hammer", "fan", "xbow", "dagger", "sanxian" };
+    public static string GetPrefixByWeaponType(PartsType type)
+    {
+        switch (type)
+        {
+            case PartsType.Sword:
+                return "sword";
+            case PartsType.Blade:
+                return "blade";
+            case PartsType.Lance:
+                return "lance";
+            case PartsType.Hammer:
+                return "hammer";
+            case PartsType.Fan:
+                return "fan";
+            case PartsType.Xbow:
+                return "xbow";
+            case PartsType.Dagger:
+                return "dagger";
+            case PartsType.Sanxian:
+                return "sanxian";
+            default:
+                return "blade";
+        }
+    }
+
+    public static string GetStandbyAnimationByWeaponType(PartsType type)
     {
         switch (type)
         {
@@ -505,7 +410,7 @@ public static class ClientUtils
             case PartsType.Blade:
                 return "blade_nmstandby";
             case PartsType.Lance:
-                return "lance_shiled";
+                return "lance_nmstandby";
             case PartsType.Hammer:
                 return "hammer_nmstandby";
             case PartsType.Fan:
@@ -618,6 +523,7 @@ public static class ClientUtils
 
         return resDic;
     }
+
     private static void DictQuickCheckAdd(Dictionary<CharacterSecondaryStats, float> dict, CharacterSecondaryStats e, float val)
     {
         if (!dict.ContainsKey(e))
@@ -648,7 +554,6 @@ public static class ClientUtils
             if(number == 10)
             {
                 ++times;
-
                 return string.Format("{0}", GetRomanDigitTens(times));
             }
             else
@@ -760,4 +665,3 @@ public static class ClientUtils
         return num_str;
     }
 }
-

@@ -201,6 +201,7 @@ namespace Zealot.Client.Entities
     public class StaticClientNPCAlwaysShow : BaseClientEntity
     {
         public StaticNPCJson mArchetype;
+        public int mArchetypeId;
 
         protected List<int> mQuestList = new List<int>();
         protected List<int> mAvailableQuest = new List<int>();
@@ -232,17 +233,11 @@ namespace Zealot.Client.Entities
 
         public virtual void UpdateAvailableQuestList() { }
 
-        public virtual int GetArchetypeID() { return -1; }
+        public int ActiveQuest { get { return mActiveQuest; } }
 
-        public int ActiveQuest
-        {
-            get { return mActiveQuest; }
-        }
+        public bool HasQuest { get { return mQuestList.Count > 0; } }
 
-        public bool GetStartUpDisplay()
-        {
-            return mArchetype.activeonstartup;
-        }
+        public bool StartUpDisplay { get { return mArchetype.activeonstartup; } }
 
         public virtual void UpdateDisplayStatus(bool status)
         {

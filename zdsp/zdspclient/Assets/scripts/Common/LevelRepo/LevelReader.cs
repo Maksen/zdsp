@@ -11,16 +11,16 @@ namespace Zealot.Entities
     {
         public static Dictionary<string, LevelInfo> levels;
         public static Dictionary<int, BossLocationData> mSpecialBossLocationDataMap;
-        public static Dictionary<BossCategory, Dictionary<int, int>> mSpecialBossByCategory;
+        public static Dictionary<BossType, Dictionary<int, int>> mSpecialBossByType;
 
         static LevelReader()
         {
             levels = new Dictionary<string, LevelInfo>();
             mSpecialBossLocationDataMap = new Dictionary<int, BossLocationData>();
-            mSpecialBossByCategory = new Dictionary<BossCategory, Dictionary<int, int>>();
-            var boss_categories = Enum.GetValues(typeof(BossCategory));
-            foreach (BossCategory entry in boss_categories)
-                mSpecialBossByCategory.Add(entry, new Dictionary<int, int>());
+            mSpecialBossByType = new Dictionary<BossType, Dictionary<int, int>>();
+            var boss_categories = Enum.GetValues(typeof(BossType));
+            foreach (BossType entry in boss_categories)
+                mSpecialBossByType.Add(entry, new Dictionary<int, int>());
         }
 
         public static void InitClient(Dictionary<string, string> levelAssets)
@@ -30,7 +30,7 @@ namespace Zealot.Entities
             NPCPosMap.Clear();
             levels.Clear();
             mSpecialBossLocationDataMap.Clear();
-            foreach (var entry in mSpecialBossByCategory)
+            foreach (var entry in mSpecialBossByType)
                 entry.Value.Clear();
             foreach (KeyValuePair<string, string> kvp in levelAssets)
             {
@@ -45,16 +45,16 @@ namespace Zealot.Entities
                     NPCPosMap.AddNPCInfo(levelname, linfo);
                     AddSpecialBossLocationData(levelname, linfo);
                     levels[levelname] = linfo;
-                }catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     UnityEngine.Debug.Log("Level json out of data, please remove unused stuff. " + levelname);
                 }
-               
             }
             IsClientInited = true;
         }
+
         public static bool IsClientInited = false;
-        
         public static void InitServer(string assemblypath)
         {
             string prefix = "../levels/";
@@ -79,8 +79,8 @@ namespace Zealot.Entities
                         levels[levelname] = linfo;
                     }
                     catch (Exception e)
-                    {                      
-                    }                   
+                    {
+                    }
                 }
             }
         }
@@ -99,16 +99,16 @@ namespace Zealot.Entities
                     var boss_info = SpecialBossRepo.GetInfoByName(entryName);                    
                     if (boss_info != null)
                     {
-                        mSpecialBossByCategory[boss_info.category].Add(boss_info.sequence, boss_info.id);
+                        mSpecialBossByType[boss_info.bosstype].Add(boss_info.sequence, boss_info.id);
                         mSpecialBossLocationDataMap.Add(boss_info.id, new BossLocationData(entry.position, level, boss_info.archetypeid));
                     }
                 }
             }
         }
 
-        public static Dictionary<int, int> GetSpecialBossByCategory(BossCategory category)
+        public static Dictionary<int, int> GetSpecialBossByType(BossType type)
         {
-            return mSpecialBossByCategory[category];
+            return mSpecialBossByType[type];
         }
 
         public static BossLocationData GetSpecialBossLocationData(int id)

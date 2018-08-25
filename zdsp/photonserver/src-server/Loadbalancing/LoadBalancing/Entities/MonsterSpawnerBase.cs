@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Entities;
 using Zealot.Common.Entities;
 using Photon.LoadBalancing.GameServer;
-using Kopio.JsonContracts;
-using Zealot.Repository;
 
 namespace Zealot.Server.Entities
 {

@@ -29,11 +29,14 @@ public class Hero_MapTargetData : MonoBehaviour
             targetId = data.id;
             iconImage.sprite = ClientUtils.LoadIcon(data.iconpath);
             nameText.text = data.localizedname;
-            noteText.text = GUILocalizationRepo.GetLocalizedString("hro_explore_monster_requirement") + reqLevel;
+            noteText.text = "";
             bool canSelect = GameInfo.gLocalPlayer.PlayerSynStats.vipLvl >= reqLevel; // to revisit after achievement done
             if (!canSelect)
+            {
+                noteText.text = GUILocalizationRepo.GetLocalizedString("hro_explore_monster_requirement") + GUILocalizationRepo.colon + reqLevel;
                 noteText.color = Color.red;
-            button.interactable = canSelect;
+                button.interactable = false;
+            }
         }
         OnSelectCallback = selectCallback;
         button.onClick.AddListener(OnClick);

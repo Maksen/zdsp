@@ -1,11 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Zealot.Common;
-using Zealot.Client.Entities;
-using Zealot.Repository;
 
 public class Item_Currency_Data : MonoBehaviour
 {
@@ -27,7 +21,7 @@ public class Item_Currency_Data : MonoBehaviour
         _dataIcon.transform.SetParent(gameIconParent, false);
 
         GameIcon_MaterialConsumable gameIcon = _dataIcon.GetComponent<GameIcon_MaterialConsumable>();
-        gameIcon.Init(item.ItemID(), item.Amount(), false);
+        gameIcon.InitWithoutCallback(item.ItemID(), item.Amount());
         requireAmtTxt.text = item.Amount().ToString();
     }
 

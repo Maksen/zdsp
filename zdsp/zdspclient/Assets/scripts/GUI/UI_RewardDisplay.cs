@@ -8,24 +8,35 @@ public class UI_RewardDisplay : MonoBehaviour
     public Transform Content;
     public GameObject[] GameIconPrefab;
 
-    public void Init(List<RewardItem> itemInfoList)
+    public void Init(List<RewardItem> rewardItemList)
     {
         Clear();
-        if (itemInfoList != null)
+        if (rewardItemList != null)
         {
-            int count = itemInfoList.Count;
-            for (int index = 0; index < count; index++)
-                CreateIcon(itemInfoList[index]);
+            int count = rewardItemList.Count;
+            for (int index = 0; index < count; ++index)
+                CreateGameIcon(rewardItemList[index]);
         }
     }
 
-    void CreateIcon(RewardItem itemInfo)
+    void OnDisable()
     {
-        var itemJson = GameRepo.ItemFactory.GetItemById(itemInfo.id);
+        Clear();
+    }
+
+    public void Clear()
+    {
+        foreach (Transform child in Content)
+            Destroy(child.gameObject);
+    }
+
+    void CreateGameIcon(RewardItem rewardItem)
+    {
+        var itemJson = GameRepo.ItemFactory.GetItemById(rewardItem.id);
         if (itemJson == null)
             return;
         BagType bagType = itemJson.bagtype;
-        int prefab_index = (int)bagType - 1;
+        int prefab_index = (int)bagType-1;
         if (prefab_index >= 0 && prefab_index < GameIconPrefab.Length)
         {
             GameObject gameIcon = Instantiate(GameIconPrefab[prefab_index]);
@@ -33,23 +44,17 @@ public class UI_RewardDisplay : MonoBehaviour
             switch (bagType)
             {
                 case BagType.Equipment:
-                    gameIcon.GetComponent<GameIcon_Equip>().InitWithTooltipViewOnly(itemJson.itemid);
+                    gameIcon.GetComponent<GameIcon_Equip>().InitWithToolTipView(itemJson.itemid, 0, 0, 0);
                     break;
                 case BagType.Consumable:
                 case BagType.Material:
-                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithTooltipViewOnly(itemJson.itemid, itemInfo.count);
+                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithToolTipView(itemJson.itemid, rewardItem.count);
                     break;
                 case BagType.DNA:
-                    gameIcon.GetComponent<GameIcon_DNA>().InitWithTooltipViewOnly(itemJson.itemid, 0, 0);
+                    gameIcon.GetComponent<GameIcon_DNA>().InitWithToolTipView(itemJson.itemid, 0, 0);
                     break;
             }
         }
-    }
-
-    void Clear()
-    {
-        foreach (Transform child in Content)
-            Destroy(child.gameObject);
     }
 }
 

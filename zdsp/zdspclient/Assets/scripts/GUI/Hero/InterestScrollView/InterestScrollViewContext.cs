@@ -23,5 +23,12 @@ public class InterestScrollViewContext
 
     public Action<InterestScrollViewCell> OnPressedCell;
     public Action<int> OnSelectedIndexChanged;
+
+    private bool highlightSelected = true;
+    public bool HighlightSelected
+    {
+        get { return highlightSelected; }
+        set { highlightSelected = value; }
+    }
 }
 

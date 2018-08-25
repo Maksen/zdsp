@@ -1,11 +1,10 @@
 ﻿namespace Photon.LoadBalancing.GameServer
 {
+    using Kopio.JsonContracts;
     using System;
     using System.Collections.Generic;
     using System.Reflection;
     using UnityEngine;
-    using ExitGames.Logging;
-    using ExitGames.Concurrency.Fibers;
 
     using Zealot.Common;
     using Zealot.Common.Actions;
@@ -15,12 +14,12 @@
     using Zealot.Server.Actions;   
     using Zealot.Server.Counters;
     using Zealot.Server.Rules;
-    using Zealot.Server.EventMessage;
     using Zealot.RPC;
     using Zealot.Entities;
-
-    using Kopio.JsonContracts;
     using Zealot.Repository;
+
+    using ExitGames.Logging;
+    using ExitGames.Concurrency.Fibers;
     using Hive;
 
     public static class GameLogicIDPool
@@ -827,6 +826,9 @@
 
             /*********************   PowerUpInventory   ***************************/
             player.InitPowerUpStats(characterData.PowerUpInventory);
+
+            /*********************   EquipmentCraftInventory   ***************************/
+            player.InitEquipmentCraftStats(characterData.EquipmentCraftInventory);
 
             /*********************   SevenDaysInventory   ***************************/
             //player.InitSevenDaysStats(characterData.SevenDaysInventory);

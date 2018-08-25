@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using Zealot.Common;
 
 namespace Zealot.Repository
 {
     public class PushNotificationRepo
     {
-        static Dictionary<int, PushNotificationJson> mAllNotification;
+        public static Dictionary<int, PushNotificationJson> mAllNotification;
+
         public static void Init(GameDBRepo gameData)
         {
             mAllNotification = new Dictionary<int, PushNotificationJson>();
@@ -16,7 +16,6 @@ namespace Zealot.Repository
             {
                 mAllNotification.Add(noti.Value.notificationid, noti.Value);
             }
-
         }
 
         public static Dictionary<int,PushNotificationJson> GetScheduleNotification()

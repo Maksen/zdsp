@@ -46,7 +46,6 @@ public class InterestCircleScroll : MonoBehaviour
         OnSelectedIndexChanged = onSelectCallback;
 
         scrollView.UpdateData(cellData, context);  // set contents and context
-        scrollView.SetSelection(0);
     }
 
     public void SetCellsApplicable(int interestGroup)
@@ -67,9 +66,9 @@ public class InterestCircleScroll : MonoBehaviour
         }
     }
 
-    public void ResetSelection()
+    public void SetSelection(int index)
     {
-        scrollView.SetSelection(0);
+        scrollView.SetSelection(index);
     }
 
     private void HandleSelectedIndexChanged(int index)
@@ -83,5 +82,16 @@ public class InterestCircleScroll : MonoBehaviour
     public void EnableScrollView(bool value)
     {
         scrollView.EnableScrollPositionController(value);
+    }
+
+    public void HighlightSelected(bool value)
+    {
+        context.HighlightSelected = value;
+    }
+
+    public void SetAutoSpin(bool value)
+    {
+        //context.HighlightSelected = !value;
+        scrollView.SetAutoSpin(value);
     }
 }

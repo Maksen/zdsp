@@ -23,7 +23,7 @@ public class GameIcon_Base : MonoBehaviour
 
     UnityAction onClickIconCallback = null;
 
-    public void Init(int itemId)
+    protected void Init(int itemId, bool isNew = false)
     {
         inventoryItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
         if (inventoryItem == null)
@@ -35,12 +35,14 @@ public class GameIcon_Base : MonoBehaviour
             imgIcon.sprite = sprite;
 
         itemRarity.SetRarity(itemBaseJson.bagtype, itemBaseJson.rarity);
+
+        newDot.SetActive(isNew);
     }
 
-    public virtual void OnClickShowTooltipViewOnly()
+    protected void OnClickShowItemToolTip()
     {
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            window.GetComponent<HUD_ItemDetailToolTip>().InitTooltip(inventoryItem);
+            window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(inventoryItem);
         });
     }
 

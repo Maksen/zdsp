@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Kopio.JsonContracts;
-using Zealot.Common;
-using System.Linq;
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using Zealot.Common;
 
 namespace Zealot.Repository
 {
@@ -32,7 +31,7 @@ namespace Zealot.Repository
         public Dictionary<LootType, List<int>> GetLootGroupIDs(DateTime now)
         {
             Dictionary<LootType, List<int>> lootMap = new Dictionary<LootType, List<int>>();
-            for (int index = 0; index < lootList.Count; index++)
+            for (int index = 0; index < lootList.Count; ++index)
             {
                 LootLink lootLink = LootRepo.GetLootLink(lootList[index]);
                 if (lootLink == null || lootLink.gids.Count == 0)
@@ -42,7 +41,7 @@ namespace Zealot.Repository
                 lootMap[lootLink.lootType].AddRange(lootLink.gids);
             }
 
-            for (int index = 0; index < eventLootList.Count; index++)
+            for (int index = 0; index < eventLootList.Count; ++index)
             {
                 EventLootLink lootLink = LootRepo.GetEventLootLink(eventLootList[index]);
                 if (lootLink == null || lootLink.gids.Count == 0 || !lootLink.IsInEvent(now))
@@ -55,16 +54,16 @@ namespace Zealot.Repository
         }
     }
 
-    public static class NPCRepo
+    public static class CombatNPCRepo
     {
-        public static Dictionary<string, int> mNameMap;
         public static Dictionary<int, CombatNPCJson> mIdMap;
+        public static Dictionary<string, int> mNameMap;
         public static Dictionary<int, NPCLootLink> mNPCLootLinks;
         public static Dictionary<int, BossAIJson> mBossAIRaw;
-        static NPCRepo()
+
+        static CombatNPCRepo()
         {
             mNameMap = new Dictionary<string, int>();
-            mIdMap = new Dictionary<int, CombatNPCJson>();
             mNPCLootLinks = new Dictionary<int, NPCLootLink>();
         }
 
@@ -73,34 +72,38 @@ namespace Zealot.Repository
             mNameMap.Clear();
             mNPCLootLinks.Clear();
             mIdMap = gameData.CombatNPC;
-            mBossAIRaw =  gameData.BossAI;
-            foreach (KeyValuePair<int, CombatNPCJson> entry in gameData.CombatNPC) {
-                mNameMap.Add(entry.Value.archetype, entry.Key);
-                NPCLootLink npcLooLink = NPCLootLink.Create(entry.Value.loot, entry.Value.eventloot);
-                if (npcLooLink != null)
-                    mNPCLootLinks.Add(entry.Key, npcLooLink);
+            mBossAIRaw = gameData.BossAI;
+
+            foreach (KeyValuePair<int, CombatNPCJson> entry in mIdMap)
+            {
+                int id = entry.Key;
+                CombatNPCJson combatNPCJson = entry.Value;
+                mNameMap.Add(combatNPCJson.archetype, id);
+                NPCLootLink npcLootLink = NPCLootLink.Create(combatNPCJson.lootids, combatNPCJson.eventlootids);
+                if (npcLootLink != null)
+                    mNPCLootLinks.Add(id, npcLootLink);
             }
         }
 
         public static BossAIJson GetBossAIByID(int id)
         {
-            BossAIJson bossai;
-            mBossAIRaw.TryGetValue(id, out bossai);
-            return bossai; 
+            BossAIJson bossAI;
+            mBossAIRaw.TryGetValue(id, out bossAI);
+            return bossAI; 
         }
 
-        public static CombatNPCJson GetArchetypeByName(string name)
-        {
-            if (mNameMap.ContainsKey(name))
-                return mIdMap[mNameMap[name]];
-            return null;
-        }
-
-        public static CombatNPCJson GetArchetypeById(int id)
+        public static CombatNPCJson GetNPCById(int id)
         {
             CombatNPCJson npcJson;
             mIdMap.TryGetValue(id, out npcJson);
             return npcJson;
+        }
+
+        public static CombatNPCJson GetNPCByArchetype(string archetype)
+        {
+            if (mNameMap.ContainsKey(archetype))
+                return mIdMap[mNameMap[archetype]];
+            return null;
         }
 
         public static NPCLootLink GetNPCLootLink(int id)
@@ -108,6 +111,64 @@ namespace Zealot.Repository
             NPCLootLink npcLootLink;
             mNPCLootLinks.TryGetValue(id, out npcLootLink);
             return npcLootLink;
+        }
+    }
+
+    public static class StaticNPCRepo
+    {
+        public static Dictionary<int, StaticNPCJson> mIdMap;
+        public static Dictionary<string, int> mNameMap;
+        
+        static StaticNPCRepo()
+        {
+            mNameMap = new Dictionary<string, int>();
+        }
+
+        public static void Init(GameDBRepo gameData)
+        {
+            mIdMap = gameData.StaticNPC;
+
+            foreach (KeyValuePair<int, StaticNPCJson> kvp in mIdMap)
+                mNameMap[kvp.Value.archetype] = kvp.Value.id;
+        }
+
+        public static StaticNPCJson GetNPCById(int id)
+        {
+            StaticNPCJson npcJson;
+            mIdMap.TryGetValue(id, out npcJson);
+            return npcJson;
+        }
+
+        public static StaticNPCJson GetNPCByArchetype(string archetype)
+        {
+            if (mNameMap.ContainsKey(archetype))
+                return mIdMap[mNameMap[archetype]];
+            return null;
+        }
+
+        public static string GetModelPrefabPathById(int id)
+        {
+            if (mIdMap.ContainsKey(id))
+                return mIdMap[id].modelprefabpath;
+            return "";
+        }
+
+        public static string GetModelPrefabPathByArchetype(string archetype)
+        {
+            if (mNameMap.ContainsKey(archetype))
+                return mIdMap[mNameMap[archetype]].modelprefabpath;
+            return "";
+        }
+
+        public static float[] ParseCameraPosInTalk(string camerapos)
+        {
+            float[] camerastats = new float[4];
+            string[] camera = camerapos.Split(';');
+            camerastats[0] = float.Parse(camera[0]);
+            camerastats[1] = float.Parse(camera[1]);
+            camerastats[2] = float.Parse(camera[2]);
+            camerastats[3] = float.Parse(camera[3]);
+            return camerastats;
         }
     }
 
@@ -123,88 +184,34 @@ namespace Zealot.Repository
         public static void Init(GameDBRepo gameData)
         {
             mNameMap.Clear();
+
             foreach (KeyValuePair<int, RealmNPCGroupJson> entry in gameData.RealmNPCGroup)
             {
-                string groupName = entry.Value.name;
+                RealmNPCGroupJson realmNPCGroupJson = entry.Value;
+                string groupName = realmNPCGroupJson.name;
                 if (!mNameMap.ContainsKey(groupName))
                     mNameMap.Add(groupName, new Dictionary<int, int>());
-                mNameMap[groupName].Add(entry.Value.realmid, entry.Value.archetypeid);
+                mNameMap[groupName].Add(realmNPCGroupJson.realmid, realmNPCGroupJson.archetypeid);
             }
         }
 
-        public static Dictionary<int, int> GetArchetypeByName(string name)
+        public static Dictionary<int, int> GetNPCGroupByName(string groupName)
         {
-            if (mNameMap.ContainsKey(name))
-                return mNameMap[name];
-            return null;
+            Dictionary<int, int> realmNPCGroup;
+            mNameMap.TryGetValue(groupName, out realmNPCGroup);
+            return realmNPCGroup;
         }
 
-        public static CombatNPCJson GetArchetypeByNameAndRealmID(string name, int realmid)
+        public static CombatNPCJson GetNPCByGroupNameAndRealmId(string groupName, int realmId)
         {
-            if (mNameMap.ContainsKey(name) && mNameMap[name].ContainsKey(realmid))
+            Dictionary<int, int> realmNPCGroup;
+            if (mNameMap.TryGetValue(groupName, out realmNPCGroup))
             {
-                int npcid = mNameMap[name][realmid];
-                return NPCRepo.GetArchetypeById(npcid);
+                int npcId;
+                if (realmNPCGroup.TryGetValue(realmId, out npcId))
+                    return CombatNPCRepo.GetNPCById(npcId);
             }
             return null;
-        }
-    }
-
-    public static class StaticNPCRepo
-    {
-        public static Dictionary<int, StaticNPCJson> mIdMap;
-        public static Dictionary<string, StaticNPCJson> mNameMap;
-
-        static StaticNPCRepo()
-        {
-            mIdMap = new Dictionary<int, StaticNPCJson>();
-            mNameMap = new Dictionary<string, StaticNPCJson>();
-        }
-
-        public static void Init(GameDBRepo gameData)
-        {
-            mIdMap = gameData.StaticNPC;
-            foreach (var kvp in gameData.StaticNPC)
-                mNameMap[kvp.Value.archetype] = kvp.Value;
-        }
-
-        public static StaticNPCJson GetStaticNPCById(int id)
-        {
-            if (mIdMap.ContainsKey(id))
-                return mIdMap[id];
-            return null;
-        }
-
-        public static StaticNPCJson GetStaticNPCByName(string archetype)
-        {
-            if (mNameMap.ContainsKey(archetype))
-                return mNameMap[archetype];
-            return null;
-        }
-
-        public static string GetNPCArchetypePathById(int id)
-        {
-            if (mIdMap.ContainsKey(id))
-                return mIdMap[id].modelprefabpath;
-            return "";
-        }
-
-        public static string GetNPCArchetypePathByName(string archetype)
-        {
-            if (mNameMap.ContainsKey(archetype))
-                return mNameMap[archetype].modelprefabpath;
-            return "";
-        }
-
-        public static float[] ParseCameraPosInTalk(string camerapos)
-        {
-            float[] camerastats = new float[4]; 
-            string[] camera = camerapos.Split(';');
-            camerastats[0] = float.Parse(camera[0]);
-            camerastats[1] = float.Parse(camera[1]);
-            camerastats[2] = float.Parse(camera[2]);
-            camerastats[3] = float.Parse(camera[3]);
-            return camerastats;
         }
     }
 
@@ -212,33 +219,41 @@ namespace Zealot.Repository
     {
         public static Dictionary<int, SpecialBossJson> mIdMap; 
         public static Dictionary<string, int> mNameMap;
-        public static Dictionary<BossCategory, List<SpecialBossJson>> mBossOrderedBySequence;
+        public static Dictionary<BossType, List<SpecialBossJson>> mBossOrderedBySequence;
         public static int BossNoDmgRandomPos = 1800;
        
         static SpecialBossRepo()
         {            
-            mIdMap = new Dictionary<int, SpecialBossJson>();
             mNameMap = new Dictionary<string, int>();
-            mBossOrderedBySequence = new Dictionary<BossCategory, List<SpecialBossJson>>();
+            mBossOrderedBySequence = new Dictionary<BossType, List<SpecialBossJson>>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
-            BossNoDmgRandomPos = GameConstantRepo.GetConstantInt("Boss_NoDmgChangePos", 1800);
             mIdMap = gameData.SpecialBoss;
             mNameMap.Clear();
             mBossOrderedBySequence.Clear();
-            Dictionary<BossCategory, List<SpecialBossJson>> _temp = new Dictionary<BossCategory, List<SpecialBossJson>>();
+            BossNoDmgRandomPos = GameConstantRepo.GetConstantInt("Boss_NoDmgChangePos", 1800);
+
+            Dictionary<BossType, List<SpecialBossJson>> _temp = new Dictionary<BossType, List<SpecialBossJson>>();
             foreach (KeyValuePair<int, SpecialBossJson> entry in gameData.SpecialBoss)
             {
-                mNameMap.Add(entry.Value.name, entry.Key);
-                BossCategory _category = entry.Value.category;
+                SpecialBossJson specialBossJson = entry.Value;
+                mNameMap.Add(specialBossJson.name, entry.Key);
+                BossType _category = specialBossJson.bosstype;
                 if (!_temp.ContainsKey(_category))
                     _temp.Add(_category, new List<SpecialBossJson>());
-                _temp[_category].Add(entry.Value);
+                _temp[_category].Add(specialBossJson);
             }
             foreach(var kvp in _temp)
                 mBossOrderedBySequence.Add(kvp.Key, kvp.Value.OrderBy(x => x.sequence).ToList());
+        }
+
+        public static SpecialBossJson GetInfoById(int id)
+        {
+            SpecialBossJson specialBossJson;
+            mIdMap.TryGetValue(id, out specialBossJson);
+            return specialBossJson;
         }
 
         public static SpecialBossJson GetInfoByName(string name)
@@ -248,19 +263,11 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static SpecialBossJson GetInfoById(int id)
+        public static List<SpecialBossJson> GetOrderedBossIdsByType(BossType type)
         {
-            if (mIdMap.ContainsKey(id))
-                return mIdMap[id];
-            return null;
-        }
-
-        public static List<SpecialBossJson> GetOrderedBossIdsByCategory(BossCategory category)
-        {
-            List<SpecialBossJson> ret;
-            mBossOrderedBySequence.TryGetValue(category, out ret);
-            return ret;
+            List<SpecialBossJson> bossList;
+            mBossOrderedBySequence.TryGetValue(type, out bossList);
+            return bossList;
         }
     }
 }
-

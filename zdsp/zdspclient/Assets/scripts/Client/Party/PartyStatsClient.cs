@@ -295,7 +295,10 @@ public class PartyStatsClient : PartyStats
                 canStart = true;
             }
             else
+            {
                 UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
+                StopFollowTarget();
+            }
         }
     }
 
@@ -386,7 +389,7 @@ public class PartyStatsClient : PartyStats
             if (followTarget != null && IsTargetInRange(followTarget.Position))
             {
                 BaseClientCastSkill action = followTarget.GetAction() as BaseClientCastSkill;
-                if (action != null && action.mTarget != null)
+                if (followTarget.IsAlive() && action != null && action.mTarget != null)
                 {
                     if (localPlayer.IsIdling())
                         GameInfo.gCombat.CommonCastBasicAttack(action.mTarget.GetPersistentID());

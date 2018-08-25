@@ -9,6 +9,7 @@
 	
 	<element name="WorldMapCountryPlace" useexcel="true">
 		<property name="country" type="WorldMapCountry" uitext="world map country" display="countryname"/>
+		<property name="level" type="Level" uitext="level" display="excelname"/>
 		<property name="placeiconpath" type="string" uitext="place icon asset path" default=""/>
 		<property name="placename" type="string" uitext="Place or Interest Name" default=""/>
 	</element>

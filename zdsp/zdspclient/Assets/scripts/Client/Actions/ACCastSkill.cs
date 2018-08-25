@@ -377,6 +377,13 @@ namespace Zealot.Client.Actions
             if (mEntity.IsPlayer())
                 GotoState("Recover");
         }
+
+        protected void ForceIdle()
+        {
+            NetEntityGhost ghost = (NetEntityGhost)mEntity;
+            IdleActionCommand cmd = new IdleActionCommand();
+            ghost.PerformAction(new ClientAuthoACIdle(ghost, cmd), true);
+        }
     }
 
     public class ClientAuthoCastSkill : BaseClientCastSkill
@@ -461,6 +468,13 @@ namespace Zealot.Client.Actions
 
         protected override void OnActiveEnter(string prevstate)
         {
+            if (mTarget == null)
+            {
+                ForceIdle();
+                GotoState("Completed");
+                return;
+            }
+
             base.OnActiveEnter(prevstate);
             //Debug.LogFormat("casting skillgroup: {0}, name:{1}" , mSkillData.skillgroupJson.id,mSkillName);
 

@@ -40,7 +40,6 @@ public class UI_Hero_StatsDialog : BaseWindowBehaviour
     {
         base.OnRegister();
 
-        ClientUtils.DestroyChildren(dataTransform);
         int length = (int)HeroStats.TOTAL_NUM;
         for (int i = 0; i < length; i++)
         {

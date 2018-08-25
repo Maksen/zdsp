@@ -183,7 +183,8 @@ public class UI_ClueMessageData : MonoBehaviour
             {
                 CollectRewardData data = new CollectRewardData(mClueData.ClueId, CollectRewardType.DestinyClue);
                 List<RewardItem> rewardlist = RewardListRepo.GetRewardItemsByGrpIDJobID(dialogueClueJson.reward, player.PlayerSynStats.jobsect);
-                UIManager.OpenDialog(WindowType.DialogClaimReward, (window) => window.GetComponent<UI_ClaimReward>().Init(rewardlist, data, "destinycliamreward_title", status != ClueStatus.Collected ? true : false));
+                UIManager.OpenDialog(WindowType.DialogClaimReward, 
+                    (window) => window.GetComponent<UI_DialogClaimReward>().Init(rewardlist, data, "destinycliamreward_title", status != ClueStatus.Collected ? true : false));
             }
         }
         else

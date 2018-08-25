@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+    <element name="DNAUpgrade" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="rarity" type="ItemRarity" uitext="Gene Rarity"/>
+      <property name="stage" type="int" uitext="Gene Stage"/>
+      <property name="level" type="int" uitext="Gene Level"/>
+      <property name="reqexp" type="int" uitext="Required Experience" default="0"/>
+      <property name="reqmoney" type="int" uitext="Required Money" default="0"/>
+    </element>
+  </data>
+
+  <data>
+    <element name="DNAEvolve" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="rarity" type="ItemRarity" uitext="Gene Rarity"/>
+      <property name="evotype" type="string" uitext="Evolution Type"/>
+      <property name="stage" type="int" uitext="Gene Stage"/>
+      <property name="reqitem" type="int" uitext="Required Item" default="-1"/>
+      <property name="reqitemcount" type="int" uitext="Required Item Count" default="0"/>
+      <property name="reqmoney" type="int" uitext="Required Money" default="0"/>
+      <property name="mutationrate" type="float" uitext="Mutation Rate" default="0"/>
+      <property name="evoposrate" type="float" uitext="Evolution Positive Rate" default="0"/>
+      <property name="mutationposrate" type="float" uitext="Mutation Positive Rate" default="0"/>
+      <property name="mutationnegrate" type="float" uitext="Mutation Negative Rate" default="0"/>
+    </element>
+  </data>
+
+  <data>
+    <element name="RelicRecycle" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="relicid" type="int" uitext="Relic Id"/>
+      <property name="valuetype" type="string" uitext="Value Type" default="a"/>
+      <property name="weight" type="int" uitext="Weight" default="0"/>
+    </element>
+  </data>
+</magicalarea51>

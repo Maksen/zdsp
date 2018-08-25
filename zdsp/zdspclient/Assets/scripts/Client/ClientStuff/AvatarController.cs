@@ -195,9 +195,9 @@ public class AvatarController : MonoBehaviour
         if (equipmentInvData.HideHelm)
             EquipDefaultHelm(0, gender);
         else if (fashion_helm != null)
-            EquipHelm(fashion_helm.EquipmentJson, gender);
+            EquipHelm(fashion_helm.EquipmentJson, 0, gender);
         else if (equip_helm != null)
-            EquipHelm(equip_helm.EquipmentJson, gender);
+            EquipHelm(equip_helm.EquipmentJson, 0, gender);
         else
             EquipDefaultHelm(0, gender);
 
@@ -220,22 +220,32 @@ public class AvatarController : MonoBehaviour
 
     public void EquipDefaultHelm(int hairStyle, Gender gender)
     {
-        //todo: base on hairStyle selected in character creation, get path from kopio
         Unequip("accessory");
+        EquipDefaultHair(hairStyle, gender);
+    }
+
+    private void EquipDefaultHair(int hairStyle, Gender gender)
+    {
+        //todo: base on hairStyle selected in character creation, get path from kopio
         if (gender == Gender.Male)
             OnSkinChanged("helm", "Models_Characters/Pc_job/t3_bladeMaster_male_head.fbx", "Models_Characters/Pc_job/Materials/t3_bladeMaster_male_head.mat");
         else
             OnSkinChanged("helm", "Models_Characters/Pc_job/t3_bladeMaster_female_head.fbx", "Models_Characters/Pc_job/Materials/t3_bladeMaster_female_head.mat");
     }
 
-    public void EquipHelm(EquipmentJson equipmentJson, Gender gender)
+    public void EquipHelm(EquipmentJson equipmentJson, int hairStyle, Gender gender)
     {
         string accessory_prefabpath = gender == Gender.Male ? equipmentJson.prefabpath : equipmentJson.femaleprefabpath;
         if (string.IsNullOrEmpty(accessory_prefabpath))
             Unequip("accessory");
         else
             OnAccessoryChanged(accessory_prefabpath);
-        OnSkinChanged("helm", equipmentJson, gender);
+
+        string meshpath = (gender == Gender.Male) ? equipmentJson.malemeshpath : equipmentJson.femalemeshpath;
+        if (string.IsNullOrEmpty(meshpath))
+            EquipDefaultHair(hairStyle, gender);
+        else
+            OnSkinChanged("helm", equipmentJson, gender);
     }
 
     public void OnWeaponChanged(string prefabpath)

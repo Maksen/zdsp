@@ -8,7 +8,7 @@ namespace Zealot.Entities
 		public long delay;
 		public long ticker;
 		
-		public override string GetServerClassName(){return "DelayTickerServer";}
+		public override string GetServerClassName(){ return "DelayTickerServer";}
 	}
 
     public class CounterJson : ServerEntityWithEventJson

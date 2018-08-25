@@ -33,7 +33,6 @@ public class CombatRPC : RPCBase
         ProxyMethod("OnEnterTrigger", entryName);
     }
 
-
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnEnterSafeZone)]
     public void OnSafeZone(bool enter, int id, int type)
     {

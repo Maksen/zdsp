@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Timeline;
 using Zealot.Client.Entities;
 using Zealot.Common;
 
@@ -8,7 +10,6 @@ public class TimelineAssist : MonoBehaviour
 {
     public PlayableDirector playableDirector;
     public Transform replaceLocalPlayer;
-    public string replaceTrackName;
     public GameObject malePrefab;
     public GameObject femalePrefab;
     public TimelineWeaponAssist weaponAssist;
@@ -37,17 +38,40 @@ public class TimelineAssist : MonoBehaviour
                 myTransform.localRotation = replaceLocalPlayer.localRotation;
                 myTransform.localScale = replaceLocalPlayer.localScale;
 
-                foreach (var kvp in playableDirector.playableAsset.outputs)
+                var clipArrays = myLocalPlayer.GetComponent<Animator>().runtimeAnimatorController.animationClips;
+                foreach (var kvp in playableDirector.playableAsset.outputs) //rebind all localplayer track to new object
                 {
-                    if (kvp.streamName == replaceTrackName)
+                    if (kvp.streamName.Contains("LocalPlayer")) 
                     {
                         playableDirector.SetGenericBinding(kvp.sourceObject, myLocalPlayer);
-                        break;
+                        var track = kvp.sourceObject as AnimationTrack;
+                        if (track != null)
+                        {
+                            var clips = track.GetClips();
+                            foreach (var _timeClip in clips)
+                            {
+                                string adjusted_clipname = GetClipAdjusted(_timeClip.displayName, localplayer.WeaponTypeUsed);
+                                var adjusted_clip = Array.Find(clipArrays, clip => clip.name == adjusted_clipname);
+                                if (adjusted_clip != null)
+                                {
+                                    ((AnimationPlayableAsset)_timeClip.asset).clip = adjusted_clip;
+                                    //_timeClip.displayName = adjusted_clipname;
+                                }
+                            }
+                        }   
                     }
                 }
                 replaceLocalPlayer.gameObject.SetActive(false); //hide it so it won't in scene.
             }
         }
+    }
+
+    private static string GetClipAdjusted(string clip, PartsType type)
+    {
+        int index = clip.IndexOf('_');
+        if (index >= 0 && ClientUtils.weaponPrefix.Contains(clip.Substring(0, index)))
+            return ClientUtils.GetPrefixByWeaponType(type) + clip.Substring(index);
+        return clip;
     }
 
     public void HideWeapon(bool hide)

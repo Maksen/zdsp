@@ -37,10 +37,9 @@ public class RequiredItemData : MonoBehaviour {
         gameIconObj.transform.GetChild(3).GetComponent<Text>().text = invAmount.ToString();
         gameIconObj.transform.SetParent(gameIconParent, false);
         itemID = itemId;
-        gameIconObj.GetComponent<Button>().onClick.AddListener(OnClick);
 
         GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        gameIcon.Init(itemId, invAmount);
+        gameIcon.Init(itemId, invAmount, false, false, false, OnClick);
         gameIcon.SetFullStackCount(invAmount);
         requiredAmount.text = reqAmount.ToString();
         UI_CharacterPowerup_Manager.CompareMaterial(gameIconObj.transform.GetChild(3).GetComponent<Text>(), invAmount, reqAmount);
@@ -51,11 +50,11 @@ public class RequiredItemData : MonoBehaviour {
         PlayerGhost player = GameInfo.gLocalPlayer;
         var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)itemID);
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            OnClicked_InitTooltip(window.GetComponent<HUD_ItemDetailToolTip>(), _item);
+            OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), _item);
         });
     }
 
-    private void OnClicked_InitTooltip(HUD_ItemDetailToolTip component, IInventoryItem item)
+    private void OnClicked_InitTooltip(UI_DialogItemDetailToolTip component, IInventoryItem item)
     {
         component.InitTooltip(item);
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();

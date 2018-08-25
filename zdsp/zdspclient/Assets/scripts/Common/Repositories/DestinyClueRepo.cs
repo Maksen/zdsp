@@ -1,8 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using System.Linq;
-using Kopio.JsonContracts;
-using Zealot.Common;
 
 namespace Zealot.Repository
 {

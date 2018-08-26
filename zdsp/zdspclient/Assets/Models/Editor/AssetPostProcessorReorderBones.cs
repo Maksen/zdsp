@@ -16,7 +16,9 @@ public class AssetPostProcessorReorderBones : AssetPostprocessor
     public void Process(GameObject g)
     {
         if (assetPath != null)
-            if (!assetPath.Contains("Models/Characters/Pc_job") && !assetPath.Contains("Models/Characters/Pc_fashion"))
+            if (!assetPath.Contains("Models/Characters/Pc_job") && !assetPath.Contains("Models/Characters/Pc_fashion")
+                && !assetPath.Contains("Models/Characters/Pc_face") && !assetPath.Contains("Models/Characters/Pc_hair")
+                && !assetPath.Contains("Models/Characters/Pc_helm"))
                 return;
 
         var rends = g.GetComponentsInChildren<SkinnedMeshRenderer>();

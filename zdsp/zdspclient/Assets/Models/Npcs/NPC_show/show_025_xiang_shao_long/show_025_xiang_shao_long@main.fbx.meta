@@ -76,8 +76,8 @@ ModelImporter:
     2100000: 01 - Default
     4300000: s_093_xiang_shao_long
     4300002: Plane001
-    7400000: main
-    7400002: struggle
+    7400000: get up
+    7400002: atk
     7400004: shake
     7400006: blink
     9500000: //RootNode
@@ -111,38 +111,10 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: main
+      name: get up
       takeName: Take 001
-      firstFrame: 130
-      lastFrame: 200
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: struggle
-      takeName: Take 001
-      firstFrame: 0
-      lastFrame: 30
+      firstFrame: 115
+      lastFrame: 125
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -169,8 +141,8 @@ ModelImporter:
     - serializedVersion: 16
       name: shake
       takeName: Take 001
-      firstFrame: 35
-      lastFrame: 55
+      firstFrame: 125
+      lastFrame: 145
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -178,7 +150,7 @@ ModelImporter:
       loop: 0
       hasAdditiveReferencePose: 0
       loopTime: 1
-      loopBlend: 0
+      loopBlend: 1
       loopBlendOrientation: 0
       loopBlendPositionY: 0
       loopBlendPositionXZ: 0
@@ -197,8 +169,36 @@ ModelImporter:
     - serializedVersion: 16
       name: blink
       takeName: Take 001
-      firstFrame: 60
-      lastFrame: 120
+      firstFrame: 145
+      lastFrame: 156
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: atk
+      takeName: Take 001
+      firstFrame: 156
+      lastFrame: 200
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

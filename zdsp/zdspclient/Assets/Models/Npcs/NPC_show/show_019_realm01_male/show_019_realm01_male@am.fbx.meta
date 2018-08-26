@@ -68,6 +68,7 @@ ModelImporter:
     100120: //RootNode
     100122: weapon00
     100124: Plane001
+    100126: Plane002
     400000: 2weapon00
     400002: b_cap00
     400004: b_cap01
@@ -131,16 +132,20 @@ ModelImporter:
     400120: //RootNode
     400122: weapon00
     400124: Plane001
+    400126: Plane002
     2100000: 'Material #0'
     2100002: No Name
     4300000: fa_001_agent_male_body
     4300002: Plane001
-    7400000: shake
-    7400002: blink
-    7400004: main
+    4300004: Plane002
+    7400000: get up
+    7400002: shake
+    7400004: blink
+    7400006: atk
     9500000: //RootNode
     13700000: fa_001_agent_male_body
     13700002: Plane001
+    13700004: Plane002
   externalObjects: {}
   materials:
     importMaterials: 0
@@ -169,10 +174,38 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
+      name: get up
+      takeName: Take 001
+      firstFrame: 115
+      lastFrame: 125
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
       name: shake
       takeName: Take 001
-      firstFrame: 35
-      lastFrame: 55
+      firstFrame: 125
+      lastFrame: 145
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -199,8 +232,8 @@ ModelImporter:
     - serializedVersion: 16
       name: blink
       takeName: Take 001
-      firstFrame: 60
-      lastFrame: 120
+      firstFrame: 145
+      lastFrame: 156
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -225,9 +258,9 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: main
+      name: atk
       takeName: Take 001
-      firstFrame: 130
+      firstFrame: 156
       lastFrame: 200
       wrapMode: 0
       orientationOffsetY: 0

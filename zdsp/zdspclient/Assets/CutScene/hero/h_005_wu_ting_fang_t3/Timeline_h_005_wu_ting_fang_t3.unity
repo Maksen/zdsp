@@ -24705,6 +24705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 602616543}
   Refbone: 
@@ -24716,8 +24717,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 319724276}
 --- !u!199 &301680980
 ParticleSystemRenderer:
   serializedVersion: 4
@@ -130395,6 +130394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 602616543}
   Refbone: 
@@ -130406,8 +130406,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 350583379}
 --- !u!199 &2052072828
 ParticleSystemRenderer:
   serializedVersion: 4

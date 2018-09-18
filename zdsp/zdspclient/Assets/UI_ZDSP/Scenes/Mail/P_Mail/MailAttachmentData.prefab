@@ -282,6 +282,7 @@ GameObject:
   - component: {fileID: 114532085451749852}
   - component: {fileID: 114678289912844124}
   - component: {fileID: 114422629746816756}
+  - component: {fileID: 114985145035803534}
   m_Layer: 5
   m_Name: MailAttachmentData
   m_TagString: Untagged
@@ -1165,6 +1166,20 @@ MonoBehaviour:
   spriteSocketStatus:
   - {fileID: 21300000, guid: 281b473e252f1aa4caebcb8c15e2e617, type: 3}
   - {fileID: 21300000, guid: f4f683934ab55fd4c9007eeb6837abeb, type: 3}
+--- !u!114 &114985145035803534
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1716243926040330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ae2b79cf306bfb49ba3d145257b9fbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mItemSlot: {fileID: 114736578922100402}
+  mItemCount: {fileID: 114491997813963690}
+  mItemType: 0
 --- !u!114 &114986885879833578
 MonoBehaviour:
   m_ObjectHideFlags: 1

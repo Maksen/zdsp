@@ -56,6 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4970906485735302}
   - component: {fileID: 114498434762973798}
+  - component: {fileID: 114056365507143874}
   m_Layer: 5
   m_Name: Avatar3D
   m_TagString: Untagged
@@ -176,6 +177,7 @@ GameObject:
   - component: {fileID: 114141437587991982}
   - component: {fileID: 222726161173147532}
   - component: {fileID: 114563058844379012}
+  - component: {fileID: 114851925717338360}
   m_Layer: 5
   m_Name: GameObject_PortraitFuntions
   m_TagString: Untagged
@@ -244,13 +246,27 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114056365507143874
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1503929614473308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da1812c8bf2db754981212804e1b431f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetTransform: {fileID: 4099481147112614}
+  uiDragEvent: {fileID: 114851925717338360}
+  _fRotateSpeed: 20
 --- !u!114 &114141437587991982
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1911725597399260}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
@@ -282,18 +298,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114563058844379012}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114978255309028844}
-        m_MethodName: OnClickAvatar
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114141872107360822
@@ -622,6 +627,18 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1.3
   m_Text: Lv 999
+--- !u!114 &114851925717338360
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1911725597399260}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b4a24c5339bf4149a8a60be3a0d8490, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offsetLimit: 0.1
 --- !u!114 &114945678206104750
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -646,7 +663,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ab03ff5175c4a54596200d7338240c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modelParentTranform: {fileID: 4099481147112614}
   modelAvatar: {fileID: 114498434762973798}
   nameText: {fileID: 114202767500591686}
   levelText: {fileID: 114778435191325882}
@@ -655,6 +671,7 @@ MonoBehaviour:
   portraitFuncTransform: {fileID: 224901096036614012}
   portraitFuncPrefab: {fileID: 1393335759831178, guid: 75d77c4b7345f4f418b07b51ffce6b25,
     type: 2}
+  uiDragEvent: {fileID: 114851925717338360}
 --- !u!222 &222211960319278208
 CanvasRenderer:
   m_ObjectHideFlags: 1

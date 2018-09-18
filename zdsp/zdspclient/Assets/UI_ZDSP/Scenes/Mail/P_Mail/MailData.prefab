@@ -93,6 +93,7 @@ GameObject:
   - component: {fileID: 114697331485205176}
   - component: {fileID: 114674260152183730}
   - component: {fileID: 114354200993058544}
+  - component: {fileID: 114889022759515958}
   m_Layer: 5
   m_Name: MailData
   m_TagString: Untagged
@@ -339,6 +340,24 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114889022759515958
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1956586640823756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56a807bb3d5bdc047b02bbd56e8e84d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Sprite_MailOpen: {fileID: 21300000, guid: e5b83e494c3e8074bb435f1713aeb0b4, type: 3}
+  Sprite_MailClose: {fileID: 21300000, guid: 1b9d818268bfd9047b48c8ca10f035ba, type: 3}
+  Sprite_MailHasAttachment: {fileID: 21300000, guid: ab45c585033e7fb4d9525ba4525cc7ff,
+    type: 3}
+  Text_MailName: {fileID: 114682424439551970}
+  Text_MailDate: {fileID: 114062692980254782}
+  Image_MailIcon: {fileID: 114177819946100460}
 --- !u!222 &222097887146387738
 CanvasRenderer:
   m_ObjectHideFlags: 1

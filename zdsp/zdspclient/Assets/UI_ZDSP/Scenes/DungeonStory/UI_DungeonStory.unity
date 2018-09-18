@@ -18648,7 +18648,7 @@ Prefab:
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224088748305904146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
@@ -18797,6 +18797,22 @@ RectTransform:
   m_PrefabParentObject: {fileID: 224088748305904146, guid: 447addfcd3cabe545b6900a2be10abc1,
     type: 2}
   m_PrefabInternal: {fileID: 925868164}
+--- !u!1 &925868166 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1032071954315080, guid: 447addfcd3cabe545b6900a2be10abc1,
+    type: 2}
+  m_PrefabInternal: {fileID: 925868164}
+--- !u!114 &925868167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 925868166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df9f9332fb530894088a6fac15c28115, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &938604725
 GameObject:
   m_ObjectHideFlags: 0
@@ -28912,7 +28928,7 @@ MonoBehaviour:
   - {fileID: 1060896307}
   list_tabcontent:
   - {fileID: 447926532}
-  defaultAutoEnable: 1
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 1573258717}
 --- !u!1001 &1586111739
 Prefab:

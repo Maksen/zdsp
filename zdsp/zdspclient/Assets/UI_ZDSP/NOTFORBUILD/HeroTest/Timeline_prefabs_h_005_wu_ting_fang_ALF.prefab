@@ -84,14 +84,14 @@ GameObject:
   - component: {fileID: 4899222557516364}
   - component: {fileID: 320182547172034538}
   - component: {fileID: 95828841854416300}
-  - component: {fileID: 114312544062196274}
+  - component: {fileID: 114320532682986528}
   m_Layer: 16
   m_Name: Timeline_prefabs_h_005_wu_ting_fang_ALF
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1057926153137120
 GameObject:
   m_ObjectHideFlags: 1
@@ -874,7 +874,6 @@ GameObject:
   - component: {fileID: 4548353643275532}
   - component: {fileID: 20695500347986584}
   - component: {fileID: 124522013898478792}
-  - component: {fileID: 81214403247123234}
   - component: {fileID: 320561245768967788}
   - component: {fileID: 95613635407566482}
   - component: {fileID: 114791083081263158}
@@ -3073,13 +3072,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &81214403247123234
-AudioListener:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1475652982037798}
-  m_Enabled: 1
 --- !u!95 &95286932614238062
 Animator:
   serializedVersion: 3
@@ -3369,7 +3361,7 @@ MonoBehaviour:
   Rotation: {x: 0, y: 0, z: 0}
   Scale: {x: 1, y: 1, z: 1}
   WorldSpace: 0
---- !u!114 &114312544062196274
+--- !u!114 &114320532682986528
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -3377,9 +3369,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1041229636444044}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4789f149013ef1468044c34129d51ef, type: 3}
+  m_Script: {fileID: 11500000, guid: a65f2c7ca7f9f184e8515c439ddd8fb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  closeButton: {fileID: 114909338578679048}
 --- !u!114 &114348624354200626
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3445,6 +3438,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 1491326984765934}
   Refbone: 
@@ -3456,8 +3450,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 1537704159204856}
 --- !u!114 &114487038416986138
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3567,7 +3559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profile: {fileID: 11400000, guid: dff02e89def92b445b82687e67e01d99, type: 2}
+  profile: {fileID: 0}
 --- !u!114 &114796597533711314
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3593,6 +3585,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 1491326984765934}
   Refbone: 
@@ -3604,8 +3597,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 1496405625814734}
 --- !u!114 &114806338129655054
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3656,18 +3647,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114636137779575974}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114312544062196274}
-        m_MethodName: SetCamUIActive
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!124 &124522013898478792
@@ -79069,7 +79049,7 @@ PlayableDirector:
   m_GameObject: {fileID: 1041229636444044}
   m_Enabled: 1
   serializedVersion: 3
-  m_PlayableAsset: {fileID: 11400000, guid: 2980ca550ca29d84db911d2844d40f1d, type: 2}
+  m_PlayableAsset: {fileID: 0}
   m_InitialState: 1
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
@@ -79085,14 +79065,14 @@ PlayableDirector:
     value: {fileID: 1925123273795284}
   - key: {fileID: 0}
     value: {fileID: 1925123273795284}
-  - key: {fileID: 114144861015022972, guid: 2980ca550ca29d84db911d2844d40f1d, type: 2}
+  - key: {fileID: 0}
     value: {fileID: 1491326984765934}
-  - key: {fileID: 114677781759608632, guid: 2980ca550ca29d84db911d2844d40f1d, type: 2}
+  - key: {fileID: 0}
     value: {fileID: 0}
-  - key: {fileID: 114156321602683676, guid: 2980ca550ca29d84db911d2844d40f1d, type: 2}
+  - key: {fileID: 0}
     value: {fileID: 1475652982037798}
-  - key: {fileID: 114534436329976112, guid: 2980ca550ca29d84db911d2844d40f1d, type: 2}
-    value: {fileID: 0}
+  - key: {fileID: 0}
+    value: {fileID: 1130096433826044}
   m_ExposedReferences:
     m_References:
     - 72d1b336cb8d33349b193221a42f7c26: {fileID: 1447504453043466}

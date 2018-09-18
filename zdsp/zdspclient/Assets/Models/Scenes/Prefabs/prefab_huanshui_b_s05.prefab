@@ -81,6 +81,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4260014120731674}
   - component: {fileID: 95864377222667996}
+  - component: {fileID: 65154979198779594}
   m_Layer: 15
   m_Name: prefab_huanshui_b_s05
   m_TagString: Untagged
@@ -123,7 +124,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1535380819844758}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 137.59961, y: 8.210251, z: 125.47244}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4261570020886696}
@@ -186,6 +187,18 @@ Transform:
   m_Father: {fileID: 4260014120731674}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &65154979198779594
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1535380819844758}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 8, y: 4.5, z: 1}
+  m_Center: {x: -0.1, y: 1.3, z: 0}
 --- !u!95 &95864377222667996
 Animator:
   serializedVersion: 3

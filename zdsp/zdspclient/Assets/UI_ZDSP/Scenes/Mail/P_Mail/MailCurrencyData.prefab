@@ -70,6 +70,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224198571378693014}
+  - component: {fileID: 114956329418858812}
   m_Layer: 5
   m_Name: MailCurrencyData
   m_TagString: Untagged
@@ -137,6 +138,19 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114956329418858812
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1992655939984104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab7e98d5aef5459488ebcd3319da8354, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mCurrencyIcon: {fileID: 114064547109257648}
+  mCurrencyValue: {fileID: 114058154268993184}
 --- !u!114 &114964639845289646
 MonoBehaviour:
   m_ObjectHideFlags: 1

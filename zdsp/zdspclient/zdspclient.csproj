@@ -2022,6 +2022,7 @@
     <Compile Include="Assets\scripts\Client\Actions\ACDashAttack.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACDead.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACDragged.cs" />
+    <Compile Include="Assets\scripts\Client\Actions\ACFrozen.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACGetHit.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACIdle.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACInteract.cs" />
@@ -2086,6 +2087,7 @@
     <Compile Include="Assets\scripts\Client\Inventory\ItemInventoryController.cs" />
     <Compile Include="Assets\scripts\Client\LogManager.cs" />
     <Compile Include="Assets\scripts\Client\LootDisplayController.cs" />
+    <Compile Include="Assets\scripts\Client\Mail\MailInvController.cs" />
     <Compile Include="Assets\scripts\Client\Map\MapCenterPointDesc.cs" />
     <Compile Include="Assets\scripts\Client\Map\MapPointerEvent.cs" />
     <Compile Include="Assets\scripts\Client\Map\MapScreenshot.cs" />
@@ -2095,6 +2097,8 @@
     <Compile Include="Assets\scripts\Client\Party\PartyStatsClient.cs" />
     <Compile Include="Assets\scripts\Client\PowerUp\PowerUpController.cs" />
     <Compile Include="Assets\scripts\Client\Quest\QuestController.cs" />
+    <Compile Include="Assets\scripts\Client\Quest\QuestRequirementController.cs" />
+    <Compile Include="Assets\scripts\Client\Quest\QuestTriggerController.cs" />
     <Compile Include="Assets\scripts\Client\Shaders\Dissolve.cs" />
     <Compile Include="Assets\scripts\Client\Shaders\Flash.cs" />
     <Compile Include="Assets\scripts\Client\Shaders\MaterialFloatPropertyChanger.cs" />
@@ -2168,7 +2172,7 @@
     <Compile Include="Assets\scripts\Common\GameObjects\CharacterData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\CharacterInfoData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\CountryData.cs" />
-    <Compile Include="Assets\scripts\Common\GameObjects\CurrencyInventory.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\CurrencyInventoryData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\DestinyClueData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\DonateData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\DonateDataList.cs" />
@@ -2180,10 +2184,10 @@
     <Compile Include="Assets\scripts\Common\GameObjects\Inventory.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\InventoryItem.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\InvitePvpData.cs" />
-    <Compile Include="Assets\scripts\Common\GameObjects\ItemMallInventory.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\ItemMallInventoryData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\LeaderboardData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\LootItemData.cs" />
-    <Compile Include="Assets\scripts\Common\GameObjects\MailInventory.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\MailInventoryData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\NewServerEventInventory.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\NPCStoreInfo.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\OfflineExpInventory.cs" />
@@ -2191,11 +2195,11 @@
     <Compile Include="Assets\scripts\Common\GameObjects\PortraitData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\PrizeGuaranteeData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\QuestData.cs" />
-    <Compile Include="Assets\scripts\Common\GameObjects\RealmInventory.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\RealmInventoryData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\SideEffectInventory.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\SkillInventoryData.cs" />
-    <Compile Include="Assets\scripts\Common\GameObjects\SocialInventory.cs" />
-    <Compile Include="Assets\scripts\Common\GameObjects\StoreInventory.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\SocialInventoryData.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\StoreInventoryData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\SystemSwitchData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\TutorialData.cs" />
     <Compile Include="Assets\scripts\Common\GameSettings.cs" />
@@ -2703,6 +2707,12 @@
     <Compile Include="Assets\scripts\GUI\Inventory\UI_Inventory.cs" />
     <Compile Include="Assets\scripts\GUI\Inventory\UI_Inventory_QuickSlot.cs" />
     <Compile Include="Assets\scripts\GUI\Inventory\UI_Inventory_SellPanel.cs" />
+    <Compile Include="Assets\scripts\GUI\Mail\UI_Mail.cs" />
+    <Compile Include="Assets\scripts\GUI\Mail\UI_Mail_ScrollView.cs" />
+    <Compile Include="Assets\scripts\GUI\Mail\UI_MailAttachment_Scrollview.cs" />
+    <Compile Include="Assets\scripts\GUI\Mail\UI_MailAttachmentData.cs" />
+    <Compile Include="Assets\scripts\GUI\Mail\UI_MailCurrencyData.cs" />
+    <Compile Include="Assets\scripts\GUI\Mail\UI_MailData.cs" />
     <Compile Include="Assets\scripts\GUI\NPC\UI_Dialogue.cs" />
     <Compile Include="Assets\scripts\GUI\NPC\UI_DialogueAvatar.cs" />
     <Compile Include="Assets\scripts\GUI\NPC\UI_DialogueSelection.cs" />
@@ -2813,6 +2823,7 @@
     <Compile Include="Assets\scripts\Misc\MoviePlayback.cs" />
     <Compile Include="Assets\scripts\Misc\PointerEventController.cs" />
     <Compile Include="Assets\scripts\Misc\QualitySetting.cs" />
+    <Compile Include="Assets\scripts\Misc\ShaderPropertyInterpolate.cs" />
     <Compile Include="Assets\scripts\Misc\Triggers\FirstGuideRealmQuestTrigger.cs" />
     <Compile Include="Assets\scripts\Misc\Triggers\PlayerGhostTrigger.cs" />
     <Compile Include="Assets\scripts\Misc\Triggers\PlaySoundOnTrigger.cs" />
@@ -2881,6 +2892,7 @@
     <Compile Include="Assets\scripts\Scenes\ViewPlayer\ViewPlayerInputCoutrol.cs" />
     <Compile Include="Assets\scripts\Scenes\ViewPlayer\ViewPlayerLoadModelControl.cs" />
     <Compile Include="Assets\scripts\Scenes\ViewPlayer\ViewPlayerModelControl.cs" />
+    <Compile Include="Assets\scripts\TestContent\GoCharacterCreate.cs" />
     <Compile Include="Assets\scripts\TestContent\TestButtonSkill.cs" />
     <Compile Include="Assets\scripts\TestContent\TestCombatHierarchy.cs" />
     <Compile Include="Assets\scripts\TestContent\TestContent.cs" />
@@ -3824,6 +3836,7 @@
     <None Include="Assets\Shaders\Zealot_Art\Characters\Toon_Emission_Rim_Flash.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Characters\Toon_Emission_Rim_Flash_Outline.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Characters\Toon_Emission_Rim_Flow.shader" />
+    <None Include="Assets\Shaders\Zealot_Art\Characters\ZDSPToon_Mobile_Discoloration_ForU2017.3.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Characters\ZDSPToon_Mobile_ForU2017.3.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Always\Particle_Additive_Emission(Mask)_NoFog_DoubleSlide.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Always\Particle_AlphaBlend_Emission(Mask)_NoFog_DoubleSlide.shader" />
@@ -3834,9 +3847,9 @@
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Flow\Particle_Additive_FlowEmission(Mask)_Mask02_NoFog.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Flow\Particle_AlphaBlend_Emission(Mask)_NoFog_DoubleSlide_Flow.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Flow\Particle_AlphaBlend_FlowEmission(Mask)_Mask02_NoFog.shader" />
+    <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Obj\Forzen.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Obj\Particle_Additive_Emission(Mask)_NoFog.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\Effect_Obj\Particle_AlphaBlend_Emission(Mask)_NoFog.shader" />
-    <None Include="Assets\Shaders\Zealot_Art\Effect\test\Ice_01.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\test\WFX_Ice.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Effect\test\WFX_IceMobile.shader" />
     <None Include="Assets\Shaders\Zealot_Art\Scences\Albedo_Flag_Unit.shader" />

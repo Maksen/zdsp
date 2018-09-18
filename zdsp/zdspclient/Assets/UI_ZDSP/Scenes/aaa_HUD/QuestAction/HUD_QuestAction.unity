@@ -535,7 +535,12 @@ Prefab:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 1610136691236470, guid: 447addfcd3cabe545b6900a2be10abc1, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 114918936309500918, guid: 447addfcd3cabe545b6900a2be10abc1, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: 447addfcd3cabe545b6900a2be10abc1, type: 2}
   m_IsPrefabParent: 0
 --- !u!224 &480760270 stripped
@@ -777,7 +782,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   widgetType: 15
   ActiveOnStartup: 0
-  toggle: {fileID: 0}
 --- !u!114 &1658018107
 MonoBehaviour:
   m_ObjectHideFlags: 0

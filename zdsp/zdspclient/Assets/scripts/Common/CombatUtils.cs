@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common.Entities;
-using Zealot.Common;
 using Zealot.Repository;
 
 namespace Zealot.Common
@@ -17,6 +16,7 @@ namespace Zealot.Common
         public static long RECOVER_FROM_HIT_TIME = 1000;
         private static readonly float QUERYRADIUS_ERRORMARGIN = 0.5f;
         public static float SHAKE_INTENSITY = 0.005f;
+
         //Checks if enemy but enemy may not be valid e.g. enemy is in safezone
         public static bool IsEnemy(Entity entity1, Entity entity2)
         {
@@ -28,7 +28,7 @@ namespace Zealot.Common
             {
                 int team1 = ((IActor)entity1).Team;
                 int team2 = ((IActor)entity2).Team;
-                if (team1 == -2 || team2 == -2 || team1 != team2)
+                if (IsEnemy(team1, team2))
                     return true;
             }
             return false;
@@ -52,7 +52,7 @@ namespace Zealot.Common
         }
 
         /// <summary>
-        /// this function is used across server and client, to make sure the query result is consitant between server and client.
+        /// This function is used across server and client, to make sure the query result is consitant between server and client.
         /// </summary>
         /// <param name="origin">this new target system, origin is always the caster</param>
         /// <param name="mTarget"></param>
@@ -493,7 +493,6 @@ namespace Zealot.Common
             return resfield;
         }
 
-
         public static SkillPassiveFieldName GetSkillPassiveEvasionFieldByStatsType(ActorStatsType field, bool buff)
         {
             SkillPassiveFieldName resfield;
@@ -635,7 +634,6 @@ namespace Zealot.Common
 
         //}
 
-
         public static void DebugCompoundSkill(SkillData data)
         {
             string str = "";
@@ -647,7 +645,6 @@ namespace Zealot.Common
 #elif !UNITY_ANDROID
             System.Diagnostics.Debug.WriteLine(str);
 #endif
-
         }
 
         public struct SEDebugInfo
@@ -658,7 +655,6 @@ namespace Zealot.Common
             public float min;
             public float percentage;
             public float proctime;
-
         }
 
         public struct SkillDebugInfo
@@ -706,8 +702,6 @@ namespace Zealot.Common
                     }
                 }
             }
-
-
         }
 
         /// <summary>
@@ -753,8 +747,8 @@ namespace Zealot.Common
                 //    sej.increase = float.Parse(additional[9]);
                 if (additional.Length > 10)
                     sej.persistentafterdeath = bool.Parse(additional[10]);
-                if (additional.Length > 11)
-                    sej.persistentonlogout = bool.Parse(additional[11]);
+                //if (additional.Length > 11)
+                //    sej.persistentonlogout = bool.Parse(additional[11]);
             }
             return sej;
         }
@@ -796,7 +790,6 @@ namespace Zealot.Common
             }
             return sej;
         }
-
 
         /// <summary>
         /// skill index : 0 , 1, 2, 3 =>  job,  red, green , blue

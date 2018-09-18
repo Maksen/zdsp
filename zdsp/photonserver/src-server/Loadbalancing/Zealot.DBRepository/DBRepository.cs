@@ -159,6 +159,8 @@ namespace Zealot.DBRepository
 
         public LimitedItemRepository LimitedItem { get; private set; }
 
+        public SignboardRepository SignboardRepo { get; private set; }
+
         public DBRepository()
             : base()
         {
@@ -174,6 +176,7 @@ namespace Zealot.DBRepository
             GameConfig = new GameConfigRepository(this);
             _progressRepo = new ProgressRepository(this);
             LimitedItem = new LimitedItemRepository(this);
+            SignboardRepo = new SignboardRepository(this);
         }
     }
 

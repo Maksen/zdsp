@@ -14,7 +14,7 @@ public class UIShopSellDetails : UIShopDetails
     {
         purchasequantitywidget.onValueChanged.AddListener(delegate { UpdateTotalCost(); });
 
-        if (discount != null) discount.text = "沒折扣";
+        if (discount != null) discount.text = GUILocalizationRepo.GetLocalizedString("discount") + ": 0";
     }
 
     public void init(ShopItem item)
@@ -25,7 +25,7 @@ public class UIShopSellDetails : UIShopDetails
 
             purchasequantitywidget.Value = 0;
             totalcost.text = "0";
-            unitcost.text = standarditem.SoldValue.ToString();
+            unitcost.text = standarditem.DiscountedPrice().ToString();
 
             switch (standarditem.DailyOrWeekly)
             {
@@ -50,11 +50,14 @@ public class UIShopSellDetails : UIShopDetails
                 case NPCStoreInfo.Frequency.Unlimited:
                     purchasequantitywidget.Max = 99;
                     dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[291].localizedval;
-                    limitamountvalue.text = "無限";
+                    limitamountvalue.text = GUILocalizationRepo.GetLocalizedString("unlimited");
+                    //limitamountvalue.text = "無限";
                     break;
             }
 
             purchasequantitywidget.Value = 0;
+
+            discount.text = string.Format("{0}: {1:0}%", GUILocalizationRepo.GetLocalizedString("discount"), item.itemdata.Discount);
 
             if (itemiconprefab != null)
             {
@@ -62,22 +65,7 @@ public class UIShopSellDetails : UIShopDetails
                     Destroy(itemicon.gameObject);
 
                 itemicon = Instantiate(itemiconprefab, itemicon_parent).GetComponent<GameIcon_Base>();
-                IInventoryItem invItem = itemicon.inventoryItem;
-                BagType bagType = invItem.JsonObject.bagtype;
-                int itemId = invItem.JsonObject.itemid;
-                switch (bagType)
-                {
-                    case BagType.Equipment:
-                        ((GameIcon_Equip)itemicon).InitWithToolTipView(itemId, 0, 0, 0);
-                        break;
-                    case BagType.Consumable:
-                    case BagType.Material:
-                        ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
-                        break;
-                    case BagType.DNA:
-                        ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
-                        break;
-                }
+                UIShop.InitGameIcon(item.itemdata.data, itemicon);                
             }
 
             foreach (var currencyicon in currencyicons)
@@ -94,7 +82,8 @@ public class UIShopSellDetails : UIShopDetails
         if (selecteditem.Type == NPCStoreInfo.ItemStoreType.Normal)
         {
             var standarditem = (NPCStoreInfo.StandardItem)selecteditem;
-            totalcost.text = (purchasequantitywidget.Value * standarditem.SoldValue).ToString();
+            var cost = purchasequantitywidget.Value * standarditem.DiscountedPrice();
+            totalcost.text = cost.ToString();
         }
         base.UpdateTotalCost();
     }

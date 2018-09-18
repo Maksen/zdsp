@@ -42,6 +42,7 @@ namespace Zealot.RPC
         {
             ProxyMethod("Ret_StorePurchaseItem", retCode, shelveNo, currencyAmt1, currencyAmt2, target);
         }
+
         #region GuildQuest
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_GetGuildQuest)]
         public void Ret_GetGuildQuest(string str, object target)
@@ -313,6 +314,14 @@ namespace Zealot.RPC
         public void Ret_CollectClueReward(int clueid, bool result, object target)
         {
             ProxyMethod("Ret_CollectClueReward", clueid, result, target);
+        }
+        #endregion
+
+        #region Donate
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_DonateItem)]
+        public void Ret_DonateItem(string guid, int result, object target)
+        {
+            ProxyMethod("Ret_DonateItem", guid, result, target);
         }
         #endregion
     }
@@ -995,7 +1004,7 @@ namespace Photon.LoadBalancing.GameServer
             StoreRPCData data = new StoreRPCData();
             //Send category info back
             //Send category tabs back
-            data.Init(peer.CharacterData.StoreData, categoryID);
+            data.Init(peer.CharacterData.StoreInventory, categoryID);
 
             string scString = JsonConvert.SerializeObject(data);
             peer.ZRPC.NonCombatRPC.Ret_StoreInit(scString, peer);
@@ -1018,7 +1027,7 @@ namespace Photon.LoadBalancing.GameServer
             StoreRPCData data = new StoreRPCData();
             //Send category info back
             //Send category tabs back
-            data.Init(peer.CharacterData.StoreData, category);
+            data.Init(peer.CharacterData.StoreInventory, category);
 
             string scString = JsonConvert.SerializeObject(data);
             peer.ZRPC.NonCombatRPC.Ret_StoreInit(scString, peer);
@@ -1085,15 +1094,15 @@ namespace Photon.LoadBalancing.GameServer
             var npcstores = await NPCStoreManager.InstanceAsync().ConfigureAwait(false);
 
             if (npcstores.storedata.ContainsKey(storeid) == false)
-            {
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Store not found", peer);
+            {                
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Store not found"), peer);
                 return;
             }
             var store = npcstores.storedata[storeid];
 
             if (store.inventory.ContainsKey(itemlistid) == false)
             {
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Item not found", peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Item not found"), peer);
                 return;
             }
             var storeentry = store.inventory[itemlistid];
@@ -1104,12 +1113,13 @@ namespace Photon.LoadBalancing.GameServer
 
 			if (storeentry.Show == false)
 			{
-				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Invalid item", peer);
-				return;
+                //peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Invalid item"), peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Item not found"), peer);
+                return;
 			}
 			if (System.DateTime.Now > storeentry.EndTime || System.DateTime.Now < storeentry.StartTime)
 			{
-				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Item not on sale for this time period", peer);
+				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Item not on sale for this time period"), peer);
 				return;
 			}
 
@@ -1119,7 +1129,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 if (transactions[transactionkey].remaining < purchaseamount && storeentry.DailyOrWeekly != NPCStoreInfo.Frequency.Unlimited)
                 {
-                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Purchase limit exceeded", peer);
+                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Purchase limit exceeded"), peer);
                     return;
                 }
 
@@ -1137,7 +1147,7 @@ namespace Photon.LoadBalancing.GameServer
                 transactions.Add(t.solditem.Key(), t);
             }
 
-            var totalcost = purchaseamount * storeentry.SoldValue;
+            var totalcost = (int)(purchaseamount * storeentry.DiscountedPrice());
 
             bool buyresult = false;
             switch (storeentry.SoldType)
@@ -1154,7 +1164,7 @@ namespace Photon.LoadBalancing.GameServer
             if (buyresult == false)
             {
                 // money no enough, reject
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Money no enough", peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Insufficient currency"), peer);
                 return;
             }
 
@@ -1167,7 +1177,7 @@ namespace Photon.LoadBalancing.GameServer
             var success = GameApplication.dbGM.NPCStoreGMRepo.UpdateTransactions(transactions, charid).ConfigureAwait(false);
 
             //string scString = JsonConvert.SerializeObject("Success");
-            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy("Transaction success", peer);
+            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Transaction success"), peer);
         }
 
         #endregion
@@ -1237,7 +1247,7 @@ namespace Photon.LoadBalancing.GameServer
             SkillData skill = SkillRepo.GetSkill(skillid);
             // do integrety check
             if (peer.mPlayer.LocalCombatStats.SkillPoints >= skill.skillJson.learningsp &&
-                peer.mPlayer.SecondaryStats.money >= skill.skillJson.learningcost)
+                peer.mPlayer.SecondaryStats.Money >= skill.skillJson.learningcost)
             {
                 // try adding skill
                 // find the skillid [groupid][id][groupid][id]
@@ -1255,10 +1265,10 @@ namespace Photon.LoadBalancing.GameServer
                 // deduct cost of skill, since the requirements is guaranteed in client
 
                 peer.mPlayer.LocalCombatStats.SkillPoints -= skill.skillJson.learningsp;
-                peer.mPlayer.SecondaryStats.money -= skill.skillJson.learningcost;
+                peer.mPlayer.SecondaryStats.Money -= skill.skillJson.learningcost;
 
                 ZRPC.NonCombatRPC.Ret_AddToSkillInventory((byte)SkillReturnCode.SUCCESS, skillid, peer.mPlayer.LocalCombatStats.SkillPoints,
-                    peer.mPlayer.SecondaryStats.money, peer);
+                    peer.mPlayer.SecondaryStats.Money, peer);
             }
 
             else
@@ -1266,11 +1276,11 @@ namespace Photon.LoadBalancing.GameServer
                 SkillReturnCode code = SkillReturnCode.EMPTY;
                 if (peer.mPlayer.LocalCombatStats.SkillPoints < skill.skillJson.learningsp)
                     code |= SkillReturnCode.SKILLPOINTFAILED;
-                if (peer.mPlayer.SecondaryStats.money < skill.skillJson.learningcost)
+                if (peer.mPlayer.SecondaryStats.Money < skill.skillJson.learningcost)
                     code |= SkillReturnCode.MONEYFAILED;
 
                 ZRPC.NonCombatRPC.Ret_AddToSkillInventory((byte)code, skillid, peer.mPlayer.LocalCombatStats.SkillPoints,
-                    peer.mPlayer.SecondaryStats.money, peer);
+                    peer.mPlayer.SecondaryStats.Money, peer);
             }
 
             
@@ -1280,6 +1290,24 @@ namespace Photon.LoadBalancing.GameServer
         public void EquipSkill(int skillid, int slot, int slotGroup, GameClientPeer peer)
         {
             peer.mPlayer.SkillStats.EquippedSkill[slot * slotGroup] = skillid;
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveEquipSkill)]
+        public void RemoveEquipSkill(int slot, int slotGroup, GameClientPeer peer)
+        {
+            peer.mPlayer.SkillStats.EquippedSkill[slot * slotGroup] = 0;
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.AutoEquipSkill)]
+        public void AutoEquipSkill(int skillid, int slot, int slotGroup, GameClientPeer peer)
+        {
+            peer.mPlayer.SkillStats.AutoSkill[slot * slotGroup] = skillid;
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveAutoEquipSkill)]
+        public void RemoveAutoEquipSkill(int slot, int slotGroup, GameClientPeer peer)
+        {
+            peer.mPlayer.SkillStats.AutoSkill[slot * slotGroup] = 0;
         }
         #endregion
 
@@ -1299,6 +1327,14 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
+        #region EquipFushion
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFushion)]
+        public void EquipFushion(int itemIndex, string consumeIndex, GameClientPeer peer)
+        {
+            peer.OnEquipFushion(itemIndex, consumeIndex);
+        }
+        #endregion
+
         #region Quest
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateTrakingList)]
         public void UpdateTrakingList(string data, GameClientPeer peer)
@@ -1307,8 +1343,12 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DeleteQuest)]
-        public void DeleteQuest(int questid, GameClientPeer peer)
+        public void DeleteQuest(int questid, string data, GameClientPeer peer)
         {
+            if (data != "null")
+            {
+                peer.mPlayer.QuestController.UpdateTrackingList(data);
+            }
             bool result = peer.mPlayer.QuestController.DeleteQuest(questid);
             peer.ZRPC.NonCombatRPC.Ret_DeleteQuest(result, questid, peer);
         }
@@ -1395,6 +1435,15 @@ namespace Photon.LoadBalancing.GameServer
         {
             bool result = peer.mPlayer.DestinyClueController.CollectDestinyClueReward(clueid);
             peer.ZRPC.NonCombatRPC.Ret_CollectClueReward(clueid, result, peer);
+        }
+        #endregion
+
+        #region Donate
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DonateItem)]
+        public void DonateItem(string guid, GameClientPeer peer)
+        {
+            int result = peer.mPlayer.DonateController.DonateItem(guid);
+            peer.ZRPC.NonCombatRPC.Ret_DonateItem(guid, result, peer);
         }
         #endregion
     }

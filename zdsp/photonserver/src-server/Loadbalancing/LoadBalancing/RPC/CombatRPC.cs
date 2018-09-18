@@ -497,9 +497,9 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnGetPartyMemberPosition)]
-        public void OnGetPartyMemberPosition(string currLevelName, RPCPosition position, object target)
+        public void OnGetPartyMemberPosition(string currLevelName, RPCPosition position, int pid, object target)
         {
-            ProxyMethod("OnGetPartyMemberPosition", currLevelName, position, target);
+            ProxyMethod("OnGetPartyMemberPosition", currLevelName, position, pid, target);
         }
         #endregion
 

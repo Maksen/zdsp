@@ -8,7 +8,7 @@
 		  <property name="isexpgrade"    type="bool"   uitext="Is Exp Grade"        default="false" info="false = no scaling, true = job and level scaling "/>
 		  <property name="job"           type="int"    uitext="Occupation / Job"    default="-1"    info="Refer to JobType, -1 for no job"/>
 		  <property name="experience"    type="int"    uitext="Experience"          default="0"/>
-		  <property name="jobexperience" type="int"    uitext="Job Experience"      default="0"/>
+		  <property name="skillpoint" 	 type="int"    uitext="Skill Points"        default="0"/>
 		  <property name="money"         type="int"    uitext="Money"               default="0"/>
 		  <property name="donatept"      type="int"    uitext="Donate Points"       default="0"/>
 		  <property name="guildactivept" type="int"    uitext="Guild Active Points" default="0"/>
@@ -27,7 +27,6 @@
 	  <element name="ExperienceRate" useexcel="true">
 		  <property name="level"    type="int"   uitext="Level"/>
 		  <property name="exprate"  type="float" uitext="Experience Rate"/>
-		  <property name="jexprate" type="float" uitext="Job Experience Rate"/>
 	  </element>
 	
 	  <element name="ActivityReward" useexcel="true">

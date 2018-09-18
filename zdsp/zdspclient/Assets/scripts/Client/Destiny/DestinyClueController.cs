@@ -38,9 +38,17 @@ public class DestinyClueClientController
                 break;
             case "unlockClues":
                 mUnlockClues = DeserializeListData(data);
+                if (GameInfo.gLocalPlayer != null)
+                {
+                    GameInfo.gLocalPlayer.UpdateQuestRequirement(QuestRequirementType.Clue, -1);
+                }
                 break;
             case "unlockTimeClues":
                 mUnlockTimeClues = DeserializeListData(data);
+                if (GameInfo.gLocalPlayer != null)
+                {
+                    GameInfo.gLocalPlayer.UpdateQuestRequirement(QuestRequirementType.TimeClue, -1);
+                }
                 break;
         }
     }
@@ -66,7 +74,7 @@ public class DestinyClueClientController
     
     public List<ActivatedClueData> GetClues()
     {
-        return mDestinyClues.OrderBy(c => c.ActivatedDateTime).ToList();
+        return mDestinyClues.OrderByDescending(c => c.ActivatedDT).ToList();
     }
 
     private void UpdateUI()
@@ -81,7 +89,12 @@ public class DestinyClueClientController
     {
         if (!string.IsNullOrEmpty(data) && data != "{}")
         {
-            return JsonConvertDefaultSetting.DeserializeObject<List<ActivatedClueData>>(data);
+            List<ActivatedClueData> cluedatas = JsonConvertDefaultSetting.DeserializeObject<List<ActivatedClueData>>(data);
+            foreach(ActivatedClueData cluedata in cluedatas)
+            {
+                cluedata.UpdateDT();
+            }
+            return cluedatas;
         }
         return new List<ActivatedClueData>();
     }

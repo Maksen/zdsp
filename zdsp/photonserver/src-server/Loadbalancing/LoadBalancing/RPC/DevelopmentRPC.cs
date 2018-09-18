@@ -157,9 +157,9 @@ namespace Photon.LoadBalancing.GameServer
             {
                 return;
             }
-            if (sej.persistentafterdeath || sej.persistentonlogout)
+            if (sej.persistentafterdeath)// || sej.persistentonlogout)
             {
-                SpecailSE sse = new SpecailSE(sej);
+                SpecialSE sse = new SpecialSE(sej);
                 sse.Apply(peer.mPlayer);
                 return;
             }
@@ -345,6 +345,16 @@ namespace Photon.LoadBalancing.GameServer
             if (player != null)
             {
                 player.SetHealth(player.GetHealthMax());
+            }
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleFullRecoverMana)]
+        public void ConsoleFullRecoverMana(GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+            {
+                player.SetMana(player.GetManaMax());
             }
         }
 
@@ -694,7 +704,7 @@ namespace Photon.LoadBalancing.GameServer
             bool success = int.TryParse(s_hr, out hr) && int.TryParse(s_min, out min);
             if (success && storecat > 0)
             {
-                peer.CharacterData.StoreData.list_store[storecat].nextRefresh = System.DateTime.Now.Date + 
+                peer.CharacterData.StoreInventory.list_store[storecat].nextRefresh = System.DateTime.Now.Date + 
                                                                                 new System.TimeSpan(hr, min, 0);
             }
         }
@@ -809,7 +819,7 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if(player != null)
             {
-                player.PlayerSynStats.jobsect = job;
+                player.UpdateJobSect(job);
             }
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddSkillPoint)]
@@ -818,6 +828,25 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if (player != null && !player.Destroyed)
                 player.LocalCombatStats.SkillPoints += amt;
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleUpdateDonate)]
+        public void ConsoleUpdateDonate(int type, GameClientPeer peer)
+        {
+            peer.mPlayer.DonateController.RefreshData(type == 6 ? true : false);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleRemoveAllSkills)]
+        public void ConsoleRemoveAllSkills(GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if(player != null)
+            {
+                player.SkillStats.SkillGroupIndex.Clear();
+                player.SkillStats.SkillInv.Clear();
+                player.SkillStats.SkillInvCount = 0;
+                player.SkillStats.EquippedSkill.Clear();
+            }
         }
         #endregion
     }

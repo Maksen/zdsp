@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using Zealot.Common.Entities;
 
 namespace Zealot.Common
 {
@@ -42,11 +40,7 @@ namespace Zealot.Common
 
         public EquipmentCraftInventoryData()
         {
-            EquipmentCrafted = false;
-            if (EquipmentCraftSlots.Count == 0)
-            {
-                EquipmentCraftSlots = new Dictionary<int, int>();
-            }
+            InitDefault();
         }
 
         public void InitDefault()

@@ -224,7 +224,7 @@ namespace Photon.LoadBalancing.GameServer.ItemMall
             
             int itemId = iInvenItem.ItemID;
             int quantityPurchased = iInvenItem.StackCount;
-            int goldAfter = playerPeer.mPlayer.SecondaryStats.gold;
+            int goldAfter = playerPeer.mPlayer.SecondaryStats.Gold;
             int bindGoldAfter = playerPeer.mPlayer.SecondaryStats.bindgold;
             
             string message = string.Format(@"itemCategory = {0} |itemId = {1} | quantityPurchased = {2} | totalCost = {3}",
@@ -342,7 +342,7 @@ namespace Photon.LoadBalancing.GameServer.ItemMall
                 switch (invRetVal.retCode)
                 {
                     case InvReturnCode.AddSuccess:
-                        int goldBefore = player.SecondaryStats.gold;
+                        int goldBefore = player.SecondaryStats.Gold;
                         int bindGoldBefore = player.SecondaryStats.bindgold;
                         if (mallItem.shoppingtype == ItemMallShoppingType.Bind)
                             player.DeductGold(cost, true, true, "ItemMall_Buy");//use bind gold

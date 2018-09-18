@@ -157,9 +157,14 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-
+        public void BroadcastDonationRefreshMessage(BroadcastMessageType type, bool normarlRefresh)
+        {
+            RPCBroadcastData rpcdata = ZRPC.CombatRPC.GetSerializedRPC(ServerCombatRPCMethods.BroadcastMessageToClient, (byte)type, "");
+            DonateRefreshBroadcastMessage roommessage = new DonateRefreshBroadcastMessage(rpcdata, normarlRefresh);
+            BroadcastRoomMessage(roommessage);
+        }
         #endregion
- 
+
         #region Methods
 
         #region QAClientPeers
@@ -248,6 +253,7 @@ namespace Photon.LoadBalancing.GameServer
             PartyRules.Init();
             QuestRules.Init();
             LootRules.Init();
+            DonationRules.Init();
 
             OnStartupNewDay();
             SetNewDayTimer();
@@ -762,6 +768,7 @@ namespace Photon.LoadBalancing.GameServer
             DonateRules.IsResetToDay = false;
             //SevenDaysRules.OnNewDay();
             WelfareRules.OnNewDay();
+            QuestRules.OnNewDay();
         }
         #endregion
 
@@ -931,6 +938,13 @@ namespace Photon.LoadBalancing.GameServer
                 return true;
             }
             return false;
+        }
+        #endregion
+
+        #region Donation
+        public static void BroadcastDonateRefresh(bool normarlRefresh)
+        {
+            Instance.BroadcastDonationRefreshMessage(BroadcastMessageType.DonationRefresh, normarlRefresh);
         }
         #endregion
     }

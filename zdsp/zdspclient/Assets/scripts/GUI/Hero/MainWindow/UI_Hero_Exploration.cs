@@ -481,8 +481,8 @@ public class UI_Hero_Exploration : MonoBehaviour
             {
                 if (itemList[i].count == 0)
                     continue;
-                if (!rewardDict.ContainsKey(itemList[i].id))
-                    rewardDict.Add(itemList[i].id, 1);
+                if (!rewardDict.ContainsKey(itemList[i].itemId))
+                    rewardDict.Add(itemList[i].itemId, 1);
             }
         }
 

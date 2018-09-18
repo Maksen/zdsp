@@ -16,10 +16,17 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
     [SerializeField] GameObject itemIconPrefab;
     [SerializeField] Text itemNameText;
     [SerializeField] Text descriptionText;
-    [SerializeField] InterestCircleScroll circleScroll;
     [SerializeField] Button randomBtn;
     [SerializeField] Button confirmBtn;
     [SerializeField] GameObject resetBtn;
+
+    [Header("Circle Scroll")]
+    [SerializeField] InterestCircleScroll circleScroll;
+    [SerializeField] float scrollToDuration = 0.4f;
+    [SerializeField] int roundsToSpin = 4;
+    [SerializeField] float minScrollDuration = 0.025f;
+    [SerializeField] float maxScrollDuration = 0.4f;
+    [SerializeField] AnimationCurve lerpCurve;
 
     private bool initialized;
     private HeroInterestType selectedType;
@@ -31,13 +38,19 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
     private int bindItemId, unbindItemId;
     private bool showSpendConfirmation;
     private Color colorRed;
-    private int halfIndex;
     private byte spinResult;
+
+    // for simulate spinning
+    private int indexStep = 1;
+    private bool spinning;
+    private int totalSteps;
+    private int currentStep;
+    private int totalCellCount;
 
     private void Awake()
     {
         colorRed = descriptionText.color;
-        halfIndex = Mathf.FloorToInt((float)HeroInterestType.TotalNum / 2);
+        totalCellCount = Enum.GetNames(typeof(HeroInterestType)).Length;
     }
 
     public override void OnCloseWindow()
@@ -46,7 +59,8 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         spinning = false;
         EnableCicleScroll(true);
         waitForSpinConfirm = false;
-        circleScroll.SetSelection(0);
+        randomBtn.interactable = true;
+        circleScroll.SelectCell(0, 0f);
     }
 
     public void Init(Hero hero, Sprite currentSprite, string currentDesc)
@@ -64,7 +78,7 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         if (!initialized)
         {
             circleScroll.SetUp(OnInterestSelected);
-            circleScroll.SetSelection(0);
+            circleScroll.SelectCell(0, 0f);
             initialized = true;
         }
         else
@@ -80,61 +94,29 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         ResetCircleScroll();
     }
 
-    bool IsWithinNextSpinRange(int currentIndex, int nextIndex, int desiredIndex)
+    private float GetScrollDuration(int currentStep, int totalSteps)
     {
-        if (currentIndex < nextIndex)
-            return currentIndex < desiredIndex && desiredIndex <= nextIndex;
-        else
-            return currentIndex < desiredIndex || desiredIndex <= nextIndex;
+        float t = (float)currentStep / (totalSteps - 1);
+        return Mathf.Lerp(minScrollDuration, maxScrollDuration, Mathf.Max(0, lerpCurve.Evaluate(t)));
     }
 
     private void OnInterestSelected(byte type)
     {
-        print("selected: " + type);
-
+        //print("selected: " + type);
         if (spinning)
         {
-            count++;
-            if (count < 4)
-                circleScroll.SelectCell((type + halfIndex) % (int)HeroInterestType.TotalNum);
-            else
+            currentStep++;
+            if (currentStep < totalSteps)
             {
-                int nextIndex = (type + halfIndex) % (int)HeroInterestType.TotalNum;
-                if (IsWithinNextSpinRange(type, nextIndex, spinResult))
-                {
+                int nextIndex = (type + indexStep) % totalCellCount;
+                circleScroll.SelectCell(nextIndex, GetScrollDuration(currentStep, totalSteps));
+                if (currentStep == totalSteps - 1)  // last step
                     spinning = false;
-                    //circleScroll.SetAutoSpin(false);
-                    circleScroll.SelectCell(spinResult);
-                    circleScroll.HighlightSelected(true);
-
-                }
-                else
-                {
-                    circleScroll.SelectCell(nextIndex);
-                }
-
-                //if (count == 4 && type != 0)
-                //    circleScroll.SelectCell(0);
-                //else
-                //{
-                //    int nextIndex = (type + halfIndex) % (int)HeroInterestType.TotalNum;
-                //    if (spinResult <= nextIndex)
-                //    {
-                //        spinning = false;
-                //        //circleScroll.HighlightSelected(true);
-                //        circleScroll.SetAutoSpin(false);
-                //        circleScroll.SelectCell(spinResult);
-                //    }
-                //    else
-                //    {
-                //        circleScroll.SelectCell(nextIndex);
-                //    }
-                //}
             }
         }
         else
         {
-            circleScroll.SetAutoSpin(false);
+            circleScroll.SetAutoSpin(false); // enable back highlight selected and scroll inertia
 
             selectedType = (HeroInterestType)type;
             HeroInterestJson interestJson = HeroRepo.GetInterestByType(selectedType);
@@ -151,7 +133,7 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
                 else
                 {
                     bool canAssign = selectedType != hero.Interest && HeroRepo.IsInterestInGroup(hero.HeroJson.interestgroup, selectedType);
-                    SetAssign(canAssign);
+                    SetAssign(canAssign, selectedType == hero.Interest ? interestJson.localizedname : "");
                     if (!waitForSpinConfirm)
                         SetItemIcon(interestJson.assigneditemid);
                 }
@@ -170,18 +152,28 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         randomBtn.interactable = hero.CanChangeInterest();
         confirmBtn.gameObject.SetActive(false);
         resetBtn.SetActive(false);
-        descriptionText.gameObject.SetActive(false);
+        descriptionText.color = Color.white;
+        descriptionText.text = GUILocalizationRepo.GetLocalizedString("hro_selectInterestToAssign");
+        descriptionText.gameObject.SetActive(true);
     }
 
-    private void SetAssign(bool interactable)
+    private void SetAssign(bool interactable, string interestName = "")
     {
         randomBtn.gameObject.SetActive(false);
         confirmBtn.gameObject.SetActive(true);
         confirmBtn.interactable = interactable;
         resetBtn.SetActive(true);
-        string message = interactable ? "hro_confirmChangeInterest" : "hro_interestNotApplicable";
-        descriptionText.text = GUILocalizationRepo.GetLocalizedString(message);
+        string message = "";
+        if (!string.IsNullOrEmpty(interestName))  // not empty means selected same as current type
+        {
+            Dictionary<string, string> param = new Dictionary<string, string>();
+            param.Add("type", interestName);
+            message = GUILocalizationRepo.GetLocalizedString("hro_sameAsCurrentInterest", param);
+        }
+        else
+            message = interactable ? GUILocalizationRepo.GetLocalizedString("hro_confirmChangeInterest") : GUILocalizationRepo.GetLocalizedString("hro_interestNotApplicable");
         descriptionText.color = interactable ? Color.white : colorRed;
+        descriptionText.text = message;
         descriptionText.gameObject.SetActive(true);
     }
 
@@ -221,17 +213,8 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         }
     }
 
-    //public int index;
-    bool spinning;
-    int count = 0;
     public void OnClickRandomSpin()
     {
-        //count = 0;
-        //spinning = true;
-        //circleScroll.HighlightSelected(false);
-
-        //circleScroll.SelectCell(halfIndex);
-
         if (hasEnoughItem)
         {
             if (showSpendConfirmation)
@@ -245,6 +228,8 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
     private void OnConfirmRandomSpin()
     {
+        descriptionText.gameObject.SetActive(false);
+        randomBtn.interactable = false;
         EnableCicleScroll(false);
         RPCFactory.CombatRPC.ChangeHeroInterest(hero.HeroId, 0);
     }
@@ -281,21 +266,20 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
     private void ResetCircleScroll()
     {
+        randomBtn.interactable = true;
         waitForSpinConfirm = false;
-        circleScroll.SelectCell(0);
+        circleScroll.SelectCell(0, scrollToDuration);
     }
 
     public void OnInterestRandomSpinResult(byte newType)
     {
         waitForSpinConfirm = true;
-        //circleScroll.SelectCell(newType);
         spinResult = newType;
-        count = 0;
+        currentStep = 0;
+        totalSteps = (totalCellCount * roundsToSpin) + spinResult;
         spinning = true;
-        circleScroll.HighlightSelected(false);
         circleScroll.SetAutoSpin(true);
-        //EnableCicleScroll(false);
-        circleScroll.SelectCell(halfIndex);
+        circleScroll.SelectCell(indexStep, GetScrollDuration(currentStep, totalSteps));
     }
 
     private void EnableCicleScroll(bool value)

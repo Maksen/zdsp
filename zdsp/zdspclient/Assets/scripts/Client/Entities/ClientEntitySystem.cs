@@ -77,7 +77,7 @@ namespace Zealot.Common.Entities
         {
             //if (monster != null)
             //{
-            //    if (monster.mArchetype.monsterclass == MonsterClass.Boss)
+            //    if (monster.mArchetype.monstertype == MonsterType.Boss)
             //        mAllBoss.Add(monster);
             //    else
             //        mAllNormalMonster.Add(monster);
@@ -160,7 +160,7 @@ namespace Zealot.Common.Entities
             //if (type.IsMonster() == true)
             //{
             //    MonsterGhost monster = type as MonsterGhost;
-            //    if (monster.mArchetype.monsterclass == MonsterClass.Boss)
+            //    if (monster.mArchetype.monstertype == MonsterType.Boss)
             //    {
             //        mAllBoss.Remove(monster);
             //    }
@@ -217,15 +217,15 @@ namespace Zealot.Common.Entities
                     if (mg.mArchetype == null)
                         continue;
 
-                    switch (mg.mArchetype.monsterclass)
+                    switch (mg.mArchetype.monstertype)
                     {
-                        case MonsterClass.Normal:
+                        case MonsterType.Normal:
                             monsters.Add(e.Position);
                             break;
-                        case MonsterClass.MiniBoss:
+                        case MonsterType.MiniBoss:
                             miniboss.Add(e.Position);
                             break;
-                        case MonsterClass.Boss:
+                        case MonsterType.Boss:
                             boss.Add(e.Position);
                             break;
                     }
@@ -253,15 +253,15 @@ namespace Zealot.Common.Entities
                     if (mg.mArchetype == null)
                         continue;
 
-                    switch (mg.mArchetype.monsterclass)
+                    switch (mg.mArchetype.monstertype)
                     {
-                        case MonsterClass.Normal:
+                        case MonsterType.Normal:
                             monsters.Add(mg.AnimObj);
                             break;
-                        case MonsterClass.MiniBoss:
+                        case MonsterType.MiniBoss:
                             miniboss.Add(mg.AnimObj);
                             break;
-                        case MonsterClass.Boss:
+                        case MonsterType.Boss:
                             boss.Add(mg.AnimObj);
                             break;
                     }
@@ -609,6 +609,20 @@ namespace Zealot.Common.Entities
                     {
                         npclist.Add(staticnpc);
                     }
+                }
+            }
+            return npclist;
+        }
+
+        public List<StaticClientNPCAlwaysShow> GetAllQuestRelatedNPC()
+        {
+            List<StaticClientNPCAlwaysShow> npclist = new List<StaticClientNPCAlwaysShow>();
+            foreach (KeyValuePair<int, Entity> entity in mEntities)
+            {
+                if (entity.Value.GetType() == typeof(StaticNPCGhost) || entity.Value.GetType() == typeof(StaticAreaGhost) ||
+                    entity.Value.GetType() == typeof(StaticTargetGhost))
+                {
+                    npclist.Add(entity.Value as StaticClientNPCAlwaysShow);
                 }
             }
             return npclist;

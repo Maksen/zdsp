@@ -203,10 +203,10 @@ namespace Zealot.Client.Actions
 	{
 		public static Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action,Action, bool>>> manager = new Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>>()
 		{
-			{ACTIONTYPE.WALK, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
-					{ACTIONTYPE.WALK, InterruptFn.Update} 	
-				}
-			},
+            {ACTIONTYPE.WALK, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
+                    {ACTIONTYPE.WALK, InterruptFn.Update}
+                }
+            },
             {ACTIONTYPE.WALK_WAYPOINT, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
                     {ACTIONTYPE.WALK_WAYPOINT, InterruptFn.Update}
                 }
@@ -215,14 +215,31 @@ namespace Zealot.Client.Actions
                     {ACTIONTYPE.DEAD, InterruptFn.NoInterrupt} //possible trying to perform multiply dying action
                 }
             },
-            {ACTIONTYPE.KNOCKEDBACK, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>(){
-                    //todo:add all other possible ACTIONTYPE which should not interrupt KNOCKEDBACK
-                    //{ACTIONTYPE.KNOCKEDBACK,  InterruptFn.NoInterrupt },
-                    //{ACTIONTYPE.IDLE,  InterruptFn.AfterComplete },
-                   // {ACTIONTYPE.WALK,  InterruptFn.AfterComplete },
-                    //{ACTIONTYPE.APPROACH,  InterruptFn.AfterComplete },
+            {ACTIONTYPE.KNOCKEDBACK,  new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>(){
+                    {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.Flash, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.APPROACH_PATHFIND, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.INTERACT, InterruptFn.AfterComplete },
+                    //{ACTIONTYPE.WALKANDCAST, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.DASHATTACK, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.KNOCKEDUP, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.DRAGGED, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.GETHIT, InterruptFn.AfterComplete},
                 }
             },
+            {ACTIONTYPE.FROZEN, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>()
+            {
+                {ACTIONTYPE.IDLE, InterruptFn.AfterComplete },
+                {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete },
+                {ACTIONTYPE.WALK, InterruptFn.AfterComplete },
+                {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
+                //{ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+            }
+            }
         };
 	}
 }

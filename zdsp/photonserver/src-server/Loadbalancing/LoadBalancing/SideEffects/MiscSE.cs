@@ -19,7 +19,7 @@
             mDuration = 0;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (mSideeffectData.effecttype == EffectType.Remove_RandomBuff)
             {
@@ -47,7 +47,7 @@
             mDuration = 0;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             //if (mSideeffectData.effecttype == EffectType.Remove_Buff)
             //{
@@ -77,10 +77,10 @@
         }
 
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             mTarget.PlayerStats.InvincibleDot = true;
-            return base.OnApply();
+            return base.OnApply(equipid);
         }
 
         protected override void OnRemove()
@@ -104,13 +104,13 @@
         }
 
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (Int32.Parse(mSideeffectData.parameter) == 0)
                 mTarget.PlayerStats.Silence = true;
             else
                 mTarget.PlayerStats.Silence = true;
-            return base.OnApply();
+            return base.OnApply(equipid);
         }
 
         protected override void OnRemove()
@@ -141,7 +141,7 @@
             base.InitKopioData();
             mDuration = 0;
         }
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             mTarget.RemoveDot();
             return true;
@@ -164,9 +164,9 @@
             mParam = (int)float.Parse(mSideeffectData.parameter);
             //mDuration = 0;
         }
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {
                 if (mParam == 0)
                 {
@@ -243,7 +243,7 @@
         }
 
         //AllImmune to negative effects are stopped. 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (mTarget.PlayerStats.InvincibleDmg)
                 mTarget.PlayerStats.InvincibleDmg = false;
@@ -269,7 +269,7 @@
             mSideeffectData.duration = 0;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (mTarget.IsPlayer())
             {
@@ -282,7 +282,7 @@
                 int intval = (int)mSideeffectData.max;//percentage 
                 player.IncreaseSkillCD(new int[4] { 0, 1, 2, 3 }, intval);
             }
-            return base.OnApply();
+            return base.OnApply(equipid);
         }
         
     }
@@ -296,9 +296,9 @@
             mNeedCaster = false;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         { 
-            bool applied = base.OnApply();
+            bool applied = base.OnApply(equipid);
             if (applied)
             {
                 mAmount = (int) mSideeffectData.max;//use max will be ok.
@@ -327,9 +327,9 @@
             mNeedCaster = false;
         } 
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {
                 mTarget.MaxEvasionChance = true;
                 return true;
@@ -357,9 +357,9 @@
             mNeedCaster = false;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {
                 mTarget.MaxCriticalChance = true;
                 return true;
@@ -388,10 +388,10 @@
             mNeedCaster = false;
         }
          
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             mTarget.SkillPassiveStats.AddToField(Common.Entities.SkillPassiveFieldName.RejSupress, (int)mSideeffectData.max);
-            return base.OnApply();
+            return base.OnApply(equipid);
         }
 
         protected override void OnRemove()

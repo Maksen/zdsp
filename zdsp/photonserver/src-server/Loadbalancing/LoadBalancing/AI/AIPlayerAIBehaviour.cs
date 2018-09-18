@@ -459,7 +459,7 @@ namespace Zealot.Server.AI
             SwitchTarget(attackerActor); //The first attacker will be targeted
             ResetSkillToExecute();
 
-            if (!mAIPlayer.HasControlStatus(ControlSEType.Stun)) //if not in stun state
+            if (!mAIPlayer.HasControlStatus(ControlSEType.Stun) && !mAIPlayer.HasControlStatus(ControlSEType.Stun)) //if not in stun state
                 GotoState("CombatApproach");
         }
 
@@ -487,6 +487,27 @@ namespace Zealot.Server.AI
         protected override void OnStunLeave()
         {
             base.OnStunLeave();
+        }
+        #endregion
+
+        #region Frozen state
+        protected override void OnFrozenEnter(string prevstate)
+        {
+            base.OnFrozenEnter(prevstate);
+            mAIPlayer.Idle();
+        }
+
+        protected override void OnFrozenUpdate(long dt)
+        {
+            if (!mActor.HasControlStatus(ControlSEType.Freeze))
+            {
+                GotoState("CombatApproach");
+            }
+        }
+
+        protected override void OnFrozenLeave()
+        {
+            base.OnFrozenLeave();
         }
         #endregion
     }

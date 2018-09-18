@@ -10,35 +10,39 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
 
     static UI_CharacterEquipmentCraftManager managerScript;
 
-    [SerializeField] Text categoryText; //H_Text_Title     in common
+    [SerializeField] Text categoryText;
 
-    [SerializeField] Transform partParent; //H_Content_Button_ComboBoxData
-    [SerializeField] GameObject partButton; //I_Button_ComboBoxAData
+    [SerializeField] Transform partParent;
+    [SerializeField] GameObject partButton;
 
     private List<PartsType> partList = new List<PartsType>();
 
     private List<EquipmentJson> myEquipmentData = new List<EquipmentJson>();
 
-    [SerializeField] Image EquipmentIcon; //H_Image_TypeIcon     in nonePrefab
-    [SerializeField] Text EquipmentName; //H_Text_ItemName
-    [SerializeField] Text equipmentDescription; //H_Text_Stats
+    [SerializeField] Image EquipmentIcon;
+    [SerializeField] Text EquipmentName;
+    [SerializeField] Text equipmentDescription;
 
-    [SerializeField] GameObject equipmentsPrefab; //I_TypesData
-    [SerializeField] GameObject materialsReqAmountPrefab; //I_RequirementsData
-    [SerializeField] GameObject materialsPrefab; //I_GameIcon_Material
-    [SerializeField] Transform equipmentParent; //H_Content_Types
-    [SerializeField] Transform materialReqAmountParent; //H_Content_Requirements
+    [SerializeField] GameObject equipmentsPrefab;
+    [SerializeField] GameObject materialsReqAmountPrefab;
+    [SerializeField] GameObject materialsPrefab;
+    [SerializeField] Transform equipmentParent;
+    [SerializeField] Transform materialReqAmountParent;
+    [SerializeField] Text currencyView;
 
     static List<GameIcon_MaterialConsumable> afterCraftMaterial = new List<GameIcon_MaterialConsumable>();
 
-    [SerializeField] Button CraftButton; //H_ButtonA2_Craft
+    [SerializeField] Button CraftButton;
 
     static int nowItemId = 0;
 
     static bool haveEnoughMaterial = true;
+    static bool haveEnoughCurrency = true;
 
-    [SerializeField] GameObject cannotCraftObject; //H_GameObject_CannotCraft_DEFAULTOFF
-    [SerializeField] Text cannotCraftReason; //H_Text_CannotCraftReason
+    [SerializeField] GameObject cannotCraftObject;
+    [SerializeField] Text cannotCraftReason;
+
+    PlayerGhost player;
 
     void Start ()
     {
@@ -68,12 +72,14 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
 
     void Init()
     {
+        player = GameInfo.gLocalPlayer;
         nowItemId = 0;
 
         ClientUtils.DestroyChildren(equipmentParent);
         ClientUtils.DestroyChildren(materialReqAmountParent);
     }
 
+    #region ShowInUI
     public void ShowPartName (PartsType part)
     {
         categoryText.text = EquipmentCraftRepo.equipmentTypesName[part];
@@ -110,14 +116,22 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
         EquipmentName.text = myEquipmentData[count].localizedname;
         equipmentDescription.text = myEquipmentData[count].description;
 
+        InitCurrency(itemId);
         InitMaterial(itemId);
+    }
+
+    private void InitCurrency (int id)
+    {
+        List<int> requireCurrency = EquipmentCraftRepo.GetCurrency(id);
+        currencyView.text = requireCurrency[1].ToString("N0");
+
+        haveEnoughCurrency = (player.SecondaryStats.Money >= requireCurrency[1]) ? true : false;
     }
 
     private void InitMaterial(int itemId)
     {
         ClientUtils.DestroyChildren(materialReqAmountParent);
-
-        PlayerGhost player = GameInfo.gLocalPlayer;
+        
         List<ItemInfo> material = EquipmentCraftRepo.GetEquipmentMaterial(itemId);
         
         if (player == null)
@@ -148,12 +162,57 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
 
         cannotCraftObject.SetActive(false);
 
-        MaterialEnoughObject();
+        EnoughObject();
     }
+
+    public void EnoughObject()
+    {
+        if (!haveEnoughCurrency && !haveEnoughMaterial)
+        {
+            cannotCraftObject.SetActive(true);
+            cannotCraftReason.text = "You have not enought material and currency.";
+        }
+        else if (!haveEnoughMaterial)
+        {
+            cannotCraftObject.SetActive(true);
+            cannotCraftReason.text = "You have not enought material.";
+        }
+        else if (!haveEnoughCurrency)
+        {
+            cannotCraftObject.SetActive(true);
+            cannotCraftReason.text = "You have not enought currency.";
+        }
+    }
+
+    static void CompareMaterial(Text viewStack, int invAmount, int reqAmount)
+    {
+        if (invAmount < reqAmount)
+        {
+            viewStack.color = Color.red;
+            haveEnoughMaterial = false;
+        }
+    }
+
+    public static void AfterCraft()
+    {
+        List<ItemInfo> material = EquipmentCraftRepo.GetEquipmentMaterial(nowItemId);
+
+        haveEnoughMaterial = true;
+        for (int i = 0; i < afterCraftMaterial.Count; ++i)
+        {
+            int invAmount = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(material[i].itemId);
+            afterCraftMaterial[i].InitWithoutCallback(nowItemId, invAmount);
+            afterCraftMaterial[i].SetFullStackCount(invAmount);
+            CompareMaterial(afterCraftMaterial[i].transform.GetChild(3).GetComponent<Text>(), invAmount, material[i].stackCount);
+        }
+
+        managerScript.InitCurrency(nowItemId);
+        managerScript.EnoughObject();
+    }
+    #endregion
 
     public void OnClickMaterial()
     {
-        PlayerGhost player = GameInfo.gLocalPlayer;
         var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)nowItemId);
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
             OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), _item);
@@ -167,43 +226,9 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
         component.SetButtonCallback(_buttons);
     }
 
-    static void CompareMaterial (Text viewStack, int invAmount, int reqAmount)
-    {
-        if(invAmount < reqAmount)
-        {
-            viewStack.color = Color.red;
-            haveEnoughMaterial = false;
-        }
-    }
-
-    public void MaterialEnoughObject()
-    {
-        if (!haveEnoughMaterial)
-        {
-            cannotCraftObject.SetActive(true);
-            cannotCraftReason.text = "You have not enought material.";
-        }
-    }
-
     public void CraftEquipment ()
     {
         RPCFactory.NonCombatRPC.EquipmentCraft(nowItemId);
-    }
-
-    public static void AfterCraft ()
-    {
-        List<ItemInfo> material = EquipmentCraftRepo.GetEquipmentMaterial(nowItemId);
-
-        haveEnoughMaterial = true;
-        for (int i = 0; i < afterCraftMaterial.Count; ++i)
-        {
-            int invAmount = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(material[i].itemId);
-            afterCraftMaterial[i].InitWithoutCallback(nowItemId, invAmount);
-            afterCraftMaterial[i].SetFullStackCount(invAmount);
-            CompareMaterial(afterCraftMaterial[i].transform.GetChild(3).GetComponent<Text>(), invAmount, material[i].stackCount);
-        }
-
-        managerScript.MaterialEnoughObject();
     }
 
     public void NotEnoughButton ()

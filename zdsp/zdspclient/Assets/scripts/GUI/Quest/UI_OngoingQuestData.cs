@@ -48,6 +48,8 @@ public class UI_OngoingQuestData : MonoBehaviour
     private UI_OngoingQuest mParent;
     private QuestClientController mController;
     private int mQuestId;
+    private QuestType mQuestType;
+    private string mQuestMap;
     private Dictionary<int, long> mMOEndTime;
     private Dictionary<int, long> mSOEndTime;
     private string mDescription;
@@ -61,6 +63,8 @@ public class UI_OngoingQuestData : MonoBehaviour
         GetComponent<Image>().color = new Color(106.0f / 255.0f, 119f / 255.0f, 122f / 255.0f, 100f / 255.0f);
         bIsUnlockQuest = false;
         QuestJson questJson = QuestRepo.GetQuestByID(questData.QuestId);
+        mQuestType = questJson.type;
+        mQuestMap = questJson.subname;
         QuestName.text = questJson.questname;
         QuestListToggle.isOn = tracked;
         if (!tracked && maxtrack)
@@ -88,7 +92,8 @@ public class UI_OngoingQuestData : MonoBehaviour
         JobExperience.text = "0";
 
         int rewardgroup = QuestRepo.GetQuestReward(questData.QuestId, questData.GroupdId);
-        Reward reward = RewardListRepo.GetRewardByGrpIDJobID(rewardgroup, -1);
+        int jobsect = GameInfo.gLocalPlayer == null ? -1 : GameInfo.gLocalPlayer.PlayerSynStats.jobsect;
+        Reward reward = RewardListRepo.GetRewardByGrpIDJobID(rewardgroup, jobsect);
         if (reward != null)
         {
             RewardDescription.SetActive(false);
@@ -106,6 +111,8 @@ public class UI_OngoingQuestData : MonoBehaviour
         mParent = parent;
         mController = controller;
         mQuestId = questJson.questid;
+        mQuestType = questJson.type;
+        mQuestMap = questJson.subname;
         GetComponent<Image>().color = new Color(250f / 255.0f, 191f / 255.0f, 143f / 255.0f, 100f / 255.0f);
         bIsUnlockQuest = true;
         QuestName.text = questJson.questname;
@@ -207,5 +214,42 @@ public class UI_OngoingQuestData : MonoBehaviour
     public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
     {
         mController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestId);
+    }
+
+    public bool IsSameType(UIQuestType questType)
+    {
+        switch (mQuestType)
+        {
+            case QuestType.Main:
+                return questType == UIQuestType.Main ? true : false;
+            case QuestType.Destiny:
+                return questType == UIQuestType.Destiny ? true : false;
+            case QuestType.Sub:
+                return questType == UIQuestType.Sub ? true : false;
+            case QuestType.Guild:
+                return questType == UIQuestType.Guild ? true : false;
+            case QuestType.Event:
+                return questType == UIQuestType.Event ? true : false;
+            case QuestType.Signboard:
+                return questType == UIQuestType.Signboard ? true : false;
+        }
+        return false;
+    }
+
+    public string GetMapName()
+    {
+        return mQuestMap;
+    }
+
+    public bool IsSameMap(string map)
+    {
+        if (map == GUILocalizationRepo.GetLocalizedString("inv_all"))
+        {
+            return true;
+        }
+        else
+        {
+            return mQuestMap == map ? true : false;
+        }
     }
 }

@@ -94,8 +94,8 @@
       <item key="BattleCoin" value="8"/>
       <item key="Exp" value="9"/>
       <item key="VIP" value="10"/>
-	  <item key="JExp" value="11"/>
-	  <item key="DonateContribution" value="12"/>
+	    <item key="JExp" value="11"/>
+	    <item key="DonateContribution" value="12"/>
     </enum>
     
     <enum name="EquipmentType">
@@ -223,6 +223,12 @@
       <item key="Ground" value="2"/>
     </enum>
 
+    <enum name="CostType">
+      <item key="None" value="0"/>
+      <item key="Mana" value="1"/>
+      <item key="HP" value="2"/>
+    </enum>
+
     <!--<enum name="SkillGroupCategory">
       <item key="DAMAGE" value="0"/>
       <item key="REJ" value="0"/> 
@@ -291,14 +297,14 @@
       <item key="Stats_SkillAffectEnhance"    value="76"/>
       <item key="Stats_HealingPoint"          value="77"/>
       <item key="Stats_HealingPoint_Debuff"   value="78"/>
-      <item key="Stats_Effect"                value="79"/>
-      <item key="Stats_Effect_Debuff"         value="80"/>
+      <item key="Stats_HealingEffect"         value="79"/>
+      <item key="Stats_HealingEffect_Debuff"  value="80"/>
       <item key="Stats_HealingIncome"         value="81"/>
       <item key="Stats_HealingIncome_Debuff"  value="82"/>
       
-      <item key="Rejuvenate_HealthPotion"   value="100"/>
-      <item key="Rejuvenate_ManaPotion"     value="101"/>
-      <item key="Rejuvenate_Healing"        value="102"/>
+      <item key="Rejuvenate_HealthPotion" value="100"/>
+      <item key="Rejuvenate_ManaPotion"   value="101"/>
+      <item key="Rejuvenate_Healing"      value="102"/>
 
       <item key="StatsAttack_WeaponAttack"              value="110"/>
       <item key="StatsAttack_WeaponAttack_Debuff"       value="111"/>
@@ -400,6 +406,9 @@
       <item key="Control_Fear"    value="302"/>
       <item key="Control_Silence" value="303"/>
       <item key="Control_Taunt"   value="304"/>
+      <item key="Control_BeakBack" value="305"/>
+
+      <item key="SpecialControl_Freeze" value="310"/>
 
       
       <item key="Immune_AllDamage"  value="350"/>
@@ -410,6 +419,8 @@
       <item key="Immune_Fear"       value="355"/>
       <item key="Immune_Silence"    value="356"/>
       <item key="Immune_Taunt"      value="357"/>
+      <item key="Immune_Freeze"     value="358"/>
+      <item key="Immune_BeakBack"   value="359"/>
 
       <item key="Remove_AllControl"   value="400"/>
       <item key="Remove_Stun"         value="401"/>
@@ -418,6 +429,7 @@
       <item key="Remove_Silence"      value="404"/>
       <item key="Remove_RandomBuff"   value="405"/>
       <item key="Remove_RandomDebuff" value="406"/>
+      <item key="Remove_Freeze"       value="407"/>
 
       <item key="Stealth_Stealth"       value="420"/>
       <item key="Stealth_DetectStealth" value="421"/>
@@ -456,6 +468,7 @@
       <item key="MercenaryItem" value="10"/>
       <item key="InstanceItem" value="11"/>
       <item key="PetItem" value="12"/>
+      <item key="ElementalStone" value="13"/>
     </enum>
 
     <enum name="BagType">
@@ -463,8 +476,8 @@
       <item key="Equipment" value="1"/>
       <item key="Consumable" value="2"/>
       <item key="Material" value="3"/>
-      <item key="DNA" value="4"/>
-      <item key="Gem" value="5"/>
+      <item key="Socket" value="4"/>
+      <item key="Special" value="5"/>
     </enum>
 
     <enum name="MaterialType">
@@ -489,12 +502,19 @@
     </enum>
 
     <enum name="DNAType">
+      <item key="None" value="0"/>
       <item key="InheritedDNA" value="1"/>
       <item key="StructuralDNA" value="2"/>
       <item key="ControlDNA" value="3"/>
       <item key="SplitDNA" value="4"/>
       <item key="SensorDNA" value="5"/>
       <item key="StackableDNA" value="6"/>
+    </enum>
+
+    <enum name="DNARollResType">
+      <item key="Success" value="0"/>
+      <item key="BigSuccess" value="1"/>
+      <item key="SuperSuccess" value="2"/>
     </enum>
 
     <enum name="RelicType">
@@ -508,7 +528,7 @@
       <item key="Weapon" value="7"/>
       <item key="SecondaryArm" value="8"/>
     </enum>
-
+ 
     <enum name="HeroItemType">
       <item key="Shard" value="0"/>
       <item key="Gift" value="1"/>
@@ -662,7 +682,7 @@
 		  <item key="WuMen" value="5"/>
 	  </enum>
 
-    <enum name="NPCStore">
+    <enum name="NPCStoreType">
       <item key="Normal" value="0"/>
       <item key="Random" value="1"/>
       <item key="Barter" value="2"/>
@@ -757,6 +777,7 @@
       <item key="Companion" value="5"/>
       <item key="Outfit" value="6"/>
       <item key="NPC" value="7"/>
+      <item key="Realm" value="8"/>
     </enum>
     
     <enum name="EventTimingType">

@@ -10,6 +10,15 @@
       <property name="reqmoney" type="int" uitext="Required Money" default="0"/>
     </element>
   </data>
+  
+  <data>
+    <element name="DNAUpgradeRoll" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="result" type="DNARollResType" uitext="Result"/>
+      <property name="expadd" type="float" uitext="Exp Add"/>
+      <property name="weight" type="int" uitext="Weight"/>
+    </element>
+  </data>
 
   <data>
     <element name="DNAEvolve" useexcel="true" collectionkey="name">

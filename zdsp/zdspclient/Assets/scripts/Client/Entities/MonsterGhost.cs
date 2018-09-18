@@ -47,25 +47,25 @@ namespace Zealot.Client.Entities
                 //case RealmType.EliteMap:
                 //    if (isEnemy)
                 //    {
-                //        switch (mArchetype.monsterclass)
+                //        switch (mArchetype.monstertype)
                 //        {
-                //            case MonsterClass.Normal:
-                //            case MonsterClass.Mini:
+                //            case MonsterType.Normal:
+                //            case MonsterType.MiniBoss:
                 //                HeadLabel.mPlayerLabel.SetMonster(); //hide regular monster's label
                 //                break;
-                //            case MonsterClass.Boss:
+                //            case MonsterType.Boss:
                 //                break;
                 //        }
                 //    }
                 //    else
                 //    {
-                //        switch (mArchetype.monsterclass)
+                //        switch (mArchetype.monstertype)
                 //        {
-                //            case MonsterClass.Normal:
-                //            case MonsterClass.Mini:
+                //            case MonsterType.Normal:
+                //            case MonsterType.MiniBoss:
                 //                HeadLabel.mPlayerLabel.SetMonster(); //hide regular monster's label
                 //                break;
-                //            case MonsterClass.Boss:
+                //            case MonsterType.Boss:
                 //                break;
                 //        }
                 //    }
@@ -74,13 +74,13 @@ namespace Zealot.Client.Entities
                 case RealmType.Dungeon:
                 //case RealmType.RealmTutorial:
                 case RealmType.World:
-                    switch (mArchetype.monsterclass)
+                    switch (mArchetype.monstertype)
                     {
-                        case MonsterClass.Normal:
+                        case MonsterType.Normal:
                         default:
                             HeadLabel.mPlayerLabel.SetMonster(); //hide regular monster's label
                             break;
-                        case MonsterClass.Boss:
+                        case MonsterType.Boss:
                             HeadLabel.mPlayerLabel.SetBoss();
                             HeadLabel.mPlayerLabel.SetBuffDebuff(this);
                             break;
@@ -95,7 +95,7 @@ namespace Zealot.Client.Entities
         {
             if (field == "TargetPID")
             {
-                if (mArchetype.monsterclass != MonsterClass.Boss)
+                if (mArchetype.monstertype != MonsterType.Boss)
                 {
                     if (value != oldvalue)//mean have new target or back to idle
                     {
@@ -117,7 +117,7 @@ namespace Zealot.Client.Entities
                 }
                 //Debug.Log("MG: " + field + " " + value + " " + oldvalue);
             }
-            else if (field == "positiveVisualSE" || field == "negativeVisualSE" || field == "VisualEffectTypes" || field == "elementalVisualSE")
+            else if (field == "positiveVisualSE" || field == "negativeVisualSE" || field == "VisualEffectTypes" || field == "ElementalVisualSE")
             {
                 HandleSideEffectVisuals(field, value);
             }
@@ -240,10 +240,10 @@ namespace Zealot.Client.Entities
                 mHeadLabel.SetLabelOffset_WorldSpace(Vector3.zero, new Vector3(0.0f, heightOffset + mHeadLabel.mNpcLabel.height, 0.0f));
 
                 //HeadLabel.SetActorName (mArchetype.localizedname);            
-                //if (mArchetype.monsterclass == MonsterClass.Destructible)
+                //if (mArchetype.monstertype == MonsterType.Destructible)
                 //gameobject in Destructible layer will collide those in Entities layer
                 //    ClientUtils.SetLayerRecursively(AnimObj, LayerMask.NameToLayer("Destructible"));
-                if (mArchetype.monsterclass == MonsterClass.Boss)
+                if (mArchetype.monstertype == MonsterType.Boss)
                 {
                     ClientUtils.SetLayerRecursively(AnimObj, LayerMask.NameToLayer("Boss"));
                     //----------------------------------------------------------------------
@@ -387,7 +387,7 @@ namespace Zealot.Client.Entities
             else
             {
                 string animname = "standby";
-                if (mArchetype.monsterclass == MonsterClass.Boss)
+                if (mArchetype.monstertype == MonsterType.Boss)
                 {
                     animname = "standby";
                 }
@@ -423,7 +423,7 @@ namespace Zealot.Client.Entities
 
         public bool Canbeknockedback()
         {
-            if (mArchetype.monsterclass == MonsterClass.Normal/* && mArchetype.canbeknockback*/)
+            if (mArchetype.monstertype == MonsterType.Normal/* && mArchetype.canbeknockback*/)
                 return true;
             else
                 return false;

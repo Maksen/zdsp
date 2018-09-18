@@ -500,79 +500,6 @@ namespace Zealot.Common.Entities
             }
         }
 
-        /*/--------------------
-        private class CoCriticalDamageBase : CombatStatsField {
-            public CoCriticalDamageBase() {
-                children = new FieldName[] { FieldName.CoCriticalDamage, FieldName.CombatScore };
-            }
-        }
-
-        private class CoCriticalDamageBonus : CombatStatsField {
-            public CoCriticalDamageBonus() {
-                children = new FieldName[] { FieldName.CoCriticalDamage, FieldName.CombatScore };
-            }
-        }
-
-        private class CoCriticalDamagePercBonus : CombatStatsField {
-            public CoCriticalDamagePercBonus() {
-                children = new FieldName[] { FieldName.CoCriticalDamage, FieldName.CombatScore };
-            }
-        }
-
-        private class CoCriticalDamage : CombatStatsField {
-            public CoCriticalDamage() {
-                children = new FieldName[] { FieldName.CombatScore };
-            }
-
-            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, PlayerSynStats playerSynStats) {
-                int b = (int)fields[(int)FieldName.CoCriticalDamageBonus].GetValue();
-                int bvalue = (int)fields[(int)FieldName.CoCriticalDamageBase].GetValue();
-                int perc = (int)fields[(int)FieldName.CoCriticalDamagePercBonus].GetValue();
-                fieldValue = (int)((bvalue + b) * (1 + perc * 0.001));
-                fieldValue = Math.Max(0, fieldValue);
-                if (localCombatStats != null) {
-                    //values with no skill values.
-                    int valuebonus = (int)fields[(int)FieldName.CoCriticalDamageBonus].GetValue() - (int)fields[(int)FieldName.CoCriticalDamageBonus_NoScore].GetValue();
-                    int percentagebonus = (int)fields[(int)FieldName.CoCriticalDamagePercBonus].GetValue() - (int)fields[(int)FieldName.CoCriticalDamagePercBonus_NoScore].GetValue();
-                    int noskillvalue = (int)(((bvalue + valuebonus) * (1 + percentagebonus * 0.001)));
-                    noskillvalue = Math.Max(0, noskillvalue);
-                    localCombatStats.CoCriticalDamage = noskillvalue;
-                }
-            }
-        }
-
-        //-----------------
-        //private class TalentPointStoneField:CombatStatsField
-        //{
-        //    public TalentPointStoneField()
-        //    {
-        //        fieldValue = 1;
-        //        children = new FieldName[] { };
-        //    }
-
-        //}
-
-        //private class TalentPointClothField : CombatStatsField
-        //{
-        //    public TalentPointClothField()
-        //    {
-        //        fieldValue = 1;
-        //        children = new FieldName[] { };
-        //    }
-
-        //}
-
-        //private class TalentPointScissorsField : CombatStatsField
-        //{
-        //    public TalentPointScissorsField()
-        //    {
-        //        fieldValue = 1;
-        //        children = new FieldName[] { };
-        //    }
-
-        //}
-        */
-
         private class AbsorbDamageBonusField : CombatStatsField
         {
             public AbsorbDamageBonusField()
@@ -650,12 +577,12 @@ namespace Zealot.Common.Entities
             {
                 float str = fields[(int)FieldName.StrengthBase].GetValue() + fields[(int)FieldName.StrengthBonus].GetValue();
                 float str_mod = fields[(int)FieldName.StrengthPercBonus].GetValue() * 0.01f;
-                fieldValue = str * (1 + str_mod);
+                fieldValue = (int)(str * (1 + str_mod));
                 if (localCombatStats != null)
                 {
                     str -= (int)fields[(int)FieldName.StrengthBonus_NoScore].GetValue();
-                    str_mod -= (int)fields[(int)FieldName.StrengthBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.Strength = (int)((str * (1 + str_mod)) * 100);
+                    str_mod -= (int)fields[(int)FieldName.StrengthPercBonus_NoScore].GetValue() * 0.01f;
+                    localCombatStats.Strength = (int)(str * (1 + str_mod));
                 }
             }
         }
@@ -717,13 +644,13 @@ namespace Zealot.Common.Entities
             {
                 float agi = fields[(int)FieldName.AgilityBase].GetValue() + fields[(int)FieldName.AgilityBonus].GetValue();
                 float agi_mod = fields[(int)FieldName.AgilityPercBonus].GetValue() * 0.01f;
-                fieldValue = agi * (1 + agi_mod);
+                fieldValue = (int)(agi * (1 + agi_mod));
 
                 if (localCombatStats != null)
                 {
                     agi -= (int)fields[(int)FieldName.AgilityBonus_NoScore].GetValue();
                     agi_mod -= (int)fields[(int)FieldName.AgilityPercBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.Agility = (int)(agi * (1 + agi_mod) * 100);
+                    localCombatStats.Agility = (int)(agi * (1 + agi_mod));
                 }
             }
         }
@@ -785,13 +712,13 @@ namespace Zealot.Common.Entities
             {
                 float dex = fields[(int)FieldName.DexterityBase].GetValue() + fields[(int)FieldName.DexterityBonus].GetValue();
                 float dex_mod = fields[(int)FieldName.DexterityPercBonus].GetValue() * 0.01f;
-                fieldValue = dex * (1 + dex_mod);
+                fieldValue = (int)(dex * (1 + dex_mod));
 
                 if (localCombatStats != null)
                 {
                     dex -= fields[(int)FieldName.DexterityBonus_NoScore].GetValue();
                     dex_mod -= fields[(int)FieldName.DexterityPercBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.Dexterity = (int)(dex * (1 + dex_mod) * 100);
+                    localCombatStats.Dexterity = (int)(dex * (1 + dex_mod));
                 }
             }
         }
@@ -853,13 +780,13 @@ namespace Zealot.Common.Entities
             {
                 float cons = fields[(int)FieldName.ConstitutionBase].GetValue() + fields[(int)FieldName.ConstitutionBonus].GetValue();
                 float cons_mod = fields[(int)FieldName.ConstitutionPercBonus].GetValue() * 0.01f;
-                fieldValue = cons * (1 + cons_mod);
+                fieldValue = (int)(cons * (1 + cons_mod));
 
                 if (localCombatStats != null)
                 {
                     cons -= fields[(int)FieldName.ConstitutionBonus_NoScore].GetValue();
                     cons_mod = fields[(int)FieldName.ConstitutionPercBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.Constitution = (int)(cons * (1 + cons_mod) * 100);
+                    localCombatStats.Constitution = (int)(cons * (1 + cons_mod));
                 }
             }
         }
@@ -921,13 +848,13 @@ namespace Zealot.Common.Entities
             {
                 float intel = fields[(int)FieldName.IntelligenceBase].GetValue() + fields[(int)FieldName.IntelligenceBonus].GetValue();
                 float intel_mod = fields[(int)FieldName.IntelligencePercBonus].GetValue() * 0.01f;
-                fieldValue = intel * (1 + intel_mod);
+                fieldValue = (int)(intel * (1 + intel_mod));
 
                 if (localCombatStats != null)
                 {
                     intel -= fields[(int)FieldName.IntelligenceBonus_NoScore].GetValue();
                     intel_mod -= fields[(int)FieldName.IntelligencePercBonus_NoScore].GetValue();
-                    localCombatStats.Intelligence = (int)(intel * (1 + intel_mod) * 100);
+                    localCombatStats.Intelligence = (int)(intel * (1 + intel_mod));
                 }
             }
         }
@@ -1075,9 +1002,14 @@ namespace Zealot.Common.Entities
             {
                 float buff = fields[(int)FieldName.MoveSpeedBuff].GetValue();
                 float debuff = fields[(int)FieldName.MoveSpeedDebuff].GetValue();
-                fieldValue = fields[(int)FieldName.MoveSpeedBase].GetValue() * (1 + buff * 0.01f + debuff * 0.01f);
+                fieldValue = fields[(int)FieldName.MoveSpeedBase].GetValue() * (1 + buff * 0.01f - debuff * 0.01f);
 
                 fieldValue = Math.Min(18, Math.Max(0, fieldValue));
+
+                if(actorSynStats != null)
+                {
+                    actorSynStats.MoveSpeed = fieldValue;
+                }
             }
         }
 
@@ -1176,7 +1108,7 @@ namespace Zealot.Common.Entities
         {
             public Health()
             {
-                fieldValue = 1;
+                fieldValue = 0;
                 children = new FieldName[] { }; //this is the player current health
             }
         }
@@ -1196,14 +1128,19 @@ namespace Zealot.Common.Entities
                 float job = fields[(int)FieldName.HealthBase].GetValue();
                 float hp = (job * (actorSynStats.Level + fields[(int)FieldName.Constitution].GetValue())) + fields[(int)FieldName.HealthBonus].GetValue();
                 float hp_mod = fields[(int)FieldName.HealthPercBonus].GetValue() * 0.01f;
-                fieldValue = hp * (1 - hp_mod);
+                fieldValue = (int)(hp * (1 + hp_mod));
+
+                if (fields[(int)FieldName.Health].GetValue() > fieldValue)
+                    fields[(int)FieldName.Health].SetValue(fieldValue);
 
                 if (localCombatStats != null)
                 {
-                    //values with no skill values.
                     hp = (job * (actorSynStats.Level + localCombatStats.Constitution)) + (fields[(int)FieldName.HealthBonus].GetValue() - fields[(int)FieldName.HealthBonus_NoScore].GetValue());
                     hp_mod -= fields[(int)FieldName.HealthPercBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.HealthMax = (int)(hp * (1 - hp_mod));
+                    localCombatStats.HealthMax = (int)(hp * (1 + hp_mod));
+
+                    if (localCombatStats.Health > localCombatStats.HealthMax)
+                        localCombatStats.Health = localCombatStats.HealthMax;
                 }
             }
         }
@@ -1212,7 +1149,7 @@ namespace Zealot.Common.Entities
         {
             public HealthBase()
             {
-                fieldValue = 100;
+                fieldValue = 0;
                 children = new FieldName[] { FieldName.HealthMax, FieldName.CombatScore };
             }
         }
@@ -1284,7 +1221,7 @@ namespace Zealot.Common.Entities
                 if (actorSynStats == null) return;
                 float x = 15 + (actorSynStats.Level * 0.1f) + (fields[(int)FieldName.Constitution].GetValue() * 3) + fields[(int)FieldName.HealthRegenBonus].GetValue();
                 float x_mod = fields[(int)FieldName.HealthRegenPercBonus].GetValue() * 0.01f;
-                fieldValue = x * (1 + x_mod);
+                fieldValue = (int)(x * (1 + x_mod));
 
                 if (localCombatStats != null)
                 {
@@ -1300,7 +1237,7 @@ namespace Zealot.Common.Entities
             public ManaBase()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Mana, FieldName.CombatScore };
+                children = new FieldName[] { FieldName.ManaMax, FieldName.CombatScore };
             }
         }
 
@@ -1309,7 +1246,7 @@ namespace Zealot.Common.Entities
             public ManaBonus()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Mana };
+                children = new FieldName[] { FieldName.ManaMax };
             }
         }
 
@@ -1318,7 +1255,7 @@ namespace Zealot.Common.Entities
             public ManaPercBonus()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Mana };
+                children = new FieldName[] { FieldName.ManaMax };
             }
         }
 
@@ -1362,16 +1299,23 @@ namespace Zealot.Common.Entities
                 if (actorSynStats == null) return;
                 float mana = (fields[(int)FieldName.ManaBase].GetValue() * (actorSynStats.Level + fields[(int)FieldName.Intelligence].GetValue())) + fields[(int)FieldName.ManaBonus].GetValue();
                 float mana_mod = fields[(int)FieldName.ManaPercBonus].GetValue() * 0.01f;
-                fieldValue = mana * (1 + mana_mod);
+                fieldValue = (int)(mana * (1 + mana_mod));
+
+                if (fields[(int)FieldName.Mana].GetValue() > fieldValue)
+                    fields[(int)FieldName.Mana].SetValue(fieldValue);
 
                 if (localCombatStats != null)
                 {
                     mana = (fields[(int)FieldName.ManaBase].GetValue() * (actorSynStats.Level + fields[(int)FieldName.Intelligence].GetValue())) + (fields[(int)FieldName.ManaBonus].GetValue() - fields[(int)FieldName.ManaBonus_NoScore].GetValue());
                     mana_mod -= fields[(int)FieldName.ManaPercBonus_NoScore].GetValue() * 0.01f;
                     localCombatStats.ManaMax = (int)(mana * (1 + mana_mod));
+
+                    if (localCombatStats.Mana > localCombatStats.ManaMax)
+                        localCombatStats.Mana = localCombatStats.ManaMax;
                 }
             }
         }
+
 
         private class ManaRegenBonus : CombatStatsField
         {
@@ -1422,7 +1366,7 @@ namespace Zealot.Common.Entities
                 if (actorSynStats == null) return;
                 float x = 4 + (actorSynStats.Level * 0.1f) + (fields[(int)FieldName.Intelligence].GetValue() / 5) + fields[(int)FieldName.ManaRegenBonus].GetValue();
                 float x_mod = fields[(int)FieldName.ManaRegenPercBonus].GetValue() * 0.01f;
-                fieldValue = x * (1 + x_mod);
+                fieldValue = (int)(x * (1 + x_mod));
 
                 if (localCombatStats != null)
                 {
@@ -1439,6 +1383,12 @@ namespace Zealot.Common.Entities
             {
                 fieldValue = 0;
                 children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
+            {
+                if (actorSynStats != null)
+                    actorSynStats.PassiveShieldBuff = (int)fieldValue;
             }
         }
 
@@ -1481,7 +1431,7 @@ namespace Zealot.Common.Entities
             {
                 float wdmg = fields[(int)FieldName.WeaponAttackBase].GetValue() + fields[(int)FieldName.WeaponAttackBonus].GetValue();
                 float wdmg_mod = fields[(int)FieldName.WeaponAttackPercBonus].GetValue() * 0.01f;
-                fieldValue = (1 + wdmg) * (1 + wdmg_mod);
+                fieldValue = (int)((1 + wdmg) * (1 + wdmg_mod));
 
                 if (localCombatStats != null)
                 {
@@ -1523,7 +1473,7 @@ namespace Zealot.Common.Entities
             {
                 float atk = fields[(int)FieldName.AttackBase].GetValue() + fields[(int)FieldName.AttackBonus].GetValue();
                 float atk_mod = fields[(int)FieldName.AttackPercBonus].GetValue() * 0.01f;
-                fieldValue = atk * (1 + atk_mod);
+                fieldValue = (int)(atk * (1 + atk_mod));
 
                 if (localCombatStats != null)
                 {
@@ -1595,7 +1545,7 @@ namespace Zealot.Common.Entities
             {
                 float def = fields[(int)FieldName.ArmorBase].GetValue();
                 float def_mod = (int)fields[(int)FieldName.ArmorPercBonus].GetValue() * 0.01f;
-                fieldValue = (def * (1 + def_mod)) * (1 - fields[(int)FieldName.IgnoreArmorBase].GetValue());
+                fieldValue = (int)((def * (1 + def_mod)) * (1 - fields[(int)FieldName.IgnoreArmorBase].GetValue()));
 
                 if (localCombatStats != null)
                 {
@@ -1625,7 +1575,7 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = (fields[(int)FieldName.Strength].GetValue() * 0.05f) + (fields[(int)FieldName.IgnoreArmorBonus].GetValue() * 0.01f);
+                fieldValue = (int)((fields[(int)FieldName.Strength].GetValue() * 0.05f) + (fields[(int)FieldName.IgnoreArmorBonus].GetValue() * 0.01f));
 
                 if (localCombatStats != null)
                 {
@@ -1706,7 +1656,7 @@ namespace Zealot.Common.Entities
             {
                 float blockval = fields[(int)FieldName.BlockValueBonus].GetValue();
                 float blockval_mod = fields[(int)FieldName.BlockValuePercBonus].GetValue() * 0.01f;
-                fieldValue = blockval * (1 + blockval_mod);
+                fieldValue = (int)(blockval * (1 + blockval_mod));
 
                 if (localCombatStats != null)
                 {
@@ -1791,9 +1741,9 @@ namespace Zealot.Common.Entities
                 float accu = fields[(int)FieldName.AccuracyBonus].GetValue();
                 float accu_mod = fields[(int)FieldName.AccuracyPercBonus].GetValue() * 0.01f;
                 if (actorSynStats != null)
-                    fieldValue = (80 + accu + fields[(int)FieldName.Dexterity].GetValue() + actorSynStats.Level/*+ skill*/) * (1 + accu_mod);
+                    fieldValue = (int)((80 + accu + fields[(int)FieldName.Dexterity].GetValue() + actorSynStats.Level/*+ skill*/) * (1 + accu_mod));
                 else
-                    fieldValue = 0;
+                    fieldValue = (int)fields[(int)FieldName.AccuracyBase].GetValue();  // For monster use
                 if (localCombatStats != null)
                 {
                     accu -= fields[(int)FieldName.AccuracyBonus_NoScore].GetValue();
@@ -1841,11 +1791,11 @@ namespace Zealot.Common.Entities
                 float eva_mod = fields[(int)FieldName.EvasionPercBonus].GetValue() * 0.01f;
                 if (actorSynStats != null)
                 {
-                    fieldValue = (20 + eva + fields[(int)FieldName.Agility].GetValue() + actorSynStats.Level) * (1 + eva_mod);
+                    fieldValue = (int)((20 + eva + fields[(int)FieldName.Agility].GetValue() + actorSynStats.Level) * (1 + eva_mod));
                 }
                 else
                 {
-                    fieldValue = 0;
+                    fieldValue = (int)fields[(int)FieldName.EvasionBase].GetValue();
                 }
                 if (localCombatStats != null)
                 {
@@ -1893,7 +1843,7 @@ namespace Zealot.Common.Entities
             {
                 float crit = fields[(int)FieldName.CriticalBonus].GetValue();
                 float crit_mod = fields[(int)FieldName.CriticalPercBonus].GetValue() * 0.01f;
-                fieldValue = (1 + crit) * (1 + crit_mod);
+                fieldValue = (int)((1 + crit) * (1 + crit_mod));
 
                 if (localCombatStats != null)
                 {
@@ -1941,10 +1891,13 @@ namespace Zealot.Common.Entities
             {
                 float cocrit = fields[(int)FieldName.CocriticalBonus].GetValue();
                 float cocrit_mod = fields[(int)FieldName.CocriticalPercBonus].GetValue() * 0.01f;
-                fieldValue = (1 + cocrit) * (1 + cocrit_mod);
+                fieldValue = (int)((1 + cocrit) * (1 + cocrit_mod));
 
                 if (localCombatStats != null)
                 {
+                    cocrit -= fields[(int)FieldName.CocriticalBonus_NoScore].GetValue();
+                    cocrit_mod -= fields[(int)FieldName.CocriticalPercBonus_NoScore].GetValue() * 0.01f;
+                    localCombatStats.CoCritical = (int)((1 + cocrit) * (1 + cocrit_mod));
                 }
             }
         }
@@ -1985,7 +1938,7 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = fields[(int)FieldName.CriticalDamageBonus].GetValue();
+                fieldValue = (int)fields[(int)FieldName.CriticalDamageBonus].GetValue();
                 if (localCombatStats != null)
                 {
                     localCombatStats.CriticalDamage = (int)(fieldValue - fields[(int)FieldName.CriticalDamagePercBonus_NoScore].GetValue());
@@ -4298,7 +4251,10 @@ namespace Zealot.Common.Entities
 
                 FieldName.BlockRate,
                 FieldName.BlockValueBonus,
-                FieldName.BlockValuePercBonus
+                FieldName.BlockValuePercBonus,
+
+                FieldName.MoveSpeedBuff,
+                FieldName.MoveSpeedDebuff
             };
 
             mTierFieldNames[1] = new List<FieldName>()
@@ -4363,7 +4319,9 @@ namespace Zealot.Common.Entities
                  FieldName.IncreaseFinalDamage,
                  FieldName.DecreaseFinalDamage,
 
-                 FieldName.BlockValue
+                 FieldName.BlockValue,
+
+                 FieldName.MoveSpeed
             };
 
             mTierFieldNames[2] = new List<FieldName>()
@@ -4426,11 +4384,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        public bool SuppressComputeAll
-        {
-            get;
-            set;
-        }
+        public bool SuppressComputeAll { get; set; }
 
         public void ComputeAll()
         {
@@ -4521,7 +4475,6 @@ namespace Zealot.Common.Entities
                     {
                         SideEffectJson se = SideEffectRepo.GetSideEffect(ids);
                         val += se.max;
-                        
                     }
                     val = (val + val) * multiplier * sign;
                     AddToField(FieldName.WeaponAttackBonus, val);
@@ -4533,8 +4486,7 @@ namespace Zealot.Common.Entities
                         val += se.max;
                     }
                     val = (val + val) * multiplier * sign;
-                    AddToField(FieldName.ArmorBonus, val);
-                    
+                    AddToField(FieldName.ArmorBonus, val);                 
                     break;
             }
         }
@@ -4655,6 +4607,7 @@ namespace Zealot.Common.Entities
             return fname;
         }
     }
+
 
     public enum SkillPassiveFieldName : int
     {

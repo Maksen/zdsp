@@ -5862,7 +5862,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 167.10028, y: 0}
+  m_AnchoredPosition: {x: 168.5911, y: 0}
   m_SizeDelta: {x: 0, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &493463317
@@ -20320,6 +20320,8 @@ MonoBehaviour:
   - {fileID: 1659474693}
   windowCanvas:
   - {fileID: 1564658204}
+  - {fileID: 781021534}
+  - {fileID: 661457733}
   objectsToHide: []
   HasCloseAnimation: 0
 --- !u!114 &1313517883
@@ -21404,7 +21406,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 53.03343, y: 0}
+  m_AnchoredPosition: {x: 53.530365, y: 0}
   m_SizeDelta: {x: 0, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1573258709
@@ -21711,7 +21713,8 @@ MonoBehaviour:
   list_toggle:
   - {fileID: 1573258717}
   - {fileID: 493463325}
-  defaultAutoEnable: 1
+  list_tabcontent: []
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 1573258717}
 --- !u!1 &1608249052
 GameObject:
@@ -22255,7 +22258,7 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 88.85769
+      value: 89.82186
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -22265,12 +22268,12 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 101.71538
+      value: 103.64372
       objectReference: {fileID: 0}
     - target: {fileID: 224507261482001066, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 139.71538
+      value: 141.64372
       objectReference: {fileID: 0}
     - target: {fileID: 224538386806249186, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}

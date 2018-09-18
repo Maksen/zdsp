@@ -202,7 +202,7 @@ public class ClientSettingsData
         MusicVolume = 100;
         SoundFXVolume = 100;
         NotificationEnabled = true;
-        AutoBotEnabled = true;
+        AutoBotEnabled = false;
         HideOtherPlayers = false;
         SpendConfirmationEnabled = true;
         AutoWorldVoice = false;

@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Client.Entities;
 using Zealot.Common;
+using Zealot.Common.Entities;
 using Zealot.Repository;
 
 public class UI_DungeonStory : MonoBehaviour
@@ -16,6 +18,8 @@ public class UI_DungeonStory : MonoBehaviour
     Image imgPreview = null;
     [SerializeField]
     Image imgDifficulty = null;
+    [SerializeField]
+    Sprite[] difficultyIcons = null;
     [SerializeField]
     Text txtDungeonName = null;
     [SerializeField]
@@ -34,37 +38,64 @@ public class UI_DungeonStory : MonoBehaviour
     DayOfWeek currentDayTab = DayOfWeek.Monday;
     List<Dictionary<DungeonDifficulty, DungeonJson>> currentDungeonInfos = null;
     int dungeonPanelIdx = 0;
+    int onInitSequence = 1;
     DungeonDifficulty currentDifficulty = DungeonDifficulty.None;
-    List<RewardItem> lootRewardList = null;
+    DungeonJson currentDungeonInfo = null;
+
+    [NonSerialized]
+    public bool InitOnEnable = true;
 
     // Use this for initialization
     void Awake()
     {
         currentDungeonInfos = new List<Dictionary<DungeonDifficulty, DungeonJson>>();
-        lootRewardList = new List<RewardItem>();
     }
 
     void OnEnable()
     {
-        Init();
+        if (InitOnEnable)
+            Init(1);
     }
 
     void OnDisable()
     {
         currentDungeonInfos.Clear();
+
+        InitOnEnable = true;
     }
 
-    public void Init()
-    {      
-        if (currentDayTab == DayOfWeek.Monday)
+    public void Init(int sequence)
+    {
+        DayOfWeek todayDayOfWeek = DateTime.Today.DayOfWeek;
+        onInitSequence = sequence;
+        if (currentDayTab == todayDayOfWeek)
         {
-            dungeonPanelIdx = 0;
-            currentDifficulty = DungeonDifficulty.Easy;
             PopulateCurrentDungeonInfos();
-            InitDungeonPanel();
+            InitDungeonPanelIndexBySequence();
+            InitDungeonPanel(DungeonDifficulty.Easy);
         }
-        else
-            defaultToggleingrpDayTabs.GoToPage((int)DayOfWeek.Monday);
+        defaultToggleingrpDayTabs.GoToPage((int)todayDayOfWeek);
+    }
+
+    void InitDungeonPanelIndexBySequence()
+    {
+        dungeonPanelIdx = 0;
+        if (onInitSequence != 0)
+        {
+            int dungeonInfosCount = currentDungeonInfos.Count;
+            for (int i = 0; i < dungeonInfosCount; ++i)
+            {
+                Dictionary<DungeonDifficulty, DungeonJson> dungeonStoryDict = currentDungeonInfos[i];
+                DungeonJson dungeonJson = dungeonStoryDict.ContainsKey(DungeonDifficulty.Easy)
+                        ? dungeonStoryDict[DungeonDifficulty.Easy] : dungeonStoryDict[DungeonDifficulty.None];
+                if (dungeonJson.sequence == onInitSequence)
+                {
+                    dungeonPanelIdx = i;
+                    break;
+                }
+            }
+        }
+        onInitSequence = 0;
     }
 
     void PopulateCurrentDungeonInfos()
@@ -81,15 +112,15 @@ public class UI_DungeonStory : MonoBehaviour
                 DungeonJson dungeonJson = dungeonStoryDict.ContainsKey(DungeonDifficulty.Easy)
                     ? dungeonStoryDict[DungeonDifficulty.Easy] : dungeonStoryDict[DungeonDifficulty.None];
 
-                byte daysOpen = dungeonDaysOpen[dungeonJson.sequence];
-                if (GameUtils.IsBitSet(daysOpen, (int)currentDayTab))
+                if (GameUtils.IsBitSet(dungeonDaysOpen[dungeonJson.sequence], (int)currentDayTab))
                     currentDungeonInfos.Add(dungeonStoryDict);
             }
         }
     }
 
-    void InitDungeonPanel()
+    void InitDungeonPanel(DungeonDifficulty difficulty)
     {
+        currentDifficulty = difficulty;
         int infoCount = currentDungeonInfos.Count;
         if (infoCount > 0)
         {
@@ -97,26 +128,43 @@ public class UI_DungeonStory : MonoBehaviour
             bool noDifficulty = dungeonStoryDict.ContainsKey(DungeonDifficulty.None);
             if (noDifficulty)
                 currentDifficulty = DungeonDifficulty.None;
-            DungeonJson dungeonJson = dungeonStoryDict[currentDifficulty];
 
-            txtDungeonName.text = dungeonJson.localizedname + " " + dungeonPanelIdx; // For test, remove later
-            txtLevelReq.text = dungeonJson.reqlvl.ToString();
-            txtLootRewardLimit.text = dungeonJson.lootlimit.ToString();
+            currentDungeonInfo = dungeonStoryDict[currentDifficulty];
+            txtDungeonName.text = currentDungeonInfo.localizedname + " " + dungeonPanelIdx; // For test, remove later
+            txtLevelReq.text = currentDungeonInfo.reqlvl.ToString();
+            UpdateLootRewardLimit(GameInfo.gLocalPlayer);
+
+            if (!noDifficulty)
+            {
+                imgDifficulty.gameObject.SetActive(true);
+                imgDifficulty.sprite = difficultyIcons[(int)currentDifficulty-1];
+            }
+            else
+                imgDifficulty.gameObject.SetActive(false);
             for (int i = 0; i < 4; ++i)
                 buttonDifficulty[i].interactable = (!noDifficulty && dungeonStoryDict.ContainsKey((DungeonDifficulty)i+1));
 
-            InitLootReward(dungeonJson.lootdisplayids);
+            InitLootReward(currentDungeonInfo.lootdisplayids);
         }
 
         buttonLeftArrow.interactable = (infoCount > 0 && dungeonPanelIdx > 0);
         buttonRightArrow.interactable = (infoCount > 0 && dungeonPanelIdx < infoCount-1);
     }
 
-    public void InitLootReward(string lootLinkIds)
+    public void UpdateLootRewardLimit(PlayerGhost player)
     {
-        lootRewardList.Clear();
+        Dictionary<int, RealmInfo> dungeonStoryinfos = player.RealmStats.GetDungeonStoryInfos();
+        int seq = currentDungeonInfo.sequence;
+        txtLootRewardLimit.text = dungeonStoryinfos.ContainsKey(seq)
+            ? dungeonStoryinfos[seq].LootRewardLimit.ToString() : currentDungeonInfo.lootlimit.ToString();
+    }
+
+    public void InitLootReward(string lootLinkIds)
+    {     
+        List<RewardItem> lootRewardList = new List<RewardItem>();
         if (!string.IsNullOrEmpty(lootLinkIds))
         {
+            Dictionary<int, int> compiledLootItems = new Dictionary<int, int>();
             List<int> lootLinkIdList = GameUtils.ParseStringToIntList(lootLinkIds, ';');
             int lootLinkIdsCount = lootLinkIdList.Count;
             for (int i = 0; i < lootLinkIdsCount; ++i)
@@ -124,28 +172,40 @@ public class UI_DungeonStory : MonoBehaviour
                 LootLink lootLink = LootRepo.GetLootLink(lootLinkIdList[i]);
                 if (lootLink != null)
                 {
-                    int lootLinkGIdCount = lootLink.gids.Count;
-                    for (int j = 0; j < lootLinkGIdCount; ++j)
+                    List<int> lootLinkGrpIds = lootLink.gids;
+                    int lootLinkGrpIdCount = lootLinkGrpIds.Count;
+                    for (int j = 0; j < lootLinkGrpIdCount; ++j)
                     {
-                        LootItemGroup lootItemGrp = LootRepo.GetLootItemGroup(lootLink.gids[j]);
+                        LootItemGroup lootItemGrp = LootRepo.GetLootItemGroup(lootLinkGrpIds[j]);
                         if (lootItemGrp != null)
                         {
                             int lootItemCount = lootItemGrp.groupItems.Count;
                             for (int k = 0; k < lootItemCount; ++k)
                             {
                                 LootItem lootItem = lootItemGrp.groupItems[k];
-                                lootRewardList.Add(new RewardItem(lootItem.itemid, lootItem.max));
+                                int itemId = lootItem.itemid;
+                                if (compiledLootItems.ContainsKey(itemId))
+                                    compiledLootItems[itemId] += lootItem.max;
+                                else
+                                    compiledLootItems[itemId] = lootItem.max;
+
                             }
                             lootItemCount = lootItemGrp.nonGroupItems.Count;
                             for (int k = 0; k < lootItemCount; ++k)
                             {
                                 LootItem lootItem = lootItemGrp.nonGroupItems[k];
-                                lootRewardList.Add(new RewardItem(lootItem.itemid, lootItem.max));
+                                int itemId = lootItem.itemid;
+                                if (compiledLootItems.ContainsKey(itemId))
+                                    compiledLootItems[itemId] += lootItem.max;
+                                else
+                                    compiledLootItems[itemId] = lootItem.max;
                             }
                         }
                     }
                 }
             }
+            foreach (KeyValuePair<int, int> kvp in compiledLootItems)
+                lootRewardList.Add(new RewardItem(kvp.Key, kvp.Value));
         }
         uiRewardDisplay.Init(lootRewardList);
     }
@@ -155,12 +215,10 @@ public class UI_DungeonStory : MonoBehaviour
         if (currentDayTab == (DayOfWeek)index)
             return;
 
-        currentDayTab = (DayOfWeek)index;
-
-        dungeonPanelIdx = 0;
-        currentDifficulty = DungeonDifficulty.Easy;
+        currentDayTab = (DayOfWeek)index;     
         PopulateCurrentDungeonInfos();
-        InitDungeonPanel();
+        InitDungeonPanelIndexBySequence();
+        InitDungeonPanel(DungeonDifficulty.Easy);
     }
 
 	public void OnClickLeftArrow()
@@ -168,8 +226,7 @@ public class UI_DungeonStory : MonoBehaviour
         if (dungeonPanelIdx > 0)
         {
             --dungeonPanelIdx;
-            currentDifficulty = DungeonDifficulty.Easy;
-            InitDungeonPanel();
+            InitDungeonPanel(DungeonDifficulty.Easy);
         }
     }
 
@@ -178,36 +235,28 @@ public class UI_DungeonStory : MonoBehaviour
         if (dungeonPanelIdx < currentDungeonInfos.Count-1)
         {
             ++dungeonPanelIdx;
-            currentDifficulty = DungeonDifficulty.Easy;
-            InitDungeonPanel();
+            InitDungeonPanel(DungeonDifficulty.Easy);
         }
     }
 
     public void OnClickDungeonDifficulty(int difficulty)
     {
         if (currentDifficulty != (DungeonDifficulty)difficulty)
-        {
-            currentDifficulty = (DungeonDifficulty)difficulty;
-            InitDungeonPanel();
-        }
+            InitDungeonPanel((DungeonDifficulty)difficulty);
     }
 
     public void OnClickAutoClear()
     {
+        RPCFactory.CombatRPC.DungeonAutoClear(currentDungeonInfo.id, false);
     }
 
     public void OnClickAutoClearAll()
     {
-    }
-
-    public void OnClickOpenParty()
-    {
-
+        RPCFactory.CombatRPC.DungeonAutoClear(currentDungeonInfo.id, true);
     }
 
     public void OnClickEnterDungeon()
     {
-        DungeonJson dungeonJson = currentDungeonInfos[dungeonPanelIdx][currentDifficulty];
-        RPCFactory.CombatRPC.CreateRealmByID(dungeonJson.id, false, false);
+        RPCFactory.CombatRPC.CreateRealmByID(currentDungeonInfo.id, false, false);
     }
 }

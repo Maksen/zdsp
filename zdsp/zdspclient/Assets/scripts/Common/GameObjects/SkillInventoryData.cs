@@ -21,8 +21,14 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "BasicAttack3SkillId")]
         public int basicAttack3SId { get; set; }
 
+        [JsonProperty(PropertyName ="EquipGroup")]
+        public int equipGroup { get; set; }
+
+        [JsonProperty(PropertyName ="AutoGroup")]
+        public int autoGroup { get; set; }
+
         [JsonProperty(PropertyName = "SkillInvCount")]
-        public int SkillInvCount; // stores all skill level with key being the skillid
+        public int SkillInvCount;
 
         [JsonProperty(PropertyName = "SkillInv")]
         public List<int> SkillInv; // stores all skill level with key being the skillid
@@ -30,16 +36,18 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "EquippedSkill")]
         public List<int> EquippedSkill; // stores all equipped skills
 
+        [JsonProperty(PropertyName = "AutoSkill")]
+        public List<int> AutoSkill; // stores all equipped auto skills
+
         //cannot disable basic attack 
         public void InitDefault(JobsectJson jsj)
         {
-            //basicAttack1SId = SkillRepo.Rage_BasicAtk1;
-            //basicAttack2SId = SkillRepo.Rage_BasicAtk2;
-            //basicAttack3SId = SkillRepo.Rage_BasicAtk3;  
 
             SkillInv = new List<int>(40);
             EquippedSkill = new List<int>(36);
+            AutoSkill = new List<int>(36);
             SkillInvCount = 0;
+            equipGroup = autoGroup = 1;
             for(int i = 0; i < 40; ++i)
             {
                 SkillInv.Add(0);
@@ -47,7 +55,7 @@ namespace Zealot.Common
             for (int i = 0; i < 36; ++i)
             {
                 EquippedSkill.Add(0);
-                
+                AutoSkill.Add(0);
             }
         }
     }

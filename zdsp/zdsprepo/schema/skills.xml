@@ -11,7 +11,7 @@
       <property name="rtaction" type="string" uitext="Skill End Action" default="" info="Animation for the action end"/>
       <!--missing-->
       <property name="basicminrt" type="float" uitext="Basic AttackMin RT" default="0.1" info="the minimal RT , below which will not play rt action , should be smaller than Fixed RT"/>
-      <property name ="costtype" type ="string" uitext="Cost Type"/> <!--Need a new enum for this ba-->
+      <property name ="costtype" type ="CostType" uitext="Cost Type" default="0"/> <!--Need a new enum for this ba-->
       <property name ="costab" type ="bool" uitext="Cost AB" info="true if it's absolute value, false if percentage"/>
       <property name ="lvstacked" type ="bool" uitext="Level Stacked"/>
       <property name ="skillclass" type ="SkillClass" uitext="Skill Class" default="0"/>
@@ -23,9 +23,12 @@
       <property name="moonwalk" type="bool" uitext="Moon walk" default="false" info="Whether entity can move while skill is being cast. Only applicable to player's skills."/>
       <property name="canturn" type="bool" uitext="Turn" default="false" info="Whether entity can rotate while skill is being cast. Only applicable to player's skills."/>   
       <property name="proctime" type="float" uitext="Hit Time" default="0.0" info="Time since the start of skill cast for sideeffect to be applied"/>
-      <property name="repeatproc" type="bool" uitext="Repeat proc?" default="false" info="Keep procing after proctime. Repeat proc interval is specified by interval"/> <!--missing, needed-->
+      <property name="priority" type="int" uitext="Auto Skill Priority" default="0" info="Bigger numbers have higher priority"/>
+      <property name="weapon_ot" type="float" uitext="Weapon Open Time" default="0"/>
+      <property name="weapon_ct" type="float" uitext="Weapon Close Time" defualt="0"/>
      
       <!--
+      <property name="repeatproc" type="bool" uitext="Repeat proc?" default="false" info="Keep procing after proctime. Repeat proc interval is specified by interval"/>
       <property name="movedist" type="float" uitext="Forward Distance" default="0" info="the distance forwarded when cast skill, move speed is this distance divided by skill duration, Only For Monster skill"/>
       <property name="proctime" type="float" uitext="Hit Time" default="0.0" info="Time since the start of skill cast for sideeffect to be applied"/>
       <property name="repeatproc" type="bool" uitext="Repeat proc?" default="false" info="Keep procing after proctime. Repeat proc interval is specified by interval"/>
@@ -68,7 +71,7 @@
       <property name="maxtargets" type="int" uitext="Max Targets" default="1"/>
       <property name="progressskill" type="string" uitext="Progress Skill" info="Skill prerequisites"/>
       <property name="requiredlv" type="int" uitext="Required Level"/>
-      <property name="requiredclass" type="string" uitext="Required Class"/>
+      <property name="requiredclass" type="string" uitext="Required Class" default ="0"/>
       <property name="learningsp" type="int" uitext="SP Cost for Learning"/>
       <property name="learningcost" type="int" uitext="Money Cost for Learning"/>
       <property name="teacheritemid" type="int" uitext="Teacher Item id" default="0"/>
@@ -90,11 +93,12 @@
     <element name="SideEffect" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name" unique="true"/>
       <property name="effecttype" type="EffectType" uitext="Effect Type"/> 
-      <property name="basicskilldamageperc" type="float" uitext="Skill Affect" default="100" min="0" max="9999999" info="the basic skill damage percentage value, the min max value is additional value added to this"/>
+      <property name="basicskilldamageperc" type="float" uitext="Skill Affect" default="0" min="0" max="9999999" info="the basic skill damage percentage value, the min max value is additional value added to this"/>
       <property name="max" type="float" uitext="Max" default="0" min="0" max="9999999" info="max value, used as percentage if isRelative is ticked"/>
       <property name="min" type="float" uitext="Min" default="0" min="0" max="9999999" info="min value, used as percentage if isRelative is ticked"/>      
       <property name="isrelative" type="bool" uitext="Is Relative" default="false" info="if true, min and max is percentage value"/>
       <property name="parameter" type="string" uitext="Parameter" default="" info="Additional parameter for use in certain sideeffects: duration for KnockUp, distance for KnockBack, number of hit For RecoverOnHit,  total Amount for ShieldSE"/>
+      <property name="delay" type="float" uitext="Delay" default ="0" info="In seconds. This is the delay for which it activates after skill is casted"/>
       <property name="duration" type="float" uitext="Duration" default="0" info="In seconds. Less than 0: Infinite until death or logout. 0 : Apply exactly 1 time. More than 0: Will stop after duration is reached."/>
       <property name="interval" type="float" uitext="Interval" default="0" info="In seconds. This is the interval to proc when repeat proc is checked."/>     
       <property name="criticaltype" type="CriticalType" uitext="Critical Type"/>
@@ -102,10 +106,12 @@
       <property name="procchance" type="float" uitext="Percentage(%)" default="100" info="0 to 100, the chance of apply se"/>
 
       <property name="persistentafterdeath" type="bool" uitext="Persistent After Death" default="false"/>
-      <property name="persistentonlogout" type="bool" uitext="Persistent On Logout" default="false"/>
+      <property name="persistentonlogout" type="int" uitext="Persistent On Logout" default="0"/>
       <property name="rank" type="int" uitext="removed level" default="1" min="1" max="9999" info="used for remove sideeffect."/>
       <property name="effectpath" type="asset" uitext="Effect Path" default="" assettype="prefab"/>
       <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+      <property name="changematerial" type="asset" uitext="Alternate Material Path" default="" assettype="material"/>
+      <property name="deatheffect" type="string" uitext="Special Death Effect" default="" />
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="description"  type="localizedstring" uitext="Description(Localized)"/>
       <property name="sdg" type="SkillDescriptionGroup" uitext="SideEffect Description Group" display="name"/>

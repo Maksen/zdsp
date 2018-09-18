@@ -28,10 +28,10 @@ namespace Zealot.Client.Actions
 			//base.OnActiveEnter(prevstate);   
 			NetEntityGhost ghost = (NetEntityGhost)mEntity;
             
-            if (mNewStart) {
-                //Debug.Log ("NetEntityGhost [" + ghost.GetPersistentID () + "] animate walk");			                
-                //ghost.PlayEffect("hit");//no need to play a new effect.
-            }
+            //if (mNewStart) {
+            //    Debug.Log ("NetEntityGhost [" + ghost.GetPersistentID () + "] animate walk");			                
+            //    //ghost.PlayEffect("hit");//no need to play a new effect.
+            //}
             targetPos = ((KnockedBackCommand)mdbCommand).targetpos;
             Vector3 forward = targetPos - mEntity.Position; 
 
@@ -81,18 +81,34 @@ namespace Zealot.Client.Actions
 	
 	public class NonClientAuthoKnockedBackWalk : BaseKnockedBackWalk
 	{
-        
-
-        public NonClientAuthoKnockedBackWalk(Entity entity, ActionCommand cmd): base(entity, cmd)  
+        public NonClientAuthoKnockedBackWalk(Entity entity, KnockedBackCommand cmd): base(entity, cmd)  
 		{
-             
+            
+            //mTarget = mEntity as ActorGhost;
+            
+            //mStart = mTarget.Position;
+            //mLocation = cmd.targetpos;
+
+            //Debug.Log("On Knockback");
+
+            //PathFindingStates state = PathFinder.PlotPath(mStart, mLocation, out mWaypoints);
+            //if (state == PathFindingStates.Error)
+            //{
+            //    GotoState("Completed");
+            //    Debug.Log("On Knockback but died...");
+            //    return;
+            //}
+            ////mWaypoints.Reverse();
+            //mLocation = mWaypoints[0];
+
+            //Debug.Log("On Knockback on position " + mLocation);
         }
 
 		protected override void OnCompleteEnter(string prevstate)
-		{            
-			//NetEntityGhost ghost = (NetEntityGhost)mEntity;        
-            //IdleActionCommand cmd = new IdleActionCommand ();
-			//ghost.PerformAction (new NonClientAuthoACIdle(ghost, cmd));
+		{
+            //NetEntityGhost ghost = (NetEntityGhost)mEntity;
+            //IdleActionCommand cmd = new IdleActionCommand();
+            //ghost.PerformAction(new NonClientAuthoACIdle(ghost, cmd));
 
             base.OnCompleteEnter(prevstate);            
         }                
@@ -100,7 +116,25 @@ namespace Zealot.Client.Actions
         protected override void OnActiveUpdate(long dt) //dt in msec
         {
             base.OnActiveUpdate(dt);
-            
+
+            //if (Zealot.Common.GameUtils.InRange(mTarget.Position, mLocation, 1))
+            //{
+            //    mTarget.Position = Vector3.Lerp(mStart, mLocation, time * dt);
+            //}
+            //else
+            //{
+            //    mStart = mTarget.Position;
+            //    PathFindingStates state = PathFinder.PlotPath(mStart, mLocation, out mWaypoints);
+            //    if (state == PathFindingStates.Error)
+            //    {
+            //        GotoState("Completed");
+            //        Debug.Log("On Knockback but died...");
+            //        return;
+            //    }
+            //    //mWaypoints.Reverse();
+            //    mLocation = mWaypoints[0];
+            //    Debug.Log("On Knockback on position " + mLocation);
+            //}
         }
 
         protected override void OnActiveLeave()

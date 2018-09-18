@@ -122,6 +122,12 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleFullHealPlayer");
     }
 
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleFullRecoverMana)]
+    public void ConsoleFullRecoverMana()
+    {
+        ProxyMethod("ConsoleFullRecoverMana");
+    }
+
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAllRealmInfo)]
     public void ConsoleGetAllRealmInfo()
     {
@@ -390,6 +396,18 @@ public partial class NonCombatRPC : RPCBase
     public void ConsoleAddSkillPoint(int amt)
     {
         ProxyMethod("ConsoleAddSkillPoint", amt);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleUpdateDonate)]
+    public void ConsoleUpdateDonate(int type)
+    {
+        ProxyMethod("ConsoleUpdateDonate", type);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleRemoveAllSkills)]
+    public void ConsoleRemoveAllSkill()
+    {
+        ProxyMethod("ConsoleRemoveAllSkill");
     }
     #endregion
 
@@ -757,9 +775,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DeleteQuest)]
-    public void DeleteQuest(int questid)
+    public void DeleteQuest(int questid, string data)
     {
-        ProxyMethod("DeleteQuest", questid);
+        ProxyMethod("DeleteQuest", questid, data);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuest)]
@@ -849,6 +867,24 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("EquipSkill", skillid, slot, slotGroup);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveEquipSkill)]
+    public void RemoveEquipSkill(int slot, int slotGroup)
+    {
+        ProxyMethod("RemoveEquipSkill", slot, slotGroup);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.AutoEquipSkill)]
+    public void AutoEquipSkill(int skillid, int slot, int slotGroup)
+    {
+        ProxyMethod("AutoEquipSkill", skillid, slot, slotGroup);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveAutoEquipSkill)]
+    public void RemoveAutoEquipSkill(int slot, int slotGroup)
+    {
+        ProxyMethod("RemoveAutoEquipSkill", slot, slotGroup);
+    }
     #endregion
 
     #region PowerUp
@@ -867,6 +903,14 @@ public partial class NonCombatRPC : RPCBase
     }
     #endregion
 
+    #region EquipFushion
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFushion)]
+    public void EquipFushion(int itemIndex, string consumeIndex)
+    {
+        ProxyMethod("EquipFushion", itemIndex, consumeIndex);
+    }
+    #endregion
+
     #region Destiny Clue
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ReadClue)]
     public void ReadClue(int clueid, byte type)
@@ -878,6 +922,14 @@ public partial class NonCombatRPC : RPCBase
     public void CollectClueReward(int clueid)
     {
         ProxyMethod("CollectClueReward", clueid);
+    }
+    #endregion
+
+    #region Donate
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DonateItem)]
+    public void DonateItem(string guid)
+    {
+        ProxyMethod("DonateItem", guid);
     }
     #endregion
 }

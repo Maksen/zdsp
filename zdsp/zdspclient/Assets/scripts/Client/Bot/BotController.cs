@@ -13,14 +13,15 @@ namespace Zealot.Bot
     public enum ReachTargetAction
     {
         None = 0,
-        StartBot=1,
-        NPC_Interact =2, 
+        StartBot = 1,
+        NPC_Interact = 2,
+        PartyFollow = 3
     }
     public class BotController
     {
         public static Vector3 DestMapPos = Vector3.zero;
         public static string DestLevel = "";
-        public static ReachTargetAction DestMonsterOrNPC = ReachTargetAction.None;
+        public static ReachTargetAction DestAction = ReachTargetAction.None;
         public static int DestArchtypeID = -1;
 
         public static bool AutoStartInRealm = false;
@@ -47,7 +48,9 @@ namespace Zealot.Bot
         {
             DestLevel = "";
             DestMapPos = Vector3.zero;
-            if(TheDijkstra.LastRouterByPortal !=null)
+            DestAction = ReachTargetAction.None;
+            DestArchtypeID = -1;
+            if (TheDijkstra.LastRouterByPortal !=null)
                 TheDijkstra.LastRouterByPortal.Clear();
         }
 
@@ -151,6 +154,11 @@ namespace Zealot.Bot
 
         }
 
+        public bool IsSeekingWithRouter()
+        {
+            return !string.IsNullOrEmpty(DestLevel);
+        }
+
         /// <summary>
         /// this is for cross map pathfinding in the world map.  it is called when a world map is loaded. 
         /// not supposed to be called from Realm. 
@@ -162,21 +170,27 @@ namespace Zealot.Bot
             string levelname = SceneManager.GetActiveScene().name;
             if (levelname == DestLevel) //if this is the last level , work to the destination pos
             {
-                if (DestMonsterOrNPC == ReachTargetAction.StartBot)
+                if (DestAction == ReachTargetAction.StartBot)
+                {
                     GameInfo.gLocalPlayer.PathFindToTarget(DestMapPos, -1, ATTACK_RANGE, false, false, () => {
                         if (GameSettings.AutoBotEnabled)
                             StartBot();
                     });
-                else if (DestMonsterOrNPC == ReachTargetAction.NPC_Interact)
+                }
+                else if (DestAction == ReachTargetAction.NPC_Interact)
                 {
-                    //GameInfo.gLocalPlayer.ProceedToTarget(DestMapPos, DestArchtypeID, Common.CallBackAction.Interact);
-                } else if (DestMonsterOrNPC == ReachTargetAction.None)
+                    GameInfo.gLocalPlayer.ProceedToTarget(DestMapPos, DestArchtypeID, CallBackAction.Interact);
+                }
+                else if (DestAction == ReachTargetAction.PartyFollow)
                 {
-                    //GameInfo.gLocalPlayer.ProceedToTarget(DestMapPos, -1, CallBackAction.None);
+                    PartyFollowTarget.Resume(true);
+                }
+                else
+                {
+                    //GameInfo.gLocalPlayer.PathFindToTarget(DestMapPos, -1, 0, false, false, null);
                 }
                 //Reset the Router info
                 ClearRouter();
-
             }
             else if (TheDijkstra.LastRouterByPortal != null && TheDijkstra.LastRouterByPortal.Count > 0)//if this is not last level, dequeue the next level and work to the portal link to the level
             {
@@ -185,11 +199,19 @@ namespace Zealot.Bot
                 TheDijkstra.LastRouterByPortal.Remove(levelname);
                 PortalEntryData ped = PortalInfos.mEntries[str];
                 if (ped != null)
-                { 
-                    GameInfo.gLocalPlayer.PathFindToTarget(ped.mPosition, -1, 0, false, false, null);
+                {
+                    if (DestAction == ReachTargetAction.PartyFollow && PartyFollowTarget.IsPaused())
+                    {
+                        PartyFollowTarget.Resume(true);
+                    }
+                    else
+                    {
+                        GameInfo.gLocalPlayer.PathFindToTarget(ped.mPosition, -1, 0, false, false, null);
+                    }
                 }
             }
         }
+
         private void StopMoving()
         {
             if(mLocalPlayer.IsMoving())
@@ -485,9 +507,9 @@ namespace Zealot.Bot
                     return false;
                 MonsterGhost ghost = queriedEntity as MonsterGhost;
                 if (ghost != null && ghost.IsAlive() && CombatUtils.IsValidEnemyTarget(mLocalPlayer, ghost))
-                { 
-                    MonsterClass monsterClass = ghost.mArchetype.monsterclass;
-                    if (!includeEliteAndBoss && (monsterClass == MonsterClass.MiniBoss || monsterClass == MonsterClass.Boss))
+                {
+                    MonsterType monsterType = ghost.mArchetype.monstertype;
+                    if (!includeEliteAndBoss && (monsterType == MonsterType.MiniBoss || monsterType == MonsterType.Boss))
                         return false; 
                     return true;
                 }

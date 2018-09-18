@@ -96,7 +96,7 @@ namespace Zealot.Server.Entities
             {
                 BossKillData _bossKillData = new BossKillData();
                 string _killer = "";
-                if (mSpecialBossInfo.bosstype == BossType.BigBoss)
+                if (mSpecialBossInfo.bosstype == BossType.Boss)
                 {
                     string _name = "";
                     if (child.mPartyScoreRank.Count > 0)
@@ -138,7 +138,7 @@ namespace Zealot.Server.Entities
             if (attacker != null)
             {
                 string attackerName = "";
-                if (mSpecialBossInfo.bosstype == BossType.BigBoss)
+                if (mSpecialBossInfo.bosstype == BossType.Boss)
                 {
                     if (child.mPartyScoreRank.Count > 0)
                         attackerName = child.mPartyScoreRank[0].Key;

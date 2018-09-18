@@ -37,7 +37,8 @@ namespace Zealot.Common
         SystemSwitchChange,
         GainExperience,
         GMMessageChanged,
-        MessageBroadcaster
+        MessageBroadcaster,
+        DonationRefresh,
     }
 
     public class ChatMessage

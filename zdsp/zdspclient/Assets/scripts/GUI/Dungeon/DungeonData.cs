@@ -95,7 +95,9 @@ public class DungeonData : MonoBehaviour
         switch (dungeonType)
         {
             case DungeonType.Story:
-                UIManager.OpenWindow(WindowType.DungeonStory);
+                UIManager.GetWindowGameObject(WindowType.DungeonStory).GetComponent<UI_DungeonStory>().InitOnEnable = false;
+                UIManager.OpenWindow(WindowType.DungeonStory, 
+                    (window) => window.GetComponent<UI_DungeonStory>().Init(DungeonJson.sequence));
                 break;
         }
     }

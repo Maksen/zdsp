@@ -1,18 +1,31 @@
 ﻿using ExitGames.Concurrency.Fibers;
+using ExitGames.Logging;
 using Kopio.JsonContracts;
 using Photon.LoadBalancing.GameServer;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Zealot.Common;
 using Zealot.Repository;
 using Zealot.Server.Entities;
 
 namespace Zealot.Server.Rules
 {
+    [Serializable]
+    public class SignboardData
+    {
+        public int Minlvl;
+        public int Maxlvl;
+        public List<int> Data;
+    }
+
     public static class QuestRules
     {
         private static int serverId;
         private static readonly PoolFiber executionFiber;
+        private static List<SignboardData> mSignboardData;
+        public static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
         static QuestRules()
         {
@@ -22,6 +35,7 @@ namespace Zealot.Server.Rules
         public static void Init()
         {
             serverId = GameApplication.Instance.GetMyServerline();
+            GetSignboardDataFromDB();
         }
 
         /*
@@ -51,40 +65,40 @@ namespace Zealot.Server.Rules
             switch (objectiveJson.type)
             {
                 case QuestObjectiveType.Kill:
-                    if (objectiveJson.para1 == param1)
+                    if (objectiveJson.para1 == param1 && objectiveData.Count < objectiveJson.para2)
                     {
                         success = true;
                     }
                     break;
                 case QuestObjectiveType.Talk:
-                    if (objectiveJson.para1 == param1)
+                    if (objectiveJson.para1 == param1 && objectiveData.Count < 1)
                     {
                         success = true;
                     }
                     break;
                 case QuestObjectiveType.RealmComplete:
-                    if (objectiveJson.para1 == param1)
+                    if (objectiveJson.para1 == param1 && objectiveData.Count < objectiveJson.para2)
                     {
                         success = true;
                     }
                     break;
                 case QuestObjectiveType.PercentageKill:
                     int chance = GameUtils.RandomInt(0, 100);
-                    if (objectiveJson.para1 == param1 && chance <= objectiveJson.para3)
+                    if (objectiveJson.para1 == param1 && chance <= objectiveJson.para3 && objectiveData.Count < objectiveJson.para2)
                     {
                         success = true;
                     }
                     break;
                 case QuestObjectiveType.Choice:
                     bool isanswer = QuestRepo.CheckCorrectAnswer(param4, param3);
-                    if (objectiveJson.para1 == param1 && isanswer)
+                    if (objectiveJson.para1 == param1 && isanswer && objectiveData.Count < 1)
                     {
                         success = true;
                     }
                     break;
                 case QuestObjectiveType.Interact:
                     QuestInteractiveDetailJson questInteractiveDetail = QuestRepo.GetQuestInteractiveByID(param1);
-                    if (questInteractiveDetail.type == QuestInteractiveType.EndQuest)
+                    if (questInteractiveDetail.type == QuestInteractiveType.EndQuest && objectiveData.Count < objectiveJson.para2)
                     {
                         if (param2 > 0)
                         {
@@ -101,14 +115,19 @@ namespace Zealot.Server.Rules
 
             if (success)
             {
+                success = RequirementListChecking(objectiveJson.requirementid, player);
+            }
+
+            if (success)
+            {
                 objectiveData.Count += param2;
             }
             
-            bool req_success = UpdateRequirementProgress(ref objectiveData, player);
-            if (!success && req_success)
-            {
-                success = true;
-            }
+            //bool req_success = UpdateRequirementProgress(ref objectiveData, player);
+            //if (!success && req_success)
+            //{
+            //    success = true;
+            //}
 
             return success;
         }
@@ -971,25 +990,10 @@ namespace Zealot.Server.Rules
             return JsonConvertDefaultSetting.SerializeObject(questDataStats);
         }
 
-        public static List<int> GetUnlockSignboardList(int level, List<int> signboardquests, int maxsignboard, List<int> existlist)
+        public static List<int> GetUnlockSignboardList(int minlv, int maxlv, int maxsignboard)
         {
-            List<int> signboardlist = existlist;
-            foreach (int questid in signboardquests)
-            {
-                int signboardid = QuestRepo.GetSignboardIdByQuestId(questid);
-                QuestSignboardJson signboardJson = QuestRepo.GetSignboardQuestBySignboardId(signboardid);
-                if (signboardJson != null)
-                {
-                    signboardlist.Add(signboardid);
-                }
-            }
-
-            if (signboardlist.Count >= maxsignboard)
-            {
-                return signboardlist;
-            }
-
-            List<int> signboardgroup = QuestRepo.GetSignboardGroupByLevel(level);
+            List<int> signboardlist = new List<int>();
+            List<int> signboardgroup = QuestRepo.GetSignboardGroupByLevel(minlv, maxlv);
             Dictionary<int, List<QuestSignboardJson>> signboardJsons = new Dictionary<int, List<QuestSignboardJson>>();
             foreach (int groupid in signboardgroup)
             {
@@ -997,18 +1001,26 @@ namespace Zealot.Server.Rules
                 List<QuestSignboardJson> result = QuestRepo.GetSignboardQuestByGroup(groupid);
                 foreach (QuestSignboardJson data in result)
                 {
-                    if (!signboardlist.Contains(data.signboardid))
-                    {
-                        signboardJsons[groupid].Add(data);
-                    }
+                    signboardJsons[groupid].Add(data);
                 }
             }
 
-            int remain = maxsignboard - signboardlist.Count;
-            int countpergroup = remain / signboardJsons.Count;
-            foreach (KeyValuePair<int, List<QuestSignboardJson>> entry in signboardJsons)
+            if (signboardJsons.Count > 0)
             {
-                signboardlist.AddRange(GetSignboardListInGroup(entry.Value, countpergroup));
+                int remain = maxsignboard - signboardlist.Count;
+                int countpergroup = remain / signboardJsons.Count;
+                foreach (KeyValuePair<int, List<QuestSignboardJson>> entry in signboardJsons)
+                {
+                    signboardlist.AddRange(GetSignboardListInGroup(entry.Value, countpergroup));
+                }
+
+                remain = maxsignboard - signboardlist.Count;
+                for (int i = 0; i < remain; i++)
+                {
+                    int randomgroup = GameUtils.RandomInt(0, signboardgroup.Count - 1);
+                    int groupid = signboardgroup[randomgroup];
+                    signboardlist.AddRange(GetSignboardListInGroup(signboardJsons[groupid], 1));
+                }
             }
             return signboardlist;
         }
@@ -1049,6 +1061,95 @@ namespace Zealot.Server.Rules
                 }
             }
             return null;
+        }
+
+        private static void GetSignboardDataFromDB()
+        {
+            Dictionary<string, object> results = GameApplication.dbRepository.SignboardRepo.GetSignboardData();
+            if (results != null)
+            {
+                string data = (string)results["data"];
+                DateTime dateTime = (DateTime)results["dtupdated"];
+                if (dateTime.Date == DateTime.Now.Date)
+                {
+                    DeserializeSignboardData(data);
+                }
+                else
+                {
+                    RefreshSignboardData();
+                }
+            }
+            else
+            {
+                RefreshSignboardData();
+            }
+        }
+
+        private static void DeserializeSignboardData(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+            {
+                RefreshSignboardData();
+            }
+            else
+            {
+                mSignboardData = JsonConvertDefaultSetting.DeserializeObject<List<SignboardData>>(data);
+            }
+        }
+
+        private static void RefreshSignboardData()
+        {
+            mSignboardData = new List<SignboardData>();
+            Dictionary<int, SignboardLimitJson> signboardJsons = QuestRepo.GetSignboardDailyLimit();
+            foreach(KeyValuePair<int, SignboardLimitJson> entry in signboardJsons)
+            {
+                SignboardData signboardData = new SignboardData();
+                List<int> signboardlist = GetUnlockSignboardList(entry.Value.lvlmin, entry.Value.lvlmax, entry.Value.dailylimit);
+                signboardData.Minlvl = entry.Value.lvlmin;
+                signboardData.Maxlvl = entry.Value.lvlmax;
+                signboardData.Data = signboardlist;
+                mSignboardData.Add(signboardData);
+            }
+
+            var task = SaveSignboardDataAsync();
+        }
+
+        private static async Task SaveSignboardDataAsync()
+        {
+            string data = JsonConvertDefaultSetting.SerializeObject(mSignboardData);
+            bool success = await GameApplication.dbRepository.SignboardRepo.UpdateSignboardData(data, DateTime.Now);
+            executionFiber.Enqueue(() =>
+            {
+                if (!success)
+                {
+                    Log.Info(string.Format("Failed Saving Signboard Data"));
+                }
+            });
+        }
+
+        public static List<int> GetSignboardDataByLevel(int level)
+        {
+            List<SignboardData> signboardDatas = mSignboardData.Where(o => level >= o.Minlvl && level < o.Maxlvl).ToList();
+            if (signboardDatas.Count > 0)
+            {
+                return signboardDatas[0].Data;
+            }
+            return new List<int>();
+        }
+
+        public static List<int> CheckSignboardChangeGroup(int level)
+        {
+            List<SignboardData> signboardDatas = mSignboardData.Where(o => level >= o.Minlvl && level < o.Maxlvl).ToList();
+            if (signboardDatas.Count > 0)
+            {
+                return signboardDatas[0].Minlvl == level ? signboardDatas[0].Data : null;
+            }
+            return null;
+        }
+
+        public static void OnNewDay()
+        {
+            RefreshSignboardData();
         }
     }
 }

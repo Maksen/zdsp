@@ -1,12 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using Zealot.Common.Actions;
 using Zealot.Client.Actions;
 using Zealot.Client.Entities;
 using Zealot.Common.Entities;
 using CnControls;
-using System.Collections.Generic;
-using System;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -121,27 +121,23 @@ public class PlayerInput : MonoBehaviour
             // this pointer is same as the first pointer on screen and has not moved past drag threshold
             if (pointerId == -4 && !eventData.dragging)
             {
-                Ray ray = mainCam.GetComponent<Camera>().ScreenPointToRay(eventData.position);
-                RaycastHit[] hits;
-                hits = Physics.RaycastAll(ray, 100f, PickableLayerMask);
+                Ray ray = mainCam.mainCamera.ScreenPointToRay(eventData.position);
+                RaycastHit[] hits = Physics.RaycastAll(ray, 100f, PickableLayerMask);
                 Array.Sort(hits, rayHitComparer);  // sort the hits by distance
-                for (int i = 0; i < hits.Length; i++)
+                for (int i = 0; i < hits.Length; ++i)
                 {
                     GameObjectToEntityRef entityRef = hits[i].collider.GetComponent<GameObjectToEntityRef>();
                     if (entityRef)
-                    {                        
+                    {
                         //Debug.Log("click on entity :" + entityRef.ToString());
                         BaseClientEntity entity = entityRef.mParentEntity;
                         if (entity.CanSelect)
                         {
-                            if (isWaitingForTargetPos)
-                            {
-                                _selectCallback(entity.Position);
-                            }
+                            if (isWaitingForTargetPos && entity.IsActor())
+                                _selectCallback((ActorGhost)entity, entity.Position);
                             else
-                            {
-                                entity.Interact();
-                            }
+                                if (entity.Interact())
+                                    PartyFollowTarget.Pause();
 
                             //if (entity.IsActor())
                             //    Debug.Log("click on entity :" + ((ActorGhost)entity).GetPersistentID());
@@ -154,20 +150,18 @@ public class PlayerInput : MonoBehaviour
                     {
                         if (isWaitingForTargetPos)
                         {
-                            _selectCallback(hits[i].point);
+                            _selectCallback(null, hits[i].point);
                         }
                         else if (mPlayerGhost.CanMove())
                         {
                             SetMoveIndicator(hits[i].point);
                             mPlayerGhost.Bot.StopBot();
                             mPlayerGhost.ActionInterupted();
-                            if (mPlayerGhost.IsInParty())
-                                mPlayerGhost.PartyStats.PauseAutoFollow();
+                            PartyFollowTarget.Pause();
                             mPlayerGhost.PathFindToTarget(hits[i].point, -1, 0, false, false, () =>
                             {
                                 SetMoveIndicator(Vector3.zero);
-                                if (mPlayerGhost.IsInParty())
-                                    mPlayerGhost.PartyStats.ResumeAutoFollow();
+                                PartyFollowTarget.Resume();
                             });
                         }
                         break;
@@ -231,8 +225,7 @@ public class PlayerInput : MonoBehaviour
             {
                 mPlayerGhost.Idle();
                 mPlayerGhost.Bot.ClearRouter();
-                if (mPlayerGhost.IsInParty())
-                    mPlayerGhost.PartyStats.ResumeAutoFollow();
+                PartyFollowTarget.Resume();
             }
         }
 
@@ -287,14 +280,14 @@ public class PlayerInput : MonoBehaviour
     #region skill target handling
     private bool isWaitingForTargetPos = false;
 
-    public delegate void OnTargetSelected(Vector3 pos);
+    public delegate void OnTargetSelected(ActorGhost entity, Vector3 pos);
 
     private OnTargetSelected _selectCallback;
     public void ListenForPos(OnTargetSelected selectCallback, bool needpos)
     {
         isWaitingForTargetPos = true;
         _selectCallback = selectCallback;
-        _selectCallback += (Vector3 pos) =>
+        _selectCallback += (ActorGhost entity, Vector3 pos) =>
         {
             isWaitingForTargetPos = false;
         };

@@ -60,8 +60,8 @@
             return mSideeffectData.interval > 0;
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 ApplyElemental();
                 ComputeDamage();
                 ApplyDamage();
@@ -152,14 +152,14 @@
             package.basicsInfo.attacker = AttackStyle.Slice; // this is hack only since not implemented...
             if (mTarget.IsMonster()) {
                 package.basicsInfo.defender = ((Monster)mTarget).mArchetype.weakness;
-                package.basicsInfo.npcClass = ((Monster)mTarget).mArchetype.monsterclass;
+                package.basicsInfo.monsterType = ((Monster)mTarget).mArchetype.monstertype;
                 package.basicsInfo.elementInfo.defender = ((Monster)mTarget).mArchetype.element;
                 package.basicsInfo.race.defender = ((Monster)mTarget).mArchetype.race;
                 
             }
             else {
                 package.basicsInfo.defender = AttackStyle.Slice; // this is hack only since not implemented...
-                package.basicsInfo.npcClass = MonsterClass.Normal;
+                package.basicsInfo.monsterType = MonsterType.Normal;
                 package.basicsInfo.elementInfo.attacker = Element.None; // this is a hack only
                 package.basicsInfo.race.attacker = Race.Human;
             }
@@ -209,60 +209,7 @@
                 }
             }
             
-            //else if (mSideeffectData.effecttype == EffectType.Damage_DamageTalentCloth) {
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack, false, true);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_DamageTalentScissor) {
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack, false, true);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_DamageTalentStone) {
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack, false, true);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_DamageWithRejuvenate) {
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-            //    //rejuvenate;
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_DamageWithRejuvenateOnEnd) {
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_DamageVaryOnHp) {
-            //    if (mTarget.PlayerStats.DisplayHp > mSideeffectData.parameter * 0.01f) {
-            //        mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSideeffectData.max, 0, isDot, mbBasicAttack);
-            //    }
-            //    else {
-            //        mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSideeffectData.min, 0, isDot, mbBasicAttack);
-            //    }
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_ExtraWhenInDot) {
-            //    if (mTarget.HasDot()) {
-            //        mSkillDmgPercent += (int)mSideeffectData.parameter;
-            //    }
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, 0, isDot, mbBasicAttack);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_ExtraWhenInCtl) {
-            //    if (mTarget.HasCtl()) {
-            //        mSkillDmgPercent += (int)mSideeffectData.parameter;
-            //    }
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, 0, isDot, mbBasicAttack);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_IgnoreArmor) {
-            //    mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, 0, isDot, mbBasicAttack, true);
-            //}
-            //else if (mSideeffectData.effecttype == EffectType.Damage_RandomTalent) {
-            //    double roll = GameUtils.GetRandomGenerator().NextDouble();
-            //    if (roll < 0.3333)
-            //        mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack, false, true);
-            //    else if (roll < 0.6666)
-            //        mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack, false, true);
-            //    else
-            //        mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack, false, true);
-            //}
-
-            //if (mbBasicAttack) {
-            //    int val = (int)mCaster.SkillPassiveStats.GetField(SkillPassiveFieldName.BasicAttack_DamageEnhance);
-            //    val -= (int)mCaster.SkillPassiveStats.GetField(SkillPassiveFieldName.BasicAttack_DamageSupress);
-            //    mAttackResult.RealDamage = (int)(mAttackResult.RealDamage * (1 + val * 0.01f));
-            //}
+            
             mAttackResult.TargetPID = mTarget.GetPersistentID();
             mAttackResult.IsDot = isDot;
             if (mAttackResult.IsCritical) {

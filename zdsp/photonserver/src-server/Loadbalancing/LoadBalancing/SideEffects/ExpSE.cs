@@ -19,7 +19,7 @@
             base.InitKopioData();
             mDuration = 0;
         }
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (!mTarget.IsPlayer())
                 return false;
@@ -29,7 +29,7 @@
             Player player = (Player) mTarget;
             player.AddExperience(exp);
 
-            return base.OnApply();
+            return base.OnApply(equipid);
         }        
     }
 }

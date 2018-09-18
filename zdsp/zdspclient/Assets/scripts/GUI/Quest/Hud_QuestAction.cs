@@ -96,4 +96,9 @@ public class Hud_QuestAction : BaseWidgetBehaviour
     {
         InteractButton.interactable = active;
     }
+
+    private void OnDisable()
+    {
+        PartyFollowTarget.Resume();  // resume party follow if it's paused
+    }
 }

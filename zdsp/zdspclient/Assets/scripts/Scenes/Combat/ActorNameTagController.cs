@@ -1,25 +1,26 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.UI;
-using UIWidgets;
 using Zealot.Common;
 using Zealot.Client.Entities;
-using Zealot.Repository;
 
 public enum QuestLabelType
 {
     None,
-    Submit,
-    Ongoing,
     NewMainQuest,
     NewAdventureQuest,
     NewEventQuest,
     NewSubQuest,
+    OngoingMainQuest,
+    OngoingAdventureQuest,
+    OngoingEventQuest,
+    OngoingSubQuest,
+    SubmitMainQuest,
+    SubmitAdventureQuest,
+    SubmitEventQuest,
+    SubmitSubQuest,
 }
 
-public class ActorNameTagController : MonoBehaviour {
-
+public class ActorNameTagController : MonoBehaviour
+{
     public GameObject mPlayerLabelObj = null;
     public HUD_PlayerLabel2 mPlayerLabel = null;
     public GameObject mPlayerLabelExtObj = null;
@@ -139,9 +140,7 @@ public class ActorNameTagController : MonoBehaviour {
         mPlayerLabelExt.WorldSpaceOffset = pleOffset;
 
         if (mNpcLabel != null)
-        {
             mNpcLabel.WorldSpaceOffset = pleOffset;
-        }
     }
 
     public void SetPlayerLabelByRealm(PlayerGhost pg, bool init=false)
@@ -193,19 +192,18 @@ public class ActorNameTagController : MonoBehaviour {
         }
 
         bool isEnemy = CombatUtils.IsEnemy(GameInfo.gLocalPlayer, mg);
-
         switch (GameInfo.mRealmInfo.type)
         {
             case RealmType.Dungeon:
             //case RealmType.RealmTutorial:
             case RealmType.World:
-                switch (mg.mArchetype.monsterclass)
+                switch (mg.mArchetype.monstertype)
                 {
-                    case MonsterClass.Normal:
-                    default:
+                    case MonsterType.Normal:
                         mPlayerLabel.SetHurtMonster();
                         break;
-                    case MonsterClass.Boss:
+                    case MonsterType.MiniBoss:
+                    case MonsterType.Boss:
                         mPlayerLabel.SetBoss();
                         break;
                 }
@@ -308,11 +306,29 @@ public class ActorNameTagController : MonoBehaviour {
                 case QuestLabelType.NewSubQuest:
                     mNpcLabel.NewSubQuest();
                     break;
-                case QuestLabelType.Ongoing:
-                    mNpcLabel.ReturnQuest();
+                case QuestLabelType.OngoingMainQuest:
+                    mNpcLabel.OngoingMainQuest();
                     break;
-                case QuestLabelType.Submit:
-                    mNpcLabel.ReturnQuest();
+                case QuestLabelType.OngoingAdventureQuest:
+                    mNpcLabel.OngoingAdventureQuest();
+                    break;
+                case QuestLabelType.OngoingEventQuest:
+                    mNpcLabel.OngoingEventQuest();
+                    break;
+                case QuestLabelType.OngoingSubQuest:
+                    mNpcLabel.OngoingSubQuest();
+                    break;
+                case QuestLabelType.SubmitMainQuest:
+                    mNpcLabel.RetunMainQuest();
+                    break;
+                case QuestLabelType.SubmitAdventureQuest:
+                    mNpcLabel.RetunAdventureQuest();
+                    break;
+                case QuestLabelType.SubmitEventQuest:
+                    mNpcLabel.RetunEventQuest();
+                    break;
+                case QuestLabelType.SubmitSubQuest:
+                    mNpcLabel.RetunSubQuest();
                     break;
             }
         }

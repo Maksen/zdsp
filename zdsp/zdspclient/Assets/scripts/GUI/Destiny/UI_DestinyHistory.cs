@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using Zealot.Common;
 using System;
@@ -65,6 +64,7 @@ public class UI_DestinyHistory : BaseWindowBehaviour
     public void UpdateSelectedHero(int heroid)
     {
         mSelectedHero = heroid;
+        OnMemoryTypeChanged();
     }
 
     private void UpdateFolderData()

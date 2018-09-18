@@ -65,6 +65,11 @@ public class HeroStatsClient : HeroStats
             if (windowObj.activeInHierarchy)
                 uiHero.OnHeroAdded(hero);
         }
+
+        if (localPlayer != null)
+        {
+            localPlayer.UpdateQuestRequirement(QuestRequirementType.Hero, hero.HeroId);
+        }
     }
 
     private void UpdateHero(Hero oldHero, string str)
@@ -122,6 +127,10 @@ public class HeroStatsClient : HeroStats
     public void OnSummonedHeroChanged()
     {
         uiHero.OnSummonedHeroChanged();
+        if (localPlayer != null)
+        {
+            localPlayer.UpdateQuestRequirement(QuestRequirementType.Hero, -1);
+        }
     }
 
     public void OnInterestRandomSpinResult(byte interest)

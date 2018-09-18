@@ -13,12 +13,16 @@ public class HUD_NpcLabel : MonoBehaviour
     [SerializeField]
     GameObject mQuest;
     [SerializeField]
+    GameObject mOngoingQuest;
+    [SerializeField]
     GameObject mReturnQuest;
 
     [SerializeField]
     Text mChatTxt;
     [SerializeField]
     Image mQuestImg;
+    [SerializeField]
+    Image mOngoingImg;
     [SerializeField]
     Image mRetQuestImg;
 
@@ -30,6 +34,24 @@ public class HUD_NpcLabel : MonoBehaviour
     Sprite NewEventQuestImage;
     [SerializeField]
     Sprite NewSubQuestImage;
+
+    [SerializeField]
+    Sprite OngoingMainQuestImage;
+    [SerializeField]
+    Sprite OngoingAdventureQuestImage;
+    [SerializeField]
+    Sprite OngoingEventQuestImage;
+    [SerializeField]
+    Sprite OngoingSubQuestImage;
+
+    [SerializeField]
+    Sprite CompletedMainQuestImage;
+    [SerializeField]
+    Sprite CompletedAdventureQuestImage;
+    [SerializeField]
+    Sprite CompletedEventQuestImage;
+    [SerializeField]
+    Sprite CompletedSubQuestImage;
 
     GetCanvasPosDelegate mCanvasPosFunc = null;
     RectTransform mRectTrans;
@@ -222,18 +244,76 @@ public class HUD_NpcLabel : MonoBehaviour
     private void NewQuest()
     {
         mQuest.SetActive(true);
+        mOngoingQuest.SetActive(false);
         mReturnQuest.SetActive(false);
     }
 
     public void HideAll()
     {
         mQuest.SetActive(false);
+        mOngoingQuest.SetActive(false);
         mReturnQuest.SetActive(false);
     }
 
-    public void ReturnQuest()
+    public void OngoingMainQuest()
+    {
+        OngoingQuest();
+        mOngoingImg.sprite = OngoingMainQuestImage;
+    }
+
+    public void OngoingAdventureQuest()
+    {
+        OngoingQuest();
+        mOngoingImg.sprite = OngoingAdventureQuestImage;
+    }
+
+    public void OngoingEventQuest()
+    {
+        OngoingQuest();
+        mOngoingImg.sprite = OngoingEventQuestImage;
+    }
+
+    public void OngoingSubQuest()
+    {
+        OngoingQuest();
+        mOngoingImg.sprite = OngoingSubQuestImage;
+    }
+
+    private void OngoingQuest()
     {
         mQuest.SetActive(false);
+        mOngoingQuest.SetActive(true);
+        mReturnQuest.SetActive(false);
+    }
+
+    public void RetunMainQuest()
+    {
+        ReturnQuest();
+        mRetQuestImg.sprite = CompletedMainQuestImage;
+    }
+
+    public void RetunAdventureQuest()
+    {
+        ReturnQuest();
+        mRetQuestImg.sprite = CompletedAdventureQuestImage;
+    }
+
+    public void RetunEventQuest()
+    {
+        ReturnQuest();
+        mRetQuestImg.sprite = CompletedEventQuestImage;
+    }
+
+    public void RetunSubQuest()
+    {
+        ReturnQuest();
+        mRetQuestImg.sprite = CompletedSubQuestImage;
+    }
+
+    private void ReturnQuest()
+    {
+        mQuest.SetActive(false);
+        mOngoingQuest.SetActive(false);
         mReturnQuest.SetActive(true);
     }
 

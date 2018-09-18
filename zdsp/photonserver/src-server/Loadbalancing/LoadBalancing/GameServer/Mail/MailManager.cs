@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Zealot.Common;
 using Zealot.Server.Rules;
 using Zealot.Repository;
-using System.ComponentModel;
 using Zealot.Server.Entities;
 
 // Example Usage
@@ -101,6 +100,8 @@ namespace Photon.LoadBalancing.GameServer.Mail
             jsonSettingClient.Converters.Add(new ClientInventoryItemConverter());
 
             MAIL_LIMIT = GameConstantRepo.GetConstantInt("Mail_Capacity");
+            if (MAIL_LIMIT == 0)
+                MAIL_LIMIT = 10;
         }
 
         public static MailManager Instance
@@ -376,8 +377,6 @@ namespace Photon.LoadBalancing.GameServer.Mail
             }
         }
         #endregion
-
-        
 
         public async Task ClientInit(GameClientPeer rcvPeer)
         {

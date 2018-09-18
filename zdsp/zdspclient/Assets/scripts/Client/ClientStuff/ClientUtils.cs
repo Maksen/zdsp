@@ -1,6 +1,7 @@
 using Kopio.JsonContracts;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
@@ -295,11 +296,18 @@ public static class ClientUtils
         return AssetLoader.Instance.Load<VideoClip>(assetName) as VideoClip;
     }
 
-    public static AudioClip LoadAudio(string audiopath)
+    public static AudioClip LoadAudio(string assetName)
     {
-        if (string.IsNullOrEmpty(audiopath))
+        if (string.IsNullOrEmpty(assetName))
             return null;
-        return AssetLoader.Instance.Load<AudioClip>(audiopath) as AudioClip;
+        return AssetLoader.Instance.Load<AudioClip>(assetName) as AudioClip;
+    }
+
+    public static void LoadAudioAsync(string assetName, Action<AudioClip> callback)
+    {
+        if (string.IsNullOrEmpty(assetName))
+            return;
+        AssetLoader.Instance.LoadAsync<AudioClip>(assetName, callback);
     }
 
     public static bool OpenUIWindowByLinkUI(LinkUIType linkUI, string param = "")
@@ -663,5 +671,41 @@ public static class ClientUtils
         }
 
         return num_str;
+    }
+
+    public static string ColorizedText(string text, string colorStr)
+    {
+        return string.Format("<color={0}>{1}</color>", colorStr, text);
+    }
+
+    public delegate string Tokenizer(string token, params object[] param);
+    /// <summary>
+    /// Parse string with token using this format {xxx}
+    /// e.g. This is a test {token}
+    /// </summary>
+    /// <param name="input">the string to parse</param>
+    /// <param name="id">id for the delegate to use</param>
+    /// <param name="tokenizer">function to recieve the token and returns a string</param>
+    /// <returns></returns>
+    public static string ParseStringToken(string input, Tokenizer tokenizer, params object[] param)
+    {
+        System.Text.StringBuilder output = new System.Text.StringBuilder(input);
+        List<Match> matches = new List<Match>();
+
+        foreach(Match match in Regex.Matches(input, @"{([^{}]*)}"))
+        {
+            matches.Add(match);
+        }
+
+        matches.Reverse();
+
+        foreach(Match match in matches)
+        {
+            string replacement = tokenizer(match.Value, param);
+            output.Remove(match.Index, match.Value.Length);
+            output.Insert(match.Index, replacement);
+        }
+
+        return output.ToString();
     }
 }

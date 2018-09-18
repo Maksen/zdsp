@@ -22,9 +22,16 @@ public class UI_WorldMap_Country : MonoBehaviour
     Text mCountryName;
     UnityAction toggleOnAction;
 
+    string mDestinationLvStr = string.Empty;
+
     public void Awake()
     {
 
+    }
+
+    public void OnDisable()
+    {
+        mDestinationLvStr = string.Empty;
     }
 
     public void Init(WorldMapCountry wmr, UnityAction action)
@@ -39,7 +46,7 @@ public class UI_WorldMap_Country : MonoBehaviour
             obj.transform.SetParent(mPlaceParent.transform, false);
 
             UI_WorldMap_PlaceInterest wmpi = obj.GetComponent<UI_WorldMap_PlaceInterest>();
-            wmpi.Init(wmr.placeLst[i]);
+            wmpi.Init(wmr.placeLst[i], OnSelectPlaceInterest);
         }
         for (int i = 0; i < wmr.monLst.Count; ++i)
         {
@@ -53,9 +60,16 @@ public class UI_WorldMap_Country : MonoBehaviour
 
     public void OnClick_GO()
     {
-        //Close map, back to game screen
-        //Auto-pilot player to destination
-        //destination decided by designers
+        if (mDestinationLvStr == string.Empty)
+            return;
+
+        HUD_MapController.PathFindCalculateToDestination(mDestinationLvStr);
+        UIManager.CloseWindow(WindowType.WorldMap);
+    }
+
+    public void OnSelectPlaceInterest(string levelname)
+    {
+        mDestinationLvStr = levelname;
     }
 
     public void OnToggle(bool tog)

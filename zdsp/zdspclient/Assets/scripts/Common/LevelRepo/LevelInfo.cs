@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Zealot.Common;
 
 namespace Zealot.Entities
 {
@@ -197,7 +198,7 @@ namespace Zealot.Entities
                     List<Vector3> listofspawners = mMonsterLocationMap[archetype][lvl];
                     if (listofspawners !=null && listofspawners.Count > 0)
                     {
-                        int idx = Zealot.Common.GameUtils.RandomInt(0, listofspawners.Count - 1);
+                        int idx = GameUtils.RandomInt(0, listofspawners.Count - 1);
                         pos = listofspawners[idx];
                     }
                 }

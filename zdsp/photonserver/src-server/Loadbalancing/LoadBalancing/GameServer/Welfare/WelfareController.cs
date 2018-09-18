@@ -434,7 +434,7 @@ namespace Photon.LoadBalancing.GameServer
                         }
 
                         string mailTitle = isCredit ? "Reward_WelfareTotalCredit" : "Reward_WelfareTotalSpend";
-                        GameRules.SendMailWithItem(_peer.mPlayer.Name, mailTitle, rewardList);
+                        GameRules.SendMailWithAttachment(_peer.mPlayer.Name, mailTitle, rewardList, null);
 
                         /*ClaimCode claimRes = */
                         ClaimTotalCreditReward(reward.mRewardId);

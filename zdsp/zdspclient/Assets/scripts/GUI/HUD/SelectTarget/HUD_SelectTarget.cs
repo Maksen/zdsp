@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Common.Entities;
+using Zealot.Repository;
 
 public class HUD_SelectTarget : MonoBehaviour
 {
@@ -42,13 +43,12 @@ public class HUD_SelectTarget : MonoBehaviour
         nameText.text = entity.Name;
         levelText.text = entity.GetDisplayLevel().ToString();
 
-        // todo: set portrait for each type
         if (entity.IsPlayer())
         {
             PlayerGhost player = entity as PlayerGhost;
             PlayerSynStats playerStats = player.PlayerSynStats;
             SetTargetHeath(playerStats.DisplayHp);
-            SetPortrait("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
+            SetPortrait(JobSectRepo.GetJobPortraitPath((JobType)playerStats.jobsect));
 
             // testing
             //SetBuffDebuffIcon(BuffEnum.Buff, 5000, 10);
@@ -108,9 +108,7 @@ public class HUD_SelectTarget : MonoBehaviour
 
     private void SetPortrait(string path)
     {
-        Sprite sprite = ClientUtils.LoadIcon(path);
-        if (sprite != null)
-            portraitImage.sprite = sprite;
+        portraitImage.sprite = ClientUtils.LoadIcon(path);
     }
 
     private void SetMonsterElement(Element element)

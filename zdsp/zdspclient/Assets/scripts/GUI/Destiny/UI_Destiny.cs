@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using Zealot.Common;
 using System.Collections.Generic;
+using Zealot.Repository;
+using Kopio.JsonContracts;
+using System;
+using System.Linq;
 
 public class UI_Destiny : BaseWindowBehaviour
 {
@@ -35,13 +39,20 @@ public class UI_Destiny : BaseWindowBehaviour
     private void OrderByDate()
     {
         mCluesByDate = new Dictionary<string, List<ActivatedClueData>>();
+        List<string> stringdate = new List<string>();
         foreach(ActivatedClueData clue in mClues)
         {
             if (!mCluesByDate.ContainsKey(clue.ActivatedDate))
             {
                 mCluesByDate.Add(clue.ActivatedDate, new List<ActivatedClueData>());
+                stringdate.Add(clue.ActivatedDate);
             }
             mCluesByDate[clue.ActivatedDate].Add(clue);
+        }
+
+        foreach(string date in stringdate)
+        {
+            mCluesByDate[date] = mCluesByDate[date].OrderBy(c => c.ActivatedDT).ToList();
         }
     }
 
@@ -59,12 +70,32 @@ public class UI_Destiny : BaseWindowBehaviour
 
             foreach(ActivatedClueData clue in entry.Value)
             {
-                GameObject msgobj = Instantiate(ClueMessageData);
-                msgobj.GetComponent<UI_ClueMessageData>().Init(clue);
-                msgobj.transform.SetParent(MessageContent, false);
-                mMessageObjects.Add(msgobj);
+                if (IsEndClue(clue))
+                {
+                    GameObject msgobj = Instantiate(ClueMessageData);
+                    msgobj.GetComponent<UI_ClueMessageData>().Init(clue);
+                    msgobj.transform.SetParent(MessageContent, false);
+                    mMessageObjects.Add(msgobj);
+                }
             }
         }
+    }
+
+    private bool IsEndClue(ActivatedClueData clue)
+    {
+        if (clue.ClueType == (byte)ClueType.Time)
+        {
+            TimeClueJson timeClueJson = DestinyClueRepo.GetTimeClueById(clue.ClueId);
+            if (timeClueJson != null)
+            {
+                DateTime endtime = clue.ActivatedDT.AddMinutes(timeClueJson.time);
+                if (endtime < clue.ActivatedDT)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void Clean()

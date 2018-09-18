@@ -24,11 +24,8 @@ public class ToggleContent : MonoBehaviour
                 content.SetActive(true);
         }
         else
-        { 
+        {
             var activeToggles = toggle.group.ActiveToggles();
-            if (!activeToggles.GetEnumerator().MoveNext())
-                return;
-
             Dictionary<string, GameObject> activeGameObjects = new Dictionary<string, GameObject>();
             foreach (var active_toggle in activeToggles)
             {

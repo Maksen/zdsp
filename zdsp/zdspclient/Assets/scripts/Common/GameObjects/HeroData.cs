@@ -232,13 +232,30 @@ public class Hero
         {
             string[] detail = questStr[i].Split(',');
             int level, questId;
-            if (int.TryParse(detail[0], out level) && int.TryParse(detail[1], out questId))
+            if (detail.Length == 2 && int.TryParse(detail[0], out level) && int.TryParse(detail[1], out questId))
             {
                 if (level == TrustLevel)
                     return questId;
             }
         }
         return 0;
+    }
+
+    public List<int> GetAllTriggeredQuests()
+    {
+        List<int> triggerQuests = new List<int>();
+        string[] questStr = HeroJson.questid.Split(';');
+        for (int i = 0; i < questStr.Length; i++)
+        {
+            string[] detail = questStr[i].Split(',');
+            int level, questId;
+            if (detail.Length == 2 && int.TryParse(detail[0], out level) && int.TryParse(detail[1], out questId))
+            {
+                if (level <= TrustLevel)
+                    triggerQuests.Add(questId);
+            }
+        }
+        return triggerQuests;
     }
 
     public bool CanSummon(int playerLevel)

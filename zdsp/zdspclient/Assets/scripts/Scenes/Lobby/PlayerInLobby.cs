@@ -58,7 +58,8 @@ public class PlayerInLobby : Photon.MonoBehaviour
         }
         else
         {
-            SceneLoader.Instance.LoadLevel("UI_CreateChar");
+            // SceneLoader.Instance.LoadLevel("UI_CreateChar");
+            SceneLoader.Instance.LoadLevel("JobExhibition");
         }
         Debug.Log("GetCharactersResult character count is " + charCount);   
 	}

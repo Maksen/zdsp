@@ -45,7 +45,7 @@ public class UI_DialogItemSellUse : MonoBehaviour
             case BagType.Material:
                 gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(invItem.ItemID, invDisplayItem.DisplayStackCount);
                 break;
-            case BagType.DNA:
+            case BagType.Socket:
                 gameIcon.GetComponent<GameIcon_DNA>().InitWithoutCallback(invItem.ItemID, 0, 0);
                 break;
         }

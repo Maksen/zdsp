@@ -108,6 +108,15 @@ namespace Zealot.Server.Actions
                     {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
                     {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
                 }
+            },
+            {ACTIONTYPE.FROZEN, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>()
+            {
+                {ACTIONTYPE.IDLE, InterruptFn.AfterComplete },
+                {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete },
+                {ACTIONTYPE.WALK, InterruptFn.AfterComplete },
+                {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
+                //{ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+            }
             }
         };
     }

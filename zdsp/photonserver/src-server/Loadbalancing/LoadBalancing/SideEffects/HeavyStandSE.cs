@@ -13,8 +13,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.PlayerStats.HeavyStand = true;
                 return true;
             }

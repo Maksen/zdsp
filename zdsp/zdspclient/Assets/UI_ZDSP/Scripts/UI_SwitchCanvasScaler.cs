@@ -6,10 +6,10 @@ public class UI_SwitchCanvasScaler : MonoBehaviour {
 
     public void SetHUDCanvas()
     {
-        //Match Width Or Height
+        //Expand
         //1024 x 768
         CanvasScaler c = GetComponent<CanvasScaler>();
-        c.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        //c.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
         c.referenceResolution = new Vector2(1024, 768);
     }
 
@@ -18,7 +18,7 @@ public class UI_SwitchCanvasScaler : MonoBehaviour {
         //Expand
         //1024 x 576
         CanvasScaler c = GetComponent<CanvasScaler>();
-        c.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+        //c.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
         c.referenceResolution = new Vector2(1024, 576);
     }
 }

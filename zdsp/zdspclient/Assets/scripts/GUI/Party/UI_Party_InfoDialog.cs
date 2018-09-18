@@ -9,14 +9,14 @@ public class UI_Party_InfoDialog : BaseWindowBehaviour
 
     private int partyId;
 
-    public void Init(int id, List<PartyMemberInfo> members)
+    public void Init(int id, string leader, List<PartyMemberInfo> members)
     {
         partyId = id;
         for (int i = 0; i < members.Count; i++)
         {
             PartyMemberInfo info = members[i];
             GameObject obj = ClientUtils.CreateChild(dataContentTransform, dataPrefab);
-            obj.GetComponent<UI_Party_MemberData>().Init(info.name, info.level, info.portraitId, info.isLeader);
+            obj.GetComponent<UI_Party_MemberData>().Init(info.name, info.level, info.portraitId, info.name == leader);
         }
     }
 

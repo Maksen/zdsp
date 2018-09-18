@@ -13,10 +13,16 @@ public class UI_Party_Avatar : MonoBehaviour
     [SerializeField] GameObject kickButtonObj;
     [SerializeField] Transform portraitFuncTransform;
     [SerializeField] GameObject portraitFuncPrefab;
+    [SerializeField] UI_DragEvent uiDragEvent;
 
     private UI_Party_MyParty parent;
     private PartyMember thisMember;
     private HUD_PortraitFunctions portraitFunction;
+
+    private void Awake()
+    {
+        uiDragEvent.onClicked = OnClickAvatar;
+    }
 
     public void Init(UI_Party_MyParty myParent, PartyMember member, bool showLeaderIcon, bool showKickBtn)
     {
@@ -34,7 +40,7 @@ public class UI_Party_Avatar : MonoBehaviour
         else
         {
             if (member.IsHero())
-                modelAvatar.ChangeHero(member.heroId, member.portraitId);
+                modelAvatar.ChangeHero(member.heroId, member.heroTier);
             else // is other player
                 modelAvatar.Change(member.avatar.equipInvData, member.avatar.jobType, member.avatar.gender);
         }
@@ -50,7 +56,7 @@ public class UI_Party_Avatar : MonoBehaviour
         if (localPlayer.Name != member.name)  // others only
         {
             if (member.IsHero())
-                modelAvatar.ChangeHero(member.heroId, member.portraitId);
+                modelAvatar.ChangeHero(member.heroId, member.heroTier);
             else
                 modelAvatar.Change(member.avatar.equipInvData, member.avatar.jobType, member.avatar.gender);
         }

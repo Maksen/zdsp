@@ -1,0 +1,80 @@
+{
+  "mEntities": {
+    "MonsterSpawnerJson": {
+      "-66004": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 8.0,
+        "combatRadius": 10.0,
+        "spawnRadius": 10.0,
+        "population": 5,
+        "respawnTime": 1000,
+        "respawnCount": -1,
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "archetype": "m_026",
+        "activeOnStartup": true,
+        "EntityLinks_Server": {},
+        "ObjectID": -66004,
+        "position": {
+          "x": 150.766022,
+          "y": 0.67,
+          "z": 191.3883
+        },
+        "ShowInMap": true
+      }
+    },
+    "RealmControllerWorldJson": {
+      "-65972": {
+        "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
+        "spawnPos": [
+          {
+            "x": 183.666016,
+            "y": 1.74500012,
+            "z": 150.988312
+          }
+        ],
+        "spawnDir": [
+          {
+            "x": -4.76837158E-07,
+            "y": 0.0,
+            "z": -1.0
+          }
+        ],
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "EntityLinks_Server": {},
+        "ObjectID": -65972,
+        "position": {
+          "x": 182.596008,
+          "y": 0.67,
+          "z": 244.738312
+        },
+        "ShowInMap": true
+      }
+    },
+    "PlayerSpawnerJson": {
+      "-65970": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": -4.76837158E-07,
+          "y": 0.0,
+          "z": -1.0
+        },
+        "ObjectID": -65970,
+        "position": {
+          "x": 183.666016,
+          "y": 1.74500012,
+          "z": 150.988312
+        },
+        "ShowInMap": true
+      }
+    }
+  }
+}

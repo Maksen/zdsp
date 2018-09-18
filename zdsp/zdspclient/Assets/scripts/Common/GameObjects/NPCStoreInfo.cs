@@ -75,6 +75,11 @@ namespace Zealot.Common
                 ExCount = excount;
             }
 
+            public int DiscountedPrice()
+            {
+                return (int)(SoldValue * (1.0f - Discount * 0.01f));
+            }
+
             public static StandardItem GetFromBase(Item i)
             {
                 if (i.Type == ItemStoreType.Normal)
@@ -98,7 +103,7 @@ namespace Zealot.Common
 
         public enum StoreType { Normal = 0, Random = 1, Barter = 2 };
         public enum SoldCurrencyType { Normal = 0, Auction = 1 };
-        public enum Frequency { Unlimited = 0, Daily = 1, Weekly = 2 };
+        public enum Frequency { Unlimited = 2, Daily = 0, Weekly = 1 };
 
         public int StoreID;
         public string NameCT;

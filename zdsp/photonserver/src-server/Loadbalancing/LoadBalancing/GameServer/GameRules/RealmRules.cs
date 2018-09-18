@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using Photon.LoadBalancing.GameServer;
-using ExitGames.Concurrency.Fibers;
+﻿using ExitGames.Concurrency.Fibers;
 using Kopio.JsonContracts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Photon.LoadBalancing.GameServer;
 using Zealot.Common;
 using Zealot.Common.RPC;
 using Zealot.Common.Entities;
 using Zealot.Server.Entities;
 using Zealot.Repository;
-using System.Linq;
-using System.Text;
+using Zealot.Common.Datablock;
 
 namespace Zealot.Server.Rules
 {
@@ -154,33 +154,12 @@ namespace Zealot.Server.Rules
                 return;
             RealmJson realm = null;
             string levelScene = "";
-            if (!GetRealmInfo(realmId, ref realm, ref levelScene))
+            if (!GetRealmInfo(realmId, out realm, out levelScene))
                 return;
             if (!CheckRealmRequirement(realm, player, peer, checkAll))
                 return;
 
             peer.CreateRealm(realmId, levelScene, logAI);
-        }
-
-        public static void PareInvitePVP(string name1, string name2)
-        {
-            InvitePVPData data = new InvitePVPData();
-            InvitePVPList[name1] = data;
-            InvitePVPList[name2] = data;
-        }
-
-        public static InvitePVPData GetInvitePVPData(string name)
-        {
-            if (InvitePVPList.ContainsKey(name) == false)
-                return null;
-            else
-                return InvitePVPList[name];
-        }
-
-        public static void RemoveInvitePCPData(string name)
-        {
-            if (InvitePVPList.ContainsKey(name) == true)
-                InvitePVPList.Remove(name);
         }
 
         public static void EnterRealmById(int realmId, GameClientPeer peer)
@@ -190,7 +169,7 @@ namespace Zealot.Server.Rules
                 return;
             RealmJson realm = null;
             string levelScene = "";
-            if (!GetRealmInfo(realmId, ref realm, ref levelScene))
+            if (!GetRealmInfo(realmId, out realm, out levelScene))
                 return;
             if (!CheckRealmRequirement(realm, player, peer, true))
                 return;
@@ -355,116 +334,69 @@ namespace Zealot.Server.Rules
             //    GameRules.PartyController.LeaveParty(partyName, player, player.Name);
         }
 
-        public static void OnStoryAddExtraEntry(int realmId, GameClientPeer peer)
+        public static void DungeonAutoClear(int realmId, bool clearAll, GameClientPeer peer)
         {
-            Player player = peer.mPlayer;
-            if (player == null || player.Destroyed)
-                return;
-            RealmJson realm = RealmRepo.GetInfoById(realmId);
-            if (realm == null || realm.type != RealmType.Dungeon) // Can only add extry entry for dungeon story
-                return;
-
-            //DungeonJson dungeonJson = (DungeonJson)realm;
-            //int seq = dungeonJson.sequence;
-            //Dictionary<int, int> extraEntryFeesDict = RealmRepo.GetExtraEntryFeesBySeq(seq);
-            //DungeonStoryInfo dungeonStoryInfo = player.RealmStats.GetDungeonStoryDict()[seq];
-            //int dailyLimit = VIPRepo.GetVIPPrivilege("DungeonStory", player.PlayerSynStats.vipLvl);
-            //if (dungeonStoryInfo.DailyExtraEntry >= dailyLimit) // Check daily limit
-            //{
-            //    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Dun_DailyExtraEntryVipLimit", "", false, peer);
-            //    return;
-            //}
-            //int addFee = 0;
-            //if (extraEntryFeesDict.TryGetValue(dungeonStoryInfo.DailyExtraEntry+1, out addFee))
-            //{
-            //    if (player.DeductGold(addFee, true, true, "Realm_AddEntry"))
-            //    {
-            //        ++dungeonStoryInfo.DailyExtraEntry;
-            //        player.RealmStats.AddExtraEntry(realm.type, seq, 1);
-            //        LogStoryAddExtraEntry(peer, realmId, dungeonStoryInfo.DailyExtraEntry, dungeonStoryInfo.ExtraEntry);
-            //    }
-            //    else
-            //        peer.ZRPC.CombatRPC.OpenUIWindow((byte)LinkUIType.GoTopUp, -1, peer);
-            //}
-        }
-
-        public static bool OnDungeonRaid(int realmId, GameClientPeer peer)
-        {
-            bool isSuccess = true;
+            //bool isSuccess = true;
             Player player = peer.mPlayer;
             RealmJson realm = null;
             string levelScene = "";
             if (player == null || player.Destroyed)
-                isSuccess = false;
-            else if (!GetRealmInfo(realmId, ref realm, ref levelScene))
-                isSuccess = false;
-            //else if (realm.type != RealmType.DungeonStory) // Can only raid on dungeon story
-            //    isSuccess = false;
+                return;
+            else if (!GetRealmInfo(realmId, out realm, out levelScene))
+                return;
             else if (!CheckRealmRequirement(realm, player, peer, true))
-                isSuccess = false;
+                return;
+            else if (realm.type != RealmType.Dungeon)
+                return;
 
-            int rewardGrp = 0;
-            List<ItemInfo> itemInfos = null;
-            if (isSuccess)
+            DungeonJson dungeonJson = (DungeonJson)realm;
+            int lootCount = player.RealmStats.DecreaseLootRewardCount(dungeonJson, clearAll);
+            if (lootCount == 0)
+                return;
+
+            // Parse loot link ids
+            string[] lootLinkIds = dungeonJson.lootdisplayids.Split(';');
+            List<LootLink> lootLinks = new List<LootLink>();
+            int lootLinkIdsLen = lootLinkIds.Length;
+            for (int i = 0; i < lootLinkIdsLen; ++i)
             {
-                DungeonJson dStoryJson = (DungeonJson)realm;
-                //rewardGrp = dStoryJson.rewardgrp;
-                Dictionary<int, DungeonStoryInfo> dStoryDict = player.RealmStats.GetDungeonStoryDict();
-                DungeonStoryInfo dStoryInfo = dStoryDict[dStoryJson.sequence];
-                int diffIdx = (int)dStoryJson.difficulty * 3;
-                if (!dStoryInfo.StarObjectiveCompleted[diffIdx] || !dStoryInfo.StarObjectiveCompleted[diffIdx + 1] ||
-                    !dStoryInfo.StarObjectiveCompleted[diffIdx + 2])
+                int lootLinkId;
+                if (int.TryParse(lootLinkIds[i], out lootLinkId))
                 {
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Dun_RaidRequirementNotMet", "", false, peer);
-                    isSuccess = false;
-                }
-                else
-                {
-                    if (dStoryInfo.DailyEntry > 0)
-                        --dStoryInfo.DailyEntry;
-                    else if (dStoryInfo.ExtraEntry > 0)
-                        --dStoryInfo.ExtraEntry;
-                    player.RealmStats.DungeonStory[dStoryInfo.LocalObjIdx] = dStoryInfo.ToString();
-                    player.Slot.mSevenDaysController.UpdateTask(dStoryJson.difficulty);
-                    peer.mQuestExtraRewardsCtrler.UpdateTask(QuestExtraType.StoryDungeon);
-                }
-
-                bool isEventOn = false;
-                int rewardMultiplier = 1, extraRewardItemID = 0, extraRewardPercent = 0, extraRewardStackCount = 0;
-                var configs = GMActivityConfig.GetConfigIntList(GMActivityType.Dungeon, DateTime.Now);//get list of activity that is currently ON
-                if (configs.Count > 0)
-                {
-                    foreach (var config in configs)
-                    {
-                        int seq = config.mDataList[0];
-                        int realmTypeID = config.mDataList[1];
-                        if (seq == dStoryJson.sequence && realmTypeID == (int)dStoryJson.type)
-                        {
-                            rewardMultiplier = config.mDataList[2];
-                            extraRewardItemID = config.mDataList[3];
-                            extraRewardPercent = config.mDataList[4];
-                            extraRewardStackCount = config.mDataList[5];
-                            isEventOn = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (isEventOn)
-                {
-                    itemInfos = GameRules.GiveRewardGrp_CheckBagSlotThenMail_WithAdditionalItems(player, new List<int>() { rewardGrp }, "Reward_DungeonStory",
-                    null, true, false, string.Format("RealmStory id={0}", realmId),
-                    rewardMultiplier, extraRewardItemID, extraRewardPercent, extraRewardStackCount);
-                }
-                else
-                {
-                    itemInfos = GameRules.GiveReward_CheckBagSlotThenMail(player, new List<int>() { rewardGrp }, "Reward_DungeonStory",
-                    null, true, false, string.Format("RealmStory id={0}", realmId));
+                    LootLink lootLink = LootRepo.GetLootLink(lootLinkId);
+                    if (lootLink != null)
+                        lootLinks.Add(lootLink);
                 }
             }
 
-            peer.ZRPC.CombatRPC.Ret_RaidReward(isSuccess, rewardGrp, GameUtils.SerializeItemInfoList(itemInfos), peer); // Return reward result
-            return isSuccess;
+            // Send Loot Rewards
+            for (int i = 0; i < lootCount; ++i)
+            {
+                Dictionary<int, int> itemsToAdd = new Dictionary<int, int>();
+                Dictionary<CurrencyType, int> currencyToAdd = new Dictionary<CurrencyType, int>();
+                int lootLinksCnt = lootLinks.Count;
+                for (int j = 0; j < lootLinksCnt; ++j)
+                    LootRules.GenerateLootItems(lootLinks[j].gids, itemsToAdd, currencyToAdd);
+
+                List<ItemInfo> itemInfoList = LootRules.GetItemInfoListToAdd(itemsToAdd, true);
+                var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemInfoList, true, "Loot");
+                if (retValue.retCode != InvReturnCode.AddSuccess)
+                {
+                    // If can't add to inventory, send mail
+                    List<IInventoryItem> itemList = new List<IInventoryItem>();
+                    foreach (var item in itemInfoList)
+                        itemList.Add(GameRules.GenerateItem(item.itemId, null, item.stackCount));
+                    GameRules.SendMailWithAttachment(player.Name, "Loot", itemList, currencyToAdd);
+                }
+                else
+                {
+                    // Add currency
+                    foreach (var currency in currencyToAdd)
+                        player.AddCurrency(currency.Key, currency.Value, "Loot");
+                }
+            }
+
+            //peer.ZRPC.CombatRPC.Ret_RaidReward(isSuccess, rewardGrp, GameUtils.SerializeItemInfoList(itemInfos), peer); // Return reward result
         }
 
         public static void TryDungeonEnter(int realmId, GameClientPeer peer)
@@ -476,7 +408,7 @@ namespace Zealot.Server.Rules
 
             RealmJson realm = null;
             string levelScene = "";
-            if (!GetRealmInfo(realmId, ref realm, ref levelScene))
+            if (!GetRealmInfo(realmId, out realm, out levelScene))
                 return;
             bool isCompletingQuest = false;
             //if (realm.type == RealmType.DungeonStory)
@@ -715,61 +647,22 @@ namespace Zealot.Server.Rules
             //}
         }
 
-        public static void DungeonCollectStarReward(int seq, int starCount, GameClientPeer peer)
+        public static bool GetRealmInfo(int realmId, out RealmJson realm, out string levelScene)
         {
-            Player player = peer.mPlayer;
-            if (player == null || player.Destroyed)
-                return;
-            Dictionary<int, DungeonStoryInfo> storyDict = player.RealmStats.GetDungeonStoryDict();
-            if (!storyDict.ContainsKey(seq))
-                return;
-            DungeonStoryInfo dStoryInfo = storyDict[seq];
-            Dictionary<int, bool> starCollectedDict = dStoryInfo.GetStarCollectedDict();
-            if (starCollectedDict.ContainsKey(starCount))
+            RealmJson realmInfo = RealmRepo.GetInfoById(realmId);
+            if (realmInfo != null && realmInfo.type != RealmType.World)
             {
-                if (dStoryInfo.TotalStarCompleted < starCount)
+                realm = realmInfo;
+                LevelJson level = LevelRepo.GetInfoById(realm.level);
+                if (level != null)
                 {
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_StarCountNotEnough", "", false, peer);
-                    return;
+                    levelScene = level.unityscene;
+                    return true;
                 }
-                if (starCollectedDict[starCount])
-                {
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_RewardAlreadyClaimed", "", false, peer);
-                    return;
-                }
-                /*Dictionary<int, int> starRewardsDict = RealmRepo.GetStarRewardsBySeq(seq);
-                int rewardGrpId = 0;
-                if (starRewardsDict.TryGetValue(starCount, out rewardGrpId))
-                {
-                    bool isFull = false;
-                    GameRules.GiveReward_CheckBagSlot(peer.mPlayer, new List<int>() { rewardGrpId }, out isFull, true, true, string.Format("Realm start={0}", starCount));
-                    if (!isFull)
-                    {
-                        starCollectedDict[starCount] = true;
-                        dStoryInfo.StarCollectedDictToString();
-                        player.RealmStats.DungeonStory[dStoryInfo.LocalObjIdx] = dStoryInfo.ToString();
-                        LogCollectStarReward(peer, seq, starCount);
-                    }
-                    else
-                    {
-                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
-                        return;
-                    }
-                }*/
             }
-        }
-
-        public static bool GetRealmInfo(int realmId, ref RealmJson mRealm, ref string levelScene)
-        {
-            RealmJson realm = RealmRepo.GetInfoById(realmId);
-            if (realm == null || realm.type == RealmType.World)
-                return false;
-            mRealm = realm;
-            LevelJson level = LevelRepo.GetInfoById(realm.level);
-            if (level == null)
-                return false;
-            levelScene = level.unityscene;
-            return true;
+            realm = null;
+            levelScene = "";
+            return false;
         }
 
         public static bool CheckRealmRequirement(RealmJson realm, Player playerToCheck, GameClientPeer peerToInform, bool checkAll)
@@ -797,24 +690,24 @@ namespace Zealot.Server.Rules
 
             if (checkAll)
             {
-                int seq = 0;
-                int guildId = playerToCheck.SecondaryStats.guildId;
-                switch (realm.type)
-                {
-                    case RealmType.Dungeon:
-                        DungeonJson dStoryJson = (DungeonJson)realm;
-                        Dictionary<int, DungeonStoryInfo> dStoryInfoDict = playerToCheck.RealmStats.GetDungeonStoryDict();
-                        seq = dStoryJson.sequence;
-                        if (dStoryInfoDict[seq].DailyEntry+dStoryInfoDict[seq].ExtraEntry <= 0)
-                        {
-                            if (samePlayer)
-                                peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft", "", false, peerToInform);
-                            else
-                                peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft_PartyMember",
-                                    string.Format("name;{0}", playerToCheck.Name), false, peerToInform);
-                            return false;
-                        }
-                        break;
+                //int seq = 0;
+                //int guildId = playerToCheck.SecondaryStats.guildId;
+                //switch (realm.type)
+                //{
+                    //case RealmType.Dungeon:
+                    //    DungeonJson dStoryJson = (DungeonJson)realm;
+                    //    Dictionary<int, DungeonStoryInfo> dStoryInfoDict = playerToCheck.RealmStats.GetDungeonStoryDict();
+                    //    seq = dStoryJson.sequence;
+                    //    if (dStoryInfoDict[seq].DailyEntry+dStoryInfoDict[seq].ExtraEntry <= 0)
+                    //    {
+                    //        if (samePlayer)
+                    //            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft", "", false, peerToInform);
+                    //        else
+                    //            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft_PartyMember",
+                    //                string.Format("name;{0}", playerToCheck.Name), false, peerToInform);
+                    //        return false;
+                    //    }
+                    //    break;
 
                     //case RealmType.DungeonDailySpecial:
                     //    DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
@@ -909,9 +802,30 @@ namespace Zealot.Server.Rules
                     //        return false;
                     //    }                     
                     //    break;
-                }
+                //}
             }
             return true;
+        }
+
+        public static void PareInvitePVP(string name1, string name2)
+        {
+            InvitePVPData data = new InvitePVPData();
+            InvitePVPList[name1] = data;
+            InvitePVPList[name2] = data;
+        }
+
+        public static InvitePVPData GetInvitePVPData(string name)
+        {
+            if (InvitePVPList.ContainsKey(name) == false)
+                return null;
+            else
+                return InvitePVPList[name];
+        }
+
+        public static void RemoveInvitePCPData(string name)
+        {
+            if (InvitePVPList.ContainsKey(name) == true)
+                InvitePVPList.Remove(name);
         }
 
         public static bool CheckDungeonIsOpen(DungeonJson dungeonJson)
@@ -930,92 +844,41 @@ namespace Zealot.Server.Rules
             return false;
         }
 
-        public static void InitRealmStats(RealmStats realmStats)
-        {
-            //Dictionary<int, Dictionary<DungeonDifficulty, DungeonJson>> dungeonSeq = RealmRepo.mDungeonStory;
-            //int count = dungeonSeq.Count;
-            //Dictionary<int, DungeonStoryInfo> dStoryDict = realmStats.GetDungeonStoryDict();
-            //for (int i = 0; i < count; ++i)
-            //{
-            //    int seq = i+1;
-            //    if (dStoryDict.Count == i)
-            //    {
-            //        dStoryDict.Add(seq, new DungeonStoryInfo(dungeonSeq[seq][DungeonDifficulty.Easy].entrylimit, 0, 0, false, false, false,
-            //                                                 false, false, false, false, false, false, "", i));
-            //        realmStats.DungeonStory[i] = dStoryDict[seq].ToString();
-            //    }
-            //}
-
-            //Dictionary<int, List<DungeonDailySpecialJson>> dDailySeq = RealmRepo.mDungeonDaily;
-            //count = dDailySeq.Count;
-            //Dictionary<int, RealmInfo> dDailyDict = realmStats.GetDungeonDailyDict();
-            //for (int i = 0; i < count; ++i)
-            //{
-            //    int seq = i+1;
-            //    if (dDailyDict.Count == i)
-            //    {
-            //        dDailyDict.Add(seq, new RealmInfo(dDailySeq[seq][0].dailyentry, 0, i));
-            //        realmStats.DungeonDaily[i] = dDailyDict[seq].ToString();
-            //    }
-            //}
-
-            //Dictionary<int, List<DungeonDailySpecialJson>> dSpecialSeq = RealmRepo.mDungeonSpecial;
-            //count = dSpecialSeq.Count;
-            //Dictionary<int, RealmInfo> dSpecialDict = realmStats.GetDungeonSpecialDict();
-            //for (int i = 0; i < count; ++i)
-            //{
-            //    int seq = i+1;
-            //    if (dSpecialDict.Count == i)
-            //    {
-            //        dSpecialDict.Add(seq, new RealmInfo(dSpecialSeq[seq][0].dailyentry, 0, i));
-            //        realmStats.DungeonSpecial[i] = dSpecialDict[seq].ToString();
-            //    }
-            //}
-
-            //ActivityWorldBossJson mActivityWorldBossInfo = RealmRepo.mActivityWorldBoss;
-            //Dictionary<int, RealmInfo> dWorldBossDict = realmStats.GetWorldBossDict();
-            //if (dWorldBossDict.Count == 0)
-            //{
-            //    dWorldBossDict.Add(0, new RealmInfo(mActivityWorldBossInfo.dailyentry, 0, 0));
-            //    realmStats.WorldBoss[0] = dWorldBossDict[0].ToString();
-            //}
-        }
-
         #region Logging
 
-        private static void LogCollectStarReward(GameClientPeer peer, int seq, int starCount)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("seq:{0}|", seq);
-            sb.AppendFormat("starCount:{0}", starCount);
+        //private static void LogCollectStarReward(GameClientPeer peer, int seq, int starCount)
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendFormat("seq:{0}|", seq);
+        //    sb.AppendFormat("starCount:{0}", starCount);
 
-            Zealot.Logging.Client.LogClasses.DungeonCollectStarReward sysLog = new Zealot.Logging.Client.LogClasses.DungeonCollectStarReward();
-            sysLog.userId = peer.mUserId;
-            sysLog.charId = peer.GetCharId();
-            sysLog.message = sb.ToString();
-            sysLog.seq = seq;
-            sysLog.starCount = starCount;
-            var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(sysLog);
-        }
+        //    Zealot.Logging.Client.LogClasses.DungeonCollectStarReward sysLog = new Zealot.Logging.Client.LogClasses.DungeonCollectStarReward();
+        //    sysLog.userId = peer.mUserId;
+        //    sysLog.charId = peer.GetCharId();
+        //    sysLog.message = sb.ToString();
+        //    sysLog.seq = seq;
+        //    sysLog.starCount = starCount;
+        //    var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(sysLog);
+        //}
 
-        private static void LogStoryAddExtraEntry(GameClientPeer peer, int realmId, int dailyExtraEntry, int entryAfter)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("realmId:{0}|", realmId);
-            sb.AppendFormat("dailyExtraEntry:{0}|", dailyExtraEntry);
-            sb.AppendFormat("entryBefore:{0}|", entryAfter - 1);
-            sb.AppendFormat("entryAfter:{0}", entryAfter);  
+        //private static void LogStoryAddExtraEntry(GameClientPeer peer, int realmId, int dailyExtraEntry, int entryAfter)
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendFormat("realmId:{0}|", realmId);
+        //    sb.AppendFormat("dailyExtraEntry:{0}|", dailyExtraEntry);
+        //    sb.AppendFormat("entryBefore:{0}|", entryAfter - 1);
+        //    sb.AppendFormat("entryAfter:{0}", entryAfter);  
 
-            Zealot.Logging.Client.LogClasses.DungeonAddExtraEntry sysLog = new Zealot.Logging.Client.LogClasses.DungeonAddExtraEntry();
-            sysLog.userId = peer.mUserId;
-            sysLog.charId = peer.GetCharId();
-            sysLog.message = sb.ToString();
-            sysLog.realmId = realmId;
-            sysLog.dailyExtraEntry = dailyExtraEntry;
-            sysLog.extraEntryBefore = entryAfter - 1;
-            sysLog.extraEntryAfter = entryAfter;
-            var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(sysLog);
-        }
+        //    Zealot.Logging.Client.LogClasses.DungeonAddExtraEntry sysLog = new Zealot.Logging.Client.LogClasses.DungeonAddExtraEntry();
+        //    sysLog.userId = peer.mUserId;
+        //    sysLog.charId = peer.GetCharId();
+        //    sysLog.message = sb.ToString();
+        //    sysLog.realmId = realmId;
+        //    sysLog.dailyExtraEntry = dailyExtraEntry;
+        //    sysLog.extraEntryBefore = entryAfter - 1;
+        //    sysLog.extraEntryAfter = entryAfter;
+        //    var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(sysLog);
+        //}
 
         #endregion
 

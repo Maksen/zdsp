@@ -8,7 +8,7 @@
     using Zealot.Repository;
     using Kopio.JsonContracts;
 
-    public class SpecailSE  
+    public class SpecialSE  
     {
         //public readonly static long MAX_DURATION = 604800000; //7 days, in msecs
         public SideEffectJson mSideeffectData;
@@ -19,10 +19,10 @@
         protected long mInterval;
         protected int Rank;
         protected bool mbInfinite = false;
-        int mAmount=0;
+        float mAmount=0;
         FieldName mTargetedField = FieldName.LastField; 
         private bool mIsPostiveBuff;
-        public SpecailSE(SideEffectJson sideeffectData)        
+        public SpecialSE(SideEffectJson sideeffectData)        
         { 
             mSideeffectData = sideeffectData;
             mDuration =(long)(mSideeffectData.duration * 1000);
@@ -45,7 +45,7 @@
             return true;  
         }
 
-        private void OnApply()
+        private void OnApply(int equipid = -1)
         {
            
             switch (mSideeffectData.effecttype)
@@ -77,7 +77,7 @@
         
         protected void InitKopioData()
         {
-            if(mSideeffectData.persistentafterdeath ==false&&mSideeffectData.persistentonlogout == false)
+            if(mSideeffectData.persistentafterdeath ==false)//&&mSideeffectData.persistentonlogout == false)
             {
                 throw new Exception("SpecialSE created for Persistent true entry");
             }
@@ -105,9 +105,9 @@
         protected virtual bool CheckApplyCondition()
         {
             bool shouldApply = true;
-            List<SpecailSE> currentList = mTarget.GetPersistentSEList();
-            List<SpecailSE> listOfInterest = new List<SpecailSE>();
-            foreach (SpecailSE spe in currentList)
+            List<SpecialSE> currentList = mTarget.GetPersistentSEList();
+            List<SpecialSE> listOfInterest = new List<SpecialSE>();
+            foreach (SpecialSE spe in currentList)
             {
                 if(spe.mSideeffectData.effecttype == mSideeffectData.effecttype)
                 {
@@ -118,7 +118,7 @@
             {                 
                 for (int i = listOfInterest.Count -1; i >=0; i--)
                 {
-                    SpecailSE se = listOfInterest[i];
+                    SpecialSE se = listOfInterest[i];
                     if (SideEffectRepo.InSameGroup(mSideeffectData.id, se.mSideeffectData.id))
                     {
                         if (SideEffectRepo.CanOverride(mSideeffectData.id, se.mSideeffectData.id))

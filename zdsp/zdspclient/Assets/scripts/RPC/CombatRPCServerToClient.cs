@@ -205,7 +205,7 @@ public partial class ClientMain : MonoBehaviour
     public void SendFollowInvitation(string senderName)
     {
         PartyStatsClient partyStats = GameInfo.gLocalPlayer.PartyStats;
-        if (partyStats != null && partyStats.GetFollowingPlayer() != senderName)
+        if (partyStats != null && PartyFollowTarget.TargetName != senderName)
         {
             Dictionary<string, string> param = new Dictionary<string, string>();
             param.Add("name", senderName);
@@ -224,11 +224,11 @@ public partial class ClientMain : MonoBehaviour
     }
 
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.OnGetPartyMemberPosition)]
-    public void OnGetPartyMemberPosition(string currLevelName, RPCPosition position)
+    public void OnGetPartyMemberPosition(string currLevelName, RPCPosition position, int pid)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         if (player != null && player.PartyStats != null)
-            player.PartyStats.OnGetPartyMemberPosition(currLevelName, position);
+            player.PartyStats.OnGetPartyMemberPosition(currLevelName, position, pid);
     }
 
     #endregion

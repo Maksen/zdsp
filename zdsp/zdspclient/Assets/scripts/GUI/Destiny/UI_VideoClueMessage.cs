@@ -33,6 +33,7 @@ public class UI_VideoClueMessage : MonoBehaviour
     public void Init(string videopath, AudioSource audioSource)
     {
         mAudioSource = audioSource;
+        mAudioSource.enabled = true;
         ClientUtils.LoadVideoAsync(videopath, OnVideoClipLoaded);
     }
 
@@ -44,9 +45,13 @@ public class UI_VideoClueMessage : MonoBehaviour
             MoviePlayer.clip = mVideoClip;
             MoviePlayer.waitForFirstFrame = true;
             MoviePlayer.prepareCompleted += OnClipReady;
+            MoviePlayer.loopPointReached += OnVideoFinished;
             MoviePlayer.Prepare();
             MoviePlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+            MoviePlayer.EnableAudioTrack(0, true);
             MoviePlayer.SetTargetAudioSource(0, mAudioSource);
+            MoviePlayer.controlledAudioTrackCount = 1;
+            mAudioSource.volume = 1.0f;
         }
     }
 
@@ -60,8 +65,9 @@ public class UI_VideoClueMessage : MonoBehaviour
         RenderTexture.active = null;
 
         Photo.sprite = Sprite.Create(mVideoFrame, new Rect(0, 0, 654, 332), new Vector2(0.5f, 0.5f));
-
+        
         MoviePlayer.prepareCompleted -= OnClipReady;
+        MoviePlayer.Stop();
     }
 
     public void OnClickPlay()
@@ -79,6 +85,7 @@ public class UI_VideoClueMessage : MonoBehaviour
             SoundFX.Instance.MuteSound(true);
             Photo.enabled = false;
             MoviePlayer.Play();
+            mAudioSource.Play();
         }
     }
 

@@ -1,12 +1,81 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Zealot.Bot;
 using Zealot.Client.Actions;
 using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Common.RPC;
 using Zealot.Repository;
+
+public static class PartyFollowTarget
+{
+    public static bool ResumeAfterTeleport = true;
+    public static bool Enabled = false;
+    public static int TargetPID = -1;
+    public static string TargetName = "";
+    public static string DestLevel = "";
+    public static Vector3 TargetPos = Vector3.zero;
+    public static float Elapsed = 0;
+    public static float Range = 2.5f;
+    public static float RangeSqr = 6.25f;
+
+    public static void Reset()
+    {
+        Enabled = false;
+        TargetPID = -1;
+        TargetName = "";
+        TargetPos = Vector3.zero;
+        DestLevel = "";
+        Elapsed = 0;
+    }
+
+    public static void Remember(int pid, string name, string levelname, Vector3 position)
+    {
+        TargetPID = pid;
+        TargetName = name;
+        DestLevel = levelname;
+        TargetPos = position;
+    }
+
+    public static bool IsFollowing()
+    {
+        return TargetPID != -1;
+    }
+
+    public static bool IsPaused()
+    {
+        return IsFollowing() && !Enabled;
+    }
+
+    public static void Pause(bool enableAfterTeleport = true)
+    {
+        if (!IsFollowing())
+            return;
+        if (Enabled)
+        {
+            Enabled = false;
+            Elapsed = 0;
+            ResumeAfterTeleport = enableAfterTeleport;
+            //Debug.Log("PartyFollow paused: " + ResumeAfterTeleport);
+        }
+    }
+
+    public static void Resume(bool immediate = false)
+    {
+        if (IsPaused())
+        {
+            Enabled = true;
+            if (immediate)
+                Elapsed = 1000;
+
+            if (!ResumeAfterTeleport)
+                ResumeAfterTeleport = true;
+            //Debug.Log("PartyFollow resumed");
+        }
+    }
+}
 
 public class PartyStatsClient : PartyStats
 {
@@ -15,27 +84,19 @@ public class PartyStatsClient : PartyStats
     private GameObject windowObj;
     private UI_Party uiParty;
     private bool isInit = true;
+
     private PlayerGhost localPlayer;
-
     private PlayerGhost followTarget;
-    private static int followTargetID = -1;
-    private static string followTargetLevel = "";
-    private static Vector3 followTargetPos = Vector3.zero;
-    private static string followingPlayerName = "";
-    private const float FOLLOW_RANGE = 2f;
-    private float rangeSqr;
 
-    // called when create or join party
     public void Init()
     {
-        rangeSqr = FOLLOW_RANGE * FOLLOW_RANGE;
         localPlayer = GameInfo.gLocalPlayer;
         widgetObj = UIManager.GetWidget(HUDWidgetType.PartyPortrait);
         hudParty = widgetObj.GetComponent<HUD_PartyPortrait>();
         windowObj = UIManager.GetWindowGameObject(WindowType.Party);
         uiParty = windowObj.GetComponent<UI_Party>();
 
-        Debug.Log("join party id: " + partyId);
+        //Debug.Log("join party id: " + partyId);
         for (int i = 0; i < members.Count; i++)
         {
             if (members[i] != null)
@@ -179,9 +240,7 @@ public class PartyStatsClient : PartyStats
     public void UpdatePartyLeader(string leaderName)
     {
         if (!isInit)
-        {
             ShowSystemMessage("sys_party_NewPartyLeader", leaderName);
-        }
 
         if (widgetObj.activeInHierarchy)
             hudParty.SetPartyLeader(leaderName);
@@ -201,7 +260,7 @@ public class PartyStatsClient : PartyStats
     {
         hudParty.OnMemberOffline(member);
         uiParty.OnMemberOffline(member);
-        if (GetFollowingPlayer() == member.name)
+        if (PartyFollowTarget.TargetName == member.name)
             StopFollowTarget();
     }
 
@@ -219,6 +278,9 @@ public class PartyStatsClient : PartyStats
         // close party window
         if (windowObj.activeInHierarchy)
             UIManager.CloseWindow(WindowType.Party);
+
+        if (PartyFollowTarget.IsFollowing())
+            StopFollowTarget();
     }
 
     public void OnFollowPartyMember(int targetPid, string playerName, string levelName, RPCPosition targetPos)
@@ -228,12 +290,10 @@ public class PartyStatsClient : PartyStats
 
         if (targetPid != -1)
         {
-            followTargetID = targetPid;
-            followingPlayerName = playerName;
             Vector3 targetPosition = targetPos.ToVector3();
-            followTargetLevel = levelName;
-            followTargetPos = targetPosition;
-            Debug.LogFormat("Following: {0},{1},{2},{3}", targetPid, playerName, levelName, targetPosition);
+            PartyFollowTarget.Remember(targetPid, playerName, levelName, targetPosition);
+            PartyFollowTarget.Enabled = true;
+            //Debug.LogFormat("Following: {0},{1},{2},{3}", targetPid, playerName, levelName, targetPosition);
             PathFindToTarget();
         }
         else
@@ -244,55 +304,46 @@ public class PartyStatsClient : PartyStats
 
     public void StopFollowTarget()
     {
-        Debug.LogFormat("Clear Follow Target");
+        //Debug.LogFormat("Clear Follow Target");
         followTarget = null;
-        followTargetID = -1;
-        followingPlayerName = "";
-        followTargetLevel = "";
-        followTargetPos = Vector3.zero;
-        canStart = false;
-        elapsedDt = 0;
+        PartyFollowTarget.Reset();
         StopMoving();
     }
 
-    // todo: optimize so don't keep calling pathfind if target has not moved
     private void PathFindToTarget()
     {
         string currentLevelName = ClientUtils.GetCurrentLevelName();
-
-        if (currentLevelName == followTargetLevel)
+        if (currentLevelName == PartyFollowTarget.DestLevel)  // in same level as target
         {
-            followTarget = localPlayer.EntitySystem.GetEntityByPID(followTargetID) as PlayerGhost;
-            if (followTarget != null)
-                followTargetPos = followTarget.Position;
-            if (!IsTargetInRange(followTargetPos))
+            followTarget = localPlayer.EntitySystem.GetEntityByPID(PartyFollowTarget.TargetPID) as PlayerGhost;
+            if (followTarget != null)  // can see target
+                PartyFollowTarget.TargetPos = followTarget.Position;
+            if (!IsTargetInRange(PartyFollowTarget.TargetPos))
             {
                 if (followTarget != null)
                 {
-                    localPlayer.PathFindToTarget(followTargetPos, followTarget.GetPersistentID(), FOLLOW_RANGE, true, false, null);
+                    localPlayer.PathFindToTarget(followTarget.Position, followTarget.GetPersistentID(), PartyFollowTarget.Range - 0.5f, true, false, null);
                     //Debug.Log("start seeking using target pid ");
                 }
                 else
                 {
-                    localPlayer.PathFindToTarget(followTargetPos, -1, FOLLOW_RANGE, true, false, null);
+                    localPlayer.PathFindToTarget(PartyFollowTarget.TargetPos, -1, PartyFollowTarget.Range - 0.5f, true, false, null);
                     //Debug.Log("start seeking using target pos ");
                 }
             }
-            canStart = true;
         }
-        else
+        else  // need to cross level to reach target
         {
             bool found = false;
-            Zealot.Bot.BotController.TheDijkstra.DoRouter(currentLevelName, followTargetLevel, out found);
+            BotController.TheDijkstra.DoRouter(currentLevelName, PartyFollowTarget.DestLevel, out found);
             if (found)
             {
-                Zealot.Bot.BotController.DestLevel = followTargetLevel;
-                Zealot.Bot.BotController.DestMapPos = followTargetPos;
-                Zealot.Bot.BotController.DestMonsterOrNPC = Zealot.Bot.ReachTargetAction.None;
-                Zealot.Bot.BotController.DestArchtypeID = -1;
+                BotController.DestLevel = PartyFollowTarget.DestLevel;
+                BotController.DestMapPos = PartyFollowTarget.TargetPos;
+                BotController.DestAction = ReachTargetAction.PartyFollow;
+                BotController.DestArchtypeID = -1;
                 localPlayer.Bot.SeekingWithRouter();
-                Debug.Log("start seeking with router.");
-                canStart = true;
+                //Debug.Log("start seeking with router.");
             }
             else
             {
@@ -304,35 +355,83 @@ public class PartyStatsClient : PartyStats
 
     private bool IsTargetInRange(Vector3 targetPosition)
     {
-        Vector3 vecToTarget = targetPosition - localPlayer.Position;
-        vecToTarget.y = 0;
-        return vecToTarget.sqrMagnitude <= rangeSqr;
+        Vector3 diff = targetPosition - localPlayer.Position;
+        diff.y = 0;
+        return diff.sqrMagnitude <= PartyFollowTarget.RangeSqr;
     }
 
     private bool CheckTargetPosition()
     {
-        //Debug.Log("++++++++++++CHECKING TARGET!!!!!!!!!!!!!");
-        followTarget = localPlayer.EntitySystem.GetEntityByPID(followTargetID) as PlayerGhost;
+        followTarget = localPlayer.EntitySystem.GetEntityByPID(PartyFollowTarget.TargetPID) as PlayerGhost;
         if (followTarget != null)
-            return true;
+        {
+            if ((followTarget.Position - PartyFollowTarget.TargetPos).sqrMagnitude > 16) //Target has moved more than 4m
+            {
+                //Debug.LogWarning("local target moved, pathfind again");
+                return true;
+            }
+            else
+            {
+                if (localPlayer.IsIdling())
+                {
+                    //Debug.Log("local target still there but idling so pathfind");
+                    return true;
+                }
+                else
+                {
+                    //Debug.Log("local target still there I already moving");
+                    return false;
+                }
+            }
+        }
         else
         {
-            RPCFactory.CombatRPC.GetPartyMemberPosition(followingPlayerName);
+            RPCFactory.CombatRPC.GetPartyMemberPosition(PartyFollowTarget.TargetName);
             return false;
         }
     }
 
-    public void OnGetPartyMemberPosition(string targetLevelName, RPCPosition targetPosition)
+    public void OnGetPartyMemberPosition(string targetLevelName, RPCPosition targetPosition, int pid)
     {
         if (!string.IsNullOrEmpty(targetLevelName))
         {
-            followTargetLevel = targetLevelName;
-            followTargetPos = targetPosition.ToVector3();
-            if (!GameInfo.gCombat.mPlayerInput.IsControlling() && canStart)
-                PathFindToTarget();
+            if (pid > 0)
+                PartyFollowTarget.TargetPID = pid;
+            Vector3 newPos = targetPosition.ToVector3();
+            if (PartyFollowTarget.DestLevel != targetLevelName)  // target moved to another level so do new pathfind
+            {
+                //Debug.LogWarning("target changed level, pathfind again");
+                PartyFollowTarget.DestLevel = targetLevelName;
+                PartyFollowTarget.TargetPos = newPos;
+                if (PartyFollowTarget.Enabled)
+                    PathFindToTarget();
+            } 
+            else if (PartyFollowTarget.DestLevel == targetLevelName && (newPos - PartyFollowTarget.TargetPos).sqrMagnitude > 16) //Target has moved more than 4m
+            {
+                PartyFollowTarget.DestLevel = targetLevelName;
+                PartyFollowTarget.TargetPos = newPos;
+                if (ClientUtils.GetCurrentLevelName() == targetLevelName) // is at same level as target, do new pathfind
+                {
+                    //Debug.LogWarning("target moved, pathfind again");
+                    if (PartyFollowTarget.Enabled)
+                        PathFindToTarget();
+                }
+                else if (localPlayer.IsIdling())
+                {
+                    //Debug.LogWarning("target moved, but I idling, so pathfind again");
+                    if (PartyFollowTarget.Enabled)
+                        PathFindToTarget();
+                }
+                //else
+                    //Debug.Log("target moved but I already moving to that level so continue");
+            }
+            else if (localPlayer.IsIdling())
+            {
+                //Debug.Log("target still there but idling so pathfind");
+                if (PartyFollowTarget.Enabled)
+                    PathFindToTarget();
+            }
         }
-        else
-            StopFollowTarget();
     }
 
     private void StopMoving()
@@ -341,47 +440,23 @@ public class PartyStatsClient : PartyStats
             localPlayer.ForceIdle();
     }
 
-    private long elapsedDt = 0;
-    private bool canStart = false;
-
-    public void PauseAutoFollow()
-    {
-        if (IsFollowing() && canStart)
-        {
-            canStart = false;
-            elapsedDt = 0;
-        }          
-    }
-
-    public void ResumeAutoFollow()
-    {
-        if (IsFollowing() && !canStart)
-            canStart = true;
-    }
-
-    public bool IsAutoFollowPaused()
-    {
-        return IsFollowing() && !canStart;
-    }
-
     public void Update(long dt)
     {
-        if (!IsFollowing())
+        if (!PartyFollowTarget.IsFollowing())
             return;
 
         if (GameInfo.gCombat.mPlayerInput.IsControlling() || !localPlayer.CanMove())
         {
-            elapsedDt = 0;
+            PartyFollowTarget.Elapsed = 0;
             return;
         }
 
-        if (canStart)
+        if (PartyFollowTarget.Enabled)
         {
-            elapsedDt += dt;
-            if (elapsedDt < 1000)
+            PartyFollowTarget.Elapsed += dt;
+            if (PartyFollowTarget.Elapsed < 1000)
                 return;
-
-            elapsedDt = 0;
+            PartyFollowTarget.Elapsed = 0;
 
             if (CheckTargetPosition())
                 PathFindToTarget();
@@ -392,22 +467,15 @@ public class PartyStatsClient : PartyStats
                 if (followTarget.IsAlive() && action != null && action.mTarget != null)
                 {
                     if (localPlayer.IsIdling())
+                    {
+                        // todo: to be replaced with botting with skill selection
                         GameInfo.gCombat.CommonCastBasicAttack(action.mTarget.GetPersistentID());
+                    }
                 }
                 else if (!localPlayer.IsIdling())
                     localPlayer.ForceIdle();
             }
         }
-    }
-
-    public string GetFollowingPlayer()
-    {
-        return followingPlayerName;
-    }
-
-    public bool IsFollowing()
-    {
-        return followTargetID != -1;
     }
 
     private void ShowSystemMessage(string msg, string value = "")

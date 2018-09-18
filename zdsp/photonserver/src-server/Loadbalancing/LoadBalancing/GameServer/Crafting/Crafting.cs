@@ -42,7 +42,7 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                 string[] allcount = craftitem.itemcount.Split(',');
                 int craftcount = 0;//this is the highest amount the player can craft with their require item and money
 
-                int costamountforcraft = mPlayer.SecondaryStats.money / craftitem.cost;
+                int costamountforcraft = mPlayer.SecondaryStats.Money / craftitem.cost;
                 craftcount = costamountforcraft;
                 sysLog.BeforeCraftedItemCount = mPlayer.Slot.mInventory.GetItemStackCountByItemId((ushort)craftitem.crafteditemid);
                 for (int i = 0; i < allid.Length; i++)
@@ -87,9 +87,9 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                 int totalcost = craftitem.cost * craftcount;
                 if (result.retCode == InvReturnCode.AddSuccess)
                 {
-                    sysLog.BeforeCraftedMoney = mPlayer.SecondaryStats.money;
+                    sysLog.BeforeCraftedMoney = mPlayer.SecondaryStats.Money;
                     var temp2 = mPlayer.DeductMoney(totalcost, "Craft");//not suppose to fail
-                    sysLog.AfterCraftedMoney = mPlayer.SecondaryStats.money;
+                    sysLog.AfterCraftedMoney = mPlayer.SecondaryStats.Money;
 
                     var temp = mPlayer.Slot.mInventory.UseToolItems(allcraftitem, "Craft");//not suppose to fail
                     for (int i = 0; i < allcraftitem.Count; i++)
@@ -173,7 +173,7 @@ namespace Photon.LoadBalancing.GameServer.Crafting
 
                 sysLog.BeforeAllUsedItemCount = beforealluseditemcount;
 
-                if (mPlayer.SecondaryStats.money < craftitem.cost)//check if player have enough money
+                if (mPlayer.SecondaryStats.Money < craftitem.cost)//check if player have enough money
                 {
                     mIsEnoughMoney = false;
                     return false;
@@ -209,9 +209,9 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                         return false;
                     }
                 }
-                sysLog.BeforeCraftedMoney = mPlayer.SecondaryStats.money;
+                sysLog.BeforeCraftedMoney = mPlayer.SecondaryStats.Money;
                 mPlayer.DeductMoney(craftitem.cost, "Craft");//this not suppose to fail
-                sysLog.AfterCraftedMoney = mPlayer.SecondaryStats.money;
+                sysLog.AfterCraftedMoney = mPlayer.SecondaryStats.Money;
 
                 mPlayer.Slot.mInventory.UseToolItems(allcraftitem, "Craft");//this not suppose to fail
                 for(int i=0;i<allcraftitem.Count;i++)

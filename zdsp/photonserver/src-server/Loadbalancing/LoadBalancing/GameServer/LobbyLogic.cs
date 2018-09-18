@@ -30,7 +30,7 @@
                 peer.ZRPC.LobbyRPC.ShowSystemMessage("ret_CharCreation_CharactersMoreThan3", peer);
                 return null;
             }
-            jobsect = 1;
+            jobsect = 0;
             var chardefault = GameRules.NewCharacterData(false, charname, jobsect, faction, talent);
             string strChar = chardefault.SerializeForDB(false);            
 

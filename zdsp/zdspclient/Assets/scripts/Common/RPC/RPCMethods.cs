@@ -309,19 +309,23 @@
         RespawnAtCity,
         RespawnAtSafeZone,
         RespawnAtSafeZoneWithCost,
+
         ClientSendChatMessage,
         BroadcastSysMsgToServer,
+
+        GetInspectPlayerInfo,
+
+        SaveGameSetting,
 
         CreateRealmByID,
         EnterRealmByID,
         LeaveRealm,
         InspectMode,
-        AddStoryExtraEntry,
-        DungeonRaid,
         DungeonEnter,
         DungeonEnterState,
-        DungeonCollectStarReward,
+        DungeonAutoClear,
         OnPickResource,
+        RealmCollectReward,
 
         AddItem,
         UseItem,
@@ -334,19 +338,13 @@
         BuyPotion,
         UnequipItem,
         SetItemHotbar,
-        UseItemHotbar,
-
-        RealmCollectReward,
-
-        GetInspectPlayerInfo,
+        UseItemHotbar,     
 
         #region IAP
-
         GetProductsWithLockGold,
         GetMyCardAuthCode,
         DelMyCardAuthCode,
         VerifyPurchase,
-
         #endregion IAP
 
         #region Social
@@ -358,12 +356,12 @@
         SocialUpdateFriendsInfo,
         #endregion
 
+        #region Arena
         GetArenaChallengers,
         ChallengeArena,
         ArenaClaimReward,
         GetArenaReport,
-
-        AddCurrency,
+        #endregion
 
         #region Mail
 
@@ -384,8 +382,6 @@
         OfflineExpGetData,
 
         #endregion OfflineExp
-
-        RemoveBuff,
 
         #region Auction
         AuctionGetAuctionItem,
@@ -415,31 +411,6 @@
         GuildDreamHouseAdd,
         GuildDreamHouseCollect,
         #endregion
-
-        #region Donate
-        GetGuildDonateData,
-        RequestGuildDonate,
-        ResponseGuildDonate,
-        GetGuildDonate,
-        #endregion       
-
-        CurrencyExchange,
-
-        #region Tutorial
-        //StartTutorial,
-        //TutorialNextStep,
-        //EndTutorial,
-        #endregion
-
-        SaveGameSetting,
-        BotSetting,
-        GetClosestValidMonSpawnPos,
-
-        FirstRealmStep,
-
-        RedeemSerialCode,
-
-        GetCompensate,
 
         #region Party
         GetPartyList,
@@ -473,17 +444,40 @@
         ClaimExplorationReward,
         #endregion
 
-        #region Portrait
-        CharInfoSetPortrait,
-        #endregion
-
         #region Crafting
         CraftItem,
         #endregion
 
-        #region RandomBox
+        #region Donate
+        GetGuildDonateData,
+        RequestGuildDonate,
+        ResponseGuildDonate,
+        GetGuildDonate,
+        #endregion
+
+        #region Bot
+        BotSetting,
+        GetClosestValidMonSpawnPos,
+        #endregion
+
+        RemoveBuff,
+
+        AddCurrency,
+
+        CurrencyExchange,
+
+        RedeemSerialCode,
+
+        GetCompensate,
+
+        CharInfoSetPortrait,
+
         ActiveRandomBox,
         GetRandomBoxReward,
+
+        #region Wardrobe
+        EquipFashion,
+        UnequipFashion,
         #endregion
 
         #region Mount
@@ -491,23 +485,24 @@
         UnMount,
         #endregion
 
-        #region Wardrobe
-        EquipFashion,
-        UnequipFashion,
+        #region Combat
+        SetPlayerTeam,
         #endregion
 
         #region InvitePvp
         InvitePvpAsk,
         InvitePvpReply,
         #endregion
-        #region Combat
-        SetPlayerTeam,
-        #endregion
-        #region TutorialList
+
+        #region Tutorial
+        TutorialStep,
+        //StartTutorial,
+        //EndTutorial,
         UpdateTutorialList,
-        SyncAttackResult,
         #endregion
-     
+
+        SyncAttackResult,
+
         #region Triggers
         OnColliderTrigger,
         #endregion
@@ -515,6 +510,11 @@
         #region WorldBoss
         GetWorldBossList,
         GetWorldBossDmgList,
+        #endregion
+
+        #region SideEffect
+        AddSideEffect,
+        RemoveSideEffect,
         #endregion
     }
 
@@ -549,6 +549,7 @@
         ConsoleLeaveRealm,
         ConsoleCompleteRealm,
         ConsoleFullHealPlayer,
+        ConsoleFullRecoverMana,
         ConsoleGetAllRealmInfo,
         ConsoleSpawnSpecialBoss,
         ConsoleGuildList,
@@ -591,6 +592,8 @@
         ConsoleAddStatsPoint,
         ConsoleChangeJob,
         ConsoleAddSkillPoint,
+        ConsoleUpdateDonate,
+        ConsoleRemoveAllSkills,
         #endregion
 
         #region LeaderBoard
@@ -723,6 +726,9 @@
         #region Skills
         AddToSkillInventory,
         EquipSkill,
+        RemoveEquipSkill,
+        AutoEquipSkill,
+        RemoveAutoEquipSkill,
         #endregion
 
         #region PowerUp
@@ -733,9 +739,17 @@
         EquipmentCraft,
         #endregion
 
+        #region EquipFushion
+        EquipFushion,
+        #endregion
+
         #region Destiny Clue
         ReadClue,
         CollectClueReward,
+        #endregion
+
+        #region Donate
+        DonateItem,
         #endregion
     }
 
@@ -839,6 +853,10 @@
 
         #region Destiny Clue
         Ret_CollectClueReward,
+        #endregion
+
+        #region Donate
+        Ret_DonateItem,
         #endregion
     }
 }

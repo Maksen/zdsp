@@ -141,6 +141,7 @@
     <Compile Include="Actions\ASDashAttack.cs" />
     <Compile Include="Actions\ASDead.cs" />
     <Compile Include="Actions\ASDragged.cs" />
+    <Compile Include="Actions\ASFrozen.cs" />
     <Compile Include="Actions\ASIdle.cs" />
     <Compile Include="Actions\ASInterruptManager.cs" />
     <Compile Include="Actions\ASKnockedBack.cs" />
@@ -161,12 +162,15 @@
     <Compile Include="Entities\Triggers\RandomTrigger.cs" />
     <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
     <Compile Include="GameServer\DestinyClue\DestinyClueController.cs" />
+    <Compile Include="GameServer\EquipFushion\EquipFushionController.cs" />
     <Compile Include="GameServer\EquipmentCraft\EquipmentCraftController.cs" />
+    <Compile Include="GameServer\GameRules\DonationRules.cs" />
     <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
     <Compile Include="GameServer\NPCStore\NPCStoreManager.cs" />
     <Compile Include="GameServer\PowerUp\PowerUpController.cs" />
+    <Compile Include="GameServer\Quest\DonateController.cs" />
     <Compile Include="GameServer\Quest\QuestController.cs" />
     <Compile Include="GameServer\Revive\ReviveItemController.cs" />
     <Compile Include="MasterServer\ClusterServer\IncomingGamePeer.cs" />
@@ -404,6 +408,7 @@
     <Compile Include="SideEffects\DamageSE.cs" />
     <Compile Include="SideEffects\ExpBonusSE.cs" />
     <Compile Include="SideEffects\ExpSE.cs" />
+    <Compile Include="SideEffects\FrozenSE.cs" />
     <Compile Include="SideEffects\HeavyStandSE.cs" />
     <Compile Include="SideEffects\ImmuneSE.cs" />
     <Compile Include="SideEffects\LevelUpSE.cs" />

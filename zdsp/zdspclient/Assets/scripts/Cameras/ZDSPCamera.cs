@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EZCameraShake;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -25,6 +26,7 @@ public class CameraParams
 
 public class ZDSPCamera : MonoBehaviour
 {
+    public Camera mainCamera { get; private set; }
     public enum CameraMode { Overhead, Orbit };
     public CameraMode cameraMode { get; private set; }
 
@@ -57,8 +59,7 @@ public class ZDSPCamera : MonoBehaviour
 
     private bool isMovingCamera = false;
     private bool isActive = false;
-    private Vector3 cameraTarget;
-    private Camera mainCam;
+    protected Vector3 cameraTarget;
     private ZDSPJoystick joystick;
 
     // Camera fly
@@ -73,7 +74,7 @@ public class ZDSPCamera : MonoBehaviour
 
     private void Awake()
     {
-        mainCam = GetComponent<Camera>();
+        mainCamera = GetComponentInChildren<Camera>();
         cameraController = GetComponent<FlyCameraController>();
 
         cameraMode = CameraMode.Overhead;
@@ -141,7 +142,7 @@ public class ZDSPCamera : MonoBehaviour
         UpdatePosition();
         UpdateFOV();
 
-        UpdateCameraShake();
+        //UpdateCameraShake();
 
 #if UNITY_EDITOR || UNITY_STANDALONE  // to reset isMovingCamera after zooming since OnPointerUp won't be called
         if (isMovingCamera && PointerScreen.Instance.PointerCount == 0)
@@ -154,15 +155,16 @@ public class ZDSPCamera : MonoBehaviour
 #if UNITY_EDITOR // for use in editor only when don't have UI slider to change focal length
         if (cameraMode == CameraMode.Orbit && !isFlying)
         {
-            float deltaZoom = 0;
             float scroll = Input.GetAxis("Mouse ScrollWheel");
-            deltaZoom = scroll * 2000f;
+            float deltaZoom = scroll * 2000f;
 
-            currentFocalLength = currentFocalLength + deltaZoom * Time.unscaledDeltaTime * zoomSpeed;
-            currentFocalLength = Mathf.Clamp(currentFocalLength, minFocalLength, maxFocalLength);
+            if (deltaZoom != 0)
+            {
+                float newFocalLength = currentFocalLength + deltaZoom * Time.unscaledDeltaTime * zoomSpeed;
+                FocalLength = Mathf.Clamp(newFocalLength, minFocalLength, maxFocalLength);
+            }
         }
 #endif
-        mainCam.fieldOfView = FocalLengthToFOV(currentFocalLength);
     }
 
     private void UpdateRotation()
@@ -192,7 +194,7 @@ public class ZDSPCamera : MonoBehaviour
 
             float yAngle = transform.localEulerAngles.y + deltaAngleH * Time.unscaledDeltaTime * rotationSpeed;
             float xAngle = transform.localEulerAngles.x + deltaAngleV * Time.unscaledDeltaTime * rotationSpeed;
-            xAngle = Mathf.Clamp(SignedAngle(xAngle), minTiltAngle, maxTiltAngle);
+            xAngle = Mathf.Clamp(ZDSPCameraUtilities.SignedAngle(xAngle), minTiltAngle, maxTiltAngle);
             transform.localEulerAngles = new Vector3(xAngle, yAngle, transform.localEulerAngles.z);
 
             // move camera distance closer if tilt is less than 5.5deg
@@ -243,7 +245,7 @@ public class ZDSPCamera : MonoBehaviour
             SuspendShake();
             isMovingCamera = true;
 
-            currentDistance = currentDistance + deltaZoom * Time.unscaledDeltaTime * zoomSpeed;
+            currentDistance += deltaZoom * Time.unscaledDeltaTime * zoomSpeed;
             currentDistance = Mathf.Clamp(currentDistance, minDistance, maxDistance);
 
             // lower height when distance is closer, higher when further
@@ -287,7 +289,7 @@ public class ZDSPCamera : MonoBehaviour
     {
         Vector3 facing = facePlayer ? -targetObject.transform.forward : transform.forward;
         Quaternion cameraTargetRotation = Quaternion.LookRotation(facing);
-        float heading = SignedAngle(cameraTargetRotation.eulerAngles.y);
+        float heading = ZDSPCameraUtilities.SignedAngle(cameraTargetRotation.eulerAngles.y);
         CameraParams target = new CameraParams(orbitParameters.distance, orbitParameters.tilt, heading, orbitParameters.height, orbitParameters.focalLength);
         FlyTo(target, duration, callback);
     }
@@ -338,13 +340,13 @@ public class ZDSPCamera : MonoBehaviour
 
     public float Tilt
     {
-        get { return SignedAngle(transform.localEulerAngles.x); }
+        get { return ZDSPCameraUtilities.SignedAngle(transform.localEulerAngles.x); }
         set { transform.localEulerAngles = new Vector3(value, transform.localEulerAngles.y, transform.localEulerAngles.z); }
     }
 
     public float Heading
     {
-        get { return SignedAngle(transform.localEulerAngles.y); }
+        get { return ZDSPCameraUtilities.SignedAngle(transform.localEulerAngles.y); }
         set { transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, value, transform.localEulerAngles.z); }
     }
 
@@ -357,31 +359,15 @@ public class ZDSPCamera : MonoBehaviour
     public float FocalLength
     {
         get { return currentFocalLength; }
-        set { currentFocalLength = value; }
+        set
+        {
+            currentFocalLength = value;
+            mainCamera.fieldOfView = ZDSPCameraUtilities.FocalLengthToFOV(currentFocalLength);
+        }
     }
-
     #endregion CameraParams
 
-    #region Helper functions
-
-    private float FocalLengthToFOV(float focalLength)
-    {
-        // Formula from https://en.wikipedia.org/wiki/Angle_of_view
-        // Using 35mm film sensor (36mm w x 24mm h)
-        int height = 24;  // Unity uses vertical FOV so use film height
-        double fov = Mathf.Rad2Deg * 2.0 * Math.Atan(height / (2.0 * focalLength));
-        return (float)fov;
-    }
-
-    private float SignedAngle(float angle)  // make angle between -180 to 180
-    {
-        return (angle <= 180f) ? angle : -(360f - angle);
-    }
-
-    #endregion Helper functions
-
     #region Camera shake
-
     private void UpdateCameraShake()
     {
         if (shakeIntensity > 0)
@@ -445,5 +431,22 @@ public class ZDSPCamera : MonoBehaviour
             if (GUI.Button(new Rect(Screen.width/2 + buttonWidth, 20, buttonWidth, buttonHeight), cameraMode.ToString(), buttonStyle))
                 ToggleCameraMode();
         }
+    }
+}
+
+public static class ZDSPCameraUtilities
+{
+    public static float FocalLengthToFOV(float focalLength)
+    {
+        // Formula from https://en.wikipedia.org/wiki/Angle_of_view
+        // Using 35mm film sensor (36mm w x 24mm h)
+        int height = 24;  // Unity uses vertical FOV so use film height
+        double fov = Mathf.Rad2Deg * 2.0 * Math.Atan(height / (2.0 * focalLength));
+        return (float)fov;
+    }
+
+    public static float SignedAngle(float angle)  // make angle between -180 to 180
+    {
+        return (angle <= 180f) ? angle : -(360f - angle);
     }
 }

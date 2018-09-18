@@ -6,6 +6,7 @@ using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.Rules;
 using Zealot.Server.Entities;
+using Zealot.Server.SideEffects;
 
 public class InvRetval
 {
@@ -434,6 +435,8 @@ namespace Photon.LoadBalancing.GameServer
                     SyncInvData(retval.invSlot);
                     SyncEquipmentData(retval.equipSlot, false);
                     UpdateEquipmentCombatStats(false, index, slotid);
+                    // Update sideeffects
+                    UpdateEquipmentSideEffect(mSlot.mPlayer, equipitem.EquipmentJson, false);
                     retval.retCode = InvReturnCode.UnEquipSuccess;
                 }
             }
@@ -468,9 +471,47 @@ namespace Photon.LoadBalancing.GameServer
             SyncInvData(retval.invSlot);
             SyncEquipmentData(retval.equipSlot, false);
             UpdateEquipmentCombatStats(true, slotId, equipSlot);
+            // Update sideeffects
+            UpdateEquipmentSideEffect(mSlot.mPlayer, equipitem.EquipmentJson, true);
             retval.retCode = InvReturnCode.EquipSuccess;
 
             return retval;
+        }
+
+        public void UpdateEquipmentSideEffect(Player player, EquipmentJson equipmentJson, bool isEquipping)
+        {              
+            List<int> seIds = new List<int>();
+
+            string seStr = equipmentJson.basese;
+            if (!string.IsNullOrEmpty(seStr))
+            {
+                string[] seStrIds = seStr.Split(';');
+                int length = seStrIds.Length;
+                for (int i = 0; i < length; ++i)
+                {
+                    int id;
+                    if (int.TryParse(seStrIds[i], out id))
+                        seIds.Add(id);
+                }
+            }
+            seStr = equipmentJson.extrase;
+            if (!string.IsNullOrEmpty(seStr))
+            {
+                string[] seStrIds = seStr.Split(';');
+                int length = seStrIds.Length;
+                for (int i = 0; i < length; ++i)
+                {
+                    int id;
+                    if (int.TryParse(seStrIds[i], out id))
+                    {
+                        if (id != -1)
+                            seIds.Add(id);
+                    }
+                }
+            }
+
+            if (seIds.Count > 0)
+                SideEffectsUtils.ClientUpdateEquipmentSideEffects(player, seIds, equipmentJson.id, isEquipping);
         }
 
         public InvRetval SwapFashionToInventory(int slotId)
@@ -644,6 +685,7 @@ namespace Photon.LoadBalancing.GameServer
                         }
                         break;
                     case ItemType.PotionFood:
+
                 //        var potionItem = item as PotionItem;
                 //        int healAbsolute = mSlot.mPlayer.AddHealthPercentage(potionItem.Heal);
                 //        int cooldownReduction = (int)mSlot.mPlayer.SkillPassiveStats.GetField(SkillPassiveFieldName.Potion_CD);
@@ -657,6 +699,22 @@ namespace Photon.LoadBalancing.GameServer
                 //            ar.IsHeal = true;
                 //            mSlot.mPlayer.QueueDmgResult(ar);
                 //        }
+
+                        var pot = (PotionFoodJson)item.JsonObject;
+
+                        int sideffectid = -1;
+
+                        if (int.TryParse(pot.seid, out sideffectid))
+                        {
+                            if (SideEffectRepo.mIdMap.ContainsKey(sideffectid))
+                            {
+                                var sedata = SideEffectRepo.mIdMap[sideffectid];
+                                var se = SideEffectFactory.CreateSideEffect(sedata);                                
+
+                                if(se != null) se.Apply(mSlot.mPlayer, mSlot.mPlayer, true);
+                            }
+                        }
+                        
                         break;
                 //    case (ItemType.Currency):
                 //        var currencyItem = item as CurrencyItem;
@@ -1223,16 +1281,11 @@ namespace Photon.LoadBalancing.GameServer
                 return;
 
             List<IInventoryItem> itemSlots = mInvData.Slots;
-            foreach (KeyValuePair<int, int> slot in items)
+            Dictionary<int, int>.KeyCollection SlotIds = items.Keys;
+            foreach (int id in SlotIds)
             {
-                player.UpdateInventoryStats(slot.Key, itemSlots[slot.Key]);
+                player.UpdateInventoryStats(id, itemSlots[id]);
             }
-        }
-
-        public void ClearItemInventory()
-        {
-            mInvData.ClearItemInventory();
-            UpdateInvStats();
         }
 
         public void UpdateInvStats()
@@ -1247,6 +1300,12 @@ namespace Photon.LoadBalancing.GameServer
             {
                 player.UpdateInventoryStats(idx, itemSlots[idx]);
             }
+        }
+
+        public void ClearItemInventory()
+        {
+            mInvData.ClearItemInventory();
+            UpdateInvStats();
         }
 
         public void NewDayReset()
@@ -1497,6 +1556,16 @@ namespace Photon.LoadBalancing.GameServer
             {
                 mSlot.mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Item, itemid);
             }
+        }
+
+        public void UpdateEquipFushion(int slotID, string value)
+        {
+            Equipment equip = mInvData.Slots[slotID] as Equipment;
+            equip.FushionEffect = value;
+            equip.EncodeItem();
+            Dictionary<int, int> refreshEquipment = new Dictionary<int, int>();
+            refreshEquipment.Add(slotID, equip.JsonObject.itemid);
+            SyncInvData(refreshEquipment);
         }
     }
 }

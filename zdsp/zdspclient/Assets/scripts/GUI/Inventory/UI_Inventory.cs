@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
 using Zealot.Client.Entities;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 
 public class InvDisplayItem
 {
@@ -60,6 +60,9 @@ public class UI_Inventory : BaseWindowBehaviour
     [NonSerialized]
     public bool InitOnEnable = true;
 
+    GameTimer invSortCooldown = null;
+    DNAType dnaTypeFilter = DNAType.None;
+
     // Use this for initialization
     void Awake()
     {
@@ -96,11 +99,11 @@ public class UI_Inventory : BaseWindowBehaviour
     void OnDisable()
     {
         InvSellPanel.gameObject.SetActive(false);
-        toggleCheckboxQuickSlot.isOn = false;
-
         invScrollView.Clear();
-
         DisplayItemList.Clear();
+        toggleCheckboxQuickSlot.isOn = false;
+        dnaTypeFilter = DNAType.None;
+
         InitOnEnable = true;
     }
 
@@ -114,7 +117,7 @@ public class UI_Inventory : BaseWindowBehaviour
             avatar.PlayAnimation(ClientUtils.GetStandbyAnimationByWeaponType(player.WeaponTypeUsed));
     }
 
-    public void Init(BagType inventoryTab)
+    public void Init(BagType inventoryTab, DNAType dnaTypeFilter = DNAType.None)
     {
         InvSellPanel.UIInventory = this;
         InvQuickSlot.UIInventory = this;
@@ -123,14 +126,14 @@ public class UI_Inventory : BaseWindowBehaviour
         if (player != null)
         {
             invScrollView.InitScrollView(this);
+            this.dnaTypeFilter = dnaTypeFilter;
             if (CurrentInventoryTab == inventoryTab)
             {
                 toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagType.Consumable);
-                RefreshRight(player);
+                RefreshRight(player);  
             }
-            else
-                defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
-
+            defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
+            
             RefreshLeft(player);
             hideHelm.isOn = !player.mEquipmentInvData.HideHelm;
         }
@@ -181,10 +184,16 @@ public class UI_Inventory : BaseWindowBehaviour
                             stackCount -= refDict[i];
                     }
                 }
-
                 if (stackCount == 0)
                     invItem = null;
-                if (CurrentInventoryTab == BagType.Any || invItem != null)
+
+                bool showItem = true;
+                if (invItem == null || (invItem.JsonObject.itemtype == ItemType.DNA && dnaTypeFilter != DNAType.None &&
+                                        dnaTypeFilter != ((DNA)invItem).DNAJson.dnatype))
+                {
+                    showItem = false;
+                }
+                if (CurrentInventoryTab == BagType.Any || showItem)
                     DisplayItemList.Add(new InvDisplayItem { OriginSlotId = i , InvItem = invItem,
                                                              OriginStackCount = stackCount,
                                                              DisplayStackCount = stackCount });
@@ -206,7 +215,7 @@ public class UI_Inventory : BaseWindowBehaviour
         invScrollView.PopulateRows();
     }
 
-    public void UpdateVisibleInvRows(bool toggleQuickSlot = true)
+    public void UpdateVisibleInvRows(bool toggleQuickSlot)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         if (player != null)
@@ -236,20 +245,24 @@ public class UI_Inventory : BaseWindowBehaviour
             return;
 
         CurrentInventoryTab = (BagType)index;
-        UpdateVisibleInvRows();
+        UpdateVisibleInvRows(true);
     }
 
     public void OnValueChangedToggleQuickSlot(bool value)
     {
-        if (value)
-        {
-            if (CurrentInventoryTab != BagType.Consumable)
-                defaultToggleingrpInvTabs.GoToPage((byte)BagType.Consumable);
-        }
+        if (value && CurrentInventoryTab != BagType.Consumable)
+            defaultToggleingrpInvTabs.GoToPage((byte)BagType.Consumable);
     }
 
     public void OnClickSortInventory()
     {
+        if (invSortCooldown != null)
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_OnCooldown"));
+            return;
+        }
+
+        invSortCooldown = GameInfo.gCombat.mTimers.SetTimer(10000, (arg) => { invSortCooldown = null; }, null);
         RPCFactory.CombatRPC.SortItem();
     }
 

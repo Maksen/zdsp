@@ -14,10 +14,10 @@ public class UI_Party_InviteData : UI_Party_RequestBase
     private UnityAction<int> inviteHeroAction;
     private int heroId;
 
-    public void Init(string name, int charlevel, JobType job, int portrait, UnityAction<string> action)
+    public void Init(string name, int charlevel, JobType job, UnityAction<string> action)
     {
         InitBase(name, charlevel);
-        portraitImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // todo: temp
+        portraitImage.sprite = ClientUtils.LoadIcon(JobSectRepo.GetJobPortraitPath(job));
         jobText.text = JobSectRepo.GetJobLocalizedName(job);
         inviteAction = action;
     }

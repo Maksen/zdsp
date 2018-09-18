@@ -21,12 +21,12 @@
             
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             mUnLimited = float.Parse(mSideeffectData.parameter) <= 0; //minus value means unlimited amount
             mTotalAmount = (int)float.Parse(mSideeffectData.parameter);//value update in skillcombo.
             mDeductAmt = (int) mSideeffectData.max;
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {  
                 if (IsDurationalSE())
                 {

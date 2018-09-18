@@ -48,13 +48,14 @@ namespace Zealot.Server.Entities
         public bool LogAI { get
             {
                 return true;
-                //bool logflag = mArchetype.monsterclass == MonsterClass.Boss;
+                //bool logflag = mArchetype.monstertype == MonsterType.Boss;
                 //if (mSp != null)
                 //    return mSp.LogAI && logflag;
                 //else
                 //    return false;
             }
         }
+
         public Monster() : base()
         {
             this.EntityType = EntityType.Monster;           
@@ -75,7 +76,7 @@ namespace Zealot.Server.Entities
         public bool HasEvasion()
         {
             //normalmonster which can be knockback will not dodge.
-            return !(/*mArchetype.canbeknockback && */mArchetype.monsterclass == MonsterClass.Normal);
+            return !(/*mArchetype.canbeknockback && */mArchetype.monstertype == MonsterType.Normal);
         }
 
         public override void Update(long dt)
@@ -180,7 +181,7 @@ namespace Zealot.Server.Entities
             if (bossSpawner != null)
             {
                 mIsBoss = true;
-                mIsBigBossLoot = bossSpawner.mSpecialBossInfo.bosstype == BossType.BigBoss;
+                mIsBigBossLoot = bossSpawner.mSpecialBossInfo.bosstype == BossType.Boss;
                 mBossNoDmgCountdownConst = SpecialBossRepo.BossNoDmgRandomPos * 1000;
                 mBossNoDmgCountdown = mBossNoDmgCountdownConst;
             }
@@ -288,7 +289,7 @@ namespace Zealot.Server.Entities
                 livetimer = null;
             }
             mInstance.mEntitySystem.RemoveAlwaysShow(this);
-            mInstance.mEntitySystem.RemoveEntityByPID(GetPersistentID(), mArchetype.monsterclass == MonsterClass.Boss);                         
+            mInstance.mEntitySystem.RemoveEntityByPID(GetPersistentID(), mArchetype.monstertype == MonsterType.Boss);                         
         }
 
         public override void OnKilled(IActor attacker)
@@ -439,7 +440,7 @@ namespace Zealot.Server.Entities
         private void HandleLoot(Player killer)
         {           
             int monsterLvl = mArchetype.level;
-            MonsterClass monsterClass = mArchetype.monsterclass;
+            MonsterType monsterType = mArchetype.monstertype;
 
             var _peers = GameApplication.Instance.GetAllCharPeer();
             List<Player> validPlayers = new List<Player>();
@@ -457,7 +458,7 @@ namespace Zealot.Server.Entities
             validPlayerCount = validPlayers.Count;
             //distribute exp
             int expTotal = mArchetype.exp;
-            for (int index = 0; index < validPlayerCount; index++)
+            for (int index = 0; index < validPlayerCount; ++index)
             {
                 if (expTotal > 0)
                     validPlayers[index].OnNPCKilled(mArchetype, expTotal * mPlayerDamages[validPlayers[index].Name] / validDamageTotal);
@@ -494,7 +495,7 @@ namespace Zealot.Server.Entities
                                     if (toPartyPlayersCount > 1)
                                         toPlayer = toPartyPlayers[GameUtils.RandomInt(0, toPartyPlayersCount - 1)];
                                 }
-                                LootRules.GenerateLootItem(toPlayer, lootItems, monsterClass, monsterLvl, null);
+                                LootRules.GenerateLootItems(toPlayer, lootItems, monsterType, monsterLvl, null);
                             }
                         }
                         break;
@@ -507,13 +508,13 @@ namespace Zealot.Server.Entities
                             {
                                 //store given player names to avoid give double loot.
                                 Dictionary<string, bool> lootGiven = new Dictionary<string, bool>();
-                                for (int index = 0; index < validPlayerCount; index++)
+                                for (int index = 0; index < validPlayerCount; ++index)
                                 {
                                     Player toPlayer = validPlayers[index];
                                     string toPlayerName = toPlayer.Name;
                                     if (lootGiven.ContainsKey(toPlayerName))
                                         continue;
-                                    LootRules.GenerateLootItem(toPlayer, lootItems, monsterClass, monsterLvl, null);
+                                    LootRules.GenerateLootItems(toPlayer, lootItems, monsterType, monsterLvl, null);
                                     lootGiven.Add(toPlayerName, true);
 
                                     var partyInfo = PartyRules.GetMyParty(toPlayerName);
@@ -526,7 +527,7 @@ namespace Zealot.Server.Entities
                                             GameClientPeer _peer;
                                             if (_peers.TryGetValue(_member.Key, out _peer) && _peer.mPlayer != null && _peer.mPlayer.mInstance == this.mInstance)
                                             {
-                                                LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, null);
+                                                LootRules.GenerateLootItems(_peer.mPlayer, lootItems, monsterType, monsterLvl, null);
                                                 lootGiven.Add(_member.Key, true);
                                             } 
                                         }
@@ -546,7 +547,7 @@ namespace Zealot.Server.Entities
                                 {
                                     GameClientPeer _peer;
                                     if (_peers.TryGetValue(mPlayerDamageRank[0].Key, out _peer) && _peer.mPlayer != null)
-                                        LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                        LootRules.GenerateLootItems(_peer.mPlayer, lootItems, monsterType, monsterLvl, lootItemDisplayInventory);
                                 }
                                 else if (validDamageRankCount >= 2)
                                 {
@@ -555,7 +556,7 @@ namespace Zealot.Server.Entities
                                     {
                                         GameClientPeer _peer;
                                         if (_peers.TryGetValue(mPlayerDamageRank[0].Key, out _peer) && _peer.mPlayer != null)
-                                            LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                            LootRules.GenerateLootItems(_peer.mPlayer, lootItems, monsterType, monsterLvl, lootItemDisplayInventory);
                                     }
                                     else
                                     {
@@ -568,7 +569,7 @@ namespace Zealot.Server.Entities
                                             top2Player = _peer.mPlayer;                                     
                                         List<LootItem> toTop1Player = new List<LootItem>();
                                         List<LootItem> toTop2Player = new List<LootItem>();
-                                        for (int index = 0; index < lootItemsCount; index++)
+                                        for (int index = 0; index < lootItemsCount; ++index)
                                         {
                                             if (GameUtils.RandomInt(1, 100) <= _dmgRatioTop2)
                                                 toTop2Player.Add(lootItems[index]);
@@ -576,9 +577,9 @@ namespace Zealot.Server.Entities
                                                 toTop1Player.Add(lootItems[index]);
                                         }
                                         if (toTop1Player.Count > 0)
-                                            LootRules.GenerateLootItem(top1Player, toTop1Player, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                            LootRules.GenerateLootItems(top1Player, toTop1Player, monsterType, monsterLvl, lootItemDisplayInventory);
                                         if (toTop2Player.Count > 0)
-                                            LootRules.GenerateLootItem(top2Player, toTop2Player, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                            LootRules.GenerateLootItems(top2Player, toTop2Player, monsterType, monsterLvl, lootItemDisplayInventory);
                                     }
                                 }
                             }
@@ -612,15 +613,15 @@ namespace Zealot.Server.Entities
                                     string playerName = _lootPlayers[0];
                                     GameClientPeer _peer;
                                     if (_peers.TryGetValue(playerName, out _peer) && _peer.mPlayer != null)
-                                        LootRules.GenerateLootItem(_peer.mPlayer, lootItems, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                        LootRules.GenerateLootItems(_peer.mPlayer, lootItems, monsterType, monsterLvl, lootItemDisplayInventory);
                                     else
-                                        LootRules.GenerateLootItem_SendMail(playerName, lootItems, lootItemDisplayInventory);
+                                        LootRules.GenerateLootItems_SendMail(playerName, lootItems, lootItemDisplayInventory);
                                 }
                                 else
                                 {
                                     int interval = 100 / lootPlayerCount;
                                     Dictionary<string, List<LootItem>> toLootPlayers = new Dictionary<string, List<LootItem>>();
-                                    for (int index = 0; index < lootItemsCount; index++)
+                                    for (int index = 0; index < lootItemsCount; ++index)
                                     {
                                         int toLootPlayerIndex = Math.Min(GameUtils.RandomInt(0, 99) / interval, lootPlayerCount - 1);
                                         string toLootPlayerName = _lootPlayers[toLootPlayerIndex];
@@ -633,9 +634,9 @@ namespace Zealot.Server.Entities
                                         string playerName = kvp2.Key;
                                         GameClientPeer _peer;
                                         if (_peers.TryGetValue(playerName, out _peer) && _peer.mPlayer != null)
-                                            LootRules.GenerateLootItem(_peer.mPlayer, kvp2.Value, monsterClass, monsterLvl, lootItemDisplayInventory);
+                                            LootRules.GenerateLootItems(_peer.mPlayer, kvp2.Value, monsterType, monsterLvl, lootItemDisplayInventory);
                                         else
-                                            LootRules.GenerateLootItem_SendMail(playerName, kvp2.Value, lootItemDisplayInventory);
+                                            LootRules.GenerateLootItems_SendMail(playerName, kvp2.Value, lootItemDisplayInventory);
                                     }
                                 }
                             }
@@ -646,7 +647,7 @@ namespace Zealot.Server.Entities
                         {
                             var lootItems = LootRepo.RandomItems(kvp.Value);
                             if (lootItems.Count > 0)
-                                LootRules.GenerateLootItem(killer, lootItems, monsterClass, monsterLvl, null);
+                                LootRules.GenerateLootItems(killer, lootItems, monsterType, monsterLvl, null);
                         }
                         break;
                     case LootType.Explore: //monster should not set to Explore
@@ -668,7 +669,7 @@ namespace Zealot.Server.Entities
                 {
                     string lootDisplay = lootItemDisplayInventory.ToString();
                     RPCBroadcastData rpcdata = mInstance.ZRPC.CombatRPC.GetSerializedRPC(ServerCombatRPCMethods.LootItemDisplay, lootDisplay);
-                    for (int index = 0; index < qrCount; index++)
+                    for (int index = 0; index < qrCount; ++index)
                         ((Player)qr[index]).Slot.SendEvent(rpcdata.EventData, rpcdata.SendParameters);
                 }
             }
@@ -698,6 +699,8 @@ namespace Zealot.Server.Entities
 
         public override void OnAttacked(IActor attacker, int aggro)
         {
+            if (mArchetype.ignoreonattacked)
+                return;
             mAIController.OnAttacked(attacker, aggro);
             if (mIsBigBossLoot)
             {
@@ -772,12 +775,24 @@ namespace Zealot.Server.Entities
             PerformAction(action);
         }
 
+        public override void OnFrozen(float duration)
+        {
+            FrozenActionCommand cmd = new FrozenActionCommand();
+            cmd.dur = duration;
+            ServerAuthoFrozen action = new ServerAuthoFrozen(this, cmd);
+            action.SetCompleteCallback(() =>
+            {
+                Idle();
+            });
+            PerformAction(action);
+        }
+
         public bool HasMoved { get; set; }
 
         public override void OnStun()
         {
             base.OnStun();
-            if (mArchetype.monsterclass == MonsterClass.Normal)
+            if (mArchetype.monstertype == MonsterType.Normal)
                 mAIController.GotoState("Stun");
         }
 

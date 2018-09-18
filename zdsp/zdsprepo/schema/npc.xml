@@ -1,9 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <magicalarea51>
-  <data>  
+  <data>
+    <enum name="NPCType">
+      <item key="Combat" value="0"/>
+      <item key="Static" value="1"/>
+    </enum>
+    
+    <enum name="MonsterType">
+      <item key="Normal" value="0"/>
+      <item key="MiniBoss" value="1"/>
+      <item key="Boss" value="2"/>
+    </enum>
+
+    <enum name="MonsterCampType">
+      <item key="Hostile" value="0"/>
+      <item key="Friendly" value="1"/>
+      <item key="Camp1" value="2"/>
+      <item key="Camp2" value="3"/>
+      <item key="Camp3" value="4"/>
+    </enum>
+      
     <enum name="BossType">
-      <item key="Boss" value="0"/>
-      <item key="BigBoss" value="1"/>
+      <item key="MiniBoss" value="0"/>
+      <item key="Boss" value="1"/>
     </enum> 
 
     <enum name="BossSpawnType">
@@ -11,18 +30,7 @@
       <item key="SpawnWeekly" value="2"/>
       <item key="SpawnDuration" value="3"/>
       <item key="Event" value="4"/>
-    </enum> 
-    
-    <enum name="NPCType">
-      <item key="Combat" value="0"/>
-      <item key="Static" value="1"/>
-    </enum>
-
-    <enum name="MonsterClass">
-      <item key="Normal" value="0"/>
-      <item key="MiniBoss" value="1"/>
-      <item key="Boss" value="2"/>
-    </enum>
+    </enum>   
 
     <element name="NPC" useexcel="true" collectionkey="archetype">
       <property name="archetype" type="string" uitext="Archetype" unique="true"/>
@@ -44,18 +52,18 @@
       <property name="speechbubbleminint" type="float" uitext="Speech Bubble Interval(Min)"/>
       <property name="speechbubblemaxint" type="float" uitext="Speech Bubble Interval(Max)"/>
     </element>
-    
+
     <element name="CombatNPC" inherit="NPC" useexcel="true" collectionkey="archetype">
       <constant name="npctype" type="NPCType" value="NPCType.Combat"/>
-      <property name="monsterclass" type="MonsterClass" uitext="Monster Class"/>
+      <property name="monstertype" type="MonsterType" uitext="Monster Type"/>
       <property name="race" type="Race" uitext="Monster Race"/>
       <property name="element" type="Element" uitext="Element"/>
       <property name="weakness" type="AttackStyle" uitext="AttackStyle Weakness"/>
+      <property name="camp" type="MonsterCampType" uitext="Camp"/>
       <property name="movespeed" type="float" uitext="Movement Speed" default="15.0"/>
       <property name="attackspeed" type="float" uitext="Attack Speed" default="1.0"/>
       <property name="basicattack" type ="Skill" uitext="Basic Attack Skill" display="name"/>
-      <property name="basicattack2" type ="Skill" uitext="Basic Attack Skill 2" display="name" info="only for boss"/>
-      <property name="camp" type="int" uitext="Camp" default="0"/>
+      <property name="basicattack2" type ="Skill" uitext="Basic Attack Skill 2" display="name" info="only for boss"/>     
       <property name="broadcast" type="bool" uitext="Broadcast" default="false" info="Broadcast on spawn or dead."/>
     
       <property name="level" type="int" uitext="Level" default="1"/>
@@ -77,11 +85,13 @@
       <property name="immunities" type="string" uitext="CC Immunities"/>
       <property name="dmgbyhitcount" type="bool" uitext="Damage By Hit Count" default="false" info="Monster only recieve 1 damage at a time"/>
       <property name="recoveronreturn" type="bool" uitext="Recover On Return" default="false" info="Recover full health on return to safe point"/>
+      <property name="ignoreonattacked" type="bool" uitext="Ignore On Attacked" default="false" info="Will not retaliate when attacked"/>
       <property name="hpregenamt" type="int" uitext="HP Regen Amount" default ="0" info="Regen amount per interval"/>
       <property name="hpregenamtbypercent" type="int" uitext="HP Regen Amount by Percentage" default="0" info="Regen percentage per interval"/>
       <property name="healthregeninterval" type="float" uitext="Health Regen Interval" default="0" info="In seconds"/>
       <property name="exp" type="int" uitext="Experience" default="0" />
       <property name="skillexp" type="int" uitext="Skill Experience" default="0"/>
+
       <property name="lootids" type="string" uitext="LootLink Ids" default="" info="id1;id2"/>
       <property name="eventlootids" type="string" uitext="EventLootLink Ids" default="" info="id1;id2"/>
       

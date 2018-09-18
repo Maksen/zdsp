@@ -3,12 +3,8 @@ using Photon.LoadBalancing.GameServer.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Zealot.Common;
 using Zealot.Repository;
-using Newtonsoft.Json;
-using ExitGames.Concurrency.Fibers;
 
 namespace Zealot.Server.Rules
 {
@@ -22,7 +18,7 @@ namespace Zealot.Server.Rules
                 if (isCatAvailable(cat, peer))
                     InitCategory(peer, cat);
                 else
-                    peer.CharacterData.StoreData.list_store[cat] = null;
+                    peer.CharacterData.StoreInventory.list_store[cat] = null;
                 //else
                //     peer.mPlayer.StoreSynStats.list_store[cat] = null; //remove from character data if hero no longer exist
             }
@@ -30,10 +26,10 @@ namespace Zealot.Server.Rules
 
         static void InitCategory(GameClientPeer peer, int cat)
         {
-            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreData.list_store.Count)
+            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreInventory.list_store.Count)
                 return;
 
-            StoreCategory sc = peer.CharacterData.StoreData.list_store[cat];
+            StoreCategory sc = peer.CharacterData.StoreInventory.list_store[cat];
             DateTime nextRef;
             if (sc != null)
             {
@@ -56,7 +52,7 @@ namespace Zealot.Server.Rules
                 }
                 store.nextRefresh = StoreRepo.GetNextRefresh(cat);
                 store.refreshCount = 0;
-                peer.CharacterData.StoreData.list_store[cat] = store;
+                peer.CharacterData.StoreInventory.list_store[cat] = store;
             }
         }
 
@@ -68,12 +64,12 @@ namespace Zealot.Server.Rules
         /// <param name="peer"></param>
         public static void UpdateRefreshCategoryFree(int cat, GameClientPeer peer)
         {
-            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreData.list_store.Count)
+            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreInventory.list_store.Count)
                 return;
 
             //If store category doesnt exist, make one
             //Do a full refresh if necessary, if not.. just add/remove store category's inventory
-            StoreCategory sc = peer.CharacterData.StoreData.list_store[cat];
+            StoreCategory sc = peer.CharacterData.StoreInventory.list_store[cat];
             bool needCreation = (sc == null);
             bool needRefresh = (sc != null && sc.nextRefresh <= DateTime.Now);
             if (needCreation)
@@ -87,7 +83,7 @@ namespace Zealot.Server.Rules
         #region Update
         static void Update(int cat, GameClientPeer peer)
         {
-            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreData.list_store.Count)
+            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreInventory.list_store.Count)
                 return;
 
             UpdateItemList(cat, peer);
@@ -106,11 +102,11 @@ namespace Zealot.Server.Rules
 
         static void Refresh(int cat, GameClientPeer peer, bool freeRefresh = false)
         {
-            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreData.list_store.Count)
+            if (peer == null || cat < 0 || cat >= peer.CharacterData.StoreInventory.list_store.Count)
                 return;
 
             //var store = JsonConvert.DeserializeObject<StoreCategory>((string)peer.mPlayer.StoreSynStats.list_store[cat]);
-            StoreCategory store = peer.CharacterData.StoreData.list_store[cat];
+            StoreCategory store = peer.CharacterData.StoreInventory.list_store[cat];
             var list = GetItemList(cat, peer);
             store.list_storeitem = new List<Store_Item>();
             foreach (var shopid in list)
@@ -127,7 +123,7 @@ namespace Zealot.Server.Rules
             }
                 
             //peer.mPlayer.StoreSynStats.list_store[cat] = JsonConvert.SerializeObject(store);
-            peer.CharacterData.StoreData.list_store[cat] = store; 
+            peer.CharacterData.StoreInventory.list_store[cat] = store; 
         }
         #endregion
 
@@ -309,7 +305,7 @@ namespace Zealot.Server.Rules
             int vipLevel = peer.mPlayer.PlayerSynStats.vipLvl;
             int vipShelfLimit = 5; // VIPRepo.GetVIPPrivilege("Store", vipLevel);
             int maxCount = (datalist.Count < vipShelfLimit) ? datalist.Count : vipShelfLimit;
-            int curCount = peer.CharacterData.StoreData.list_store[cat].list_storeitem.Count;
+            int curCount = peer.CharacterData.StoreInventory.list_store[cat].list_storeitem.Count;
 
             for (int i = curCount+1; i <= maxCount; ++i)
             {
@@ -343,7 +339,7 @@ namespace Zealot.Server.Rules
                 //else do nth
             }
 
-            StoreCategory store = peer.CharacterData.StoreData.list_store[cat];
+            StoreCategory store = peer.CharacterData.StoreInventory.list_store[cat];
             //If appending
             if (vipShelfLimit > curCount)
             {
@@ -364,7 +360,7 @@ namespace Zealot.Server.Rules
                 store.list_storeitem.RemoveRange(newLastIndex, amtToRemove);
             }
 
-            peer.CharacterData.StoreData.list_store[cat] = store;
+            peer.CharacterData.StoreInventory.list_store[cat] = store;
         }
 
         private static void UpdateItemList_Guild(int cat, GameClientPeer peer)
@@ -379,7 +375,7 @@ namespace Zealot.Server.Rules
 
             int guildShelfLimit = (int)guild.GetGuildTechStats(GuildTechType.Shop); //return 0 if cannot find stats
             int maxCount = (datalist.Count < guildShelfLimit) ? datalist.Count : guildShelfLimit;
-            int curCount = peer.CharacterData.StoreData.list_store[cat].list_storeitem.Count;
+            int curCount = peer.CharacterData.StoreInventory.list_store[cat].list_storeitem.Count;
 
             for (int i = curCount+1; i <= maxCount; ++i)
             {
@@ -413,7 +409,7 @@ namespace Zealot.Server.Rules
                 //else do nth
             }
 
-            StoreCategory store = peer.CharacterData.StoreData.list_store[cat];
+            StoreCategory store = peer.CharacterData.StoreInventory.list_store[cat];
             //If appending
             if (guildShelfLimit > curCount)
             {
@@ -434,7 +430,7 @@ namespace Zealot.Server.Rules
                 store.list_storeitem.RemoveRange(newLastIndex, amtToRemove);
             }
 
-            peer.CharacterData.StoreData.list_store[cat] = store;
+            peer.CharacterData.StoreInventory.list_store[cat] = store;
         }
         #endregion
 
@@ -487,11 +483,11 @@ namespace Zealot.Server.Rules
 
         static bool isItemInList(int category, int shelf, int StoreID, GameClientPeer peer)
         {
-            if (peer == null || category < 0 || category >= peer.CharacterData.StoreData.list_store.Count ||
-                shelf <= 0 || shelf > peer.CharacterData.StoreData.list_store[category].list_storeitem.Count)
+            if (peer == null || category < 0 || category >= peer.CharacterData.StoreInventory.list_store.Count ||
+                shelf <= 0 || shelf > peer.CharacterData.StoreInventory.list_store[category].list_storeitem.Count)
                 return false;
 
-            StoreCategory store = peer.CharacterData.StoreData.list_store[category];
+            StoreCategory store = peer.CharacterData.StoreInventory.list_store[category];
             return store.list_storeitem[shelf - 1].storeID == StoreID;
 
             //StoreCategory store = JsonConvert.DeserializeObject<StoreCategory>((string)peer.mPlayer.StoreSynStats.list_store[category]);
@@ -560,12 +556,12 @@ namespace Zealot.Server.Rules
         {
             if (product == null || peer == null)
                 return;
-            if (product.storeOrder < 0 || product.storeOrder >= peer.CharacterData.StoreData.list_store.Count)
+            if (product.storeOrder < 0 || product.storeOrder >= peer.CharacterData.StoreInventory.list_store.Count)
                 return;
             if (!product.isValidShelve(shelveNo))
                 return;
 
-            StoreCategory cate = peer.CharacterData.StoreData.list_store[product.storeOrder];
+            StoreCategory cate = peer.CharacterData.StoreInventory.list_store[product.storeOrder];
             cate.list_storeitem[shelveNo - 1].isSold = 1;
 
             //Logging
@@ -588,10 +584,10 @@ namespace Zealot.Server.Rules
         #region misc
         static int GetStoreCategoryTime(int category, GameClientPeer peer)
         {
-            if (category < 0 || category >= peer.CharacterData.StoreData.list_store.Count)
+            if (category < 0 || category >= peer.CharacterData.StoreInventory.list_store.Count)
                 return -1;
 
-            return peer.CharacterData.StoreData.list_store[category].refreshCount;
+            return peer.CharacterData.StoreInventory.list_store[category].refreshCount;
 
             //var store = JsonConvert.DeserializeObject<StoreCategory>((string)peer.mPlayer.StoreSynStats.list_store[category]);
             //return store.refreshCount;

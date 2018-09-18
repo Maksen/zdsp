@@ -15,8 +15,17 @@ public class UI_AudioClueMessage : MonoBehaviour
     public void Init(string audioclip, AudioSource audioSource)
     {
         mAudioSource = audioSource;
-        mAudioClip = ClientUtils.LoadAudio(audioclip);
-        PlaySound();
+        ClientUtils.LoadAudioAsync(audioclip, OnAudioClipLoaded);
+    }
+
+    public void OnAudioClipLoaded(AudioClip audioClip)
+    {
+        mAudioClip = audioClip;
+        if (mAudioClip != null)
+        {
+            mAudioSource.volume = 1.0f;
+            PlaySound();
+        }
     }
 
     private void PlaySound()

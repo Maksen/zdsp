@@ -6,6 +6,7 @@ using Zealot.Common;
 using Kopio.JsonContracts;
 using Zealot.Repository;
 using System.Collections.Generic;
+using EZCameraShake;
 
 namespace Zealot.Client.Actions
 {
@@ -23,7 +24,7 @@ namespace Zealot.Client.Actions
         protected string hitEffect = "";
         protected int feedbackindex = -2;
         protected float _attackspeed = 1;
-        private ZDSPCamera mainCam;
+        //private ZDSPCamera mainCam;
 
         private int skillid;
 
@@ -50,13 +51,16 @@ namespace Zealot.Client.Actions
 
         protected void ShakeCamera()
         {
-            if (mainCam == null)
-            {
-                mainCam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
-            }
-            if (mainCam == null)
-                return;
-            mainCam.DoShake(CombatUtils.SHAKE_INTENSITY, 0.02f);
+            //if (mainCam == null)
+            //{
+            //    mainCam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
+            //}
+            //if (mainCam == null)
+            //    return;
+            //mainCam.DoShake(CombatUtils.SHAKE_INTENSITY, 0.02f);
+
+            if (CameraShaker.Instance != null)
+                CameraShaker.Instance.ShakeOnce(1.5f, 3f, 0, 0.15f, 0);
         }
 
         #region Recover State
@@ -166,16 +170,16 @@ namespace Zealot.Client.Actions
             long firstproc = (long)(mSkillData.skillgroupJson.proctime * 1000);
             mEffectProcs.Add(firstproc);
             NextProcTime = firstproc;
-            if (mSkillData.skillgroupJson.repeatproc)
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    long _proctime = firstproc * i;
-                    if (_proctime > mSkillData.skillJson.skillduration)
-                        break;
-                    mEffectProcs.Add(firstproc);
-                }
-            }
+            //if (mSkillData.skillgroupJson.repeatproc)
+            //{
+            //    for (int i = 0; i < 100; i++)
+            //    {
+            //        long _proctime = firstproc * i;
+            //        if (_proctime > mSkillData.skillJson.skillduration)
+            //            break;
+            //        mEffectProcs.Add(firstproc);
+            //    }
+            //}
             //determin hitfeedback. if it is approachdash, the feedback not set. so the first approach have no feedback anim
             SetHitFeedback();//this is to determin the feedback index; 
         }
@@ -258,7 +262,7 @@ namespace Zealot.Client.Actions
             else if (mEntity.IsMonster())
             {
                 MonsterGhost mg = mEntity as MonsterGhost;
-                if (mg.mArchetype.monsterclass == MonsterClass.Boss)
+                if (mg.mArchetype.monstertype == MonsterType.Boss)
                 {
                     if (queryiedTargets.Contains(GameInfo.gLocalPlayer))
                         ShakeCamera();
@@ -406,10 +410,10 @@ namespace Zealot.Client.Actions
             ghost.SetAction(mdbCommand);
             //PlayskillCutIn(mSkillData.skillgroupJson.id); 
             CastSkillCommand cmd = (CastSkillCommand)mdbCommand;
-            if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
-            {
-                ghost.DisplaySkillIndicator(mSkillData, cmd.targetPos);
-            }
+            //if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
+            //{
+            //    ghost.DisplaySkillIndicator(mSkillData, cmd.targetPos);
+            //}
         }
 
         protected override void OnActiveLeave()
@@ -440,23 +444,32 @@ namespace Zealot.Client.Actions
                         }
                     }
 
-                    if (mCaster.IsPlayer() && islocal)
+                    if (mCaster.IsPlayer() && PartyFollowTarget.IsPaused())  // if is player will always be local
                     {
-                        PlayerGhost localPlayer = mCaster as PlayerGhost;
-                        if (localPlayer.IsInParty() && localPlayer.PartyStats.IsAutoFollowPaused())
-                        {
-                            localPlayer.PartyStats.ResumeAutoFollow();
-                            GotoState("Completed");
-                            return;
-                        }
+                        PartyFollowTarget.Resume();
+                        GotoState("Completed");
+                        return;
                     }
 
                     GotoState("Active");
                     return;
                 }
+                else
+                {
+                    if (mCaster.IsPlayer() && PartyFollowTarget.IsPaused()) // if is player will always be local
+                        PartyFollowTarget.Resume();
+                }
             }
 
             GotoState("Completed");
+        }
+
+        protected override void OnCompleteEnter(string prevstate)
+        {
+            //if (mCaster.IsPlayer() && PlayerBasicAttack)
+            //    ((PlayerGhost)mCaster).mSelectTargetID = -1;
+            base.OnCompleteEnter(prevstate);
+            
         }
     }
 
@@ -481,7 +494,7 @@ namespace Zealot.Client.Actions
             if (mEntity.IsMonster())
             {
                 MonsterGhost monster = (MonsterGhost)mEntity;
-                if (monster.mArchetype.monsterclass == MonsterClass.Boss)
+                if (monster.mArchetype.monstertype == MonsterType.Boss)
                 {
                     if (mSkillData.skillgroupJson.skilltype == SkillType.Active) //boss casts skill, we show the warning indicator
                     {

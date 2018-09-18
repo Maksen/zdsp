@@ -18,18 +18,28 @@ namespace Zealot.Common
         Closed
     }
 
-    public class PartyData
+    public static class PartyData
     {
         public static readonly int MAX_MEMBERS = 5;
         public static readonly int MAX_REQUESTS = 20;
     }
 
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class PartySetting
     {
+        [JsonProperty(PropertyName = "loc")]
         public int locationId { get; set; }
+
+        [JsonProperty(PropertyName = "minlv")]
         public int minLevel { get; set; }
+
+        [JsonProperty(PropertyName = "maxlv")]
         public int maxLevel { get; set; }
+
+        [JsonProperty(PropertyName = "aa")]
         public AutoAcceptType autoAcceptType { get; set; }
+
+        [JsonProperty(PropertyName = "note")]
         public string notes { get; set; }
 
         public PartySetting()
@@ -83,29 +93,70 @@ namespace Zealot.Common
         }
     }
 
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+    public class AvatarInfo
+    {
+        [JsonProperty(PropertyName = "eqt")]
+        public EquipmentInventoryData equipInvData { get; set; }
+
+        [JsonProperty(PropertyName = "job")]
+        public JobType jobType { get; set; }
+
+        [JsonProperty(PropertyName = "sex")]
+        public Gender gender { get; set; }
+
+        public AvatarInfo() {}
+
+        public AvatarInfo(EquipmentInventoryData equipData, JobType job, Gender sex)
+        {
+            equipInvData = equipData;
+            jobType = job;
+            gender = sex;
+        }
+    }
+
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class PartyMember
     {
+        [JsonProperty(PropertyName = "name")]
         public string name { get; set; }
+
+        [JsonProperty(PropertyName = "lv")]
         public int level { get; set; }
-        public int portraitId { get; set; }
+
+        [JsonProperty(PropertyName = "avatar")]
         public AvatarInfo avatar { get; set; }
+
+        [JsonProperty(PropertyName = "hp")]
         public float hp { get; set; }
+
+        [JsonProperty(PropertyName = "mp")]
         public float mp { get; set; }
+
+        [JsonProperty(PropertyName = "online")]
         public bool online { get; set; }
+
+        [JsonProperty(PropertyName = "guild")]
         public string guildName { get; set; }
+
+        [JsonProperty(PropertyName = "rejflw")]
         public bool rejectFollow { get; set; }
+
+        [JsonProperty(PropertyName = "slot")]
         public int slotIdx { get; set; }
+
+        [JsonProperty(PropertyName = "heroid")]
         public int heroId { get; set; }
 
-        public PartyMember()
-        {
-        }
+        [JsonProperty(PropertyName = "tier")]
+        public int heroTier { get; set; }
 
-        public PartyMember(string charname, int charlevel, int portrait, AvatarInfo avatarInfo, float health, float mana, string guildname)
+        public PartyMember() {}
+
+        public PartyMember(string charname, int charlevel, AvatarInfo avatarInfo, float health, float mana, string guildname)
         {
             name = charname;
             level = charlevel;
-            portraitId = portrait;
             avatar = avatarInfo;
             hp = health;
             mp = mana;
@@ -118,9 +169,9 @@ namespace Zealot.Common
         {
             name = owner + "_" + hero.HeroId;
             level = hero.Level;
-            portraitId = hero.ModelTier;
             online = true;
             heroId = hero.HeroId;
+            heroTier = hero.ModelTier;
         }
 
         public static PartyMember ToObject(string str)
@@ -145,6 +196,14 @@ namespace Zealot.Common
                 return name;
         }
 
+        public string GetPortraitPath()
+        {
+            if (IsHero())
+                return HeroRepo.GetHeroById(heroId).smallportraitpath;
+            else
+                return JobSectRepo.GetJobPortraitPath(avatar.jobType);
+        }
+
         public bool IsHero()
         {
             return heroId > 0;
@@ -162,24 +221,28 @@ namespace Zealot.Common
         }
     }
 
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class PartyRequest
     {
+        [JsonProperty(PropertyName = "name")]
         public string name { get; set; }
+
+        [JsonProperty(PropertyName = "lv")]
         public int level { get; set; }
+
+        [JsonProperty(PropertyName = "job")]
         public JobType jobType { get; set; }
-        public int portraitId { get; set; }
+
+        [JsonProperty(PropertyName = "slot")]
         public int slotIdx { get; set; }
 
-        public PartyRequest()
-        {
-        }
+        public PartyRequest() {}
 
-        public PartyRequest(string charname, int charlevel, JobType job, int portrait)
+        public PartyRequest(string charname, int charlevel, JobType job)
         {
             name = charname;
             level = charlevel;
             jobType = job;
-            portraitId = portrait;
         }
 
         public static PartyRequest ToObject(string str)
@@ -205,9 +268,7 @@ namespace Zealot.Common
         public string notes;
         public bool isAutoAccept;
 
-        public PartyInfo()
-        {
-        }
+        public PartyInfo() {}
 
         public PartyInfo(PartyStats party)
         {
@@ -228,36 +289,14 @@ namespace Zealot.Common
         public string name;
         public int level;
         public int portraitId;
-        public bool isLeader;
 
-        public PartyMemberInfo()
-        {
-        }
+        public PartyMemberInfo() {}
 
-        public PartyMemberInfo(string charName, int lvl, int portrait, bool leader)
+        public PartyMemberInfo(string charName, int lvl, int portrait)
         {
             name = charName;
             level = lvl;
             portraitId = portrait;
-            isLeader = leader;
-        }
-    }
-
-    public class AvatarInfo
-    {
-        public EquipmentInventoryData equipInvData;
-        public JobType jobType;
-        public Gender gender;
-
-        public AvatarInfo()
-        {
-        }
-
-        public AvatarInfo(EquipmentInventoryData equipData, JobType job, Gender sex)
-        {
-            equipInvData = equipData;
-            jobType = job;
-            gender = sex;
         }
     }
 }

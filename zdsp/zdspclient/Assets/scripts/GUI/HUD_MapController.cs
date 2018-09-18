@@ -2,10 +2,12 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Zealot.Entities;
 using Zealot.Repository;
 using Zealot.Common;
 using Zealot.Client.Entities;
+using Zealot.Bot;
 
 public class MapIconGameObjectPair
 {
@@ -96,6 +98,7 @@ public static class HUD_MapController
     static MapInfoJson mMapInfo = null;
     public static Sprite mMap = null;
     static string mCurMapName = "";
+    static int mInterMapPathFindIndex = -1;
 
     static Coroutine mMapIconRefreshCoroutine = null;
     const float REFRESH_INTERVAL = 1f;
@@ -110,6 +113,8 @@ public static class HUD_MapController
     public static List<MapIconGameObjectPair> mMonPairLst = new List<MapIconGameObjectPair>();
     public static List<MapIconGameObjectPair> mMiniBossPairLst = new List<MapIconGameObjectPair>();
     public static List<MapIconGameObjectPair> mBossPairLst = new List<MapIconGameObjectPair>();
+
+    public static Dictionary<string, Vector3> mInterMapPathFindDic = new Dictionary<string, Vector3>();
 
     public static void LoadMapAsync()
     {
@@ -150,6 +155,9 @@ public static class HUD_MapController
             {
                 mMapIconRefreshCoroutine = GameInfo.gCombat.StartCoroutine(MapIconRefresh());
             }
+
+            //Start auto-pilot if player has previously start via world map
+            PathFind();
         });
     }
     public static void FreeMapController()
@@ -345,6 +353,9 @@ public static class HUD_MapController
         {
             foreach (PortalEntryJson porta in portalEntryDic.Values)
             {
+                if (!porta.ShowInMap)
+                    continue;
+
                 mPortalPosLst.Add(ScalePos_WorldToMap(porta.position));
             }
         }
@@ -352,6 +363,9 @@ public static class HUD_MapController
         {
             foreach (PortalExitJson porta in portalExitDic.Values)
             {
+                if (!porta.ShowInMap)
+                    continue;
+
                 mPortalPosLst.Add(ScalePos_WorldToMap(porta.position));
             }
         }
@@ -482,6 +496,55 @@ public static class HUD_MapController
         worldPos.z = mapPos.z * mMap2WorldRatio.y + mMapInfo.centerPoint.z;
 
         return worldPos;
+    }
+    #endregion
+    #region Inter-Map function
+    public static void PathFindCalculateToDestination(string destinationLevelName, bool autoStart = true)
+    {
+        //if same map, do not need to path find
+        if (destinationLevelName == mCurMapName)
+            return;
+
+        mInterMapPathFindDic.Clear();
+
+        //Calculate and store which level it will pass through
+        //Calculate and store which position it will pas through
+        bool pathfound = false;
+        BotController.TheDijkstra.DoRouter(mCurMapName, destinationLevelName, out pathfound);
+        if (!pathfound)
+            return;
+
+        Dictionary<string, string> allportal = BotController.TheDijkstra.LastRouterByPortal;
+        foreach (KeyValuePair<string, string> portal in allportal)
+        {
+            //Get list of portals in the level
+            List<PortalEntryData> portalLst = PortalInfos.GetLevelPortals(portal.Key);
+            //Compare and record matching portal name as waypoints
+            for (int i = 0; i < portalLst.Count; ++i)
+            {
+                if (portalLst[i].myname == portal.Value)
+                    mInterMapPathFindDic.Add(portalLst[i].mLevel, portalLst[i].mPosition);
+            }
+        }
+        mInterMapPathFindIndex = 0;
+        GameInfo.gLocalPlayer.Bot.ClearRouter();
+
+        if (autoStart)
+            PathFind();
+    }
+    public static void PathFind()
+    {
+        if (mInterMapPathFindDic.Count == 0 || mInterMapPathFindIndex >= mInterMapPathFindDic.Count)
+            return;
+
+        if (GameInfo.gLocalPlayer == null)
+        {
+            Debug.LogError("HUD_MapController.PathFindToPortal: Uhh..trying to start path finding but gLocalPlayer is null?!");
+            return;
+        }
+
+        Vector3 pos = mInterMapPathFindDic.ElementAt(mInterMapPathFindIndex++).Value;
+        GameInfo.gLocalPlayer.PathFindToTarget(pos, -1, 0f, false, false, null);
     }
     #endregion
 }

@@ -102,6 +102,7 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_CompleteQuest)]
     public void Ret_CompleteQuest(bool result, int questid)
     {
+        UIManager.StopHourglass();
         if (GameInfo.gLocalPlayer != null)
         {
             GameInfo.gLocalPlayer.QuestController.QuestCompleted(questid, result);
@@ -200,6 +201,30 @@ public partial class ClientMain : MonoBehaviour
         else
         {
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));
+        }
+    }
+    #endregion
+
+    #region Donate
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_DonateItem)]
+    public void Ret_DonateItem(string guid, int result)
+    {
+        UIManager.StopHourglass();
+        if (result == 0)
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_donatenoitem"));
+        }
+        else if (result == 1)
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));
+        }
+        else
+        {
+            if (UIManager.IsWindowOpen(WindowType.DailyQuest))
+            {
+                UIManager.GetWindowGameObject(WindowType.DailyQuest).GetComponent<UI_DailyActivity>().UpdateDonateData(guid, result);
+            }
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_donatesuccess"));
         }
     }
     #endregion

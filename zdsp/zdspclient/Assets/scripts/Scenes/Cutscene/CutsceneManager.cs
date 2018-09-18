@@ -75,6 +75,18 @@ public class CutsceneManager : MonoBehaviour
         }
     }
 
+    public bool IsCutsceneReady(string name)
+    {
+        foreach (CutsceneEntity cutsceneEnt in cutsceneEntities)
+        {
+            if (cutsceneEnt.CutsceneName == name)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void OnDestroy()
     {
         for (int i = 0; i < cutsceneEntities.Count; i++)
@@ -101,7 +113,9 @@ public class CutsceneManager : MonoBehaviour
     }
 
     private bool isBotEnabled;
-    private bool isHudVisible; 
+    private bool isHudVisible;
+    private bool isPartyFollowEnabled;
+
     public void OnStartCutscene(CutsceneEntity cutsceneEntity)
     {
         ZDSPCamera combatCamera = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
@@ -114,7 +128,14 @@ public class CutsceneManager : MonoBehaviour
         isBotEnabled = GameInfo.gLocalPlayer.Bot.Enabled;
         GameInfo.gLocalPlayer.Bot.StopBot();
         GameInfo.gLocalPlayer.ForceIdle();
-        
+        if (PartyFollowTarget.Enabled)
+        {
+            isPartyFollowEnabled = true;
+            PartyFollowTarget.Pause();
+        }
+        else
+            isPartyFollowEnabled = false;
+
         UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(false);
         isHudVisible = UIManager.UIHud.IsVisible();
         UIManager.UIHud.HideHUD();
@@ -158,6 +179,9 @@ public class CutsceneManager : MonoBehaviour
         {
             UIManager.UIHud.HideHUD();//the HUD also in the hierachy. 
         }
+
+        if (isPartyFollowEnabled)
+            PartyFollowTarget.Resume();
     }   
 
     public void RegisterCutsceneBroadcaster(CutSceneBroadcaster entity)

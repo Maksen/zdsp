@@ -52,6 +52,10 @@ namespace Zealot.Common
         public int Health { get; set; }
 
         [DefaultValue(0)]
+        [JsonProperty(PropertyName = "mana")]
+        public int Mana { get; set; }
+
+        [DefaultValue(0)]
         [JsonProperty(PropertyName = "exp")]
         public int Experience { get; set; }
 
@@ -167,9 +171,11 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "questinv")]
         public QuestInventoryData QuestInventory { get; set; }
 
+        [JsonProperty(PropertyName = "donateinv")]
+        public DonateInventoryData DonateInventory { get; set; }
+
         [JsonProperty(PropertyName = "sideeffectinv")]
         public SideEffectInventoryData SideEffectInventory { get; set; }
-
         [JsonProperty(PropertyName = "skillInv")]
         public SkillInventoryData SkillInventory { get; set; }
 
@@ -200,6 +206,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "equipmentcraftinv")]
         public EquipmentCraftInventoryData EquipmentCraftInventory { get; set; }
 
+        [JsonProperty(PropertyName = "equipfushioninv")]
+        public EquipFushionInventoryData EquipFushionInventory { get; set; }
+
         [JsonProperty(PropertyName = "offlineexpinv2")]
         public OfflineExpInventory2 OfflineExpInv2 { get; set; }
 
@@ -209,8 +218,8 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "HeroInvData")]
         public HeroInvData HeroInventory { get; set; }
 
-        [JsonProperty(PropertyName = "storeData")]
-        public StoreData StoreData { get; set; }
+        [JsonProperty(PropertyName = "storeinv")]
+        public StoreInventoryData StoreInventory { get; set; }
 
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "RandomBox")]
@@ -259,8 +268,11 @@ namespace Zealot.Common
             ItemInventory = new ItemInventoryData();
             EquipmentInventory = new EquipmentInventoryData();
             EquipmentCraftInventory = new EquipmentCraftInventoryData();
+            EquipFushionInventory = new EquipFushionInventoryData();
             RealmInventory = new RealmInventoryData();
             QuestInventory = new QuestInventoryData();
+            ClueInventory = new DestinyClueInventory();
+            DonateInventory = new DonateInventoryData();
             SideEffectInventory = new SideEffectInventoryData();
             SkillInventory = new SkillInventoryData();
             ItemKindInv = new ItemKindData();
@@ -272,7 +284,7 @@ namespace Zealot.Common
             QuestExtraRewardsInventory = new QuestExtraRewardsInvData();
             OfflineExpInv2 = new OfflineExpInventory2();
             LotteryInventory = new LotteryInventoryData();
-            StoreData = new StoreData();
+            StoreInventory = new StoreInventoryData();
             GuildQuests = new GuildQuestInventory();
             PrizeGuaranteeData = new PrizeGuaranteeData();
             InspectCombatStats = new InspectCombatStats();
@@ -301,12 +313,9 @@ namespace Zealot.Common
             //ExchangeShopInv.InitDefault();
             //PortraitData.InitDefault((JobType)jobsect);
             //StoreData.InitDefault();
-            if(PowerUpInventory.powerUpSlots.Count == 0)
-                PowerUpInventory.InitDefault();
-            if (EquipmentCraftInventory.EquipmentCraftSlots.Count == 0)
-            {
-                EquipmentCraftInventory.InitDefault();
-            }
+            PowerUpInventory.InitDefault();
+            EquipmentCraftInventory.InitDefault();
+            EquipFushionInventory.InitDefault();
         }
 
         public void ValidateDefault()
@@ -346,6 +355,7 @@ namespace Zealot.Common
             CurrencyInventory.GuildFundToday = 0;
             BattleTimeResetOnNewDay();
         }
+
         public void ClearGuild()
         {
             GuildId = 0;

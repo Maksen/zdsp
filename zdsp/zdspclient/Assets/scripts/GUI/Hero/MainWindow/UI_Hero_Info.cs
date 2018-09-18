@@ -31,7 +31,6 @@ public class UI_Hero_Info : MonoBehaviour
 
     [Header("Timeline")]
     [SerializeField] UITimelineController timelineController;
-    [SerializeField] GameObject[] objectsToHide;
     [SerializeField] GameObject clickBlocker;
 
     private HeroStatsClient heroStats;
@@ -51,9 +50,8 @@ public class UI_Hero_Info : MonoBehaviour
     private void HideObjectsForTimeline(bool hide)
     {
         clickBlocker.SetActive(hide);
-        for (int i = 0; i < objectsToHide.Length; i++)
-            objectsToHide[i].SetActive(!hide);
         UIManager.HideOpenedDialogs(hide);
+        UIManager.HideOpenedWindowsUICameras(hide);
     }
 
     private List<HeroCellDto> CreateHeroesData()

@@ -80,8 +80,7 @@ namespace Zealot.Server.Rules
         {
             PlayerSynStats playerStats = player.PlayerSynStats;
             AvatarInfo playerAvatar = new AvatarInfo(player.Slot.CharacterData.EquipmentInventory, (JobType)playerStats.jobsect, (Gender)playerStats.Gender);
-            PartyMember leader = new PartyMember(player.Name, playerStats.Level, playerStats.PortraitID, playerAvatar,
-                 playerStats.DisplayHp, 0f, playerStats.guildName);
+            PartyMember leader = new PartyMember(player.Name, playerStats.Level, playerAvatar, playerStats.DisplayHp, player.GetManaNormalized(), playerStats.guildName);
             PartyStatsServer partyStats = new PartyStatsServer();
             int partyId = PartyIDPool.AllocID();
             partyStats.partyId = partyId;
@@ -190,8 +189,7 @@ namespace Zealot.Server.Rules
                     return;
                 }
 
-                PartyRequest newRequest = new PartyRequest(player.Name, player.PlayerSynStats.Level,
-                    (JobType)player.PlayerSynStats.jobsect, player.PlayerSynStats.PortraitID);
+                PartyRequest newRequest = new PartyRequest(player.Name, player.PlayerSynStats.Level, (JobType)player.PlayerSynStats.jobsect);
                 partyStats.AddPartyRequest(newRequest);
                 partyStats.OnDirty();
             }
@@ -212,8 +210,7 @@ namespace Zealot.Server.Rules
 
             PlayerSynStats playerStats = player.PlayerSynStats;
             AvatarInfo playerAvatar = new AvatarInfo(player.Slot.CharacterData.EquipmentInventory, (JobType)playerStats.jobsect, (Gender)playerStats.Gender);
-            PartyMember newMember = new PartyMember(player.Name, playerStats.Level, playerStats.PortraitID, playerAvatar,
-                playerStats.DisplayHp, 0f, playerStats.guildName);
+            PartyMember newMember = new PartyMember(player.Name, playerStats.Level, playerAvatar, playerStats.DisplayHp, player.GetManaNormalized(), playerStats.guildName);
             partyStats.AddPartyMember(newMember);
             PlayerNameToPartyId.Add(player.Name, partyId);
 
@@ -614,9 +611,17 @@ namespace Zealot.Server.Rules
                 sb.Append("|party|");
                 sb.AppendFormat("{0};", partyId);
                 sb.AppendFormat("{0};", partyStats.MemberCount());
+                sb.AppendFormat("{0};", partyStats.leader);
                 var memberList = partyStats.GetPartyMemberList().Values;
                 foreach (var member in memberList)
-                    sb.AppendFormat("{0};{1};{2};{3};", member.name, member.level, member.portraitId, partyStats.IsLeader(member.name) ? 1 : 0);
+                {
+                    int portraitId;
+                    if (member.IsHero())
+                        portraitId = Enum.GetNames(typeof(JobType)).Length + member.heroId;
+                    else
+                        portraitId = (int)member.avatar.jobType;
+                    sb.AppendFormat("{0};{1};{2};", member.GetName(), member.level, portraitId);
+                }
                 string link = sb.ToString().TrimEnd(';');
                 sb.Clear();
                 sb.Append(player.Name);
@@ -669,16 +674,25 @@ namespace Zealot.Server.Rules
             if (!partyStats.IsMember(memberName) || !partyStats.IsMember(player.Name))
                 return -1;
 
-            // todo: check member not in solo realm so cannot follow
-
             GameClientPeer peer = GameApplication.Instance.GetCharPeer(memberName);
-            if (peer != null && peer.mPlayer != null && peer.mPlayer.mInstance != null)
+            if (peer != null)
             {
-                currLevelName = peer.mPlayer.mInstance.currentlevelname;
-                currPosition = peer.mPlayer.Position;
-                return peer.mPlayer.GetPersistentID();
+                if (peer.mPlayer != null && peer.mPlayer.mInstance != null)
+                {
+                    currLevelName = peer.mPlayer.mInstance.currentlevelname;
+                    currPosition = peer.mPlayer.Position;
+                    return peer.mPlayer.GetPersistentID();
+                }
+                else
+                {
+                    if (peer.mPortalExit != null)
+                    {
+                        currLevelName = peer.mPortalExit.mLevel;
+                        currPosition = peer.mPortalExit.mPosition;
+                    }
+                    return 0;
+                }
             }
-
             return -1;
         }
 

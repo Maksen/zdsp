@@ -71,7 +71,8 @@ public class UI_Hero_AddTrustDialog : BaseWindowBehaviour
     private bool CanUseItem(IInventoryItem item)
     {
         HeroItem heroItem = item as HeroItem;
-        if (heroItem != null && heroItem.HeroItemJson.heroitemtype == HeroItemType.Gift)
+        if (heroItem != null && heroItem.HeroItemJson.heroitemtype == HeroItemType.Gift
+            && heroItem.HeroItemJson.ischangelike == 0 && heroItem.HeroItemJson.giftexp > 0)
         {
             string[] heroids = heroItem.HeroItemJson.heroid.Split(';');
             return heroItem.HeroItemJson.heroid == "-1" || heroids.Contains(heroId.ToString());

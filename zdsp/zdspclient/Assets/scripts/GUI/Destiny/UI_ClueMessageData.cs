@@ -6,6 +6,7 @@ using Zealot.Repository;
 using Kopio.JsonContracts;
 using System.Collections.Generic;
 using Zealot.Client.Entities;
+using System;
 
 public class UI_ClueMessageData : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class UI_ClueMessageData : MonoBehaviour
     Sprite PhotoIcon;
 
     private ActivatedClueData mClueData;
-    private long mCountDownTime;
+    private DateTime mCountDownTime;
 
     public void Init(ActivatedClueData clueData)
     {
@@ -97,7 +98,7 @@ public class UI_ClueMessageData : MonoBehaviour
 
     private void InitDialogueClue(HeroDialogueClueJson dialogueClueJson)
     {
-        ClientUtils.LoadIconAsync(dialogueClueJson.avatarpath, UpdateHeroIcon);
+        HeroIcon.sprite = ClientUtils.LoadIcon(dialogueClueJson.avatarpath);
         Message.gameObject.SetActive(true);
         Message.text = dialogueClueJson.text;
         ClueIcon.gameObject.SetActive(false);
@@ -108,7 +109,7 @@ public class UI_ClueMessageData : MonoBehaviour
 
     private void InitTimeClue(TimeClueJson timeClueJson)
     {
-        ClientUtils.LoadIconAsync(timeClueJson.avatarpath, UpdateHeroIcon);
+        HeroIcon.sprite = ClientUtils.LoadIcon(timeClueJson.avatarpath);
         if (timeClueJson.category == ClueCategory.Word)
         {
             Message.gameObject.SetActive(true);
@@ -122,18 +123,17 @@ public class UI_ClueMessageData : MonoBehaviour
             ClueIcon.sprite = GetIconSprite(timeClueJson.category);
         }
         ClockIcon.SetActive(true);
-        mCountDownTime = mClueData.ActivatedDateTime + (timeClueJson.time * 60000);
+        mCountDownTime = mClueData.ActivatedDT.AddMinutes(timeClueJson.time);
         UpdateTime();
         NewClue.SetActive(mClueData.Status == (byte)ClueStatus.New ? true : false);
     }
 
     private void UpdateTime()
     {
-        long currenttime = GameInfo.GetSynchronizedTime();
-        long remaintime = mCountDownTime - currenttime;
+        double remaintime = (mCountDownTime - DateTime.Now).TotalSeconds;
         if (remaintime > 0)
         {
-            TimeText.text = GUILocalizationRepo.GetShortLocalizedTimeString(remaintime);
+            TimeText.text = GUILocalizationRepo.GetLocalizedTimeString((int)remaintime, 2);
             StartCoroutine(TimeCountDown());
         }
     }
@@ -142,11 +142,6 @@ public class UI_ClueMessageData : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(1);
         UpdateTime();
-    }
-
-    private void UpdateHeroIcon(Sprite sprite)
-    {
-        HeroIcon.sprite = sprite;
     }
 
     private Sprite GetIconSprite(ClueCategory category)
@@ -171,10 +166,14 @@ public class UI_ClueMessageData : MonoBehaviour
 
     public void OnClickClueIcon()
     {
-        RPCFactory.NonCombatRPC.ReadClue(mClueData.ClueId, mClueData.ClueType);
+        ClueStatus status = (ClueStatus)mClueData.Status;
+
+        if (status == ClueStatus.New)
+        {
+            RPCFactory.NonCombatRPC.ReadClue(mClueData.ClueId, mClueData.ClueType);
+        }
 
         ClueType type = (ClueType)mClueData.ClueType;
-        ClueStatus status = (ClueStatus)mClueData.Status;
         if (type == ClueType.Dialogue)
         {
             PlayerGhost player = GameInfo.gLocalPlayer;

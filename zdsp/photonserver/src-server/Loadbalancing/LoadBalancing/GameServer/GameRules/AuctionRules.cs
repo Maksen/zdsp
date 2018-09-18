@@ -478,7 +478,7 @@ namespace Zealot.Server.Rules
                     if (res.Item2) // insert success
                     {
                         int lockGoldOld = peer.mPlayer.SecondaryStats.bindgold;
-                        int goldOld = peer.mPlayer.SecondaryStats.gold;
+                        int goldOld = peer.mPlayer.SecondaryStats.Gold;
 
                         peer.mPlayer.DeductGold(bidPrice, true, false, "Auction_Bid"); // deduct gold here but do not spend
                         newBid.bidId = res.Item1;
@@ -490,7 +490,7 @@ namespace Zealot.Server.Rules
                         peer.ZRPC.CombatRPC.Ret_AuctionPlaceBid((byte)AuctionReturnCode.Success, bidPrice, peer);
 
                         int lockGoldNew = peer.mPlayer.SecondaryStats.bindgold;
-                        int goldNew = peer.mPlayer.SecondaryStats.gold;
+                        int goldNew = peer.mPlayer.SecondaryStats.Gold;
                         // System log place bid
                         LogAuctionCurrency(peer, "PlaceBid", currentAuctionItem.itemId, lockGoldToUse, goldToUse, lockGoldOld, lockGoldNew, goldOld, goldNew);
                     }
@@ -634,7 +634,7 @@ namespace Zealot.Server.Rules
                 if (res)
                 {
                     int lockGoldOld = peer.mPlayer.SecondaryStats.bindgold;
-                    int goldOld = peer.mPlayer.SecondaryStats.gold;
+                    int goldOld = peer.mPlayer.SecondaryStats.Gold;
                     int refundLockGold, refundGold, spentLockGold, spentGold;
 
                     // give gold                    
@@ -657,7 +657,7 @@ namespace Zealot.Server.Rules
                     }
 
                     int lockGoldNew = peer.mPlayer.SecondaryStats.bindgold;
-                    int goldNew = peer.mPlayer.SecondaryStats.gold;
+                    int goldNew = peer.mPlayer.SecondaryStats.Gold;
 
                     List<BidData> bidsList = BidsByPlayer[peer.mChar];
                     bidsList.Remove(itemToCollect);

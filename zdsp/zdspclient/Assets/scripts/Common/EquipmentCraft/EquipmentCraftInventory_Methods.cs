@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using System;
 using Zealot.Common.Entities;
 
@@ -53,12 +51,7 @@ namespace Zealot.Common
             }
         }
 
-        public void UpdateInventory (EquipmentCraftStats equipmentCraftStats)
-        {
-            InitFormStats(equipmentCraftStats);
-        }
-
-        public void SaveToInventory (EquipmentCraftStats equipmentCraftStats)
+        public void SaveToInventoryData(EquipmentCraftStats equipmentCraftStats)
         {
             InitFormStats(equipmentCraftStats);
         }

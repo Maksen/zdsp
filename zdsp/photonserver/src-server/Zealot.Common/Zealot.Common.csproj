@@ -119,6 +119,12 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\RealmStats.cs">
       <Link>Entities\RealmStats.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipFushion\EquipFushionInventory.cs">
+      <Link>EquipFushion\EquipFushionInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipFushion\EquipFushionInventory_Methods.cs">
+      <Link>EquipFushion\EquipFushionInventory_Methods.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory.cs">
       <Link>EquipmentCraft\EquipmentCraftInventory.cs</Link>
     </Compile>
@@ -143,11 +149,14 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CountryData.cs">
       <Link>GameObjects\CountryData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CurrencyInventory.cs">
-      <Link>GameObjects\CurrencyInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\CurrencyInventoryData.cs">
+      <Link>GameObjects\CurrencyInventoryData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\DestinyClueData.cs">
       <Link>GameObjects\DestinyClueData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\DonateData.cs">
+      <Link>GameObjects\DonateData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\DonateDataList.cs">
       <Link>GameObjects\DonateDataList.cs</Link>
@@ -176,8 +185,8 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\InvitePvpData.cs">
       <Link>GameObjects\InvitePvpData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ItemMallInventory.cs">
-      <Link>GameObjects\ItemMallInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ItemMallInventoryData.cs">
+      <Link>GameObjects\ItemMallInventoryData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\LeaderboardData.cs">
       <Link>GameObjects\LeaderboardData.cs</Link>
@@ -185,8 +194,8 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\LootItemData.cs">
       <Link>GameObjects\LootItemData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\MailInventory.cs">
-      <Link>GameObjects\MailInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\MailInventoryData.cs">
+      <Link>GameObjects\MailInventoryData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\NewServerEventInventory.cs">
       <Link>GameObjects\NewServerEventInventory.cs</Link>
@@ -209,8 +218,8 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\QuestData.cs">
       <Link>GameObjects\QuestData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\RealmInventory.cs">
-      <Link>GameObjects\RealmInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\RealmInventoryData.cs">
+      <Link>GameObjects\RealmInventoryData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SideEffectInventory.cs">
       <Link>GameObjects\SideEffectInventory.cs</Link>
@@ -218,11 +227,11 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SkillInventoryData.cs">
       <Link>GameObjects\SkillInventoryData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SocialInventory.cs">
-      <Link>GameObjects\SocialInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SocialInventoryData.cs">
+      <Link>GameObjects\SocialInventoryData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\StoreInventory.cs">
-      <Link>GameObjects\StoreInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\StoreInventoryData.cs">
+      <Link>GameObjects\StoreInventoryData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SystemSwitchData.cs">
       <Link>GameObjects\SystemSwitchData.cs</Link>
@@ -329,8 +338,14 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\DestinyClueRepo.cs">
       <Link>Repositories\DestinyClueRepo.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\DonateRepo.cs">
+      <Link>Repositories\DonateRepo.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ElementalChartRepo.cs">
       <Link>Repositories\ElementalChartRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipFushionRepo.cs">
+      <Link>Repositories\EquipFushionRepo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipmentCraftRepo.cs">
       <Link>Repositories\EquipmentCraftRepo.cs</Link>

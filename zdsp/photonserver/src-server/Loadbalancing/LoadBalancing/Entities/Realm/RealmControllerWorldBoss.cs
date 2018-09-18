@@ -116,13 +116,12 @@ namespace Zealot.Server.Entities
                 player.SecondaryStats.realmscore = mPlayerDamageMap[playername];
             player.Slot.ZRPC.LocalObjectRPC.AddLocalObject((byte)LOCATEGORY.SharedStats, -1, mPartyDamageList, player.Slot);
 
-
-            RealmInfo dWorldBossInfo = player.RealmStats.GetWorldBossDict()[0];
-            if (dWorldBossInfo.DailyEntry > 0)
-                --dWorldBossInfo.DailyEntry;
-            else if (dWorldBossInfo.ExtraEntry > 0)
-                --dWorldBossInfo.ExtraEntry;
-            player.RealmStats.WorldBoss[0] = dWorldBossInfo.ToString();
+            //RealmInfo dWorldBossInfo = player.RealmStats.GetWorldBossDict()[0];
+            //if (dWorldBossInfo.DailyEntry > 0)
+            //    --dWorldBossInfo.DailyEntry;
+            //else if (dWorldBossInfo.ExtraEntry > 0)
+            //    --dWorldBossInfo.ExtraEntry;
+            //player.RealmStats.WorldBoss[0] = dWorldBossInfo.ToString();
 
             if (!mSimplePlayerMap.ContainsKey(playername))
             {

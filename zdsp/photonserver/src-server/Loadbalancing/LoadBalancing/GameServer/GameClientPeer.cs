@@ -35,6 +35,7 @@ namespace Photon.LoadBalancing.GameServer
     using Photon.SocketServer;
     using Hive.Caching;
     using Photon.Common;
+    using Zealot.Entities;
     #endregion
 
     public class GameClientPeer : HivePeer
@@ -497,6 +498,8 @@ namespace Photon.LoadBalancing.GameServer
         public DateTime loginDT;
         public bool mCanSaveDB = false;
         private DateTime lastLogLogin;
+        public bool mFirstLogin = true;
+        public LocationData mPortalExit = null;
 
         public ServerSettingsData GameSetting { get; set; }
         public int ArenaRankToChallenge { get; set; }
@@ -509,6 +512,7 @@ namespace Photon.LoadBalancing.GameServer
         public SocialInventoryData mSocialInventory;
         public PowerUpController mPowerUpController;
         public EquipmentCraftController mEquipmentCraftController;
+        public EquipFushionController mEquipFushionController;
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -526,7 +530,7 @@ namespace Photon.LoadBalancing.GameServer
                         if (characterData != null)
                         {
                             characterData.Gender = (byte)Gender.Female;
-                            characterData.JobSect = (byte)JobType.Newbie;
+                            //characterData.JobSect = (byte)JobType.Newbie;
                             mChar = charName;
                             application.AddCharPeer(charName, this);
                             mLastSaveCharacterDT = DateTime.Now;
@@ -537,6 +541,7 @@ namespace Photon.LoadBalancing.GameServer
                             mInventory = new ItemInventoryController(this);
                             mPowerUpController = new PowerUpController(this);
                             mEquipmentCraftController = new EquipmentCraftController(this);
+                            mEquipFushionController = new EquipFushionController(this);
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
@@ -1055,7 +1060,7 @@ namespace Photon.LoadBalancing.GameServer
             //DeductEquipUpgradeGold(equipItem, upgradeLevel, isSafeUpgrade);
             //DeductEquipMaterial(upgradeMaterial, isSafeUpgrade);
             
-            int money = mPlayer.SecondaryStats.money;
+            int money = mPlayer.SecondaryStats.Money;
             if (moneyCost > money)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_InsufficientMoney"), "", false, this);
@@ -1164,7 +1169,7 @@ namespace Photon.LoadBalancing.GameServer
 
             // Check for sufficient gold
             int moneyCost = nextReformData[selection].cost;
-            int money = mPlayer.SecondaryStats.money;
+            int money = mPlayer.SecondaryStats.Money;
 
             if(/*!mPlayer.SecondaryStats.IsGoldEnough(moneyCost)*/money < moneyCost)
             {
@@ -1641,7 +1646,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             int lockgold = mPlayer.SecondaryStats.bindgold;
-            int gold = mPlayer.SecondaryStats.gold;
+            int gold = mPlayer.SecondaryStats.Gold;
             int lockgoldBef = lockgold;
             int goldBef = gold;
             if (lockgold >= goldCost)
@@ -1744,7 +1749,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 WelfareRules.LogWelfareSignInPrizeReGet(year, month, day, this);
                 int lockgoldAft = mPlayer.SecondaryStats.bindgold;
-                int goldAft = mPlayer.SecondaryStats.gold;
+                int goldAft = mPlayer.SecondaryStats.Gold;
                 //WelfareRules.LogWelfareSignInPrizeReGetLockGoldUse(lockgold, lockgoldBef, lockgoldAft, this);
 
                 // <Add> i think this should be the non-locked gold ba
@@ -1903,7 +1908,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            int gold = mPlayer.SecondaryStats.gold;
+            int gold = mPlayer.SecondaryStats.Gold;
             // Get service fund cost from GMDB
             int goldCost = WelfareRules.GetServiceFundCost();
 
@@ -1919,7 +1924,7 @@ namespace Photon.LoadBalancing.GameServer
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_DeductGoldFailed"), "", false, this);
                 return;
             }
-            int goldAft = mPlayer.SecondaryStats.gold;
+            int goldAft = mPlayer.SecondaryStats.Gold;
 
             mWelfareCtrlr.BuyOpenServiceFund();
             WelfareRules.BuyServiceFund();
@@ -2314,7 +2319,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             int goldCost = GameConstantRepo.GetConstantInt("Welfare_MCardCost");
-            int gold = mPlayer.SecondaryStats.gold;
+            int gold = mPlayer.SecondaryStats.Gold;
             int totalGold = gold;
 
             if (totalGold < goldCost || goldCost == 0)
@@ -2371,7 +2376,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             int goldCost = GameConstantRepo.GetConstantInt("Welfare_PCardCost");
-            int gold = mPlayer.SecondaryStats.gold;
+            int gold = mPlayer.SecondaryStats.Gold;
             int totalGold = gold;
 
             if (totalGold < goldCost || goldCost == 0)
@@ -2430,7 +2435,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             int lockGold = mPlayer.SecondaryStats.bindgold;
-            int gold = mPlayer.SecondaryStats.gold;
+            int gold = mPlayer.SecondaryStats.Gold;
             int goldCost = mWelfareCtrlr.GetGoldJackpotNextTierCost();
             if (goldCost == 0 || !mPlayer.SecondaryStats.IsGoldEnough(goldCost, true))
             {
@@ -2971,6 +2976,7 @@ namespace Photon.LoadBalancing.GameServer
             mPlayer.PowerUpStats.powerUpSlots[part] = nextPartLevel;
             mPlayer.PowerUpStats.powerUpLvl = "0";
         }
+        #endregion
 
         #region EquipmentCraft
         public void OnEquipmentCraft(int itemId)
@@ -2998,23 +3004,91 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            InvRetval result = mInventory.UseToolItems(useMatList, "EquipmentCraft");
+            InvRetval result = mInventory.UseToolItems(useMatList, "EquipmentCraftUseMaterial");
             if (result.retCode == InvReturnCode.UseFailed)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipmentCraft_NotEnoughMaterials"), "", false, mPlayer.Slot);
                 return;
             }
+
+            List<int> currency = EquipmentCraftRepo.GetCurrency(itemId);
+
+            if (mPlayer.SecondaryStats.Money < currency[1])
+            {
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipmentCraft_NotEnoughCurrency"), "", false, mPlayer.Slot);
+                return;
+            }
+            mPlayer.DeductCurrency((CurrencyType)currency[0], currency[1], false, "EquipmentCraftUseCurrency");
+
             //GivePlayerEquipment
             IInventoryItem giveItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
-            mInventory.AddItemsIntoInventory(giveItem, true, "EquipmentCraft");
+            mInventory.AddItemsIntoInventory(giveItem, true, "EquipmentCraftCraftedItem");
             mPlayer.EquipmentCraftStats.finishedCraft = true;
         }
         #endregion
 
-        /*public InvRetval ConsumeMaterial (int id, int useAmount)
+        #region EquipFushion
+        public void OnEquipFushion (int itemIndex, string consumeIndex)
         {
-            return mInventory.UseToolItems((ushort)id, (ushort)useAmount, "PowerUp");
-        }*/
+            if(mInventory.mInvData.Slots[itemIndex] as Equipment == null)
+            {
+                return;
+            }
+            
+            List<string> consumeItemIndex = consumeIndex.Split('|').ToList();
+            List<int> consumeIntIndex = new List<int>();
+            if(consumeItemIndex.Count != 4)
+            {
+                return;
+            }
+            for (int i = 0; i < 4; ++i)
+            {
+                int index = 0;
+                if(int.TryParse(consumeItemIndex[i], out index))
+                {
+                    consumeIntIndex.Add(index);
+                } else
+                {
+                    return;
+                }
+            }
+            
+            if (mInventory.mInvData.Slots[consumeIntIndex[0]] as Equipment == null)
+            {
+                return;
+            }
+            for (int i = 1; i < 4; ++i)
+            {
+                if (mInventory.mInvData.Slots[consumeIntIndex[i]] as ElementalStone == null)
+                {
+                    return;
+                }
+            }
+            
+            int totalCurrency = 0;
+            List<ElementalStone> fushionStones = new List<ElementalStone>();
+            for (int i = 1; i < 4; ++i)
+            {
+                fushionStones.Add(mInventory.mInvData.Slots[consumeIntIndex[i]] as ElementalStone);
+            }
+            totalCurrency = EquipFushionRepo.GetTotalCurrencyCount(fushionStones[0].JsonObject.itemid,
+                                                                   fushionStones[1].JsonObject.itemid,
+                                                                   fushionStones[2].JsonObject.itemid);
+            if(totalCurrency > mPlayer.SecondaryStats.Money)
+            {
+                return;
+            }
+            
+            Equipment equi = mInventory.mInvData.Slots[itemIndex] as Equipment;
+            mInventory.UpdateEquipFushion(itemIndex, EquipFushionRepo.RandomSideEffectPutEquip(fushionStones));
+            for (int i = 0; i < consumeIntIndex.Count; ++i)
+            {
+                mInventory.RemoveInvItem(consumeIntIndex[i], "EquipFushionRemoveItem");
+            }
+            mPlayer.DeductCurrency((CurrencyType)1, totalCurrency, false, "EquipFushionUseCurrency");
+            
+            mPlayer.EquipFushionStats.FinishedFushion = true;
+        }
         #endregion
 
         #region CharacterData Helper Functions
@@ -3110,9 +3184,9 @@ namespace Photon.LoadBalancing.GameServer
 
         public void OnCurrencyExchange()
         {
-            int goldBefore = mPlayer.SecondaryStats.gold;
+            int goldBefore = mPlayer.SecondaryStats.Gold;
             int bindgoldBefore = mPlayer.SecondaryStats.bindgold;
-            int moneyBefore = mPlayer.SecondaryStats.money;
+            int moneyBefore = mPlayer.SecondaryStats.Money;
             int currExchangeTime = mPlayer.SecondaryStats.CurrencyExchangeTime;
             int reqGold = CurrencyExchangeRepo.GetReqGold(currExchangeTime);
 
@@ -3151,9 +3225,9 @@ namespace Photon.LoadBalancing.GameServer
             log.bindGoldBefore = beforeBindGold;
             log.bindGoldAfter = mPlayer.SecondaryStats.bindgold;
             log.goldBefore = beforeGold;
-            log.goldAfter = mPlayer.SecondaryStats.gold;
+            log.goldAfter = mPlayer.SecondaryStats.Gold;
             log.moneyBefore = beforeMoney;
-            log.moneyAfter = mPlayer.SecondaryStats.money;
+            log.moneyAfter = mPlayer.SecondaryStats.Money;
             log.moneyOriginal = rewardMoney;
             log.moneyGained = rewardMoney * multiplier;
             log.multiplier = multiplier;

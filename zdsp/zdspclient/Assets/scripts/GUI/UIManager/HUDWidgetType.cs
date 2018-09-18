@@ -26,6 +26,7 @@
     BattleTime = 20,
     HideWhenDeath = 21,
     DestinyNews = 22,
+    DestinyStart = 23,
 
     //----------------------------
 

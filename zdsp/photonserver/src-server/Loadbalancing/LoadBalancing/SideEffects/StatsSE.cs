@@ -1,32 +1,29 @@
 ﻿namespace Zealot.Server.SideEffects
 {
-    using System;
     using Zealot.Common;
     using Zealot.Common.Entities;
     using Zealot.Server.Entities;
-    using Zealot.Repository;
     using Kopio.JsonContracts;
 
     public class StatsSE : SideEffect, IPassiveSideEffect
     {
-        int mAmount=0;
+        float mAmount=0;
         FieldName mTargetedField;
         private float mAffactBonus = 0;
         private float mAffactPerc = 0;
         private bool mIsPostiveBuff;
+
         public StatsSE(SideEffectJson sideeffectData)
             : base(sideeffectData)
         {
             mNeedCaster = false;
         }
-
          
         protected override void InitKopioData()
         {
             base.InitKopioData();
 
             mIsPostiveBuff = SideEffectsUtils.IsPositiveEffectType(mSideeffectData.effecttype);
-
         }
 
         public override bool IsBuff()
@@ -84,42 +81,48 @@
             return false;
         }
           
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            if ( !CheckImmunity() && base.OnApply()) //statsSE is not interval updated.
+            if (!CheckImmunity() && base.OnApply(equipid)) //statsSE is not interval updated.
             {
                 //mainskill support debuff also as the proc time is needed.
-                if (IsDurationalSE() )
+                if (IsDurationalSE())
                 {
-                    SideEffectsUtils.GetStatsFieldAndValue(mSideeffectData, mTarget.CombatStats, out mTargetedField,out mAmount, mIsPostiveBuff);
+                    SideEffectsUtils.GetStatsFieldAndValue(mSideeffectData, mTarget.CombatStats, out mTargetedField, out mAmount, mIsPostiveBuff);
                     if(mAffactBonus > 0 || mAffactBonus > 0)
                     {
                         if (mSideeffectData.isrelative)
-                        {
-                            mAmount += (int)( mAffactPerc * 10);//this mamount is base on 1000
-                        }
+                            mAmount += (int)(mAffactPerc * 10);//this mamount is base on 1000
                         else
-                        {
                             mAmount += (int)mAffactBonus;
-                        }
                     }
-                    if (mTargetedField!=FieldName.LastField)//active skill need to update the noscoreField always.
+                    if (mTargetedField != FieldName.LastField)//active skill need to update the noscoreField always.
                     {
                         FieldName noscorefield = SideEffectsUtils.GetNoScroreField(mTargetedField);
                         mTarget.CombatStats.AddToField(noscorefield, mAmount);
-                        mTarget.CombatStats.ComputeAll();
+                        mTarget.CombatStats.ComputeAll();                   
                     }
                     return true;
                 }
-                else
-                    return false;
-                
+                else // include in non-durational buffs
+                {                 
+                    if (equipid != -1)
+                    {
+                        bool result = (mPositiveEffect) 
+                            ? mTarget.AddEquipmentSideEffect(this, equipid) : mTarget.RemoveEquipmentSideEffect(this, equipid);
+                        if (!result)
+                            return false;
+                    }
+
+                    SideEffectsUtils.GetStatsFieldAndValue(mSideeffectData, mTarget.CombatStats, out mTargetedField, out mAmount, mPositiveEffect);
+                    mTarget.CombatStats.AddToField(mTargetedField, mAmount);
+                    mTarget.CombatStats.ComputeAll();
+                    return true;
+                }
             }
             else
                 return false;
         }
-
-         
 
         protected override void OnRemove()
         {
@@ -167,7 +170,6 @@
         #endregion
     }
 
-    
     public class ToNoneElementalSE : SideEffect {
         public ToNoneElementalSE(SideEffectJson sideeffectData)
             : base(sideeffectData) {
@@ -178,8 +180,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.CombatStats.SetField(FieldName.ElementSideEffect, (float)Element.None);
                 return true;
             }
@@ -198,8 +200,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.CombatStats.SetField(FieldName.ElementSideEffect, (float)Element.Metal);
                 return true;
             }
@@ -218,8 +220,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.CombatStats.SetField(FieldName.ElementSideEffect, (float)Element.Wood);
                 return true;
             }
@@ -238,8 +240,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.CombatStats.SetField(FieldName.ElementSideEffect, (float)Element.Earth);
                 return true;
             }
@@ -258,8 +260,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.CombatStats.SetField(FieldName.ElementSideEffect, (float)Element.Water);
                 return true;
             }
@@ -278,8 +280,8 @@
             base.InitKopioData();
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) {
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) {
                 mTarget.CombatStats.SetField(FieldName.ElementSideEffect, (float)Element.Fire);
                 return true;
             }

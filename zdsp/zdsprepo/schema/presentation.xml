@@ -20,6 +20,7 @@
         <option uitext="Instance Item" datasource="InstanceItem"/>
         <option uitext="Extra Side Effect" datasource="ExtraSideEffect"/>
         <option uitext="Evolve Group" datasource="EvolveGroup"/>
+        <option uitext="Elemental Stone" datasource="ElementalStone"/>
       </category>
       
       <category uitext="Shop">
@@ -34,6 +35,15 @@
         <option uitext="Equipment Craft" datasource="EquipmentCraft"/>
       </category>
 
+      <category uitext="Equip Fushion">
+        <option uitext="Fushion Parts List" datasource="FushionPartsList"/>
+        <option uitext="Equip Fushion Side Effect" datasource="EquipFushionSideEffect"/>
+        <option uitext="Equip Fushion Cost" datasource="EquipFushionCost"/>
+        <option uitext="Equip Fushion Addition Rule" datasource="EquipFushionAdditionRule"/>
+        <option uitext="Equip Fushion Sell" datasource="EquipFushionSell"/>
+        <option uitext="Equip Fushion Store" datasource="EquipFushionStore"/>
+      </category>
+
       <category uitext="Equipment Upgrade">
         <option uitext="Equipment Upgrade" datasource="EquipmentUpgrade"/>
         <option uitext="Equipment Reform Group" datasource="EquipmentReformGroup"/>
@@ -41,18 +51,27 @@
 
       <category uitext="DNA and Relic">
         <option uitext="DNA Upgrade" datasource="DNAUpgrade"/>
+        <option uitext="DNA Upgrade Roll" datasource="DNAUpgradeRoll"/>
         <option uitext="DNA Evolve" datasource="DNAEvolve"/>
         <option uitext="Relic Recycle" datasource="RelicRecycle"/>
       </category>
 
-      <category uitext="Exchange Shop">
-        <option uitext="Exchange Shop Item" datasource="ExchangeShopItem"/>
-        <option uitext="Exchange Shop Category" datasource="ExchangeShopCategory"/>
+      <category uitext="Power Up">
+        <option uitext="Power Up" datasource="PowerUp"/>
+        <option uitext="Power Up Parts List" datasource="PowerUpPartsList"/>
+        <option uitext="Meridian List" datasource="MeridianList"/>
+        <option uitext="Acupoint List" datasource="AcupointList"/>
+        <option uitext="Pay Material Item List" datasource="PayMaterialItemList"/>
       </category>
 
       <category uitext="Crafting">
         <option uitext="Crafting" datasource="Crafting"/>
         <option uitext="Crafting Category" datasource="CraftingCategory"/>
+      </category>
+
+      <category uitext="Exchange Shop">
+        <option uitext="Exchange Shop Item" datasource="ExchangeShopItem"/>
+        <option uitext="Exchange Shop Category" datasource="ExchangeShopCategory"/>
       </category>
 
       <category uitext="Jobsect">
@@ -130,13 +149,6 @@
         <option uitext="LimitedItem" datasource="LimitedItem"/>        
       </category>
 
-      <category uitext="Power Up">
-        <option uitext="Power Up" datasource="PowerUp"/>
-        <option uitext="Meridian List" datasource="MeridianList"/>
-        <option uitext="Acupoint List" datasource="AcupointList"/>
-        <option uitext="Pay Material Item List" datasource="PayMaterialItemList"/>
-      </category>
-
       <category uitext="GUI Localization">
         <option uitext="GUI LocalizedString" datasource="GUILocalizedString"/>
         <option uitext="System Message" datasource="SystemMessage"/>
@@ -162,6 +174,11 @@
         <option uitext="Hero Memory" datasource="HeroMemory"/>
         <option uitext="Hero Dialogue Clue" datasource="HeroDialogueClue"/>
         <option uitext="Time Clue" datasource="TimeClue"/>
+      </category>
+
+      <category uitext="Donate">
+        <option uitext="Donate Limit" datasource="DonateLimit"/>
+        <option uitext="Donate" datasource="Donate"/>
       </category>
       
       <category uitext="Skills">

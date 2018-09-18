@@ -206,6 +206,12 @@
             mAIController.GotoState("Stun");
         }
 
+        public override void OnFrozen()
+        {
+            base.OnFrozen();
+            mAIController.GotoState("Frozen");
+        }
+
         public override void OnRoot()
         {
             base.OnRoot();

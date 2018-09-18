@@ -7,7 +7,7 @@ using Zealot.Repository;
 public class UI_SkillExpandUI : MonoBehaviour {
 
     [Header("Panel Display")]
-    public GameObject m_Icon;
+    public Image m_Icon;
     public Text m_SkillName;
     public Text m_ActivePassive;
 
@@ -18,6 +18,7 @@ public class UI_SkillExpandUI : MonoBehaviour {
     [Header("Skill Field")]
     public UI_SkillUISKLHelper m_SkillDesc;
 
+    public Button m_Close;
     public UI_SkillButton m_Button;
     public Button m_Upgrade;
 
@@ -41,14 +42,13 @@ public class UI_SkillExpandUI : MonoBehaviour {
 
         SkillData skill;
         if (selected.m_SkillLevel == 0)
-            skill = SkillRepo.GetSkillByGroupIDOfNextLevel(selected.m_ID, selected.m_SkillLevel);
+            skill = SkillRepo.GetSkillByGroupIDOfNextLevel(selected.m_skgID, selected.m_SkillLevel);
         else
             skill = selected.m_SkillData;
 
-        string icon = skill.skillgroupJson.icon;
-        //get the icon from assetbundle?
+        m_Icon.sprite = selected.m_Icon.sprite;
 
-        m_SkillName.text = skill.skillJson.name;
+        m_SkillName.text = skill.skillgroupJson.name;
         //m_ActivePassive = selected.m_SkillData.skillgroupJson.ac
 
         if (selected.IsUpgradable())
@@ -61,26 +61,55 @@ public class UI_SkillExpandUI : MonoBehaviour {
         //check current player skill
         int skp = 1000;
         int my = 1000;
+        int lv = 1;
         if (GameInfo.gLocalPlayer != null)
         {
             skp = (int)GameInfo.gLocalPlayer.LocalCombatStats.SkillPoints;
-            my = (int)GameInfo.gLocalPlayer.SecondaryStats.money;
+            my = (int)GameInfo.gLocalPlayer.SecondaryStats.Money;
+            lv = (int)GameInfo.gLocalPlayer.PlayerStats.Level;
         }
         int skillpoint = skill.skillJson.learningsp;
         int money = skill.skillJson.learningcost;
+        int level = skill.skillJson.requiredlv;
         GameObject obj = m_ReqStatsPool.RequestObject();
         m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
         m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("技能點數 ", skillpoint.ToString() + "/"  + skp.ToString());
         obj.transform.parent = m_ReqStatsParent.transform;
-        obj.transform.localPosition = new Vector3(0, 0, 1);
+        obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
         obj.transform.localScale = new Vector3(1, 1, 1);
+
+        Color color;
+        if (skp < skillpoint)
+            color = Color.red;
+        else
+            color = Color.white;
+        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
 
         obj = m_ReqStatsPool.RequestObject();
         m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
         m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("Money (temp) ", money.ToString() + "/" + my.ToString());
         obj.transform.parent = m_ReqStatsParent.transform;
-        obj.transform.localPosition = new Vector3(0, 0, 1);
+        obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
         obj.transform.localScale = new Vector3(1, 1, 1);
+
+        if (my < money)
+            color = Color.red;
+        else
+            color = Color.white;
+        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
+
+        obj = m_ReqStatsPool.RequestObject();
+        m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
+        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("等級需 ", level.ToString());
+        obj.transform.parent = m_ReqStatsParent.transform;
+        obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
+        obj.transform.localScale = new Vector3(1, 1, 1);
+
+        if(lv < level)
+            color = Color.red;
+        else
+            color = Color.white;
+        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
 
         switch (skill.skillgroupJson.skilltype)
         {
@@ -115,9 +144,6 @@ public class UI_SkillExpandUI : MonoBehaviour {
         // notify button to level up
         m_Button.OnLevelUpSkill();
         //m_SkillDesc.GenerateChunk(m_Button);
-        //if (SkillRepo.IsSkillMaxLevel(m_Button.m_SkillData.skillgroupJson.id, m_Button.m_SkillLevel))
-        //if(!m_Button.IsUpgradable())
-        //    m_Upgrade.interactable = false;
     }
 
     public void OnClosed()
@@ -129,5 +155,10 @@ public class UI_SkillExpandUI : MonoBehaviour {
         }
         m_ReqStatsLabels.Clear();
         m_SkillDesc.RemoveChunks();
+    }
+
+    public void CloseUI()
+    {
+        m_Close.onClick.Invoke();
     }
 }

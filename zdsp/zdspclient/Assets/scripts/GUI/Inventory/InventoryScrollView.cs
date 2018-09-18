@@ -171,6 +171,9 @@ public class InventoryScrollView : MonoBehaviour
 
     public void UpdateVisibleRowsCallback()
     {
+        if (contentRowList.Count == 0)
+            return;
+
         for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
         {
             contentRowList[j].GetComponent<InventoryScrollRow>().UpdateCallback(UIInventory, j*cellsPerRow);

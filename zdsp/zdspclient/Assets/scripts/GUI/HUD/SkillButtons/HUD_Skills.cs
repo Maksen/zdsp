@@ -16,14 +16,14 @@ public class HUD_Skills : MonoBehaviour
 {
     public enum SkillNo
     {
-        BasicAttack = 0,
+        Skill0 = 0,
         Skill1 = 1,
         Skill2 = 2,
         Skill3 = 3,
         Skill4 = 4
     }
 
-    public HUD_BasicAttackBtn BasicAttackButton;
+    //public HUD_BasicAttackBtn BasicAttackButton;
     public HUD_SkillBtn[] SkillButtons;
     public Animator[] SkillCDEnd;
     public Toggle AutoCombatToggle;
@@ -31,37 +31,58 @@ public class HUD_Skills : MonoBehaviour
     private GameObject BasicAttackButtonLock;
 
     private PlayerGhost localplayer;
-    private float lastWeaponPromptTime = -99999;
+    //private float lastWeaponPromptTime = -99999;
 
     public void Init()
     {
-        BasicAttackButton.Init();
-        InitSkillButtons();
-
+        //BasicAttackButton.Init();
         localplayer = GameInfo.gLocalPlayer;
-        lastWeaponPromptTime = -99999;
+        //InitSkillButtons();
+
+        
+        //lastWeaponPromptTime = -99999;
     }
 
-    public void SetBasicAttackButtonImage(Sprite sprite)
-    {
-        BasicAttackButton.SetButtonImage(sprite);
-    }
+    //public void SetBasicAttackButtonImage(Sprite sprite)
+    //{
+    //    BasicAttackButton.SetButtonImage(sprite);
+    //}
     
-    private void InitSkillButtons()
+    public void InitSkillButtons()
     {
-        Transform ptrans = BasicAttackButton.gameObject.transform.Find("Image_Lock");
-        if (ptrans != null)
-            BasicAttackButtonLock = ptrans.gameObject;
-        ButtonLocks = new List<GameObject>();
+        //Transform ptrans = BasicAttackButton.gameObject.transform.Find("Image_Lock");
+        //if (ptrans != null)
+        //    BasicAttackButtonLock = ptrans.gameObject;
+        localplayer = GameInfo.gLocalPlayer;
+        //ButtonLocks = new List<GameObject>();
+        Zealot.Common.Datablock.CollectionHandler<object> skillequipped;
+        
+        skillequipped = localplayer.SkillStats.EquippedSkill;
+        int group = localplayer.SkillStats.EquipGroup;
+
+
         for (int i = 0; i < SkillButtons.Length; i++)
         {
-            int skillno = i + 1;
+            int skillno = (int)skillequipped[i * group];
             SkillButtons[i].Init(() => CastSkill(skillno), i, this);
-            Transform imgtrans = SkillButtons[i].gameObject.transform.Find("Image_Lock");
-            if (imgtrans != null)
-                ButtonLocks.Add(imgtrans.gameObject);
-            else
-                ButtonLocks.Add(null);
+            //Transform imgtrans = SkillButtons[i].gameObject.transform.Find("Image_Lock");
+            //if (imgtrans != null)
+            //    ButtonLocks.Add(imgtrans.gameObject);
+            //else
+            //    ButtonLocks.Add(null);
+        }
+    }
+
+    public void UpdateSkillButtons()
+    {
+        Zealot.Common.Datablock.CollectionHandler<object> skillequipped;
+
+        skillequipped = localplayer.SkillStats.EquippedSkill;
+        int group = localplayer.SkillStats.EquipGroup;
+        for (int i = 0; i < SkillButtons.Length; i++)
+        {
+            int skillno = (int)skillequipped[i * group];
+            SkillButtons[i].OnSkillUpdated(skillno);
         }
     }
 
@@ -87,6 +108,7 @@ public class HUD_Skills : MonoBehaviour
             BasicAttackButtonLock.SetActive(true);
         }
     }
+
     public void SetSkillImage(int index, Sprite sprite)
     {
         if (index < SkillButtons.Length)
@@ -102,13 +124,13 @@ public class HUD_Skills : MonoBehaviour
     public void CastSkill(int number)
     {      
         int skillid = 0;
-        SkillNo skillNo = SkillNo.BasicAttack; 
+        //SkillNo skillNo = SkillNo.BasicAttack; 
 
         switch (number)
         {
             case 1:
                 skillid = localplayer.SkillStats.JobskillAttackSId;
-                skillNo = SkillNo.Skill1;
+                //skillNo = SkillNo.Skill1;
                 break;
             //case 2:
             //    skillid = localplayer.SkillStats.RedHeroCardSkillAttackSId;

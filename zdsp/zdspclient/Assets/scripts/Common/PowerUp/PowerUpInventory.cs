@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using System.ComponentModel;
-using Zealot.Repository;
-using Zealot.Common;
-using Zealot.Entities;
 
 namespace Zealot.Common
 {
@@ -25,13 +19,6 @@ namespace Zealot.Common
 
         public PowerUpInventoryData()
         {
-            /*if (powerUpSlots.Count == 0)
-            {
-                for (int i = 0; i < MAX_POWERUPSLOTS; ++i)
-                {
-                    powerUpSlots.Add(0);
-                }
-            }*/
         }
 
         public void InitDefault()
@@ -39,9 +26,7 @@ namespace Zealot.Common
             if(powerUpSlots.Count == 0)
             {
                 for (int i = 0; i < MAX_POWERUPSLOTS; ++i)
-                {
-                    powerUpSlots.Add(0);
-                }
+                    powerUpSlots.Add(1);
             }
         }
     }

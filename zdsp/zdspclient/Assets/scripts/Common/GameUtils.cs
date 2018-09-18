@@ -524,7 +524,7 @@ namespace Zealot.Common
             return pos;
         }
 
-        public static bool InRange(Vector3 posA, Vector3 posB, float radiusA, float radiusB = 0)
+        public static bool InRange(Vector3 posA, Vector3 posB, float radiusA, float radiusB = 1f)
         {
             //A ----------)-(---B
             Vector3 diff = posB - posA;
@@ -615,6 +615,16 @@ namespace Zealot.Common
             else if (t.Hours > 0)
                 return string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
             return string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+        }
+
+        public static string FormatTimeStringTillMinute(int totalMinutes)
+        {
+            TimeSpan t = TimeSpan.FromMinutes(totalMinutes);
+            if (t.Days > 0)
+                return string.Format("{0:D2}:{1:D2}:{2:D2}", t.Days, t.Hours, t.Minutes);
+            else if (t.Hours > 0)
+                return string.Format("{0:D2}:{1:D2}", t.Hours, t.Minutes);
+            return string.Format("{0:D2}:{1:D2}", 0, t.Minutes);
         }
 
         public static double Random(double min, double max)
@@ -980,6 +990,15 @@ namespace Zealot.Common
                 }
             }
             return ret;
+        }
+
+        public static bool IsEmptyString(string value)
+        {
+            if (string.IsNullOrEmpty(value) || value == " " || value == "#unlocalized#" || value == "#unnamed#")
+            {
+                return true;
+            }
+            return false;
         }
     }
 

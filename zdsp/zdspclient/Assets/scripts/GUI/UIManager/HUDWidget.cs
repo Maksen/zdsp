@@ -1,14 +1,11 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class HUDWidget : MonoBehaviour
 {
     public HUDWidgetType widgetType;
     public bool ActiveOnStartup = true;
-    public Toggle toggle;
 
     private BaseWidgetBehaviour widgetBehaviour;
-    private bool defaultToggleIsOn;
 
     public void RegisterWidget()
     {
@@ -21,8 +18,7 @@ public class HUDWidget : MonoBehaviour
                 return;
             }
 #endif
-            if (toggle != null)
-                defaultToggleIsOn = toggle.isOn;
+
             widgetBehaviour = gameObject.GetComponent<BaseWidgetBehaviour>();
             if (ActiveOnStartup)
                 OnActivate();
@@ -33,7 +29,7 @@ public class HUDWidget : MonoBehaviour
     }
 
     public void OnActivate()
-    {        
+    {
         gameObject.SetActive(true);
 
         if (widgetBehaviour != null)
@@ -43,14 +39,11 @@ public class HUDWidget : MonoBehaviour
     public void OnDeactivate()
     {
         gameObject.SetActive(false);
-
-        if (toggle != null && toggle.isOn != defaultToggleIsOn)
-            toggle.isOn = defaultToggleIsOn;
     }
 
-    public bool IsActived()
+    public bool IsActive()
     {
-        return gameObject.activeSelf;
+        return gameObject.activeInHierarchy;
     }
 
     public void OnLevelChanged()
@@ -68,8 +61,6 @@ public class HUDWidget : MonoBehaviour
     public void SetWidgetBehaviour()
     {
         widgetBehaviour = gameObject.GetComponent<BaseWidgetBehaviour>();
-        if (toggle != null)
-            defaultToggleIsOn = toggle.isOn;
         if (ActiveOnStartup)
             OnActivate();
         else

@@ -41,7 +41,7 @@ namespace Zealot.Server.Entities
         public override void SpawnMonster()
         {
             // Spawn monster at server
-            bool logflag = mArchetype.monsterclass == MonsterClass.Boss;
+            bool logflag = mArchetype.monstertype == MonsterType.Boss;
             Monster monster = mInstance.mEntitySystem.SpawnNetEntity<Monster>(logflag, mArchetype.archetype);
             NPCSynStats playerStats = new NPCSynStats();            
             monster.PlayerStats = playerStats;
@@ -50,14 +50,14 @@ namespace Zealot.Server.Entities
             monster.Forward = RandomSpawnFacing();
             monster.Init(this);
 
-            MonsterClass monsterClass = mArchetype.monsterclass;
-            //if (monsterClass == MonsterClass.Destructible)
+            MonsterType monsterType = mArchetype.monstertype;
+            //if (monsterType == MonsterType.Destructible)
             //    monster.SetAIBehaviour(new NullAIBehaviour(monster));
-            if (monsterClass == MonsterClass.Normal)
+            if (monsterType == MonsterType.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if(monsterClass == MonsterClass.Boss || monsterClass == MonsterClass.MiniBoss)
+            else if(monsterType == MonsterType.Boss || monsterType == MonsterType.MiniBoss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
-            //else if(monsterClass == MonsterClass.Escape)
+            //else if(monsterType == MonsterType.Escape)
             //    monster.SetAIBehaviour(new MonsterEscapeAIBehaviour(monster));
 
             if (mArchetype.broadcast)
@@ -147,14 +147,14 @@ namespace Zealot.Server.Entities
                     while (mRespawnedCount > 0 && maChildren.Count < mMonsterSpawnerJson.population)
                     {
                         SpawnMonster();
-                        mRespawnedCount--;
+                        --mRespawnedCount;
                     }
                 }
             }
             else
             {
                 if (mRespawnedCount != -1)
-                    mRespawnedCount--;
+                    --mRespawnedCount;
                 SpawnMonster();
                 if (maChildren.Count < mMonsterSpawnerJson.population && (mRespawnedCount == -1 || mRespawnedCount > 0))
                     timer = mInstance.SetTimer(mMonsterSpawnerJson.respawnTime, OnRespawnTimeUp, null);
@@ -185,10 +185,9 @@ namespace Zealot.Server.Entities
         {             
             if (IsGroupAggro())
             {
-                foreach (var monster in maChildren)
-                {
-                    monster.OnGroupAggro(pid, att);
-                }
+                int count = maChildren.Count;
+                for (int i = 0; i < count; ++i)
+                    maChildren[i].OnGroupAggro(pid, att);
             }
         }
 
@@ -210,11 +209,10 @@ namespace Zealot.Server.Entities
         #region Trigger
         public virtual void HelpAttack(IServerEntity sender, object[] parameters = null)
         {
-            //used for normal monster to attack if the boss is attacked.
-            foreach (Monster monster in maChildren)
-            {
-                monster.OnAttacked((IActor)parameters[0], 1);
-            }
+            // Used for normal monster to attack if the boss is attacked.
+            int count = maChildren.Count;
+            for (int i = 0; i < count; ++i)
+                maChildren[i].OnAttacked((IActor)parameters[0], 1);
         }
         public virtual void SetArchetype(IServerEntity sender, object[] parameters = null)
         {

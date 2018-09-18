@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Zealot.Entities;
-using Zealot.Common;
 
 namespace Zealot.Spawners
 {

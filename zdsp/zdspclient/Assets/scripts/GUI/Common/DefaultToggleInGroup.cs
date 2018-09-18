@@ -11,11 +11,11 @@ public class DefaultToggleInGroup : MonoBehaviour
     [SerializeField]
     List<GameObject> list_tabcontent = null;
     [SerializeField]
-    bool defaultAutoEnable = true;
+    bool enableDefaultToggle = true;
     [SerializeField]
     Toggle defaultToggle = null;
 
-    private bool enableDefault = true;
+    private bool onDefaultToggle = true;
     private ToggleGroup toggleGroup;
     private bool allowSwitchOff = false;
 
@@ -31,9 +31,9 @@ public class DefaultToggleInGroup : MonoBehaviour
 
     void OnEnable()
     {
-        if (defaultAutoEnable && defaultToggle != null)
+        if (enableDefaultToggle && defaultToggle != null)
         {
-            enableDefault = true;
+            onDefaultToggle = true;
             StartCoroutine(LateEnable());
         }
     }
@@ -41,7 +41,7 @@ public class DefaultToggleInGroup : MonoBehaviour
     IEnumerator LateEnable()
     {
         yield return null;
-        if (enableDefault)
+        if (onDefaultToggle)
             defaultToggle.isOn = true;
     }
 
@@ -49,15 +49,16 @@ public class DefaultToggleInGroup : MonoBehaviour
     {
         if (toggleGroup != null)
             toggleGroup.allowSwitchOff = true;
-        foreach (var toggle in list_toggle)
-            toggle.isOn = false;
+        int count = list_toggle.Count;
+        for (int i = 0; i < count; ++i)
+            list_toggle[i].isOn = false;
         if (toggleGroup != null)
             toggleGroup.allowSwitchOff = allowSwitchOff;
     }
 
     public void GoToPage(int index)
     {
-        enableDefault = false;
+        onDefaultToggle = false;
         if (toggleGroup != null)
             toggleGroup.allowSwitchOff = true;
         int count = list_toggle.Count;

@@ -148,8 +148,9 @@ namespace Zealot.Repository
 
         public static string GetModelPrefabPathById(int id)
         {
-            if (mIdMap.ContainsKey(id))
-                return mIdMap[id].modelprefabpath;
+            StaticNPCJson npcJson;
+            if (mIdMap.TryGetValue(id, out npcJson))
+                return npcJson.modelprefabpath;
             return "";
         }
 

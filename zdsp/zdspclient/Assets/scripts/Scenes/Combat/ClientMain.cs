@@ -151,27 +151,6 @@ public partial class ClientMain : MonoBehaviour
 
     private Dictionary<string, string> strFormatParam;
 
-    // Debug used //
-    private UnityEngine.UI.Button bGenderDebug;
-    private UnityEngine.UI.Button bWeaponDebug;
-
-    [Flags]
-    private enum eSelectedWeapon : ushort
-    {
-        eSWORD = 1 << 0,
-        eBLADE = 1 << 1,
-        eLANCE = 1 << 2,
-        eHAMMER = 1 << 3,
-        eFAN = 1 << 4,
-        eXBOW = 1 << 5,
-        eDAGGER = 1 << 6,
-        eSANSIAN = 1 << 7
-    }
-
-    private eSelectedWeapon eAllowed = eSelectedWeapon.eBLADE | eSelectedWeapon.eHAMMER | eSelectedWeapon.eLANCE | eSelectedWeapon.eDAGGER | eSelectedWeapon.eSWORD | eSelectedWeapon.eXBOW;
-    //private eSelectedWeapon eAvatarInfo = eSelectedWeapon.eGENDERTYPE | eSelectedWeapon.eHAMMER;
-    // Debug used //
-
     private void Awake()
     {
         this.useGUILayout = false;
@@ -237,7 +216,7 @@ public partial class ClientMain : MonoBehaviour
     public void InitPlayerCamera(GameObject camera)
     {
         PlayerCamera = camera;
-        mDefaultCullMask = PlayerCamera.GetComponent<Camera>().cullingMask;
+        mDefaultCullMask = PlayerCamera.GetComponentInChildren<Camera>().cullingMask;
         mCurrentCullMask = mDefaultCullMask;
         mEnableSceneRender = true;
     }
@@ -284,6 +263,7 @@ public partial class ClientMain : MonoBehaviour
         ActionManager.RegisterAction(ACTIONTYPE.DASHATTACK, typeof(DashAttackCommand), typeof(NonClientAuthoDashAttack));
         ActionManager.RegisterAction(ACTIONTYPE.DRAGGED, typeof(DraggedActionCommand), typeof(NonClientAuthoDragged));
         ActionManager.RegisterAction(ACTIONTYPE.GETHIT, typeof(GetHitCommand), typeof(NonClientAuthoACGetHit));
+        ActionManager.RegisterAction(ACTIONTYPE.FROZEN, typeof(FrozenActionCommand), typeof(NonClientAuthoFrozen));
     }
 
     public void OnZealotRPCEvent(PhotonNetworkingMessage eventType, EventData eventData)
@@ -499,6 +479,9 @@ public partial class ClientMain : MonoBehaviour
                 GameInfo.gDmgLabelPool = go.AddComponent<HUD_DamageLabelPool>();
                 go.layer = LayerMask.NameToLayer("UI_HUD");
             }
+
+            //HUD_Skills SkillButtons = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
+            //SkillButtons.InitSkillButtons();
         }
     }
 
@@ -560,58 +543,17 @@ public partial class ClientMain : MonoBehaviour
         if (!startbot)
         {
             //handle world map router.
-            GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
+            if (GameInfo.gLocalPlayer.Bot.IsSeekingWithRouter())
+                GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
+            else if (GameInfo.gLocalPlayer.IsInParty() && PartyFollowTarget.ResumeAfterTeleport)
+                PartyFollowTarget.Resume(true);
         }
         else
         {
             GameInfo.gLocalPlayer.Bot.StartBot();
         }
 
-        // Debug //
-        //RectTransform canvas = UIManager.GetHUDGameCanvas();
-        //GameObject button = new GameObject();
-        //button.transform.parent = canvas;
-        //button.transform.localPosition = new Vector3(-300, -100, 1);
-        //RectTransform tr = button.AddComponent<RectTransform>();
-
-        //bWeaponDebug = button.AddComponent<UnityEngine.UI.Button>();
-        //tr.localScale = new Vector3(1, 1, 1);
-        //tr.sizeDelta = new Vector2(100, 30);
-        //bWeaponDebug.onClick.AddListener(OnWeaponButton);
-        //button.AddComponent<CanvasRenderer>();
-        //bWeaponDebug.targetGraphic = button.AddComponent<UnityEngine.UI.Image>();
-        //GameObject tx = new GameObject();
-        //UnityEngine.UI.Text text = tx.AddComponent<UnityEngine.UI.Text>();
-        //tx.transform.parent = button.transform;
-        //text.alignment = TextAnchor.MiddleCenter;
-        //text.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-        //RectTransform tr_tx = tx.GetComponent<RectTransform>();
-        //tr_tx.localScale = new Vector3(1, 1, 1);
-        //tr_tx.localPosition = new Vector3(0, 0, 1);
-        //text.color = Color.black;
-        //text.text = ((PartsType)(GameInfo.gLocalPlayer.WeaponTypeUsed)).ToString();
-
-        //GameObject button2 = new GameObject();
-        //button2.transform.parent = canvas;
-        //button2.transform.localPosition = new Vector3(-400, -100, 1);
-        //RectTransform tr2 = button2.AddComponent<RectTransform>();
-
-        //bGenderDebug = button2.AddComponent<UnityEngine.UI.Button>();
-        //tr2.localScale = new Vector3(1, 1, 1);
-        //tr2.sizeDelta = new Vector2(80, 30);
-        //bGenderDebug.onClick.AddListener(OnAvatarButton);
-        //button2.AddComponent<CanvasRenderer>();
-        //bGenderDebug.targetGraphic = button2.AddComponent<UnityEngine.UI.Image>();
-        //GameObject tx2 = new GameObject();
-        //UnityEngine.UI.Text text2 = tx2.AddComponent<UnityEngine.UI.Text>();
-        //tx2.transform.parent = button2.transform;
-        //text2.alignment = TextAnchor.MiddleCenter;
-        //text2.font = Resources.GetBuiltinResource(typeof(Font), "Arial.ttf") as Font;
-        //RectTransform tr_tx2 = tx2.GetComponent<RectTransform>();
-        //tr_tx2.localScale = new Vector3(1, 1, 1);
-        //tr_tx2.localPosition = new Vector3(0, 0, 1);
-        //text2.color = Color.black;
-        //text2.text = (GameInfo.gLocalPlayer.PlayerSynStats.Gender == 0) ? "Male" : "Female";
+        
     }
 
     private void UpdateBuffsTime(object args)
@@ -901,19 +843,19 @@ public partial class ClientMain : MonoBehaviour
                 string[] partyInfo = linkInfo.Name.Substring(7).Split(';');
                 int partyId = int.Parse(partyInfo[0]);
                 int memberCount = int.Parse(partyInfo[1]);
-                int idx = 2;
+                string leader = partyInfo[2];
+                int idx = 3;
                 List<PartyMemberInfo> members = new List<PartyMemberInfo>();
                 for (int i = 0; i < memberCount; ++i)
                 {
                     string name = partyInfo[idx++];
                     int level = int.Parse(partyInfo[idx++]);
                     int portraitId = int.Parse(partyInfo[idx++]);
-                    bool isLeader = int.Parse(partyInfo[idx++]) == 1 ? true : false;
-                    PartyMemberInfo memInfo = new PartyMemberInfo(name, level, portraitId, isLeader);
+                    PartyMemberInfo memInfo = new PartyMemberInfo(name, level, portraitId);
                     members.Add(memInfo);
                 }
                 UIManager.OpenDialog(WindowType.DialogPartyInfo,
-                    (window) => window.GetComponent<UI_Party_InfoDialog>().Init(partyId, members));
+                    (window) => window.GetComponent<UI_Party_InfoDialog>().Init(partyId, leader, members));
             }
         }
         else if (linkInfo.Name.StartsWith("|guild|"))
@@ -1086,7 +1028,7 @@ public partial class ClientMain : MonoBehaviour
     public void DisableSceneRendering()
     {
         mEnableSceneRender = false;
-        PlayerCamera.GetComponent<Camera>().cullingMask = 0;
+        PlayerCamera.GetComponentInChildren<Camera>().cullingMask = 0;
     }
 
     public void RestoreSceneRendering()
@@ -1100,7 +1042,7 @@ public partial class ClientMain : MonoBehaviour
         mCurrentCullMask = mDefaultCullMask;
 
         if (mEnableSceneRender)
-            PlayerCamera.GetComponent<Camera>().cullingMask = mDefaultCullMask;
+            PlayerCamera.GetComponentInChildren<Camera>().cullingMask = mDefaultCullMask;
     }
 
     public void SetCameraCurrentCullMask(int mask)
@@ -1108,13 +1050,13 @@ public partial class ClientMain : MonoBehaviour
         mCurrentCullMask = mask;
 
         if (mEnableSceneRender)
-            PlayerCamera.GetComponent<Camera>().cullingMask = mCurrentCullMask;
+            PlayerCamera.GetComponentInChildren<Camera>().cullingMask = mCurrentCullMask;
     }
 
     public void RestoreCameraCurrentCullMask()
     {
         if (mEnableSceneRender)
-            PlayerCamera.GetComponent<Camera>().cullingMask = mCurrentCullMask;
+            PlayerCamera.GetComponentInChildren<Camera>().cullingMask = mCurrentCullMask;
     }
 
     public void ShowEntitiesForCutscene(bool show)
@@ -1164,7 +1106,7 @@ public partial class ClientMain : MonoBehaviour
 
     public void OnFinishedTraingingRealm()
     {
-        RPCFactory.CombatRPC.FirstRealmStep((int)Trainingstep.Finished);
+        RPCFactory.CombatRPC.TutorialStep((int)Trainingstep.Finished);
     }
 
     public void SetUIAmbientLight(bool enable)
@@ -1396,12 +1338,12 @@ public partial class ClientMain : MonoBehaviour
         SkillData sdata = SkillRepo.GetSkill(skillid);
         if (sdata == null)
             return;
-        if (sdata.skillgroupJson.skilltype == SkillType.BasicAttack)
-        {
-            //basic attack must click the target. if need auto select nearest enemy, do a query and callbackattack
-            //CommonCastBasicAttack();
-            return;
-        }
+        //if (sdata.skillgroupJson.skilltype == SkillType.BasicAttack)
+        //{
+        //    //basic attack must click the target. if need auto select nearest enemy, do a query and callbackattack
+        //    //CommonCastBasicAttack();
+        //    return;
+        //}
         if (sdata.skillgroupJson.skilltype != SkillType.Active)
             return;
         if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)
@@ -1415,9 +1357,29 @@ public partial class ClientMain : MonoBehaviour
             mPlayerInput.SetMoveIndicator(Vector3.zero);
             DirectCastSkill(skillid, pid);
         }
+        else if(sdata.skillgroupJson.skillbehavior == SkillBehaviour.Target)
+        {
+            Debug.Log("ID of selected : " + GameInfo.gSelectedEntity);
+            if(GameInfo.gSelectedEntity != null)
+            {
+                BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
+                ApproachAndCastSkill(skillid, target.GetPersistentID(), target.Position);
+            }
+            else
+            mPlayerInput.ListenForPos((ActorGhost entity, Vector3 pos) =>
+            {
+                if (entity == null) return;
+                Debug.Log("selected actor is " + entity.GetPersistentID().ToString());
+                mPlayerInput.SetMoveIndicator(Vector3.zero);
+                
+                ApproachAndCastSkill(skillid, entity.GetPersistentID(), pos);
+            }, false);
+        }
         else if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
         {
-            mPlayerInput.ListenForPos((Vector3 pos) =>
+            // show skill indicator
+            GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, GameInfo.gLocalPlayer.Position);
+            mPlayerInput.ListenForPos((ActorGhost entity, Vector3 pos) =>
             {
                 Debug.Log("selected pos is " + pos.ToString());
                 mPlayerInput.SetMoveIndicator(Vector3.zero);

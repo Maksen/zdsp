@@ -8,12 +8,9 @@ namespace FancyScrollView
         [SerializeField]
         Example03ScrollView scrollView;
 
-        [SerializeField]
-        int CellCount = 20;
-
         void Start()
         {
-            var cellData = Enumerable.Range(0, CellCount)
+            var cellData = Enumerable.Range(0, 20)
                 .Select(i => new Example03CellDto { Message = "Cell " + i })
                 .ToList();
 

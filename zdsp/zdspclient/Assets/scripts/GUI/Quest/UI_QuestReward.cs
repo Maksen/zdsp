@@ -3,17 +3,16 @@ using UnityEngine;
 using System.Collections.Generic;
 using Zealot.Repository;
 using Zealot.Common;
+using UnityEngine.UI;
 
 public class UI_QuestReward : MonoBehaviour
 {
     [SerializeField]
-    GameObject MaterialIcon;
-
+    GameObject MaterialIcon = null;
     [SerializeField]
-    GameObject ConsumableIcon;
-
+    GameObject ConsumableIcon = null;
     [SerializeField]
-    GameObject EquipIcon;
+    GameObject EquipIcon = null;
 
     private List<GameObject> mRewards;
 
@@ -26,33 +25,35 @@ public class UI_QuestReward : MonoBehaviour
 
         foreach (RewardItem item in reward.itemRewardLst)
         {
-            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(item.id);
+            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(item.itemId);
             GameObject icon = null;
             switch(itemJson.bagtype)
             {
                 case BagType.Equipment:
                     icon = Instantiate(EquipIcon);
-                    icon.GetComponent<GameIcon_Equip>().InitWithoutCallback(item.id, 0, 0, 0);
+                    icon.GetComponent<GameIcon_Equip>().InitWithoutCallback(item.itemId, 0, 0, 0);
                     break;
                 case BagType.Consumable:
                     icon = Instantiate(ConsumableIcon);
-                    icon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(item.id, item.count);
+                    icon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(item.itemId, item.count);
                     break;
                 case BagType.Material:
                     icon = Instantiate(MaterialIcon);
-                    icon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(item.id, item.count);
+                    icon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(item.itemId, item.count);
                     break;
-                case BagType.DNA:
+                case BagType.Socket:
                     break;
             }
             icon.transform.SetParent(transform, false);
+            RewardItem rewardItem = item;
+            icon.GetComponent<Button>().onClick.AddListener(() => OnClickItem(rewardItem));
             mRewards.Add(icon);
         }
     }
 
     void OnDisable()
     {
-        Clear();
+        //Clear();
     }
 
     private void Clear()
@@ -64,5 +65,14 @@ public class UI_QuestReward : MonoBehaviour
 
             mRewards.Clear();
         }
+    }
+
+    public void OnClickItem(RewardItem item)
+    {
+        IInventoryItem inventoryItem = GameRepo.ItemFactory.GetInventoryItem(item.itemId);
+        inventoryItem.StackCount = item.count;
+        UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
+            window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(inventoryItem);
+        });
     }
 }

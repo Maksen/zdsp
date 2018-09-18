@@ -67,7 +67,7 @@ public class UI_Party_InviteDialog : BaseWindowBehaviour
             }
         }
         else
-            return false;   
+            return false;
     }
 
     public void OnToggleFriendTab(bool isOn)
@@ -83,7 +83,7 @@ public class UI_Party_InviteDialog : BaseWindowBehaviour
                 //{
                 //    GameObject obj = ClientUtils.CreateChild(dataContentTransform, dataPrefab);
                 //    obj.GetComponent<UI_Party_RequestData>().InitInviteData(friend.charName, friend.charLvl,
-                //        (JobType)friend.jobSect, friend.portraitId, OnClickInvite);
+                //        (JobType)friend.jobSect, OnClickInvite);
                 //}
 
                 var netEnts = GameInfo.gCombat.mEntitySystem.GetAllNetEntities();
@@ -94,7 +94,7 @@ public class UI_Party_InviteDialog : BaseWindowBehaviour
                     {
                         GameObject obj = ClientUtils.CreateChild(dataContentTransform, dataPrefab);
                         obj.GetComponent<UI_Party_InviteData>().Init(player.Name, player.PlayerSynStats.Level,
-                            (JobType)player.PlayerSynStats.jobsect, player.PlayerSynStats.PortraitID, OnClickInvite);
+                            (JobType)player.PlayerSynStats.jobsect, OnClickInvite);
                     }
                 }
             }

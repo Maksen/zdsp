@@ -4,28 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Repository;
 
-public class UI_SkillSelectButton : MonoBehaviour {
+public class UI_SkillSelectButton : UI_SkillButtonBase{
 
-    public Toggle m_Toggle;
-    public int m_ID;
-    public Image m_Icon;
-    public int m_Skillid;
+    public delegate void OnSelectedCallback(UI_SkillSelectButton param);
 
-    public UI_SkillTree m_parentPanel { get; set; }
-
-    public void Init()
+    public void Init(OnSelectedCallback function)
     {
-        m_Toggle = GetComponent<Toggle>();
-        // check if skill is equipped
-        if(GameInfo.gLocalPlayer != null)
-        {
-            EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_ID]);
-        }
-
-        m_Toggle.onValueChanged.AddListener(delegate { OnSelected(); });
+        m_Toggle.onValueChanged.AddListener(delegate { function(this); });
     }
 
-    public void EquipSkill(int skillid)
+    public void EquipSkill(int skillid, bool isPlayerEquip)
     {
         m_Skillid = skillid;
         if (m_Skillid == 0)
@@ -35,12 +23,10 @@ public class UI_SkillSelectButton : MonoBehaviour {
         else
         {
             m_Icon.sprite = ClientUtils.LoadIcon(SkillRepo.GetSkill(skillid).skillgroupJson.icon);
-            GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_ID] = skillid;
+            if(isPlayerEquip)
+                GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_skgID * m_parentPanel.GetEquipGroup()] = skillid;
+            else
+                GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_skgID * m_parentPanel.GetEquipGroup()] = skillid;
         }
-    }
-
-    public void OnSelected()
-    {
-        m_parentPanel.OnSelectEquipSkill(this);
     }
 }

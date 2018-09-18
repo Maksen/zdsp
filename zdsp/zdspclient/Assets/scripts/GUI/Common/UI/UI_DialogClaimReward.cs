@@ -46,7 +46,7 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
     Text ClaimButtonText;
 
     List<RewardItem> mRewardList;
-    private Dictionary<int, GameObject> mRewardItem;
+    private List<GameObject> mRewardItem;
     private CollectRewardData mCollectRewardData;
 
     public void Init(List<RewardItem> rewardlist, CollectRewardData data, string title = null, bool claimable = true)
@@ -62,11 +62,11 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
     private void UpdateRewardItem()
     {
         Clean();
-        mRewardItem = new Dictionary<int, GameObject>();
+        mRewardItem = new List<GameObject>();
 
         foreach(RewardItem reward in mRewardList)
         {
-            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(reward.id);
+            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(reward.itemId);
             BagType bagType = itemJson.bagtype;
             GameObject itemobj = null;
             switch (bagType)
@@ -75,7 +75,7 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
                     itemobj = Instantiate(EquipmentData);
                     itemobj.GetComponent<GameIcon_Equip>().InitWithToolTipView(itemJson.itemid, 0, 0, 0);
                     break;
-                case BagType.DNA:
+                case BagType.Socket:
                     itemobj = Instantiate(DnaData);
                     itemobj.GetComponent<GameIcon_DNA>().InitWithToolTipView(itemJson.itemid, 0, 0);
                     break;
@@ -86,7 +86,7 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
                 
             }
             itemobj.transform.SetParent(ItemContent, false);
-            mRewardItem.Add(reward.id, itemobj);
+            mRewardItem.Add(itemobj);
         }
     }
 
@@ -94,11 +94,11 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
     {
         if (mRewardItem != null)
         {
-            foreach(KeyValuePair<int, GameObject> entry in mRewardItem)
+            foreach(GameObject obj in mRewardItem)
             {
-                Destroy(entry.Value);
+                Destroy(obj);
             }
-            mRewardItem = new Dictionary<int, GameObject>();
+            mRewardItem = new List<GameObject>();
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿namespace Zealot.Server.Entities
 {
+    using System;
     using System.Collections.Generic;
     using UnityEngine;
     using Zealot.Common;
@@ -71,7 +72,7 @@
 
             Vector3 pos = mTargetEntity.Position;
             float combinedRadii = attacker.Radius + mTargetEntity.Radius;
-            float offsetDist = System.Math.Max(System.Math.Min(preferredRange - 0.2f, combinedRadii + 4), combinedRadii);//at most 4m from target entity
+            float offsetDist = Math.Max(Math.Min(preferredRange - 0.2f, combinedRadii + 4), combinedRadii);//at most 4m from target entity
             Vector3 offsetPos = pos + dirs[index] * offsetDist;
             return offsetPos;
         }
@@ -167,7 +168,7 @@
         }
     }
 
-    [System.Flags]
+    [Flags]
     public enum ControlSEType : byte
     {
         Stun = 1 << 0,
@@ -175,20 +176,21 @@
         Fear = 1 << 2,
         Silence = 1 << 3,
         Taunt = 1 << 4,
+        Freeze = 1 << 5,
         //Total //used to determine total number of control side effects
     }
 
-    [System.Flags]
-    public enum ImmuneSEType : byte {
+    [Flags]
+    public enum ImmuneSEType : int {
         Stun = 1 << 0,
         Root = 1 << 1,
         Fear = 1 << 2,
         Silence = 1 << 3,
         Taunt = 1 << 4,
-        AllDamage = 1 << 5,
-        AllDebuff = 1 << 6,
-        AllControl = 1 << 7,
-        
+        Freeze = 1 << 5,
+        AllDamage = 1 << 6,
+        AllDebuff = 1 << 7,
+        AllControl = 1 << 8        
     }
 
     public class LocalSkillStats
@@ -210,12 +212,6 @@
  
         public SkillPassiveCombatStats SkillPassiveStats { get; set; }
         protected LocalSkillStats finalcombatstats = null;
-        public int GetHealth()
-        {
-            if (CombatStats == null)
-                return 0;
-            return (int)CombatStats.GetField(FieldName.Health);
-        }
 
         public virtual float GetExDamage()
         {
@@ -227,22 +223,27 @@
             SkillPassiveStats.OnEvasion(GetPersistentID() ,GetHealthMax());
         }
 
+        public int GetHealth()
+        {
+            if (CombatStats == null)
+                return 0;
+            return (int)CombatStats.GetField(FieldName.Health);
+        }
+
         public virtual void SetHealth(int val)
         {
-            int oriHealth = (int)CombatStats.GetField(FieldName.Health);
+            int origHealth = (int)CombatStats.GetField(FieldName.Health);
             CombatStats.SetField(FieldName.Health, val);
-            if (oriHealth <= 0 && val > 0)
+            if (origHealth <= 0 && val > 0)
                 PlayerStats.Alive = true;
-            if (val == 0)
+            else if (val == 0)
                 PlayerStats.Alive = false;
         }
 
         public virtual void AddToHealth(int val)
         {
             int health = GetHealth() + val;
-            int healthmax = GetHealthMax();
-            if (health > healthmax)
-                health = healthmax;
+            health = Math.Min(health, GetHealthMax());
             SetHealth(health);
         }
 
@@ -250,7 +251,7 @@
         {
             int heal = GetHealthMax() * percent / 100;
             AddToHealth(heal);
-            return heal;  
+            return heal;
         }
 
         public int GetHealthMax()
@@ -264,28 +265,73 @@
             CombatStats.SetField(FieldName.HealthMax, val);
         }
 
+        public int GetMana()
+        {
+            if (CombatStats == null)
+                return 0;
+            return (int)CombatStats.GetField(FieldName.Mana);
+        }
+
+        public float GetManaNormalized()
+        {
+            return (float)GetMana() / GetManaMax();
+        }
+
+        public virtual void SetMana(int val)
+        {
+            CombatStats.SetField(FieldName.Mana, val);
+        }
+
+        public virtual void AddToMana(int val)
+        {
+            int mana = GetMana() + val;
+            mana = Math.Min(mana, GetManaMax());
+            SetMana(mana);
+        }
+
+        public int AddManaPercentage(int percent)
+        {
+            int mana = GetManaMax() * percent / 100;
+            AddToMana(mana);
+            return mana;
+        }
+
+        public int GetManaMax()
+        {
+            return (int)CombatStats.GetField(FieldName.ManaMax);
+        }
+
+        public void SetManaMax(int val)
+        {
+            CombatStats.SetField(FieldName.ManaBase, val);
+            CombatStats.SetField(FieldName.ManaMax, val);
+        }
+
         public bool IsAlive()
         {
-            return !Destroyed && GetHealth() > 0;
+            return !Destroyed && PlayerStats.Alive;
         }
-        public int Team { get { return PlayerStats.Team; } set { PlayerStats.Team = value; } }        
+        public int Team { get { return PlayerStats.Team; } set { PlayerStats.Team = value; } }
         public abstract bool IsInvalidTarget();
         public abstract bool IsInSafeZone();
-        public string Name { get; set; }        
+        public string Name { get; set; }
 
         private PositionSlots mPositionSlots;
         public PositionSlots PositionSlots { get { return mPositionSlots; } }
         private Dictionary<int, Actor> mNPCAttackers; //table of npcs having this actor as the current target
-        protected List<SpecailSE> mPersistentSideEffects;
+        protected List<SpecialSE> mPersistentSideEffects;
         protected SideEffect[] mSideEffectsPos;
         protected SideEffect[] mSideEffectsNeg;
+        protected Dictionary<int, List<SideEffect>> m_EquipmentSE; // <equipment id , sideeffects>
+        protected Dictionary<int, int> m_SideEffectList; // <sideeffect id , stack count>
 
         protected Kopio.JsonContracts.SideEffectJson mElemental;
 
         //public ControlStats ControlStats;
-         
 
         protected int mMinDmg;
+
+        public ShieldSE shieldSE = null;
 
         public bool InvincibleMode { get { return PlayerStats.invincible; }
             set { PlayerStats.invincible = value; } }
@@ -296,9 +342,11 @@
             mNPCAttackers = new Dictionary<int, Actor>();
             Radius = CombatUtils.DEFAULT_ACTOR_RADIUS;
 
-            mPersistentSideEffects = new List<SpecailSE>();
+            mPersistentSideEffects = new List<SpecialSE>();
             mSideEffectsPos = new SideEffect[BuffTimeStats.MAX_EFFECTS];
             mSideEffectsNeg = new SideEffect[BuffTimeStats.MAX_EFFECTS];
+            m_EquipmentSE = new Dictionary<int, List<SideEffect>>();
+            m_SideEffectList = new Dictionary<int, int>();
 
             //ControlStats = new ControlStats();
             finalcombatstats = new LocalSkillStats();
@@ -347,9 +395,7 @@
 		    mNPCAttackers.Clear();
 	    }
         #endregion
-        public ShieldSE shieldSE = null;
 
-       
         public virtual void RTStarted()
         {
             RecoverTime =  EntitySystem.Timers.GetSynchronizedTime();
@@ -366,47 +412,43 @@
             if (!IsAlive())
                 return;
            
-            if (attacker != this) //if player attacks himself, we don't queue as attacker
+            if (attacker != this) // If player attacks himself, we don't queue as attacker
                 attacker.QueueDmgResult(res); //For attacker to see this result at client
-            if (shieldSE != null)
-                res.RealDamage = shieldSE.OnAttacked(res.RealDamage);
-            else
-                res.RealDamage = SkillPassiveStats.OnDamage(res.RealDamage, this);
-            
-            QueueDmgResult(res);          //For defender to see this result at client
+
+            res.RealDamage = (shieldSE != null) 
+                ? shieldSE.OnAttacked(res.RealDamage) : SkillPassiveStats.OnDamage(res.RealDamage, this);        
+            QueueDmgResult(res); // For defender to see this result at client
             OnAttacked(attacker, res.RealDamage); //currently 1:1  
             
-            int temphealth = GetHealth() - res.RealDamage;
-            if (temphealth <= 0)
+            int hpAfterDmg = GetHealth() - res.RealDamage;
+            if (hpAfterDmg <= 0)
             {                                
                 SetHealth(0);
                 OnKilled(attacker);
             }
-            else
-            {                
-                SetHealth(temphealth);
-            }
+            else          
+                SetHealth(hpAfterDmg);
         }
 
-        public virtual void OnRecoverHealth(int origamount)
+        public virtual void OnRecoverHealth(int origAmount)
         {
             if (!IsAlive())
                 return;
+
             if (IsPlayer())
             {
                 int rejperc = (int)SkillPassiveStats.GetField(SkillPassiveFieldName.Rej_Increase);
-                origamount = (int)(origamount * (1 + rejperc * 0.01f));
+                origAmount = (int)(origAmount * (1 + rejperc * 0.01f));
             }
             //suppress rej
             float supp = (int)SkillPassiveStats.GetField(SkillPassiveFieldName.RejSupress);
-            float finalres = origamount - origamount * supp * 0.01f;
-            int amount = (int)finalres;
-            int temphealth = GetHealth() + amount;
-            
-            if (temphealth > GetHealthMax())
-                temphealth = GetHealthMax();
+            float finalRes = origAmount - origAmount * supp * 0.01f;
+            int amount = (int)finalRes;
+            int hpAfterHeal = GetHealth() + amount;          
+            if (hpAfterHeal > GetHealthMax())
+                hpAfterHeal = GetHealthMax();
 
-            SetHealth(temphealth);
+            SetHealth(hpAfterHeal);
             int mypid = GetPersistentID();
             AttackResult res = new AttackResult(mypid, amount, false, mypid);
             res.IsHeal = true;
@@ -432,7 +474,6 @@
         public virtual bool AddElementalSE(Kopio.JsonContracts.SideEffectJson se) {
             // check if the side effect belongs to current equiped weapon
             // any other side effects that comes that are not will be applied instead
-
 
             mElemental = se;
 
@@ -491,23 +532,23 @@
 
         public bool IsPerformingApproach()
         {
-            System.Type actionType = GetAction().GetType();
+            Type actionType = GetAction().GetType();
             return actionType == typeof(ASApproachWithPathFind) || actionType == typeof(ServerAuthoASApproach);
         }
 
         public bool IsMoving()
         {
-            System.Type actionType = GetAction().GetType();
+            Type actionType = GetAction().GetType();
             return actionType == typeof(ASApproachWithPathFind) || actionType == typeof(ServerAuthoASApproach) ||
                    actionType == typeof(ServerAuthoASWalk);
         }
 
-        public List<SpecailSE> GetPersistentSEList()
+        public List<SpecialSE> GetPersistentSEList()
         {
             return mPersistentSideEffects;
         }
 
-        public virtual bool AddSpecialSideEffect(SpecailSE se)
+        public virtual bool AddSpecialSideEffect(SpecialSE se)
         {
             if(mPersistentSideEffects.Count < BuffTimeStats.MAX_EFFECTS)
             {
@@ -517,7 +558,7 @@
             return false;
         }
        
-        public virtual void RemoveSpecialSideEffect(SpecailSE se)
+        public virtual void RemoveSpecialSideEffect(SpecialSE se)
         {
             if (mPersistentSideEffects.Contains(se))
             {
@@ -528,21 +569,21 @@
         public virtual int AddSideEffect(SideEffect se, bool positiveEffect)
         {   
             SideEffect[] sideeffects;
-            int slotid = -1; 
+            int slotid = -1;
             if (se.IsDot())
-            {
-                SkillPassiveStats.OnDotStart(); 
-            } else if (se.IsDeBuff())
-            {
+                SkillPassiveStats.OnDotStart();
+            else if (se.IsDeBuff())
                 SkillPassiveStats.OnDebuffStart();
-            }
+
             if (positiveEffect)            
                 sideeffects = mSideEffectsPos;            
             else            
-                sideeffects = mSideEffectsNeg; 
-            for (int i = 0; i < sideeffects.Length; i++)
+                sideeffects = mSideEffectsNeg;
+
+            int length = sideeffects.Length;
+            for (int i = 0; i < length; ++i)
             {
-                if (sideeffects[i] == null&&slotid ==-1)
+                if (sideeffects[i] == null && slotid == -1)
                 {
                     sideeffects[i] = se;
                     AddSideEffectVisual(se, positiveEffect);
@@ -553,8 +594,65 @@
             return slotid; 
         }  
 
+        public virtual bool AddEquipmentSideEffect(SideEffect se, int equipid)
+        {
+            if (AddSideEffectToList(se))
+            {
+                if (!m_EquipmentSE.ContainsKey(equipid))
+                    m_EquipmentSE[equipid] = new List<SideEffect>();
+
+                m_EquipmentSE[equipid].Add(se);
+                return true;
+            }
+            return false;
+        }
+
+        public virtual bool RemoveEquipmentSideEffect(SideEffect se, int equipid)
+        {
+            if (!m_EquipmentSE.ContainsKey(equipid))
+                return false;
+            else
+            {
+                int index = m_EquipmentSE[equipid].FindIndex(x => x.mSideeffectData.id == se.mSideeffectData.id);
+                RemoveSideEffectFromList(m_EquipmentSE[equipid][index]);
+                m_EquipmentSE[equipid].RemoveAt(index);
+                return true;
+            }
+        }
+
+        public virtual bool AddSideEffectToList(SideEffect se)
+        {
+            if (!m_SideEffectList.ContainsKey(se.mSideeffectData.id))
+            {
+                m_SideEffectList[se.mSideeffectData.id] = 1;
+                return true;
+            }
+            else
+            {
+                if (se.mSideeffectData.stackable && se.mSideeffectData.stackcount > m_SideEffectList[se.mSideeffectData.id])
+                {
+                    ++m_SideEffectList[se.mSideeffectData.id];
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public virtual void RemoveSideEffectFromList(SideEffect se)
+        {
+            if (!m_SideEffectList.ContainsKey(se.mSideeffectData.id))
+                return;
+            else
+            {
+                if (m_SideEffectList[se.mSideeffectData.id] > 0)
+                    --m_SideEffectList[se.mSideeffectData.id];
+            }
+        }
          
-        public int NumOfStun, NumOfSlience,NumOfRoot,NumOfSlow,NumOfDisarm = 0;//this is need to support multiply control se at the same time
+        public int NumOfStun = 0, NumOfSlience = 0, NumOfRoot = 0, NumOfSlow = 0, NumOfDisarm = 0, NumOfFrozen = 0;//this is need to support multiply control se at the same time
         private void AddSideEffectVisual(SideEffect se, bool positiveEffect)
         {            
             if (se.mSideeffectData.effecttype == EffectType.Control_Stun )
@@ -567,13 +665,19 @@
             {
                 NumOfSlience++;
                 if(NumOfSlience==1)
-                PlayerStats.VisualEffectTypes |= (int)EffectVisualTypes.Slience;
+                PlayerStats.VisualEffectTypes |= (int)EffectVisualTypes.Silence;
             }
             else if (se.mSideeffectData.effecttype == EffectType.Control_Root)
             {
                 NumOfRoot++;
                 if(NumOfRoot ==1)
                 PlayerStats.VisualEffectTypes |= (int)EffectVisualTypes.Root;
+            }
+            else if (se.mSideeffectData.effecttype == EffectType.SpecialControl_Freeze)
+            {
+                NumOfFrozen++;
+                if (NumOfFrozen == 1)
+                    PlayerStats.VisualEffectTypes |= (int)EffectVisualTypes.Frozen;
             }
             //else if (se.mSideeffectData.effecttype == EffectType.Control_Slow)
             //{
@@ -608,13 +712,19 @@
             {
                 NumOfSlience--;
                 if(NumOfSlience==0)
-                PlayerStats.VisualEffectTypes &= ~( (int)EffectVisualTypes.Slience);
+                PlayerStats.VisualEffectTypes &= ~( (int)EffectVisualTypes.Silence);
             }
             else if (se.mSideeffectData.effecttype == EffectType.Control_Root)
             {
                 NumOfRoot--;
                 if(NumOfRoot==0)
                 PlayerStats.VisualEffectTypes &= ~( (int)EffectVisualTypes.Root);
+            }
+            else if (se.mSideeffectData.effecttype == EffectType.SpecialControl_Freeze)
+            {
+                NumOfFrozen--;
+                if (NumOfFrozen == 0)
+                    PlayerStats.VisualEffectTypes &= ~((int)EffectVisualTypes.Frozen);
             }
             //else if (se.mSideeffectData.effecttype == EffectType.Control_Slow)
             //{
@@ -649,19 +759,10 @@
 
         public virtual int RemoveSideEffect(SideEffect se, bool positiveEffect)
         {
-            SideEffect[] sideeffects;
-            int slotid = -1; 
-            
-            if (positiveEffect)
-            {
-                sideeffects = mSideEffectsPos;            
-            }
-            else
-            {
-                sideeffects = mSideEffectsNeg;                
-            }
-                        
-            for (int i = 0; i < sideeffects.Length; i++)
+            SideEffect[] sideeffects = (positiveEffect) ? mSideEffectsPos : mSideEffectsNeg;
+            int slotid = -1;
+            int length = sideeffects.Length;
+            for (int i = 0; i < length; ++i)
             {
                 if (sideeffects[i] == se)
                 {                    
@@ -694,7 +795,8 @@
 
         public virtual void StopSideEffect(EffectType targettype)
         {
-            for (int i = 0; i < mSideEffectsPos.Length; i++)
+            int length = mSideEffectsPos.Length;
+            for (int i = 0; i < length; ++i)
             {
                 SideEffect se = mSideEffectsPos[i];
                 if (se != null && se.mSideeffectData.effecttype == targettype)
@@ -704,7 +806,8 @@
                 }
             }
 
-            for (int i = 0; i < mSideEffectsNeg.Length; i++)
+            length = mSideEffectsNeg.Length;
+            for (int i = 0; i < length; ++i)
             {
                 SideEffect se = mSideEffectsNeg[i];
                 if (se != null && se.mSideeffectData.effecttype == targettype)
@@ -717,22 +820,20 @@
 
         public virtual void StopAllSideEffects()
         {
-            for (int i = 0; i < mSideEffectsPos.Length; i++)
+            int length = mSideEffectsPos.Length;
+            for (int i = 0; i < length; ++i)
             {
                 SideEffect se = mSideEffectsPos[i];
                 if (se != null)
-                {
-                    mSideEffectsPos[i].Stop();
-                }
+                    se.Stop();
             }
 
-            for (int i = 0; i < mSideEffectsNeg.Length; i++)
+            length = mSideEffectsNeg.Length;
+            for (int i = 0; i < length; ++i)
             {
                 SideEffect se = mSideEffectsNeg[i];
                 if (se != null)
-                {
-                    mSideEffectsNeg[i].Stop();
-                }
+                    se.Stop();
             }
         }
 
@@ -760,8 +861,8 @@
             {
                 for (int i = mPersistentSideEffects.Count -1; i >=0; i--)
                 {
-                    SpecailSE se = mPersistentSideEffects[i];
-                    if (se!=null)
+                    SpecialSE se = mPersistentSideEffects[i];
+                    if (se != null)
                         se.OnInterval(lastUpdatePersistentSE);                    
                 }
                 lastUpdatePersistentSE = 0;
@@ -919,22 +1020,20 @@
             {
                 recoverOnHitSE.OnHit(dmg);
             }
-
         }
-
-         
-        
+    
         //call this for updating status to client.  
-        public virtual void OnControlChanged( )
-        {            
-             
+        public virtual void OnControlChanged()
+        {
         }
 
-        public virtual void SetControlStatus(ControlSEType ctype) {
+        public virtual void SetControlStatus(ControlSEType ctype)
+        {
             PlayerStats.ControlStatus |= (byte)ctype;
         }
 
-        public virtual void RemoveControlStatus(ControlSEType ctype) {
+        public virtual void RemoveControlStatus(ControlSEType ctype)
+        {
             PlayerStats.ControlStatus ^= (byte)ctype;
         }
 
@@ -972,8 +1071,17 @@
         {
         }
 
+        public virtual void OnFrozen()
+        {
+        }
+
         public virtual void OnRoot()
         {
+        }
+
+        public virtual void OnFrozen(float duration)
+        {
+
         }
 
         public bool HasControlStatus(ControlSEType setype)
@@ -999,7 +1107,6 @@
 
             //}
             //return false;
-
         }
 
         public long RecoverTime = 0;

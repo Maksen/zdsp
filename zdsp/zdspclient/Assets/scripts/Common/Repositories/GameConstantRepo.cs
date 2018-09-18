@@ -30,9 +30,12 @@ namespace Zealot.Repository
 
         public static void Init(GameDBRepo gameData)
         {
-            mNameMap.Clear();       
+            mNameMap.Clear();
             foreach (KeyValuePair<int, GameConstantJson> entry in gameData.GameConstant)
-                mNameMap.Add(entry.Value.name, entry.Value.value);
+            {
+                if(mNameMap.ContainsKey(entry.Value.name) == false)
+                    mNameMap.Add(entry.Value.name, entry.Value.value);
+            }
            
             string newChar_SpawnInfoStr = GetConstant("NewChar_SpawnInfo");
             if (!string.IsNullOrEmpty(newChar_SpawnInfoStr))

@@ -98,6 +98,14 @@ namespace Zealot.Repository
             return "";
         }
 
+        public static string GetJobPortraitPath(JobType type)
+        {
+            JobsectJson json = GetJobByType(type);
+            if (json != null)
+                return json.portraitpath;
+            return "";
+        }
+
         /// <summary>
         /// Returns a list of jobs that derive to current job starting from the job pasted in to newbie
         /// </summary>
@@ -115,6 +123,20 @@ namespace Zealot.Repository
                 result.Add(current);
             }
 
+            return result;
+        }
+
+        public static List<JobType> GetJobTypeFromString(string original)
+        {
+            List<JobType> result = new List<JobType>();
+            string[] ids = original.Split(';');
+            foreach(string id in ids)
+            {
+                int res = 0;
+                System.Int32.TryParse(id, out res);
+                JobType job = (JobType)res;
+                result.Add(job);
+            }
             return result;
         }
     }

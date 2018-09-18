@@ -68,6 +68,8 @@ namespace Zealot.Repository
 
         public static Dictionary<int, Dictionary<WeaponType, int>> mWeapontypeToSId;
 
+        public static List<int> m_SpecialSkill;
+
         static SkillRepo()
         {
             mSkills = new Dictionary<int, SkillData>();
@@ -77,6 +79,7 @@ namespace Zealot.Repository
             //mSideEffectByLevel = new Dictionary<int, Dictionary<int, SideEffectJson>>();
             mWeaponTypeGetSkillID = new Dictionary<PartsType, Dictionary<int, int>>();
             m_SkillGroupToSkill = new Dictionary<int, List<int>>();
+            m_SpecialSkill = new List<int>();
         }
 
         public static void Init(GameDBRepo gameData)
@@ -86,6 +89,7 @@ namespace Zealot.Repository
             mWeapontypeToSId.Clear();
             mWeaponTypeGetSkillID.Clear();
             m_SkillGroupToSkill.Clear();
+            m_SpecialSkill.Clear();
             mSkillGroupsRaw = gameData.SkillGroup; 
             foreach (KeyValuePair<int, SkillJson> entry in gameData.Skill)
             {
@@ -127,6 +131,11 @@ namespace Zealot.Repository
                         mWeaponTypeGetSkillID[type].Add(skillJson.id, skillJson.skillgroupid);
                     }
                 }
+
+                if(skillData.skillgroupJson.skillclass == SkillClass.Special)
+                {
+                    m_SpecialSkill.Add(skillData.skillJson.id);
+                }
             }
 
             foreach (Skill__selfsideeffectJson val in gameData.Skill__selfsideeffect)
@@ -159,25 +168,10 @@ namespace Zealot.Repository
                 }
             }
 
-            //foreach (KeyValuePair<int, SideEffectJson> entry in SideEffectRepo.mIdMap)
-            //{
-            //    SideEffectJson sideeffect = entry.Value;
-            //    Dictionary<int, SideEffectJson> tmplist = new Dictionary<int, SideEffectJson>();
-            //    for (int i = 0; i < 100; i++)
-            //    {
-            //        tmplist.Add(i, UpdateSideEffectByLevel(sideeffect, i+1));
-            //    }
-
-            //    mSideEffectByLevel.Add(sideeffect.id, tmplist);
-               
-            //}
-
             foreach (KeyValuePair<int, List<int>> ids in m_SkillGroupToSkill)
             {
                 ids.Value.Sort((lhs, rhs) => GetSkill(lhs).skillJson.level.CompareTo(GetSkill(rhs).skillJson.level));
             }
-
-            //mMonsterBasicAttack = GetSkill(MONSTER_BASIC_ATTACK_SKILLID);
         }
 
         public static List<WeaponType> SplitWeaponType(string weaponlist) {
@@ -300,6 +294,26 @@ namespace Zealot.Repository
         }
 
         /// <summary>
+        /// get skill of level or next closest level to given level 
+        /// </summary>
+        /// <param name="skillgroupid"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public static SkillData GetSkillByGroupIDOfPreviousLevel(int skillgroupId, int level)
+        {
+            if (m_SkillGroupToSkill.ContainsKey(skillgroupId))
+            {
+                //skill group found
+                //search for skill of level - 1
+                int result = BinarySearchList(m_SkillGroupToSkill[skillgroupId], 0, m_SkillGroupToSkill[skillgroupId].Count - 1, level - 1);
+                if (result == -1) return null;
+
+                return GetSkill(m_SkillGroupToSkill[skillgroupId][result]);
+            }
+            return null;
+        }
+
+        /// <summary>
         /// get skill of given level 
         /// </summary>
         /// <param name="skillgroupid"></param>
@@ -349,6 +363,11 @@ namespace Zealot.Repository
             return false;
         }
 
+        /// <summary>
+        /// Returns the highest level skill's level
+        /// </summary>
+        /// <param name="skillgroupid"></param>
+        /// <returns></returns>
         public static int GetSkillGroupMaxLevel(int skillgroupid)
         {
             if (m_SkillGroupToSkill.ContainsKey(skillgroupid))
@@ -358,6 +377,20 @@ namespace Zealot.Repository
                     return GetSkill(skillList[skillList.Count - 1]).skillJson.level;
                 else
                     return 0;
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Returns the times a skill can level up
+        /// </summary>
+        /// <param name="skillgroupid"></param>
+        /// <returns></returns>
+        public static int GetSkillGroupMaxUpgrade(int skillgroupid)
+        {
+            if (m_SkillGroupToSkill.ContainsKey(skillgroupid))
+            {
+                return m_SkillGroupToSkill[skillgroupid].Count;
             }
             return 0;
         }
@@ -419,6 +452,27 @@ namespace Zealot.Repository
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns></returns>
+        public static List<int> GetSpecialSkillGivenJob(JobType job)
+        {
+            List<int> result = new List<int>();
+            foreach(var id in m_SpecialSkill)
+            {
+                List<JobType> jobs = JobSectRepo.GetJobTypeFromString(GetSkill(id).skillJson.requiredclass);
+                if(jobs.Contains(job))
+                {
+                    result.Add(id);
+                }
+            }
+            return result;
+        }
+
+        
+
         //public static SkillData GetWeaponsBasicAttackData(WeaponType weapon, int index) {
         //    int id = -1;
         //    Dictionary<int, int> result = null;
@@ -445,27 +499,34 @@ namespace Zealot.Repository
         //    return null;
         //}
 
-        public static SkillData GetWeaponsBasicAttackData(PartsType weapon, int index) {
+        public static SkillData GetWeaponsBasicAttackData(PartsType weapon, int index)
+        {
             Dictionary<int, int> result = null;
-
-            mWeaponTypeGetSkillID.TryGetValue(weapon, out result);
-            foreach (var iter in result) {
-                SkillData data = GetSkill(iter.Key);
-                if (data.skillJson.name.Contains("atk" + index.ToString() + "_" + weapon.ToString().ToLower()))
-                    return data;
+            if (mWeaponTypeGetSkillID.TryGetValue(weapon, out result))
+            {
+                string skillName = string.Format("atk{0}_{1}", index, weapon.ToString().ToLower());
+                foreach (var iter in result)
+                {
+                    SkillData data = GetSkill(iter.Key);
+                    if (data.skillJson.name.Contains(skillName))
+                        return data;
+                }
             }
             return null;
         }
 
-        public static SkillData GetGenderWeaponBasicAttackData(PartsType weapon, int index, string gender) {
+        public static SkillData GetGenderWeaponBasicAttackData(PartsType weapon, int index, string gender)
+        {
             Dictionary<int, int> result = null;
-
-            mWeaponTypeGetSkillID.TryGetValue(weapon, out result);
-            if (result == null) return null;
-            foreach (var iter in result) {
-                SkillData data = GetSkill(iter.Key);
-                if (data.skillgroupJson.name.Contains(gender.ToLower() + "_" + weapon.ToString().ToLower() + "_atk" + index.ToString()))
-                    return data;
+            if (mWeaponTypeGetSkillID.TryGetValue(weapon, out result))
+            {
+                string skillName = string.Format("{0}_{1}_atk{2}", gender.ToLower(), weapon.ToString().ToLower(), index);
+                foreach (var iter in result)
+                {
+                    SkillData data = GetSkill(iter.Key);
+                    if (data.skillgroupJson.name.Contains(skillName))
+                        return data;
+                }
             }
             return null;
         }
@@ -486,7 +547,7 @@ namespace Zealot.Repository
             foreach(string iter in res)
             {
                 int job;
-                bool code = System.Int32.TryParse(iter, out job);
+                bool code = int.TryParse(iter, out job);
                 if (code)
                     result.Add((JobType)job);
             }
@@ -675,6 +736,29 @@ namespace Zealot.Repository
             SideEffectGroupJson group;
             mSideEffectGroups.TryGetValue(groupID, out group);
             return group;
+        }
+
+        public static string Tokenizer(string token, params object[] id)
+        {
+            SideEffectJson skill = GetSideEffect((int)id[0]);
+            token = token.Remove(0, 1);
+            token = token.Remove(token.Length - 1, 1);
+            switch (token)
+            {
+                case "min":
+                    return skill.min.ToString();
+                case "max":
+                    return skill.max.ToString();
+                case "skill affact":
+                    return skill.basicskilldamageperc.ToString();
+                case "duration":
+                    return skill.duration.ToString();
+                case "interval":
+                    return skill.interval.ToString();
+                case "percentage":
+                    return skill.procchance.ToString();
+            }
+            return null;
         }
 
     }

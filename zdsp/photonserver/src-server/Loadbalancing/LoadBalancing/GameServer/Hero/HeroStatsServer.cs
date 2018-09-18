@@ -87,10 +87,10 @@ namespace Photon.LoadBalancing.GameServer
             ParseExploredString();
         }
 
-        public void PostPlayerSpawnSummonHero()
+        public void PostPlayerSpawn()
         {
-            Hero hero = GetHero(SummonedHeroId);
-            if (hero != null)
+            Hero summonedHero = GetHero(SummonedHeroId);
+            if (summonedHero != null)
             {
                 bool canSpawn = true;
                 // if play is in party, only can spawn hero if the hero is in the party
@@ -98,7 +98,21 @@ namespace Photon.LoadBalancing.GameServer
                     canSpawn = false;
 
                 if (canSpawn)
-                    SpawnHeroEntity(hero, false);
+                    SpawnHeroEntity(summonedHero, false);
+            }
+
+            // check triggered quests on first login
+            if (peer.mFirstLogin)
+            {
+                foreach (var hero in mHeroesDict.Values)
+                {
+                    List<int> quests = hero.GetAllTriggeredQuests();
+                    for (int i = 0; i < quests.Count; i++)
+                    {
+                        if (!player.QuestController.HasQuestBeenTriggered(quests[i]))
+                            player.QuestController.TriggerNewQuest(quests[i], hero.HeroId);
+                    }
+                }
             }
         }
 
@@ -929,7 +943,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (lootLink != null)  // add any item from loot link
                 {
                     Dictionary<int, int> lootItems = new Dictionary<int, int>();
-                    LootRules.GenerateLootItem(lootLink.gids, lootItems, currencyToAdd);
+                    LootRules.GenerateLootItems(lootLink.gids, lootItems, currencyToAdd);
                     // modify loot item count by efficiency
                     foreach (int itemid in lootItems.Keys.ToList())
                         lootItems[itemid] = (int)Math.Floor(lootItems[itemid] * efficiency);

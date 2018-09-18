@@ -127,15 +127,14 @@ namespace Zealot.Server.AI
 
         private void OnFollowUpdate(long dt)
         {
-            Action action = mHeroEntity.GetAction();
-
             if (IsTargetInRange())
             {
                 GotoState("Idle");
             }
             else  // not in range yet, can be idling or still approaching
             {
-                if (action.mdbCommand.GetActionType() == ACTIONTYPE.IDLE)
+                ACTIONTYPE actiontype = mHeroEntity.GetActionCmd().GetActionType();
+                if (actiontype == ACTIONTYPE.IDLE)
                 {
                     ApproachTarget();
                 }
@@ -159,7 +158,6 @@ namespace Zealot.Server.AI
             if (!CheckTargetValid())
                 return;
 
-            Action action = mHeroEntity.GetAction();
             if (mSkillToExecute == null)
             {
                 DetermineSkillToExecute();
@@ -175,8 +173,10 @@ namespace Zealot.Server.AI
             }
             else //Out of range, either idling or still approaching
             {
+                ACTIONTYPE actiontype = mHeroEntity.GetActionCmd().GetActionType();
+
                 //Approach if out of range (include path find) and not already doing pathfind (note that monster can idle while waiting for pathfind result)
-                if (action.mdbCommand.GetActionType() == ACTIONTYPE.IDLE)
+                if (actiontype == ACTIONTYPE.IDLE)
                 {
                     ApproachTarget();
                 }

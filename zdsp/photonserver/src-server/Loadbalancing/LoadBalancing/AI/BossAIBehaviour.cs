@@ -439,7 +439,7 @@ namespace Zealot.Server.AI
 
         protected virtual bool CheckTargetValid()
         {
-            if (mMonster.mArchetype.monsterclass == MonsterClass.Boss)
+            if (mMonster.mArchetype.monstertype == MonsterType.Boss)
             {
                 if (mHighestThreatAttacker != null)//boss attack the highestThreat attacker
                 {
@@ -557,6 +557,27 @@ namespace Zealot.Server.AI
         protected override void OnStunLeave()
         {
             base.OnStunLeave();
+        }
+        #endregion
+
+        #region Frozen state
+        protected override void OnFrozenEnter(string prevstate)
+        {
+            base.OnFrozenEnter(prevstate);
+            mMonster.Idle();
+        }
+
+        protected override void OnFrozenUpdate(long dt)
+        {
+            if (!mActor.HasControlStatus(ControlSEType.Freeze))
+            {
+                GotoState("CombatApproach");
+            }
+        }
+
+        protected override void OnFrozenLeave()
+        {
+            base.OnFrozenLeave();
         }
         #endregion
 

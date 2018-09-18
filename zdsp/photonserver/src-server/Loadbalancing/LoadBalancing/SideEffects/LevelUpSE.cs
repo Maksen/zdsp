@@ -21,7 +21,7 @@
             mDuration = 0;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (!mTarget.IsPlayer())
                 return false;
@@ -31,7 +31,7 @@
             Player player = (Player)mTarget;
             //player.LevelUp(); //Kelvin, TODO: make player level up exactly 1 level here
 
-            return base.OnApply();
+            return base.OnApply(equipid);
         }
     }
 

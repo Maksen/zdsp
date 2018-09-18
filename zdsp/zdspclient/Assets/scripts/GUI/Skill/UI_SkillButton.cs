@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Kopio.JsonContracts;
 using Zealot.Repository;
 
-public class UI_SkillButton : MonoBehaviour {
+public class UI_SkillButton : UI_SkillButtonBase {
 
     [Flags]
     private enum STATUS : byte {
@@ -19,36 +19,52 @@ public class UI_SkillButton : MonoBehaviour {
         eMAX = 1 << 3, // --> 0000 1111 -> Maxed
     }
 
+    [Header("Missing Stuff")]
+    public Sprite active;
+    public Sprite passive;
+
     [Header("Information")]
-    public int m_ID;
+    //public int m_ID;
     public Text m_SkillLevelText;
     public Transform m_Anchor;
     public SkillData m_SkillData;
-    public Image m_Icon;
+    //public Image m_Icon;
     public SkillTreeJson m_Json;
     [SerializeField]
     private GameObject m_LevelUpIcon;
 
     public int m_Row = 0, m_Col = 0;
-    public Toggle m_Toggle;
+    //public Toggle m_Toggle;
 
-    public UI_SkillTree m_parentPanel { get; set; }
+    //public UI_SkillTree m_parentPanel { get; set; }
 
     private STATUS m_Status;
-    public int m_SkillLevel = 0;
+    
 
     public List<KeyValuePair<int, int>> m_RequiredSkills = new List<KeyValuePair<int, int>>();
 
     public void Init(SkillTreeJson info, UnityEngine.Events.UnityAction<bool> function)
     {
-        m_ID = info.skillgroupid;
+        m_skgID = info.skillgroupid;
         //load icon
-        m_SkillData = SkillRepo.GetSkillByGroupID(m_ID);
+        m_SkillData = SkillRepo.GetSkillByGroupID(m_skgID);
         string icon = m_SkillData.skillgroupJson.icon;
         m_Icon.sprite = ClientUtils.LoadIcon(icon);
         m_Toggle = GetComponent<Toggle>();
         m_Toggle.onValueChanged.AddListener(function);
-        m_SkillData = null;
+
+        Sprite border = active;
+        switch (m_SkillData.skillgroupJson.skilltype)
+        {
+            case Zealot.Common.SkillType.Active:
+                border = active;
+                break;
+            case Zealot.Common.SkillType.Passive:
+                border = passive;
+                break;
+        }
+
+        m_IconFrame.sprite = border;
 
         //check current player skill
         if (GameInfo.gLocalPlayer != null)
@@ -65,32 +81,32 @@ public class UI_SkillButton : MonoBehaviour {
                 {
                     break;
                 }
-                if((int)skills[i] == m_ID)
+                if((int)skills[i] == m_skgID)
                 {
                     m_SkillData = SkillRepo.GetSkill((int)skills[i + 1]);
                     m_SkillLevel = m_SkillData.skillJson.level;
                 }
             }
         }
-
+        m_Skillid = m_SkillData.skillJson.id;
         UpdateButton();
     }
 
     public void UpdateButton()
     {
-        m_LevelUpIcon.SetActive(false);
+        //m_LevelUpIcon.SetActive(false);
         if (m_SkillLevel != 0)
         {
             // is unlocked
             m_Status = STATUS.eUNLOCKED | STATUS.eACQUIRED;
             // init the level
-            m_SkillLevelText.text = m_SkillLevel.ToString() + " / " + SkillRepo.GetSkillGroupMaxLevel(m_SkillData.skillgroupJson.id).ToString();
+            m_SkillLevelText.text = m_SkillLevel.ToString() + " / " + SkillRepo.GetSkillGroupMaxUpgrade(m_SkillData.skillgroupJson.id).ToString();
             // check if can be upgraded
         }
         else
         {
             // get the unlockable skill first
-            SkillData fskill = SkillRepo.GetSkillByGroupIDOfNextLevel(m_ID, 0);
+            SkillData fskill = SkillRepo.GetSkillByGroupIDOfNextLevel(m_skgID, 0);
 
             int level = 0;
             // not unlocked previously so check for unlock
@@ -100,11 +116,11 @@ public class UI_SkillButton : MonoBehaviour {
                 level = 1;
             if (m_parentPanel.IsRequiredJobUnlocked(this) &&
                 level >= fskill.skillJson.requiredlv && m_parentPanel.IsRequiredSkillsUnlocked(this))
-                m_Status |= STATUS.eUNLOCKED;
+                m_Status ^= STATUS.eUNLOCKED;
             else
-                m_Status |= STATUS.eLOCKED;
+                m_Status ^= STATUS.eLOCKED;
 
-            m_SkillLevelText.text = m_SkillLevel + " / " + SkillRepo.GetSkillGroupMaxLevel(fskill.skillgroupJson.id).ToString();
+            m_SkillLevelText.text = m_SkillLevel.ToString() + " / " + SkillRepo.GetSkillGroupMaxUpgrade(fskill.skillgroupJson.id).ToString();
         }
 
         // find the amount of skill points avaliable
@@ -112,10 +128,10 @@ public class UI_SkillButton : MonoBehaviour {
         if (GameInfo.gLocalPlayer != null)
         {
             skillpoint = GameInfo.gLocalPlayer.LocalCombatStats.SkillPoints;
-            money = GameInfo.gLocalPlayer.SecondaryStats.money;
+            money = GameInfo.gLocalPlayer.SecondaryStats.Money;
         }
 
-        SkillData skill = SkillRepo.GetSkillByGroupIDOfNextLevel(m_ID, m_SkillLevel);
+        SkillData skill = SkillRepo.GetSkillByGroupIDOfNextLevel(m_skgID, m_SkillLevel);
         if (skill == null)
         {
             m_Status = STATUS.eMAX | STATUS.eACQUIRED;
@@ -129,11 +145,15 @@ public class UI_SkillButton : MonoBehaviour {
                 m_LevelUpIcon.SetActive(true);
             }
         }
+        else if((m_Status & STATUS.eLOCKED) == STATUS.eLOCKED)
+        {
+            m_LevelUpIcon.SetActive(false);
+        }
     }
 
     public void OnSelected()
     {
-        UpdateButton();
+        //UpdateButton();
         m_parentPanel.OnSelectSkill(this);
     }
 
@@ -146,19 +166,14 @@ public class UI_SkillButton : MonoBehaviour {
             int level = m_SkillLevel;
 
             // with current level find next level skill
-            SkillData data = SkillRepo.GetSkillByGroupIDOfNextLevel(m_ID, m_SkillLevel);
+            SkillData data = SkillRepo.GetSkillByGroupIDOfNextLevel(m_skgID, m_SkillLevel);
 
-            if (data != null && !SkillRepo.IsSkillMaxLevel(m_ID, m_SkillLevel))
+            if (data != null && !SkillRepo.IsSkillMaxLevel(m_skgID, m_SkillLevel))
             {
-                //m_SkillData = data;
-                //m_SkillLevel = m_SkillData.skillJson.level;
-                //UpdateButton();
 
                 // try to add skill, wait for server to comfirm action
-                RPCFactory.NonCombatRPC.AddToSkillInventory(data.skillJson.id, m_SkillData.skillgroupJson.id);
+                RPCFactory.NonCombatRPC.AddToSkillInventory(data.skillJson.id, data.skillgroupJson.id);
 
-                //m_Status |= STATUS.eACQUIRED;
-                //GameInfo.gLocalPlayer.
             }
 
             // inform parent of level up
@@ -170,10 +185,18 @@ public class UI_SkillButton : MonoBehaviour {
     {
         SkillData data = SkillRepo.GetSkill(skillid);
         m_SkillData = data;
+        m_Skillid = m_SkillData.skillJson.id;
         m_SkillLevel = m_SkillData.skillJson.level;
 
         m_Status |= STATUS.eACQUIRED;
         m_parentPanel.ReloadSkillDescriptor();
+
+        //check if level is maxed
+        if (SkillRepo.IsSkillMaxLevel(m_SkillData.skillgroupJson.id, m_SkillLevel)){
+            // disable the upgrade
+            m_Status |= STATUS.eMAX;
+            m_parentPanel.LevelMaxed();
+        }
     }
 
     public bool IsUpgradable()

@@ -271,14 +271,6 @@ namespace FancyScrollView
             }
         }
 
-        public float scrollDuration = 0.4f;
-        public int scrollToIndex = 0;
-        [ContextMenu("ScrollTo")]
-        public void ScrollTo()
-        {
-            ScrollTo(scrollToIndex, scrollDuration);
-        }
-
         public void ScrollTo(int index, float duration)
         {
             velocity = 0;

@@ -15,20 +15,24 @@ namespace Zealot.Server.Actions
 
         protected override void OnActiveEnter(string prevstate)
         {
-            base.OnActiveEnter(prevstate); 
-        }        
+            if (IsSkillUsable())
+            {
+                base.OnActiveEnter(prevstate);
+            }
+        }
 
         protected override void OnActiveLeave()
         {
             base.OnActiveLeave();
 
-            ((NetEntity)mEntity).ClearAction();            
+            ((NetEntity)mEntity).ClearAction();
         }
     }
 
     public class ServerAuthoWalkAndCast : BaseServerCastSkill
     {
         private const float Epsilon = 0.04f;
+
         public ServerAuthoWalkAndCast(Entity entity, ActionCommand cmd)
             : base(entity, cmd)
         {
@@ -50,10 +54,10 @@ namespace Zealot.Server.Actions
 
             //-----------------------------------------------
             //Movement here if there is
-            Actor actor = (Actor) mEntity;
-            if (actor.HasControlStatus(ControlSEType.Root))                         
+            Actor actor = (Actor)mEntity;
+            if (actor.HasControlStatus(ControlSEType.Root))
                 return;
-            
+
             Vector3 targetPos = ((WalkAndCastCommand)mdbCommand).targetPos;
             Vector3 forward = targetPos - actor.Position;
             forward.y = 0;
@@ -67,7 +71,7 @@ namespace Zealot.Server.Actions
             float moveSpeed = actor.PlayerStats.MoveSpeed;
             actor.Position = Vector3.MoveTowards(actor.Position, targetPos, moveSpeed * dt / 1000.0f);
             actor.Forward = forward.normalized;
-        }        
+        }
 
         public void WalkToNewPos(Vector3 pos)
         {

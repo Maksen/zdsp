@@ -38,9 +38,9 @@
             return ( mSideeffectData.interval > 0);
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {
                 ComputeRecoverAmount();
                 ApplyRecovery();

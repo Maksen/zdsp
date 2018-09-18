@@ -5,12 +5,12 @@ namespace Zealot.Repository
 {
     public struct RewardItem
     {
-        public int id;
+        public int itemId;
         public int count;
 
-        public RewardItem(int _id, int _count)
+        public RewardItem(int id, int _count)
         {
-            id = _id;
+            itemId = id;
             count = _count;
         }
     }
@@ -20,7 +20,7 @@ namespace Zealot.Repository
         public bool isExpGrade;
         public int job = 0;
         private int baseExperience = 0;
-        private int baseJobExperience = 0;
+        private int skillPoints = 0;
         public int money = 0;
         public int donatepoint = 0;
         public int guildactivepoint = 0;
@@ -31,7 +31,7 @@ namespace Zealot.Repository
             isExpGrade = json.isexpgrade;
             job = json.job;
             baseExperience = json.experience;
-            baseJobExperience = json.jobexperience;
+            skillPoints = json.skillpoint;
             money = json.money;
             donatepoint = json.donatept;
             guildactivepoint = json.guildactivept;
@@ -50,9 +50,8 @@ namespace Zealot.Repository
 
         public void Append(RewardListJson json)
         {
-            job = json.job;
             baseExperience += json.experience;
-            baseJobExperience += json.jobexperience;
+            skillPoints += json.skillpoint;
             money += json.money;
             donatepoint += json.donatept;
             guildactivepoint += json.guildactivept;
@@ -71,9 +70,8 @@ namespace Zealot.Repository
 
         public void Append(Reward rwd)
         {
-            job = rwd.job;
             baseExperience += rwd.baseExperience;
-            baseJobExperience += rwd.baseJobExperience;
+            skillPoints += rwd.skillPoints;
             money += rwd.money;
             donatepoint += rwd.donatepoint;
             guildactivepoint += rwd.guildactivepoint;
@@ -87,14 +85,6 @@ namespace Zealot.Repository
                 return baseExperience;
 
             return (int)(baseExperience * RewardListRepo.mExpRate[level].exprate);
-        }
-
-        public int Jxp(int jlevel)
-        {
-            if (!RewardListRepo.mExpRate.ContainsKey(jlevel) || !isExpGrade)
-                return baseJobExperience;
-
-            return (int)(baseJobExperience * RewardListRepo.mExpRate[jlevel].jexprate);
         }
     }
 
@@ -164,6 +154,9 @@ namespace Zealot.Repository
                 //Append all job reward to individual job reward
                 foreach (Reward rwd in rwdLst.Values)
                 {
+                    if (rwd.job == -1)
+                        continue;
+
                     rwd.Append(rwdLst[-1]);
                 }
 

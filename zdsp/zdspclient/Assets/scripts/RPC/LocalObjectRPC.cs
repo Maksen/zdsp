@@ -1,21 +1,13 @@
 ﻿#define PROFILE_RPC
 
-using System;
 //#define clientrpc 0
 using ExitGames.Client.Photon;
-using UnityEngine;
-
-using Zealot.Common;
-using Zealot.Common.Entities;
-using Zealot.Client;
-using Zealot.Client.Entities;
 using Zealot.Common.Datablock;
 
 /// <summary>
 /// CombatRPC .
 /// </summary>
 /// 
-
 public class LocalObjectRPC : RPCBase
 {
     public LocalObjectRPC() :

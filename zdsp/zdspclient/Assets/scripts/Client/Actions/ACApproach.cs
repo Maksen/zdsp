@@ -1,7 +1,6 @@
 namespace Zealot.Client.Actions
 {
 	using UnityEngine;
-	using Zealot.Common;
 	using Zealot.Common.Actions;
 	using Zealot.Common.Entities;
 	using Zealot.Client.Entities;
@@ -49,9 +48,7 @@ namespace Zealot.Client.Actions
 			//Debug.Log ("NetEntityGhost [" + ghost.GetPersistentID() + "] animate walk");			
 			ghost.PlayEffect(ghost.GetRunningAnimation() );
             //Debug.Log("Moving with ACApproach!");
-
         }
-
 
         protected override void OnActiveUpdate(long dt) //dt in msec
 		{
@@ -132,5 +129,3 @@ namespace Zealot.Client.Actions
         }
     }
 }
-
-

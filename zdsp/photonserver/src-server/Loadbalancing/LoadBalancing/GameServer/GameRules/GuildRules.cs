@@ -438,7 +438,7 @@ namespace Zealot.Server.Rules
                             if (AddToGuildStatsList(guildId, guildName, guildIcon, playerName, faction, gMemberStats))
                             {
                                 success = true;
-                                int goldbefore = leaderPlayer.SecondaryStats.gold;
+                                int goldbefore = leaderPlayer.SecondaryStats.Gold;
                                 int bindgoldbefore = leaderPlayer.SecondaryStats.bindgold;
                                 RemoveAllRequest(playerName);
                                 leaderPlayer.OnCreateGuild(GuildList[guildId]);

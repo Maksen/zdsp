@@ -23,7 +23,6 @@ namespace Zealot.Repository
         public static Dictionary<int, ExplorationTargetJson> explorationTargets;
         public static Dictionary<int, List<ExplorationTargetJson>> explorationGroupToTargets;  // group->targets
         public static Dictionary<Pair<TerrainType, HeroInterestType>, float> terrainEfficiencyChart;
-        public static Dictionary<TerrainType, float> terrainMaxEfficiencies;
         public static Dictionary<TerrainType, TerrainJson> terrainTypes;
 
         public static int MAX_TRUST_LEVEL;
@@ -46,7 +45,6 @@ namespace Zealot.Repository
             explorationTargets = new Dictionary<int, ExplorationTargetJson>();
             explorationGroupToTargets = new Dictionary<int, List<ExplorationTargetJson>>();
             terrainEfficiencyChart = new Dictionary<Pair<TerrainType, HeroInterestType>, float>();
-            terrainMaxEfficiencies = new Dictionary<TerrainType, float>();
             terrainTypes = new Dictionary<TerrainType, TerrainJson>();
         }
 
@@ -67,7 +65,6 @@ namespace Zealot.Repository
             explorationTargets.Clear();
             explorationGroupToTargets.Clear();
             terrainEfficiencyChart.Clear();
-            terrainMaxEfficiencies.Clear();
             terrainTypes.Clear();
         }
 
@@ -158,13 +155,6 @@ namespace Zealot.Repository
             foreach (var entry in gameData.TerrainEfficiency.Values)
             {
                 terrainEfficiencyChart.Add(Pair.Create(entry.terraintype, entry.interesttype), entry.efficiency);
-                if (terrainMaxEfficiencies.ContainsKey(entry.terraintype))
-                {
-                    if (entry.efficiency > terrainMaxEfficiencies[entry.terraintype])
-                        terrainMaxEfficiencies[entry.terraintype] = entry.efficiency;
-                }
-                else
-                    terrainMaxEfficiencies.Add(entry.terraintype, entry.efficiency);
             }
 
             foreach (var entry in gameData.Terrain.Values)
@@ -334,11 +324,17 @@ namespace Zealot.Repository
             return efficiency;
         }
 
-        public static float GetTerrainMaxEfficiency(TerrainType terrainType)
+        public static float GetTerrainMaxEfficiency(TerrainType terrainType, int interestGroup)
         {
-            float efficiency;
-            terrainMaxEfficiencies.TryGetValue(terrainType, out efficiency);
-            return efficiency;
+            var interestList = GetInterestsInGroup(interestGroup);
+            float max = 0;
+            for (int i = 0; i < interestList.Count; i++)
+            {
+                float efficiency = GetTerrainEfficiency(terrainType, interestList[i].interesttype);
+                if (efficiency > max)
+                    max = efficiency;
+            }
+            return max;
         }
 
         public static TerrainJson GetTerrainByType(TerrainType type)

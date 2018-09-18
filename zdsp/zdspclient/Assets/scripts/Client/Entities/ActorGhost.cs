@@ -1,5 +1,5 @@
-using UnityEngine;
 using Kopio.JsonContracts;
+using UnityEngine;
 using System.Collections.Generic;
 using Zealot.Common;
 using Zealot.Common.Entities;
@@ -19,16 +19,10 @@ namespace Zealot.Client.Entities
 
         public bool IsInLocalCombat
         {
-            get
-            {
-                return _isInLocalCombat;
-            }
-            set
-            {
-                _isInLocalCombat = value;
-            }
+            get { return _isInLocalCombat; }
+            set { _isInLocalCombat = value; }
         }
-                
+
         public bool IsAlive()
         {
             if (Destroyed || PlayerStats == null)
@@ -63,7 +57,7 @@ namespace Zealot.Client.Entities
         private string mPrevPosVisualSEName, mPrevNegVisualSEName;
         private bool _isHitByLocalPlayer;
         private bool _isInLocalCombat;
-        private Dictionary<string, bool> ControlSE_Status;
+        protected Dictionary<string, bool> ControlSE_Status;
 
         public ActorGhost() : base()
         {
@@ -72,13 +66,11 @@ namespace Zealot.Client.Entities
             _isHitByLocalPlayer = false;
             _isInLocalCombat = false;
             Radius = CombatUtils.DEFAULT_ACTOR_RADIUS;//todo: make sure this is same as server.
-            ControlSE_Status = new Dictionary<string, bool>{
-            { EffectVisualTypes.Stun.ToString(), false },
-            { EffectVisualTypes.Root.ToString(), false },
-            { EffectVisualTypes.Slow.ToString(), false },
-            { EffectVisualTypes.Slience.ToString(), false },
-            { EffectVisualTypes.Disarmed.ToString(), false },
-            };
+            ControlSE_Status = new Dictionary<string, bool>();
+            for (int i = 0; i < (int)EffectVisualTypes.NUM; ++i)
+            {
+                ControlSE_Status.Add(((EffectVisualTypes)i).ToString(), false);
+            }
         }
 
         protected virtual void PlayStunEffect(bool bplay)
@@ -86,7 +78,7 @@ namespace Zealot.Client.Entities
 
         }
 
-        private long gethittime = 0; 
+        private long gethittime = 0;
         private long recoveringtime = 0;
         public override void Update(long dt)
         {
@@ -94,14 +86,14 @@ namespace Zealot.Client.Entities
             recoveringtime -= dt;
             if (gethittime > 0)
             {
-                if (gethittime -dt <= 0)
+                if (gethittime - dt <= 0)
                 {
                     HitFinished();
                 }
             }
             gethittime -= dt;
         }
-         
+
         public bool IsRecovering { get { return recoveringtime > 0; } }
         public override bool IsHitted()
         {
@@ -133,8 +125,8 @@ namespace Zealot.Client.Entities
                 {
                     HitStarted();
                     gethittime = cooldown;
-                }              
-            }      
+                }
+            }
         }
 
         /// <summary>
@@ -144,7 +136,7 @@ namespace Zealot.Client.Entities
         public void StartHitted(long cooldown, int index)
         {
             //play hit animation condition check.   
-            if (IsRecovering ||IsMoving()||IsIdling())
+            if (IsRecovering || IsMoving() || IsIdling())
             {
                 if (gethittime < 0)
                 {
@@ -154,17 +146,18 @@ namespace Zealot.Client.Entities
             }
         }
 
-        protected virtual void HitStarted(int index) {
+        protected virtual void HitStarted(int index)
+        {
             string anim = GetHitAnimation();// + index;
             PlayAnimation(anim, -1);
         }
 
         protected virtual void HitStarted()
         {
-            
-              string animstr = GetHitAnimation();
+
+            string animstr = GetHitAnimation();
             //check for element
-            PlayAnimation(animstr, -1); 
+            PlayAnimation(animstr, -1);
         }
 
         protected virtual void HitFinished()
@@ -173,8 +166,40 @@ namespace Zealot.Client.Entities
                 return;
             if (IsIdling())
                 PlayAnimation(GetStandbyAnimation(), -1);
-            else if(IsMoving())
+            else if (IsMoving())
                 PlayAnimation(GetRunningAnimation(), -1);
+        }
+
+        string applied_mat = "";
+        void SetActorMaterial(EffectVisualTypes t)
+        {
+            Material loadedmat = null;
+            var container = (MaterialContainer)AssetManager.GetAssetContainer("Effects_ZDSP_StatusMaterials");
+            foreach (var mat in container.MaterialList)
+            {
+                if (mat.name.Contains(t.ToString()))
+                {
+                    loadedmat = mat;
+                    break;
+                }
+            }
+
+            if (loadedmat != null)
+            {
+                applied_mat = loadedmat.name;                
+
+                var interp = mCharController.gameObject.AddComponent<ShaderPropertyInterpolate>();
+                interp.AddMaterial(loadedmat);
+                interp.Activate("_Height", 0.25f, 0.3f); 
+            }
+        }
+
+        void RemoveActorMaterial(EffectVisualTypes t)
+        {
+            var removedname = applied_mat;
+            
+            var interp = mCharController.gameObject.AddComponent<ShaderPropertyInterpolate>();
+            interp.Activate("_Height", 0.25f, 0.3f, true, removedname);
         }
 
         private void UpdateControlStatusEffect(EffectVisualTypes t, int info)
@@ -182,47 +207,95 @@ namespace Zealot.Client.Entities
             if ((((int)t) & info) > 0 && !ControlSE_Status[t.ToString()])
             {
                 //PlaySEEffect(Vector3.zero, t.ToString(), -1f);
-                if (IsLocal)
-                {                
-                    if(EffectVisualTypes.Stun == t) {
-                        //Debug.Log("stun start..");
-                        
-                    }
-                    else if(EffectVisualTypes.Slience == t)
-                    {                        
-                        //Debug.Log("slience start..");
-                        //if (UIManager.UIHudFX.HudFilter1 != null)
-                        //    StartAnimFilter(UIManager.UIHudFX.HudFilter1, UIManager.UIHudFX.HudFilterAnim1);
-                    }
-                    else if(EffectVisualTypes.Disarmed == t)
-                    {
-                        //if (UIManager.UIHudFX.HudFilter4 != null)
-                        //    StartAnimFilter(UIManager.UIHudFX.HudFilter4, UIManager.UIHudFX.HudFilterAnim4);
-                    }
+
+                SetActorMaterial(t);
+
+                switch (t)
+                {
+                    case EffectVisualTypes.Stun:
+                        {
+                            //Debug.Log("stun start..");
+
+                        }
+                        break;
+
+                    case EffectVisualTypes.Silence:
+                        {
+                            //Debug.Log("slience start..");
+                            //if (UIManager.UIHudFX.HudFilter1 != null)
+                            //    StartAnimFilter(UIManager.UIHudFX.HudFilter1, UIManager.UIHudFX.HudFilterAnim1);
+                        }
+                        break;
+
+                    case EffectVisualTypes.Disarmed:
+                        {
+                            //if (UIManager.UIHudFX.HudFilter4 != null)
+                            //    StartAnimFilter(UIManager.UIHudFX.HudFilter4, UIManager.UIHudFX.HudFilterAnim4);
+                        }
+                        break;
+
+                    case EffectVisualTypes.Root:
+
+                        break;
+
+                    case EffectVisualTypes.Frozen:
+                        {
+                            //SetActorMaterial(t);
+
+                            
+
+                            var animators = mCharController.gameObject.GetComponentsInChildren<Animator>();
+
+                            foreach (var animator in animators)
+                                animator.StartPlayback();
+                        }
+                        break;
                 }
+
                 ControlSE_Status[t.ToString()] = true;
             }
             else if ((((int)t) & info) == 0 && ControlSE_Status[t.ToString()])
             {
-                if (IsLocal)
+                RemoveActorMaterial(t);
+
+                switch (t)
                 {
-                    if (EffectVisualTypes.Stun == t)
-                    {
-                        //Debug.Log("stun stop...");
-                        
-                    }
-                    else if (EffectVisualTypes.Slience == t)
-                    {
-                        Debug.Log("slience stop...");
-                        //if (UIManager.UIHudFX.HudFilterAnim1 != null)
-                        //    StopAnimFilter(UIManager.UIHudFX.HudFilter1, UIManager.UIHudFX.HudFilterAnim1);
-                    }
-                    else if (EffectVisualTypes.Disarmed == t)
-                    {
-                        //if (UIManager.UIHudFX.HudFilterAnim4 != null)
-                        //    StopAnimFilter(UIManager.UIHudFX.HudFilter4, UIManager.UIHudFX.HudFilterAnim4);
-                    }
+                    case EffectVisualTypes.Stun:
+                        {
+                            //Debug.Log("stun stop...");
+                        }
+                        break;
+
+                    case EffectVisualTypes.Silence:
+                        {
+                            Debug.Log("slience stop...");
+                            //if (UIManager.UIHudFX.HudFilterAnim1 != null)
+                            //    StopAnimFilter(UIManager.UIHudFX.HudFilter1, UIManager.UIHudFX.HudFilterAnim1);
+                        }
+                        break;
+
+                    case EffectVisualTypes.Disarmed:
+                        {
+                            //if (UIManager.UIHudFX.HudFilterAnim4 != null)
+                            //    StopAnimFilter(UIManager.UIHudFX.HudFilter4, UIManager.UIHudFX.HudFilterAnim4);
+                        }
+                        break;
+
+                    case EffectVisualTypes.Root:
+
+                        break;
+
+                    case EffectVisualTypes.Frozen:
+                        {
+                            //SetActorMaterial(t);
+                            var animators = mCharController.gameObject.GetComponentsInChildren<Animator>();
+
+                            foreach (var animator in animators)
+                                animator.StopPlayback();
+                        }
+                        break;
                 }
+
                 ControlSE_Status[t.ToString()] = false;
             }
         }
@@ -230,35 +303,35 @@ namespace Zealot.Client.Entities
         private Animator LastAnimFilter = null;
         private GameObject LastFilter = null;
         public void StartAnimFilter(GameObject newFilter, Animator currAnimFilter)
-        { 
+        {
             //only one filter will be active at a time.  newly comming state will stop old state,
             //a small issue with this approach is that the new coming state maybe short and stoped fast,
             //while the old state is long that it still active, then its filter is not shown as it's stoped by 
             //the short state already.           
-            if(LastFilter != null)
+            if (LastFilter != null)
             {
                 LastAnimFilter.Play("ActionLines_FadeOut");//stop the old one without anim 
                 LastFilter.SetActive(false);
                 LastFilter = null;
                 LastAnimFilter = null;
             }
-           
+
             newFilter.SetActive(true);
             LastFilter = newFilter;
-            LastAnimFilter = currAnimFilter; 
+            LastAnimFilter = currAnimFilter;
         }
 
         public void StopAnimFilter(GameObject newFilter, Animator currAnimFilter)
         {
-            if (LastAnimFilter !=null && LastAnimFilter == currAnimFilter) //no need to play animation if not the last one.as it is already stopped
+            if (LastAnimFilter != null && LastAnimFilter == currAnimFilter) //no need to play animation if not the last one.as it is already stopped
             {
                 LastAnimFilter.Play("ActionLines_FadeOut");
                 LastAnimFilter = null;
                 LastFilter = null;
-            } 
+            }
         }
 
-        public void HandleBuffStatus(string field,  object value)
+        public void HandleBuffStatus(string field, object value)
         {
             if (field == "havebuff" || field == "havedebuff" || field == "havedot" || field == "havecontrol" || field == "havehot")
             {
@@ -296,30 +369,32 @@ namespace Zealot.Client.Entities
 
         public bool HandleSideEffectVisuals(string field, object value)//can only play one pos and one nag at a time.
         {
-            if(field == "VisualEffectTypes")
+            if (field == "VisualEffectTypes")
             {
                 //Debug.Log(System.Convert.ToString((int)value, 2));
-                UpdateControlStatusEffect(EffectVisualTypes.Stun, (int)value);
-                UpdateControlStatusEffect(EffectVisualTypes.Root, (int)value);
-                UpdateControlStatusEffect(EffectVisualTypes.Slience, (int)value);
-                UpdateControlStatusEffect(EffectVisualTypes.Slow, (int)value);
-                UpdateControlStatusEffect(EffectVisualTypes.Disarmed, (int)value);
+                for (EffectVisualTypes se = 0; se < EffectVisualTypes.NUM; ++se)
+                {
+                    UpdateControlStatusEffect(se, (int)value);
+                }
             }
-            else if(field == "ElementalVisualSE") {
+            else if (field == "ElementalVisualSE")
+            {
                 int seid = (int)value;
-                if(seid > 0) {
+                if (seid > 0)
+                {
                     SideEffectJson sideeffectJson = SideEffectRepo.GetSideEffect(seid);
                     //Debug.Log("To Play elemental Effect: " + sideeffectJson.effectpath);
-                    if (sideeffectJson != null) {
+                    if (sideeffectJson != null)
+                    {
                         mPrevPosVisualSEName = sideeffectJson.name;
                         PlaySEEffect(mPrevPosVisualSEName);
                     }
                 }
             }
             else if (field == "positiveVisualSE")
-            {   
-                if (mPrevPosVisualSEName!=null)
-                {                 
+            {
+                if (mPrevPosVisualSEName != null)
+                {
                     StopEffect(mPrevPosVisualSEName);
                     mPrevPosVisualSEName = null;
                 }
@@ -329,19 +404,19 @@ namespace Zealot.Client.Entities
                 {
                     SideEffectJson sideeffectJson = SideEffectRepo.GetSideEffect(seid);
                     //Debug.Log("To Play +ve Effect: " + sideeffectJson.effectpath);
-                    if(sideeffectJson != null)
+                    if (sideeffectJson != null)
                     {
                         mPrevPosVisualSEName = sideeffectJson.name;
                         PlaySEEffect(mPrevPosVisualSEName);
                     }
-                    
-                }                
+
+                }
                 return true;
             }
             else if (field == "negativeVisualSE")
             {
                 if (mPrevNegVisualSEName != null)
-                {                    
+                {
                     StopEffect(mPrevNegVisualSEName);
                     mPrevNegVisualSEName = null;
                 }
@@ -353,7 +428,7 @@ namespace Zealot.Client.Entities
                     //Debug.Log("To Play -ve Effect: " + sideeffectJson.effectpath);
                     mPrevNegVisualSEName = sideeffectJson.name;
                     PlaySEEffect(mPrevNegVisualSEName);
-                }                
+                }
                 return true;
             }
             return false;
@@ -393,7 +468,7 @@ namespace Zealot.Client.Entities
                 actiontype == ACTIONTYPE.WALK_WAYPOINT);
         }
 
-        public virtual void SetHeadLabel(bool init=false)
+        public virtual void SetHeadLabel(bool init = false)
         {
         }
 
@@ -413,7 +488,7 @@ namespace Zealot.Client.Entities
                     mSkillIndicator360 = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/SkillIndicator360.prefab", true);
                 }
                 Vector3 offsetpos = new Vector3(pos.Value.x, pos.Value.y + 0.3f, pos.Value.z);
-                mSkillIndicator360.transform.position = offsetpos; 
+                mSkillIndicator360.transform.position = offsetpos;
                 Projector projector = mSkillIndicator360.GetComponent<Projector>();
                 projector.orthographicSize = skillgroup.skillJson.radius;
                 mSkillIndicator360.SetActive(true);
@@ -473,10 +548,11 @@ namespace Zealot.Client.Entities
             PlayerGhost player = GameInfo.gLocalPlayer;
             if ((IsMonster() || IsPlayer()) && CombatUtils.IsValidEnemyTarget(player, this))
             {
-                if (player.IsInParty() && player.PartyStats.IsFollowing())
-                    player.PartyStats.PauseAutoFollow();
-                GameInfo.gCombat.CommonCastBasicAttack(GetPersistentID());
-                return true;
+                if (GameInfo.gSelectedEntity != null && GameInfo.gSelectedEntity.ID == ID)
+                {
+                    GameInfo.gCombat.CommonCastBasicAttack(GetPersistentID());
+                    return true;
+                }
             }
             return false;
         }
@@ -491,5 +567,5 @@ namespace Zealot.Client.Entities
         public abstract int GetCocritical();
         public abstract int GetCocriticalDamage();
         public abstract float GetExDamage();
-    }        
+    }
 }

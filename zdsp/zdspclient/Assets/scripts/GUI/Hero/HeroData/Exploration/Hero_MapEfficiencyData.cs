@@ -27,13 +27,16 @@ public class Hero_MapEfficiencyData : MonoBehaviour
         SetText(GUILocalizationRepo.GetLocalizedString("hro_relationship"), hero.GetExploreTrustEfficiency(mapData) * 100,
             mapData.trustmaxefficiency, true);
         SetText(GUILocalizationRepo.GetLocalizedString("hro_terrain_efficiency"), hero.GetExploreTerrainEfficiency(mapData) * 100,
-            HeroRepo.GetTerrainMaxEfficiency(mapData.terraintype), false);
+            HeroRepo.GetTerrainMaxEfficiency(mapData.terraintype, hero.HeroJson.interestgroup), false);
         bodyText.text = sb.ToString();
     }
 
     private void SetText(string text, float value, float max, bool newline)
     {
-        string str = string.Format("{0}{1}{2}%  <color=#CE0000FF>( {3}% )</color>", text, colon, value.ToString("0.#"), max);
+        string str = string.Format("{0}{1}{2}%", text, colon, value.ToString("0.#"));
+        if (value == max)
+            str += string.Format("  <color=#CE0000FF>( {0} )</color>", GUILocalizationRepo.GetLocalizedString("hro_max_value"));
+
         if (newline)
             sb.AppendLine(str);
         else

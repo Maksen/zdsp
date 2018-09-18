@@ -20,7 +20,7 @@ public class SceneLoader : MonoSingleton<SceneLoader>
     {
         string levelLowercase = levelname.ToLower();
         AssetManager.PreLevelLoad(levelname);
-        string[] defaultLevels = { "ui_loginhierarchy", "lobby", "ui_createchar" }; // Here all small case
+        string[] defaultLevels = { "ui_loginhierarchy", "lobby", "ui_createchar", "jobexhibition" }; // Here all small case
         bool isCombatHierarchy = string.Compare(levelname, "UI_CombatHierarchy", true) == 0;
         LoadSceneMode mode = isCombatHierarchy ? LoadSceneMode.Additive : LoadSceneMode.Single;
 
@@ -96,15 +96,11 @@ public class SceneLoader : MonoSingleton<SceneLoader>
         {
             case "lobby":
             case "ui_createchar":
-                //ClientUtils.PlayMusic(GameSettings.MusicEnabled);
-                PhotonNetwork.networkingPeer.NewSceneLoaded();
-                break;
-
+            case "jobexhibition":
             case "ui_loginhierarchy":
-                PhotonNetwork.networkingPeer.NewSceneLoaded();
                 //ClientUtils.PlayMusic(GameSettings.MusicEnabled);
+                PhotonNetwork.networkingPeer.NewSceneLoaded();
                 break;
-
             case "ui_combathierarchy":
                 {
                     string loadedScene = "";

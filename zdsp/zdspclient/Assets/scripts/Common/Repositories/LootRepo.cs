@@ -67,10 +67,12 @@ namespace Zealot.Repository
         {
             List<LootItem> ret = new List<LootItem>();
             LootItem lootItem;
+            int count = 0;
             if (groupWeightTotal > 0)
             {
+                count = groupItems.Count;
                 int randWeight = GameUtils.RandomInt(1, groupWeightTotal);
-                for (int index = 0; index < groupItems.Count; index++)
+                for (int index = 0; index < count; ++index)
                 {
                     lootItem = groupItems[index];
                     if (randWeight <= lootItem.weight)
@@ -81,7 +83,8 @@ namespace Zealot.Repository
                     randWeight -= lootItem.weight;
                 }
             }
-            for (int index = 0; index < nonGroupItems.Count; index++)
+            count = nonGroupItems.Count;
+            for (int index = 0; index < count; ++index)
             {
                 lootItem = nonGroupItems[index];
                 if (lootItem.probability == -1) //100% 
@@ -104,7 +107,7 @@ namespace Zealot.Repository
             if (!string.IsNullOrEmpty(json.gids))
             {
                 string[] gidArray = json.gids.Split(';');
-                for (int index = 0; index < gidArray.Length; index++)
+                for (int index = 0; index < gidArray.Length; ++index)
                     gids.Add(int.Parse(gidArray[index]));
             }
         }
@@ -132,7 +135,7 @@ namespace Zealot.Repository
             if (!string.IsNullOrEmpty(json.gids))
             {
                 string[] gidArray = json.gids.Split(';');
-                for (int index = 0; index < gidArray.Length; index++)
+                for (int index = 0; index < gidArray.Length; ++index)
                     gids.Add(int.Parse(gidArray[index]));
             }
             start = DateTime.ParseExact(json.datestart, "yyyy/MM/dd HH:mm", null);
@@ -142,7 +145,7 @@ namespace Zealot.Repository
             if (!string.IsNullOrEmpty(json.times))
             {
                 string[] timeArray = json.times.Split('|');
-                for (int index = 0; index < timeArray.Length; index++)
+                for (int index = 0; index < timeArray.Length; ++index)
                 {
                     string[] startEnd = timeArray[index].Split('-');
                     string[] hourMin = startEnd[0].Split(':');
@@ -177,10 +180,11 @@ namespace Zealot.Repository
                 if (!days.Contains("[" + dayofmonth + "]"))
                     return false;
             }
-            if (times.Count > 0)
+            int count = times.Count;
+            if (count > 0)
             {
                 int nowTime = now.Hour * 100 + now.Minute;
-                for (int index = 0; index < times.Count; index++)
+                for (int index = 0; index < count; ++index)
                 {
                     if (nowTime >= times[index].start && nowTime < times[index].end)
                         return true;
@@ -248,7 +252,8 @@ namespace Zealot.Repository
         public static List<LootItem> RandomItems(List<int> grpIds)
         {
             List<LootItem> lootItems = new List<LootItem>();
-            for (int index = 0; index < grpIds.Count; index++)
+            int count = grpIds.Count;
+            for (int index = 0; index < count; ++index)
                 lootItems.AddRange(RandomItems(grpIds[index]));
             return lootItems;
         }

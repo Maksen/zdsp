@@ -4,9 +4,11 @@ using UnityEditor;
 #endif
 using System.Collections;
 using Zealot.Audio;
+using Xft;
 
 public class EffectRef : MonoBehaviour
 {
+    public bool UseRefCamera = false;
     public bool SpawnAvatar = false;
     public GameObject Refmodel;
     public string Refbone;
@@ -20,14 +22,17 @@ public class EffectRef : MonoBehaviour
     public float WeaponTrailLifeTime = 1.0f;
     public AudioClip AudioClip;
 
-    public GameObject[] Emitters = new GameObject[1];
+    private EmitterRef[] Emitters;
+    private XWeaponTrail weapontail;
+    private ParticleHoming particleHoming;
+    private CameraShake[] cameraShakers;
+    private CameraZoom[] cameraZoomers;
 
-    GameObject avatar = null;
-    Animation anim = null;
-    GameObject parent_object = null;
-    Xft.XWeaponTrail weapontail = null;
+    private GameObject avatar;
+    private Animation anim;
+    private GameObject parent_object;
 
-    public void Awake()
+    private void Awake()
     {
 #if UNITY_EDITOR
         if (SpawnAvatar)
@@ -43,27 +48,10 @@ public class EffectRef : MonoBehaviour
 
     public void Restart()
     {
-        ParticleHoming homing = GetComponent<ParticleHoming>();
-        if (homing != null)
-            homing.Restart();
-        foreach (GameObject emitter in Emitters)
-        {
-            if (emitter != null)
-                emitter.GetComponent<EmitterRef>().Restart();
-        }
-
-        if (AudioClip != null)
-        {
-            if (SoundFX.Instance == null)
-            {
-                var soundObj = new GameObject();
-                soundObj.name = "SoundFX";
-                soundObj.AddComponent<SoundFX>();
-            }
-            SoundFX.Instance.PlayOneShot(AudioClip);
-        }
-
 #if UNITY_EDITOR
+        if (UseRefCamera)
+            CreateRefCameraIfAbsent();
+
         if (string.IsNullOrEmpty(RefAnimation) && string.IsNullOrEmpty(GameInfo.mChar))
         {
             //Debug.LogWarning("Reselect Ref Animation");
@@ -88,11 +76,31 @@ public class EffectRef : MonoBehaviour
             }
         }
 #endif
+
+        if (particleHoming != null)
+            particleHoming.Restart();
+
+        for (int i = 0; i < Emitters.Length; i++)
+            Emitters[i].Restart();
+
         if (weapontail != null)
-        {
-            //weapontail.Restart();
             StartCoroutine(DelayAndActivateWeaponTrail());
+
+        if (AudioClip != null)
+        {
+            if (SoundFX.Instance == null)
+            {
+                var soundObj = new GameObject("SoundFX");
+                soundObj.AddComponent<SoundFX>();
+            }
+            SoundFX.Instance.PlayOneShot(AudioClip);
         }
+
+        for (int i = 0; i < cameraShakers.Length; i++)
+            cameraShakers[i].ShakeOnce();
+
+        for (int i = 0; i < cameraZoomers.Length; i++)
+            cameraZoomers[i].StartZoom();
     }
 
     private IEnumerator DelayAndActivateWeaponTrail()
@@ -148,44 +156,30 @@ public class EffectRef : MonoBehaviour
     {
         GameObject ref_prefab = gameobject == null ? parent_object : gameobject;
         CacheEmitters();
-        foreach (GameObject emitter in Emitters)
-        {
-            emitter.GetComponent<EmitterRef>().AttachTo(ref_prefab);
-        }
+
+        for (int i = 0; i < Emitters.Length; i++)
+            Emitters[i].AttachTo(ref_prefab);
     }
 
     public void DetachEmitters()
     {
-        foreach (GameObject emitter in Emitters)
-        {
-            if (emitter == null)
-                continue;
-            EmitterRef eRef = emitter.GetComponent<EmitterRef>();
-            if (eRef != null)
-                eRef.Detach(gameObject);
-        }
+        for (int i = 0; i < Emitters.Length; i++)
+            Emitters[i].Detach(gameObject);
     }
 
     private void CacheEmitters()
     {
-        EmitterRef[] emitters = gameObject.GetComponentsInChildren<EmitterRef>(true);
-        Emitters = new GameObject[emitters.Length];
+        Emitters = GetComponentsInChildren<EmitterRef>(true);
 
-        for (int i = 0; i < emitters.Length; i++)
-        {
-            Emitters[i] = emitters[i].gameObject;
-        }
-
-        weapontail = gameObject.GetComponentInChildren<Xft.XWeaponTrail>();
+        weapontail = GetComponentInChildren<XWeaponTrail>();
         if (weapontail != null)
-        {
-            //Debug.Log("weapontrail is found");
             weapontail.Deactivate();
-        }
 
+        particleHoming = GetComponent<ParticleHoming>();
+
+        cameraShakers = GetComponentsInChildren<CameraShake>();
+        cameraZoomers = GetComponentsInChildren<CameraZoom>();
     }
-
-
 
     #region Runtime
     public void Attach(GameObject parent)
@@ -202,14 +196,8 @@ public class EffectRef : MonoBehaviour
 
     public void Deactive()
     {
-        foreach (GameObject emitter in Emitters)
-        {
-            if (emitter == null)
-                continue;
-            EmitterRef eRef = emitter.GetComponent<EmitterRef>();
-            if (eRef)
-                eRef.Deactive();
-        }
+        for (int i = 0; i < Emitters.Length; i++)
+            Emitters[i].Deactive();
     }
     #endregion
 
@@ -290,6 +278,28 @@ public class EffectRef : MonoBehaviour
         Attached = false;
         DetachEffect();
         DetachEmitters();
+    }
+
+    private void CreateRefCameraIfAbsent()
+    {
+        if (GameInfo.gCombat == null) // for editor only non in-game
+        {
+            ZDSPStaticCamera refCam = FindObjectOfType(typeof(ZDSPStaticCamera)) as ZDSPStaticCamera;
+            if (refCam == null)
+            {
+                // disable all current cameras
+                Camera[] cams = FindObjectsOfType(typeof(Camera)) as Camera[];
+                if (cams != null)
+                {
+                    for (int i = 0; i < cams.Length; i++)
+                        cams[i].gameObject.SetActive(false);
+                }
+
+                Object prefab = AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Tools/Static_camera.prefab", typeof(GameObject));
+                GameObject camera = Instantiate(prefab) as GameObject;
+                camera.GetComponent<ZDSPStaticCamera>().InitTarget(Refmodel);
+            }
+        }
     }
     #endregion
 #endif

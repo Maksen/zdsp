@@ -608,7 +608,7 @@
             //lcs.VSPlantDefence;
             //lcs.DncFinalDamage;
 
-            //-------------------- Quest Stats --------------------//
+            //-------------------- Destiny Clue Stats --------------------//
             DestinyClueInventory clueInventory = characterData.ClueInventory;
             player.DestinyClueController.InitFromData(clueInventory);
             DestinyClueSynStats destinyClueStats = player.DestinyClueStats;
@@ -620,6 +620,12 @@
             QuestSynStats queststats = player.QuestStats;
             player.QuestController.InitQuestStats(ref queststats);
             player.PlayerSynStats.QuestCompanionId = player.QuestController.GetQuestCompanionId();
+
+            //-------------------- Donate Stats --------------------//
+            DonateInventoryData donateInventory = characterData.DonateInventory;
+            player.DonateController.InitFromData(characterData);
+            DonateSynStats donateStats = player.DonateStats;
+            player.DonateController.InitDonateStats(ref donateStats);
 
             /*********************   GuildStats   ***************************/
             int myGuildId = characterData.GuildId;
@@ -650,8 +656,8 @@
 
             /*********************   CurrencyInventoryData   ***************************/
             CurrencyInventoryData CurrencyInventory = characterData.CurrencyInventory;
-            secStats.money = CurrencyInventory.Money;
-            secStats.gold = CurrencyInventory.Gold;
+            secStats.Money = CurrencyInventory.Money;
+            secStats.Gold = CurrencyInventory.Gold;
             secStats.bindgold = CurrencyInventory.BindGold;
             secStats.lotterypoints = CurrencyInventory.LotteryPoints;
             secStats.honor = CurrencyInventory.Honor;
@@ -677,55 +683,16 @@
             secStats.UnlockWorldBossLevel = GameConfig.UnlockWorldBossLevel;
             secStats.BattleTime = characterData.BattleTime;
 
-            /*********************   Items/Equipments   ***************************/
-            player.InitInventoryStats(peer.mInventory.mInvData);
-            player.InitEquipmentStats(characterData.EquipmentInventory);
-            player.InitItemHotbar(characterData.ItemHotBarData);
-
             //secStats.guildDonateDot = DonateRules.CheckDonateNewDot(characterData.Name, characterData.GuildId);
 
-            /*********************   RealmInventoryStats   ***************************/
-            //RealmStats realmStats = player.RealmStats;
-            //RealmInventoryData realmInvData = characterData.RealmInventory;
-            //realmStats.EliteMapTime = realmInvData.EliteMapTime;
-            //int listCount = realmInvData.DungeonStory.Count;
-            //for(int i = 0; i < listCount; ++i)
-            //{
-            //    DungeonStoryData entry = realmInvData.DungeonStory[i];
-            //    DungeonStoryInfo info = new DungeonStoryInfo(entry.DailyEntry, entry.ExtraEntry, entry.DailyExtraEntry, entry.StarCompleted[0], 
-            //                                                 entry.StarCompleted[1], entry.StarCompleted[2], entry.StarCompleted[3],
-            //                                                 entry.StarCompleted[4], entry.StarCompleted[5], entry.StarCompleted[6], 
-            //                                                 entry.StarCompleted[7], entry.StarCompleted[8], entry.StarCollected, i);
-            //    realmStats.GetDungeonStoryDict().Add(i+1, info);
-            //    realmStats.DungeonStory[i] = info.ToString();
-            //}
-            //listCount = realmInvData.DungeonDaily.Count;
-            //for (int i = 0; i < listCount; ++i)
-            //{
-            //    RealmData entry = realmInvData.DungeonDaily[i];
-            //    RealmInfo info = new RealmInfo(entry.DailyEntry, entry.ExtraEntry, i);
-            //    realmStats.GetDungeonDailyDict().Add(i+1, info);
-            //    realmStats.DungeonDaily[i] = info.ToString();
-            //}
-            //listCount = realmInvData.DungeonSpecial.Count;
-            //for (int i = 0; i < listCount; ++i)
-            //{
-            //    RealmData entry = realmInvData.DungeonSpecial[i];
-            //    RealmInfo info = new RealmInfo(entry.DailyEntry, entry.ExtraEntry, i);
-            //    realmStats.GetDungeonSpecialDict().Add(i+1, info);
-            //    realmStats.DungeonSpecial[i] = info.ToString();
-            //}
+            /*********************   Items/Equipments   ***************************/
+            player.InitInventoryStats(peer.mInventory.mInvData);
+            EquipmentInventoryData eqInvData = characterData.EquipmentInventory;
+            player.InitEquipmentStats(eqInvData);
+            player.InitItemHotbar(characterData.ItemHotBarData);
 
-            //listCount = realmInvData.WorldBoss.Count;
-            //for (int i = 0; i < listCount; ++i)
-            //{
-            //    RealmData entry = realmInvData.WorldBoss[i];
-            //    RealmInfo info = new RealmInfo(entry.DailyEntry, entry.ExtraEntry, i);
-            //    realmStats.GetWorldBossDict().Add(i, info);
-            //    realmStats.WorldBoss[i] = info.ToString();
-            //}
-
-            //RealmRules.InitRealmStats(realmStats); // todo(jason): will be removed
+            /*********************   Realm Stats   ***************************/
+            player.RealmStats.Init(characterData.RealmInventory);
 
             /*********************   SynCombatStats   ***************************/
             LocalCombatStats localCombatStats = player.LocalCombatStats;
@@ -738,24 +705,31 @@
             combatStats.SetPlayerLocalAndSyncStats(localCombatStats, playerStats, playerActor);
             combatStats.SuppressComputeAll = true;
             Player.SetPlayerStats(playerStats.jobsect, playerStats.Level, combatStats);
+            player.CombatStats = combatStats;
+
+            for (int i = 0; i < (int)EquipmentSlot.MAXSLOTS; ++i)
+            {
+                Equipment equipment = eqInvData.Slots[i];
+                if (equipment != null)
+                    peer.mInventory.UpdateEquipmentSideEffect(player, equipment.EquipmentJson, true);
+            }
 
             // Add equipped combatstats
-            //EquippedInventoryData eqinvdata = characterData.EquippedInventory;
             //int selectedGemGroup = player.EquipInvStats.selectedGemGroup;
             //for (int e = 0; e < (int)EquipmentSlot.MAXSLOTS; e++)
             //{
-            //    if (eqinvdata.Slots[e] != null)
-            //        combatStats.ComputeEquippedCombatStats(eqinvdata.Slots[e], selectedGemGroup, selectedGemGroup, true);
+            //    if (eqInvData.Slots[e] != null)
+            //        combatStats.ComputeEquippedCombatStats(eqInvData.Slots[e], selectedGemGroup, selectedGemGroup, true);
             //}
 
-            player.CombatStats = combatStats;
+            // Skills done after equipment
             player.SkillPassiveStats = new SkillPassiveCombatStats(player.EntitySystem.Timers, player);
 
-            //------------- Skills done after equipment,----------------//
+            /*********************   SkillSynStats   *********************/
             SkillSynStats SkillStats = player.SkillStats;
             SkillStats.CopyFromInvData(characterData.SkillInventory);
 
-            /*********************   SocialStats   ***************************/
+            /*********************   SocialStats   *********************/
             SocialStats socialStats = player.SocialStats;
             SocialInventoryData socialInventory = peer.mSocialInventory;
             //listCount = socialInventory.friendList.Count;
@@ -794,41 +768,25 @@
             {
                 player.PlayerSynStats.Party = partyId;
                 player.PartyStats = PartyRules.GetPartyById(partyId);
-                PartyRules.OnCharacterOnline(peer, player);
+                if (peer.mFirstLogin)
+                    PartyRules.OnCharacterOnline(peer, player);
             }
 
-            /******* end stats *******/
-            /************************BattleTime Stats*****************/
+            /************************   BattleTime Stats   *****************/
             //player.InitFromInventory(characterData.BattleTimeInventoryData);
             //player.BattleTime(characterData.BattleTimeInventoryData);
-            /*************************end stats***********************/
 
-            player.Slot = peer;
-            peer.mPlayer = player;
-            player.SetInstance(this);
-            player.SetOwnerID(player.GetPersistentID());
-            if (!IsDoingFirstGuideRealm())
-                player.InitSaveCharacterTimer();
-            Vector3 spawnPos = peer.mSpawnPos;
-            if (spawnPos.Equals(Vector3.zero))
-                SetSpawnPos(player);
-            else
-            {
-                player.Position = spawnPos;
-                player.Forward = peer.mSpawnForward;
-            }             
-            peer.mSpawnPos = Vector3.zero;
-            peer.mSpawnForward = Vector3.forward;
-            player.PlayerStats.MoveSpeed = 6;
-            mEntitySystem.RegisterPlayerName(player.Name, player);
             /*********************   LotteryInventory   ***************************/
-            player.InitLotteryStats(characterData.LotteryInventory);
+            player.InitLotteryStats(characterData.LotteryInventory, peer);
 
             /*********************   PowerUpInventory   ***************************/
             player.InitPowerUpStats(characterData.PowerUpInventory);
 
             /*********************   EquipmentCraftInventory   ***************************/
             player.InitEquipmentCraftStats(characterData.EquipmentCraftInventory);
+
+            /*********************   EquipFushionInventory   ***************************/
+            player.InitEquipFushionStats(characterData.EquipFushionInventory);
 
             /*********************   SevenDaysInventory   ***************************/
             //player.InitSevenDaysStats(characterData.SevenDaysInventory);
@@ -845,22 +803,43 @@
             /*********************   ExchangeShopInventory   ***************************/
             //player.InitExchangeShopStats(characterData.ExchangeShopInv);
 
-            /*********************   PortraitData   ***************************/
+            /***************************   PortraitData   ***************************/
             //player.InitPortraitDataStats(characterData.PortraitData);
 
-            //********************   Offline Exp ************************************/
+            /********************   Offline Exp   ********************/
             OfflineExp.OfflineExpManager2.Instance.GetRedDot(peer);
             //if (questStats.isTraining)
             //    player.WardrobeController.Init();
 
-            //player.InitLevelUpCost();
-            if (characterData.NewDayDts < DateTime.Today)
-                player.NewDay();
+            /*********************   Initialize Player   *********************/
+            player.Slot = peer;
+            peer.mPlayer = player;
+            player.SetInstance(this);
+            player.SetOwnerID(player.GetPersistentID());
+            if (!IsDoingFirstGuideRealm())
+                player.InitSaveCharacterTimer();
+            Vector3 spawnPos = peer.mSpawnPos;
+            if (spawnPos.Equals(Vector3.zero))
+                SetSpawnPos(player);
+            else
+            {
+                player.Position = spawnPos;
+                player.Forward = peer.mSpawnForward;
+            }
+            peer.mSpawnPos = Vector3.zero;
+            peer.mSpawnForward = Vector3.forward;
+            player.PlayerStats.MoveSpeed = 6;
+            mEntitySystem.RegisterPlayerName(player.Name, player);           
             slot.SetLocalEntity(player);
             player.ResetSyncStats();
 
+            //player.InitLevelUpCost();
+            if (characterData.NewDayDts < DateTime.Today)
+                player.NewDay();
+
+            /*********************   Post player initialization   *********************/
             // Summon hero post player spawn
-            player.HeroStats.PostPlayerSpawnSummonHero();
+            player.HeroStats.PostPlayerSpawn();
 
             // Update post guild initialization
             //if (GuildRules.GuildList.ContainsKey(secStats.guildId))
@@ -892,42 +871,23 @@
                 //peer.ZRPC.CombatRPC.Ret_HasNewMail(peer.HasNewMail(), "", peer);
             }
 
-            //get pet data
-            //int petid = 0;
-            //player.mPetRules.CopyPetFromInvData(characterData.PetDataInv, out petid);
-            //if (petid > 0)
-            //    player.PlayerSynStats.PetId = petid;
-            //player.mPetRules.CopyPetItemFromInvData(characterData.PetDataInv);
-            //player.mPet.UpdateAllPet();
-            //player.mPet.UpdateAllPetStone();
-            //player.PetStats.CopyFromDB(characterData.PetDataInv);
-            //get pet data
-
             combatStats.SuppressComputeAll = false;
             combatStats.ComputeAll(); // We only compute it once here, since initialization might cause computeall to be done multiple times
-            int currentHealth = characterData.Health;
-            if (currentHealth <= 0)
-            {// Minor value means it is new char
-                characterData.Health = (int)combatStats.GetField(FieldName.HealthMax);
-                player.SetHealth(characterData.Health);
-            }
-            else
-                player.SetHealth(currentHealth); //this is the saved health amount.
 
             //--------------------------------------------------------------------------------------
             // Place code here that depends on latest combat stats after computeall
             //--------------------------------------------------------------------------------------
+            if (characterData.Health <= 0 || characterData.Health > player.GetHealthMax())
+                characterData.Health = player.GetHealthMax();
+            player.SetHealth(characterData.Health);
+
+            if (characterData.Mana < 0 || characterData.Mana > player.GetManaMax())
+                characterData.Mana = player.GetManaMax();
+            player.SetMana(characterData.Mana);
+
             if (mRealmController != null)
                 mRealmController.OnPlayerEnter(player);
 
-            //peer.ZRPC.CombatRPC.SendInfoOnPlayerSpawner(GameApplication.Instance.mServerStartUpTicks, now.Ticks, GameUtils.mActivityStatus,
-            //    characterData.ArenaInventory.LastRewardDT.Ticks, RealmRepo.mArenaJson.dailyentry - characterData.ArenaInventory.Entries > 0,
-            //    AuctionRules.GetAuctionStatus(peer),
-            //    characterData.MailInventory.hasNewMail, characterData.SevenDaysInventory.SevenDaysEventStart, OfflineExp.OfflineExpManager2.Instance.GetRedDot(peer, false), 
-            //    peer.mWelfareCtrlr.GetOnlineRewardsStartTime(), WelfareRules.SerializeWelfareServiceFund(), characterData.FirstBuyFlag, characterData.FirstBuyCollected, 
-            //    WelfareRules.SerializeWelfareFirstGoldCredit(), WelfareRules.SerializeTotalGoldCredit(), WelfareRules.SerializeTotalGoldSpend(), WelfareRules.SerializeGoldJackpot(), 
-            //    WelfareRules.SerializeContLogin(), characterData.PortraitData.hasNewPortrait(), GMActivityRules.GetConfig(), player.InspectMode, peer.GetCharId(),
-            //    peer);
             peer.ZRPC.CombatRPC.SendInfoOnPlayerSpawner(GameApplication.Instance.mServerStartUpTicks, now.Ticks, 0, 0,
                 player.InspectMode, peer.GetCharId(), peer);
             //peer.ZRPC.NonCombatRPC.ItemMallGetIsUIOn(ItemMall.ItemMallManager.Instance.isLimitedItemUIOnOff, peer);
@@ -945,6 +905,9 @@
             //RandomBoxReward.RandomBoxRewardManager.Instance.SendCurrentStateToClient(peer);
 
             TickerTapeSystem.OnLogin(peer);
+
+            if (peer.mFirstLogin)  // put this last line
+                peer.mFirstLogin = false;
         }
 
         public void OnActionCommand(int pid, ActionCommand cmd, HivePeer peer)

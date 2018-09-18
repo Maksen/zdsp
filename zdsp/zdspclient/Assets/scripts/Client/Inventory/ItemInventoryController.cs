@@ -32,7 +32,22 @@ public class ItemInventoryController
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ItemIncrement", parameters), true);
         }
 
+        int itemid = -1;
+        if (item == null && itemInvData.Slots[slotIdx] != null)
+        {
+            itemid = itemInvData.Slots[slotIdx].ItemID;
+        }
+        else if (item != null)
+        {
+            itemid = item.ItemID;
+        }
+
         itemInvData.Slots[slotIdx] = item;
+
+        if (GameInfo.gLocalPlayer != null)
+        {
+            GameInfo.gLocalPlayer.UpdateQuestRequirement(QuestRequirementType.Item, itemid);
+        }
     }
 
     #region Tooltip action

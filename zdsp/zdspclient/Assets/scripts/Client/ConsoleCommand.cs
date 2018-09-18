@@ -10,7 +10,7 @@ using Zealot.Client.Entities;
 using Zealot.Repository;
 
 #if ZEALOT_DEVELOPMENT
-public class ConsoleVariables
+public static class ConsoleVariables
 {
     public static bool ShowControlStatus = false;
     public static bool ShowItemID = false;
@@ -694,7 +694,6 @@ public class CommandManager
     [ConsoleCmd("TestDmgLabel")]
     public void TestDmgLabel(string[] param)
     {
-
         //while
         GameInfo.gDmgLabelPool.TestLoopPlay();
     }
@@ -708,8 +707,7 @@ public class CommandManager
             int type;
             if (float.TryParse(param[1], out amt) && int.TryParse(param[0], out type))
             { 
-                RPCFactory.NonCombatRPC.ConsoleAddStats(type, amt);
-                
+                RPCFactory.NonCombatRPC.ConsoleAddStats(type, amt);               
             }
         }
         
@@ -1124,12 +1122,26 @@ public class CommandManager
         }
     }
 
+    [ConsoleCmd("FullRecoverMana")]
+    public void FullRecoverMana(string[] param)
+    {
+        if (param.Length == 0)
+        {
+            RPCFactory.NonCombatRPC.ConsoleFullRecoverMana();
+            UIManager.CloseWindow(WindowType.ConsoleCommand);
+        }
+        else
+        {
+            PrintToConsole("Format: \\FullRecoverMana");
+        }
+    }
+
     [ConsoleCmd("FinishTutorial")]
     public void FinishTutorial(string[] param)
     {
         if (param.Length == 0)
         {
-            RPCFactory.CombatRPC.FirstRealmStep((int)(Trainingstep.Finished));
+            RPCFactory.CombatRPC.TutorialStep((int)Trainingstep.Finished);
             UIManager.CloseWindow(WindowType.ConsoleCommand);
         }
         else
@@ -1138,7 +1150,7 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("Get realm info.")]
+    [ConsoleCmd("Get realm info")]
     public void GetAllRealmInfo(string[] param)
     {
         RPCFactory.NonCombatRPC.ConsoleGetAllRealmInfo();
@@ -1504,8 +1516,6 @@ public class CommandManager
             RPCFactory.CombatRPC.SetPlayerTeam(teamid);
         }
     }
-
-     
 
     [ConsoleCmd("AddLotteryFreeTickets")]
     public void AddLotteryFreeTickets(string[] param)
@@ -1983,7 +1993,7 @@ public class CommandManager
         if(param.Length == 1)
         {
             int amt = 0;
-            Int32.TryParse(param[0], out amt);
+            int.TryParse(param[0], out amt);
 
             RPCFactory.NonCombatRPC.ConsoleAddSkillPoint(amt);
         }
@@ -1995,6 +2005,21 @@ public class CommandManager
         PhotonNetwork.networkingPeer.Disconnect();
     }
 
-#endif
-        #endregion
+    [ConsoleCmd("UpdateDonate")]
+    public void UpdateDonate(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int type = 0;
+            int.TryParse(param[0], out type);
+
+            if (type == 6 || type == 12)
+            {
+                RPCFactory.NonCombatRPC.ConsoleUpdateDonate(type);
+            }
+        }
     }
+
+#endif
+    #endregion
+}

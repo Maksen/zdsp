@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.ComponentModel;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Zealot.Common
 {
@@ -61,7 +60,7 @@ namespace Zealot.Common
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("{0}|{1}|{2};", pos[0], pos[1], pos[2]);
-            for (int index = 0; index < records.Count; index++)
+            for (int index = 0; index < records.Count; ++index)
                 sb.Append(records[index].ToString() + ';');
             return sb.ToString().TrimEnd(';');
         }       
@@ -105,7 +104,7 @@ namespace Zealot.Common
 
         public override string ToString()
         {
-            return pid + "|" + itemid;
+            return string.Format("{0}|{1}", pid, itemid);
         }
 
         public static LootItemDisplay ToObject(string data)

@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,7 +48,7 @@ public class UI_MessageFilter : MonoBehaviour
     AudioSource AudioPlayer;
 
     private ActivatedClueData mClueData;
-    private long mCountDownTime;
+    private DateTime mCountDownTime;
 
     public void Init(ActivatedClueData clueData)
     {
@@ -86,7 +87,7 @@ public class UI_MessageFilter : MonoBehaviour
             UpdateClueFilePath(clueJson.category, clueJson.filepath);
             UpdateClueMessage(clueJson.category, clueJson.message);
             UpdateTitle(clueJson.questid);
-            mCountDownTime = mClueData.ActivatedDateTime + (clueJson.time * 60000);
+            mCountDownTime = mClueData.ActivatedDT.AddMinutes(clueJson.time);
             UpdateTime();
             ClockObj.SetActive(true);
             Objective.text = clueJson.task;
@@ -95,11 +96,10 @@ public class UI_MessageFilter : MonoBehaviour
 
     private void UpdateTime()
     {
-        long currenttime = GameInfo.GetSynchronizedTime();
-        long remaintime = mCountDownTime - currenttime;
+        double remaintime = (mCountDownTime - DateTime.Now).TotalSeconds;
         if (remaintime > 0)
         {
-            Date.text = GUILocalizationRepo.GetShortLocalizedTimeString(remaintime);
+            Date.text = GUILocalizationRepo.GetLocalizedTimeString((int)remaintime, 2);
             StartCoroutine(TimeCountDown());
         }
     }

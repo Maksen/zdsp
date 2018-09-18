@@ -39,7 +39,7 @@ namespace Zealot.Common.Actions
 
         public void SetCompleteCallback(CompleteCallBackDelegate del)
         {
-            mCompleteCallBack += del;
+            mCompleteCallBack = del;
         }
 
         public CompleteCallBackDelegate GetCompleteCallback()

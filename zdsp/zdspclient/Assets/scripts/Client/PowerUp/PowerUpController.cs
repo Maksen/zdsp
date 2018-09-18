@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using Kopio.JsonContracts;
 using Zealot.Common;
 using Zealot.Common.Entities;
+using Zealot.Repository;
 
 public class PowerUpController
 {
@@ -20,8 +18,10 @@ public class PowerUpController
         PowerUpInventory.InitFromStats(powerupStats);
     }
 
-    public void viewpeer ()
+    public PowerUpJson GetPowerUpJson (PartsType part)
     {
+        int type = PowerUpRepo.PartsTypeValue((int)part);
+        int level = PowerUpInventory.powerUpSlots[type];
+        return PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)type, level);
     }
-
 }

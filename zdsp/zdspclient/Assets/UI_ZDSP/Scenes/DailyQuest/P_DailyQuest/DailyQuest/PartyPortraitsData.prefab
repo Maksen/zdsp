@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222256100453873994}
   - component: {fileID: 114804997390923560}
   - component: {fileID: 114066690016969602}
+  - component: {fileID: 114112160443822394}
   m_Layer: 5
   m_Name: PartyPortraitsData
   m_TagString: Untagged
@@ -48,6 +49,18 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114112160443822394
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1409618419758820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00e600443b2766b47a8f7df4f754f62b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MemberIcon: {fileID: 114804997390923560}
 --- !u!114 &114804997390923560
 MonoBehaviour:
   m_ObjectHideFlags: 1

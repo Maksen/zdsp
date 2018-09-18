@@ -12,6 +12,12 @@
       <property name="cost" type="int" uitext="Cost"/>
       <property name="material" type="string" uitext="Material" info="Format: ItemID|Count;ItemID|Count;ItemID|Count;ItemID|Count;ItemID|Count"/>
     </element>
+
+    <element name="PowerUpPartsList" useexcel="true" collectionkey="name">
+      <property name="name" type="string" uitext="Excel Name"/>
+      <property name="poweruppart" type="int" uitext="PowerUpPart"/>
+      <property name="part" type="int" uitext="Part"/>
+    </element>
     
     <element name="MeridianList" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Excel Name"/>

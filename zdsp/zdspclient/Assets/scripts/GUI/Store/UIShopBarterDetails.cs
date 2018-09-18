@@ -40,7 +40,7 @@ class UIShopBarterDetails : UIShopDetails
                 case NPCStoreInfo.Frequency.Unlimited:
                     purchasequantitywidget.Max = 99;
                     dailyorweekly.text = GUILocalizationRepo.mLocalizedStrIdMap[291].localizedval;
-					GUILocalizationRepo.GetLocalizedString("unlimited");
+                    limitamountvalue.text = GUILocalizationRepo.GetLocalizedString("unlimited");
 					//limitamountvalue.text = "無限";
 					break;
             }                        
@@ -63,7 +63,7 @@ class UIShopBarterDetails : UIShopDetails
                     case BagType.Material:
                         ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
                         break;
-                    case BagType.DNA:
+                    case BagType.Socket:
                         ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
                         break;
                 }

@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
-using System.ComponentModel;
 using Zealot.Common.Entities;
-using Zealot.Repository;
 
 namespace Zealot.Common
 {
@@ -45,12 +39,7 @@ namespace Zealot.Common
             powerUpLevels = powerUpStats.powerUpLvl;
         }
 
-        public void UpdateInventory(PowerUpStats powerUpStats)
-        {
-            InitFromStats(powerUpStats);
-        }
-
-        public void SaveToInventory(PowerUpStats powerUpStats)
+        public void SaveToInventoryData(PowerUpStats powerUpStats)
         {
             InitFromStats(powerUpStats);
         }

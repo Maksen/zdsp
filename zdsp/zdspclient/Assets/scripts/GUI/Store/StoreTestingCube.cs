@@ -100,12 +100,8 @@ public class StoreTestingCube : MonoBehaviour
     {
         if (RPCFactory.NonCombatRPC != null)
         {
-            //var storeid = storeid;
-            GameInfo.gUIShop = theshop;
-            GameInfo.gUIShop.id = storeid;            
 
-            RPCFactory.NonCombatRPC.NPCStoreInit(storeid);
-            RPCFactory.NonCombatRPC.NPCStoreGetPlayerTransactions(storeid);
+            theshop.RequestShopInfo(storeid);
         }
     }
 

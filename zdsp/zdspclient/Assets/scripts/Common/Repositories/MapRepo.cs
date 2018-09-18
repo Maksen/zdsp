@@ -7,10 +7,12 @@ namespace Zealot.Repository
     public struct WorldMapCountryMonster
     {
         public int archetype;
+        //public int levelID;
 
-        public WorldMapCountryMonster(int _archetype)
+        public WorldMapCountryMonster(int _archetype/*, int _levelID*/)
         {
             archetype = _archetype;
+            //levelID = _levelID;
         }
     }
 
@@ -18,10 +20,12 @@ namespace Zealot.Repository
     {
         //public string iconPath;
         public string name;
+        public int levelID;
 
-        public WorldMapCountryPlaceInterest(/*string _iconPath, */ string _name)
+        public WorldMapCountryPlaceInterest(/*string _iconPath, */ string _name, int _levelID)
         {
             name = _name;
+            levelID = _levelID;
         }
     }
 
@@ -68,7 +72,7 @@ namespace Zealot.Repository
                 foreach (var x in gameData.WorldMapCountryPlace.Values)
                 {
                     if (e.id == x.country)
-                        wmr.placeLst.Add(new WorldMapCountryPlaceInterest(x.placename));
+                        wmr.placeLst.Add(new WorldMapCountryPlaceInterest(x.placename, x.level));
                 }
 
                 foreach (var x in gameData.WorldMapCountryMonster.Values)

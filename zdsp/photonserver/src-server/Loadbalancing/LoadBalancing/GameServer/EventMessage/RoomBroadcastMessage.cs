@@ -125,4 +125,19 @@ namespace Zealot.Server.EventMessage
             base.SendEvent(player);
         }
     }
+
+    public class DonateRefreshBroadcastMessage : RoomBroadcastMessage
+    {
+        private bool mNormalRefresh;
+        public DonateRefreshBroadcastMessage(RPCBroadcastData broadcastData, bool normalRefresh) : base(broadcastData)
+        {
+            mNormalRefresh = normalRefresh;
+        }
+
+        public override void SendEvent(Player player)
+        {
+            player.DonateController.RefreshData(mNormalRefresh);
+            base.SendEvent(player);
+        }
+    }
 }

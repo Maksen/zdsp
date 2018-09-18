@@ -52,16 +52,7 @@ public class HUD_PartyPortraitInfo : MonoBehaviour
 
     private void SetPortrait()
     {
-        if (thisMember.IsHero())
-        {
-            HeroJson heroData = HeroRepo.GetHeroById(thisMember.heroId);
-            if (heroData != null)
-                portraitImage.sprite = ClientUtils.LoadIcon(heroData.smallportraitpath);
-        }
-        else
-        {
-            portraitImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png"); // temp
-        }
+        portraitImage.sprite = ClientUtils.LoadIcon(thisMember.GetPortraitPath());
     }
 
     public void SetLeader(string leaderName)

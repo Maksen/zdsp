@@ -60,7 +60,7 @@ namespace Zealot.Server.Entities
         public void SpawnMonster(string summoner, List<Monster> monsters, bool aggressive, Player player)
         {
             //Spawn monster at server
-            bool logflag = mArchetype.monsterclass == MonsterClass.Boss;
+            bool logflag = mArchetype.monstertype == MonsterType.Boss;
             Monster monster = mInstance.mEntitySystem.SpawnNetEntity<Monster>(logflag, mArchetype.archetype);
             NPCSynStats playerStats = new NPCSynStats();            
             monster.PlayerStats = playerStats;
@@ -70,10 +70,10 @@ namespace Zealot.Server.Entities
             monster.Forward = RandomSpawnFacing();
             monster.Init(this, null, mLiveDuration);
 
-            MonsterClass monsterClass = mArchetype.monsterclass;
-            if (monsterClass == MonsterClass.Normal)
+            MonsterType monsterType = mArchetype.monstertype;
+            if (monsterType == MonsterType.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if(monsterClass == MonsterClass.Boss || monsterClass == MonsterClass.MiniBoss)
+            else if(monsterType == MonsterType.Boss || monsterType == MonsterType.MiniBoss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
 
             if (aggressive)

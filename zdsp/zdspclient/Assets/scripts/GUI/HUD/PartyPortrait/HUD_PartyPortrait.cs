@@ -29,6 +29,12 @@ public class HUD_PartyPortrait : MonoBehaviour
 
     public void ResetAll()
     {
+        // self
+        GameObject playerPortrait = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
+        if (playerPortrait != null)
+            playerPortrait.GetComponent<HUD_PlayerPortrait>().SetPartyLeader(false);
+
+        // other members
         for (int i = 0; i < portraitList.Count; i++)
         {
             portraitList[i].gameObject.SetActive(false);
@@ -82,6 +88,12 @@ public class HUD_PartyPortrait : MonoBehaviour
 
     public void SetPartyLeader(string leaderName)
     {
+        // self
+        GameObject playerPortrait = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
+        if (playerPortrait != null)
+            playerPortrait.GetComponent<HUD_PlayerPortrait>().SetPartyLeader(GameInfo.gLocalPlayer.Name == leaderName);
+
+        // other members
         for (int i = 0; i < portraitList.Count; i++)
         {
             if (portraitList[i].gameObject.activeInHierarchy)

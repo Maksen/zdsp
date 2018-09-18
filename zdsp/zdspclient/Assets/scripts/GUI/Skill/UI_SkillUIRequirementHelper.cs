@@ -20,4 +20,13 @@ public class UI_SkillUIRequirementHelper : MonoBehaviour {
         m_ValueName.text = "Skill";
         m_Value.text = name;
     }
+
+    public void SetColor(Color color)
+    {
+
+        m_Value.color = color;
+        m_ValueName.color = color;
+        m_Colon.color = color;
+
+    }
 }

@@ -6,6 +6,7 @@ using Zealot.Common.Entities;
 using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Client.Actions;
+using System.Linq;
 
 namespace Zealot.Client.Entities
 {
@@ -32,8 +33,6 @@ namespace Zealot.Client.Entities
 
             mActiveQuest = -1;
             mActiveStatus = mArchetype.activeonstartup;
-            GetQuestList();
-            GetOngoingQuest();
 
             Position = pos;
             Forward = forward;
@@ -107,6 +106,7 @@ namespace Zealot.Client.Entities
                     player.PathFindToTarget(Position, -1, 2, false, false, DoInteractAction);
                 else
                     DoInteractAction();
+                return true;
             }
             return false;
         }
@@ -130,17 +130,6 @@ namespace Zealot.Client.Entities
                 }
                 Hud_QuestAction questAction = UIManager.GetWidget(HUDWidgetType.QuestAction).GetComponent<Hud_QuestAction>();
                 questAction.Init(interactid, questid);
-            }
-        }
-
-        private void GetQuestList()
-        {
-            mQuestList = new List<int>();
-            string[] ids = mArchetype.questid.Split(';');
-            foreach (string id in ids)
-            {
-                if (!string.IsNullOrEmpty(id))
-                    mQuestList.Add(int.Parse(id));
             }
         }
 
@@ -168,45 +157,24 @@ namespace Zealot.Client.Entities
             }
         }
 
-        private void GetOngoingQuest()
-        {
-            mOngoingQuest = (GameInfo.gLocalPlayer != null)
-                ? GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeId) : new List<int>();
-        }
-
-        public override void UpdateOngoingQuest(List<int> quests)
-        {
-            mOngoingQuest = quests;
-            UpdateQuestMarker();
-        }
-
-        public override void RemoveOngoingQuest(int questid)
-        {
-            if (mOngoingQuest.Contains(questid))
-            {
-                mOngoingQuest.Remove(questid);
-                UpdateQuestMarker();
-            }
-        }
-
         private void UpdateQuestMarker()
         {
             if (GameInfo.gLocalPlayer == null)
                 return;
 
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
-            List<int> questcansubmit = new List<int>();
-            List<int> questongoing = new List<int>();
+            Dictionary<int, int> questcansubmit = new Dictionary<int, int>();
+            Dictionary<int, int> questongoing = new Dictionary<int, int>();
             List<int> questacceptable = new List<int>();
-            foreach (int questid in mOngoingQuest)
+            foreach (KeyValuePair<int, int> entry in mOngoingQuest)
             {
-                if (questController.IsQuestCanSubmit(questid))
+                if (questController.IsQuestCanSubmitByObjective(entry.Key, entry.Value))
                 {
-                    questcansubmit.Add(questid);
+                    questcansubmit.Add(entry.Key, entry.Value);
                 }
                 else
                 {
-                    questongoing.Add(questid);
+                    questongoing.Add(entry.Key, entry.Value);
                 }
             }
 
@@ -217,11 +185,27 @@ namespace Zealot.Client.Entities
 
             if (questcansubmit.Count > 0)
             {
-                mActiveQuest = QuestRepo.GetPriorityQuestId(questcansubmit);
+                List<int> questlist = questcansubmit.Keys.ToList();
+                mActiveQuest = QuestRepo.GetPriorityQuestId(questlist);
                 QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
                 if (questJson != null && questJson.promptobj)
                 {
-                    mQuestLabelType = QuestLabelType.Submit;
+                    if (questJson.type == QuestType.Main)
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitMainQuest;
+                    }
+                    else if (questJson.type == QuestType.Destiny)
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitAdventureQuest;
+                    }
+                    else if (questJson.type == QuestType.Event)
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitEventQuest;
+                    }
+                    else
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitSubQuest;
+                    }
                 }
                 else
                 {
@@ -230,11 +214,27 @@ namespace Zealot.Client.Entities
             }
             else if (questongoing.Count > 0)
             {
-                mActiveQuest = QuestRepo.GetPriorityQuestId(questongoing);
+                List<int> questlist = questongoing.Keys.ToList();
+                mActiveQuest = QuestRepo.GetPriorityQuestId(questlist);
                 QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
                 if (questJson != null && questJson.promptobj)
                 {
-                    mQuestLabelType = QuestLabelType.Ongoing;
+                    if (questJson.type == QuestType.Main)
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingMainQuest;
+                    }
+                    else if (questJson.type == QuestType.Destiny)
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingAdventureQuest;
+                    }
+                    else if (questJson.type == QuestType.Event)
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingEventQuest;
+                    }
+                    else
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingSubQuest;
+                    }
                 }
                 else
                 {
@@ -283,7 +283,7 @@ namespace Zealot.Client.Entities
         {
             if (mActiveQuest != -1 && GameInfo.gLocalPlayer != null)
             {
-                if (mOngoingQuest.Contains(mActiveQuest))
+                if (mOngoingQuest.ContainsKey(mActiveQuest))
                 {
                     return GameInfo.gLocalPlayer.QuestController.GetInteractiveId(mActiveQuest, mArchetypeId);
                 }
@@ -303,6 +303,12 @@ namespace Zealot.Client.Entities
         {
             if (UIManager.IsWidgetActived(HUDWidgetType.QuestAction))
                 UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
+        }
+
+        public override void UpdateQuestList(List<int> availablelist, Dictionary<int, int> ongoinglist)
+        {
+            base.UpdateQuestList(availablelist, ongoinglist);
+            UpdateQuestMarker();
         }
     }
 }

@@ -10,9 +10,9 @@
             mDuration = 0; //This sideeffect doesn't support interval. It's once off.
         }
         
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {                
                 int dmg = 0;
 

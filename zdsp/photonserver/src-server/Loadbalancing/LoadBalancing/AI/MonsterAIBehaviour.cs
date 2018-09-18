@@ -32,11 +32,11 @@ namespace Zealot.Server.AI
             AddState("Idle", OnIdleEnter, OnIdleLeave, OnIdleUpdate);
             AddState("RecoverFromKnockedBack", OnRecoverFromKnockedBackEnter, OnRecoverFromKnockedBackLeave, OnRecoverFromKnockedBackUpdate);
             AddState("Stun", OnStunEnter, OnStunLeave, OnStunUpdate);
+            AddState("Frozen", OnFrozenEnter, OnFrozenLeave, OnFrozenUpdate);
             AddState("CombatApproach", OnCombatApproachEnter, OnCombatApproachLeave, OnCombatApproachUpdate);
             AddState("CombatExecute", OnCombatExecuteEnter, OnCombatExecuteLeave, OnCombatExecuteUpdate);
             AddState("ResolveOverlap", OnResolveOverlapEnter, OnResolveOverlapLeave, OnResolveOverlapUpdate);
-            AddState("Goback", OnGobackEnter, OnGobackLeave, OnGobackUpdate); 
-            
+            AddState("Goback", OnGobackEnter, OnGobackLeave, OnGobackUpdate);             
         }
 
         //function called after bahavior is setup 
@@ -111,6 +111,24 @@ namespace Zealot.Server.AI
 
         protected virtual void OnStunUpdate(long dt)
         {            
+        }
+        #endregion
+
+        #region Frozen State
+        protected virtual void OnFrozenEnter(string prevstate)
+        {
+#if LOG_BOSS_AI
+            if (LogAI)
+                log.Info("OnFrozenEnter");
+#endif
+        }
+        protected virtual void OnFrozenLeave()
+        {
+
+        }
+
+        protected virtual void OnFrozenUpdate(long dt)
+        {
         }
         #endregion
 
@@ -357,7 +375,7 @@ namespace Zealot.Server.AI
             //base.OnRecoverFromKnockBackUpdate(dt); 
             if (mTarget != null)
             {
-                if (mMonster.HasControlStatus(ControlSEType.Stun))
+                if (mMonster.HasControlStatus(ControlSEType.Stun) || mMonster.HasControlStatus(ControlSEType.Stun))
                     return;
                 ACTIONTYPE atype = mMonster.GetActionCmd().GetActionType();
                 if (atype == ACTIONTYPE.KNOCKEDBACK || atype == ACTIONTYPE.KNOCKEDUP)
@@ -576,7 +594,7 @@ namespace Zealot.Server.AI
             if (!slots.HasAvailableSlot())
                 return false;
 
-            if (mMonster.HasControlStatus(ControlSEType.Root))
+            if (mMonster.HasControlStatus(ControlSEType.Root) || mMonster.HasControlStatus(ControlSEType.Stun))
                 return false;
 
             return true;
@@ -784,7 +802,7 @@ namespace Zealot.Server.AI
 
         protected virtual bool CheckTargetValid()
         {
-            if (mMonster.mArchetype.monsterclass == MonsterClass.Boss)
+            if (mMonster.mArchetype.monstertype == MonsterType.Boss)
             {
                 if (mHighestThreatAttacker != null)//boss attack the highestThreat attacker
                 {
@@ -891,7 +909,7 @@ namespace Zealot.Server.AI
 
         protected override void OnStunUpdate(long dt)
         {
-            if (!mActor.HasControlStatus(ControlSEType.Stun))
+            if (!mActor.HasControlStatus(ControlSEType.Stun) && !mActor.HasControlStatus(ControlSEType.Stun))
             {
                 GotoState("CombatApproach");
             }
@@ -900,6 +918,27 @@ namespace Zealot.Server.AI
         protected override void OnStunLeave()
         {
             base.OnStunLeave();
+        }
+        #endregion
+
+        #region Frozen state
+        protected override void OnFrozenEnter(string prevstate)
+        {
+            base.OnFrozenEnter(prevstate);
+            mMonster.Idle();
+        }
+
+        protected override void OnFrozenUpdate(long dt)
+        {
+            if (!mActor.HasControlStatus(ControlSEType.Freeze) && !mActor.HasControlStatus(ControlSEType.Stun))
+            {
+                GotoState("CombatApproach");
+            }
+        }
+
+        protected override void OnFrozenLeave()
+        {
+            base.OnFrozenLeave();
         }
         #endregion
 
@@ -954,7 +993,7 @@ namespace Zealot.Server.AI
             SwitchTarget(attackerActor); //The first attacker will be targeted
             ResetSkillToExecute();
 
-            if (!mMonster.HasControlStatus(ControlSEType.Stun)) //if not in stun state
+            if (!mMonster.HasControlStatus(ControlSEType.Stun) && !mMonster.HasControlStatus(ControlSEType.Stun)) //if not in stun state
                 GotoState("CombatApproach");
             return true;
         }

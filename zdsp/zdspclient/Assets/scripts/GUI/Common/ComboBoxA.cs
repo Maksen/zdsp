@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -144,5 +145,15 @@ public class ComboBoxA : MonoBehaviour
         selectedIndex = -1;
         selectedValue = "";
         SelectedItem = null;
+    }
+
+    public int GetIndexByValue(string value)
+    {
+        List<ComboBoxAItem> result = ItemList.Where(o => o.Value == value).ToList();
+        if (result.Count > 0)
+        {
+            return result[0].Index;
+        }
+        return 0;
     }
 }

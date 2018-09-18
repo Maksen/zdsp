@@ -33,8 +33,8 @@ public class UIShopBarter : UIShop
 
         if (GameInfo.gLocalPlayer != null)
         {
-            heldcurrency.text = GameInfo.gLocalPlayer.SecondaryStats.money.ToString();
-            heldauctioncurrency.text = GameInfo.gLocalPlayer.SecondaryStats.gold.ToString();
+            heldcurrency.text = GameInfo.gLocalPlayer.SecondaryStats.Money.ToString();
+            heldauctioncurrency.text = GameInfo.gLocalPlayer.SecondaryStats.Gold.ToString();
         }
 
         if (itemlistparent != null && itemicon_prefab != null && newitemlist != null && newitemlist.Length > 0)
@@ -78,7 +78,7 @@ public class UIShopBarter : UIShop
                     case BagType.Material:
                         ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
                         break;
-                    case BagType.DNA:
+                    case BagType.Socket:
                         ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
                         break;
                 }

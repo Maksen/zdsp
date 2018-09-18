@@ -17,6 +17,8 @@ namespace Zealot.Common
         Error = 7,
         Non = 8,
         Failed = 9,
+        DestinyEffect = 10,
+        DestinyEffectWithEvent = 11,
     }
 
     public enum UpdateObjectiveType
@@ -231,6 +233,12 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "CompletedSignboard")]
         public string CompletedSignboard { get; set; }
 
+        [JsonProperty(PropertyName = "SignboardRewardBoost")]
+        public int SignboardRewardBoost { get; set; }
+
+        [JsonProperty(PropertyName = "SignboardLimit")]
+        public int SignboardLimit { get; set; }
+
         [JsonProperty(PropertyName = "EventQuest")]
         public string EventQuest { get; set; }
 
@@ -263,6 +271,8 @@ namespace Zealot.Common
             CompletedGuild = "";
             SignboardQuest = "";
             CompletedSignboard = "";
+            SignboardRewardBoost = 100;
+            SignboardLimit = 0;
             EventQuest = "";
             CompletedEvent = "";
             TrackingList = "";

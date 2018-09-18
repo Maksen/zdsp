@@ -10,11 +10,13 @@ namespace Zealot.Repository
     {
         public static Dictionary<PowerUpPartsType, Dictionary<int, PowerUpJson>> partsLvlMap;
         public static Dictionary<PowerUpPartsType, Dictionary<int, SideEffectJson>> partsEffectMap;
+        public static Dictionary<int, int> partsTypeConverter;
 
         static PowerUpRepo()
         {
             partsLvlMap = new Dictionary<PowerUpPartsType, Dictionary<int, PowerUpJson>>();
             partsEffectMap = new Dictionary<PowerUpPartsType, Dictionary<int, SideEffectJson>>();
+            partsTypeConverter = new Dictionary<int, int>();
         }
 
         public static void Init(GameDBRepo gameData)
@@ -30,6 +32,17 @@ namespace Zealot.Repository
                 }
 
                 partsLvlMap[part].Add(level, entry.Value);
+            }
+
+            foreach (KeyValuePair<int, PowerUpPartsListJson> entry in gameData.PowerUpPartsList)
+            {
+                int parts = entry.Value.part;
+                int powerUpParts = entry.Value.poweruppart;
+
+                if (!partsTypeConverter.ContainsKey(parts))
+                {
+                    partsTypeConverter.Add(parts, powerUpParts);
+                }
             }
         }
 
@@ -47,7 +60,6 @@ namespace Zealot.Repository
             return null;
         }
 
-        
         public static List<ItemInfo> GetPowerUpMaterialByPartsEffect(PowerUpPartsType part, int level)
         {
             if (partsLvlMap.ContainsKey(part))
@@ -76,8 +88,16 @@ namespace Zealot.Repository
                     return materialList;
                 }
             }
-
             return null;
+        }
+
+        public static int PartsTypeValue (int partsType)
+        {
+            if (partsTypeConverter.ContainsKey(partsType))
+            {
+                return partsTypeConverter[partsType];
+            }
+            return -1;
         }
     }
 }

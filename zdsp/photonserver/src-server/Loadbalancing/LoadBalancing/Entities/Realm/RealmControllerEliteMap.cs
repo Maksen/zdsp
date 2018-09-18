@@ -59,7 +59,7 @@ namespace Zealot.Server.Entities
             if (playerTimer.mTimer != null)
             {
                 TimeSpan timespan = DateTime.Now - playerTimer.mEnterDT;
-                player.RealmStats.EliteMapTime += (int)timespan.TotalSeconds;
+                //player.RealmStats.EliteMapTime += (int)timespan.TotalSeconds;
                 //int total = player.RealmStats.GetEliteMapDailyTimeTotal(player.GetAccumulatedLevel());
                 //if (player.RealmStats.EliteMapTime >= total - 5) //if less than 5 seconds left, just consume all.
                 //    player.RealmStats.EliteMapTime = total;
@@ -83,7 +83,7 @@ namespace Zealot.Server.Entities
                 Player player = mPlayers[playername];
                 PlayerTimer playerTimer = mPlayerTimers[playername];            
                 TimeSpan timespan = DateTime.Now - playerTimer.mEnterDT;
-                player.RealmStats.EliteMapTime += (int)timespan.TotalSeconds;
+                //player.RealmStats.EliteMapTime += (int)timespan.TotalSeconds;
                 //int total = player.RealmStats.GetEliteMapDailyTimeTotal(player.GetAccumulatedLevel());
                 //if (player.RealmStats.EliteMapTime > total - 5)
                 //    player.RealmStats.EliteMapTime = total;

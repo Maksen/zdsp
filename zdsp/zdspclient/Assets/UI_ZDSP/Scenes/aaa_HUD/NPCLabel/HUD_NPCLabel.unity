@@ -689,7 +689,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &954076357
 RectTransform:
   m_ObjectHideFlags: 0
@@ -704,6 +704,7 @@ RectTransform:
   - {fileID: 524946245}
   - {fileID: 339979381}
   - {fileID: 523673799}
+  - {fileID: 1806656949}
   m_Father: {fileID: 319406912}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -725,15 +726,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mChatBox: {fileID: 524946244}
   mQuest: {fileID: 339979380}
-  mReturnQuest: {fileID: 523673798}
+  mOngoingQuest: {fileID: 523673798}
+  mReturnQuest: {fileID: 1806656948}
   mChatTxt: {fileID: 1852915482}
   mQuestImg: {fileID: 1115152447}
-  mRetQuestImg: {fileID: 316224196}
+  mOngoingImg: {fileID: 316224196}
+  mRetQuestImg: {fileID: 1560872633}
   NewMainQuestImage: {fileID: 21300000, guid: 9acd4c20406093041be0fd6d0ba21371, type: 3}
   NewAdventureQuestImage: {fileID: 21300000, guid: 3c2ae63796d4bc1458be0b9f7adbd493,
     type: 3}
   NewEventQuestImage: {fileID: 21300000, guid: 119c716ace994864aa3a32b4844a71af, type: 3}
-  NewSubQuestImage: {fileID: 21300000, guid: 119c716ace994864aa3a32b4844a71af, type: 3}
+  NewSubQuestImage: {fileID: 21300000, guid: c70f611b908f0814f9b3edb2318fc0c6, type: 3}
+  OngoingMainQuestImage: {fileID: 21300000, guid: c31edfc19cfe7bc4da52b629d25bf45d,
+    type: 3}
+  OngoingAdventureQuestImage: {fileID: 21300000, guid: e3bc651c633b93b489a4d0aa618d98ee,
+    type: 3}
+  OngoingEventQuestImage: {fileID: 21300000, guid: a5622f2a40421314d90a0e725175d4b2,
+    type: 3}
+  OngoingSubQuestImage: {fileID: 21300000, guid: ee5031217f798df4db5054d9c03c810b,
+    type: 3}
+  CompletedMainQuestImage: {fileID: 21300000, guid: 0f1133f161a913c439618ecfdc4582ef,
+    type: 3}
+  CompletedAdventureQuestImage: {fileID: 21300000, guid: a1c16cf594fef9d4481383c44735792d,
+    type: 3}
+  CompletedEventQuestImage: {fileID: 21300000, guid: f5c730193ae04834298e1a36cc1101e0,
+    type: 3}
+  CompletedSubQuestImage: {fileID: 21300000, guid: ba33072de995e2e489234ae2c6f94ac1,
+    type: 3}
 --- !u!114 &954076359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -915,6 +934,88 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1b253800c7b6b194f999305297681d58, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1560872630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1560872631}
+  - component: {fileID: 1560872634}
+  - component: {fileID: 1560872633}
+  - component: {fileID: 1560872632}
+  m_Layer: 22
+  m_Name: Image_Icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1560872631
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1560872630}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1806656949}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 20.5}
+  m_SizeDelta: {x: 57, y: 45}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1560872632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1560872630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1741964061, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
+--- !u!114 &1560872633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1560872630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: f5c730193ae04834298e1a36cc1101e0, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &1560872634
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1560872630}
 --- !u!1 &1670593298
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,6 +1189,58 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1806656948
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1806656949}
+  - component: {fileID: 1806656950}
+  m_Layer: 22
+  m_Name: GameObject_FinishQuest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1806656949
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1806656948}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.999936, y: 0.999936, z: 0.999936}
+  m_Children:
+  - {fileID: 1560872631}
+  m_Father: {fileID: 954076357}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!95 &1806656950
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1806656948}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f346fce991a183e4fa788fec22026492, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1852915478
 GameObject:
   m_ObjectHideFlags: 0

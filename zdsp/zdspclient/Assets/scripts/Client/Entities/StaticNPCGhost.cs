@@ -1,5 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Zealot.Client.Actions;
 using Zealot.Common;
@@ -21,6 +22,24 @@ namespace Zealot.Client.Entities
             this.EntityType = EntityType.StaticNPC;
         }
 
+        NPCFunctionType GetNPCFunction(out int param)
+        {
+            param = 0;
+            if (mArchetype!= null && mArchetype.npcfunction != null && mArchetype.npcfunction.Length > 0)
+            {
+                var args = mArchetype.npcfunction.Split('/');
+
+                if (args.Length >= 2)
+                {
+                    param = int.Parse(args[1]);
+
+                    return (NPCFunctionType)int.Parse(args[0]);
+                }
+            }
+
+            return (NPCFunctionType)(-1);
+        }
+
         public void Init(StaticNPCJson npcInfo, Vector3 pos, Vector3 forward)
         {
             mArchetype = npcInfo;
@@ -30,8 +49,6 @@ namespace Zealot.Client.Entities
 
             mActiveQuest = -1;
             mActiveStatus = mArchetype.activeonstartup;
-            GetQuestList();
-            GetOngoingQuest();
 
             Position = pos;
             Forward = forward;
@@ -84,7 +101,6 @@ namespace Zealot.Client.Entities
             PreloadEffect();
             string modelPath = mArchetype.modelprefabpath;
             mShadow.SetActive(!string.IsNullOrEmpty(modelPath) && modelPath != "Models/Npcs/Prefabs/npc_null.prefab" && mActiveStatus);
-            UpdateQuestMarker();
         }
 
         protected void PreloadEffect()
@@ -111,8 +127,20 @@ namespace Zealot.Client.Entities
                     player.PathFindToTarget(Position, -1, 2, false, false, DoInteractAction);
                 else
                     DoInteractAction();
+                return true;
             }
             return false;
+        }
+
+        void onDialogueOver()
+        {
+            int param = 0;
+            var func = GetNPCFunction(out param);
+
+            if(func == NPCFunctionType.Shop)
+                UIManager.OpenWindow(WindowType.ShopSell, (window) => window.GetComponent<UIShop>().RequestShopInfo(param));
+
+            return;
         }
 
         public void DoInteractAction()
@@ -129,7 +157,7 @@ namespace Zealot.Client.Entities
             bool ongoingquest = false;
             if (mActiveQuest != -1)
             {
-                if (mOngoingQuest.Contains(mActiveQuest))
+                if (mOngoingQuest.ContainsKey(mActiveQuest))
                 {
                     talkid = questController.GetTalkId(mActiveQuest, mArchetypeId);
                     ongoingquest = true;
@@ -151,19 +179,19 @@ namespace Zealot.Client.Entities
             UIManager.CloseAllWindows();
             if (talkid != -1)
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, mActiveQuest, ongoingquest));
+                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, mActiveQuest, ongoingquest, null, false, onDialogueOver));
             }
             else if (talkid == -1 && mAvailableQuest.Count > 0)
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, mAvailableQuest));
+                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, mAvailableQuest, false, onDialogueOver));
             }
             else if (completedall)
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, null, completedall));
+                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, null, completedall, onDialogueOver));
             }
             else
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest));
+                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, null, false, onDialogueOver));
             }
         }
 
@@ -243,18 +271,18 @@ namespace Zealot.Client.Entities
                 return;
 
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
-            List<int> questcansubmit = new List<int>();
-            List<int> questongoing = new List<int>();
+            Dictionary<int, int> questcansubmit = new Dictionary<int, int>();
+            Dictionary<int, int> questongoing = new Dictionary<int, int>();
             List<int> questacceptable = new List<int>();
-            foreach (int questid in mOngoingQuest)
+            foreach(KeyValuePair<int, int> entry in mOngoingQuest)
             {
-                if (questController.IsQuestCanSubmit(questid))
+                if (questController.IsQuestCanSubmitByObjective(entry.Key, entry.Value))
                 {
-                    questcansubmit.Add(questid);
+                    questcansubmit.Add(entry.Key, entry.Value);
                 }
                 else
                 {
-                    questongoing.Add(questid);
+                    questongoing.Add(entry.Key, entry.Value);
                 }
             }
 
@@ -265,11 +293,27 @@ namespace Zealot.Client.Entities
 
             if (questcansubmit.Count > 0)
             {
-                mActiveQuest = QuestRepo.GetPriorityQuestId(questcansubmit);
+                List<int> questlist = questcansubmit.Keys.ToList();
+                mActiveQuest = QuestRepo.GetPriorityQuestId(questlist);
                 QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
                 if (questJson != null && questJson.promptobj)
                 {
-                    mQuestLabelType = QuestLabelType.Submit;
+                    if (questJson.type == QuestType.Main)
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitMainQuest;
+                    }
+                    else if (questJson.type == QuestType.Destiny)
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitAdventureQuest;
+                    }
+                    else if (questJson.type == QuestType.Event)
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitEventQuest;
+                    }
+                    else
+                    {
+                        mQuestLabelType = QuestLabelType.SubmitSubQuest;
+                    }
                 }
                 else
                 {
@@ -278,11 +322,27 @@ namespace Zealot.Client.Entities
             }
             else if (questongoing.Count > 0)
             {
-                mActiveQuest = QuestRepo.GetPriorityQuestId(questongoing);
+                List<int> questlist = questongoing.Keys.ToList();
+                mActiveQuest = QuestRepo.GetPriorityQuestId(questlist);
                 QuestJson questJson = QuestRepo.GetQuestByID(mActiveQuest);
                 if (questJson != null && questJson.promptobj)
                 {
-                    mQuestLabelType = QuestLabelType.Ongoing;
+                    if (questJson.type == QuestType.Main)
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingMainQuest;
+                    }
+                    else if (questJson.type == QuestType.Destiny)
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingAdventureQuest;
+                    }
+                    else if (questJson.type == QuestType.Event)
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingEventQuest;
+                    }
+                    else
+                    {
+                        mQuestLabelType = QuestLabelType.OngoingSubQuest;
+                    }
                 }
                 else
                 {
@@ -327,60 +387,10 @@ namespace Zealot.Client.Entities
             mHeadLabel.UpdateQuestLabel(mQuestLabelType);
         }
 
-        private void GetQuestList()
+        public override void UpdateQuestList(List<int> availablelist, Dictionary<int, int> ongoinglist)
         {
-            mQuestList = new List<int>();
-            string[] ids = mArchetype.questid.Split(';');
-            foreach (string id in ids)
-            {
-                if (!string.IsNullOrEmpty(id))
-                {
-                    mQuestList.Add(int.Parse(id));
-                }
-            }
-        }
-
-        public override void UpdateAvailableQuestList()
-        {
-            PlayerGhost player = GameInfo.gLocalPlayer;
-            if (player == null)
-                return;
-
-            List<int> availablequest = new List<int>();
-            foreach (int questid in mQuestList)
-            {
-                if (player.QuestController.IsQuestAvailable(questid))
-                {
-                    availablequest.Add(questid);
-                }
-            }
-
-            if (availablequest != mAvailableQuest)
-            {
-                mAvailableQuest = availablequest;
-                UpdateQuestMarker();
-            }
-        }
-
-        private void GetOngoingQuest()
-        {
-            mOngoingQuest = (GameInfo.gLocalPlayer != null) 
-                ? GameInfo.gLocalPlayer.QuestController.GetQuestListByNPCId(mArchetypeId) : new List<int>();
-        }
-
-        public override void UpdateOngoingQuest(List<int> quests)
-        {
-            mOngoingQuest = quests;
+            base.UpdateQuestList(availablelist, ongoinglist);
             UpdateQuestMarker();
-        }
-
-        public override void RemoveOngoingQuest(int questid)
-        {
-            if (mOngoingQuest.Contains(questid))
-            {
-                mOngoingQuest.Remove(questid);
-                UpdateQuestMarker();
-            }
         }
 
         private GameObjectToEntityRef mEntityRef = null;

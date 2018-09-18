@@ -6,6 +6,7 @@ using Zealot.Common;
 using System.Collections.Generic;
 using Zealot.Repository;
 using Kopio.JsonContracts;
+using System.Text.RegularExpressions;
 
 public class UI_TrackQuestData : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class UI_TrackQuestData : MonoBehaviour
 
     [SerializeField]
     Button ObjectiveButton;
+
+    [SerializeField]
+    Button CompleteButton;
 
     [SerializeField]
     HyperText Description;
@@ -61,16 +65,35 @@ public class UI_TrackQuestData : MonoBehaviour
                 Description.Interactable = true;
             }
             Description.ClickedLink.RemoveAllListeners();
-            if (questController.HaveMultipleTarget(questData))
+            int targetcount = Regex.Matches(mDescription, "<a name=").Count;
+            if (targetcount > 1)
             {
                 Description.raycastTarget = true;
                 Description.ClickedLink.AddListener(OnClickHyperlink);
                 ObjectiveButton.interactable = false;
+                ObjectiveButton.gameObject.SetActive(false);
+            }
+            else if (targetcount == 1)
+            {
+                Description.raycastTarget = false;
+                ObjectiveButton.interactable = true;
+                ObjectiveButton.gameObject.SetActive(true);
             }
             else
             {
                 Description.raycastTarget = false;
-                ObjectiveButton.interactable = true;
+                ObjectiveButton.interactable = false;
+                ObjectiveButton.gameObject.SetActive(false);
+            }
+            if (questData.Status == (byte)QuestStatus.CompletedAllObjective && questJson.replyid)
+            {
+                CompleteButton.interactable = true;
+                CompleteButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                CompleteButton.interactable = false;
+                CompleteButton.gameObject.SetActive(false);
             }
             DoingQuest.SetActive(false);
             bool submitable = questController.IsQuestCanSubmit(questData.QuestId);
@@ -90,6 +113,9 @@ public class UI_TrackQuestData : MonoBehaviour
         Description.text = mDescription + mLocation;
         Description.ClickedLink.RemoveAllListeners();
         ObjectiveButton.interactable = true;
+        ObjectiveButton.gameObject.SetActive(true);
+        CompleteButton.interactable = false;
+        CompleteButton.gameObject.SetActive(false);
         DoingQuest.SetActive(false);
         CompletedQuest.SetActive(false);
     }
@@ -159,5 +185,11 @@ public class UI_TrackQuestData : MonoBehaviour
                 mQuestController.ProceedQuestObjective(type, targetid, mQuestId);
             }
         }
+    }
+
+    public void OnClickCompleteQuest()
+    {
+        UIManager.StartHourglass();
+        RPCFactory.NonCombatRPC.CompleteQuest(mQuestData.QuestId, true);
     }
 }

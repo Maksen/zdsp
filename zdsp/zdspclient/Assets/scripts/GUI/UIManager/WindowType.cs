@@ -19,6 +19,9 @@
     DestinyHistory = 14,
     Dungeon = 15,
     DungeonStory = 16,
+    ShopSell = 17,
+    ShopBarter = 18,
+    Mail = 19,
 
     // Add persistent type window here
     //-----------------------------------

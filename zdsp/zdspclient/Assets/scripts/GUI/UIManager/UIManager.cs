@@ -235,6 +235,17 @@ public static class UIManager
 
     #endregion Open/Close windows and dialogs
 
+    public static void HideOpenedWindowsUICameras(bool hide)
+    {
+        for (int i = 0; i < windowStack.Count; i++)
+        {
+            GameObject windowObj = GetWindowGameObject(windowStack[i]);
+            Camera[] uiCameras = windowObj.GetComponentsInChildren<Camera>();
+            for (int index = 0; index < uiCameras.Length; index++)
+                uiCameras[index].enabled = !hide;
+        }
+    }
+
     #region Open specific windows
 
     public static void OpenYesNoDialog(string content, Action yes_callback, Action no_callback = null, int countdown = 0, 
@@ -252,6 +263,20 @@ public static class UIManager
         {
             window.GetComponent<UI_DialogYesNo>().InitDialogOk(content, ok_callback);
         });
+    }
+
+    public static void OpenCutsceneDialog(bool buttonstatus = true)
+    {
+        if (IsAnyWindowOpened())
+        {
+            CloseAllWindows();
+        }
+        if (IsAnyDialogOpened())
+        {
+            CloseAllDialogs();
+        }
+
+        OpenDialog(WindowType.DialogCutscene, (window) => window.GetComponent<UI_Cutscene>().Init(buttonstatus));
     }
 
     #endregion Open specific windows
@@ -420,6 +445,7 @@ public static class UIManager
             window.OnLevelChanged();
     }
 
+
     #region Window Behaviour
 
     public static BaseWindowBehaviour GetWindowBehaviour(WindowType windowType)
@@ -471,7 +497,7 @@ public static class UIManager
     {
         if (widgetsMap.ContainsKey(type))
         {
-            return widgetsMap[type].IsActived();
+            return widgetsMap[type].IsActive();
         }
         return false;
     }
@@ -507,19 +533,6 @@ public static class UIManager
             hudChat.AddToChatLog(msgType, message, "", "");
     }
 
-    public static void OpenCutsceneDialog(bool buttonstatus = true)
-    {
-        if (IsAnyWindowOpened())
-        {
-            CloseAllWindows();
-        }
-        if (IsAnyDialogOpened())
-        {
-            CloseAllDialogs();
-        }
-
-        OpenDialog(WindowType.DialogCutscene, (window) => window.GetComponent<UI_Cutscene>().Init(buttonstatus));
-    }
 }
 
 internal class WindowStack<T> : System.Collections.IEnumerable

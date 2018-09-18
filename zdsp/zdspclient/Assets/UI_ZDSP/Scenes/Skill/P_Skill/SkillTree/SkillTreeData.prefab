@@ -569,15 +569,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1df337659147b1146ad24dcdc132c883, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ID: 0
+  m_Toggle: {fileID: 0}
+  m_skgID: 0
+  m_IconFrame: {fileID: 114534511388180094}
+  m_Icon: {fileID: 114877065538301702}
+  m_Skillid: 0
+  m_SkillLevel: 0
+  active: {fileID: 21300000, guid: 527eed5b15efa474ca3acec348f904b1, type: 3}
+  passive: {fileID: 21300000, guid: b59ef9f48af01824a86ef0fa60502e6d, type: 3}
   m_SkillLevelText: {fileID: 114167440859530220}
   m_Anchor: {fileID: 224759173627276646}
-  m_Icon: {fileID: 114877065538301702}
   m_LevelUpIcon: {fileID: 1573073709046774}
   m_Row: 0
   m_Col: 0
-  m_Toggle: {fileID: 0}
-  m_SkillLevel: 0
 --- !u!114 &114808183174560156
 MonoBehaviour:
   m_ObjectHideFlags: 1

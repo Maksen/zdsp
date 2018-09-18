@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
 using Zealot.Common;
+using Zealot.Repository;
 
 public class UI_Inventory_SellPanel : MonoBehaviour
 {
@@ -19,10 +20,7 @@ public class UI_Inventory_SellPanel : MonoBehaviour
     public UI_Inventory UIInventory { private get; set; }
 
     public List<InvDisplayItem> SellItemList { get; set; }
-
     public List<Dictionary<int, int>> SellRefList = null; // Dict: originSlotId -> amountToSell
-
-    Dictionary<int, int> sellAmtToSlotIdDict = null;
 
     int totalSellPrice = 0;
 
@@ -31,7 +29,6 @@ public class UI_Inventory_SellPanel : MonoBehaviour
     {
         SellItemList = new List<InvDisplayItem>();
         SellRefList = new List<Dictionary<int, int>>();
-        sellAmtToSlotIdDict = new Dictionary<int, int>();
     }
 
     void OnEnable()
@@ -225,26 +222,29 @@ public class UI_Inventory_SellPanel : MonoBehaviour
 
     public void OnClickSellItems()
     {
-        sellAmtToSlotIdDict.Clear();
-
         int sellRefListCount = SellRefList.Count;
         if (sellRefListCount > 0)
         {
-            for (int i = 0; i < sellRefListCount; ++i)
+            string message = GUILocalizationRepo.GetLocalizedString("inv_ConfirmSell");
+            UIManager.OpenYesNoDialog(message, () =>
             {
-                Dictionary<int, int> refDict = SellRefList[i];
-                foreach (KeyValuePair<int, int> kvp in refDict)
+                Dictionary<int, int> sellAmtToSlotIdDict = new Dictionary<int, int>();
+                for (int i = 0; i < sellRefListCount; ++i)
                 {
-                    int slotId = kvp.Key;
-                    if (sellAmtToSlotIdDict.ContainsKey(slotId))
-                        sellAmtToSlotIdDict[slotId] += kvp.Value;
-                    else
-                        sellAmtToSlotIdDict.Add(slotId, kvp.Value);
+                    Dictionary<int, int> refDict = SellRefList[i];
+                    foreach (KeyValuePair<int, int> kvp in refDict)
+                    {
+                        int slotId = kvp.Key;
+                        if (sellAmtToSlotIdDict.ContainsKey(slotId))
+                            sellAmtToSlotIdDict[slotId] += kvp.Value;
+                        else
+                            sellAmtToSlotIdDict.Add(slotId, kvp.Value);
+                    }
                 }
-            }
-            RPCFactory.CombatRPC.MassSellItems(sellAmtToSlotIdDict);
+                RPCFactory.CombatRPC.MassSellItems(sellAmtToSlotIdDict);
 
-            gameObject.SetActive(false); // Close sell panel when sell items
+                gameObject.SetActive(false); // Close sell panel when sell items
+            });
         }
     }
 

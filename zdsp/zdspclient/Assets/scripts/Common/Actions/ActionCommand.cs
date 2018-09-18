@@ -25,6 +25,7 @@ namespace Zealot.Common.Actions
         KNOCKEDBACK,
         KNOCKEDUP,
         DRAGGED,
+        FROZEN,
         GETHIT,
         SUMMON,
     }
@@ -72,6 +73,8 @@ namespace Zealot.Common.Actions
                 return new GetHitCommand();
             if (code == ACTIONTYPE.SUMMON)
                 return new SummonCommand();
+            if (code == ACTIONTYPE.FROZEN)
+                return new FrozenActionCommand();
             return null;
         }
 
@@ -438,6 +441,25 @@ namespace Zealot.Common.Actions
             speed = (float)dic[pcode++];
         }
     }
+
+    public class FrozenActionCommand : ActionCommand
+    {
+        public float dur;
+
+        public FrozenActionCommand() : base(ACTIONTYPE.FROZEN) { }
+        public override bool SerializeStream(int persid, ref byte pcode, ref Dictionary<byte, object> dic)
+        {
+            dic.Add(pcode++, persid);
+            dic.Add(pcode++, mActionType);
+            dic.Add(pcode++, dur);
+            return true;
+        }
+        public override void Deserialize(Dictionary<byte, object> dic, ref byte pcode)
+        {
+            dur = (float)dic[pcode++];
+        }
+    }
+
     public class FlashActionCommand : ActionCommand
     {
         public float dur;

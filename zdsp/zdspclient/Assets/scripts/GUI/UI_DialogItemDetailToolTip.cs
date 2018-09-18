@@ -18,6 +18,24 @@ public class ItemDetailsButton
 
 public class UI_DialogItemDetailToolTip : MonoBehaviour
 {
+    public class TooltipCommon
+    {
+        public Text storable;
+        public Text description;
+        public UI_DialogItemDetail_TextValue reqLv;
+        public UI_DialogItemDetail_TextValue dailyUseLimit;
+        public UI_DialogItemDetail_TextValue weeklyUseLimit;
+        public UI_DialogItemDetail_TextValue dailyGetLimit;
+        public UI_DialogItemDetail_TextValue weeklyGetLimit;
+
+        public bool Failed()
+        {
+            return (storable == null || description == null || reqLv == null ||
+                     dailyUseLimit == null || weeklyUseLimit == null ||
+                     dailyGetLimit == null || dailyGetLimit == null);
+        }
+    }
+
     [Header("Game Icon Prefab")]
     #region Game Icon Prefabs
     [SerializeField]
@@ -36,8 +54,6 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     GameObject mTTTextColonValuePrefab;
     [SerializeField]
     GameObject mTTValuePrefab;
-    [SerializeField]
-    GameObject mTTLocationPrefab;
     #endregion
 
     [Header("Left Panel Btn Prefab")]
@@ -99,8 +115,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     GameObject m3DView;
     [SerializeField]
     Model_3DAvatar m3DAvatar;
-    //[SerializeField]
-    //Dialog_WhereToGet mWhereToGet;
+    [SerializeField]
+    UI_DialogItemDetailTooltip_WhereToGet mWhereToGet;
 
     IInventoryItem mItem = null;
     List<GameObject> mNormalStatsLst = new List<GameObject>();
@@ -171,6 +187,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 InitTT_InstanceItem(item);             
                 break;
         }
+
+        DebugShowInfo();
     }
 
     public void OnDisable()
@@ -213,7 +231,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         {
 
             //If first time opening dialog
-            if (m3DAvatar.GetOutfitModel() == null && toggle)
+            //if (m3DAvatar.GetOutfitModel() == null && toggle)
+            if (toggle)
             {
                 PlayerGhost pg = GameInfo.gLocalPlayer;
                 m3DAvatar.Change(pg.mEquipmentInvData, (JobType)pg.PlayerSynStats.jobsect, pg.mGender);
@@ -224,8 +243,19 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     }
     public void Location(bool toggle)
     {
-        //Show drop location dialog
-        //mWhereToGet.InitWithItem(mItem);
+        if (mItem == null)
+        {
+            mWhereToGet.gameObject.SetActive(toggle);
+            return;
+        }
+
+        mWhereToGet.gameObject.SetActive(toggle);
+
+        if (toggle)
+        {
+            //Show drop location dialog
+            mWhereToGet.Init(mItem);
+        }
     }
     #endregion
 
@@ -267,26 +297,29 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 
         //*** Stats ***
         Text sideeffectTxt = null; //Side effect
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
         CreateText(out sideeffectTxt);
 
         //Check if all obj has been created
-        if (txtStorage == null || sideeffectTxt == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed() || sideeffectTxt == null)
             return;
 
         //Parent objects as needed
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
         sideeffectTxt.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
 
         //Set data to our gameobjects
         PotionFood pf = item as PotionFood;
@@ -310,20 +343,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonShared(item, out txtStorage, out txtDescription);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null)
+        if (cTT.Failed())
             return;
 
         //Set parent
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_Exchange(IInventoryItem item)
     {
@@ -334,32 +373,34 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtValReqLv = null; //Req level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
         Text txtExchangeItem = null; //Exchange ItemID
         Text txtReqValue = null; //Require Value
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtValReqLv);
+        InitTT_CommonShared(item, out cTT);
         CreateText(out txtExchangeItem);
         CreateText(out txtReqValue);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtExchangeItem == null || txtReqValue == null)
+        if (cTT.Failed() || txtExchangeItem == null || txtReqValue == null)
             return;
 
         //Parent object as needed
-        txtValReqLv.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
         txtExchangeItem.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
         txtReqValue.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
-        
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
 
         //Set data to our gameobjects
         MaterialItem matItem = item as MaterialItem;
@@ -380,20 +421,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonShared(item, out txtStorage, out txtDescription);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null)
+        if (cTT.Failed())
             return;
 
         //parent objects as needed
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_Token(IInventoryItem item)
     {
@@ -405,23 +452,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed())
             return;
 
         //parent objects as needed
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_LuckyPick(IInventoryItem item)
     {
@@ -432,23 +482,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed())
             return;
 
         //parent objects as needed
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_Henshin(IInventoryItem item)
     {
@@ -459,23 +512,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed())
             return;
 
         //parent objects as needed
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_Special(IInventoryItem item)
     {
@@ -486,23 +542,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed())
             return;
 
         //parent objects as needed
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_Features(IInventoryItem item)
     {
@@ -514,23 +573,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed())
             return;
 
         //parent objects as needed
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_Equipment(IInventoryItem item)
     {
@@ -543,18 +605,16 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 
         //*** Stats ***
         //Common
-        UI_DialogItemDetail_TextValue txtValReqLvl = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
         //Unique
         Text txtStats = null;
         UI_DialogItemDetail_TextValue txtValStats = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtValReqLvl);
+        InitTT_CommonShared(item, out cTT);
 
         //Common - Req Lv
-        mNormalStatsLst.Add(txtValReqLvl.gameObject);
+        mNormalStatsLst.Add(cTT.reqLv.gameObject);
         mNormalStatsLst.Add(CreateLineNoParent());
 
         //Unique - Wpn Main Attr
@@ -576,10 +636,12 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mNormalStatsLst.Add(CreateLineNoParent());
 
         //Unique - req class, if -1 == all class, otherwise.. some classes
-        //Missing localization
+        int classid = -2;
+        if (!int.TryParse(eq.EquipmentJson.equipclass, out classid))
+            Debug.LogError("UI_DialogItemDetailTooltip.InitTT_Equipment: Error parsing class id.");
         CreateTextColonValue(out txtValStats);
         txtValStats.Identifier = GUILocalizationRepo.GetLocalizedString("id_class");
-        txtValStats.Value = eq.EquipmentJson.equipclass; //NOTE: Incorrect
+        txtValStats.Value = (classid != -1) ? JobSectRepo.GetJobLocalizedName((JobType)classid) : GUILocalizationRepo.GetLocalizedString("id_allclass");
         mNormalStatsLst.Add(txtValStats.gameObject);
         mNormalStatsLst.Add(CreateLineNoParent());
 
@@ -590,103 +652,161 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         foreach (string s in baseseGrpLst)
         {
             int x;
-            if (int.TryParse(s, out x) == false || x < 0)
+            if (int.TryParse(s, out x) == false)
             {
-                //Debug.LogError("HUD_ItemDetailToolTip.InitTT_Equipment: Cannot convert string in baseSideEffectGroupList to int");
+                Debug.LogError("HUD_ItemDetailToolTip.InitTT_Equipment: Cannot convert Base side effect ID string chain in EquipmentJson.basese to int");
+                continue;
+            }
+            if (x < 0) //hide if id == -1 or negative
+            {
+                txtStats.text = "";
                 break;
             }
 
-            //Loop all sideeffect in the sideeffect grp, get their description in SDG
-            Dictionary<int, SideEffectJson> seGrp = SideEffectRepo.mSideEffectGroups[x].sideeffects;
-            foreach (SideEffectJson se in seGrp.Values)
-                txtStats.text += SDGRepo.GetSDGText(se);
+            txtStats.text += SideEffectRepo.GetSideEffect(x).description;
         }
         mNormalStatsLst.Add(txtStats.gameObject);
         mNormalStatsLst.Add(CreateLineNoParent());
 
-        //Unique - qiang hua level and effect
-        //CreateText(out txtStats);
-        //txtStats.text = GUILocalizationRepo.GetLocalizedString("id_powerup");
-        //mNormalStatsLst.Add(txtStats.gameObject);
-        //CreateTextColonValue(out tcvStats);
-        //tcvStats.Identifier = string.Format("{0}/{1}", 0, 0);   //qiang hua lvl, player max lv
-        //tcvStats.Value = string.Format("{0} + {1}",0 , 0); //effect, qiang hua value
-        //mNormalStatsLst.Add(tcvStats.gameObject);
-        //mNormalStatsLst.Add(CreateLine());
+        //Unique - power up/qiang hua level and effect
+        PowerUpJson puj = GameInfo.gLocalPlayer.clientPowerUpCtrl.GetPowerUpJson(eq.EquipmentJson.partstype);
+        if (puj != null)
+        {
+            SideEffectJson sej = SideEffectRepo.GetSideEffect(puj.effect);
+            CreateText(out txtStats);
+            txtStats.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_Powerup");
+            mNormalStatsLst.Add(txtStats.gameObject);
+            CreateTextColonValue(out txtValStats);
+            txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_Powerup2"), puj.power, GameInfo.gLocalPlayer.PlayerStats.Level);
+            txtValStats.Value = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_Powerup3"), sej.description, puj.value);
+            mNormalStatsLst.Add(txtValStats.gameObject);
+            mNormalStatsLst.Add(CreateLineNoParent());
+        }
 
         //Unique - Refine effect
-        //CreateText(out txtStats);
-        //txtStats.text = "Refine effect";
-        //mNormalStatsLst.Add(txtStats.gameObject);
-        //CreateTextColonValue(out tcvStats);
-        //tcvStats.Identifier = string.Format("{0}/{1}", 0, eq.EquipmentJson.upgradelimit); //refine level, upgrade limit
-        //tcvStats.Value = string.Format("{0} + {1}", eq.EquipmentJson.basese, 0); //basesideeffect, refine bonus
-        //mNormalStatsLst.Add(tcvStats.gameObject);
-        //mNormalStatsLst.Add(CreateLine());
+        if (eq.UpgradeLevel > 0)
+        {
+            float upgIncrease = EquipmentModdingRepo.GetEquipmentUpgradeData(eq.EquipmentJson.equiptype, eq.EquipmentJson.rarity, eq.UpgradeLevel+7).increase;
 
-        //Unique - Refinement lv effect
-        //CreateText(out txtStats);
-        //txtStats.text = "Refine Lv effect";
-        //mNormalStatsLst.Add(txtStats.gameObject);
-        //Loop through all refinement effects that this weapon has unlocked based on its refine lvl +8/+9/+10
-        //CreateTextColonValue(out tcvStats);
-        //tcvStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("id_refinelv"), 0); //refine level
-        //tcvStats.Value = string.Format(GUILocalizationRepo.GetLocalizedString("id_refinelv2"), 0); //equipmentUpgrade's buff
-        //mNormalStatsLst.Add(tcvStats.gameObject);
-        //mNormalStatsLst.Add(CreateLine());
+            CreateText(out txtStats);
+            txtStats.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineEffect");
+            mNormalStatsLst.Add(txtStats.gameObject);
+            CreateTextColonValue(out txtValStats);
+            txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineEffect2"), eq.UpgradeLevel+7, eq.EquipmentJson.upgradelimit);
+            txtValStats.Value = upgIncrease.ToString();
+            mNormalStatsLst.Add(txtValStats.gameObject);
+            mNormalStatsLst.Add(CreateLineNoParent());
 
-        //Unique - Chu Mo effect - hidden until further notice
+            //Unique - Refinement lv effect
+            CreateText(out txtStats);
+            txtStats.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv");
+            mNormalStatsLst.Add(txtStats.gameObject);
+            List<int> upgSeLst = EquipmentModdingRepo.GetEquipmentUpgradeBuff(eq.EquipmentJson.equiptype, eq.EquipmentJson.rarity, eq.UpgradeLevel+7);
+            for (int i = 0; i < upgSeLst.Count; ++i)
+            {
+                //Loop through all refinement effects that this weapon has unlocked based on its refine lvl +8 / +9 / +10
+                CreateTextColonValue(out txtValStats);
+                txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv2"), i); //refine level
+                txtValStats.Value = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv3"), SideEffectRepo.GetSideEffect(upgSeLst[i])); //equipmentUpgrade's buff
+                mNormalStatsLst.Add(txtValStats.gameObject);
+            }
+            mNormalStatsLst.Add(CreateLineNoParent());
+        }
 
         //Unique - socket item bonus + socket collection bonus
         //CreateText(out txtStats);
         //txtStats.text = "Socketed item bonus";
         //Loop through all socketed item bonus
         //mNormalStatsLst.Add(txtStats.gameObject);
-
         //CreateText(out txtStats);
         //txtStats.text = "Socketed item collection bonus";
         //Loop through all socketed item collection bonus
         //mNormalStatsLst.Add(txtStats.gameObject);
         //mNormalStatsLst.Add(CreateLine());
 
-        //Unique - evolve bonus - aka RO mobile Weapon Tier1,2,3
-        //Loop through all evolve stages
-        //CreateTextColonValue(out tcvStats);
-        //tcvStats.Identifier = "step N";
-        //tcvStats.Value = "value N";
-        //mNormalStatsLst.Add(tcvStats.gameObject);
-        //mNormalStatsLst.Add(CreateLine());
+        //Unique - reform bonus - aka RO mobile Weapon Tier1,2,3
+        if (eq.ReformStep > 0)
+        //eq.ReformStep = 1;
+        //if (EquipmentModdingRepo.GetEquipmentReformData(eq) != null)
+        {
+            List<EquipReformData> ersLst = EquipmentModdingRepo.GetEquipmentReformData(eq);
+            string reformDesc = string.Empty;
+            string reformStep = GUILocalizationRepo.GetLocalizedString("ItemTooltip_Evolve");
+
+            //Loop all reform step
+            for (int i = 0; i < ersLst.Count; ++i)
+            {
+                CreateTextColonValue(out txtValStats);
+                txtValStats.Identifier = string.Format(reformStep, ClientUtils.GetRomanNumFromInt(i+1));
+
+                //Retrieving the sideeffect description of each reform step
+                reformDesc = string.Empty;
+                string[] reformSE = ersLst[i].mReformData.sideeffect.Split(';');
+                foreach (string se in reformSE)
+                {
+                    int x = -2;
+                    if (int.TryParse(se, out x) == false)
+                    {
+                        Debug.LogError("HUD_ItemDetailToolTip.InitTT_Equipment: Cannot convert Base side effect ID string chain in EquipReformData to int");
+                        continue;
+                    }
+                    if (x == -1)
+                        continue;
+
+                    reformDesc += SideEffectRepo.GetSideEffect(x).description;
+                }
+                txtValStats.Value = reformDesc;
+                mNormalStatsLst.Add(txtValStats.gameObject);
+            }
+            mNormalStatsLst.Add(CreateLineNoParent());
+        }
+
 
         //Common - can storage
-        mNormalStatsLst.Add(txtStorage.gameObject);
+        mNormalStatsLst.Add(cTT.storable.gameObject);
         mNormalStatsLst.Add(CreateLineNoParent());
 
         //Common - description
-        mNormalStatsLst.Add(txtDescription.gameObject);
+        mNormalStatsLst.Add(cTT.description.gameObject);
+
+        //Common - use get limit
+        mNormalStatsLst.Add(CreateLineNoParent());
+        mNormalStatsLst.Add(cTT.dailyUseLimit.gameObject);
+        mNormalStatsLst.Add(cTT.dailyGetLimit.gameObject);
+        mNormalStatsLst.Add(cTT.weeklyUseLimit.gameObject);
+        mNormalStatsLst.Add(cTT.weeklyGetLimit.gameObject);
 
         //Set Parent
         for (int i = 0; i < mNormalStatsLst.Count; ++i)
             mNormalStatsLst[i].transform.SetParent(mStatsParent.transform, false);
 
         //*** Extra Sideeffect Stats ***
-        txtStats.text = "";
-        string[] extraseGrpLst = eq.EquipmentJson.extrase.Split(';');
-        foreach (string s in extraseGrpLst)
+        CreateText(out txtStats);
+        string[] extraSeLst = eq.EquipmentJson.extrase.Split(';');
+        foreach (string s in extraSeLst)
         {
             int x;
-            if (int.TryParse(s, out x) == false || x < 0)
+            if (int.TryParse(s, out x) == false)
             {
-                //Debug.LogError("HUD_ItemDetailToolTip.InitTT_Equipment: Cannot convert string in extraSideEffectGroupList to int");
+                string errstr = string.Format("HUD_ItemDetailToolTip.InitTT_Equipment: Cannot convert string {0} in EquipmentJson.extrase to int", s);
+                Debug.LogError(errstr);
+                continue;
+            }
+            if (x < 0) //hide if id == -1 or negative
+            {
+                txtStats.text = "";
                 break;
             }
 
             //Loop all sideeffect in the sideeffect grp, get their description in SDG
-            Dictionary<int, SideEffectJson> seGrp = SideEffectRepo.mSideEffectGroups[x].sideeffects;
-            foreach (SideEffectJson se in seGrp.Values)
-                txtStats.text += SDGRepo.GetSDGText(se);
+            txtStats.text += SideEffectRepo.GetSideEffect(x);
         }
         mExtraSideEffectLst.Add(txtStats.gameObject);
-        mExtraSideEffectLst.Add(CreateLine());
+        mExtraSideEffectLst.Add(CreateLineNoParent());
+
+        //Set parent of extra side effect
+        for (int i = 0; i < mExtraSideEffectLst.Count; ++i)
+            mExtraSideEffectLst[i].transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_DNA(IInventoryItem item)
     {
@@ -702,16 +822,15 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         //*** Stats ***
         Text txtPosGene = null; //Positive gene effect
         Text txtNegGene = null; //Negative gene effect
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonShared(item, out txtStorage, out txtDescription);
+        InitTT_CommonShared(item, out cTT);
         CreateText(out txtPosGene);
         CreateText(out txtNegGene);
 
         //Check if all obj has been created
-        if (txtPosGene == null || txtNegGene == null || txtStorage == null || txtDescription == null)
+        if (txtPosGene == null || txtNegGene == null || cTT.Failed())
             return;
 
         //Parent objects as needed
@@ -719,10 +838,17 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         CreateLine();
         txtNegGene.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
-        
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
+
         //set data to our gameobjects
         DNA dna = item as DNA;
         txtPosGene.text = dna.DNAJson.postive;
@@ -741,31 +867,43 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 
         //*** Stats ***
         Text txtCanRecycle = null;
+        Text txtSocketTitle = null;
         Text txtSocketAbility = null;
+        Text txtCollectionTitle = null;
         Text txtCollectionAbility = null;
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonShared(item, out txtStorage, out txtDescription);
+        InitTT_CommonShared(item, out cTT);
         CreateText(out txtCanRecycle);
+        CreateText(out txtSocketTitle);
         CreateText(out txtSocketAbility);
+        CreateText(out txtCollectionTitle);
         CreateText(out txtCollectionAbility);
 
         //Check if all obj has been created
-        if (txtCanRecycle == null || txtSocketAbility == null || txtCollectionAbility == null || txtStorage == null || txtDescription == null)
+        if (txtCanRecycle == null || txtSocketAbility == null || txtCollectionAbility == null || cTT.Failed())
             return;
 
         //Set parent
+        txtSocketTitle.transform.SetParent(mStatsParent.transform, false);
         txtSocketAbility.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
+        txtCollectionTitle.transform.SetParent(mStatsParent.transform, false);
         txtCollectionAbility.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
         txtCanRecycle.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
 
         //Set data to our gameobjects
         Relic relic = item as Relic;
@@ -775,8 +913,10 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         else
             txtCanRecycle.text = GUILocalizationRepo.GetLocalizedString("id_cannotrecyle");
         //Socket ability?
+        txtCollectionTitle.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RelicSocket");
         txtSocketAbility.text = relic.RelicJson.sockability;
         //Collection ability
+        txtCollectionTitle.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RelicCollection");
         txtCollectionAbility.text = relic.RelicJson.collectability;
     }
     private void InitTT_QuestItem(IInventoryItem item)
@@ -791,23 +931,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
 
         //*** Stats ***
-        UI_DialogItemDetail_TextValue txtVal = null; //Req Level
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonWithReqLevel(item, out txtStorage, out txtDescription, out txtVal);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtVal == null || txtStorage == null || txtDescription == null)
+        if (cTT.Failed())
             return;
 
         //Set parent
-        txtVal.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_MercenaryItem(IInventoryItem item)
     {
@@ -821,20 +964,26 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
 
         //*** Stats ***
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
 
         //Create common element
-        InitTT_CommonShared(item, out txtStorage, out txtDescription);
+        InitTT_CommonShared(item, out cTT);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null)
+        if (cTT.Failed())
             return;
 
         //Set parent
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
     }
     private void InitTT_InstanceItem(IInventoryItem item)
     {
@@ -848,24 +997,30 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
 
         //*** Stats ***
-        Text txtStorage = null; //Can put into storage
-        Text txtDescription = null; //Description
+        TooltipCommon cTT = null;
         UI_DialogItemDetail_TextValue txtVal = null;
 
         //Create common element
-        InitTT_CommonShared(item, out txtStorage, out txtDescription);
+        InitTT_CommonShared(item, out cTT);
         CreateTextColonValue(out txtVal);
 
         //Check if all obj has been created
-        if (txtStorage == null || txtDescription == null || txtVal == null)
+        if (cTT.Failed() || txtVal == null)
             return;
 
         //Set Parent
         txtVal.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtStorage.transform.SetParent(mStatsParent.transform, false);
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
         CreateLine();
-        txtDescription.transform.SetParent(mStatsParent.transform, false);
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
 
         //Set data to our gameobjects
         InstanceItem instanceItem = item as InstanceItem;
@@ -874,62 +1029,107 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         txtVal.ShowColon = true;
         txtVal.Value = instanceItem.InstanceItemJson.coordinate;
     }
-    private void InitTT_CommonShared(IInventoryItem item, out Text putIntoStorage, out Text description)
+    private void InitTT_ElementalStone(IInventoryItem item)
     {
+        //*** Icon - General item ***
+        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
+        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
+        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
+        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+
         //*** Stats ***
-        //can put into storage
-        if (!CreateText(out putIntoStorage))
+        TooltipCommon cTT = null;
+        Text sideeffectTxt = null;
+        UI_DialogItemDetail_TextValue stoneSlotTxt = null;
+        InitTT_CommonShared(item, out cTT);
+        CreateText(out sideeffectTxt);
+        CreateTextColonValue(out stoneSlotTxt);
+
+        if (cTT.Failed() || sideeffectTxt == null || stoneSlotTxt == null)
+            return;
+
+        //Parent objects as needed
+        stoneSlotTxt.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.reqLv.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        sideeffectTxt.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.storable.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.description.transform.SetParent(mStatsParent.transform, false);
+        CreateLine();
+        cTT.dailyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.dailyGetLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyUseLimit.transform.SetParent(mStatsParent.transform, false);
+        cTT.weeklyGetLimit.transform.SetParent(mStatsParent.transform, false);
+
+        ElementalStone es = item as ElementalStone;
+        //Unique - Equip slot
+        stoneSlotTxt.Identifier = GUILocalizationRepo.GetLocalizedString("ItemTooltip_ElemStone");
+        stoneSlotTxt.Value = EquipFushionRepo.StoneTypeGetName(es.ElementalStoneJson.type).ToString();
+        //Unique - Sideeffects
+        sideeffectTxt.text = string.Empty;
+        List<string> effectGroup = EquipFushionRepo.DecodeEffect(es.FushionData);
+        for (int i = 0; i < effectGroup.Count; ++i)
+            sideeffectTxt.text += effectGroup[i] + '\n';
+    }
+    private void InitTT_CommonShared(IInventoryItem item, out TooltipCommon cTT)
+    {
+        cTT = new TooltipCommon();
+        if (!CreateText(out cTT.storable) || !CreateText(out cTT.description) ||
+            !CreateTextColonValue(out cTT.reqLv) || !CreateTextColonValue(out cTT.dailyUseLimit) ||
+            !CreateTextColonValue(out cTT.dailyGetLimit) || !CreateTextColonValue(out cTT.weeklyUseLimit) ||
+            !CreateTextColonValue(out cTT.weeklyGetLimit))
         {
-            putIntoStorage = null;
-            description = null;
+            cTT.storable = cTT.description = null;
+            cTT.reqLv = cTT.dailyUseLimit = cTT.dailyGetLimit = cTT.weeklyUseLimit = cTT.weeklyGetLimit = null;
             return;
         }
-
-        //Description
-        if (!CreateText(out description))
-        {
-            putIntoStorage = null;
-            description = null;
-            return;
-        }
-
-        //json's first string after split = base price or -1 (cannot auction)
-        string cannotAuction = GUILocalizationRepo.GetLocalizedString("id_cannotauction");
-        string[] auctionStr = item.JsonObject.auction.Split('|');
-        int value;
-        int.TryParse(auctionStr[0], out value);
 
         string depositStr = (item.JsonObject.deposit) ? "id_canstorage" : "id_cannotstorage";
-        putIntoStorage.text = GUILocalizationRepo.GetLocalizedString(depositStr);
-        description.text = item.JsonObject.description;
-        mAuctionPrice.text = (value == -1) ? cannotAuction : auctionStr[0];
-        mSellPrice.text = (item.JsonObject.sellprice != -1) ? item.JsonObject.sellprice.ToString() : GUILocalizationRepo.GetLocalizedString("id_cannotsell");
-        mAuctionIcon.SetActive(value != -1);
-        mSellIcon.SetActive(item.JsonObject.sellprice != -1);
+        cTT.storable.text = GUILocalizationRepo.GetLocalizedString(depositStr);
+        cTT.description.text = item.JsonObject.description;
+        cTT.reqLv.Identifier = GUILocalizationRepo.GetLocalizedString("id_requirelevel");
+        cTT.reqLv.Value = item.JsonObject.requirelvl.ToString();
 
-        //Hide unnecessary buttons
-        mWhereToGetTog.gameObject.SetActive(item.JsonObject.origin == "-1");
-        mExtraEffectTog.gameObject.SetActive(item.JsonObject.itemtype == ItemType.Equipment);
-        m3DViewTog.gameObject.SetActive(is3DViewable(item));
-    }
-    private void InitTT_CommonWithReqLevel(IInventoryItem item, 
-                                            out Text putIntoStorage,
-                                            out Text description, 
-                                            out UI_DialogItemDetail_TextValue txtVal)
-    {
-        //*** Stats ***
-        //Req Lv
-        if (CreateTextColonValue(out txtVal))
+        string localstr = GUILocalizationRepo.GetLocalizedString("ItemTooltip_UseGetLimit");
+        if (item.JsonObject.dailyuselimit > 0)
         {
-            putIntoStorage = null;
-            description = null;
-            txtVal = null;
-            return;
+            cTT.dailyUseLimit.Identifier = GUILocalizationRepo.GetLocalizedString("ItemTooltip_DailyUseLimit");
+            cTT.dailyUseLimit.Value = string.Format(localstr, item.JsonObject.dailyuselimit, item.JsonObject.dailyuselimit);
         }
-        txtVal.Identifier = GUILocalizationRepo.GetLocalizedString("id_requirelevel");
-        txtVal.Value = item.JsonObject.requirelvl.ToString();
+        if (item.JsonObject.dailygetlimit > 0)
+        {
+            cTT.dailyGetLimit.Identifier = GUILocalizationRepo.GetLocalizedString("ItemTooltip_DailyGetLimit"); ;
+            cTT.dailyGetLimit.Value = string.Format(localstr, item.JsonObject.dailygetlimit, item.JsonObject.dailygetlimit);
+        }
+        if (item.JsonObject.weeklyuselimit > 0)
+        {
+            cTT.weeklyUseLimit.Identifier = GUILocalizationRepo.GetLocalizedString("ItemTooltip_WeeklyUseLimit"); ;
+            cTT.weeklyUseLimit.Value = string.Format(localstr, item.JsonObject.weeklyuselimit, item.JsonObject.weeklyuselimit);
+        }
+        if (item.JsonObject.weeklygetlimit > 0)
+        {
+            cTT.weeklyGetLimit.Identifier = GUILocalizationRepo.GetLocalizedString("ItemTooltip_WeeklyGetLimit"); ;
+            cTT.weeklyGetLimit.Value = string.Format(localstr, item.JsonObject.weeklygetlimit, item.JsonObject.weeklygetlimit);
+        }
+        cTT.dailyUseLimit.gameObject.SetActive(item.JsonObject.dailyuselimit > 0);
+        cTT.dailyGetLimit.gameObject.SetActive(item.JsonObject.dailygetlimit > 0);
+        cTT.weeklyUseLimit.gameObject.SetActive(item.JsonObject.weeklyuselimit > 0);
+        cTT.weeklyGetLimit.gameObject.SetActive(item.JsonObject.weeklygetlimit > 0);
 
-        InitTT_CommonShared(item, out putIntoStorage, out description);
+        int auctionVal;
+        string[] auctionStr = item.JsonObject.auction.Split('|');
+        if (!int.TryParse(auctionStr[0], out auctionVal))
+        {
+            Debug.LogError("UI_DialogItemDetailToolTip.InitTT_CommonShared: Walaoeh! Unable to parse item.JsonObject.auction!!");
+            auctionVal = -1;
+        }
+        mAuctionIcon.SetActive(auctionVal != -1);
+        mAuctionPrice.text = (auctionVal == -1) ? GUILocalizationRepo.GetLocalizedString("id_cannotauction") : auctionStr[0];
+        mSellIcon.SetActive(item.JsonObject.sellprice != -1);
+        mSellPrice.text = (item.JsonObject.sellprice != -1) ? item.JsonObject.sellprice.ToString() : GUILocalizationRepo.GetLocalizedString("id_cannotsell");
     }
 
     #region shortcut create
@@ -945,10 +1145,10 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         if (txtVal == null)
         {
             Debug.LogError("HUD_ItemDetailToolTip.CreateTextColonValue: mTTTextColonValuePrefab has no HUD_ItemDetail_TextColonValue script file");
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /// <summary>
@@ -986,7 +1186,11 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         obj.transform.SetParent(mIconParentTransform, false);
 
         mItemName.text = item.JsonObject.localizedname;
-        mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
+
+        if (GameRepo.ItemFactory.ItemSortTable.ContainsKey(item.JsonObject.itemsort))
+            mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
+        else
+            mItemTypeName.text = item.JsonObject.itemtype.ToString();
 
         return obj;
     }
@@ -1066,6 +1270,19 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         Equipment eq = item as Equipment;
         return (eq.EquipmentJson.equiptype == EquipmentType.Weapon || eq.EquipmentJson.fashionsuit == true);
     }
+
+
+    #region Debug
+    private void DebugShowInfo()
+    {
+#if ZEALOT_DEVELOPMENT
+        if (ConsoleVariables.ShowItemID)
+        {
+            mItemName.text += ClientUtils.ColorizedText(string.Format(" (#ID: {0})", mItem.JsonObject.itemid.ToString()), "#ff00ffff");
+        }
+#endif
+    }
+    #endregion
 }
 
 /*

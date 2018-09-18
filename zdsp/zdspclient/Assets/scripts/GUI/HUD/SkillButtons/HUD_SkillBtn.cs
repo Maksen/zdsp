@@ -32,7 +32,10 @@ public class HUD_SkillBtn : MonoBehaviour
         parent = myParent;
     }
 
-
+    public void OnSkillUpdated(int idx)
+    {
+        index = idx;
+    } 
 
     public void SetSkillImage(Sprite sprite)
     {

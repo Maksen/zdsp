@@ -533,7 +533,7 @@ GameObject:
   - component: {fileID: 123227687}
   - component: {fileID: 123227686}
   m_Layer: 23
-  m_Name: Canvas_Font
+  m_Name: Canvas_Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -674,7 +674,7 @@ MonoBehaviour:
   cellBase: {fileID: 1510899913683170, guid: d68001492677d154989ac402447d9f7a, type: 2}
   cellContainer: {fileID: 148755822}
   scrollPositionController: {fileID: 148755825}
-  scrollToDuration: 0.2
+  scrollToDuration: 0.4
 --- !u!114 &148755824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1301,7 +1301,7 @@ Prefab:
     - target: {fileID: 224934317611023894, guid: 94e385d28a1670f4896d7549d58a73d8,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -30
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224934317611023894, guid: 94e385d28a1670f4896d7549d58a73d8,
         type: 2}
@@ -1711,12 +1711,12 @@ Prefab:
     - target: {fileID: 224340069390638816, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 102.4
+      value: 103.64372
       objectReference: {fileID: 0}
     - target: {fileID: 224679919922972524, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 142.4
+      value: 143.64372
       objectReference: {fileID: 0}
     - target: {fileID: 224679919922972524, guid: 190f7434ff0503a42b87e19c38b434ef,
         type: 2}
@@ -2173,6 +2173,7 @@ MonoBehaviour:
   - {fileID: 172043139}
   windowCanvas:
   - {fileID: 1564658204}
+  - {fileID: 123227688}
   objectsToHide: []
   HasCloseAnimation: 0
 --- !u!114 &1313517883
@@ -2194,10 +2195,50 @@ MonoBehaviour:
     type: 2}
   itemNameText: {fileID: 2073525036}
   descriptionText: {fileID: 1758877491}
-  circleScroll: {fileID: 1267694155}
   randomBtn: {fileID: 539834728}
   confirmBtn: {fileID: 233421239}
   resetBtn: {fileID: 1967951516}
+  circleScroll: {fileID: 1267694155}
+  scrollToDuration: 0.4
+  roundsToSpin: 4
+  minScrollDuration: 0.025
+  maxScrollDuration: 0.4
+  lerpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 0.09994154
+      value: 0.27920985
+      inSlope: -2.2820837
+      outSlope: -2.2820837
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 0.5
+      value: 0.00000029802322
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 0.9060545
+      value: 0.2746133
+      inSlope: 2.2319577
+      outSlope: 2.2319577
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!1 &1392799776
 GameObject:
   m_ObjectHideFlags: 0

@@ -167,6 +167,7 @@ public class HUD_PlayerLabel2 : MonoBehaviour
         {
             value = Mathf.Max(0, value);
             mShieldValue.text = value.ToString();
+            mShield.SetActive(value > 0);
         }
     }
     public Sprite GuildIcon

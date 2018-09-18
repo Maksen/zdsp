@@ -18,11 +18,15 @@ public class UI_DialogueAvatar : MonoBehaviour
     Text Name;
 
     [SerializeField]
+    GameObject NameObj;
+
+    [SerializeField]
     Text Message;
 
     private GameObject mAvatar;
     private Dictionary<int, GameObject> mNpcList;
     private GameObject mPlayer;
+    private int mActivatedNpc;
 
     public void SpawnNpc(List<int> npclist)
     {
@@ -71,11 +75,26 @@ public class UI_DialogueAvatar : MonoBehaviour
         {
             GameObject go = Instantiate(asset);
             mNpcList.Add(npcid, go);
+
+            if (mActivatedNpc == npcid)
+            {
+                mAvatar = mNpcList[mActivatedNpc];
+                StaticNPCJson npcJson = StaticNPCRepo.GetNPCById(mActivatedNpc);
+                if (npcJson != null)
+                {
+                    NameObj.SetActive(string.IsNullOrEmpty(npcJson.localizedname) ? false : true);
+                    Name.text = npcJson.localizedname;
+                }
+                mAvatar.SetActive(true);
+                ClientUtils.SetLayerRecursively(mAvatar, AvatarContent.gameObject.layer);
+                mAvatar.transform.SetParent(AvatarContent, false);
+            }
         }
     }
 
     public void ActiveAvatar(int npcId, string message)
     {
+        mActivatedNpc = npcId;
         if (mAvatar != null)
         {
             ClientUtils.SetLayerRecursively(mAvatar, 0);
@@ -85,6 +104,7 @@ public class UI_DialogueAvatar : MonoBehaviour
         if (npcId == 0)
         {
             mAvatar = mPlayer;
+            NameObj.SetActive(true);
             Name.text = GameInfo.gLocalPlayer.PlayerSynStats.name;
         }
         else
@@ -96,6 +116,7 @@ public class UI_DialogueAvatar : MonoBehaviour
             StaticNPCJson npcJson = StaticNPCRepo.GetNPCById(npcId);
             if (npcJson != null)
             {
+                NameObj.SetActive(string.IsNullOrEmpty(npcJson.localizedname) ? false : true);
                 Name.text = npcJson.localizedname;
             }
         }

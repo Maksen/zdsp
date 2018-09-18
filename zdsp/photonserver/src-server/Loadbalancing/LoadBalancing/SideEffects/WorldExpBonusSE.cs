@@ -15,7 +15,7 @@
             mNeedCaster = false;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (!mTarget.IsPlayer())
                 return false;
@@ -27,7 +27,7 @@
             mDuration = (seconds + (minutes * 60) + (hours * 3600)) * 1000;
             mTotalElapsedTime = 0;
 
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {
                 return true;
             }

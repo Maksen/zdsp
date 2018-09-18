@@ -84,16 +84,16 @@ namespace Zealot.Server.Entities
                 return true;
             });
 
-            MonsterClass monsterClass = mArchetype.monsterclass;
-            //if (monsterClass == MonsterClass.Destructible)
+            MonsterType monsterType = mArchetype.monstertype;
+            //if (monsterType == MonsterType.Destructible)
             //    monster.SetAIBehaviour(new NullAIBehaviour(monster));
-            if (monsterClass == MonsterClass.Normal)
+            if (monsterType == MonsterType.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if (monsterClass == MonsterClass.Boss || monsterClass == MonsterClass.MiniBoss)
+            else if (monsterType == MonsterType.Boss || monsterType == MonsterType.MiniBoss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
-            //else if (monsterClass == MonsterClass.Escape)
+            //else if (monsterType == MonsterType.Escape)
             //    monster.SetAIBehaviour(new MonsterEscapeAIBehaviour(monster));
-            else 
+            else
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
 
             maChildren.Add(monster);

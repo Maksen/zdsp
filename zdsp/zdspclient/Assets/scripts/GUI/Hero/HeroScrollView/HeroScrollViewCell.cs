@@ -20,10 +20,6 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
 
     void Start()
     {
-        var rectTransform = transform as RectTransform;
-        rectTransform.anchorMax = Vector2.one;
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchoredPosition3D = Vector3.zero;
         UpdatePosition(0);
         button.onClick.AddListener(OnPressedCell);
         ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);

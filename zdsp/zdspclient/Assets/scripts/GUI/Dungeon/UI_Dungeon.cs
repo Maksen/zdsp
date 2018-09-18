@@ -31,7 +31,7 @@ public class UI_Dungeon : MonoBehaviour
 
     void OnEnable()
     {
-        // Initialize dungeon data
+        // Priority to show todays dungeon, ordered by dungeon type, then by sequence
         int todayDayIdx = (int)DateTime.Today.DayOfWeek;
         for (int i = 0; i < 5; ++i)
         {
@@ -61,6 +61,7 @@ public class UI_Dungeon : MonoBehaviour
 
                     GameObject dungeonDataObj = Instantiate(prefabDungeonData);
                     DungeonData dungeonData = dungeonDataObj.GetComponent<DungeonData>();
+                    // todo: Locked status
                     DungeonDataState dungeonState = (dayIdx != todayDayIdx) ? DungeonDataState.NotOpen : DungeonDataState.Open;
                     dungeonData.Init(dungeonJson, daysOpen, dungeonState);
                     dungeonDataByDays[dayOfWeek].Add(dungeonData);

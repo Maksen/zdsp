@@ -34,7 +34,7 @@
             base.OnActiveEnter(prevstate);
             //Just do nothing at server
             NetEntity ne = (NetEntity) mEntity;
-            log.DebugFormat("NetEntity {0} activeenter ServerAuthoKnockedBack", ne.GetPersistentID());
+            //log.DebugFormat("NetEntity {0} activeenter ServerAuthoKnockedBack", ne.GetPersistentID());
 
              
             ne.SetAction(mdbCommand);

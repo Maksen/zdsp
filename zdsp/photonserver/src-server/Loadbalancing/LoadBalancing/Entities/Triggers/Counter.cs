@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Zealot.Entities;
+﻿using Zealot.Entities;
 using Photon.LoadBalancing.GameServer;
-using Zealot.Common;
 
 namespace Zealot.Server.Entities
 {

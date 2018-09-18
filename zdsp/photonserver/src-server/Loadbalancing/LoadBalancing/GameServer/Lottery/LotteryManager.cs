@@ -254,7 +254,7 @@ namespace Photon.LoadBalancing.GameServer.Lottery
             {
                 var currencyType = CurrencyType;
                 var totoCost = CostGold * base_count;
-                int oldGold = player.SecondaryStats.gold;
+                int oldGold = player.SecondaryStats.Gold;
                 int oldBindGold = player.SecondaryStats.bindgold;
                 if (/*player.IsCurrencySufficient(currencyType, totoCost) == false ||*/
                     player.DeductCurrency(currencyType, totoCost, true, "Lottery") == false)

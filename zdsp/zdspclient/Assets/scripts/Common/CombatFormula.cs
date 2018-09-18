@@ -353,7 +353,7 @@ namespace Zealot.Common
 
                 public AttackStyle attacker, defender;
                 public MainWeaponAttribute weaponAttribute;
-                public MonsterClass npcClass;
+                public MonsterType monsterType;
                 public ElementType elementInfo;
                 public Racial race;
             }
@@ -442,7 +442,7 @@ namespace Zealot.Common
             float racial = 1.0f + packet.attacker.CombatStats.GetField(packet.fieldInfo.attackerVSRace);
             float elemvsbonus = 1.0f + packet.attacker.CombatStats.GetField(packet.fieldInfo.attackerVSElement);
             float npcbonus = 1;
-            if(packet.basicsInfo.npcClass == MonsterClass.Boss)
+            if(packet.basicsInfo.monsterType == MonsterType.Boss)
                 npcbonus += packet.attacker.CombatStats.GetField(FieldName.VSBossDamage);
 
             return attbonus * elembonus * racial * elemvsbonus * npcbonus;
@@ -727,8 +727,8 @@ namespace Zealot.Common
                     Missed miss = new Missed();
 
                     DecisionNode isBlocked = new DecisionNode();
-                    isBlocked.SetTrueNode(hit);
-                    isBlocked.SetFalseNode(block);
+                    isBlocked.SetTrueNode(block);
+                    isBlocked.SetFalseNode(hit);
 
                     skillAttackTree.SetTrueNode(isBlocked);
                     skillAttackTree.SetFalseNode(miss);
@@ -779,7 +779,7 @@ namespace Zealot.Common
                         break;
 
                 }
-                result = dmg * (float)(critmod * mod * defmod);
+                result = dmg * (critmod * mod * defmod);
             }
         }
 

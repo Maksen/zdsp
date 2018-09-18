@@ -66,7 +66,7 @@ public static class GameInfo
         mPlayerFirstEnter = true;
         mRecycleConfirmation = true;
         mIsOfflineExpHUDReq = true;
-       // UI_LotteryFocusTip.currentTipID = -1;
+        PartyFollowTarget.Reset();
         GameDownload.Instance.Clear();
         if (UIManager.UIHierarchy != null)
             UIManager.UIHierarchy.DestroyHierarchy();
@@ -90,6 +90,9 @@ public static class GameInfo
         gBasicAttackState = null;
         gSkillCDState = null;
 
+        if (!PartyFollowTarget.IsPaused())
+            PartyFollowTarget.Pause();
+
         UIManager.OnLevelChanged();
 
         ObjPoolMgr.Instance.Cleanup();
@@ -111,11 +114,9 @@ public static class GameInfo
         }
         if (gDmgLabelPool != null)
             UnityEngine.Object.Destroy(gDmgLabelPool.gameObject);
-        //TrainingRealmContoller.Reset();      
+   
         SoundFX.Instance.CleanUp();
         VoiceChatManager.Instance.CleanUp();
-        //TopUpController.CleanUp();
-        //LvUpUIManager.Clear();
         AssetLoader.Instance.OnLevelChanged();
         Coroutiner.Instance.StopAllCoroutines();
     }

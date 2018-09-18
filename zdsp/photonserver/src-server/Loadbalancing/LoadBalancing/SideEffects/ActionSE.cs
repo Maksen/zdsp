@@ -14,7 +14,7 @@
             
         }
                 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             StartAction(); 
             return true;  
@@ -37,7 +37,7 @@
             if (mTarget.IsPlayer())
                 return;
             Monster target = mTarget as Monster;
-            if (target.mArchetype.monsterclass != MonsterClass.Normal)
+            if (target.mArchetype.monstertype != MonsterType.Normal)
             {
                 return;
             }
@@ -59,7 +59,7 @@
                 return;
                 
             Monster target = mTarget as Monster;
-            if (target.mArchetype.monsterclass != MonsterClass.Normal)
+            if (target.mArchetype.monstertype != MonsterType.Normal)
             {
                 return;
             }

@@ -156,19 +156,19 @@ namespace Photon.LoadBalancing.GameServer
 
         public void UpdateTask(DungeonDifficulty difficulty)
         {
-            int completedCount = _peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(difficulty);
-            switch(difficulty)
-            {
-                case DungeonDifficulty.Easy:
-                    UpdateTask(NewServerActivityType.Normalchapter);
-                    break;
-                case DungeonDifficulty.Normal:
-                    UpdateTask(NewServerActivityType.Elitechapter);
-                    break;
-                case DungeonDifficulty.Hard:
-                    UpdateTask(NewServerActivityType.Hellchapter);
-                    break;
-            }
+            //int completedCount = _peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(difficulty);
+            //switch(difficulty)
+            //{
+            //    case DungeonDifficulty.Easy:
+            //        UpdateTask(NewServerActivityType.Normalchapter);
+            //        break;
+            //    case DungeonDifficulty.Normal:
+            //        UpdateTask(NewServerActivityType.Elitechapter);
+            //        break;
+            //    case DungeonDifficulty.Hard:
+            //        UpdateTask(NewServerActivityType.Hellchapter);
+            //        break;
+            //}
         }
 
         public void UpdateTaskWithoutStats(NewServerActivityType type, int progress = 0)
@@ -599,13 +599,13 @@ namespace Photon.LoadBalancing.GameServer
                 case NewServerActivityType.Points:
                     return peer.mPlayer.Slot.mWelfareCtrlr.GetTotalCreditedGold();
                 case NewServerActivityType.Normalchapter:
-                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Easy);
+                //    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Easy);
                 case NewServerActivityType.Elitechapter:
-                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Normal);
+                //    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Normal);
                 case NewServerActivityType.Hellchapter:
-                    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Hard);
+                //    return peer.mPlayer.RealmStats.GetDungeonStoryCompletedCount(DungeonDifficulty.Hard);
                 case NewServerActivityType.ChapterStars:
-                    return peer.mPlayer.RealmStats.GetTotalStarsCompleted();
+                //    return peer.mPlayer.RealmStats.GetTotalStarsCompleted();
                 case NewServerActivityType.Herototal:
                     //return heroCardData.Count;
                 case NewServerActivityType.Herolevel_n:

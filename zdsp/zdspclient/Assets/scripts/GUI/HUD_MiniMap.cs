@@ -198,6 +198,11 @@ public class HUD_MiniMap : MonoBehaviour
                 Vector3 invPlayerMapPos = -HUD_MapController.ScalePos_WorldToMap(GameInfo.gLocalPlayer.AnimObj.transform.position);
 
                 mMapTransform.localPosition = invPlayerMapPos;
+
+                //mPlayerIconLst[0] always meant the player itself
+                //Update player icon rotation
+                if (mPlayerIconLst.Count > 0)
+                    mPlayerIconLst[0].transform.localEulerAngles = new Vector3(0f, 0f, -GameInfo.gLocalPlayer.AnimObj.transform.localEulerAngles.y);
             }
 
             yield return new WaitForSeconds(MINIMAP_UPDATE_INTERVAL);

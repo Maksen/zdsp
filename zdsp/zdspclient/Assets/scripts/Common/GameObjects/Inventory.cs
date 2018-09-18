@@ -729,6 +729,18 @@ namespace Zealot.Common
             }
             return EquipmentSlot.MAXSLOTS;
         }
+
+        public Equipment GetEquipmentByItemId(ushort itemid)
+        {
+            foreach(Equipment equipment in Slots)
+            {
+                if (equipment.ItemID == itemid)
+                {
+                    return equipment;
+                }
+            }
+            return null;
+        }
     }
 
     public static class InventoryHelper

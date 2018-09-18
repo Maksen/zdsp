@@ -12,8 +12,7 @@ public class HUD_PortraitFunctions : MonoBehaviour
     [SerializeField] Text guildNameText;
 
     [Header("Party")]
-    [SerializeField]
-    GameObject followMemberBtn;
+    [SerializeField] GameObject followMemberBtn;
     [SerializeField] GameObject cancelFollowMemberBtn;
     [SerializeField] GameObject setAsLeaderBtn;
 
@@ -53,7 +52,7 @@ public class HUD_PortraitFunctions : MonoBehaviour
             PartyStatsClient partyStats = localPlayer.PartyStats;
             if (partyStats.IsMember(playerName) && partyStats.IsMemberOnline(playerName))  // this player is my party member
             {
-                if (string.IsNullOrEmpty(partyStats.GetFollowingPlayer()) || partyStats.GetFollowingPlayer() != playerName)
+                if (string.IsNullOrEmpty(PartyFollowTarget.TargetName) || PartyFollowTarget.TargetName != playerName)
                     followMemberBtn.SetActive(true);
                 else
                     cancelFollowMemberBtn.SetActive(true);
@@ -89,7 +88,6 @@ public class HUD_PortraitFunctions : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-
     private void Update()
     {
         Vector2 pointerPosition = Vector2.zero;
@@ -98,15 +96,13 @@ public class HUD_PortraitFunctions : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
             pointerPosition = Input.mousePosition;
 #elif UNITY_IOS || UNITY_ANDROID
-        if (Input.touchCount > 0)
+        int touchCount = Input.touchCount;
+        for (int i = 0; i < touchCount; i++)
         {
-            for (int i = 0; i < Input.touchCount; i++)
+            if (Input.GetTouch(i).phase == TouchPhase.Ended)
             {
-                if (Input.GetTouch(i).phase == TouchPhase.Ended)
-                {
-                    pointerPosition = Input.GetTouch(i).position;
-                    break;
-                }
+                pointerPosition = Input.GetTouch(i).position;
+                break;
             }
         }
 #endif
@@ -127,7 +123,5 @@ public class HUD_PortraitFunctions : MonoBehaviour
             if (clickOutside)
                 ClosePanel();
         }
-
     }
-
 }

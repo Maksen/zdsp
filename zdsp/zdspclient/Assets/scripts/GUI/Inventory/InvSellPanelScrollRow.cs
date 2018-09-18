@@ -68,7 +68,7 @@ public class InvSellPanelScrollRow : MonoBehaviour
                     gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, 
                         false, invItem.IsNew, false, callback);
                     break;
-                case BagType.DNA:
+                case BagType.Socket:
                     gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, invItem.IsNew, callback);
                     break;
             }

@@ -10,7 +10,6 @@ namespace Zealot.Repository
 
         static LevelRepo()
         {
-            mIdMap = new Dictionary<int, LevelJson>();
             mNameMap = new Dictionary<string, int>();
         }
 
@@ -34,16 +33,17 @@ namespace Zealot.Repository
 
         public static LevelJson GetInfoById(int id)
         {
-            if (mIdMap.ContainsKey(id))
-                return mIdMap[id];
-            return null;
+            LevelJson levelJson;
+            mIdMap.TryGetValue(id, out levelJson);
+            return levelJson;
         }
 
         public static string GetSceneById(int id)
         {
-            if (mIdMap.ContainsKey(id))
-                return mIdMap[id].unityscene;
-            return null;
+            LevelJson levelJson;
+            if (mIdMap.TryGetValue(id, out levelJson))
+                return levelJson.unityscene;
+            return "";
         }
 
         public static string GetLevelDataString()

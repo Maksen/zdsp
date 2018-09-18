@@ -205,15 +205,24 @@ namespace Zealot.Repository
         public static byte GetDungeonDaysOpen(DungeonType type, int sequence)
         {
             byte daysOpen = 0;
-            if (mDungeonDaysOpen.ContainsKey(type))
-                mDungeonDaysOpen[type].TryGetValue(sequence, out daysOpen);
+            Dictionary<int, byte> dungeonDaysOpenByDay;
+            if (mDungeonDaysOpen.TryGetValue(type, out dungeonDaysOpenByDay))
+                dungeonDaysOpenByDay.TryGetValue(sequence, out daysOpen);
             return daysOpen;
         }
 
-        public static Dictionary<DungeonDifficulty, DungeonJson> GetDungeonStoryBySeq(int sequence)
+        public static Dictionary<DungeonDifficulty, DungeonJson> GetDungeonByTypeAndSeq(DungeonType type, int sequence)
         {
-            //if (mDungeonStory.ContainsKey(sequence))
-            //    return mDungeonStory[sequence];
+            List<Dictionary<DungeonDifficulty, DungeonJson>> dungeonByType;
+            if (mDungeons.TryGetValue(type, out dungeonByType))
+            {
+                int count = dungeonByType.Count;
+                for (int i = 0; i < count; ++i)
+                {
+                    if (dungeonByType[i].Values.First().sequence == sequence)
+                        return dungeonByType[i];
+                }
+            }
             return null;
         }
 
@@ -224,7 +233,7 @@ namespace Zealot.Repository
                 return realmWorldJson;
             else
             {
-                //todo not world level, test other case.
+                //TODO: not world level, test other case.
             }
             return null;
         }

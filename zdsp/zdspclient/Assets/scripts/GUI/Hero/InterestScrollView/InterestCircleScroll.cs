@@ -17,10 +17,11 @@ public class InterestCircleScroll : MonoBehaviour
     {
         if (GameInfo.gCombat == null)
         {
+            int totalCellCount = Enum.GetNames(typeof(HeroInterestType)).Length;
             cellData = new List<InterestCellDto>();
-            for (HeroInterestType i = HeroInterestType.Random; i < HeroInterestType.TotalNum; i++)
+            for (int i = 0; i < totalCellCount; i++)
             {
-                InterestCellDto cell = new InterestCellDto((byte)i, i.ToString());
+                InterestCellDto cell = new InterestCellDto((byte)i, ((HeroInterestType)i).ToString());
                 cellData.Add(cell);
             }
 
@@ -28,16 +29,17 @@ public class InterestCircleScroll : MonoBehaviour
             context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
 
             scrollView.UpdateData(cellData, context);  // set contents and context
-            scrollView.SetSelection(0);
+            scrollView.UpdateSelection(0);
         }
     }
 
     public void SetUp(Action<byte> onSelectCallback)
     {
+        int totalCellCount = Enum.GetNames(typeof(HeroInterestType)).Length;
         cellData = new List<InterestCellDto>();
-        for (HeroInterestType i = HeroInterestType.Random; i < HeroInterestType.TotalNum; i++)
+        for (int i = 0; i < totalCellCount; i++)
         {
-            InterestCellDto cell = new InterestCellDto((byte)i, i.ToString());
+            InterestCellDto cell = new InterestCellDto((byte)i, ((HeroInterestType)i).ToString());
             cellData.Add(cell);
         }
 
@@ -58,21 +60,17 @@ public class InterestCircleScroll : MonoBehaviour
         scrollView.UpdateData(cellData, context);
     }
 
-    public void SelectCell(int index)
+    public void SelectCell(int index, float scrollDuration)
     {
         if (index >= 0 && index < cellData.Count)
         {
-            scrollView.UpdateSelection(index);
+            scrollView.UpdateSelection(index, scrollDuration);
         }
-    }
-
-    public void SetSelection(int index)
-    {
-        scrollView.SetSelection(index);
     }
 
     private void HandleSelectedIndexChanged(int index)
     {
+        //print("selectedindex: " + index);
         if (OnSelectedIndexChanged != null)
         {
             OnSelectedIndexChanged(cellData[index].Type);
@@ -82,11 +80,6 @@ public class InterestCircleScroll : MonoBehaviour
     public void EnableScrollView(bool value)
     {
         scrollView.EnableScrollPositionController(value);
-    }
-
-    public void HighlightSelected(bool value)
-    {
-        context.HighlightSelected = value;
     }
 
     public void SetAutoSpin(bool value)

@@ -10,7 +10,6 @@
     using System.Text;        
     //using System.Collections.ObjectModel;
     //using System.Collections.Specialized;
-
     #endregion
 
     [AttributeUsage(AttributeTargets.Property)]
@@ -226,6 +225,7 @@
 
         EquipmentStats, // Equipment Inventory
         EquipmentCraftStats,
+        EquipFushionStats,
         AvatarStats, // Avatar Inventory
         ItemHotbarStats, // Item Hotbar
         RealmPartyDamageList, // Shared object, record damage list of a realm party after realm created.
@@ -240,6 +240,7 @@
         GuildStats, // Shared object, shared between guild members
         LootSynStats,
 		QuestSynStats,
+        DonateSynStats,
         DestinyClueSynStats,
         LocalCombatStats,
         LocalSkillPassiveStats,

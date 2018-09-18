@@ -40,13 +40,13 @@ namespace Photon.LoadBalancing.GameServer.OfflineExp
             }
         }
 
-        public bool GetRedDot(GameClientPeer playerPeer, bool sendPkt=true)
+        public bool GetRedDot(GameClientPeer peer, bool sendPkt=true)
         {
-            OfflineExpInventory2 offlineExpInv = playerPeer.CharacterData.OfflineExpInv2;
+            OfflineExpInventory2 offlineExpInv = peer.CharacterData.OfflineExpInv2;
             int minLvl = GameConstantRepo.GetConstantInt("OfflineExp_UnlockLvl", 1);
 
             //If not unlocked yet
-            if (playerPeer.mPlayer.PlayerSynStats.Level < minLvl)
+            if (peer.CharacterData.ProgressLevel < minLvl)
                 return false;
 
             //If no reward chosen
@@ -97,7 +97,7 @@ namespace Photon.LoadBalancing.GameServer.OfflineExp
 
                 //If reward is ready
                 if (sendPkt)
-                    playerPeer.ZRPC.CombatRPC.OfflineExpRedDot(true, playerPeer);
+                    peer.ZRPC.CombatRPC.OfflineExpRedDot(true, peer);
                 return true;
             }
         }

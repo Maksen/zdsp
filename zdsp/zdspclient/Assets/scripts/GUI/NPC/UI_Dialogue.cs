@@ -43,7 +43,10 @@ public class UI_Dialogue : BaseWindowBehaviour
     private DialogueAction mDialogueAction = DialogueAction.None;
     private int mQuestionTalkId = -1;
 
-    public void Init(StaticNPCGhost npc, int talkid, int questid, bool ongoingquest, List<int> questlist = null, bool completedall = false)
+    public delegate void onDialogueOver();
+    private onDialogueOver mDialogueOver;
+
+    public void Init(StaticNPCGhost npc, int talkid, int questid, bool ongoingquest, List<int> questlist = null, bool completedall = false, onDialogueOver dialogueover = null)
     {
         mQuestNPC = npc;
         mSelectionObjects = new List<GameObject>();
@@ -57,6 +60,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mOngoingQuest = ongoingquest;
         mDialogueAction = DialogueAction.None;
         mQuestionTalkId = -1;
+        mDialogueOver = dialogueover;
         if (mTalkJson != null)
         {
             mTotalStep = mTalkJson.steps;
@@ -291,6 +295,8 @@ public class UI_Dialogue : BaseWindowBehaviour
                         GameInfo.gLocalPlayer.QuestController.CloseNpcTalk();
                     }
                 }
+
+                if (mDialogueOver != null) mDialogueOver();
             }
             else if(mDialogueAction == DialogueAction.StartQuest)
             {
@@ -386,10 +392,12 @@ public class UI_Dialogue : BaseWindowBehaviour
         UIManager.CloseDialog(WindowType.DialogNpcTalk);
     }
 
-    private void OnDisable()
+    public override void OnCloseWindow()
     {
+        base.OnCloseWindow();
         NPCSide.DestroyModel();
         ClearSelection();
+        PartyFollowTarget.Resume();  // resume party follow if it's paused
     }
 
     public void UpdateTalkId(int talkid)

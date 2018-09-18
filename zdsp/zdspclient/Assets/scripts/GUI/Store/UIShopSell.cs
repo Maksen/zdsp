@@ -53,8 +53,8 @@ public abstract class UIShop : MonoBehaviour
     {
         if (GameInfo.gLocalPlayer != null)
         {
-            heldcurrency.text = GameInfo.gLocalPlayer.SecondaryStats.money.ToString();
-            heldauctioncurrency.text = GameInfo.gLocalPlayer.SecondaryStats.gold.ToString();
+            heldcurrency.text = GameInfo.gLocalPlayer.SecondaryStats.Money.ToString();
+            heldauctioncurrency.text = GameInfo.gLocalPlayer.SecondaryStats.Gold.ToString();
         }
     }
 
@@ -218,6 +218,36 @@ public abstract class UIShop : MonoBehaviour
                 break;
         }        
     }
+
+    public void RequestShopInfo(int shopid)
+    {
+        id = shopid;
+        GameInfo.gUIShop = this;
+        GameInfo.gUIShop.id = id;
+
+        RPCFactory.NonCombatRPC.NPCStoreInit(id);
+        RPCFactory.NonCombatRPC.NPCStoreGetPlayerTransactions(id);
+    }
+
+    public static void InitGameIcon(IInventoryItem data, GameIcon_Base itemicon)
+    {
+        IInventoryItem invItem = data;
+        BagType bagType = invItem.JsonObject.bagtype;
+        int itemId = invItem.JsonObject.itemid;
+        switch (bagType)
+        {
+            case BagType.Equipment:
+                ((GameIcon_Equip)itemicon).InitWithToolTipView(itemId, 0, 0, 0);
+                break;
+            case BagType.Consumable:
+            case BagType.Material:
+                ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
+                break;
+            case BagType.Socket:
+                ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
+                break;
+        }
+    }
 };
 
 public class UIShopSell : UIShop
@@ -257,7 +287,12 @@ public class UIShopSell : UIShop
             foreach (var item in newitemlist)
             {                
                 var solditem = (NPCStoreInfo.StandardItem)item;
-                item.data = GameRepo.ItemFactory.GetInventoryItem(item.ItemID);
+
+                if (GameRepo.ItemFactory.ItemTable.ContainsKey(item.ItemID))
+                {
+                    var itemjson = GameRepo.ItemFactory.ItemTable[item.ItemID];
+                    item.data = GameRepo.ItemFactory.GetInventoryItem(itemjson.itemid);
+                }
 
                 if (item.data == null)
                 {
@@ -271,7 +306,7 @@ public class UIShopSell : UIShop
 
                 var shopitem = icon.GetComponent<ShopItem>();
                 shopitem.itemname.text = item.data.JsonObject.name;
-                shopitem.price.text = solditem.SoldValue.ToString();
+                shopitem.price.text = solditem.DiscountedPrice().ToString();
                 shopitem.currencyicon.type = (CurrencyType)solditem.SoldType;
                 shopitem.selectionEnabled.onEnabled = OnItemSelected;
                 shopitem.selectionEnabled.onDisabled = OnItemDeselected;
@@ -279,22 +314,7 @@ public class UIShopSell : UIShop
 
                 var iconprefab = GetItemIconPrefab(item.data.JsonObject.itemtype);
                 var itemicon = Instantiate(iconprefab, shopitem.itemicon_parent).GetComponent<GameIcon_Base>();
-                IInventoryItem invItem = itemicon.inventoryItem;
-                BagType bagType = invItem.JsonObject.bagtype;
-                int itemId = invItem.JsonObject.itemid;
-                switch (bagType)
-                {
-                    case BagType.Equipment:
-                        ((GameIcon_Equip)itemicon).InitWithToolTipView(itemId, 0, 0, 0);
-                        break;
-                    case BagType.Consumable:
-                    case BagType.Material:
-                        ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
-                        break;
-                    case BagType.DNA:
-                        ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
-                        break;
-                }
+                InitGameIcon(item.data, itemicon);
 
                 currentitemlist.Add(shopitem);
             }

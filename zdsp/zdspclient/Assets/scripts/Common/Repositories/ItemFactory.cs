@@ -55,7 +55,10 @@ namespace Zealot.Repository
                 ItemTable.Add(kvp.Value.itemid, kvp.Value);
 
             foreach (KeyValuePair<int, InstanceItemJson> kvp in gameData.InstanceItem)
-                ItemTable.Add(kvp.Value.itemid, kvp.Value);        
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
+
+            foreach (KeyValuePair<int, ElementalStoneJson> kvp in gameData.ElementalStone)
+                ItemTable.Add(kvp.Value.itemid, kvp.Value);
         }
 
         public int GetItemMaxStackCount(BagType type)
@@ -111,6 +114,9 @@ namespace Zealot.Repository
                     case ItemType.InstanceItem:
                         retItem = new InstanceItem();
                         break;
+                    case ItemType.ElementalStone:
+                        retItem = new ElementalStone();
+                        break;
                     default:
                         return null;
                 }
@@ -162,6 +168,9 @@ namespace Zealot.Repository
                         break;
                     case ItemType.InstanceItem:
                         retItem = jObject.ToObject<InstanceItem>();
+                        break;
+                    case ItemType.ElementalStone:
+                        retItem = jObject.ToObject<ElementalStone>();
                         break;
                     default:
                         return null;

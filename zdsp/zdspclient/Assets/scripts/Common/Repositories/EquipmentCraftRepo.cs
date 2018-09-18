@@ -117,11 +117,8 @@ namespace Zealot.Repository
             if (equipmentMap.ContainsKey(id))
             {
                 List<ItemInfo> materialList = new List<ItemInfo>();
-                
-                System.Text.StringBuilder st = new System.Text.StringBuilder();
-                st.Append(equipmentMap[id].material).Append(";");
-
-                List<string> Split_List = st.ToString().Split(';').ToList();
+                string dividePart = equipmentMap[id].material;
+                List<string> Split_List = dividePart.Split(';').ToList();
                 for (int i = 0; i < Split_List.Count; i++)
                 {
                     List<string> EndSplit_List = Split_List[i].Split('|').ToList();
@@ -140,6 +137,16 @@ namespace Zealot.Repository
                 return materialList;
             }
 
+            return null;
+        }
+
+        public static List<int> GetCurrency (int id)
+        {
+            if (equipmentMap.ContainsKey(id))
+            {
+                List<int> lis = equipmentMap[id].currency.Split(';').Select(Int32.Parse).ToList();
+                return lis;
+            }
             return null;
         }
     }

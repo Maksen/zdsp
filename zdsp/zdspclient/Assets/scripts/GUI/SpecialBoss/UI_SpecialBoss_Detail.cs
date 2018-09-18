@@ -27,7 +27,7 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     public ToggleGroup BossListToggleGroup;
 
     private Dictionary<int, SpecialBossStatus> mBossStatusAll;
-    private BossType mBossCategorySelected = BossType.BigBoss;
+    private BossType mBossCategorySelected = BossType.Boss;
     private SpecialBossStatus mBossStatusSelected;
     private SpecialBossJson mBossSelected;
 
@@ -48,7 +48,7 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     {
         if (!ison)
             return;
-        mBossCategorySelected = BossType.BigBoss;
+        mBossCategorySelected = BossType.Boss;
         LastKillHeader.text = GUILocalizationRepo.GetLocalizedString("wb_PartyScore");
         RefreshAll();
     }
@@ -57,7 +57,7 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     {
         if (!ison)
             return;
-        mBossCategorySelected = BossType.BigBoss;
+        mBossCategorySelected = BossType.MiniBoss;
         LastKillHeader.text = GUILocalizationRepo.GetLocalizedString("wb_DamageScore");
         RefreshAll();
     }

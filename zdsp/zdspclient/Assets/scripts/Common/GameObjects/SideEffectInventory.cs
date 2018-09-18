@@ -27,6 +27,9 @@ namespace Zealot.Common
     public class SideEffectInventoryData
     {
         [JsonProperty]
-        public List<SideEffectDBInfo> SEList = new List<SideEffectDBInfo>();      
+        public List<SideEffectDBInfo> SEList = new List<SideEffectDBInfo>();
+
+        [JsonProperty]
+        public List<int> SERecords = new List<int>();
     }
 }

@@ -1,12 +1,12 @@
 ﻿namespace Zealot.Server.Entities
 {
+    using Kopio.JsonContracts;
     using System;
     using System.Text;
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Linq;
-    using UnityEngine;
-    using Kopio.JsonContracts;
+    using UnityEngine;   
     using Zealot.Common;
     using Zealot.Common.Entities;
     using Zealot.Common.RPC;
@@ -38,6 +38,7 @@
         public InventoryStats[] InventoryStats { get; private set; }
         public EquipmentStats EquipmentStats { get; set; }
         public EquipmentCraftStats EquipmentCraftStats { get; private set; }
+        public EquipFushionStats EquipFushionStats { get; private set; }
         public ItemHotbarStats ItemHotbarStats { get; set; }
         public QuestSynStatsServer QuestStats { get; private set; }
         public SkillSynStats SkillStats { get; private set; }
@@ -55,11 +56,11 @@
         public PartyStatsServer PartyStats { get; set; }
         public HeroStatsServer HeroStats { get; private set; }
         public DestinyClueSynStats DestinyClueStats { get; private set; }
+        public DonateSynStats DonateStats { get; private set; }
 
         //public BattleTimeStats BattleTimeStats { get; private set; }
 
         public PowerUpStats PowerUpStats { get; private set; }
-
 
         #endregion
 
@@ -79,6 +80,9 @@
 
         //Destiny Clue
         public DestinyClueController DestinyClueController;
+
+        //Donate
+        public DonateController DonateController;
 
         // Friends
         private StringBuilder friendSB;
@@ -144,6 +148,7 @@
             QuestController = new QuestController(this);
 
             DestinyClueController = new DestinyClueController(this);
+            DonateController = new DonateController(this);
         }
 
         public override int GetAccuracy()
@@ -235,6 +240,9 @@
             ItemHotbarStats = new ItemHotbarStats();
             LOStats.Add(LOTYPE.ItemHotbarStats, ItemHotbarStats);
 
+            DestinyClueStats = new DestinyClueSynStats();
+            LOStats.Add(LOTYPE.DestinyClueSynStats, DestinyClueStats);
+
             QuestStats = new QuestSynStatsServer();
             LOStats.Add(LOTYPE.QuestSynStats, QuestStats);
 
@@ -279,13 +287,16 @@
             //BattleTimeStats = new BattleTimeStats();
 
             PowerUpStats = new PowerUpStats();
-            LOStats.Add(LOTYPE.PowerUpStats, PowerUpStats);
-
-            DestinyClueStats = new DestinyClueSynStats();
-            LOStats.Add(LOTYPE.DestinyClueSynStats, DestinyClueStats);
+            LOStats.Add(LOTYPE.PowerUpStats, PowerUpStats);            
 
             EquipmentCraftStats = new EquipmentCraftStats();
             LOStats.Add(LOTYPE.EquipmentCraftStats, EquipmentCraftStats);
+
+            EquipFushionStats = new EquipFushionStats();
+            LOStats.Add(LOTYPE.EquipFushionStats, EquipFushionStats);
+
+            DonateStats = new DonateSynStats();
+            LOStats.Add(LOTYPE.DonateSynStats, DonateStats);
         }
 
         void InitInvStats()
@@ -326,6 +337,7 @@
                         break;
                 }
             }
+            Slot.mPortalExit = null;
         }
 
         public void InitSaveCharacterTimer()
@@ -669,7 +681,8 @@
         public void ResetStatsOnRespawn()
         {
             log.InfoFormat("[{0}]: respawn ({1})", mInstance.ID, GetPersistentID());
-            SetHealth(GetHealthMax() / 5); 
+            SetHealth(GetHealthMax() / 5);
+            SetMana(GetManaMax());
         }
 
         public void Respawn()
@@ -782,7 +795,7 @@
         public override void OnDamage(IActor attacker, AttackResult res, bool pbasicattack)
         {
             Monster boss = attacker as Monster;
-            if (boss != null && boss.mArchetype.monsterclass == MonsterClass.Boss)
+            if (boss != null && boss.mArchetype.monstertype == MonsterType.Boss)
                 boss.AddDamageToPlayer(Name, res.RealDamage);
             base.OnDamage(attacker, res, pbasicattack);
         }
@@ -830,16 +843,17 @@
         public void NewDay()
         {
             Slot.CharacterData.ResetOnNewDay();
+            SecondaryStats.ResetOnNewDay(Slot.CharacterData);
+            RealmStats.ResetOnNewDay();
+            Slot.mInventory.NewDayReset();
+
             //int addtimes = VIPRepo.GetVIPPrivilege("GuildQuest", PlayerSynStats.vipLvl);
             Slot.CharacterData.GuildQuests.ResetOnNewDay();
             UpdateGuildQuestDailyTimes();
-            SecondaryStats.ResetOnNewDay(Slot.CharacterData);
-
-            RealmStats.ResetOnNewDay();
-            Slot.mInventory.NewDayReset();
+         
             //Slot.mWelfareCtrlr.ResetOnNewDay();
-            mLotteryInvController.ResetOnNewDay();
-            Slot.CharacterData.ExchangeShopInv.NewDayReset();
+            //mLotteryInvController.ResetOnNewDay();
+            //Slot.CharacterData.ExchangeShopInv.NewDayReset();
             //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();                           
 			QuestController.ResetOnNewDay();
         }
@@ -859,7 +873,7 @@
             characterData.CharInfoData.Con = LocalCombatStats.Constitution;
             characterData.CharInfoData.Int = LocalCombatStats.Intelligence;
             characterData.CharInfoData.Dex = LocalCombatStats.Dexterity;
-
+            
             int lastlevelid = mInstance.mCurrentLevelID;
             string roomguid = mInstance.mRoom.Guid;
             if (exitroom)
@@ -885,6 +899,7 @@
 
             //characterData.EquipScore = LocalCombatStats.CombatScore;
             characterData.Health = GetHealth();
+            characterData.Mana = GetMana();
             characterData.Experience = SecondaryStats.experience;
             characterData.lastlevelid = lastlevelid;
             characterData.roomguid = roomguid;
@@ -913,104 +928,60 @@
             characterData.costbuffgold = SecondaryStats.costbuffgold;
             characterData.tutorialreddot = SecondaryStats.tutorialreddot;
 
+            characterData.JobSect = PlayerSynStats.jobsect;
+
             //if (exitroom) // Log out
             //{
-                // Bag
-                //TimeSpan duration = new TimeSpan(DateTime.Now.Ticks - SecondaryStats.DTSlotOpenTime);
-                //int minutes = (int)duration.TotalMinutes; //drop off the seconds
-                //characterData.InvSlotsData.OpenSlotTimePassed = SecondaryStats.OpenSlotTimePassed + minutes;
-                //characterData.InvSlotsData.DTSlotOpenTime = DateTime.Now.Ticks; //reset
+            //    //Bag
+            //    TimeSpan duration = new TimeSpan(DateTime.Now.Ticks - SecondaryStats.DTSlotOpenTime);
+            //    int minutes = (int)duration.TotalMinutes; //drop off the seconds
+            //    characterData.InvSlotsData.OpenSlotTimePassed = SecondaryStats.OpenSlotTimePassed + minutes;
+            //    characterData.InvSlotsData.DTSlotOpenTime = DateTime.Now.Ticks; //reset
             //}
             //else
             //{
-                //characterData.InvSlotsData.OpenSlotTimePassed = SecondaryStats.OpenSlotTimePassed;
+            //    characterData.InvSlotsData.OpenSlotTimePassed = SecondaryStats.OpenSlotTimePassed;
             //}
 
-            CurrencyInventoryData currencyInventory = characterData.CurrencyInventory;
-            currencyInventory.Money = SecondaryStats.money;
-            currencyInventory.Gold = SecondaryStats.gold;
-            currencyInventory.BindGold = SecondaryStats.bindgold;
-            currencyInventory.LotteryPoints = SecondaryStats.lotterypoints;
-            currencyInventory.Honor = SecondaryStats.honor;
-            currencyInventory.GuildContribute = SecondaryStats.contribute;
-            currencyInventory.VIPPoints = SecondaryStats.vippoints;
-            currencyInventory.VIPLevel = PlayerSynStats.vipLvl;
-            currencyInventory.BattleCoin = SecondaryStats.battlecoin;
-
+            // Currency
+            characterData.CurrencyInventory.SaveToInventoryData(SecondaryStats, PlayerSynStats);
+            
             SkillInventoryData skillInventory = characterData.SkillInventory;
             skillInventory.basicAttack1SId = SkillStats.basicAttack1SId;
             skillInventory.basicAttack2SId = SkillStats.basicAttack2SId;
             skillInventory.basicAttack3SId = SkillStats.basicAttack3SId;
             skillInventory.SkillInvCount = SkillStats.SkillInvCount;
 
-            for(int i = 0; i < SkillStats.EquippedSkill.Count; ++i)
-            {
+            int count = SkillStats.EquippedSkill.Count;
+            for (int i = 0; i < count; ++i)
                 skillInventory.EquippedSkill[i] = (int)SkillStats.EquippedSkill[i];
-            }
-
-            for(int i = 0; i < SkillStats.SkillInv.Count; ++i)
-            {
+            count = SkillStats.SkillInv.Count;
+            for (int i = 0; i < count; ++i)
                 skillInventory.SkillInv[i] = (int)SkillStats.SkillInv[i];
-            }
-            
-
-            RealmInventoryData realmInvData = characterData.RealmInventory;
-            realmInvData.EliteMapTime = RealmStats.EliteMapTime;
-            realmInvData.DungeonStory.Clear();
-
-            QuestController.SaveQuestInventory(characterData.QuestInventory);
-
-            //DestinyClueController.SaveDestinyClueInventory(characterData.ClueInventory);
-
-            foreach (KeyValuePair<int, DungeonStoryInfo> entry in RealmStats.GetDungeonStoryDict())
-            {
-                DungeonStoryInfo info = entry.Value;
-                DungeonStoryData data = new DungeonStoryData();
-                data.DailyEntry = info.DailyEntry;
-                data.ExtraEntry = info.ExtraEntry;
-                data.DailyExtraEntry = info.DailyExtraEntry;
-                data.StarCompleted = info.StarObjectiveCompleted;
-                info.StarCollectedDictToString(); // Update string to latest info
-                data.StarCollected = info.StarRewardCollected;
-                realmInvData.DungeonStory.Add(data);
-            }
-            realmInvData.DungeonDaily.Clear();
-            foreach (KeyValuePair<int, RealmInfo> entry in RealmStats.GetDungeonDailyDict())
-            {
-                RealmInfo info = entry.Value;
-                RealmData data = new RealmData();
-                data.DailyEntry = info.DailyEntry;
-                data.ExtraEntry = info.ExtraEntry;
-                realmInvData.DungeonDaily.Add(data);
-            }
-            realmInvData.DungeonSpecial.Clear();
-            foreach (KeyValuePair<int, RealmInfo> entry in RealmStats.GetDungeonSpecialDict())
-            {
-                RealmInfo info = entry.Value;
-                RealmData data = new RealmData();
-                data.DailyEntry = info.DailyEntry;
-                data.ExtraEntry = info.ExtraEntry;
-                realmInvData.DungeonSpecial.Add(data);
-            }
-            //BattleTime
-            //characterData.BattleTimeInventoryData.SaveToInventory(BattleTimeStats);
-            realmInvData.WorldBoss.Clear();
-            foreach (KeyValuePair<int, RealmInfo> entry in RealmStats.GetWorldBossDict())
-            {
-                RealmInfo info = entry.Value;
-                RealmData data = new RealmData();
-                data.DailyEntry = info.DailyEntry;
-                data.ExtraEntry = info.ExtraEntry;
-                realmInvData.WorldBoss.Add(data);
-            }
 
             SideEffectInventoryData sideeffectInv = characterData.SideEffectInventory;
-            sideeffectInv.SEList.Clear(); 
-            foreach (SpecailSE se in mPersistentSideEffects)
+            sideeffectInv.SEList.Clear();
+            foreach (SpecialSE se in mPersistentSideEffects)
             {
-                if (se != null && se.mSideeffectData.persistentonlogout)
+                if (se != null /*&& se.mSideeffectData.persistentonlogout*/)
                     sideeffectInv.SEList.Add(new SideEffectDBInfo(se.mSideeffectData.id, se.mTotalElapsedTime));
-            } 
+            }
+
+            // Realm
+            characterData.RealmInventory.SaveToInventoryData(RealmStats);
+
+            // Quest
+            QuestController.SaveQuestInventory(characterData.QuestInventory);
+            DestinyClueController.SaveDestinyClueInventory(characterData.ClueInventory);
+
+            //serialise the m_SideEffectList balyat
+            //format -> seid, number of stacks
+            sideeffectInv.SERecords.Clear();
+            foreach(var iter in m_SideEffectList)
+            {
+                sideeffectInv.SERecords.Add(iter.Key);
+                sideeffectInv.SERecords.Add(iter.Value);
+            }
 
             HeroInvData heroInv = characterData.HeroInventory;
             heroInv.HeroesList.Clear();
@@ -1021,7 +992,6 @@
             foreach (ExploreMapData map in HeroStats.GetExplorationsDict().Values)
                 heroInv.OngoingMaps.Add(map);
             heroInv.ExploredMaps = HeroStats.Explored;
-
 
             //SocialInventoryData socialInv = Slot.mSocialInventory;
             //IList<string> socialInvFriendList = socialInv.friendList;
@@ -1039,7 +1009,8 @@
             //    if (friendRequest == null)
             //        continue;
             //    socialInvFriendList.Add(friendRequest as string);
-            //}             
+            //}
+                        
             //characterData.ItemKindInv = Slot.mInventory.GetItemKindData();
             //characterData.StoreData.list_store.Clear();
             //for (int i = 0; i < StoreSynStats.list_store.Count; i++)
@@ -1061,30 +1032,34 @@
 
             // Welfare
             //characterData.WelfareInventory.SaveToInventory(WelfareStats);
-            ////WelfareRules.SaveToDB();
-            ////WelfareStats.onlineDuration += Slot.mWelfareCtrlr.GetOnlineDuration();
-            ////characterData.WelfareInventory.OnlineDuration += Slot.mWelfareCtrlr.GetOnlineDuration();
-            //// SevenDays
+            //WelfareRules.SaveToDB();
+            //WelfareStats.onlineDuration += Slot.mWelfareCtrlr.GetOnlineDuration();
+            //characterData.WelfareInventory.OnlineDuration += Slot.mWelfareCtrlr.GetOnlineDuration();
+
+            // SevenDays
             //characterData.SevenDaysInventory.SaveToInventory(SevenDaysStats);
             //characterData.QuestExtraRewardsInventory.SaveToInventory(QuestExtraRewardsStats);
             //WardrobeController.Save();
 
-            ////ExchangeShop
+            //ExchangeShop
             //characterData.ExchangeShopInv.SaveToExchangeShopInventory(ExchangeShopSynStats.exchangeLeftMapJsonString);
 
-            ////PortraitData
+            //PortraitData
             //characterData.PortraitData.SaveToPortraitData(PortraitDataStats.portraitDataInfoString);
 
             // PowerUp
-            characterData.PowerUpInventory.SaveToInventory(PowerUpStats);
+            characterData.PowerUpInventory.SaveToInventoryData(PowerUpStats);
 
             //EquipmentCraft
-            characterData.EquipmentCraftInventory.SaveToInventory(EquipmentCraftStats);
+            characterData.EquipmentCraftInventory.SaveToInventoryData(EquipmentCraftStats);
+
+            //EquipFushion
+            characterData.EquipFushionInventory.SaveToInventoryData(EquipFushionStats);
 
             Slot.mCanSaveDB = true;
         }
 
-        public override bool AddSpecialSideEffect(SpecailSE se)
+        public override bool AddSpecialSideEffect(SpecialSE se)
         {
             bool added = base.AddSpecialSideEffect(se);
             if (added)
@@ -1102,7 +1077,7 @@
             return added;  
         }
 
-        public override void RemoveSpecialSideEffect(SpecailSE se)
+        public override void RemoveSpecialSideEffect(SpecialSE se)
         {
             base.RemoveSpecialSideEffect(se);
             for (int i = 0; i < BuffTimeStats.MAX_EFFECTS; i++)
@@ -1246,7 +1221,8 @@
 
             //if (jobpara == null || levelUpJson == null)
             //{
-                combatstats.AddToField(FieldName.HealthBase, 10000);
+                combatstats.AddToField(FieldName.HealthBase, 1000);
+                combatstats.AddToField(FieldName.ManaBase, 10);
                 combatstats.AddToField(FieldName.AttackBase, 50);
                 combatstats.AddToField(FieldName.ArmorBase, 10);
                 combatstats.AddToField(FieldName.VSHumanDefenseBonus, 20);
@@ -1254,7 +1230,7 @@
                 combatstats.AddToField(FieldName.StrengthBase, 50);
                 combatstats.AddToField(FieldName.WeaponAttackBase, 10);
                 combatstats.AddToField(FieldName.ConstitutionBase, 10);
-                combatstats.AddToField(FieldName.IntelligenceBase, 20);
+                combatstats.AddToField(FieldName.IntelligenceBase, 10);
                 combatstats.AddToField(FieldName.IgnoreArmorBase, 10);
                 combatstats.AddToField(FieldName.SliceDefenseBonus, 10);
                 combatstats.AddToField(FieldName.DecreaseFinalDamageBonus, 11);
@@ -1271,9 +1247,8 @@
             //combatstats.AddToField(FieldName.CoCriticalDamageBase, Mathf.FloorToInt(jobpara.cocriticaldamage * levelUpJson.cocriticaldamage));
             //combatstats.AddToField(FieldName.AccuracyBase, Mathf.FloorToInt(jobpara.accuracy * levelUpJson.accuracy));
             //combatstats.AddToField(FieldName.EvasionBase, Mathf.FloorToInt(jobpara.evasion * levelUpJson.evasion));
-
-            
         }
+
         public void LevelUp()
         {
             int oriLevel = PlayerSynStats.Level;
@@ -1343,8 +1318,8 @@
             //CombatStats.ComputeAll();
 
             //Slot.mSevenDaysController.UpdateTask(NewServerActivityType.Level, PlayerSynStats.progressLevel);
-
         }
+
         public void JobLevelUp()
         {
             int oriLevel = PlayerSynStats.progressJobLevel;
@@ -1368,7 +1343,14 @@
 		public void UpdateJobSect(byte jobsect)
         {
             PlayerSynStats.jobsect = jobsect;
+
+            if (IsInParty())
+            {
+                PartyStats.SetMemberAvatar(Name, Slot.CharacterData.EquipmentInventory, (JobType)jobsect);
+                PartyStats.OnDirty(Name);
+            }
         }
+
         public bool LevelUpTo(int level)
         {
             if (PlayerSynStats.Level + level > 100)
@@ -1391,11 +1373,21 @@
         public override void SetHealth(int val)
         {
             base.SetHealth(val);
-            PlayerStats.DisplayHp = (float)val/GetHealthMax();
+            PlayerStats.DisplayHp = (float)val / GetHealthMax();
 
             // Update health to party members
-            if (PartyStats != null)
+            if (IsInParty())
                 PartyStats.SetMemberHP(Name, PlayerStats.DisplayHp);
+        }
+
+        public override void SetMana(int val)
+        {
+            base.SetMana(val);
+            LocalCombatStats.Mana = val;
+
+            // Update mana to party members
+            if (IsInParty())
+                PartyStats.SetMemberMP(Name, GetManaNormalized());
         }
 
         // InventoryStats
@@ -1448,8 +1440,6 @@
         {
             WeaponTypeUsed = WeaponType.Any;
             int weaponSlotIndex = (int)EquipmentSlot.Weapon;
-            if (eqInvData.Slots[weaponSlotIndex] == null)
-                GameRules.SetCharacterFirstEquipments(eqInvData);
             for (int i = 0; i < (int)EquipmentSlot.MAXSLOTS; ++i)
             {
                 Equipment equipment = eqInvData.Slots[i] as Equipment;
@@ -1647,11 +1637,16 @@
             equipmentCraftInv.InitFormInventory(EquipmentCraftStats);
         }
 
+        public void InitEquipFushionStats (EquipFushionInventoryData equipFushionInv)
+        {
+            equipFushionInv.InitFromInventory(EquipFushionStats);
+        }
+
         // LotteryShopStats
         #region LotteryShopStats
-        public void InitLotteryStats(LotteryInventoryData lotteryInv)
+        public void InitLotteryStats(LotteryInventoryData lotteryInv, GameClientPeer peer)
         {
-            mLotteryInvController = new LotteryController(Slot);
+            mLotteryInvController = new LotteryController(peer);
             mLotteryInvController.RestToNewData();
         }
 
@@ -1779,21 +1774,21 @@
                 return;
 
             //log.InfoFormat("[{0}]: addm ({1}) {2} {3}", mInstance.ID, GetPersistentID(), SecondaryStats.money, money);
-            SecondaryStats.money += amount;
-            if (SecondaryStats.money < 0 || SecondaryStats.money > currencyMax) //in case overflow.
-                SecondaryStats.money = currencyMax;
+            SecondaryStats.Money += amount;
+            if (SecondaryStats.Money < 0 || SecondaryStats.Money > currencyMax) //in case overflow.
+                SecondaryStats.Money = currencyMax;
             if (amount >= 10000)
-                LogCurrencyChange(from, CurrencyType.Money, amount, SecondaryStats.money);
+                LogCurrencyChange(from, CurrencyType.Money, amount, SecondaryStats.Money);
         }
 
         public bool DeductMoney(int amount, string from)
         {
-            if (SecondaryStats.money >= amount)
+            if (SecondaryStats.Money >= amount)
             {
                 //log.InfoFormat("[{0}]: deductmoney ({1}) {2} {3}", mInstance.ID, GetPersistentID(), SecondaryStats.money, amount);
-                SecondaryStats.money -= amount;
+                SecondaryStats.Money -= amount;
                 if (amount >= 10000)
-                    LogCurrencyChange(from, CurrencyType.Money, -amount, SecondaryStats.money);
+                    LogCurrencyChange(from, CurrencyType.Money, -amount, SecondaryStats.Money);
                 return true;
             }
             return false;
@@ -1805,10 +1800,10 @@
                 return;
 
             //log.InfoFormat("[{0}]: addg ({1}) {2} {3}", mInstance.ID, GetPersistentID(), SecondaryStats.gold, gold);
-            SecondaryStats.gold += gold;
-            if (SecondaryStats.gold < 0 || SecondaryStats.gold > currencyMax) //in case overflow.
-                SecondaryStats.gold = currencyMax;
-            LogCurrencyChange(from, CurrencyType.Gold, gold, SecondaryStats.gold);
+            SecondaryStats.Gold += gold;
+            if (SecondaryStats.Gold < 0 || SecondaryStats.Gold > currencyMax) //in case overflow.
+                SecondaryStats.Gold = currencyMax;
+            LogCurrencyChange(from, CurrencyType.Gold, gold, SecondaryStats.Gold);
         }
 
         public bool DeductLockGold(int amount, string from)
@@ -1959,7 +1954,7 @@
                             InvRetval addRes = Slot.mInventory.AddItemsIntoInventory(item, true, "GuildQuest");
                             if (addRes.retCode != InvReturnCode.AddSuccess)
                             {
-                                GameRules.SendMailWithItem(Slot.mChar, "Reward_GuildQuestReward", new List<IInventoryItem>() { item });
+                                GameRules.SendMailWithAttachment(Slot.mChar, "Reward_GuildQuestReward", new List<IInventoryItem>() { item }, null);
                             }
                         }
                     }
@@ -1980,7 +1975,7 @@
             if (useBindGold)
             {
                 //if (SecondaryStats.gold + SecondaryStats.bindgold >= amount) Overflow if at max currency~
-                if (SecondaryStats.gold >= amount - SecondaryStats.bindgold)  // enough total gold
+                if (SecondaryStats.Gold >= amount - SecondaryStats.bindgold)  // enough total gold
                 {
                     //log.InfoFormat("[{0}]: deductbindg ({1}) {2} {3} {4}", mInstance.ID, GetPersistentID(), SecondaryStats.bindgold, SecondaryStats.gold, amount);
                     if (SecondaryStats.bindgold >= amount)
@@ -1989,7 +1984,7 @@
 
                         if(spend)
                         {
-                            int before = SecondaryStats.gold + SecondaryStats.bindgold;
+                            int before = SecondaryStats.Gold + SecondaryStats.bindgold;
                             TongbaoCostBuffAdd(amount);
                             Slot.mWelfareCtrlr.OnDeducted(amount);
                             Slot.mQuestExtraRewardsCtrler.UpdateTask(QuestExtraType.GoldSpent, amount);
@@ -2010,12 +2005,12 @@
                             SecondaryStats.bindgold = 0;
                             LogCurrencyChange(from, CurrencyType.LockGold, -bindgold, 0);
                         }
-                        SecondaryStats.gold -= remainAmt;
-                        LogCurrencyChange(from, CurrencyType.Gold, -remainAmt, SecondaryStats.gold);
+                        SecondaryStats.Gold -= remainAmt;
+                        LogCurrencyChange(from, CurrencyType.Gold, -remainAmt, SecondaryStats.Gold);
 
                         if (spend)
                         {
-                            int before = SecondaryStats.gold + SecondaryStats.bindgold;
+                            int before = SecondaryStats.Gold + SecondaryStats.bindgold;
                             TongbaoCostBuffAdd(amount);
                             //add to total spent
                             Slot.mWelfareCtrlr.OnDeducted(amount);
@@ -2030,15 +2025,15 @@
             }
             else
             {
-                if (SecondaryStats.gold >= amount)
+                if (SecondaryStats.Gold >= amount)
                 {
                     //log.InfoFormat("[{0}]: deductg ({1}) {2} {3}", mInstance.ID, GetPersistentID(), SecondaryStats.gold, amount);
-                    SecondaryStats.gold -= amount;
-                    LogCurrencyChange(from, CurrencyType.Gold, -amount, SecondaryStats.gold);
+                    SecondaryStats.Gold -= amount;
+                    LogCurrencyChange(from, CurrencyType.Gold, -amount, SecondaryStats.Gold);
 
                     if (spend)
                     {
-                        int before = SecondaryStats.gold + SecondaryStats.bindgold;
+                        int before = SecondaryStats.Gold + SecondaryStats.bindgold;
                         TongbaoCostBuffAdd(amount);
                         //add to total spent
                         Slot.mWelfareCtrlr.OnDeducted(amount);
@@ -2294,16 +2289,16 @@
             switch (curType)
             {
                 case CurrencyType.Money:
-                    curval = SecondaryStats.money;
+                    curval = SecondaryStats.Money;
                     break;
                 case CurrencyType.Gold:
                     if (allowbind)
-                        return SecondaryStats.gold >= amount - SecondaryStats.bindgold;
+                        return SecondaryStats.Gold >= amount - SecondaryStats.bindgold;
                     else
-                        return SecondaryStats.gold >= amount;
+                        return SecondaryStats.Gold >= amount;
                 case CurrencyType.LockGold:
                     if (allowbind)
-                        return SecondaryStats.bindgold >= amount - SecondaryStats.gold;
+                        return SecondaryStats.bindgold >= amount - SecondaryStats.Gold;
                     else
                         return SecondaryStats.bindgold >= amount;
                 case CurrencyType.HonorValue:
@@ -2327,13 +2322,13 @@
             switch (curType)
             {
                 case CurrencyType.Money:
-                    curval = SecondaryStats.money;
+                    curval = SecondaryStats.Money;
                     break;
                 case CurrencyType.GuildContribution:
                     curval = SecondaryStats.contribute;
                     break;
                 case CurrencyType.Gold:
-                    curval = SecondaryStats.gold;
+                    curval = SecondaryStats.Gold;
                     break;
                 case CurrencyType.LockGold:
                     curval = SecondaryStats.bindgold;
@@ -2370,11 +2365,11 @@
             switch (curType)
             {
                 case CurrencyType.Money:
-                    return SecondaryStats.money;
+                    return SecondaryStats.Money;
                 case CurrencyType.GuildContribution:
                     return SecondaryStats.contribute;
                 case CurrencyType.Gold:
-                    return SecondaryStats.gold;
+                    return SecondaryStats.Gold;
                 case CurrencyType.LockGold:
                     return SecondaryStats.bindgold;
                 case CurrencyType.LotteryTicket:
@@ -2453,9 +2448,9 @@
             for (int index = 0; index < selist.Count; index++)
             {
                 SideEffectJson sej = SideEffectRepo.GetSideEffect(selist[index].SEID);
-                if (sej != null && (sej.persistentafterdeath || sej.persistentonlogout))
+                if (sej != null && (sej.persistentafterdeath))// || sej.persistentonlogout))
                 {
-                    SpecailSE se = new SpecailSE(sej);
+                    SpecialSE se = new SpecialSE(sej);
                     se.mTotalElapsedTime = selist[index].Elapsed;
                     se.Apply(this);
                 }
@@ -3101,6 +3096,7 @@
             }
 
             ((ServerEntitySystem)EntitySystem).UnregisterPlayerName(Name);
+            DestinyClueController.Dispose();
         }
 
         public override bool IsInvalidTarget()

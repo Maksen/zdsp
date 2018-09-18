@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-
+using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 
@@ -9,32 +8,34 @@ public class HUD_PlayerPortrait : MonoBehaviour
 {
     [SerializeField]
     UI_ProgressBarC mHPBar;
+
     [SerializeField]
     UI_ProgressBarC mMPBar;
+
     [SerializeField]
     Text mEXPPercent;
+
     [SerializeField]
     Text mLevel;
 
-    public void Awake()
+    [SerializeField]
+    GameObject mPartyLeaderIcon;
+
+    [SerializeField]
+    Image mPortraitIcon;
+
+    public void UpdateHPBar(int value, int max)
     {
+        mHPBar.Max = max;
+        mHPBar.Value = value;
     }
 
-    public void UpdateHPMPBar()
+    public void UpdateMPBar(int value, int max)
     {
-        if (GameInfo.gLocalPlayer == null)
-        {
-            Debug.LogError("HUD_PlayerPortrait.UpdateHPMPBar: GameInfo.gLocalPlayer is null?!");
-            return;
-        }
-
-        //PlayerSynStats pss = GameInfo.gLocalPlayer.PlayerSynStats;
-        LocalCombatStats lcs = GameInfo.gLocalPlayer.LocalCombatStats;
-        mHPBar.Max = lcs.HealthMax;
-        mHPBar.Value = lcs.Health;
-        mMPBar.Max = lcs.ManaMax;
-        mMPBar.Value = lcs.Mana;
+        mMPBar.Max = max;
+        mMPBar.Value = value;
     }
+
     public void UpdateExp()
     {
         if (GameInfo.gLocalPlayer == null)
@@ -50,16 +51,19 @@ public class HUD_PlayerPortrait : MonoBehaviour
 
         mEXPPercent.text = xpIntVal.ToString() + "%";
     }
-    public void UpdateLevel()
+
+    public void UpdateLevel(int level)
     {
-        if (GameInfo.gLocalPlayer == null)
-        {
-            Debug.LogError("HUD_PlayerPortrait.UpdateLevel: GameInfo.gLocalPlayer is null?!");
-            return;
-        }
+        mLevel.text = level.ToString();
+    }
 
-        PlayerSynStats pss = GameInfo.gLocalPlayer.PlayerSynStats;
+    public void SetPartyLeader(bool isLeader)
+    {
+        mPartyLeaderIcon.SetActive(isLeader);
+    }
 
-        mLevel.text = pss.Level.ToString();
+    public void UpdatePortrait(byte jobSect)
+    {
+        mPortraitIcon.sprite = ClientUtils.LoadIcon(JobSectRepo.GetJobPortraitPath((JobType)jobSect));
     }
 }

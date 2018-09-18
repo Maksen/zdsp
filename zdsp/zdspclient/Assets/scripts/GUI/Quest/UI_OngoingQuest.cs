@@ -7,6 +7,17 @@ using Zealot.Repository;
 using System;
 using Kopio.JsonContracts;
 
+public enum UIQuestType
+{
+    All,
+    Main,
+    Destiny,
+    Sub,
+    Guild,
+    Signboard,
+    Event
+}
+
 public class UI_OngoingQuest : MonoBehaviour
 {
     [SerializeField]
@@ -30,12 +41,22 @@ public class UI_OngoingQuest : MonoBehaviour
     [SerializeField]
     Button Delete;
 
+    [SerializeField]
+    ComboBoxA TypeComboBox;
+
+    [SerializeField]
+    ComboBoxA MapComboBox;
+
     private QuestClientController mQuestController;
     private Dictionary<QuestType, Dictionary<int, CurrentQuestData>> mQuestList;
     private Dictionary<int, GameObject> mOngoingQuestList;
     private Dictionary<QuestType, List<int>> mUnlockQuest;
     private List<int> mTrackingList;
     private int mSelectedQuest;
+    private List<int> mTypeList;
+    private UIQuestType mSelectedQuestType;
+    private List<string> mMapName;
+    private string mSelectedMap;
 
     private void OnEnable()
     {
@@ -43,11 +64,14 @@ public class UI_OngoingQuest : MonoBehaviour
         {
             return;
         }
+        
+        mSelectedQuestType = UIQuestType.All;
+        mSelectedMap = GUILocalizationRepo.GetLocalizedString("inv_all");
 
         if (mQuestController == null)
         {
             mQuestController = GameInfo.gLocalPlayer.QuestController;
-
+            
             mQuestList = new Dictionary<QuestType, Dictionary<int, CurrentQuestData>>();
             mQuestList.Add(QuestType.Main, mQuestController.GetQuestDataList(QuestType.Main));
             mQuestList.Add(QuestType.Destiny, mQuestController.GetQuestDataList(QuestType.Destiny));
@@ -68,12 +92,14 @@ public class UI_OngoingQuest : MonoBehaviour
             mTrackingList = mQuestController.GetTrackingList();
             mSelectedQuest = -1;
             UpdateOngoingList();
+            CheckForQuestType();
         }
         else
         {
             mTrackingList = mQuestController.GetTrackingList();
             mSelectedQuest = -1;
             UpdateOngoingList();
+            CheckForQuestType();
         }
     }
 
@@ -135,6 +161,96 @@ public class UI_OngoingQuest : MonoBehaviour
                 mUnlockQuest[type].Remove(questid);
             }
         }
+    }
+
+    private void CheckForQuestType()
+    {
+        TypeComboBox.ClearItemList();
+        mTypeList = new List<int>();
+
+        foreach (UIQuestType type in Enum.GetValues(typeof(UIQuestType)))
+        {
+            string name = GetTypeName(type);
+            int typenum = (int)type;
+            if (type == UIQuestType.All)
+            {
+                TypeComboBox.AddItem(name, typenum.ToString());
+                mTypeList.Add(typenum);
+            }
+            else
+            {
+                QuestType questType = (QuestType)(typenum - 1);
+                Transform ongoingcontent = GetOngoingGroup(questType);
+                Transform unlockcontent = GetUnlockGroup(questType);
+                if (ongoingcontent.gameObject.activeSelf || unlockcontent.gameObject.activeSelf)
+                {
+                    TypeComboBox.AddItem(name, typenum.ToString());
+                    mTypeList.Add(typenum);
+                }
+            }
+        }
+        TypeComboBox.SelectedIndex = 0;
+        UpdateQuestDataByQyestType();
+    }
+
+    public void OnQuestTypeChanged(int index)
+    {
+        if (mTypeList.Count >index)
+        {
+            mSelectedQuestType = (UIQuestType)mTypeList[index];
+        }
+
+        UpdateQuestDataByQyestType();
+    }
+
+    private void UpdateQuestDataByQyestType()
+    {
+        if (mSelectedQuestType == UIQuestType.All)
+        {
+            foreach(KeyValuePair<int, GameObject> entry in mOngoingQuestList)
+            {
+                entry.Value.SetActive(true);
+            }
+        }
+        else
+        {
+            foreach (KeyValuePair<int, GameObject> entry in mOngoingQuestList)
+            {
+                UI_OngoingQuestData ongoingQuestData = entry.Value.GetComponent<UI_OngoingQuestData>();
+                if (ongoingQuestData.IsSameType(mSelectedQuestType))
+                {
+                    entry.Value.SetActive(true);
+                }
+                else
+                {
+                    entry.Value.SetActive(false);
+                }
+            }
+        }
+
+        CheckForQuestMap();
+    }
+
+    private string GetTypeName(UIQuestType type)
+    {
+        switch (type)
+        {
+            case UIQuestType.All:
+                return GUILocalizationRepo.GetLocalizedString("inv_all");
+            case UIQuestType.Main:
+                return GUILocalizationRepo.GetLocalizedString("quest_main");
+            case UIQuestType.Destiny:
+                return GUILocalizationRepo.GetLocalizedString("quest_adventure");
+            case UIQuestType.Sub:
+                return GUILocalizationRepo.GetLocalizedString("quest_sub");
+            case UIQuestType.Guild:
+                return GUILocalizationRepo.GetLocalizedString("quest_guild");
+            case UIQuestType.Event:
+                return GUILocalizationRepo.GetLocalizedString("quest_event");
+            case UIQuestType.Signboard:
+                return GUILocalizationRepo.GetLocalizedString("quest_signboard");
+        }
+        return "";
     }
 
     private void UpdateQuestData(int questid, CurrentQuestData questData)
@@ -236,6 +352,85 @@ public class UI_OngoingQuest : MonoBehaviour
         }
     }
 
+    private void CheckForQuestMap()
+    {
+        mMapName = new List<string>();
+        mMapName.Add(GUILocalizationRepo.GetLocalizedString("inv_all"));
+        foreach (KeyValuePair<int, GameObject> entry in mOngoingQuestList)
+        {
+            UI_OngoingQuestData ongoingQuestData = entry.Value.GetComponent<UI_OngoingQuestData>();
+            if (ongoingQuestData.gameObject.activeSelf)
+            {
+                string mapname = ongoingQuestData.GetMapName();
+                if (!mMapName.Contains(mapname))
+                {
+                    mMapName.Add(mapname);
+                }
+            }
+        }
+
+        MapComboBox.ClearItemList();
+        foreach (string mapname in mMapName)
+        {
+            MapComboBox.AddItem(mapname, mapname);
+        }
+        
+        if (mMapName.Contains(mSelectedMap))
+        {
+            MapComboBox.SelectedIndex = MapComboBox.GetIndexByValue(mSelectedMap);
+        }
+        else
+        {
+            MapComboBox.SelectedIndex = 0;
+            mSelectedMap = GUILocalizationRepo.GetLocalizedString("inv_all");
+        }
+        UpdateQuestDataByMap();
+    }
+
+    public void OnMapNameChanged(int index)
+    {
+        if (mMapName.Count > index)
+        {
+            mSelectedMap = mMapName[index];
+        }
+
+        UpdateQuestDataByMap();
+    }
+
+    private void UpdateQuestDataByMap()
+    {
+        if (mSelectedQuestType == UIQuestType.All)
+        {
+            foreach (KeyValuePair<int, GameObject> entry in mOngoingQuestList)
+            {
+                UI_OngoingQuestData ongoingQuestData = entry.Value.GetComponent<UI_OngoingQuestData>();
+                if (ongoingQuestData.IsSameMap(mSelectedMap))
+                {
+                    entry.Value.SetActive(true);
+                }
+                else
+                {
+                    entry.Value.SetActive(false);
+                }
+            }
+        }
+        else
+        {
+            foreach (KeyValuePair<int, GameObject> entry in mOngoingQuestList)
+            {
+                UI_OngoingQuestData ongoingQuestData = entry.Value.GetComponent<UI_OngoingQuestData>();
+                if (ongoingQuestData.IsSameType(mSelectedQuestType) && ongoingQuestData.IsSameMap(mSelectedMap))
+                {
+                    entry.Value.SetActive(true);
+                }
+                else
+                {
+                    entry.Value.SetActive(false);
+                }
+            }
+        }
+    }
+
     private void ClearQuestList()
     {
         foreach(KeyValuePair<int, GameObject> obj in mOngoingQuestList)
@@ -301,7 +496,7 @@ public class UI_OngoingQuest : MonoBehaviour
 
     public void OnClickedDelete()
     {
-        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedSysMsgByName("quest_delete"), delegate { OnDeleteResetQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedSysMsgByName("quest_delete"), delegate { OnDeleteDeleteQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
     }
 
     private void OnConfirmResetQuest(int questid)
@@ -310,10 +505,10 @@ public class UI_OngoingQuest : MonoBehaviour
         RPCFactory.NonCombatRPC.ResetQuest(questid);
     }
 
-    private void OnDeleteResetQuest(int questid)
+    private void OnDeleteDeleteQuest(int questid)
     {
         UIManager.StartHourglass();
-        RPCFactory.NonCombatRPC.DeleteQuest(questid);
+        RPCFactory.NonCombatRPC.DeleteQuest(questid, JsonConvertDefaultSetting.SerializeObject(mTrackingList));
     }
 
     private void OnCancelAction()
@@ -350,6 +545,7 @@ public class UI_OngoingQuest : MonoBehaviour
             {
                 mQuestList[questType].Remove(questid);
             }
+            mQuestController.RemoveQuest(questid);
             mQuestController.RollBackQuestEvent(questid);
         }
     }

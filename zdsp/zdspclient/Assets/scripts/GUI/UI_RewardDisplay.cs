@@ -32,7 +32,7 @@ public class UI_RewardDisplay : MonoBehaviour
 
     void CreateGameIcon(RewardItem rewardItem)
     {
-        var itemJson = GameRepo.ItemFactory.GetItemById(rewardItem.id);
+        var itemJson = GameRepo.ItemFactory.GetItemById(rewardItem.itemId);
         if (itemJson == null)
             return;
         BagType bagType = itemJson.bagtype;
@@ -50,7 +50,7 @@ public class UI_RewardDisplay : MonoBehaviour
                 case BagType.Material:
                     gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithToolTipView(itemJson.itemid, rewardItem.count);
                     break;
-                case BagType.DNA:
+                case BagType.Socket:
                     gameIcon.GetComponent<GameIcon_DNA>().InitWithToolTipView(itemJson.itemid, 0, 0);
                     break;
             }

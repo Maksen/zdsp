@@ -5,20 +5,19 @@ namespace Zealot.Repository
 {
     public static class MailRepo
     {
-        public static Dictionary<string, int> mNameMap;
         public static Dictionary<int, MailContentJson> mIdMap;
+        public static Dictionary<string, int> mNameMap;    
 
         static MailRepo()
         {
             mNameMap = new Dictionary<string, int>();
-            mIdMap = new Dictionary<int, MailContentJson>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
-            mNameMap.Clear();
             mIdMap = gameData.MailContent;
-
+            mNameMap.Clear();
+            
             foreach (KeyValuePair<int, MailContentJson> entry in gameData.MailContent)
             {
                 mNameMap.Add(entry.Value.name, entry.Key);
@@ -28,10 +27,7 @@ namespace Zealot.Repository
         public static MailContentJson GetInfoByName(string mailName)
         {
             if (mNameMap.ContainsKey(mailName))
-            {
                 return mIdMap[mNameMap[mailName]];
-            }
-                
             return null;
         }
     }

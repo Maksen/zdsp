@@ -1,11 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using Zealot.Common;
-using Zealot.Common.Entities;
-using Kopio.JsonContracts;
-using Zealot.Repository;
+﻿using UnityEngine;
 
 public class UI_CharacterPowerUpButton : MonoBehaviour
 {
@@ -15,12 +8,10 @@ public class UI_CharacterPowerUpButton : MonoBehaviour
         UI_CharacterPowerup_Manager.StaticInit();
     }
     
-    //消耗玩家材料，並升級 或 無法升級
     void PowerUp(int part)
     {
         if (UI_CharacterPowerup_Manager.haveEnoughMaterial && UI_CharacterPowerup_Manager.LevelCanPowerUp)
         {
-            //升級回傳
             RPCFactory.NonCombatRPC.PowerUp(part);
         }
         else
@@ -35,8 +26,4 @@ public class UI_CharacterPowerUpButton : MonoBehaviour
         Debug.LogError("Not enough material, opening Item Store Dialog.");
         //UIManager.OpenDialog(WindowType.DialogItemStore);
     }
-
-
-
-
 }

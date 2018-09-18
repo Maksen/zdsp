@@ -7,6 +7,8 @@ using Zealot.Common;
 public class TestButtonSkill : MonoBehaviour
 {
 
+    public List<UnityEngine.UI.Image> m_Buttons;
+
     // Use this for initialization
     public void TestCastSkill(int index)
     {
@@ -34,8 +36,7 @@ public class TestButtonSkill : MonoBehaviour
 
             if (targetpid != 0)
             {
-                if (GameInfo.gLocalPlayer.IsInParty() && GameInfo.gLocalPlayer.PartyStats.IsFollowing())
-                    GameInfo.gLocalPlayer.PartyStats.PauseAutoFollow();
+                PartyFollowTarget.Pause();
                 GameInfo.gCombat.CommonCastBasicAttack(targetpid);
             }
         }

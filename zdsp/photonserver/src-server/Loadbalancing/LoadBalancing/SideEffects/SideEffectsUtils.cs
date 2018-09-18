@@ -1,11 +1,12 @@
 ﻿namespace Zealot.Server.SideEffects
 {
-    using Zealot.Common;
-    using Zealot.Common.Entities;
-    using Zealot.Server.Entities;
     using Kopio.JsonContracts;
     using System.Collections.Generic;
-
+    using Zealot.Common;   
+    using Zealot.Common.Entities;
+    using Zealot.Repository;
+    using Zealot.Server.Entities;
+    
     public static class SideEffectsUtils
     {
         private static List<Dictionary<EffectType, byte>> m_SideEffectTypeCollection = new List<Dictionary<EffectType, byte>>() {
@@ -45,7 +46,7 @@
                     {EffectType.Stats_SkillCostReduce, 0 },
                     {EffectType.Stats_SkillAffectEnhance, 0 },
                     {EffectType.Stats_HealingPoint, 0 },
-                    {EffectType.Stats_Effect, 0 },
+                    {EffectType.Stats_HealingEffect, 0 },
                     {EffectType.Stats_HealingIncome, 0 },
                     {EffectType.Rejuvenate_HealthPotion, 1 },
                     {EffectType.Rejuvenate_ManaPotion, 1 },
@@ -103,7 +104,7 @@
                     {EffectType.Stats_CastSpeed_Debuff, 1 },
                     {EffectType.Stats_MoveSpeed_Debuff, 1 },
                     {EffectType.Stats_HealingPoint_Debuff, 1 },
-                    {EffectType.Stats_Effect_Debuff, 1 },
+                    {EffectType.Stats_HealingEffect_Debuff, 1 },
                     {EffectType.Stats_HealingIncome_Debuff, 1 },
                     {EffectType.StatsAttack_WeaponAttack_Debuff, 2 },
                     {EffectType.StatsAttack_AttackPower_Debuff, 2 },
@@ -156,6 +157,8 @@
                     {EffectType.Control_Fear, 0 },
                     {EffectType.Control_Silence, 0 },
                     {EffectType.Control_Taunt, 0 },
+                    {EffectType.Control_BeakBack, 0 },
+                    {EffectType.SpecialControl_Freeze, 0 },
                     {EffectType.Immune_AllDamage, 1 },
                     {EffectType.Immune_AllDebuff, 1 },
                     {EffectType.Immune_AllImmune, 1 },
@@ -208,14 +211,14 @@
             return 0;
         }
 
-        public static void GetStatsFieldAndValue(SideEffectJson seData, ICombatStats combatStats, out FieldName targetedField,out int AmountOut, bool ispos)
+        public static void GetStatsFieldAndValue(SideEffectJson seData, ICombatStats combatStats, out FieldName targetedField,out float AmountOut, bool ispos)
         {
             targetedField = FieldName.LastField;
             double amount = GetRandomValue(seData, ispos);
 
             FieldName relative = FieldName.AbsorbDamage, nonRelative = FieldName.AbsorbDamage;
-
-            switch (seData.effecttype) {
+            switch (seData.effecttype)
+            {
                 case EffectType.Stats_Strength:
                     relative = FieldName.StrengthPercBonus;
                     nonRelative = FieldName.StrengthBonus;
@@ -285,8 +288,8 @@
                     relative = FieldName.HealingPoint;
                     nonRelative = FieldName.HealingPoint;
                     break;
-                case EffectType.Stats_Effect:
-                case EffectType.Stats_Effect_Debuff:
+                case EffectType.Stats_HealingEffect:
+                case EffectType.Stats_HealingEffect_Debuff:
                     relative = FieldName.HealingEffect;
                     nonRelative = FieldName.HealingEffect;
                     break;
@@ -531,12 +534,12 @@
 
             if (seData.isrelative) {
                 targetedField = relative;
-                amount *= 10;
+                //amount *= 10;
             }
             else
                 targetedField = nonRelative;
             
-            AmountOut = (int)amount;
+            AmountOut = (float)amount;
         }
 
         private static double GetRandomValue(SideEffectJson mSideeffectData, bool ispos)
@@ -601,34 +604,64 @@
             return res;
         }
 
-
         public static bool IsSideEffectPositive(SideEffectJson sej)
         {
             //list down all side effect which is able to be instantiated and is friendly
-            bool res = sej.effecttype == EffectType.StatsAttack_Accuracy ||
-                //sej.effecttype == EffectType.StatsAttack_Attack ||
+            bool res =
+                sej.effecttype == EffectType.Stats_AttackSpeed ||
+                sej.effecttype == EffectType.Stats_CastSpeed ||
+                sej.effecttype == EffectType.Stats_MoveSpeed ||
+                sej.effecttype == EffectType.Stats_HealingPoint ||
+                sej.effecttype == EffectType.Stats_HealingEffect ||
+                sej.effecttype == EffectType.Stats_HealingIncome ||
+                sej.effecttype == EffectType.StatsAttack_WeaponAttack ||
+                sej.effecttype == EffectType.StatsAttack_AttackPower ||
+                sej.effecttype == EffectType.StatsAttack_Accuracy ||
                 sej.effecttype == EffectType.StatsAttack_Critical ||
                 sej.effecttype == EffectType.StatsAttack_CriticalDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncSmashDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncSliceDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncPierceDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncEleNoneDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncEleMetalDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncEleWoodDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncEleEarthDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncEleWaterDamage ||
+                sej.effecttype == EffectType.StatsAttack_IncEleFireDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSHumanDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSZombieDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSVampireDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSAnimalDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSPlantDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSEleNoneDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSEleMetalDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSEleWoodDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSEleEarthDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSEleWoodDamage ||
+                sej.effecttype == EffectType.StatsAttack_VSEleFireDamage ||
+                sej.effecttype == EffectType.StatsDefence_Armor ||
+                sej.effecttype == EffectType.StatsDefence_Block ||
+                sej.effecttype == EffectType.StatsDefence_BlockValue ||
                 sej.effecttype == EffectType.StatsDefence_Evasion ||
                 sej.effecttype == EffectType.StatsDefence_CoCritical ||
-                sej.effecttype == EffectType.StatsDefence_Armor;
-                //sej.effecttype == EffectType.Stats_HealthMax ||
-                //sej.effecttype == EffectType.StatsDefence_CoCriticalDamage ||
-                //sej.effecttype == EffectType.Rejuvenate_Health ||
-                //sej.effecttype == EffectType.Rejuvenate_RecoverOnHit ||
-                //sej.effecttype == EffectType.Remove_Random_DeBuff ||
-                //sej.effecttype == EffectType.Remove_DeBuff ||
-                //sej.effecttype == EffectType.Control_Immune||
-                //sej.effecttype == EffectType.Control_Stun_Immune ||
-                //sej.effecttype == EffectType.Assist_Shield ||
-                //sej.effecttype == EffectType.StatsDefence_AbsorbDamage ||
-                //sej.effecttype == EffectType.Stats_Exp ||
-                //sej.effecttype == EffectType.Dot_Immune ||
-                //sej.effecttype == EffectType.Dot_Remove ||
-                //sej.effecttype == EffectType.Control_Stun_Remove;
+                sej.effecttype == EffectType.StatsDefence_IncSmashDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncSliceDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncPierceDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncEleNoneDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncEleMetalDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncEleWoodDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncEleEarthDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncEleWaterDefence ||
+                sej.effecttype == EffectType.StatsDefence_IncEleFireDefence ||
+                sej.effecttype == EffectType.StatsDefence_VSHumanDefence ||
+                sej.effecttype == EffectType.StatsDefence_VSZombieDefence ||
+                sej.effecttype == EffectType.StatsDefence_VSVampireDefence ||
+                sej.effecttype == EffectType.StatsDefence_VSAnimalDefence ||
+                sej.effecttype == EffectType.StatsDefence_VSPlantDefence ||
+                sej.effecttype == EffectType.StatsDefence_AmplifyDamage;
+
             return res;
         }
-
 
         public static bool IsEffectiveSubSkill(SideEffectJson sej)
         {
@@ -654,7 +687,54 @@
             return res;
         }
 
+        public static void ClientAddSideEffect(Actor target, Actor caster, SideEffectJson sideeffect)
+        {
+            if (SideEffectFactory.IsSideEffectInstantiatable(sideeffect))
+            {
+                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffect);
+                bool ispos = IsSideEffectPositive(sideeffect);
+                if (sideeffect.delay != 0)
+                {
+                    System.Timers.Timer delay = new System.Timers.Timer(sideeffect.delay);
+                    delay.Elapsed += delegate { se.Apply(target, caster, ispos); };
+                    delay.AutoReset = false;
+                    delay.Start();
+                }
+                else
+                    se.Apply(target, caster, ispos);
+            }
+        }
 
-        
+        public static void ClientRemoveSideEffect(Actor target, Actor caster, SideEffectJson sideeffect)
+        {
+            if (SideEffectFactory.IsSideEffectInstantiatable(sideeffect))
+            {
+                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffect);
+                bool ispos = !IsSideEffectPositive(sideeffect);
+                if (sideeffect.delay != 0)
+                {
+                    System.Timers.Timer delay = new System.Timers.Timer(sideeffect.delay);
+                    delay.Elapsed += delegate { se.Apply(target, caster, ispos); };
+                    delay.AutoReset = false;
+                    delay.Start();
+                }
+                else
+                    se.Apply(target, caster, ispos);
+            }
+        }
+
+        public static void ClientUpdateEquipmentSideEffects(Actor caster, List<int> sideEffectIds, int equipId, bool isAdd)
+        {
+            int count = sideEffectIds.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                SideEffectJson selfse = SideEffectRepo.GetSideEffect(sideEffectIds[i]);
+                if (SideEffectFactory.IsSideEffectInstantiatable(selfse))
+                {
+                    SideEffect se = SideEffectFactory.CreateSideEffect(selfse);
+                    se.Apply(caster, caster, isAdd, equipId);
+                }
+            }
+        }
     }
 }

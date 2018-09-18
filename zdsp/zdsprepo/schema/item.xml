@@ -35,6 +35,7 @@
       <property name="description" type="localizedstring" uitext="Description" default=""/>
       <constant name="itemtype" type="ItemType" value="ItemType.Invalid"/>
       <property name="bagtype" type="BagType" uitext="Bag Type" default="0"/>
+      <property name="useable" type="bool" uitext="Useable" default="true"/>
       <property name="rarity" type="ItemRarity" uitext="Item Rarity" default="0"/>
       <property name="requirelvl" type="int" uitext="Require Lvl" default="1" min="1" max="99999"/>
       <property name="casttime" type="int" uitext="Cast Time" default="0"/>
@@ -115,7 +116,7 @@
     
     <element name="DNA" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.DNA"/>
-      <property name="dnatype" type="DNAType" uitext="DNA Type" default="0"/>
+      <property name="dnatype" type="DNAType" uitext="DNA Type" default="1"/>
       <property name="exp" type="int" uitext="Exp" default="0"/>
       <property name="evotype" type="string" uitext="Evo Type" default="a"/>
       <property name="maxlevel" type="int" uitext="Max Level" default="0"/>
@@ -141,7 +142,7 @@
       <property name="addquestid" type="int" uitext="Add Quest ID" default="-1"/>
       <property name="addobjid" type="int" uitext="Add Objective ID" default="-1"/>
     </element>
-    
+
     <element name="HeroItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.MercenaryItem"/>
       <property name="heroitemtype" type="HeroItemType" uitext="Hero Item Type"/>
@@ -175,6 +176,14 @@
       <property name="evolvestep" type="int" uitext="Evolve Step" default="1"/>
       <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
       <property name="requirement" type="string" uitext="Requirement" default=""/>
+    </element>
+
+    <element name="ElementalStone" inherit="ItemBase" localizeexport="itemid">
+      <constant name="itemtype" type="ItemType" value="ItemType.ElementalStone"/>
+      <property name="type" type="int" uitext="Type" default="0"/>
+      <property name="se1group" type="string" uitext="Side Effect1 Group" default="null"/>
+      <property name="se2group" type="string" uitext="Side Effect2 Group" default="null"/>
+      <property name="se3group" type="string" uitext="Side Effect3 Group" default="null"/>
     </element>
   </data>
 </magicalarea51>

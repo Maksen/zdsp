@@ -1,16 +1,15 @@
 ﻿namespace Zealot.Server.SideEffects
 {
-    using System.Collections.Generic;
-    using System;
-    using Zealot.Common;
-    using Zealot.Common.Entities;
-    using Zealot.Server.Entities;
-    using Zealot.Repository;
     using Kopio.JsonContracts;
+    using System;
+    using System.Collections.Generic; 
+    using Zealot.Common;
+    using Zealot.Server.Entities;
+    using Zealot.Repository; 
 
     public static class SideEffectFactory
     {
-        private static readonly Dictionary<EffectType, System.Type> EffectTypeToClass = new Dictionary<EffectType, System.Type>()
+        private static readonly Dictionary<EffectType, Type> EffectTypeToClass = new Dictionary<EffectType, Type>()
         {
             {EffectType.Damage_NoElementDamage, typeof(DamageSE)},
             {EffectType.Damage_MetalDamage, typeof(DamageSE) },
@@ -50,8 +49,8 @@
             {EffectType.Stats_SkillAffectEnhance, typeof(SideEffect) },
             {EffectType.Stats_HealingPoint, typeof(StatsSE) },
             {EffectType.Stats_HealingPoint_Debuff, typeof(StatsSE) },
-            {EffectType.Stats_Effect, typeof(StatsSE) },
-            {EffectType.Stats_Effect_Debuff, typeof(StatsSE) },
+            {EffectType.Stats_HealingEffect, typeof(StatsSE) },
+            {EffectType.Stats_HealingEffect_Debuff, typeof(StatsSE) },
             {EffectType.Stats_HealingIncome, typeof(StatsSE) },
 
             {EffectType.Rejuvenate_HealthPotion, typeof(RejuvenateSE) },
@@ -156,6 +155,8 @@
             {EffectType.Control_Fear, typeof(FearSE) }, 
             {EffectType.Control_Silence, typeof(SilenceSE) },
             {EffectType.Control_Taunt, typeof(TauntSE) }, // needs a new SE
+            {EffectType.Control_BeakBack, typeof(KnockBackSE) },
+            {EffectType.SpecialControl_Freeze, typeof(FrozenSE) },            
 
             {EffectType.Immune_AllDamage, typeof(SideEffect) }, // temp only
             {EffectType.Immune_AllDebuff, typeof(SideEffect) },
@@ -190,22 +191,32 @@
 
         public static SideEffect CreateSideEffect(SideEffectJson sideeffectData, bool isPassive=false)
         {
-            if(sideeffectData.persistentafterdeath || sideeffectData.persistentonlogout )
+            try
             {
-                if(!isPassive)
-                    throw new Exception("sideeffect with persistent should be created with an special type of sideeffect ");
+                if (sideeffectData.persistentafterdeath)// || sideeffectData.persistentonlogout)
+                {
+                    if (!isPassive)
+                        throw new Exception("sideeffect with persistent should be created with an special type of sideeffect ");
+                }
+                EffectType effecttype = (EffectType)sideeffectData.effecttype;
+                Type type;
+                if (!EffectTypeToClass.TryGetValue(effecttype, out type))
+                {
+                    throw new Exception("Sideeffect " + Enum.GetName(typeof(EffectType), effecttype) + " cannot be created because it is not supported yet!");
+                }
+
+                object[] args = new object[1];
+                args[0] = sideeffectData;
+                object sideeffect = Activator.CreateInstance(type, args);
+
+                return (SideEffect)sideeffect;
             }
-            EffectType effecttype = (EffectType) sideeffectData.effecttype;
-            System.Type type;
-            if (!EffectTypeToClass.TryGetValue(effecttype, out type))
+            catch (Exception ex)
             {
-                throw new Exception("Sideeffect " + Enum.GetName(typeof(EffectType), effecttype) + " cannot be created because it is not supported yet!");                
+
             }
-            
-            object[] args = new object[1];
-            args[0] = sideeffectData;
-            object sideeffect = Activator.CreateInstance(type, args);           
-            return (SideEffect)sideeffect;
+
+            return null;            
         }
     }
 
@@ -312,6 +323,14 @@
             }
         }
 
+        public void Apply(Actor target, Actor caster, bool positiveEffect, int equipid)
+        {
+            mTarget = target;
+            mCaster = caster;
+            mPositiveEffect = positiveEffect;
+            bool appiled = OnApply(equipid);
+        }
+
         /*public void ResumeFrom(long elapsed, long duration)
         {
             mTotalElapsedTime = elapsed;
@@ -406,7 +425,7 @@
             return shouldApply;
         }
                
-        protected virtual bool OnApply() //if no more channel, will fail;
+        protected virtual bool OnApply(int equipid = -1) //if no more channel, will fail;
         {
             if (!mTarget.IsAlive())
                 return false;
@@ -415,9 +434,19 @@
                 //Add to target's sideeffect arrays so that this sideeffect gets updated
                 if (CheckApplyCondition())
                 {
-                    int slot = mTarget.AddSideEffect(this, mPositiveEffect);
-                    //return true;
-                    return slot >= 0; //Apply could fail e.g. due to slot full, sideeffectgroup constraint              
+                    if (equipid != -1)
+                    {
+                        if (mPositiveEffect)
+                            return mTarget.AddEquipmentSideEffect(this, equipid);
+                        else
+                            return mTarget.RemoveEquipmentSideEffect(this, equipid);
+                    }
+                    else
+                    {
+                        int slot = mTarget.AddSideEffect(this, mPositiveEffect);
+                        //return true;
+                        return slot >= 0; //Apply could fail e.g. due to slot full, sideeffectgroup constraint              
+                    }
                 }
                 return false;//can not apply due to sideeffect rules.
             }

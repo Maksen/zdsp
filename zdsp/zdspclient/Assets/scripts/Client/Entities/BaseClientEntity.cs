@@ -205,7 +205,7 @@ namespace Zealot.Client.Entities
 
         protected List<int> mQuestList = new List<int>();
         protected List<int> mAvailableQuest = new List<int>();
-        protected List<int> mOngoingQuest = new List<int>();
+        protected Dictionary<int, int> mOngoingQuest = new Dictionary<int, int>();
         protected int mActiveQuest;
         protected bool mActiveStatus;
 
@@ -249,6 +249,12 @@ namespace Zealot.Client.Entities
         {
             mActiveStatus = mArchetype.activeonstartup;
             Show(true);
+        }
+
+        public virtual void UpdateQuestList(List<int> availablelist, Dictionary<int, int> ongoinglist)
+        {
+            mAvailableQuest = availablelist;
+            mOngoingQuest = ongoinglist;
         }
     }
 }

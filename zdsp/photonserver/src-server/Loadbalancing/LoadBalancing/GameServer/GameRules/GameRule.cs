@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using Photon.SocketServer;
 using Photon.LoadBalancing.GameServer;
 using Photon.LoadBalancing.GameServer.Mail;
 using Photon.LoadBalancing.Operations;
-using Kopio.JsonContracts;
 using Zealot.Entities;
 using Zealot.Server.Entities;
 using Zealot.Common;
@@ -11,9 +11,6 @@ using Zealot.Common.RPC;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.SideEffects;
-using Photon.LoadBalancing.Entities;
-using UnityEngine;
-using System;
 
 namespace Zealot.Server.Rules
 {
@@ -48,6 +45,7 @@ namespace Zealot.Server.Rules
                 if (validExit_count > 1)
                     index = GameUtils.RandomInt(0, validExit_count - 1);
                 LocationData mPortalExitData = validExit[index];
+                peer.mPortalExit = mPortalExitData;
                 if (mPortalExitData.mLevel == currentlevelname)
                     peer.ZRPC.CombatRPC.TeleportSetPosDirection(mPortalExitData.mPosition.ToRPCPosition(), mPortalExitData.mForward.ToRPCDirection(), peer);
                 else
@@ -66,7 +64,7 @@ namespace Zealot.Server.Rules
             }
         }
 
-        public static void GenerateRewardByRewardGrpID(int rewardGrpId, int charBaseLv, int charJobLv, int jobId, List<ItemInfo> list_ItemInfo, Dictionary<CurrencyType, int> currencyAdded)
+        public static void GenerateRewardByRewardGrpID(int rewardGrpId, int charBaseLv, int charJobLv, int jobId, List<ItemInfo> list_ItemInfo, Dictionary<CurrencyType, int> currencyAdded, float expboost = 1.0f)
         {
             Reward jobReward = RewardListRepo.GetRewardByGrpIDJobID(rewardGrpId, jobId);
             if (jobReward == null)
@@ -78,17 +76,17 @@ namespace Zealot.Server.Rules
                 if (jobReward.Exp(charBaseLv) > 0)
                 {
                     if (currencyAdded.ContainsKey(CurrencyType.Exp))
-                        currencyAdded[CurrencyType.Exp] += jobReward.Exp(charBaseLv);
+                        currencyAdded[CurrencyType.Exp] += (int)(jobReward.Exp(charBaseLv) * expboost);
                     else
                         currencyAdded[CurrencyType.Exp] = jobReward.Exp(charBaseLv);
                 }
-                if (jobReward.Jxp(charJobLv) > 0)
-                {
+                //if (jobReward.Jxp(charJobLv) > 0)
+                //{
                     //if (currencyAdded.ContainsKey(CurrencyType.Exp))
                     //    currencyAdded[CurrencyType.Exp] += jobReward.Exp(charBaseLv);
                     //else
                     //    currencyAdded[CurrencyType.Exp] = jobReward.Exp(charBaseLv);
-                }
+                //}
                 if (jobReward.guildactivepoint > 0)
                 {
                     if (currencyAdded.ContainsKey(CurrencyType.GuildContribution))
@@ -116,7 +114,7 @@ namespace Zealot.Server.Rules
             for (int i = 0; i < jobReward.itemRewardLst.Count; ++i)
             {
                 ItemInfo ii = new ItemInfo();
-                ii.itemId = (ushort)jobReward.itemRewardLst[i].id;
+                ii.itemId = (ushort)jobReward.itemRewardLst[i].itemId;
                 ii.stackCount = jobReward.itemRewardLst[i].count;
                 list_ItemInfo.Add(ii);
             }
@@ -349,7 +347,7 @@ namespace Zealot.Server.Rules
         }
 
         public static List<ItemInfo> GiveReward_CheckBagSlotThenMail(Player player, List<int> rewardGrpIDs, string mailName, 
-            Dictionary<string, string> parameters, bool checkNotification, bool setnew, string reason)
+            Dictionary<string, string> parameters, bool checkNotification, bool setnew, string reason, float expboost = 1.0f)
         {
             string playername = player.Name;
             List<ItemInfo> itemOutput = new List<ItemInfo>();
@@ -360,24 +358,16 @@ namespace Zealot.Server.Rules
                                             player.PlayerSynStats.progressJobLevel,
                                             player.PlayerSynStats.jobsect,
                                             itemOutput, 
-                                            currencyAdded);
+                                            currencyAdded, expboost);
 
             var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemOutput, setnew, reason);
             if (retValue.retCode != InvReturnCode.AddSuccess)
             {
                 //if cant add to bag, send mail
-                MailObject mailObj = new MailObject();
-                mailObj.rcvName = player.Name;
-                mailObj.mailName = mailName;
-                List<IInventoryItem> list_Attachment = new List<IInventoryItem>();
+                List<IInventoryItem> items_Attachment = new List<IInventoryItem>();
                 foreach (var item in itemOutput)
-                    list_Attachment.Add(GenerateItem(item.itemId, null, item.stackCount));
-
-                mailObj.lstAttachment = list_Attachment;
-                mailObj.dicCurrencyAmt = currencyAdded;
-                if (parameters != null && parameters.Count > 0)
-                    mailObj.dicBodyParam = parameters;
-                MailManager.Instance.SendMail(mailObj);
+                    items_Attachment.Add(GenerateItem(item.itemId, null, item.stackCount));
+                SendMailWithAttachment(player.Name, mailName, items_Attachment, currencyAdded, parameters);
             }
             else
             {
@@ -463,18 +453,10 @@ namespace Zealot.Server.Rules
             if (retValue.retCode != InvReturnCode.AddSuccess)
             {
                 // If cant add to bag, send mail
-                MailObject mailObj = new MailObject();
-                mailObj.rcvName = playername;
-                mailObj.mailName = mailName;
-                List<IInventoryItem> list_Attachment = new List<IInventoryItem>();
+                List<IInventoryItem> items_Attachment = new List<IInventoryItem>();
                 foreach (var item in itemOutput)
-                    list_Attachment.Add(GenerateItem(item.itemId, null, item.stackCount));
-
-                mailObj.lstAttachment = list_Attachment;
-                mailObj.dicCurrencyAmt = currencyAdded;
-                if (parameters != null && parameters.Count > 0)
-                    mailObj.dicBodyParam = parameters;
-                MailManager.Instance.SendMail(mailObj);
+                    items_Attachment.Add(GenerateItem(item.itemId, null, item.stackCount));
+                SendMailWithAttachment(playername, mailName, items_Attachment, currencyAdded, parameters);
             }
             else
             {
@@ -492,14 +474,15 @@ namespace Zealot.Server.Rules
             return itemOutput;
         }
 
-        public static void SendMailWithItem(string playerName, string mailName, List<IInventoryItem> itemsToAttach, Dictionary<string, string> parameters = null)
+        public static void SendMailWithAttachment(string rcvName, string mailName, List<IInventoryItem> itemsToAdd, 
+            Dictionary<CurrencyType, int> currencyToAdd, Dictionary<string, string> parameters = null)
         {
             MailObject mailObj = new MailObject();
-            mailObj.rcvName = playerName;
+            mailObj.rcvName = rcvName;
             mailObj.mailName = mailName;
-            mailObj.lstAttachment = itemsToAttach;
-            if (parameters != null && parameters.Count > 0)
-                mailObj.dicBodyParam = parameters;
+            mailObj.lstAttachment = itemsToAdd;
+            mailObj.dicCurrencyAmt = currencyToAdd;
+            mailObj.dicBodyParam = parameters;
             MailManager.Instance.SendMail(mailObj);
         }
 
@@ -508,8 +491,7 @@ namespace Zealot.Server.Rules
             MailObject mailObj = new MailObject();
             mailObj.rcvName = playerName;
             mailObj.mailName = mailName;
-            if (parameters != null && parameters.Count > 0)
-                mailObj.dicBodyParam = parameters;
+            mailObj.dicBodyParam = parameters;
             MailManager.Instance.SendMail(mailObj);
         }
 
@@ -585,9 +567,9 @@ namespace Zealot.Server.Rules
             if (sej == null || !SideEffectFactory.IsSideEffectInstantiatable(sej))
                 return;
 
-            if (sej.persistentafterdeath || sej.persistentonlogout)
+            if (sej.persistentafterdeath)
             {
-                SpecailSE sse = new SpecailSE(sej);
+                SpecialSE sse = new SpecialSE(sej);
                 sse.Apply(target);
             }
             else
@@ -620,6 +602,7 @@ namespace Zealot.Server.Rules
                 JobSect = jobsect,
                 Faction = faction,
                 Health = -1,
+                Mana = -1,
                 portraitID = 1,
                 lastlevelid = newCharInfo.levelId,
                 lastpos = newCharInfo.pos,

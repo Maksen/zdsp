@@ -9,6 +9,7 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
 	public UI_SkillTree m_PanelPanel { get; set; }
     public GameObject m_ExpandData;
     public Transform m_ContentRect;
+    public Button m_Close;
     public Dictionary<int, HUD_ExpandDataHelper> m_ActiveSkills = new Dictionary<int, HUD_ExpandDataHelper>();
 
     private GameObjectPoolManager m_DataPool;
@@ -41,19 +42,18 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
             {
                 SkillData skd = SkillRepo.GetSkill(temp[i].Value);
                 HUD_ExpandDataHelper data = m_DataPool.RequestObject().GetComponent<HUD_ExpandDataHelper>();
-                data.Init(skd, skd.skillJson.level);
-                data.m_ID = temp[i].Value;
-                data.m_Toggle.onValueChanged.AddListener(delegate { OnSelected(data.m_ID); });
+                data.Init(skd);
+                data.m_Toggle.onValueChanged.AddListener(delegate { OnSelected(data.m_Skill.skillJson.id); });
                 m_ActiveSkills.Add(temp[i].Key, data);
                 data.transform.parent = m_ContentRect;
             }
             else
             {
-                if(temp[i].Value != m_ActiveSkills[temp[i].Key].m_ID)
+                if(temp[i].Value != m_ActiveSkills[temp[i].Key].m_Skill.skillJson.id)
                 {
                     SkillData skd = SkillRepo.GetSkill(temp[i].Value);
-                    m_ActiveSkills[temp[i].Key].Init(skd, skd.skillJson.level);
-                    m_ActiveSkills[temp[i].Key].m_ID = temp[i].Value;
+                    m_ActiveSkills[temp[i].Key].Init(skd);
+                    
                 }
             }
         }
@@ -83,7 +83,11 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
         // find the skill group id
         SkillData skd = SkillRepo.GetSkill(skillid);
         int skgid = skd.skillgroupJson.id;
-        m_ActiveSkills[skgid].m_ID = skillid;
-        m_ActiveSkills[skgid].Init(skd, level);
+        m_ActiveSkills[skgid].Init(skd);
+    }
+
+    public void CloseUI()
+    {
+        m_Close.onClick.Invoke();
     }
 }

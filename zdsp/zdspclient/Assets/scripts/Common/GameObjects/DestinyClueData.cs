@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
 
 namespace Zealot.Common
 {
@@ -22,21 +21,36 @@ namespace Zealot.Common
 
     public class ActivatedClueData
     {
+        [JsonProperty(PropertyName = "ClueId")]
         public int ClueId { get; set; }
+
+        [JsonProperty(PropertyName = "ClueType")]
         public byte ClueType { get; set; }
+
+        [JsonProperty(PropertyName = "ActivatedDate")]
         public string ActivatedDate { get; set; }
+
+        [JsonProperty(PropertyName = "ActivatedTime")]
         public string ActivatedTime { get; set; }
-        public long ActivatedDateTime { get; set; }
+
+        [JsonProperty(PropertyName = "Status")]
         public byte Status { get; set; }
 
-        public ActivatedClueData(int clueid, ClueType type, string date, string time, long datetime, ClueStatus status)
+        public DateTime ActivatedDT { get; set; }
+
+        public ActivatedClueData(int clueid, ClueType type, string date, string time, ClueStatus status)
         {
             ClueId = clueid;
             ClueType = (byte)type;
             ActivatedDate = date;
             ActivatedTime = time;
-            ActivatedDateTime = datetime;
             Status = (byte)status;
+        }
+
+        public void UpdateDT()
+        {
+            ActivatedDT = DateTime.ParseExact(ActivatedDate, "yyyy.MM.dd", CultureInfo.InvariantCulture);
+            ActivatedDT = DateTime.ParseExact(ActivatedTime, "HH:mm", CultureInfo.InvariantCulture);
         }
     }
 
@@ -73,6 +87,15 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "UnlockTimeClues")]
         public string UnlockTimeClues { get; set; }
+
+        public DestinyClueInventory()
+        {
+            UnlockMemory = "";
+            ActivatedClues = "";
+            LockedClues = "";
+            UnlockClues = "";
+            UnlockTimeClues = "";
+        }
 
         public List<ActivatedClueData> DeserializedActivatedClues()
         {

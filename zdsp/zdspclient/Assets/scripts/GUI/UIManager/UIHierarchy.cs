@@ -21,12 +21,12 @@ public class UIHierarchy : MonoBehaviour
         UIManager.RegisterUIHierarchy(this);
 
         var windowComponents = gameObject.GetComponentsInChildren<UIWindow>(true);
-        for (int i = 0; i < windowComponents.Length; i++)
+        for (int i = 0; i < windowComponents.Length; ++i)
             windowComponents[i].RegisterWindow();
 
         UIManager.AlertManager2 = new AlertManagerVersion2();
         var alertComponents = gameObject.GetComponentsInChildren<AlertComponentVersion2>(true);
-        for (int i = 0; i < alertComponents.Length; i++)
+        for (int i = 0; i < alertComponents.Length; ++i)
         {
             alertComponents[i].Off();
             UIManager.AlertManager2.RegisterAlert(alertComponents[i]);
@@ -71,7 +71,7 @@ public class UIHierarchy : MonoBehaviour
 
     public void SetVisibilityLowSettingObject(bool isvisible)
     {
-        for (int i = 0; i < lowSettingObj.Count; i++)
+        for (int i = 0; i < lowSettingObj.Count; ++i)
         {
             lowSettingObj[i].SetActive(isvisible);
         }
@@ -81,7 +81,7 @@ public class UIHierarchy : MonoBehaviour
     {
         Scene scene = SceneManager.GetActiveScene();
         GameObject[] sceneObj = scene.GetRootGameObjects();
-        for (int i = 0; i < sceneObj.Length; i++)
+        for (int i = 0; i < sceneObj.Length; ++i)
         {
             GameObject obj = sceneObj[i];
             if (obj.name == "Canvas_ssOverlay_FPS")

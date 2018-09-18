@@ -129,12 +129,12 @@ ModelImporter:
     400120: wp_sword_class_t3
     2100000: wp_sword_class_t3
     4300000: wp_sword_class_t3
-    7400000: sword atk1
-    7400002: sword atk2
-    7400004: sword atk3
-    7400006: sword atk1_end
-    7400008: sword atk2_end
-    7400010: sword atk3_end
+    7400000: sword_atk1
+    7400002: sword_atk2
+    7400004: sword_atk3
+    7400006: sword_atk2_end
+    7400008: sword_atk3_end
+    7400010: sword_atk1_end
     7400012: adddsdasfsdwe
     9500000: //RootNode
     13700000: wp_sword_class_t3
@@ -149,7 +149,7 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
-    motionNodeName: 
+    motionNodeName: root
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
@@ -166,7 +166,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: sword atk1
+      name: sword_atk1
       takeName: Take 001
       firstFrame: 0
       lastFrame: 11
@@ -194,7 +194,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: sword atk2
+      name: sword_atk2
       takeName: Take 001
       firstFrame: 40
       lastFrame: 51
@@ -222,7 +222,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: sword atk3
+      name: sword_atk3
       takeName: Take 001
       firstFrame: 80
       lastFrame: 91
@@ -250,7 +250,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: sword atk1_end
+      name: sword_atk1_end
       takeName: Take 001
       firstFrame: 12
       lastFrame: 39
@@ -278,7 +278,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: sword atk2_end
+      name: sword_atk2_end
       takeName: Take 001
       firstFrame: 52
       lastFrame: 79
@@ -306,7 +306,7 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: sword atk3_end
+      name: sword_atk3_end
       takeName: Take 001
       firstFrame: 92
       lastFrame: 135

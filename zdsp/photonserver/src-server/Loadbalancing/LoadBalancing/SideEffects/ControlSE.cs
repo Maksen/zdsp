@@ -42,7 +42,8 @@ namespace Zealot.Server.SideEffects
             //    IsImmune = true;
             //}
 
-            IsImmune = mTarget.IsControlImmune(SideEffectsUtils.EffectTypeToControlSEType(effecttype));
+            if(mTarget != null)
+                IsImmune = mTarget.IsControlImmune(SideEffectsUtils.EffectTypeToControlSEType(effecttype)); 
 
             if (!IsRemove )
             {
@@ -58,7 +59,7 @@ namespace Zealot.Server.SideEffects
             if (mTarget.IsMonster())
             {
                 Monster monster = ((Monster)mTarget);
-                if (monster.mArchetype.monsterclass != MonsterClass.Normal)
+                if (monster.mArchetype.monstertype != MonsterType.Normal)
                 {
                     return false;
                 }
@@ -105,9 +106,9 @@ namespace Zealot.Server.SideEffects
             
         }
         
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         { 
-            if (base.OnApply()) //need for update time
+            if (base.OnApply(equipid)) //need for update time
             {
                 if (IsDurationalSE())
                 {
@@ -264,9 +265,9 @@ namespace Zealot.Server.SideEffects
 
         //Don't need to interrupt skill if already casting
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
-            return base.OnApply();
+            return base.OnApply(equipid);
         }
 
         protected override void OnStart()
@@ -365,8 +366,8 @@ namespace Zealot.Server.SideEffects
             mControlSEType = ControlSEType.Fear;
         }
 
-        protected override bool OnApply() {
-            return base.OnApply();
+        protected override bool OnApply(int equipid = -1) {
+            return base.OnApply(equipid);
         }
         protected override void OnStart() {
             base.OnStart();
@@ -393,8 +394,8 @@ namespace Zealot.Server.SideEffects
             mControlSEType = ControlSEType.Taunt;
         }
 
-        protected override bool OnApply() {
-            return base.OnApply();
+        protected override bool OnApply(int equipid = -1) {
+            return base.OnApply(equipid);
         }
         protected override void OnStart() {
             base.OnStart();

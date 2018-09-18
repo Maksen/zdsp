@@ -30,6 +30,7 @@
       <property name="promptobj" type="bool" uitext="Prompt Objective"/>
       <property name="minlv" type="int" uitext="Quest Level"/>
       <property name="requirementid" type="int" uitext="Requirement Group Id"/>
+      <property name="submitrequirementid" type="int" uitext="Complete Quest Requirement Group Id"/>
       <property name="frontquest" type="int" uitext="Front Quest" default="-1"/>
       <property name="nextquest" type="string" uitext="Next Quest" default="-1"/>
       <property name="isopen" type="bool" uitext="Open" default="true"/>
@@ -161,6 +162,27 @@
       <property name="lvlmin" type="int" uitext="Min Level"/>
       <property name="lvlmax" type="int" uitext="Max Level"/>
       <property name="dailylimit" type="int" uitext="Daily Limit"/>
+    </element>
+    
+    <element name="DonateLimit" useexcel="true">
+      <property name="lvlmin" type="int" uitext="Min Level"/>
+      <property name="lvlmax" type="int" uitext="Max Level"/>
+      <property name="dailylimit" type="int" uitext="Daily Limit"/>
+      <property name="groupid" type="int" uitext="Group ID"/>
+    </element>
+    
+    <element name="Donate" useexcel="true">
+      <property name="groupid" type="int" uitext="Group ID"/>
+      <property name="rarity" type="int" uitext="Rarity"/>
+      <property name="normalprobability" type="int" uitext="Normal Probability"/>
+      <property name="rareprobability" type="int" uitext="Rare Probability"/>
+      <property name="donateitemid" type="int" uitext="Donate Item ID"/>
+      <property name="amount" type="int" uitext="Base Require"/>
+      <property name="increase" type="int" uitext="Increase Require"/>
+      <property name="maxdonate" type="int" uitext="Allowed Count"/>
+      <property name="reward" type="int" uitext="Reward Group"/>
+      <property name="donatepoint" type="int" uitext="Donate Point"/>
+      <property name="goldbadge" type="int" uitext="Gold Badge"/>
     </element>
   </data>
 </magicalarea51>

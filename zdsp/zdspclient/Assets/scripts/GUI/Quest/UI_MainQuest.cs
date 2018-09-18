@@ -119,7 +119,7 @@ public class UI_MainQuest : MonoBehaviour
         Experience.text = "0";
         JobExperience.text = "0";
 
-        if (QuestRepo.MultiQuestRewardGroup(mQuestJson.questid))
+        if (QuestRepo.MultiQuestRewardGroup(mQuestJson.questid) && !unlockquest)
         {
             RewardDescription.SetActive(true);
             RewardList.SetActive(false);
@@ -138,7 +138,7 @@ public class UI_MainQuest : MonoBehaviour
                 int joblevel = GameInfo.gLocalPlayer == null ? 1 : GameInfo.gLocalPlayer.PlayerSynStats.progressJobLevel;
                 int exp = reward.Exp(level);
                 Experience.text = exp > 0 ? exp.ToString() : "0";
-                int jobexp = reward.Jxp(joblevel);
+                int jobexp = 0;
                 JobExperience.text = jobexp > 0 ? jobexp.ToString() : "0";
                 Rewards.Init(reward);
             }

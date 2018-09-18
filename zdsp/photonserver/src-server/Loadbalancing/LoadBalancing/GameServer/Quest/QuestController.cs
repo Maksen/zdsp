@@ -99,6 +99,8 @@ namespace Photon.LoadBalancing.GameServer
         //Signboard Quest
         private Dictionary<int, CurrentQuestData> mSignboardQuest;
         private List<int> mCompletedSignboardQuest;
+        private int mSignboardRewardBoost;
+        private int mSignboardLimit;
 
         //Event Quest
         private Dictionary<int, CurrentQuestData> mEventQuest;
@@ -122,7 +124,6 @@ namespace Photon.LoadBalancing.GameServer
         private Dictionary<QuestObjectiveType, Dictionary<int, QuestObjectiveData>> mObjectiveListByObjectiveType;
         private List<CompletedQuestData> mCompletedQuestList;
         private Dictionary<QuestType, List<int>> mUpdateList;
-        private int mMaxDailySignboard;
         private bool mSignboardResetOnDay;
         
         public QuestController(Player player)
@@ -136,7 +137,6 @@ namespace Photon.LoadBalancing.GameServer
             {
                 mObjectiveListByObjectiveType.Add(type, new Dictionary<int, QuestObjectiveData>());
             }
-            mMaxDailySignboard = 0;
         }
 
         public void InitFromData(CharacterData characterData)
@@ -172,14 +172,11 @@ namespace Photon.LoadBalancing.GameServer
                 InitDefaultMainQuest();
             }
 
-            mMaxDailySignboard = QuestRepo.GetSignboardDailyLimit(mPlayer.PlayerSynStats.Level);
             mUnlockSignboardList = characterData.QuestInventory.DeseralizeUnlockSignboardList();
-            mUnlockSignboardList = mUnlockSignboardList == null ? new List<int>() : mUnlockSignboardList;
+            mUnlockSignboardList = mUnlockSignboardList == null ? QuestRules.GetSignboardDataByLevel(characterData.ProgressLevel) : mUnlockSignboardList;
             mSignboardResetOnDay = GameConstantRepo.GetConstantInt("SignboardResetOnDay") == 1 ? true : false;
-            if (mUnlockSignboardList.Count < mMaxDailySignboard)
-            {
-                ResetSignboardList();
-            }
+            mSignboardRewardBoost = characterData.QuestInventory.SignboardRewardBoost;
+            mSignboardLimit = characterData.QuestInventory.SignboardLimit;
 
             mCompanionId = characterData.QuestInventory.CompanionId;
 
@@ -208,6 +205,8 @@ namespace Photon.LoadBalancing.GameServer
 
             questSynStats.signboardQuest = QuestRules.SerializedQuestStats(mSignboardQuest);
             questSynStats.completedSignboard = QuestRules.SerializedCompletedList(mCompletedSignboardQuest);
+            questSynStats.signboardRewardBoost = mSignboardRewardBoost;
+            questSynStats.signboardLimit = mSignboardLimit;
 
             questSynStats.eventQuest = QuestRules.SerializedQuestStats(mEventQuest);
             questSynStats.completedEvent = QuestRules.SerializedCompletedList(mCompletedEventQuest);
@@ -253,7 +252,7 @@ namespace Photon.LoadBalancing.GameServer
             RemoveQuestFromCompletedList(QuestRepeatType.OncePerDay);
             if (mSignboardResetOnDay)
             {
-                ResetSignboardList(true);
+                ResetSignboardList();
             }
         }
 
@@ -284,11 +283,70 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        private void ResetSignboardList(bool cleanup = false)
+        private void ResetSignboardList()
         {
-            mUnlockSignboardList = cleanup ? new List<int>() : mUnlockSignboardList;
-            List<int> signboardquest = mSignboardQuest.Keys.ToList();
-            mUnlockSignboardList = QuestRules.GetUnlockSignboardList(mPlayer.PlayerSynStats.Level, signboardquest, mMaxDailySignboard, mUnlockSignboardList);
+            AutoCompleteSignboardQuest();
+            mUnlockSignboardList = QuestRules.GetSignboardDataByLevel(mPlayer.GetAccumulatedLevel());
+            mPlayer.QuestStats.unlockSignboardList = QuestRules.SerializedCompletedList(mUnlockSignboardList);
+            mSignboardRewardBoost = 100;
+            mPlayer.QuestStats.signboardRewardBoost = mSignboardRewardBoost;
+            mSignboardLimit = QuestRepo.GetSignboardDailyLimit(mPlayer.GetAccumulatedLevel());
+            mPlayer.QuestStats.signboardLimit = mSignboardLimit;
+        }
+
+        private void AutoCompleteSignboardQuest()
+        {
+            Dictionary<int, CurrentQuestData> signboardquest = mSignboardQuest.CloneJson();
+            foreach (KeyValuePair<int, CurrentQuestData> entry in signboardquest)
+            {
+                CurrentQuestData questData = entry.Value;
+                if (questData.Status == (byte)QuestStatus.CompletedAllObjective || questData.Status == (byte)QuestStatus.CompletedWithEvent)
+                {
+                    CompleteQuest(questData.QuestId, true);
+                }
+                else
+                {
+                    DeleteQuest(questData.QuestId);
+                }
+            }
+        }
+
+        private void ResetSignboardListOnLevelUp()
+        {
+            int level = mPlayer.PlayerSynStats.Level;
+            List<int> data = QuestRules.CheckSignboardChangeGroup(level);
+            if (data != null)
+            {
+                List<int> signboardlist = new List<int>();
+                foreach(int signboardid in mUnlockSignboardList)
+                {
+                    QuestSignboardJson signboardJson = QuestRepo.GetSignboardQuestBySignboardId(signboardid);
+                    if (signboardJson != null)
+                    {
+                        if (IsQuestCompleted(signboardJson.questid))
+                        {
+                            signboardlist.Add(signboardid);
+                        }
+                        if (GetQuestDataById(signboardJson.questid, QuestType.Signboard) != null)
+                        {
+                            signboardlist.Add(signboardid);
+                        }
+                    }
+                }
+
+                foreach(int newsignboardid in data)
+                {
+                    if (!signboardlist.Contains(newsignboardid))
+                    {
+                        signboardlist.Add(newsignboardid);
+                    }
+                }
+
+                mUnlockSignboardList = signboardlist;
+                mPlayer.QuestStats.unlockSignboardList = QuestRules.SerializedCompletedList(mUnlockSignboardList);
+                mSignboardLimit = QuestRepo.GetSignboardDailyLimit(level);
+                mPlayer.QuestStats.signboardLimit = mSignboardLimit;
+            }
         }
 
         #region Generate Objective Data From Quest Data For Progress Checking
@@ -813,13 +871,30 @@ namespace Photon.LoadBalancing.GameServer
             if (questJson != null)
             {
                 QuestType questType = questJson.type;
-                if (CheckEmptySlot(questType))
+                bool signboardstatus = true;
+                if(questType == QuestType.Signboard && GetSignboardProgress() >= mSignboardLimit)
+                {
+                    signboardstatus = false;
+                }
+
+                if (CheckEmptySlot(questType) && signboardstatus)
                 {
                     bool canAccept = QuestRules.AcceptQuest(questid, callerid, GetCompletedList(questType), GetCurrentQuestCount(questType), mPlayer);
                     CurrentQuestData existQuestData = GetQuestDataById(questid);
                     if (canAccept && existQuestData == null)
                     {
                         CurrentQuestData questData = QuestRules.StartNewQuest(questid, group, mPlayer.GetSynchronizedTime(), mPlayer);
+                        if (questType == QuestType.Destiny)
+                        {
+                            if (questData.Status == (byte)QuestStatus.NewQuest)
+                            {
+                                questData.Status = (byte)QuestStatus.DestinyEffect;
+                            }
+                            else if (questData.Status == (byte)QuestStatus.NewQuestWithEvent)
+                            {
+                                questData.Status = (byte)QuestStatus.DestinyEffectWithEvent;
+                            }
+                        }
                         AddNewQuest(questData);
                         AddToTracking(questid);
                         if (sync)
@@ -913,7 +988,7 @@ namespace Photon.LoadBalancing.GameServer
             foreach (QuestObjectiveData objectivedata in objectiveDatas)
             {
                 if (objectivedata.Status == ObjectiveStatus.Completed)
-                    break;
+                    continue;
 
                 QuestObjectiveData data = objectivedata;
                 if (QuestRules.UpdateObjectiveStatus(ref data, mPlayer, param1, param2, param3, talkid))
@@ -926,7 +1001,7 @@ namespace Photon.LoadBalancing.GameServer
             foreach (QuestObjectiveData objectivedata in updatedDatas)
             {
                 if (objectivedata.MainObjectiveId == -1)
-                    break;
+                    continue;
 
                 CurrentQuestData questData = UpdateQuestProgressCount(objectivedata);
                 if (questData != null)
@@ -973,7 +1048,7 @@ namespace Photon.LoadBalancing.GameServer
                             if (!questForDelete.ContainsKey(questdata.QuestId))
                             {
                                 questForDelete.Add(questdata.QuestId, questdata);
-                                break;
+                                continue;
                             }
                         }
                         else
@@ -1077,7 +1152,9 @@ namespace Photon.LoadBalancing.GameServer
             {
                 Dictionary<string, string> parameters = new Dictionary<string, string>();
                 parameters.Add("questid", questJson.questid.ToString());
-                GameRules.GiveReward_CheckBagSlotThenMail(mPlayer, new List<int>() { rewardgroup }, "quest_mailname", parameters, true, true, "Quest_Reward");
+                float expboost = GetExpBoost(questJson.type);
+                GameRules.GiveReward_CheckBagSlotThenMail(mPlayer, new List<int>() { rewardgroup }, "quest_mailname", parameters, true, true, "Quest_Reward", expboost);
+                UpdateExpBoost(questJson);
             }
 
             //unlock feature
@@ -1199,7 +1276,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 List<int> questlist = GetUnlockQuestList();
                 TriggerQuestByLevel(questlist);
-                ResetSignboardList(true);
+                ResetSignboardListOnLevelUp();
             }
         }
 
@@ -1314,6 +1391,8 @@ namespace Photon.LoadBalancing.GameServer
             questInventory.SerailizeUnlockSignboardList(mUnlockSignboardList);
             
             questInventory.CompanionId = mCompanionId;
+            questInventory.SignboardRewardBoost = mSignboardRewardBoost;
+            questInventory.SignboardLimit = mSignboardLimit;
         }
 
         private void AddToTracking(int questid)
@@ -1352,6 +1431,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (questJson.candelete)
                 {
                     DeleteQuestData(questData, true);
+                    RemoveFromTracking(questData.QuestId);
                     SyncQuestStats();
                     success = true;
                 }
@@ -1390,6 +1470,14 @@ namespace Photon.LoadBalancing.GameServer
                     questData.Status = (byte)QuestStatus.NewObjective;
                 }
                 else if (questData.Status == (byte)QuestStatus.NewQuestWithEvent)
+                {
+                    questData.Status = (byte)QuestStatus.NewQuest;
+                }
+                else if (questData.Status == (byte)QuestStatus.DestinyEffectWithEvent)
+                {
+                    questData.Status = (byte)QuestStatus.NewQuestWithEvent;
+                }
+                else if (questData.Status == (byte)QuestStatus.DestinyEffect)
                 {
                     questData.Status = (byte)QuestStatus.NewQuest;
                 }
@@ -1500,6 +1588,49 @@ namespace Photon.LoadBalancing.GameServer
         public int GetQuestCompanionId()
         {
             return mCompanionId;
+        }
+
+        private float GetExpBoost(QuestType type)
+        {
+            return type == QuestType.Signboard ? mSignboardRewardBoost / 100.0f : 1.0f;
+        }
+
+        private void UpdateExpBoost(QuestJson questJson)
+        {
+            if (questJson.type == QuestType.Signboard)
+            {
+                int signboardid = QuestRepo.GetSignboardIdByQuestId(questJson.questid);
+                QuestSignboardJson signboardJson = QuestRepo.GetSignboardQuestBySignboardId(signboardid);
+                if (signboardJson != null)
+                {
+                    mSignboardRewardBoost += signboardJson.expplus;
+                    mPlayer.QuestStats.signboardRewardBoost = mSignboardRewardBoost;
+                }
+            }
+        }
+
+        private int GetSignboardProgress()
+        {
+            int progress = 0;
+            foreach(int signboardid in mUnlockSignboardList)
+            {
+                QuestSignboardJson signboardJson = QuestRepo.GetSignboardQuestBySignboardId(signboardid);
+                if (signboardJson != null)
+                {
+                    bool completed = IsQuestCompleted(signboardJson.questid);
+                    bool ongoing = GetQuestDataById(signboardJson.questid, QuestType.Signboard) == null ? false : true;
+                    if (completed || ongoing)
+                    {
+                        progress += 1;
+                    }
+                }
+            }
+            return progress;
+        }
+
+        public bool HasQuestBeenTriggered(int questId)
+        {
+            return GetQuestDataById(questId) != null || IsQuestCompleted(questId);
         }
 
         #region Development

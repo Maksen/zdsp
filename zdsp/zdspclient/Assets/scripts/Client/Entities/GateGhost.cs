@@ -15,7 +15,7 @@ namespace Zealot.Client.Entities
             var gatePrefab = AssetManager.LoadSceneNPC(prefab);
             if (gatePrefab != null)
             {
-                AnimObj = (GameObject)UnityEngine.Object.Instantiate(gatePrefab);
+                AnimObj = Object.Instantiate(gatePrefab);
                 AnimObj.transform.position = pos;
                 AnimObj.transform.rotation = Quaternion.identity;
                 base.Init();

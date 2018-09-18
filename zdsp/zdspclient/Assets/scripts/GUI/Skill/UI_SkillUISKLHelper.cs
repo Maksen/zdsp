@@ -34,29 +34,32 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         SKLLine = Instantiate(m_Prefabs[3]);
     }
 
-    public void GenerateChunk(UI_SkillButton reference)
+    public void GenerateChunk(UI_SkillButtonBase reference)
     {
+        SkillData skill = SkillRepo.GetSkill(reference.m_Skillid);
         if (reference.m_SkillLevel == 0)
         {
-            ChunkHelper(SkillRepo.GetSkillByGroupIDOfNextLevel(reference.m_ID, 0), 1);
+            ChunkHelper(SkillRepo.GetSkillByGroupIDOfNextLevel(reference.m_skgID, 0), 1);
         }
         else
         {
-
-            RemoveChunks();
-
-            // load level higher version
-            ChunkHelper(reference.m_SkillData, reference.m_SkillLevel);
-
-            SkillData skill = SkillRepo.GetSkillByGroupIDOfNextLevel(reference.m_SkillData.skillgroupJson.id, reference.m_SkillData.skillJson.level);
+            if(m_Chunks.Count == 0)
+            {
+                //new instance
+                //load current
+                ChunkHelper(skill, reference.m_SkillLevel);
+            }
 
             // check for valid level
-            if (!SkillRepo.IsSkillMaxLevel(reference.m_SkillData.skillgroupJson.id, reference.m_SkillLevel))
+            if (!SkillRepo.IsSkillMaxLevel(reference.m_skgID, reference.m_SkillLevel))
             {
+                if(m_Chunks.Count != 1)
+                    RemoveTopChunk();
+                SkillData nskill = SkillRepo.GetSkillByGroupIDOfNextLevel(reference.m_skgID, reference.m_SkillLevel);
                 SKLLine.transform.parent = this.transform;
                 SKLLine.transform.localPosition = new Vector3(SKLLine.transform.localPosition.x, SKLLine.transform.localPosition.y, 0);
                 SKLLine.transform.localScale = new Vector3(1, 1, 1);
-                ChunkHelper(skill, reference.m_SkillLevel + 1);
+                ChunkHelper(nskill, reference.m_SkillLevel + 1);
                 SKLLine.gameObject.SetActive(true);
             }
             else
@@ -64,6 +67,16 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Note : Flow of loading description
+    /// level
+    /// description from skill table
+    /// skill repeats
+    /// description from side effects on target
+    /// description from side effects on self
+    /// </summary>
+    /// <param name="skilldata"></param>
+    /// <param name="level"></param>
     public void ChunkHelper(SkillData skilldata, int level)
     {
         SKLChunk chunk = new SKLChunk();
@@ -71,7 +84,8 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         // generate level text
         UI_DialogItemDetail_TextValue lv = SKLPoolLv.RequestObject().GetComponent<UI_DialogItemDetail_TextValue>();
         chunk.m_Level = lv;
-        chunk.m_Level.Value = level.ToString() + "/" + "10";
+        chunk.m_Level.Identifier = "等級";
+        chunk.m_Level.Value = level.ToString() + "/" + SkillRepo.GetSkillGroupMaxUpgrade(skilldata.skillgroupJson.id).ToString();
         chunk.m_Level.transform.parent = this.transform;
         chunk.m_Level.transform.localPosition = new Vector3(chunk.m_Level.transform.localPosition.x, chunk.m_Level.transform.localPosition.y, 0);
         chunk.m_Level.transform.localScale = new Vector3(1, 1, 1);
@@ -79,8 +93,21 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         // fetch the level stuff from somewhere???
         // generate descriptor
         Text des = SKLPoolDescriptor.RequestObject().GetComponentInChildren<Text>();
-        des.text = "對目標造成XXXXXX點物理傷害"; // stand in text only
-        des.text += "\n對目標造成XXXXXX點物理傷害";
+        des.text = skilldata.skillJson.description;
+
+        SkillSideEffect effects = SkillRepo.GetSkillSideEffects(skilldata.skillJson.id);
+        if (effects != null)
+        {
+            foreach (Kopio.JsonContracts.SideEffectJson se in effects.mTarget)
+            {
+                des.text += "\n" + ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
+            }
+            foreach (Kopio.JsonContracts.SideEffectJson se in effects.mSelf)
+            {
+                des.text += "\n" + ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
+            }
+        }
+
         chunk.m_Descriptor = des;
         chunk.m_Descriptor.transform.parent = this.transform;
         chunk.m_Descriptor.transform.localPosition = new Vector3(chunk.m_Descriptor.transform.localPosition.x, chunk.m_Descriptor.transform.localPosition.y, 0);
@@ -98,6 +125,20 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         chunk.m_CoolDown.transform.localScale = new Vector3(1, 1, 1);
 
         m_Chunks.Add(chunk);
+    }
+
+    public void RemoveTopChunk()
+    {
+        if (m_Chunks.Count == 0) return;
+        SKLChunk chunk = m_Chunks[0];
+        chunk.m_Level.transform.parent = null;
+        chunk.m_Descriptor.transform.parent = null;
+        chunk.m_CoolDown.transform.parent = null;
+        SKLPoolLv.ReturnObject(chunk.m_Level.gameObject);
+        SKLPoolDescriptor.ReturnObject(chunk.m_Descriptor.gameObject);
+        SKLPoolCD.ReturnObject(chunk.m_CoolDown.gameObject);
+        SKLLine.transform.parent = null;
+        m_Chunks.RemoveAt(0);
     }
 
     public void RemoveChunks()

@@ -124,6 +124,16 @@ public class HUD_Map : MonoBehaviour
             StopCoroutine(mMapUpdateCoroutine);
         mMapUpdateCoroutine = null;
     }
+    private void LateUpdate()
+    {
+        if (mPlayerIconLst.Count > 0)
+        {
+            //mPlayerIconLst[0] always meant the player itself
+            //Update player icon rotation
+            mPlayerIconLst[0].transform.localEulerAngles = new Vector3(0f, 0f, -GameInfo.gLocalPlayer.AnimObj.transform.localEulerAngles.y);
+            SetIconPos(mPlayerIconLst[0], HUD_MapController.ScalePos_WorldToMap(GameInfo.gLocalPlayer.AnimObj.transform.position));
+        }
+    }
 
     private bool LoadMap()
     {
@@ -229,6 +239,9 @@ public class HUD_Map : MonoBehaviour
         {
             foreach (StaticClientNPCSpawnerJson snpc in npcDic.Values)
             {
+                if (!snpc.ShowInMap)
+                    continue;
+
                 //Check if archetype is valid
                 StaticNPCJson npcJson = StaticNPCRepo.GetNPCByArchetype(snpc.archetype);
                 if (npcJson == null)
@@ -269,6 +282,9 @@ public class HUD_Map : MonoBehaviour
         {
             foreach (MonsterSpawnerJson ms in monDic.Values)
             {
+                if (!ms.ShowInMap)
+                    continue;
+
                 //Check if monster archetype is valid
                 CombatNPCJson monJson = CombatNPCRepo.GetNPCByArchetype(ms.archetype);
                 if (monJson == null)

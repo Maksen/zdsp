@@ -853,7 +853,12 @@ namespace Zealot.Repository
 
         public static QuestDestinyJson GetDestinyByQuestId(int questid)
         {
-            return mDestinyDetailIdMap.Values.Where(o => o.questid == questid).First();
+            List<QuestDestinyJson> destinyJsons = mDestinyDetailIdMap.Values.Where(o => o.questid == questid).ToList();
+            if (destinyJsons.Count > 0)
+            {
+                return destinyJsons.First();
+            }
+            return null;
         }
 
         public static int GetPriorityQuestId(List<int> questlist)
@@ -908,7 +913,7 @@ namespace Zealot.Repository
             }
         }
 
-        public static List<int> GetSignboardGroupByLevel(int level)
+        public static List<int> GetSignboardGroupByLevel(int minlv, int maxlv)
         {
             List<int> group = new List<int>();
             foreach (KeyValuePair<int, List<QuestSignboardJson>> entry in mSignboardGroupMap)
@@ -916,7 +921,7 @@ namespace Zealot.Repository
                 if (entry.Value.Count > 0)
                 {
                     QuestSignboardJson signboardJson = entry.Value[0];
-                    if (level >= signboardJson.lvlmin && level <= signboardJson.lvlmax)
+                    if (minlv == signboardJson.lvlmin && maxlv == signboardJson.lvlmax)
                     {
                         group.Add(entry.Key);
                     }
@@ -962,6 +967,11 @@ namespace Zealot.Repository
                 }
             }
             return 0;
+        }
+
+        public static Dictionary<int, SignboardLimitJson> GetSignboardDailyLimit()
+        {
+            return mDailyLimitDetailMap;
         }
     }
 }

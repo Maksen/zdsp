@@ -19034,7 +19034,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 51.14286, y: 0}
+  m_AnchoredPosition: {x: 53.530365, y: 0}
   m_SizeDelta: {x: 0, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1205616351
@@ -19451,6 +19451,8 @@ MonoBehaviour:
     VelocityThreshold: 0.5
     Duration: 0.4
   dataCount: 0
+  scrollDuration: 0.4
+  scrollToIndex: 0
 --- !u!114 &1216187616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27176,6 +27178,7 @@ MonoBehaviour:
   windowCanvas:
   - {fileID: 1564658204}
   - {fileID: 1618701559}
+  - {fileID: 1908554296}
   objectsToHide:
   - {fileID: 1245593149}
   HasCloseAnimation: 0
@@ -31134,7 +31137,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 161.42859, y: 0}
+  m_AnchoredPosition: {x: 168.5911, y: 0}
   m_SizeDelta: {x: 0, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1395589236
@@ -33117,9 +33120,6 @@ MonoBehaviour:
   summonBtn: {fileID: 407566796}
   unsummonBtn: {fileID: 156158130}
   timelineController: {fileID: 137127356}
-  objectsToHide:
-  - {fileID: 533847905}
-  - {fileID: 797668771}
   clickBlocker: {fileID: 1908554290}
 --- !u!1 &1618701555
 GameObject:
@@ -33133,7 +33133,7 @@ GameObject:
   - component: {fileID: 1618701558}
   - component: {fileID: 1618701557}
   m_Layer: 23
-  m_Name: Canvas_Font
+  m_Name: Canvas_Front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33971,7 +33971,7 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 89.42857
+      value: 89.82186
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -33981,7 +33981,7 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 102.85715
+      value: 103.64372
       objectReference: {fileID: 0}
     - target: {fileID: 224035992614161320, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -34011,7 +34011,7 @@ Prefab:
     - target: {fileID: 224507261482001066, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 140.85715
+      value: 141.64372
       objectReference: {fileID: 0}
     - target: {fileID: 114389983397216784, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -35175,7 +35175,7 @@ MonoBehaviour:
   rewardDisplay: {fileID: 619770112}
   rewardScrollRect: {fileID: 1214638707}
   reqItemParent: {fileID: 296999135}
-  reqItemPrefab: {fileID: 1596480431857618, guid: 3c7b487d3f6c81849b2fe227ec184cc9,
+  reqItemPrefab: {fileID: 1701380584179628, guid: cb12997439a9de04bb42e3869aa4dc1f,
     type: 2}
   reqItemCount: {fileID: 1626531204}
   startButton: {fileID: 1683943031}
@@ -36609,7 +36609,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 271.7143, y: 0}
+  m_AnchoredPosition: {x: 283.65182, y: 0}
   m_SizeDelta: {x: 0, y: 34}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1968064531
@@ -41025,7 +41025,7 @@ MonoBehaviour:
   - {fileID: 1618203709}
   - {fileID: 884132084}
   - {fileID: 1789268895}
-  defaultAutoEnable: 1
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 1205616359}
 --- !u!1 &2031190293
 GameObject:

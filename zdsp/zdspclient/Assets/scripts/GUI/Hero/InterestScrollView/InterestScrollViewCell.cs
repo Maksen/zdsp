@@ -22,19 +22,12 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
     [SerializeField]
     Sprite[] sprites;
 
-
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
     InterestScrollViewContext context;
-    string imagePath = "";
 
     void Start()
     {
-        var rectTransform = transform as RectTransform;
-        rectTransform.anchorMax = Vector2.one;
-        rectTransform.anchorMin = Vector2.zero;
-        rectTransform.anchoredPosition3D = Vector3.zero;
         UpdatePosition(0);
-
         button.onClick.AddListener(OnPressedCell);
     }
 
@@ -64,7 +57,8 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
             }
             else
             {
-                highlight.SetActive(DataIndex == 0);
+                //highlight.SetActive(DataIndex == 0);
+                highlight.SetActive(false);
             }
 
             HeroInterestJson json = HeroRepo.GetInterestByType((HeroInterestType)itemData.Type);

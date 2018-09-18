@@ -6,8 +6,6 @@ using Zealot.Common.Datablock;
 using Zealot.Repository;
 using Newtonsoft.Json;
 
-//using ExitGames.Logging;
-
 namespace Zealot.Common.Entities
 {
     //TODO: add all other sideeffect which should play its effect simmutanlously
@@ -16,19 +14,19 @@ namespace Zealot.Common.Entities
     {
         Stun = 1,
         Slow = 2,
-        Slience = 4,
+        Silence = 4,
         Root = 8,
         Disarmed = 16,
+        Frozen = 32,
+        NUM
     }
 
     public class ActorSynStats : LocalObject // Send to all relevant player
     {
-        public ActorSynStats(LOTYPE actortype)
-            : base(actortype)
+        public ActorSynStats(LOTYPE actortype) : base(actortype)
         {
             // Default value here
             _moveSpeed = 6;
-
             _level = -1;
             _positiveVisualSE = 0;
             _negativeVisualSE = 0;
@@ -46,48 +44,29 @@ namespace Zealot.Common.Entities
             _immune_Status = 0x0;
             _control_Status = 0x0;
             _heavystand = false;
+             _visualEffectTypes = 0;
+            _passiveShieldBuff = 0;
         }
 
         private float _baSpeed;
         public float baSpeed
         {
             get { return _baSpeed; }
-            set
-            {
-                _baSpeed = value;
-                if (_baSpeed < 0.125f)
-                    _baSpeed = 0.125f;
-                if (_baSpeed > 4)   
-                    _baSpeed = 4f;
-                OnSetAttribute("baSpeed", _baSpeed);
-            }
+            set { _baSpeed = Math.Min(4f, Math.Max(0.125f, value)); OnSetAttribute("baSpeed", _baSpeed); }
         }
 
         private float _rtReduction;
-
         public float rtReduction
         {
             get { return _rtReduction; }
-            set
-            {
-                _rtReduction = value;
-                if (_rtReduction < 0.125f)
-                    _rtReduction = 0.125f;
-                if (_rtReduction > 4)
-                    _rtReduction = 4f;
-                OnSetAttribute("rtReduction", _rtReduction);
-            }
+            set { _rtReduction = Math.Min(4f, Math.Max(0.125f, value)); OnSetAttribute("rtReduction", _rtReduction); }
         }
 
         private float _moveSpeed;
         public float MoveSpeed
         {
             get { return _moveSpeed; }
-            set
-            {
-                OnSetAttribute("MoveSpeed", value);
-                _moveSpeed = value;
-            }
+            set { OnSetAttribute("MoveSpeed", value); _moveSpeed = value; }
         }
 
         private int _level;
@@ -97,133 +76,88 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("Level", value); _level = value; }
         }
 
-        private bool _invincible;
         /// <summary>
         /// set this to true will stop apply SideEffect of any type.
         /// It is not supposed to be used by SideEffect.
         /// </summary>
+        private bool _invincible;
         public bool invincible
         {
             get { return _invincible; }
-            set
-            {
-                OnSetAttribute("invincible", value);
-                _invincible = value;
-            }
+            set { OnSetAttribute("invincible", value); _invincible = value; }
         }
 
         private bool _invincible_dot;
         public bool InvincibleDot
         {
             get { return _invincible_dot; }
-            set
-            {
-                OnSetAttribute("invincibleDot", value);
-                _invincible_dot = value;
-            }
+            set { OnSetAttribute("invincibleDot", value); _invincible_dot = value; }
         }
 
         private bool _invincible_dmg;
         public bool InvincibleDmg
         {
             get { return _invincible_dmg; }
-            set
-            {
-                OnSetAttribute("invincibleDmg", value);
-                _invincible_dmg = value;
-            }
+            set { OnSetAttribute("invincibleDmg", value); _invincible_dmg = value; }
         }
 
         private bool _silence;
         public bool Silence
         {
             get { return _silence; }
-            set
-            {
-                OnSetAttribute("silence", value);
-                _silence = value;
-            }
+            set { OnSetAttribute("silence", value); _silence = value; }
         }
-
-        //private bool _silenceDefendBuff;
-        //public bool silenceDefendBuff
-        //{
-        //    get { return _silenceDefendBuff; }
-        //    set
-        //    {
-        //        OnSetAttribute("silenceDefendBuff", value);
-        //        _silenceDefendBuff = value;
-        //    }
-        //}
 
         private bool _invincible_Control;
         public bool InvincibleCtl
         {
             get { return _invincible_Control; }
-            set
-            {
-                OnSetAttribute("invincibleCtl", value);
-                _invincible_Control = value;
-            }
+            set { OnSetAttribute("invincibleCtl", value); _invincible_Control = value; }
         }
 
         private bool _invincible_StatsAttack;
         public bool InvincibleStatsAtk
         {
             get { return _invincible_StatsAttack; }
-            set
-            {
-                OnSetAttribute("invincibleStatsAtk", value);
-                _invincible_StatsAttack = value;
-            }
+            set { OnSetAttribute("invincibleStatsAtk", value); _invincible_StatsAttack = value; }
         }
 
         private bool _invincible_StatsDefence;
         public bool InvincibleStatsDef
         {
             get { return _invincible_StatsDefence; }
-            set
-            {
-                OnSetAttribute("invincibleStatsDef", value);
-                _invincible_StatsDefence = value;
-            }
+            set { OnSetAttribute("invincibleStatsDef", value); _invincible_StatsDefence = value; }
         }
 
         private byte _immune_Status;
-        public byte ImmuneStatus {
+        public byte ImmuneStatus
+        {
             get { return _immune_Status; }
-            set {
-                OnSetAttribute("immuneStatus", value);
-                _immune_Status = value;
-            }
+            set { OnSetAttribute("immuneStatus", value); _immune_Status = value; }
         }
 
         private byte _control_Status;
-        public byte ControlStatus {
+        public byte ControlStatus
+        {
             get { return _control_Status; }
-            set {
-                OnSetAttribute("controlStatus", value);
-                _control_Status = value;
-            }
+            set { OnSetAttribute("controlStatus", value); _control_Status = value; }
         }
 
         private bool _heavystand;
-        public bool HeavyStand {
+        public bool HeavyStand
+        {
             get { return _heavystand; }
-            set {
-                OnSetAttribute("heavystand", value);
-                _heavystand = value;
-            }
+            set { OnSetAttribute("heavystand", value); _heavystand = value; }
         }
 
-        private int _visualEffectTypes = 0;
+        private int _visualEffectTypes;
         public int VisualEffectTypes
         {
             get { return _visualEffectTypes; }
             set { OnSetAttribute("VisualEffectTypes", value); _visualEffectTypes = value; }
         }
 
-        private int _passiveShieldBuff = 0;
+        private int _passiveShieldBuff;
         public int PassiveShieldBuff
         {
             get { return _passiveShieldBuff; }
@@ -234,130 +168,84 @@ namespace Zealot.Common.Entities
         public int PositiveVisualSE
         {
             get { return _positiveVisualSE; }
-            set
-            {
-                OnSetAttribute("positiveVisualSE", value);
-                _positiveVisualSE = value;
-            }
+            set { OnSetAttribute("positiveVisualSE", value); _positiveVisualSE = value; }
         } //The last buff that has particle effect
 
         private int _negativeVisualSE;
         public int NegativeVisualSE
         {
             get { return _negativeVisualSE; }
-            set
-            {
-                OnSetAttribute("negativeVisualSE", value);
-                _negativeVisualSE = value;
-            }
+            set { OnSetAttribute("negativeVisualSE", value); _negativeVisualSE = value; }
         } //The last debuff that has particle effect
 
         private int _elementalVisualSE;
-        public int ElementalVisualSE {
+        public int ElementalVisualSE
+        {
             get { return _elementalVisualSE; }
-            set {
-                OnSetAttribute("ElementalVisualSE", value);
-                _elementalVisualSE = value;
-            }
+            set { OnSetAttribute("ElementalVisualSE", value); _elementalVisualSE = value; }
         }
 
         private int _Team;
         public int Team
         {
             get { return _Team; }
-            set
-            {
-                OnSetAttribute("Team", value);
-                _Team = value;
-            }
+            set { OnSetAttribute("Team", value); _Team = value; }
         }
 
         private int _TargetPID;
         public int TargetPID
         {
             get { return _TargetPID; }
-            set
-            {
-                OnSetAttribute("TargetPID", value);
-                _TargetPID = value;
-            }
+            set { OnSetAttribute("TargetPID", value); _TargetPID = value; }
         }
 
         private bool _alive;
         public bool Alive
         {
             get { return _alive; }
-            set
-            {
-                OnSetAttribute("Alive", value);
-                _alive = value;
-            }
+            set { OnSetAttribute("Alive", value); _alive = value; }
         }
 
         private int _havebuff;
         public int Havebuff
         {
             get { return _havebuff; }
-            set
-            {
-                OnSetAttribute("havebuff", value);
-                _havebuff = value;
-            }
+            set { OnSetAttribute("havebuff", value); _havebuff = value; }
         }
 
         private int _havedebuff;
         public int Havedebuff
         {
             get { return _havedebuff; }
-            set
-            {
-                OnSetAttribute("havedebuff", value);
-                _havedebuff = value;
-            }
+            set { OnSetAttribute("havedebuff", value); _havedebuff = value; }
         }
 
         private int _haveDot;
         public int Havedot
         {
             get { return _haveDot; }
-            set
-            {
-                OnSetAttribute("havedot", value);
-                _haveDot = value;
-            }
+            set { OnSetAttribute("havedot", value); _haveDot = value; }
         }
 
         private int _haveHot;
         public int Havehot
         {
             get { return _haveHot; }
-            set
-            {
-                OnSetAttribute("havehot", value);
-                _haveHot = value;
-            }
+            set { OnSetAttribute("havehot", value); _haveHot = value; }
         }
 
         private int _haveControl;
         public int Havecontrol
         {
             get { return _haveControl; }
-            set
-            {
-                OnSetAttribute("havecontrol", value);
-                _haveControl = value;
-            }
+            set { OnSetAttribute("havecontrol", value); _haveControl = value; }
         }
 
         private float _displayHp;
         public float DisplayHp
         {
             get { return _displayHp; }
-            set
-            {
-                OnSetAttribute("DisplayHp", value);
-                _displayHp = value;
-            }
+            set { OnSetAttribute("DisplayHp", value); _displayHp = value; }
         }
     }
 
@@ -369,8 +257,7 @@ namespace Zealot.Common.Entities
             _jobsect = 1;
             _faction = 0;
             _guildName = "";
-            _vipLvl = 0;
-            
+            _vipLvl = 0;            
             Team = -1;
             _portraitID = 1;
             _Gender = 0;
@@ -382,18 +269,14 @@ namespace Zealot.Common.Entities
         public int Party
         {
             get { return _Party; }
-            set
-            {
-                OnSetAttribute("Party", value);
-                _Party = value;
-            }
+            set { OnSetAttribute("Party", value); _Party = value; }
         }
 
-        private string _name = "";
+        private string _name;
         public string name
         {
             get { return _name; }
-            set { this.OnSetAttribute("name", value); _name = value; }
+            set { OnSetAttribute("name", value); _name = value; }
         }
 
         private int _progressJobLevel;
@@ -462,8 +345,7 @@ namespace Zealot.Common.Entities
 
     public class NPCSynStats : ActorSynStats
     {
-        public NPCSynStats()
-            : base(LOTYPE.NPCSynStats)
+        public NPCSynStats() : base(LOTYPE.NPCSynStats)
         {
             Team = -100;
         }
@@ -475,8 +357,7 @@ namespace Zealot.Common.Entities
         private int _modelTier;
         private bool _summoning;
 
-        public HeroSynStats()
-            : base(LOTYPE.HeroSynStats)
+        public HeroSynStats() : base(LOTYPE.HeroSynStats)
         {
             _heroId = 0;
             _modelTier = 0;
@@ -486,26 +367,25 @@ namespace Zealot.Common.Entities
         public int HeroId
         {
             get { return _heroId; }
-            set { this.OnSetAttribute("HeroId", value); _heroId = value; }
+            set { OnSetAttribute("HeroId", value); _heroId = value; }
         }
 
         public int ModelTier
         {
             get { return _modelTier; }
-            set { this.OnSetAttribute("ModelTier", value); _modelTier = value; }
+            set { OnSetAttribute("ModelTier", value); _modelTier = value; }
         }
 
         public bool Summoning
         {
             get { return _summoning; }
-            set { this.OnSetAttribute("Summoning", value); _summoning = value; }
+            set { OnSetAttribute("Summoning", value); _summoning = value; }
         }
     }
 
     public class LocalCombatStats : LocalObject //only to 1 player client
     {
-        public LocalCombatStats()
-            : base(LOTYPE.LocalCombatStats)
+        public LocalCombatStats() : base(LOTYPE.LocalCombatStats)
         {
             _Health = 0;
             _HealthMax = 0;
@@ -653,343 +533,397 @@ namespace Zealot.Common.Entities
         public int Health
         {
             get { return _Health; }
-            set { this.OnSetAttribute("Health", value); _Health = value; }
+            set { OnSetAttribute("Health", value); _Health = value; }
         }
+
         public int HealthMax
         {
             get { return _HealthMax; }
-            set { this.OnSetAttribute("HealthMax", value); _HealthMax = value; }
+            set { OnSetAttribute("HealthMax", value); _HealthMax = value; }
         }
+
         public int HealthRegen
         {
             get { return _HealthRegen; }
-            set { this.OnSetAttribute("HealthRegen", value); _HealthRegen = value; }
+            set { OnSetAttribute("HealthRegen", value); _HealthRegen = value; }
         }
+
         public int Mana
         {
             get { return _Mana; }
-            set { this.OnSetAttribute("Mana", value); _Mana = value; }
+            set { OnSetAttribute("Mana", value); _Mana = value; }
         }
+
         public int ManaMax
         {
             get { return _ManaMax; }
-            set { this.OnSetAttribute("ManaMax", value); _ManaMax = value; }
+            set { OnSetAttribute("ManaMax", value); _ManaMax = value; }
         }
+
         public int ManaRegen
         {
             get { return _ManaRegen; }
-            set { this.OnSetAttribute("ManaRegen", value); _ManaRegen = value; }
+            set { OnSetAttribute("ManaRegen", value); _ManaRegen = value; }
         }
+
         public int MoveSpeed
         {
             get { return _MoveSpeed; }
-            set { this.OnSetAttribute("MoveSpeed", value); _MoveSpeed = value; }
+            set { OnSetAttribute("MoveSpeed", value); _MoveSpeed = value; }
         }
+
         public int ExpBonus
         {
             get { return _ExpBonus; }
-            set { this.OnSetAttribute("ExpBonus", value); _ExpBonus = value; }
+            set { OnSetAttribute("ExpBonus", value); _ExpBonus = value; }
         }
+
         public int WeaponAttack
         {
             get { return _WeaponAttack; }
-            set { this.OnSetAttribute("WeaponAttack", value); _WeaponAttack = value; }
+            set { OnSetAttribute("WeaponAttack", value); _WeaponAttack = value; }
         }
+
         public int AttackPower
         {
             get { return _AttackPower; }
-            set { this.OnSetAttribute("AttackPower", value); _AttackPower = value; }
+            set { OnSetAttribute("AttackPower", value); _AttackPower = value; }
         }
+
         public int Armor
         {
             get { return _Armor; }
-            set { this.OnSetAttribute("Armor", value); _Armor = value; }
+            set { OnSetAttribute("Armor", value); _Armor = value; }
         }
+
         public int IgnoreArmor
         {
             get { return _IgnoreArmor; }
-            set { this.OnSetAttribute("IgnoreArmor", value); _IgnoreArmor = value; }
+            set { OnSetAttribute("IgnoreArmor", value); _IgnoreArmor = value; }
         }
+
         public int Block
         {
             get { return _Block; }
-            set { this.OnSetAttribute("Block", value); _Block = value; }
+            set { OnSetAttribute("Block", value); _Block = value; }
         }
 
         public int BlockValue
         {
             get { return _BlockValue; }
-            set { this.OnSetAttribute("BlockValue", value); _BlockValue = value; }
+            set { OnSetAttribute("BlockValue", value); _BlockValue = value; }
         }
 
         public int Accuracy
         {
             get { return _Accuracy; }
-            set { this.OnSetAttribute("Accuracy", value); _Accuracy = value; }
+            set { OnSetAttribute("Accuracy", value); _Accuracy = value; }
         }
+
         public int Evasion
         {
             get { return _Evasion; }
-            set { this.OnSetAttribute("Evasion", value); _Evasion = value; }
+            set { OnSetAttribute("Evasion", value); _Evasion = value; }
         }
+
         public int Critical
         {
             get { return _Critical; }
-            set { this.OnSetAttribute("Critical", value); _Critical = value; }
+            set { OnSetAttribute("Critical", value); _Critical = value; }
         }
+
         public int CoCritical
         {
             get { return _CoCritical; }
-            set { this.OnSetAttribute("CoCritical", value); _CoCritical = value; }
+            set { OnSetAttribute("CoCritical", value); _CoCritical = value; }
         }
+
         public int CriticalDamage
         {
             get { return _CriticalDamage; }
-            set { this.OnSetAttribute("CriticalDamage", value); _CriticalDamage = value; }
+            set { OnSetAttribute("CriticalDamage", value); _CriticalDamage = value; }
         }
 
         public int Strength
         {
             get { return _Strength; }
-            set { this.OnSetAttribute("Strength", value); _Strength = value; }
+            set { OnSetAttribute("Strength", value); _Strength = value; }
         }
+
         public int Agility
         {
             get { return _Agility; }
-            set { this.OnSetAttribute("Agility", value); _Agility = value; }
+            set { OnSetAttribute("Agility", value); _Agility = value; }
         }
+
         public int Dexterity
         {
             get { return _Dexterity; }
-            set { this.OnSetAttribute("Dexterity", value); _Dexterity = value; }
+            set { OnSetAttribute("Dexterity", value); _Dexterity = value; }
         }
+
         public int Constitution
         {
             get { return _Constitution; }
-            set { this.OnSetAttribute("Constitution", value); _Constitution = value; }
+            set { OnSetAttribute("Constitution", value); _Constitution = value; }
         }
+
         public int Intelligence
         {
             get { return _Intelligence; }
-            set { this.OnSetAttribute("Intelligence", value); _Intelligence = value; }
+            set { OnSetAttribute("Intelligence", value); _Intelligence = value; }
         }
+
         public int StatsPoint
         {
             get { return _StatsPoint; }
-            set
-            {
-                value = Math.Max(0, value);
-                OnSetAttribute("StatsPoint", value);
-                _StatsPoint = value;
-            }
+            set { _StatsPoint = Math.Max(0, value); OnSetAttribute("StatsPoint", value); }
         }
 
         public int SmashDamage
         {
             get { return _SmashDamage; }
-            set { this.OnSetAttribute("SmashDamage", value); _SmashDamage = value;  }
+            set { OnSetAttribute("SmashDamage", value); _SmashDamage = value;  }
         }
+
         public int SliceDamage
         {
             get { return _SliceDamage; }
-            set { this.OnSetAttribute("SliceDamage", value); _SliceDamage = value; }
+            set { OnSetAttribute("SliceDamage", value); _SliceDamage = value; }
         }
+
         public int PierceDamage
         {
             get { return _PierceDamage; }
-            set { this.OnSetAttribute("PierceDamage", value); _PierceDamage = value; }
+            set { OnSetAttribute("PierceDamage", value); _PierceDamage = value; }
         }
+
         public int IncElemNoneDamage
         {
             get { return _IncElemNoneDamage; }
-            set { this.OnSetAttribute("IncElemNoneDamage", value); _IncElemNoneDamage = value; }
+            set { OnSetAttribute("IncElemNoneDamage", value); _IncElemNoneDamage = value; }
         }
+
         public int IncElemMetalDamage
         {
             get { return _IncElemMetalDamage; }
-            set { this.OnSetAttribute("IncElemMetalDamage", value); _IncElemMetalDamage = value; }
+            set { OnSetAttribute("IncElemMetalDamage", value); _IncElemMetalDamage = value; }
         }
+
         public int IncElemWoodDamage
         {
             get { return _IncElemWoodDamage; }
-            set { this.OnSetAttribute("IncElemWoodDamage", value); _IncElemWoodDamage = value; }
+            set { OnSetAttribute("IncElemWoodDamage", value); _IncElemWoodDamage = value; }
         }
+
         public int IncElemEarthDamage
         {
             get { return _IncElemEarthDamage; }
-            set { this.OnSetAttribute("IncElemEarthDamage", value); _IncElemEarthDamage = value; }
+            set { OnSetAttribute("IncElemEarthDamage", value); _IncElemEarthDamage = value; }
         }
+
         public int IncElemWaterDamage
         {
             get { return _IncElemWaterDamage; }
-            set { this.OnSetAttribute("IncElemWaterDamage", value); _IncElemWaterDamage = value; }
+            set { OnSetAttribute("IncElemWaterDamage", value); _IncElemWaterDamage = value; }
         }
+
         public int IncElemFireDamage
         {
             get { return _IncElemFireDamage; }
-            set { this.OnSetAttribute("IncElemFireDamage", value); _IncElemFireDamage = value; }
+            set { OnSetAttribute("IncElemFireDamage", value); _IncElemFireDamage = value; }
         }
+
         public int VSHumanDamage
         {
             get { return _VSHumanDamage; }
-            set { this.OnSetAttribute("VSHumanDamage", value); _VSHumanDamage = value; }
+            set { OnSetAttribute("VSHumanDamage", value); _VSHumanDamage = value; }
         }
+
         public int VSZombieDamage
         {
             get { return _VSZombieDamage; }
-            set { this.OnSetAttribute("VSZombieDamage", value); _VSZombieDamage = value; }
+            set { OnSetAttribute("VSZombieDamage", value); _VSZombieDamage = value; }
         }
+
         public int VSVampireDamage
         {
             get { return _VSVampireDamage; }
-            set { this.OnSetAttribute("VSVampireDamage", value); _VSVampireDamage = value; }
+            set { OnSetAttribute("VSVampireDamage", value); _VSVampireDamage = value; }
         }
+
         public int VSAnimalDamage
         {
             get { return _VSAnimalDamage; }
-            set { this.OnSetAttribute("VSAnimalDamage", value); _VSAnimalDamage = value; }
+            set { OnSetAttribute("VSAnimalDamage", value); _VSAnimalDamage = value; }
         }
+
         public int VSPlantDamage
         {
             get { return _VSPlantDamage; }
-            set { this.OnSetAttribute("VSPlantDamage", value); _VSPlantDamage = value; }
+            set { OnSetAttribute("VSPlantDamage", value); _VSPlantDamage = value; }
         }
+
         public int VSElemNoneDamage
         {
             get { return _VSElemNoneDamage; }
-            set { this.OnSetAttribute("VSElemNoneDamage", value); _VSElemNoneDamage = value; }
+            set { OnSetAttribute("VSElemNoneDamage", value); _VSElemNoneDamage = value; }
         }
+
         public int VSElemMetalDamage
         {
             get { return _VSElemMetalDamage; }
-            set { this.OnSetAttribute("VSElemMetalDamage", value); _VSElemMetalDamage = value; }
+            set { OnSetAttribute("VSElemMetalDamage", value); _VSElemMetalDamage = value; }
         }
+
         public int VSElemWoodDamage
         {
             get { return _VSElemWoodDamage; }
-            set { this.OnSetAttribute("VSElemWoodDamage", value); _VSElemWoodDamage = value; }
+            set { OnSetAttribute("VSElemWoodDamage", value); _VSElemWoodDamage = value; }
         }
+
         public int VSElemEarthDamage
         {
             get { return _VSElemEarthDamage; }
-            set { this.OnSetAttribute("VSElemEarthDamage", value); _VSElemEarthDamage = value; }
+            set { OnSetAttribute("VSElemEarthDamage", value); _VSElemEarthDamage = value; }
         }
+
         public int VSElemWaterDamage
         {
             get { return _VSElemWaterDamage; }
-            set { this.OnSetAttribute("VSElemWaterDamage", value); _VSElemWaterDamage = value; }
+            set { OnSetAttribute("VSElemWaterDamage", value); _VSElemWaterDamage = value; }
         }
+
         public int VSElemFireDamage
         {
             get { return _VSElemFireDamage; }
-            set { this.OnSetAttribute("VSElemFireDamage", value); _VSElemFireDamage = value; }
+            set { OnSetAttribute("VSElemFireDamage", value); _VSElemFireDamage = value; }
         }
+
         public int VSBossDamage
         {
             get { return _VSBossDamage; }
-            set { this.OnSetAttribute("VSBossDamage", value); _VSBossDamage = value; }
+            set { OnSetAttribute("VSBossDamage", value); _VSBossDamage = value; }
         }
+
         public int IncFinalDamage
         {
             get { return _IncFinalDamage; }
-            set { this.OnSetAttribute("IncFinalDamage", value); _IncFinalDamage = value; }
+            set { OnSetAttribute("IncFinalDamage", value); _IncFinalDamage = value; }
         }
 
         public int SmashDefence
         {
             get { return _SmashDefence; }
-            set { this.OnSetAttribute("SmashDefence", value); _SmashDefence = value; }
+            set { OnSetAttribute("SmashDefence", value); _SmashDefence = value; }
         }
+
         public int SliceDefence
         {
             get { return _SliceDefence; }
-            set { this.OnSetAttribute("SliceDefence", value); _SliceDefence = value; }
+            set { OnSetAttribute("SliceDefence", value); _SliceDefence = value; }
         }
+
         public int PierceDefence
         {
             get { return _PierceDefence; }
-            set { this.OnSetAttribute("PierceDefence", value); _PierceDefence = value; }
+            set { OnSetAttribute("PierceDefence", value); _PierceDefence = value; }
         }
+
         public int IncElemNoneDefence
         {
             get { return _IncElemNoneDefence; }
-            set { this.OnSetAttribute("IncElemNoneDefence", value); _IncElemNoneDefence = value; }
+            set { OnSetAttribute("IncElemNoneDefence", value); _IncElemNoneDefence = value; }
         }
+
         public int IncElemMetalDefence
         {
             get { return _IncElemMetalDefence; }
-            set { this.OnSetAttribute("IncElemMetalDefence", value); _IncElemMetalDefence = value; }
+            set { OnSetAttribute("IncElemMetalDefence", value); _IncElemMetalDefence = value; }
         }
+
         public int IncElemWoodDefence
         {
             get { return _IncElemWoodDefence; }
-            set { this.OnSetAttribute("IncElemWoodDefence", value); _IncElemWoodDefence = value; }
+            set { OnSetAttribute("IncElemWoodDefence", value); _IncElemWoodDefence = value; }
         }
+
         public int IncElemEarthDefence
         {
             get { return _IncElemEarthDefence; }
-            set { this.OnSetAttribute("IncElemEarthDefence", value); _IncElemEarthDefence = value; }
+            set { OnSetAttribute("IncElemEarthDefence", value); _IncElemEarthDefence = value; }
         }
+
         public int IncElemWaterDefence
         {
             get { return _IncElemWaterDefence; }
-            set { this.OnSetAttribute("IncElemWaterDefence", value); _IncElemWaterDefence = value; }
+            set { OnSetAttribute("IncElemWaterDefence", value); _IncElemWaterDefence = value; }
         }
+
         public int IncElemFireDefence
         {
             get { return _IncElemFireDefence; }
-            set { this.OnSetAttribute("IncElemFireDefence", value); _IncElemFireDefence = value; }
+            set { OnSetAttribute("IncElemFireDefence", value); _IncElemFireDefence = value; }
         }
+
         public int VSHumanDefence
         {
             get { return _VSHumanDefence; }
-            set { this.OnSetAttribute("VSHumanDefence", value); _VSHumanDefence = value; }
+            set { OnSetAttribute("VSHumanDefence", value); _VSHumanDefence = value; }
         }
+
         public int VSZombieDefence
         {
             get { return _VSZombieDefence; }
-            set { this.OnSetAttribute("VSZombieDefence", value); _VSZombieDefence = value; }
+            set { OnSetAttribute("VSZombieDefence", value); _VSZombieDefence = value; }
         }
+
         public int VSVampireDefence
         {
             get { return _VSVampireDefence; }
-            set { this.OnSetAttribute("VSVampireDefence", value); _VSVampireDefence = value; }
+            set { OnSetAttribute("VSVampireDefence", value); _VSVampireDefence = value; }
         }
+
         public int VSAnimalDefence
         {
             get { return _VSAnimalDefence; }
-            set { this.OnSetAttribute("VSAnimalDefence", value); _VSAnimalDefence = value; }
+            set { OnSetAttribute("VSAnimalDefence", value); _VSAnimalDefence = value; }
         }
+
         public int VSPlantDefence
         {
             get { return _VSPlantDefence; }
-            set { this.OnSetAttribute("VSPlantDefence", value); _VSPlantDefence = value; }
+            set { OnSetAttribute("VSPlantDefence", value); _VSPlantDefence = value; }
         }
+
         public int DncFinalDamage
         {
             get { return _DncFinalDamage; }
-            set { this.OnSetAttribute("DncFinalDamage", value); _DncFinalDamage = value; }
+            set { OnSetAttribute("DncFinalDamage", value); _DncFinalDamage = value; }
         }
 
         public int ComboHit
         {
             get { return _ComboHit; }
-            set { this.OnSetAttribute("ComboHit", value); _ComboHit = value; }
+            set { OnSetAttribute("ComboHit", value); _ComboHit = value; }
         }
+
         public bool IsInCombat
         {
             get { return _isIncombat; }
-            set { this.OnSetAttribute("IsInCombat", value); _isIncombat = value; }
+            set { OnSetAttribute("IsInCombat", value); _isIncombat = value; }
         }
+
         public bool IsInSafeZone
         {
             get { return _isInSafeZone; }
-            set { this.OnSetAttribute("IsInSafeZone", value); _isInSafeZone = value; }
+            set { OnSetAttribute("IsInSafeZone", value); _isInSafeZone = value; }
         }
+
         public int SkillPoints
         {
             get { return _SkillPoints; }
-            set { this.OnSetAttribute("SkillPoints", value); _SkillPoints = value; }
+            set { OnSetAttribute("SkillPoints", value); _SkillPoints = value; }
         }
     }
 
@@ -998,8 +932,7 @@ namespace Zealot.Common.Entities
     /// </summary>
     public class LocalSkillPassiveStats : LocalObject //only to 1 player client
     {
-        public LocalSkillPassiveStats()
-            : base(LOTYPE.LocalSkillPassiveStats)
+        public LocalSkillPassiveStats() : base(LOTYPE.LocalSkillPassiveStats)
         {
             _status = 0;
         }
@@ -1008,21 +941,21 @@ namespace Zealot.Common.Entities
         public int Status
         {
             get { return _status; }
-            set { this.OnSetAttribute("Status", value); _status = value; }
+            set { OnSetAttribute("Status", value); _status = value; }
         }
 
         private int _HealthMax;
         public int HealthMax
         {
             get { return _HealthMax; }
-            set { this.OnSetAttribute("HealthMax", value); _HealthMax = value; }
+            set { OnSetAttribute("HealthMax", value); _HealthMax = value; }
         }
 
         private int _Accuracy;
         public int Accuracy
         {
             get { return _Accuracy; }
-            set { this.OnSetAttribute("Accuracy", value); _Accuracy = value; }
+            set { OnSetAttribute("Accuracy", value); _Accuracy = value; }
         }
 
 
@@ -1030,7 +963,7 @@ namespace Zealot.Common.Entities
         public int Armor
         {
             get { return _Armor; }
-            set { this.OnSetAttribute("Armor", value); _Armor = value; }
+            set { OnSetAttribute("Armor", value); _Armor = value; }
         }
 
 
@@ -1038,7 +971,7 @@ namespace Zealot.Common.Entities
         public int Evasion
         {
             get { return _Evasion; }
-            set { this.OnSetAttribute("Evasion", value); _Evasion = value; }
+            set { OnSetAttribute("Evasion", value); _Evasion = value; }
         }
 
 
@@ -1046,35 +979,35 @@ namespace Zealot.Common.Entities
         public int Attack
         {
             get { return _Attack; }
-            set { this.OnSetAttribute("Attack", value); _Attack = value; }
+            set { OnSetAttribute("Attack", value); _Attack = value; }
         }
 
         private int _Critical;
         public int Critical
         {
             get { return _Critical; }
-            set { this.OnSetAttribute("Critical", value); _Critical = value; }
+            set { OnSetAttribute("Critical", value); _Critical = value; }
         }
 
         private int _CoCritical;
         public int CoCritical
         {
             get { return _CoCritical; }
-            set { this.OnSetAttribute("CoCritical", value); _CoCritical = value; }
+            set { OnSetAttribute("CoCritical", value); _CoCritical = value; }
         }
 
         private int _CriticalDamage;
         public int CriticalDamage
         {
             get { return _CriticalDamage; }
-            set { this.OnSetAttribute("CriticalDamage", value); _CriticalDamage = value; }
+            set { OnSetAttribute("CriticalDamage", value); _CriticalDamage = value; }
         }
 
         private int _CoCriticalDamage;
         public int CoCriticalDamage
         {
             get { return _CoCriticalDamage; }
-            set { this.OnSetAttribute("CoCriticalDamage", value); _CoCriticalDamage = value; }
+            set { OnSetAttribute("CoCriticalDamage", value); _CoCriticalDamage = value; }
         }
     }
 
@@ -1113,8 +1046,7 @@ namespace Zealot.Common.Entities
         private int _tutorialreddot;
         private int _BattleTime;
 
-        public SecondaryStats()
-            : base(LOTYPE.SecondaryStats)
+        public SecondaryStats() : base(LOTYPE.SecondaryStats)
         {
             _experience = 0;
             _jobexperience = 0;
@@ -1164,70 +1096,73 @@ namespace Zealot.Common.Entities
         public int experience
         {
             get { return _experience; }
-            set { this.OnSetAttribute("experience", value); _experience = value; }
+            set { OnSetAttribute("experience", value); _experience = value; }
         }
         public int jobexperience
         {
             get { return _jobexperience; }
-            set { this.OnSetAttribute("jobexperience", value); _jobexperience = value; }
+            set { OnSetAttribute("jobexperience", value); _jobexperience = value; }
         }
         public int realmscore
         {
             get { return _realmscore; }
-            set { this.OnSetAttribute("realmscore", value); _realmscore = value; }
+            set { OnSetAttribute("realmscore", value); _realmscore = value; }
         }
-        // Currency start
-        public int money
+
+        public int Money
         {
             get { return _money; }
-            set { this.OnSetAttribute("money", value); _money = value; }
+            set { OnSetAttribute("Money", value); _money = value; }
         }
 
         // this is the currency top up from the appstore
-        public int gold
+        public int Gold
         {
             get { return _gold; }
-            set { this.OnSetAttribute("gold", value); _gold = value; }
+            set { OnSetAttribute("Gold", value); _gold = value; }
         }
+
         public int bindgold
         {
             get { return _bindgold; }
-            set { this.OnSetAttribute("bindgold", value); _bindgold = value; }
+            set { OnSetAttribute("bindgold", value); _bindgold = value; }
         }
+
         public int lotterypoints // Special points awarded when spending unbound diamond
         {
             get { return _lotterypoints; }
-            set { this.OnSetAttribute("lotterypoints", value); _lotterypoints = value; }
+            set { OnSetAttribute("lotterypoints", value); _lotterypoints = value; }
         }
+
         public int honor
         {
             get { return _honor; }
-            set { this.OnSetAttribute("honor", value); _honor = value; }
+            set { OnSetAttribute("honor", value); _honor = value; }
         }
+
         public int vippoints
         {
             get { return _vippoints; }
-            set { this.OnSetAttribute("vippoints", value); _vippoints = value; }
+            set { OnSetAttribute("vippoints", value); _vippoints = value; }
         }
+
         public int contribute
         {
             get { return _contribute; }
-            set { this.OnSetAttribute("contribute", value); _contribute = value; }
+            set { OnSetAttribute("contribute", value); _contribute = value; }
         }
+
         public int battlecoin
         {
             get { return _battlecoin; }
-            set { this.OnSetAttribute("battlecoin", value); _battlecoin = value; }
+            set { OnSetAttribute("battlecoin", value); _battlecoin = value; }
         }
+
         public int BattleTime 
         {
             get { return _BattleTime; }
-            set { this.OnSetAttribute("BattleTime", value); _BattleTime = value; }
+            set { OnSetAttribute("BattleTime", value); _BattleTime = value; }
         }
-        public long availableBattleTime { get; set; }
-        public long accumulatedBattleTime { get; set; }
-
-        // Currency end
 
         public int UnlockedSlotCount
         {
@@ -1239,93 +1174,106 @@ namespace Zealot.Common.Entities
         public int guildId
         {
             get { return _guildId; }
-            set { this.OnSetAttribute("guildId", value); _guildId = value; }
+            set { OnSetAttribute("guildId", value); _guildId = value; }
         }
+
         public byte guildRank
         {
             get { return _guildRank; }
-            set { this.OnSetAttribute("guildRank", value); _guildRank = value; }
+            set { OnSetAttribute("guildRank", value); _guildRank = value; }
         }
+
         public string guildShopBuyCount
         {
             get { return _guildShopBuyCount; }
-            set { this.OnSetAttribute("guildShopBuyCount", value); _guildShopBuyCount = value; }
+            set { OnSetAttribute("guildShopBuyCount", value); _guildShopBuyCount = value; }
         }
+
         public int GuildSMBossEntry
         {
             get { return _guildSMBossEntry; }
-            set { this.OnSetAttribute("GuildSMBossEntry", value); _guildSMBossEntry = value; }
+            set { OnSetAttribute("GuildSMBossEntry", value); _guildSMBossEntry = value; }
         }
+
         public int GuildSMBossExtraEntry
         {
             get { return _guildSMBossExtraEntry; }
-            set { this.OnSetAttribute("GuildSMBossExtraEntry", value); _guildSMBossExtraEntry = value; }
+            set { OnSetAttribute("GuildSMBossExtraEntry", value); _guildSMBossExtraEntry = value; }
         }
+
         public long guildLeaveGuildCDEnd
         {
             get { return _guildLeaveGuildCDEnd; }
-            set { this.OnSetAttribute("guildLeaveGuildCDEnd", value); _guildLeaveGuildCDEnd = value; }
+            set { OnSetAttribute("guildLeaveGuildCDEnd", value); _guildLeaveGuildCDEnd = value; }
         }
+
         public byte GuildDreamHouseUsed
         {
             get { return _guildDreamHouseUsed; }
-            set { this.OnSetAttribute("GuildDreamHouseUsed", value); _guildDreamHouseUsed = value; }
+            set { OnSetAttribute("GuildDreamHouseUsed", value); _guildDreamHouseUsed = value; }
         }
+
         public string GuildDreamHouseCollected
         {
             get { return _guildDreamHouseCollected; }
-            set { this.OnSetAttribute("GuildDreamHouseCollected", value); _guildDreamHouseCollected = value; }
+            set { OnSetAttribute("GuildDreamHouseCollected", value); _guildDreamHouseCollected = value; }
         }
+
         public bool guildDonateDot
         {
             get { return _guildDonateDot; }
-            set { this.OnSetAttribute("guildDonateDot", value); _guildDonateDot = value; }
+            set { OnSetAttribute("guildDonateDot", value); _guildDonateDot = value; }
         }
 
         // Lottery
         public long lastFreeLotteryRoll
         {
             get { return _lastFreeLotteryRoll; }
-            set { this.OnSetAttribute("lastFreeLotteryRoll", value); _lastFreeLotteryRoll = value; }
+            set { OnSetAttribute("lastFreeLotteryRoll", value); _lastFreeLotteryRoll = value; }
         }
 
         public int FreeReviveOnSpot
         {
             get { return _FreeReviveOnSpot; }
-            set { this.OnSetAttribute("FreeReviveOnSpot", value); _FreeReviveOnSpot = value; }
+            set { OnSetAttribute("FreeReviveOnSpot", value); _FreeReviveOnSpot = value; }
         }
 
         public long RandomBoxTimeTick
         {
             get { return _RandomBoxTimeTick; }
-            set { this.OnSetAttribute("RandomBoxTS", value); _RandomBoxTimeTick = value; }
+            set { OnSetAttribute("RandomBoxTS", value); _RandomBoxTimeTick = value; }
         }
 
         public int costbuffid
         {
             get { return _costbuffid; }
-            set { this.OnSetAttribute("costbuffid", value); _costbuffid = value; }
+            set { OnSetAttribute("costbuffid", value); _costbuffid = value; }
         }
 
         public int costbuffgold
         {
             get { return _costbuffgold; }
-            set { this.OnSetAttribute("costbuffgold", value); _costbuffgold = value; }
+            set { OnSetAttribute("costbuffgold", value); _costbuffgold = value; }
         }
-        /// <summary>
-        /// current using pet index
-        /// </summary>
-        //public int PetIndex
-        //{
-        //    get { return _petIndex; }
-        //    set { this.OnSetAttribute("PetIndex", value); _petIndex = value; }
-        //}
 
         public byte CurrencyExchangeTime
         {
             get { return _CurrencyExchangeTime; }
             set { OnSetAttribute("CurrencyExchangeTime", value); _CurrencyExchangeTime = value; }
         }
+
+        public int UnlockWorldBossLevel
+        {
+            get { return _UnlockWorldBossLevel; }
+            set { OnSetAttribute("UnlockWBLv", value); _UnlockWorldBossLevel = value; }
+        }
+
+        public int tutorialreddot
+        {
+            get { return _tutorialreddot; }
+            set { OnSetAttribute("tutorialreddot", value); _tutorialreddot = value; }
+        }
+
         public void ResetOnNewDay(CharacterData characterData)
         {
             GuildSMBossEntry = characterData.GuildSMBossEntry;
@@ -1339,26 +1287,14 @@ namespace Zealot.Common.Entities
         public bool IsGoldEnough(int value, bool useBind = true)
         {
             if (useBind)
-                return bindgold >= value - gold;
+                return bindgold >= value - Gold;
             else
-                return gold >= value;
+                return Gold >= value;
         }
 
         public long GetGoldWithBind()
         {
-            return ((long)bindgold + gold);
-        }
-
-        public int UnlockWorldBossLevel
-        {
-            get { return _UnlockWorldBossLevel; }
-            set { this.OnSetAttribute("UnlockWBLv", value); _UnlockWorldBossLevel = value; }
-        }
-
-        public int tutorialreddot
-        {
-            get { return _tutorialreddot; }
-            set { this.OnSetAttribute("tutorialreddot", value); _tutorialreddot = value; }
+            return ((long)bindgold + Gold);
         }
     }
 
@@ -1446,7 +1382,7 @@ namespace Zealot.Common.Entities
         public string exchangeLeftMapJsonString
         {
             get { return _exchangeLeftMapJsonString; }
-            set { this.OnSetAttribute("exchangeLeftMapJsonString", value); _exchangeLeftMapJsonString = value; }
+            set { OnSetAttribute("exchangeLeftMapJsonString", value); _exchangeLeftMapJsonString = value; }
         }
     }
 
@@ -1462,7 +1398,7 @@ namespace Zealot.Common.Entities
         public string portraitDataInfoString
         {
             get { return _portraitDataInfoString; }
-            set { this.OnSetAttribute("portraitDataInfoString", value); _portraitDataInfoString = value; }
+            set { OnSetAttribute("portraitDataInfoString", value); _portraitDataInfoString = value; }
         }
 
         public void LoadCharacterPortraitData(PortraitData data)
@@ -1559,6 +1495,8 @@ namespace Zealot.Common.Entities
         private Dictionary<int, object> _signboarIdMap;
         private Dictionary<int, string> _signboardQuest;
         private string _completedSignboard;
+        private int _signboardRewardBoost;
+        private int _signboardLimit;
 
         public CollectionHandler<object> EventQuest { get; set; }
         private Dictionary<int, object> _eventIdMap;
@@ -1570,8 +1508,7 @@ namespace Zealot.Common.Entities
         private string _unlockQuestList;
         private string _unlockSignboardList;
 
-        public QuestSynStats()
-            : base(LOTYPE.QuestSynStats)
+        public QuestSynStats() : base(LOTYPE.QuestSynStats)
         {
             _mainQuest = "";
             _completedMain = "";
@@ -1599,6 +1536,8 @@ namespace Zealot.Common.Entities
             _signboarIdMap = new Dictionary<int, object>();
             _signboardQuest = new Dictionary<int, string>();
             _completedSignboard = "";
+            _signboardRewardBoost = 100;
+            _signboardLimit = 0;
 
             EventQuest = new CollectionHandler<object>(QuestRepo.GetMaxQuestCountByType(QuestType.Event));
             EventQuest.SetParent(this, "EventQuest");
@@ -1615,13 +1554,15 @@ namespace Zealot.Common.Entities
         public string mainQuest
         {
             get { return _mainQuest; }
-            set { this.OnSetAttribute("mainQuest", value); _mainQuest = value; }
+            set { OnSetAttribute("mainQuest", value); _mainQuest = value; }
         }
+
         public string completedMain
         {
             get { return _completedMain; }
-            set { this.OnSetAttribute("completedMain", value); _completedMain = value; }
+            set { OnSetAttribute("completedMain", value); _completedMain = value; }
         }
+
         public Dictionary<int, string> adventureQuest
         {
             get { return _adventureQuest; }
@@ -1631,11 +1572,13 @@ namespace Zealot.Common.Entities
                 InitCollectionData(QuestType.Destiny, _adventureQuest);
             }
         }
+
         public string completedAdventure
         {
             get { return _completedAdventure; }
-            set { this.OnSetAttribute("completedAdventure", value); _completedAdventure = value; }
+            set { OnSetAttribute("completedAdventure", value); _completedAdventure = value; }
         }
+
         public Dictionary<int, string> sublineQuest
         {
             get { return _sublineQuest; }
@@ -1645,11 +1588,13 @@ namespace Zealot.Common.Entities
                 InitCollectionData(QuestType.Sub, _sublineQuest);
             }
         }
+
         public string completedSubline
         {
             get { return _completedSubline; }
-            set { this.OnSetAttribute("completedSubline", value); _completedSubline = value; }
+            set { OnSetAttribute("completedSubline", value); _completedSubline = value; }
         }
+
         public Dictionary<int, string> guildQuest
         {
             get { return _guildQuest; }
@@ -1659,11 +1604,13 @@ namespace Zealot.Common.Entities
                 InitCollectionData(QuestType.Guild, _guildQuest);
             }
         }
+
         public string completedGuild
         {
             get { return _completedGuild; }
-            set { this.OnSetAttribute("completedGuild", value); _completedGuild = value; }
+            set { OnSetAttribute("completedGuild", value); _completedGuild = value; }
         }
+
         public Dictionary<int, string> signboardQuest
         {
             get { return _signboardQuest; }
@@ -1673,11 +1620,25 @@ namespace Zealot.Common.Entities
                 InitCollectionData(QuestType.Signboard, _signboardQuest);
             }
         }
+
         public string completedSignboard
         {
             get { return _completedSignboard; }
-            set { this.OnSetAttribute("completedSignboard", value); _completedSignboard = value; }
+            set { OnSetAttribute("completedSignboard", value); _completedSignboard = value; }
         }
+
+        public int signboardRewardBoost
+        {
+            get { return _signboardRewardBoost; }
+            set { OnSetAttribute("signboardRewardBoost", value); _signboardRewardBoost = value; }
+        }
+
+        public int signboardLimit
+        {
+            get { return _signboardLimit; }
+            set { OnSetAttribute("signboardLimit", value); _signboardLimit = value; }
+        }
+
         public Dictionary<int, string> eventQuest
         {
             get { return _eventQuest; }
@@ -1687,30 +1648,35 @@ namespace Zealot.Common.Entities
                 InitCollectionData(QuestType.Event, _eventQuest);
             }
         }
+
         public string completedEvent
         {
             get { return _completedEvent; }
-            set { this.OnSetAttribute("completedEvent", value); _completedEvent = value; }
+            set { OnSetAttribute("completedEvent", value); _completedEvent = value; }
         }
+
         public string trackingList
         {
             get { return _trackingList; }
-            set { this.OnSetAttribute("trackingList", value); _trackingList = value; }
+            set { OnSetAttribute("trackingList", value); _trackingList = value; }
         }
+
         public string wonderfulList
         {
             get { return _wonderfulList; }
-            set { this.OnSetAttribute("wonderfulList", value); _wonderfulList = value; }
+            set { OnSetAttribute("wonderfulList", value); _wonderfulList = value; }
         }
+
         public string unlockQuestList
         {
             get { return _unlockQuestList; }
-            set { this.OnSetAttribute("unlockQuestList", value); _unlockQuestList = value; }
+            set { OnSetAttribute("unlockQuestList", value); _unlockQuestList = value; }
         }
+
         public string unlockSignboardList
         {
             get { return _unlockSignboardList; }
-            set { this.OnSetAttribute("unlockSignboardList", value); _unlockSignboardList = value; }
+            set { OnSetAttribute("unlockSignboardList", value); _unlockSignboardList = value; }
         }
 
         private void InitCollectionData(QuestType type, Dictionary<int, string> datas)
@@ -1940,6 +1906,24 @@ namespace Zealot.Common.Entities
     }
     #endregion
 
+    #region Donate
+    public class DonateSynStats : LocalObject
+    {
+        private string _donateData;
+
+        public DonateSynStats() : base(LOTYPE.DonateSynStats)
+        {
+            _donateData = "";
+        }
+
+        public string donateData
+        {
+            get { return _donateData; }
+            set { OnSetAttribute("donateData", value); _donateData = value; }
+        }
+    }
+    #endregion
+
     #region Destiny Clue
     public class DestinyClueSynStats : LocalObject
     {
@@ -1959,25 +1943,25 @@ namespace Zealot.Common.Entities
         public string destinyClues
         {
             get { return _destinyClues; }
-            set { this.OnSetAttribute("destinyClues", value); _destinyClues = value; }
+            set { OnSetAttribute("destinyClues", value); _destinyClues = value; }
         }
 
         public string unlockMemory
         {
             get { return _unlockMemory; }
-            set { this.OnSetAttribute("unlockMemory", value); _unlockMemory = value; }
+            set { OnSetAttribute("unlockMemory", value); _unlockMemory = value; }
         }
 
         public string unlockClues
         {
             get { return _unlockClues; }
-            set { this.OnSetAttribute("unlockClues", value); _unlockClues = value; }
+            set { OnSetAttribute("unlockClues", value); _unlockClues = value; }
         }
 
         public string unlockTimeClues
         {
             get { return _unlockTimeClues; }
-            set { this.OnSetAttribute("unlockTimeClues", value); _unlockTimeClues = value; }
+            set { OnSetAttribute("unlockTimeClues", value); _unlockTimeClues = value; }
         }
     }
     #endregion
@@ -1993,22 +1977,17 @@ namespace Zealot.Common.Entities
 
         private int _jobSkillAttackSId;
         private int _SkillInvCount;
+        private int _equipGroup;
+        private int _autoGroup;
 
-        //private int _RedHeroCardSkillAttackSId = 0;
-        //private int _GreenHeroSkillAttackSId = 0;
-        //private int _BlueHeroSkillAttackSId = 0;
-
-        //private int _RedHeroCardSubSkillId = 0;//the subskill cooldown of the herocard
-        //private int _BlueHeroCardSubSkillId = 0;
-        //private int _GreenHeroCardSubskillId = 0;
-        //public CollectionHandler<object> SkillInv { get; set; }
+        
         public CollectionHandler<object> EquippedSkill { get; set; }
+        public CollectionHandler<object> AutoSkill { get; set; }
         public CollectionHandler<object> SkillInv { get; set; }
 
         public Dictionary<int, int> SkillGroupIndex { get; set; }
 
-        public SkillSynStats()
-            : base(LOTYPE.SkillStats)
+        public SkillSynStats() : base(LOTYPE.SkillStats)
         {
             _basicAttack1SId = 0;
             _basicAttack2SId = 0;
@@ -2018,6 +1997,8 @@ namespace Zealot.Common.Entities
 
             _jobSkillAttackSId = 0;
             _SkillInvCount = 0;
+            _equipGroup = 0;
+            _autoGroup = 0;
             //_RedHeroCardSkillAttackSId = 0;
             //_GreenHeroSkillAttackSId = 0;
             //_BlueHeroSkillAttackSId = 0;
@@ -2039,6 +2020,14 @@ namespace Zealot.Common.Entities
             }
             EquippedSkill.SetNotifyParent(true);
 
+            AutoSkill = new CollectionHandler<object>(MAX_EQUIPPED);
+            AutoSkill.SetParent(this, "AutoSkill");
+            AutoSkill.SetNotifyParent(false);
+            for (int i = 0; i < 36; ++i)
+            {
+                AutoSkill[i] = 0;
+            }
+            AutoSkill.SetNotifyParent(true);
 
             SkillGroupIndex = new Dictionary<int, int>();
         }
@@ -2047,15 +2036,19 @@ namespace Zealot.Common.Entities
         {
 
             // Init basicattack skill id from inventory;
-            basicAttack1SId = sid.basicAttack1SId;
-            basicAttack2SId = sid.basicAttack2SId;
-            basicAttack3SId = sid.basicAttack3SId;
+            //basicAttack1SId = sid.basicAttack1SId;
+            //basicAttack2SId = sid.basicAttack2SId;
+            //basicAttack3SId = sid.basicAttack3SId;
+
 
             _SkillInvCount = sid.SkillInvCount;
+            _equipGroup = sid.equipGroup;
+            _autoGroup = sid.autoGroup;
 
-            for(int i = 0; i < sid.EquippedSkill.Count; ++i)
+            for (int i = 0; i < sid.EquippedSkill.Count; ++i)
             {
                 EquippedSkill[i] = sid.EquippedSkill[i];
+                AutoSkill[i] = sid.AutoSkill[i];
             }
 
             for(int i = 0; i < sid.SkillInv.Count; ++i)
@@ -2074,18 +2067,21 @@ namespace Zealot.Common.Entities
         public int basicAttack1SId
         {
             get { return _basicAttack1SId; }
-            set { this.OnSetAttribute("basicAttack1SId", value); _basicAttack1SId = value; }
+            set { OnSetAttribute("basicAttack1SId", value); _basicAttack1SId = value; }
         }
+
         public int basicAttack2SId
         {
             get { return _basicAttack2SId; }
-            set { this.OnSetAttribute("basicAttack2SId", value); _basicAttack2SId = value; }
+            set { OnSetAttribute("basicAttack2SId", value); _basicAttack2SId = value; }
         }
+
         public int basicAttack3SId
         {
             get { return _basicAttack3SId; }
-            set { this.OnSetAttribute("basicAttack3SId", value); _basicAttack3SId = value; }
+            set { OnSetAttribute("basicAttack3SId", value); _basicAttack3SId = value; }
         }
+
         //public int basicAttack4SId
         //{
         //    get { return _basicAttack4SId; }
@@ -2109,6 +2105,16 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("SkillInvCount", value); _SkillInvCount = value; }
         }
 
+        public int EquipGroup
+        {
+            get { return _equipGroup; }
+            set { OnSetAttribute("EquipGroup", value); _equipGroup = value; }
+        }
+        public int AutoGroup
+        {
+            get { return _autoGroup; }
+            set { OnSetAttribute("AutoGroup", value); _autoGroup = value; }
+        }
     }
 
 
@@ -2125,127 +2131,7 @@ namespace Zealot.Common.Entities
         public byte State
         {
             get { return _State; }
-            set { this.OnSetAttribute("State", value); _State = value; }
-        }
-    }
-
-    public class PartyInfoStats : LocalObject
-    {
-        public class MapVector3 : BitController
-        {
-            static Dictionary<System.Reflection.PropertyInfo, BitAttribute> mMethod;
-
-            [Bit(10)]
-            public int x { get; set; }
-
-            [Bit(10)]
-            public int y { get; set; }
-
-            [Bit(10)]
-            public int z { get; set; }
-
-            public MapVector3()
-            {
-            }
-
-            public override void InitReflection()
-            {
-                if (mMethod != null)
-                    SetReflectionProperty(mMethod);
-                else
-                    Init(ref mMethod);
-            }
-        }
-
-        public class RandomPartyInfo
-        {
-            public PartyMemberInfo[] AllPartyMemberInfo;
-            public string DungeonName;
-            public int DungeonLevel;
-        }
-
-        [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-        public class PartyMemberInfo
-        {
-            [DefaultValue("")]
-            [JsonProperty(PropertyName = "0")]
-            public string name { get; set; }
-
-            [DefaultValue(0)]
-            [JsonProperty(PropertyName = "1")]
-            public int level { get; set; }
-
-            [DefaultValue(0)]
-            [JsonProperty(PropertyName = "2")]
-            public int portraitID { get; set; }
-
-            [DefaultValue(0)]
-            [JsonProperty(PropertyName = "3")]
-            public byte vipLevel { get; set; }
-
-            [DefaultValue(1)]
-            [JsonProperty(PropertyName = "4")]
-            public FactionType factiontype { get; set; }
-
-            [DefaultValue(1)]
-            [JsonProperty(PropertyName = "5")]
-            public JobType jobtype { get; set; }
-
-            [DefaultValue(0)]
-            [JsonProperty(PropertyName = "6")]
-            public int power { get; set; }
-        }
-
-        private string _partyName;
-
-        public PartyInfoStats() : base(LOTYPE.PartyStats)
-        {
-            _partyName = "";
-            Members = new CollectionHandler<object>(3);//max 3 member including leader
-            Members.SetParent(this, "Members");
-
-            AllPartyMemberInfo = new List<PartyMemberInfo>();
-        }
-
-        public CollectionHandler<object> Members { get; set; }//contain partymemberinfo serialize string
-        public List<PartyMemberInfo> AllPartyMemberInfo;//all member data including leader
-        public string PartyName
-        {
-            get { return _partyName; }
-            set { this.OnSetAttribute("PartyName", value); _partyName = value; }
-        }
-
-        private string _partyUniqueID;
-        public string PartyUniqueID
-        {
-            get { return _partyUniqueID; }
-            set { this.OnSetAttribute("PartyUniqueID", value); _partyUniqueID = value; }
-        }
-
-        private string _dungeonName;
-        public string DungeonName
-        {
-            get { return _dungeonName; }
-            set { this.OnSetAttribute("DungeonName", value); _dungeonName = value; }
-        }
-
-        private int _dungeonLevel;
-        public int DungeonLevel
-        {
-            get { return _dungeonLevel; }
-            set { this.OnSetAttribute("DungeonLevel", value); _dungeonLevel = value; }
-        }
-
-        private int _dungeonsequence;
-        public int DungeonSequence
-        {
-            get { return _dungeonsequence; }
-            set { this.OnSetAttribute("DungeonSequence", value); _dungeonsequence = value; }
-        }
-
-        public int MemberCount()
-        {
-            return AllPartyMemberInfo.Count;
+            set { OnSetAttribute("State", value); _State = value; }
         }
     }
 
@@ -2296,31 +2182,6 @@ namespace Zealot.Common.Entities
         public CollectionHandler<object> PersistentsDur { get; set; }
 
     }
-    //#region BattleTime
-    //public class BattleTimeStats : LocalObject
-    //{
-    //    private int _accumulatedBattleTime;
-    //    private int _availableBattleTime;
-    //    public CollectionHandler<object> exampleBattleTimeList { get; set;}
-
-    //    public BattleTimeStats() : base(LOTYPE.BattleTimeStats)
-    //    {
-    //        _accumulatedBattleTime = 0;
-    //        _availableBattleTime = 0;
-    //        exampleBattleTimeList = new CollectionHandler<object>(BattleTimeInventoryData.MAX_LIST_LEN);
-    //    }
-    //    public int accumulatedBattleTime
-    //    {
-    //        get { return _accumulatedBattleTime; }
-    //        set { this.OnSetAttribute("accumulatedBattleTime", value); _accumulatedBattleTime = value; }
-    //    }
-    //    public int availableBattleTime
-    //    {
-    //        get { return _availableBattleTime; }
-    //        set { this.OnSetAttribute("availableBattleTime", value); _availableBattleTime = value; }
-    //    }
-    //}
-    //#endregion
 
     #region Social
     public class SocialInfoBase
@@ -2582,8 +2443,7 @@ namespace Zealot.Common.Entities
 
         private string _contLoginClaims;
 
-        public WelfareStats()
-            : base(LOTYPE.WelfareStats)
+        public WelfareStats() : base(LOTYPE.WelfareStats)
         {
             _firstLoginYear = 0;
             _firstLoginMonth = 0;
@@ -2632,41 +2492,49 @@ namespace Zealot.Common.Entities
             get { return _firstLoginYear; }
             set { OnSetAttribute("firstLoginYear", value); _firstLoginYear = value; }
         }
+
         public int firstLoginMonth
         {
             get { return _firstLoginMonth; }
             set { OnSetAttribute("firstLoginMonth", value); _firstLoginMonth = value; }
         }
+
         public int firstLoginDay
         {
             get { return _firstLoginDay; }
             set { OnSetAttribute("firstLoginDay", value); _firstLoginDay = value; }
         }
+
         public int serverStartYear
         {
             get { return _serverStartYear; }
             set { OnSetAttribute("serverStartYear", value); _serverStartYear = value; }
         }
+
         public int serverStartMonth
         {
             get { return _serverStartMonth; }
             set { OnSetAttribute("serverStartMonth", value); _serverStartMonth = value; }
         }
+
         public int serverStartDay
         {
             get { return _serverStartDay; }
             set { OnSetAttribute("serverStartDay", value); _serverStartDay = value; }
         }
+
         public short continuousLoginDayNum
         {
             get { return _continuousLoginDayNum; }
             set { OnSetAttribute("continuousLoginDayNum", value); _continuousLoginDayNum = value; }
         }
+
         public int continuousLoginFullCollection
         {
             get { return _continuousLoginFullCollection; }
             set { OnSetAttribute("continuousLoginFullCollection", value); _continuousLoginFullCollection = value; }
         }
+
         public int continuousLoginPartCollection
         {
             get { return _continuousLoginPartCollection; }
@@ -2676,12 +2544,13 @@ namespace Zealot.Common.Entities
         public int onlineRewardsClaims
         {
             get { return _onlineRewardsClaims; }
-            set { this.OnSetAttribute("onlineRewardsClaims", value); _onlineRewardsClaims = value; }
+            set { OnSetAttribute("onlineRewardsClaims", value); _onlineRewardsClaims = value; }
         }
+
         public long onlineDuration
         {
             get { return _onlineDuration; }
-            set { this.OnSetAttribute("onlineDuration", value); _onlineDuration = value; }
+            set { OnSetAttribute("onlineDuration", value); _onlineDuration = value; }
         }
 
         public int serviceFundsLvlCollection
@@ -2689,31 +2558,37 @@ namespace Zealot.Common.Entities
             get { return _serviceFundsLvlCollection; }
             set { OnSetAttribute("serviceFundsLvlCollection", value); _serviceFundsLvlCollection = value; }
         }
+
         public string serviceFundLvlClaims
         {
             get { return _serviceFundLvlClaims; }
             set { OnSetAttribute("serviceFundLvlClaims", value); _serviceFundLvlClaims = value; }
         }
+
         public int serviceFundsPplCollection
         {
             get { return _serviceFundsPplCollection; }
             set { OnSetAttribute("serviceFundsPplCollection", value); _serviceFundsPplCollection = value; }
         }
+
         public string serviceFundPplClaims
         {
             get { return _serviceFundPplClaims; }
             set { OnSetAttribute("serviceFundPplClaims", value); _serviceFundPplClaims = value; }
         }
+
         public int serviceFundsClaimNum
         {
             get { return _serviceFundsClaimNum; }
             set { OnSetAttribute("serviceFundsClaimNum", value); _serviceFundsClaimNum = value; }
         }
+
         public int serviceFundsJoinMemberNum
         {
             get { return _serviceFundsJoinMemberNum; }
             set { OnSetAttribute("serviceFundsJoinMemberNum", value); _serviceFundsJoinMemberNum = value; }
         }
+
         public bool serviceFundsBought
         {
             get { return _serviceFundsBought; }
@@ -2725,11 +2600,13 @@ namespace Zealot.Common.Entities
             get { return _firstBuyFlag; }
             set { OnSetAttribute("firstBuyFlag", value); _firstBuyFlag = value; }
         }
+
         public int firstBuyCollected
         {
             get { return _firstBuyCollected; }
             set { OnSetAttribute("firstBuyCollected", value); _firstBuyCollected = value; }
         }
+
         public bool firstGoldBuyCollected
         {
             get { return _firstGoldBuyCollected; }
@@ -2741,10 +2618,11 @@ namespace Zealot.Common.Entities
             get { return _totalGoldCredited; }
             set { OnSetAttribute("totalGoldCreditedd", value); _totalGoldCredited = value; }
         }
+
         public string totalCreditClaims
         {
             get { return _totalCreditClaims; }
-            set { this.OnSetAttribute("totalCreditClaims", value); _totalCreditClaims = value; }
+            set { OnSetAttribute("totalCreditClaims", value); _totalCreditClaims = value; }
         }
 
         public int totalGoldSpent
@@ -2752,10 +2630,11 @@ namespace Zealot.Common.Entities
             get { return _totalGoldSpent; }
             set { OnSetAttribute("totalGoldSpent", value); _totalGoldSpent = value; }
         }
+
         public string totalSpendClaims
         {
             get { return _totalSpendClaims; }
-            set { this.OnSetAttribute("totalSpendClaims", value); _totalSpendClaims = value; }
+            set { OnSetAttribute("totalSpendClaims", value); _totalSpendClaims = value; }
         }
 
         public bool dailyGoldFirstLogin
@@ -2763,26 +2642,31 @@ namespace Zealot.Common.Entities
             get { return _dailyGoldFirstLogin; }
             set { OnSetAttribute("dailyGoldFirstLogin", value); _dailyGoldFirstLogin = value; }
         }
+
         public bool monthCardBought
         {
             get { return _monthCardBought; }
             set { OnSetAttribute("monthCardBought", value); _monthCardBought = value; }
         }
+
         public int monthCardBoughtDayNum
         {
             get { return _monthCardBoughtDayNum; }
             set { OnSetAttribute("monthCardBoughtDayNum", value); _monthCardBoughtDayNum = value; }
         }
+
         public bool monthCardGoldCollected
         {
             get { return _monthCardGoldCollected; }
             set { OnSetAttribute("monthCardGoldCollected", value); _monthCardGoldCollected = value; }
         }
+
         public bool permanentCardBought
         {
             get { return _permanentCardBought; }
             set { OnSetAttribute("permanentCardBought", value); _permanentCardBought = value; }
         }
+
         public bool permanentCardGoldCollected
         {
             get { return _permanentCardGoldCollected; }
@@ -2794,11 +2678,13 @@ namespace Zealot.Common.Entities
             get { return _goldJackpotResult; }
             set { OnSetAttribute("goldJackpotResult", value); _goldJackpotResult = value; }
         }
+
         public int goldJackpotAllGold
         {
             get { return _goldJackpotAllGold; }
             set { OnSetAttribute("goldJackpotAllGold", value); _goldJackpotAllGold = value; }
         }
+
         public int goldJackpotCurrTier
         {
             get { return _goldJackpotCurrTier; }
@@ -2808,7 +2694,7 @@ namespace Zealot.Common.Entities
         public string contLoginClaims
         {
             get { return _contLoginClaims; }
-            set { this.OnSetAttribute("contLoginClaims", value); _contLoginClaims = value; }
+            set { OnSetAttribute("contLoginClaims", value); _contLoginClaims = value; }
         }
     }
     #endregion
@@ -3055,8 +2941,7 @@ namespace Zealot.Common.Entities
         // Method #2
         public CollectionHandler<object> powerUpSlots { get; set; }
 
-        public PowerUpStats()
-            : base(LOTYPE.PowerUpStats)
+        public PowerUpStats() : base(LOTYPE.PowerUpStats)
         {
             _powerUpLvl = "0";
 
@@ -3067,7 +2952,7 @@ namespace Zealot.Common.Entities
         public string powerUpLvl
         {
             get { return _powerUpLvl; }
-            set { this.OnSetAttribute("powerUpLvl", value); _powerUpLvl = value; }
+            set { OnSetAttribute("powerUpLvl", value); _powerUpLvl = value; }
         }
     }
 
@@ -3089,7 +2974,34 @@ namespace Zealot.Common.Entities
         public bool finishedCraft
         {
             get { return _finishedCraft; }
-            set { this.OnSetAttribute("finishedCraft", value); _finishedCraft = value; }
+            set { OnSetAttribute("finishedCraft", value); _finishedCraft = value; }
+        }
+    }
+    #endregion
+
+    #region EquipFushion
+    public class EquipFushionStats : LocalObject
+    {
+        private bool _FinishedFushion;
+
+        private int _EquipFushionCoin;
+
+        public EquipFushionStats() : base(LOTYPE.EquipFushionStats)
+        {
+            _FinishedFushion = false;
+            _EquipFushionCoin = 0;
+        }
+
+        public bool FinishedFushion
+        {
+            get { return _FinishedFushion; }
+            set { OnSetAttribute("FinishedFushion", value); _FinishedFushion = value; }
+        }
+
+        public int EquipFushionCoin
+        {
+            get { return _EquipFushionCoin; }
+            set { OnSetAttribute("EquipFushionCoin", value); _EquipFushionCoin = value; }
         }
     }
     #endregion

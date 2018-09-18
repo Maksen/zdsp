@@ -19,7 +19,7 @@ public class Hero_MapTargetData : MonoBehaviour
         if (data == null)
         {
             targetId = 0;
-            //todo: set icon for all target
+            //todo: junming set icon for all target
             iconImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png");
             nameText.text = GUILocalizationRepo.GetLocalizedString("hro_explore_all");
             noteText.text = "";

@@ -16,12 +16,12 @@
             mNeedCaster = false;
         }
 
-        protected override bool OnApply()
+        protected override bool OnApply(int equipid = -1)
         {
             if (!mTarget.IsPlayer())
                 return false;
 
-            if (base.OnApply())
+            if (base.OnApply(equipid))
             {
                 if (IsDurationalSE())
                 {

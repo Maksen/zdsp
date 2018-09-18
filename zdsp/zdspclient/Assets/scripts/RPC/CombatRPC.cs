@@ -93,18 +93,6 @@ public class CombatRPC : RPCBase
         ProxyMethod("RespawnAtSafeZoneWithCost");
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SaveGameSetting)]
-    public void SaveGameSetting(string settings)
-    {
-        ProxyMethod("SaveGameSetting", settings);
-    }
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.BotSetting)]
-    public void SendBotSettingToServer(string settings)
-    {
-        ProxyMethod("SendBotSettingToServer", settings);
-    }
-
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClientSendChatMessage)]
     public void ClientSendChatMessage(byte msgType, string message, string whisperTo, bool isVoiceChat)
     {
@@ -123,75 +111,65 @@ public class CombatRPC : RPCBase
         ProxyMethod("GetInspectPlayerInfo", playerName);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetCompensate)]
-    public void GetCompensateData(string playername)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SaveGameSetting)]
+    public void SaveGameSetting(string settings)
     {
-        ProxyMethod("GetCompensateData", playername);
+        ProxyMethod("SaveGameSetting", settings);
     }
 
-    #region IAP
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetProductsWithLockGold)]
-    public void GetProductsWithLockGold(byte merchantType)
+    #region Realm
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CreateRealmByID)]
+    public void CreateRealmByID(int realmId, bool logAI, bool checkAllReq, int questid = -1)
     {
-        ProxyMethod("GetProductsWithLockGold", merchantType);
+        ProxyMethod("CreateRealmByID", realmId, logAI, checkAllReq, questid);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.VerifyPurchase)]
-    public void VerifyPurchase(string productId, string transactionId, string receipt, byte merchantType)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EnterRealmByID)]
+    public void EnterRealmByID(int realmId)
     {
-        ProxyMethod("VerifyPurchase", productId, transactionId, receipt, merchantType);
+        ProxyMethod("EnterRealmByID", realmId);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetMyCardAuthCode)]
-    public void GetMyCardAuthCode(string productId)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.LeaveRealm)]
+    public void LeaveRealm()
     {
-        ProxyMethod("GetMyCardAuthCode", productId);
+        ProxyMethod("LeaveRealm");
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DelMyCardAuthCode)]
-    public void DelMyCardAuthCode(string authCode)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.InspectMode)]
+    public void InspectMode()
     {
-        ProxyMethod("DelMyCardAuthCode", authCode);
+        ProxyMethod("InspectMode");
     }
 
-    #endregion IAP
-
-    #region Social
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
-    public void SocialAcceptRequest(string playerList)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnter)]
+    public void DungeonEnter(int realmId)
     {
-        ProxyMethod("SocialAcceptRequest", playerList);
+        ProxyMethod("DungeonEnter", realmId);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
-    public void SocialRemoveRequest(string playerList)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterState)]
+    public void DungeonEnterState(int realmId, byte state)
     {
-        ProxyMethod("SocialRemoveRequest", playerList);
+        ProxyMethod("DungeonEnterState", realmId, state);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
-    public void SocialSendRequest(string playerList)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonAutoClear)]
+    public void DungeonAutoClear(int realmId, bool clearAll)
     {
-        ProxyMethod("SocialSendRequest", playerList);
+        ProxyMethod("DungeonAutoClear", realmId, clearAll);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
-    public void SocialRemoveFriend(string playerName)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnPickResource)]
+    public void OnPickResource(int pid)
     {
-        ProxyMethod("SocialRemoveFriend", playerName);
+        ProxyMethod("OnPickResource", pid);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
-    public void SocialGetRecommendedFriends()
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RealmCollectReward)]
+    public void RealmCollectReward()
     {
-        ProxyMethod("SocialGetRecommendedFriends");
-    }
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
-    public void SocialUpdateFriendsInfo()
-    {
-        ProxyMethod("SocialUpdateFriendsInfo");
+        ProxyMethod("RealmCollectReward");
     }
     #endregion
 
@@ -201,7 +179,7 @@ public class CombatRPC : RPCBase
     {
         ProxyMethod("AddItem", itemId, amount);
     }
-    
+
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItem)]
     public void UseItem(int slotId, int amount)
     {
@@ -224,7 +202,7 @@ public class CombatRPC : RPCBase
             {
                 sb.AppendFormat("{0}`{1};", kvp.Key, kvp.Value);
             }
-            sb.Remove(sb.Length-1, 1);
+            sb.Remove(sb.Length - 1, 1);
             ProxyMethod("MassSellItems", sb.ToString());
         }
     }
@@ -283,79 +261,69 @@ public class CombatRPC : RPCBase
     }
     #endregion
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RemoveBuff)]
-    public void RemoveSideBuff(int sideID)
+    #region IAP
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetProductsWithLockGold)]
+    public void GetProductsWithLockGold(byte merchantType)
     {
-        ProxyMethod("RemoveSideBuff", sideID);
+        ProxyMethod("GetProductsWithLockGold", merchantType);
     }
 
-    #region Realm
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CreateRealmByID)]
-    public void CreateRealmByID(int realmId, bool logAI, bool checkAllReq)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.VerifyPurchase)]
+    public void VerifyPurchase(string productId, string transactionId, string receipt, byte merchantType)
     {
-        ProxyMethod("CreateRealmByID", realmId, logAI, checkAllReq);
+        ProxyMethod("VerifyPurchase", productId, transactionId, receipt, merchantType);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EnterRealmByID)]
-    public void EnterRealmByID(int realmId)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetMyCardAuthCode)]
+    public void GetMyCardAuthCode(string productId)
     {
-        ProxyMethod("EnterRealmByID", realmId);
+        ProxyMethod("GetMyCardAuthCode", productId);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.LeaveRealm)]
-    public void LeaveRealm()
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DelMyCardAuthCode)]
+    public void DelMyCardAuthCode(string authCode)
     {
-        ProxyMethod("LeaveRealm");
+        ProxyMethod("DelMyCardAuthCode", authCode);
+    }
+    #endregion IAP
+
+    #region Social
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
+    public void SocialAcceptRequest(string playerList)
+    {
+        ProxyMethod("SocialAcceptRequest", playerList);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.InspectMode)]
-    public void InspectMode()
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
+    public void SocialRemoveRequest(string playerList)
     {
-        ProxyMethod("InspectMode");
+        ProxyMethod("SocialRemoveRequest", playerList);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddStoryExtraEntry)]
-    public void AddStoryExtraEntry(int realmId)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
+    public void SocialSendRequest(string playerList)
     {
-        ProxyMethod("AddStoryExtraEntry", realmId);
+        ProxyMethod("SocialSendRequest", playerList);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonRaid)]
-    public void DungeonRaid(int realmId)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
+    public void SocialRemoveFriend(string playerName)
     {
-        ProxyMethod("DungeonRaid", realmId);
+        ProxyMethod("SocialRemoveFriend", playerName);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnter)]
-    public void DungeonEnter(int realmId)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
+    public void SocialGetRecommendedFriends()
     {
-        ProxyMethod("DungeonEnter", realmId);
+        ProxyMethod("SocialGetRecommendedFriends");
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterState)]
-    public void DungeonEnterState(int realmId, byte state)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
+    public void SocialUpdateFriendsInfo()
     {
-        ProxyMethod("DungeonEnterState", realmId, state);
-    }
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonCollectStarReward)]
-    public void DungeonCollectStarReward(int seq, int starCount)
-    {
-        ProxyMethod("DungeonCollectStarReward", seq, starCount);
-    }
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnPickResource)]
-    public void OnPickResource(int pid)
-    {
-        ProxyMethod("OnPickResource", pid);
+        ProxyMethod("SocialUpdateFriendsInfo");
     }
     #endregion
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RealmCollectReward)]
-    public void RealmCollectReward()
-    {
-        ProxyMethod("RealmCollectReward");
-    }
 
     #region Arena
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetArenaChallengers)]
@@ -383,14 +351,7 @@ public class CombatRPC : RPCBase
     }
     #endregion    
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddCurrency)]
-    public void AddCurrency(int type, int currency)
-    {
-        ProxyMethod("AddCurrency", type, currency);
-    }
-
     #region Mail
-
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.HasNewMail)]
     public void HasNewMail()
     {
@@ -432,7 +393,6 @@ public class CombatRPC : RPCBase
     {
         ProxyMethod("DeleteAllMail");
     }
-
     #endregion Mail
 
     #region OfflineExp
@@ -794,19 +754,37 @@ public class CombatRPC : RPCBase
     }
     #endregion
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CurrencyExchange)]
-    public void CurrencyExchange()
-    {
-        ProxyMethod("CurrencyExchange");
-    }
-
     #region Bot
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetClosestValidMonSpawnPos)]
     public void GetClosestValidMonSpawnPos()
     {
         ProxyMethod("GetClosestValidMonSpawnPos");
     }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.BotSetting)]
+    public void SendBotSettingToServer(string settings)
+    {
+        ProxyMethod("SendBotSettingToServer", settings);
+    }
     #endregion
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RemoveBuff)]
+    public void RemoveSideBuff(int sideID)
+    {
+        ProxyMethod("RemoveSideBuff", sideID);
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddCurrency)]
+    public void AddCurrency(int type, int currency)
+    {
+        ProxyMethod("AddCurrency", type, currency);
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CurrencyExchange)]
+    public void CurrencyExchange()
+    {
+        ProxyMethod("CurrencyExchange");
+    }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RedeemSerialCode)]
     public void RedeemSerialCode(string serial)
@@ -814,13 +792,11 @@ public class CombatRPC : RPCBase
         ProxyMethod("RedeemSerialCode", serial);
     }
 
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.FirstRealmStep)]
-    public void FirstRealmStep(int step)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetCompensate)]
+    public void GetCompensateData(string playername)
     {
-        ProxyMethod("FirstRealmStep", step);
+        ProxyMethod("GetCompensateData", playername);
     }
-
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CharInfoSetPortrait)]
     public void CharInfoSetPortrait(int portraitID)
@@ -840,6 +816,20 @@ public class CombatRPC : RPCBase
         ProxyMethod("GetRandomBoxReward", reward_id);
     }
 
+    #region Wardrobe
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EquipFashion)]
+    public void EquipFashion(int item_id)
+    {
+        ProxyMethod("EquipFashion", item_id);
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UnequipFashion)]
+    public void UnequipFashion(int item_id)
+    {
+        ProxyMethod("UnequipFashion", item_id);
+    }
+    #endregion
+
     #region Mount
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.Mount)]
     public void Mount(int mount_id)
@@ -854,6 +844,7 @@ public class CombatRPC : RPCBase
     }
 
     #endregion
+
     #region Combat
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SetPlayerTeam)]
     public void SetPlayerTeam(int teamid)
@@ -861,6 +852,7 @@ public class CombatRPC : RPCBase
         ProxyMethod("SetPlayerTeam", teamid);
     }
     #endregion
+
     #region InvitePVP
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.InvitePvpAsk)]
     public void InvitePvpAsk(string targetname)
@@ -876,22 +868,13 @@ public class CombatRPC : RPCBase
 
     #endregion
 
-    #region Wardrobe
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EquipFashion)]
-    public void EquipFashion(int item_id)
+    #region Tutorial
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.TutorialStep)]
+    public void TutorialStep(int step)
     {
-        ProxyMethod("EquipFashion", item_id);
+        ProxyMethod("TutorialStep", step);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UnequipFashion)]
-    public void UnequipFashion(int item_id)
-    {
-        ProxyMethod("UnequipFashion", item_id);
-    }
-
-    #endregion
-
-    #region TutorialList
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UpdateTutorialList)]
     public void UpdateTutorialList(int bitpos)
     {
@@ -899,15 +882,13 @@ public class CombatRPC : RPCBase
     }
     #endregion
 
-    #region zdsp
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SyncAttackResult)]
     public void SyncAttackResult(int targetpid, int dmg, bool heal, bool interrupte)
     {
         ProxyMethod("SyncAttackResult", targetpid, dmg,heal, interrupte);
     }
-    #endregion
 
-    #region triggers
+    #region Triggers
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnColliderTrigger)]
     public void OnColliderTrigger(int objectId, bool enter)
     {
@@ -915,7 +896,7 @@ public class CombatRPC : RPCBase
     }
     #endregion
 
-    #region world boss
+    #region World Boss
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetWorldBossList)]
     public void GetWorldBossList()
     {
@@ -926,6 +907,20 @@ public class CombatRPC : RPCBase
     public void GetWorldBossDmgList(int bossid)
     {
         ProxyMethod("GetWorldBossDmgList", bossid);
+    }
+    #endregion
+
+    #region Side Effect
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddSideEffect)]
+    public void AddSideEffect(int targetpid, int sideeffect_id)
+    {
+        ProxyMethod("AddSideEffect", targetpid, sideeffect_id);
+    }
+
+    [RPCMethod(RPCCategory.Combat,(byte)ClientCombatRPCMethods.RemoveSideEffect)]
+    public void RemoveSideEffect(int targetpid, int sideeffect_id)
+    {
+        ProxyMethod("RemoveSideEffect", targetpid, sideeffect_id);
     }
     #endregion
 }

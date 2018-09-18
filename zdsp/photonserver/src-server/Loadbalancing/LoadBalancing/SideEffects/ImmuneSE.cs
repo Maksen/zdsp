@@ -22,8 +22,8 @@ namespace Zealot.Server.SideEffects {
 
         }
 
-        protected override bool OnApply() {
-            if (base.OnApply()) //need for update time
+        protected override bool OnApply(int equipid = -1) {
+            if (base.OnApply(equipid)) //need for update time
             {
             }
             return false;

@@ -21,6 +21,7 @@ namespace Zealot.Client.Entities
         public InventoryStats[] InventoryStats { get; private set; }
         public EquipmentStats EquipmentStats { get; set; }
         public EquipmentCraftStats EquipmentCraftStats { get; set; }
+        public EquipFushionStats EquipFushionStats { get; set; }
         public ItemHotbarStats ItemHotbarStats { get; set; }
         public SkillSynStats SkillStats { get; set; }
         public QuestSynStatsClient QuestStats { get; set; }
@@ -36,11 +37,11 @@ namespace Zealot.Client.Entities
         public HeroStatsClient HeroStats { get; private set; }
         public PowerUpStats PowerUpStats { get; set; }
         public DestinyClueStatsClient DestinyClueStats { get; set; }
+        public DonateSynStatsClient DonateStats { get; set; }
 
         // Shared stats 
         public PartyStatsClient PartyStats { get; set; }
         //public GuildStatsClient GuildStats { get; set; }
-        public DungeonObjectiveStats DungeonObjectiveStats { get; set; }
         public ExchangeShopSynStats ExchangeShopSynStats { get; private set; }
         public PortraitDataStats PortraitDataStats { get; private set; }
 
@@ -48,8 +49,10 @@ namespace Zealot.Client.Entities
         public ItemInventoryController clientItemInvCtrl;
         public PowerUpController clientPowerUpCtrl;
         public EquipmentCraftController clientEquipmentCraftCtrl;
+        public EquipFushionController clientEquipFushionCtrl;
         public QuestClientController QuestController { get; private set; }
         public DestinyClueClientController DestinyClueController { get; private set; }
+        public DonateClientController DonateController { get; private set; }
         private BotController mBotController;
         public BotController Bot { get { return mBotController; } }
 
@@ -95,16 +98,16 @@ namespace Zealot.Client.Entities
             switch (currencyType)
             {
                 case CurrencyType.Money:
-                    curval = SecondaryStats.money;
+                    curval = SecondaryStats.Money;
                     break;
                 case CurrencyType.Gold:
                     if (allowbind)
-                        return SecondaryStats.gold >= amount - SecondaryStats.bindgold;
+                        return SecondaryStats.Gold >= amount - SecondaryStats.bindgold;
                     else
-                        return SecondaryStats.gold >= amount;
+                        return SecondaryStats.Gold >= amount;
                 case CurrencyType.LockGold:
                     if (allowbind)
-                        return SecondaryStats.bindgold >= amount - SecondaryStats.gold;
+                        return SecondaryStats.bindgold >= amount - SecondaryStats.Gold;
                     else
                         return SecondaryStats.bindgold >= amount;
                 case CurrencyType.HonorValue:
@@ -117,7 +120,6 @@ namespace Zealot.Client.Entities
                     //if (GuildStats != null)
                     //    curval = GuildStats.guildGold;
                     break;
-
                 case CurrencyType.BattleCoin:
                     curval = SecondaryStats.battlecoin;
                     break;
@@ -131,7 +133,7 @@ namespace Zealot.Client.Entities
             switch (currencyType)
             {
                 case CurrencyType.Money:
-                    currencyvalue = SecondaryStats.money;
+                    currencyvalue = SecondaryStats.Money;
                     break;
                 case CurrencyType.GuildContribution:
                     currencyvalue = SecondaryStats.contribute;
@@ -141,7 +143,7 @@ namespace Zealot.Client.Entities
                     //    currencyvalue = GuildStats.guildGold;
                     break;
                 case CurrencyType.Gold:
-                    currencyvalue = SecondaryStats.gold;
+                    currencyvalue = SecondaryStats.Gold;
                     break;
                 case CurrencyType.LockGold:
                     currencyvalue = SecondaryStats.bindgold;
@@ -243,7 +245,7 @@ namespace Zealot.Client.Entities
                         hpp.UpdateExp();
                     }
                     break;
-                case "money":
+                case "Money":
                     GameObject windowObj = UIManager.GetWindowGameObject(WindowType.Inventory);
                     if (windowObj.activeInHierarchy)
                         windowObj.GetComponent<UI_Inventory>().UpdateCurrencyAmount(CurrencyType.Money);
@@ -254,7 +256,7 @@ namespace Zealot.Client.Entities
                     }
                     break;
                 case "bindgold":
-                case "gold":
+                case "Gold":
                     break;
                 case "vippoints":
                     break;
@@ -342,11 +344,14 @@ namespace Zealot.Client.Entities
                     if (IsLocal)
                     {
                         GameObject obj = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
-                        HUD_PlayerPortrait hpp = obj.GetComponent<HUD_PlayerPortrait>();
-                        hpp.UpdateLevel();
+                        if (obj != null)
+                            obj.GetComponent<HUD_PlayerPortrait>().UpdateLevel((int)value);
 
                         if ((int)oldvalue != -1)
+                        {
                             PlayEffect("", "levelup", null, 4f, Position, this);
+                        }
+                        UpdateQuestRequirement(QuestRequirementType.Level, -1);
                     }
                     break;
                 case "guildName":
@@ -366,9 +371,20 @@ namespace Zealot.Client.Entities
                         AvatarController controller = AnimObj.GetComponent<AvatarController>();
                         controller.InitAvatar(mEquipmentInvData, (JobType)PlayerSynStats.jobsect, mGender);
                     }
+                    if (IsLocal)
+                    {
+                        UpdateQuestRequirement(QuestRequirementType.Job, -1);
+                        GameObject obj = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
+                        if (obj != null)
+                            obj.GetComponent<HUD_PlayerPortrait>().UpdatePortrait((byte)value);
+                    }
                     break;
                 case "QuestCompanionId":
                     UpdatePlayerCompanion();
+                    if (IsLocal)
+                    {
+                        UpdateQuestRequirement(QuestRequirementType.Companian, -1);
+                    }
                     break;
                 default:
                     break;
@@ -428,13 +444,14 @@ namespace Zealot.Client.Entities
                 //hudskill.botToggle.;
                 Bot.StopBot();
                 hudskill.AutoCombatToggle.isOn = false;
-                if (PartyStats != null)
-                    PartyStats.StopFollowTarget();
             }
             if (IsLocal)
             {
                 ActionInterupted();
             }
+
+            if (PartyFollowTarget.IsFollowing())
+                PartyStats.StopFollowTarget();
         }
 
         public void OnSkillLocalObjectChanged()
@@ -484,34 +501,60 @@ namespace Zealot.Client.Entities
             //");
             if (field.Contains("SId"))
             {
-                int skillId = (int)value; 
+                int skillId = (int)value;
                 if (field == "basicAttack1SId")
                 {
                     //Debug.Log("basicAttack1SId changed: " + value);                   
                     GameInfo.gBasicAttackState.mBasicAttackIDs[0] = skillId;
                 }
                 else if (field == "basicAttack2SId")
-                {                
+                {
                     GameInfo.gBasicAttackState.mBasicAttackIDs[1] = skillId;
                 }
                 else if (field == "basicAttack3SId")
-                {                    
+                {
                     GameInfo.gBasicAttackState.mBasicAttackIDs[2] = skillId;
-                }           
+                }
             }
         }
 
-        public SkillData[] comboSkills = new SkillData[3];
-
         public void OnRealmStatsChanged(string field, object value, object oldvalue)
         {
+        }
+
+        public void OnRealmStatsCollectionChanged(string field, byte idx, object value)
+        {
+            if (field == "DungeonStory")
+            {
+                if (value != null)
+                {
+                    RealmInfo info = new RealmInfo((string)value, idx);
+                    RealmStats.GetDungeonStoryInfos()[info.Sequence] = info;
+                }
+                else
+                {
+                    int seqToRemove = 0;
+                    Dictionary<int, RealmInfo> dungeonStoryInfos = RealmStats.GetDungeonStoryInfos();
+                    foreach (KeyValuePair<int, RealmInfo> kvp in dungeonStoryInfos)
+                    {
+                        if (kvp.Value.LocalObjIdx == idx)
+                            seqToRemove = kvp.Key;
+                    }
+                    if (seqToRemove != 0)
+                        dungeonStoryInfos.Remove(seqToRemove);
+                }
+
+                GameObject windowObj = UIManager.GetWindowGameObject(WindowType.DungeonStory);
+                if (windowObj.activeInHierarchy)
+                    windowObj.GetComponent<UI_DungeonStory>().UpdateLootRewardLimit(this);
+            }
         }
 
         public void OnInventoryStatsCollectionChanged(LOTYPE lotype, string field, byte idx, object value)
         {
             IInventoryItem item = GameRepo.ItemFactory.GetItemFromCode(value);
             int slotid = (lotype - LOTYPE.InventoryStats) * (int)InventorySlot.COLLECTION_SIZE + idx;
-            clientItemInvCtrl.UpdateItemInv(slotid, item); 
+            clientItemInvCtrl.UpdateItemInv(slotid, item);
         }
 
         public void OnInventoryStatsLocalObjectChanged()
@@ -595,6 +638,10 @@ namespace Zealot.Client.Entities
             mEquipmentInvData.HideHelm = EquipmentStats.HideHelm;
             AvatarController controller = AnimObj.GetComponent<AvatarController>();
             controller.InitAvatar(mEquipmentInvData, (JobType)PlayerSynStats.jobsect, mGender);
+            if (IsLocal)
+            {
+                UpdateQuestRequirement(QuestRequirementType.Equipment, -1);
+            }
         }
 
         public void OnItemHotbarCollectionChanged(string field, byte idx, object value)
@@ -640,13 +687,19 @@ namespace Zealot.Client.Entities
             switch (field)
             {
                 case "Health":
+                case "HealthMax":
+                    GameObject goh = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
+                    goh.GetComponent<HUD_PlayerPortrait>().UpdateHPBar(LocalCombatStats.Health, LocalCombatStats.HealthMax);
+                    break;
                 case "Mana":
-                    if (IsLocal)
-                    {
-                        GameObject obj = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
-                        HUD_PlayerPortrait hpp = obj.GetComponent<HUD_PlayerPortrait>();
-                        hpp.UpdateHPMPBar();
-                    }
+                case "ManaMax":
+                    Debug.Log(field + ": " + value);
+                    GameObject gom = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
+                    gom.GetComponent<HUD_PlayerPortrait>().UpdateMPBar(LocalCombatStats.Mana, LocalCombatStats.ManaMax);
+                    break;
+                case "EnergyShield":
+                    if (HeadLabel != null && HeadLabel.IsControllerCreated())
+                        HeadLabel.mPlayerLabel.Shield = (int)value;
                     break;
                 case "IsInCombat":
                     if(IsLocal)
@@ -866,6 +919,26 @@ namespace Zealot.Client.Entities
             {
                 UI_CharacterEquipmentCraftManager.AfterCraft();
                 EquipmentCraftStats.finishedCraft = false;
+            }
+        }
+
+        public void OnEquipFushionStatsChanged()
+        {
+            if (EquipFushionStats.FinishedFushion)
+            {
+                UI_CharacterEquipFushionManager.RefreshFushion();
+                EquipFushionStats.FinishedFushion = false;
+            }
+        }
+
+        public void OnEquipFushionStatsCollectionChanged(string field, byte idx, object value)
+        {
+            clientEquipFushionCtrl.EquipFushionInventory.EndOfFushion = (bool)value;
+
+            if (EquipFushionStats.FinishedFushion)
+            {
+                UI_CharacterEquipFushionManager.RefreshFushion();
+                EquipFushionStats.FinishedFushion = false;
             }
         }
 
@@ -1166,6 +1239,7 @@ namespace Zealot.Client.Entities
                 InitEquipmentCraftCtrl();
                 QuestController = new QuestClientController(this);
                 DestinyClueController = new DestinyClueClientController();
+                DonateController = new DonateClientController();
             }
             mEquipmentInvData = new EquipmentInventoryData();
             mEquipmentInvData.InitDefault();
@@ -1199,6 +1273,12 @@ namespace Zealot.Client.Entities
                     EquipmentCraftStats.OnCollectionChanged = OnEquipmentCraftStatsCollectionChanged;
                     mylocalobj = EquipmentCraftStats;
                     break;
+                case LOTYPE.EquipFushionStats:
+                    EquipFushionStats = new EquipFushionStats();
+                    EquipFushionStats.OnLocalObjectChanged = OnEquipFushionStatsChanged;
+                    EquipFushionStats.OnCollectionChanged = OnEquipFushionStatsCollectionChanged;
+                    mylocalobj = EquipFushionStats;
+                    break;
                 case LOTYPE.ItemHotbarStats:
                     ItemHotbarStats = new ItemHotbarStats();
                     ItemHotbarStats.ItemHotbar.SetNotifyParent(false);
@@ -1219,8 +1299,7 @@ namespace Zealot.Client.Entities
                 case LOTYPE.RealmStats:
                     RealmStats = new RealmStats();
                     RealmStats.DungeonStory.SetNotifyParent(false);
-                    RealmStats.DungeonDaily.SetNotifyParent(false);
-                    RealmStats.DungeonSpecial.SetNotifyParent(false);
+                    RealmStats.OnCollectionChanged = OnRealmStatsCollectionChanged;
                     RealmStats.OnValueChanged = OnRealmStatsChanged;
                     mylocalobj = RealmStats;
                     break;
@@ -1278,6 +1357,12 @@ namespace Zealot.Client.Entities
                     DestinyClueStats.OnNewlyAdded = OnDestinyClueStatsAdded;
                     mylocalobj = DestinyClueStats;
                     break;
+                case LOTYPE.DonateSynStats:
+                    DonateStats = new DonateSynStatsClient();
+                    DonateStats.OnValueChanged = OnDonateStatsValueChanged;
+                    DonateStats.OnNewlyAdded = OnDonateStatsAdded;
+                    mylocalobj = DonateStats;
+                    break;
             }
 
             // InventoryStats Array
@@ -1302,7 +1387,14 @@ namespace Zealot.Client.Entities
         #region Quest Stats
         private void OnQuestStatsValueChanged(string field, object value, object oldvalue)
         {
-            QuestController.DeserializeData(field, (string)value, (string)oldvalue);
+            if (field == "signboardRewardBoost" || field == "signboardLimit")
+            {
+                QuestController.UpdateValue(field, (int)value);
+            }
+            else
+            {
+                QuestController.DeserializeData(field, (string)value, (string)oldvalue);
+            }
         }
 
         private void OnQuestStatsCollectionChanged(string field, byte idx, object value)
@@ -1312,7 +1404,7 @@ namespace Zealot.Client.Entities
 
         private void OnQuestStatsAdded()
         {
-            QuestController.Init();
+            QuestController.Init((ClientEntitySystem)EntitySystem);
         }
         #endregion
 
@@ -1325,6 +1417,18 @@ namespace Zealot.Client.Entities
         private void OnDestinyClueStatsAdded()
         {
             DestinyClueController.Init();
+        }
+        #endregion
+
+        #region Donate Stats
+        private void OnDonateStatsValueChanged(string field, object value, object oldvalue)
+        {
+            DonateController.DeserializeData(field, (string)value, (string)oldvalue);
+        }
+
+        private void OnDonateStatsAdded()
+        {
+            DonateController.Init();
         }
         #endregion
 
@@ -1365,6 +1469,15 @@ namespace Zealot.Client.Entities
             clientEquipmentCraftCtrl = new EquipmentCraftController();
             if (clientEquipmentCraftCtrl == null)
                 Debug.LogError("EquipmentCraftCtrl is null");
+
+            InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
+        }
+
+        private void InitEquipFushionCtrl()
+        {
+            clientEquipFushionCtrl = new EquipFushionController();
+            if (clientEquipFushionCtrl == null)
+                Debug.LogError("clientEquipFushionCtrl is null");
 
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
 
@@ -1422,14 +1535,14 @@ namespace Zealot.Client.Entities
             mmMap.InitMap();
         }
 
-        public void PathFindToTarget(Vector3 position, int targetid, float range, bool targetsafe, bool movedirectonpathfound, Common.Actions.Action.CompleteCallBackDelegate callback)
+        public void PathFindToTarget(Vector3 position, int targetpid, float range, bool targetsafe, bool movedirectonpathfound, Common.Actions.Action.CompleteCallBackDelegate callback)
         {
             if (!CanMove())
                 return;
             ApproachWithPathFindCommand cmd = new ApproachWithPathFindCommand();
             cmd.movedirectonpathfound = movedirectonpathfound;
             cmd.range = range;
-            cmd.targetpid = targetid;//target entity pid,pathfind action .
+            cmd.targetpid = targetpid;//target entity pid,pathfind action .
             cmd.targetpos = position;
             cmd.targetposSafe = targetsafe;
             ACApproachWithPathFind action = new ACApproachWithPathFind(this, cmd);
@@ -1453,7 +1566,7 @@ namespace Zealot.Client.Entities
                     action = delegate {
                         staticnpc.Interact();
                     };
-                    range = 1.5f;
+                    range = 2f;
                     targetid = -1;
                 }
             }
@@ -1538,9 +1651,17 @@ namespace Zealot.Client.Entities
                 return false;
         }
 
+        public bool IsFrozen()
+        {
+            if (ControlSE_Status != null)
+                return ControlSE_Status[EffectVisualTypes.Frozen.ToString()] == true;
+            else
+                return false;
+        }
+
         public bool CanMove()
         {
-            return !IsStun() && !IsRooted();
+            return !IsStun() && !IsRooted() && !IsFrozen();
         }
 
         public bool HasPositiveSE(int otherSEID)
@@ -1612,9 +1733,9 @@ namespace Zealot.Client.Entities
             switch (field)
             {
                 //case "experience":
-                case "money":
+                case "Money":
                 case "contribute":
-                case "gold":
+                case "Gold":
                 case "lotterypoints":
                 case "honor":
                 case "battlecoin":
@@ -2007,17 +2128,25 @@ namespace Zealot.Client.Entities
             {
                 QuestController.ActionInterupted();
             }
+
+            if (Bot.Enabled)
+            {
+                Bot.StopBot();
+            }
         }
 
         public IEnumerator PlayCutscene(string name, int delay, int questid)
         {
-            ForceIdle();
-            Bot.StopBot();
-            UIManager.OpenCutsceneDialog();
+            if (GameInfo.gCombat.CutsceneManager.IsCutsceneReady(name))
+            {
+                ForceIdle();
+                Bot.StopBot();
+                UIManager.OpenCutsceneDialog();
 
-            yield return new WaitForSecondsRealtime(delay);
+                yield return new WaitForSecondsRealtime(delay);
 
-            GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));
+                GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));
+            }
         }
 
         public void StartNextQuestEvent(int questid)
@@ -2062,6 +2191,14 @@ namespace Zealot.Client.Entities
                     EntitySystem.RemoveEntityByID(mCompanionGhost.ID);
                 }
                 mCompanionGhost = null;
+            }
+        }
+
+        public void UpdateQuestRequirement(QuestRequirementType requirementType, int triggerid)
+        {
+            if (QuestController != null)
+            {
+                QuestController.UpdateRequirementProgress(requirementType, triggerid, this);
             }
         }
     }

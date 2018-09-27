@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <data>
+
+    <enum name="CollectionType">
+      <item key="Monster" value ="0"/>
+      <item key="Fashion" value ="1"/>
+      <item key="Hero" value ="2"/>
+      <item key="NPC" value ="3"/>
+      <item key="Photo" value ="4"/>
+      <item key="Relic" value ="5"/>
+      <item key="DNA" value ="6"/>
+    </enum>
+
+    <enum name="CollectionMonsterType">
+      <item key="Normal" value ="0"/>
+      <item key="MiniBoss" value ="1"/>
+      <item key="BigBoss" value ="2"/>
+      <item key="DungeonBoss" value ="3"/>
+    </enum>
+
+    <!-- TBC -->
+    <enum name="CollectionRegionType">
+      <item key="RegionOne" value ="0"/>
+      <item key="RegionTwo" value ="1"/>
+      <item key="RegionThree" value ="2"/>
+    </enum>
+
+    <enum name="AchievementRewardType">
+      <item key="None" value ="0"/>
+      <item key="Item" value ="1"/>
+      <item key="Currency" value ="2"/>
+      <item key="SideEffect" value ="3"/>
+    </enum>
+
+    <enum name="AchievementTrophyType">
+      <item key="Bronze" value ="0"/>
+      <item key="Silver" value ="1"/>
+      <item key="Gold" value ="2"/>
+    </enum>
+
+    <enum name="AchievementObjectiveType">
+      <item key="MainQuest" value ="0"/>
+      <item key="SubQuest" value ="1"/>
+      <item key="DestinyQuest" value ="2"/>
+      <item key="GuildQuest" value ="3"/>
+      <item key="Scene" value ="4"/>
+      <item key="Photography" value ="5"/>
+      <item key="NPCInteract" value ="6"/>
+      <item key="RealmPassID" value ="7"/>
+      <item key="RealmCount" value ="8"/>
+      <item key="DieNumber" value ="9"/>
+      <item key="RealmKill" value ="10"/>
+      <item key="RealmDie" value ="11"/>
+      <item key="BronzeReward" value ="12"/>
+      <item key="SilverReward" value ="13"/>
+      <item key="GoldenReward" value ="14"/>
+      <item key="QuestBoard" value ="15"/>
+      <item key="FriendNumber" value ="16"/>
+      <item key="JoinGuild" value ="17"/>
+      <item key="GuildMember" value ="18"/>
+      <item key="GuildContribution" value ="19"/>
+      <item key="PrivateChat" value ="20"/>
+      <item key="GuildChat" value ="21"/>
+      <item key="WorldChat" value ="22"/>
+      <item key="SpecificMonsterKill" value ="23"/>
+      <item key="MonsterKill" value ="24"/>
+      <item key="MiniKill" value ="25"/>
+      <item key="BossKill" value ="26"/>
+      <item key="PVPKill" value ="27"/>
+      <item key="PVPDie" value ="28"/>
+      <item key="CollectItem" value ="29"/>
+      <item key="Strength" value ="30"/>
+      <item key="Agility" value ="31"/>
+      <item key="Dexterity" value ="32"/>
+      <item key="Constitution" value ="33"/>
+      <item key="Intelligence" value ="34"/>
+      <item key="PowerUp" value ="35"/>
+      <item key="CraftingItem" value ="36"/>
+      <item key="CraftingCount" value ="37"/>
+      <item key="RefineCount" value ="38"/>
+      <item key="RefineEquipmentLV" value ="39"/>
+      <item key="Socket" value ="40"/>
+      <item key="AchievementLevel" value ="41"/>
+      <item key="Level" value ="42"/>
+      <item key="HeroNumber" value ="43"/>
+      <item key="HeroLevel" value ="44"/>
+      <item key="HeroGrowth" value ="45"/>
+      <item key="HeroExploration" value ="46"/>
+      <item key="HeroGift" value ="47"/>
+      <item key="HeroInteract" value ="48"/>
+      <item key="HeroTrust" value ="49"/>
+      <item key="HeroSkill" value ="50"/>
+      <item key="CurrencyConsume" value ="51"/>
+      <item key="CurrencyEarn" value ="52"/>
+      <item key="AuctionSell" value ="53"/>
+      <item key="AuctionBuy" value ="54"/>
+      <item key="DailyLogIn" value ="55"/>
+      <item key="MonthCard" value ="56"/>
+      <item key="TopUpCount" value ="57"/>
+      <item key="TopUpAmount" value ="58"/>
+    </enum>
+    
+    <element name="CollectionCategory" useexcel="true">
+      <property name="ctype" type="CollectionType" uitext="CollectionType"/>
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+      <property name="localizedunlock" type="localizedstring" uitext="Localized Unlock"/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+    </element>
+
+    <element name="CollectionObjective" useexcel="true" collectionkey="cid">
+      <property name="cid" type ="int" uitext="Collection ID" unique="true" info="must be unique"/>
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+      <property name="ctype" type="CollectionType" uitext="CollectionType"/>
+      <property name="localizedlocation" type="localizedstring" uitext="Localized Location"/>
+      <property name="monstertype" type="CollectionMonsterType" uitext="MonsterType"/>
+      <property name="regiontype" type="CollectionRegionType" uitext="RegionType"/>
+      <property name="targetid" type="int" uitext="Target ID"/>
+      <property name="exp" type="int" uitext="AEXP Reward"/>
+      <property name="rewardtype" type="AchievementRewardType" uitext="RewardType"/>
+      <property name="reward" type="string" uitext="Reward" default="" info="id;count"/>
+      <property name="collectse" type="string" uitext="Collect SideEffect" default="" info="id;id"/>
+      <property name="rewardiconpath" type="asset" uitext="Reward Icon Path" default="" assettype="sprite"/>
+      <property name="iconpath" type="asset" uitext="Collection Icon Path" default="" assettype="sprite"/>
+      <property name="bigpicpath" type="asset" uitext="BigPic Path" default="" assettype="sprite"/>
+      <property name="sortorder" type="int" uitext="Sort Order"/>
+    </element>
+
+    <element name="CollectionPhoto" useexcel="true" collectionkey="pid">
+      <property name="pid" type ="int" uitext="Photo ID" unique="true"/>
+      <property name="name" type="string" uitext="Name"/>
+      <property name="membercount" type="int" uitext="Party Member Count" default="1" min="1" max="5"/>
+      <property name="weight" type="int" uitext="Weight"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+    </element>
+
+    <element name="AchievementMainType" useexcel="true">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="sequence" type="int" uitext="Sequence"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+    </element>
+
+    <element name="AchievementSubType" useexcel="true">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="maintype" type="AchievementMainType" uitext="Main Type" display="name"/>
+      <property name="sequence" type="int" uitext="Sequence"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+    </element>
+    
+    <element name="AchievementObjective" useexcel="true" collectionkey="achid">
+      <property name="achid" type ="int" uitext="Achievement ID" unique="true" info="must be unique"/>
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+      <property name="subtype" type="AchievementSubType" uitext="Sub Type" display="name"/>
+      <property name="objtype" type="AchievementObjectiveType" uitext="Objective Type"/>
+      <property name="achgroup" type="int" uitext="Group"/>
+      <property name="step" type="int" uitext="Step" default="1"/>
+      <property name="target" type="string" uitext="Target" default="-1"/>
+      <property name="count" type="int" uitext="Count" default="1"/>
+      <property name="exp" type="int" uitext="AEXP Reward"/>
+      <property name="rewardtype" type="AchievementRewardType" uitext="RewardType"/>
+      <property name="reward" type="string" uitext="Reward" default="" info="id;count"/>
+      <property name="rewardiconpath" type="asset" uitext="Reward Icon Path" default="" assettype="sprite"/>
+      <property name="trophytype" type="AchievementTrophyType" uitext="Trophy Type"/>
+      <property name="sortorder" type="int" uitext="Sort Order"/>
+    </element>
+
+    <element name="AchievementLevel" useexcel="true" collectionkey="achlevel">
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+      <property name="achlevel" type="int" uitext="Achievement Level" unique="true"/>
+      <property name="experience" type="int" uitext="Experience"/>
+      <property name="hasreward" type="bool" uitext="Has Reward" default="true"/>
+      <property name="itemreward" type="string" uitext="Item Reward" default="" info="id;count|id;count"/>
+      <property name="currencyreward" type="string" uitext="Currency Reward" default="" info="id;count|id;count"/>
+      <property name="sereward" type="string" uitext="SideEffect Reward" default="" info="id|id"/>
+    </element>
+
+    <element name="LISATransformTier" useexcel="true" collectionkey="tierid">
+      <property name="tierid" type ="int" uitext="Tier ID" unique="true"/>
+      <property name="name" type="string" uitext="Name"/>
+      <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+      <property name="reqlvl" type="int" uitext="Achievement Level Required"/>
+      <property name="modelpath" type="asset" uitext="Avatar Path" default="" assettype="prefab"/>
+    </element>
+
+    <enum name="LISARewardTriggerType">
+      <item key="AchievementLV" value ="0"/>
+      <item key="AchievementID" value ="1"/>
+    </enum>
+    
+    <element name="LISAReward" useexcel="true">
+      <property name="sortorder" type ="int" uitext="Sort Order"/>
+      <property name="triggertype" type="LISARewardTriggerType" uitext="Type"/>
+      <property name="triggervalue" type="int" uitext="Value"/>
+      <property name="systemunlock" type="string" uitext="System Unlock"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
+    </element>
+
+    <enum name="LISAMsgBehaviourType">
+      <item key="OnOpen" value ="0"/>
+      <item key="OnTouchAvatar" value ="1"/>
+      <item key="RegularRefresh" value ="2"/>
+    </enum>
+
+    <enum name="LISAMsgDirectionType">
+      <item key="SystemOpen" value ="0"/>
+      <item key="RewardTip" value ="1"/>
+      <item key="ChangeTier" value ="2"/>
+      <item key="TouchAvatar" value ="3"/>
+      <item key="Greeting" value ="4"/>
+      <item key="Idle" value ="5"/>
+    </enum>
+    
+    <element name="LISAMsgBehaviour" useexcel="true">
+      <property name="behaviourtype" type ="LISAMsgBehaviourType" uitext="Msg Behaviour Type"/>
+      <property name="directiontype" type="LISAMsgDirectionType" uitext="Msg Direction Type"/>
+      <property name="weight" type="int" uitext="Direction Weight" default="10"/>
+    </element>
+
+    <element name="LISAMsg" useexcel="true">
+      <property name="directiontype" type="LISAMsgDirectionType" uitext="Msg Direction Type"/>
+      <property name="weight" type="int" uitext="Msg Weight" default="10"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Msg Description"/>
+    </element>
+
+  </data>
+</magicalarea51>

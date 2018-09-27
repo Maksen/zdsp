@@ -12,8 +12,7 @@ namespace Zealot.Common
     {
         //all skill id below is skillgroup id ;
         [JsonProperty(PropertyName = "BasicAttack1SkillId")]
-        public int basicAttack1SId { get;
-            set; }
+        public int basicAttack1SId { get; set; }
 
         [JsonProperty(PropertyName = "BasicAttack2SkillId")]
         public int basicAttack2SId { get; set; }
@@ -42,7 +41,7 @@ namespace Zealot.Common
         //cannot disable basic attack 
         public void InitDefault(JobsectJson jsj)
         {
-
+            basicAttack1SId = 1;
             SkillInv = new List<int>(40);
             EquippedSkill = new List<int>(36);
             AutoSkill = new List<int>(36);

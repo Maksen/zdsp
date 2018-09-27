@@ -10,6 +10,11 @@ class UIShopBarterDetails : UIShopDetails
     public Transform RequiredWindowParent;
     private List<GameObject> RequirementEntries = new List<GameObject>();
 
+    void Start()
+    {
+        purchasequantitywidget.onValueChanged.AddListener(delegate { UpdateTotalCost(); });
+    }
+
     public void init(ShopItem item)
     {
         if (item.itemdata.Type == NPCStoreInfo.ItemStoreType.Barter || item.itemdata.required_items.Count > 0)
@@ -50,23 +55,9 @@ class UIShopBarterDetails : UIShopDetails
                 if (itemicon != null)
                     Destroy(itemicon.gameObject);
 
-                itemicon = Instantiate(itemiconprefab, itemicon_parent).GetComponent<GameIcon_Base>();
-                IInventoryItem invItem = itemicon.inventoryItem;
-                BagType bagType = invItem.JsonObject.bagtype;
-                int itemId = invItem.JsonObject.itemid;
-                switch (bagType)
-                {
-                    case BagType.Equipment:
-                        ((GameIcon_Equip)itemicon).InitWithToolTipView(itemId, 0, 0, 0);
-                        break;
-                    case BagType.Consumable:
-                    case BagType.Material:
-                        ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
-                        break;
-                    case BagType.Socket:
-                        ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
-                        break;
-                }
+                itemicon = Instantiate(itemiconprefab, itemicon_parent, false).GetComponent<GameIcon_Base>();
+                IInventoryItem invItem = item.itemdata.data;
+                ClientUtils.InitGameIcon(itemicon.gameObject, invItem, invItem.ItemID, invItem.ItemSortJson.gameicontype, invItem.StackCount, true);
             }
 
             // Determine maximum amount buyable by barter
@@ -107,6 +98,17 @@ class UIShopBarterDetails : UIShopDetails
             Destroy(entry);
         }
         RequirementEntries.Clear();
+    }
+
+    new void UpdateTotalCost()
+    {
+        if (selecteditem.Type == NPCStoreInfo.ItemStoreType.Barter)
+        {
+            var standarditem = (NPCStoreInfo.StandardItem)selecteditem;
+            //var cost = purchasequantitywidget.Value * standarditem.DiscountedPrice();
+            //totalcost.text = cost.ToString();
+        }
+        base.UpdateTotalCost();
     }
 }
 

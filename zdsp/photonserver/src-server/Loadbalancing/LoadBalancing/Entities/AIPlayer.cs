@@ -46,8 +46,8 @@
             log.InfoFormat("Spawn AIPlayer [{0}] to {1}", GetPersistentID(), peer.mChar);
 #endif
             peer.ZRPC.CombatRPC.SpawnPlayerEntity(false, mnOwnerID, PlayerSynStats.name, mnPersistentID,
-                                             ((PlayerSynStats)PlayerStats).jobsect, ((PlayerSynStats)PlayerStats).Gender, ((PlayerSynStats)PlayerStats).MountID, Position.ToRPCPosition(), Forward.ToRPCDirection(), GetHealth(), GetHealthMax(), peer);            
-        }       
+                PlayerSynStats.Gender, Position.ToRPCPosition(), Forward.ToRPCDirection(), peer);
+        }
         #endregion
 
         public void SetAIBehaviour(BaseAIBehaviour behaviour)
@@ -206,9 +206,9 @@
             mAIController.GotoState("Stun");
         }
 
-        public override void OnFrozen()
+        public override void OnFrozen(float duration)
         {
-            base.OnFrozen();
+            base.OnFrozen(duration);
             mAIController.GotoState("Frozen");
         }
 

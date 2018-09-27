@@ -21,7 +21,7 @@ public class UIShopSellDetails : UIShopDetails
     {
         if (item.itemdata.Type == NPCStoreInfo.ItemStoreType.Normal)
         {
-            var standarditem = (NPCStoreInfo.StandardItem)item.itemdata;
+            var standarditem = item.itemdata;
 
             purchasequantitywidget.Value = 0;
             totalcost.text = "0";
@@ -64,8 +64,9 @@ public class UIShopSellDetails : UIShopDetails
                 if (itemicon != null)
                     Destroy(itemicon.gameObject);
 
-                itemicon = Instantiate(itemiconprefab, itemicon_parent).GetComponent<GameIcon_Base>();
-                UIShop.InitGameIcon(item.itemdata.data, itemicon);                
+                itemicon = Instantiate(itemiconprefab, itemicon_parent, false).GetComponent<GameIcon_Base>();
+                IInventoryItem invItem = item.itemdata.data;
+                ClientUtils.InitGameIcon(itemicon.gameObject, invItem, invItem.ItemID, invItem.ItemSortJson.gameicontype, invItem.StackCount, true);             
             }
 
             foreach (var currencyicon in currencyicons)

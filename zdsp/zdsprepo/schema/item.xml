@@ -8,7 +8,7 @@
       <item key="UI" value="3"/>
       <item key="Auction" value="4"/>
     </enum>
-      
+
     <element name="ItemOrigin" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name" default=""/>
       <property name="origintype" type="ItemOriginType" uitext="Origin Type" default="0"/>
@@ -26,6 +26,8 @@
       <property name="name" type="string" uitext="Name" default=""/>
       <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
       <property name="sortorder" type="int" uitext="Sorting Order" default="0"/>
+      <property name="bagtabtype" type="BagTabType" uitext="Bag Tab" default="0"/>
+      <property name="gameicontype" type="ItemGameIconType" uitext="Game Icon Type" default="0"/>
     </element>
     
     <element name="ItemBase" useexcel="true" collectionkey="name" localizeexport="itemid">
@@ -34,7 +36,6 @@
       <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
       <property name="description" type="localizedstring" uitext="Description" default=""/>
       <constant name="itemtype" type="ItemType" value="ItemType.Invalid"/>
-      <property name="bagtype" type="BagType" uitext="Bag Type" default="0"/>
       <property name="useable" type="bool" uitext="Useable" default="true"/>
       <property name="rarity" type="ItemRarity" uitext="Item Rarity" default="0"/>
       <property name="requirelvl" type="int" uitext="Require Lvl" default="1" min="1" max="99999"/>

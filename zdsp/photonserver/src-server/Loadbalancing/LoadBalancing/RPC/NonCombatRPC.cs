@@ -1065,8 +1065,7 @@ namespace Photon.LoadBalancing.GameServer
             if (player == null)
                 return;
 
-            var starttime = DateTime.Now;
-
+            var starttime = DateTime.Now;            
             var npcstores = await NPCStoreManager.InstanceAsync().ConfigureAwait(false);
 
             var contains = npcstores.storedata.ContainsKey(storeid);
@@ -1095,14 +1094,14 @@ namespace Photon.LoadBalancing.GameServer
 
             if (npcstores.storedata.ContainsKey(storeid) == false)
             {                
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Store not found"), peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Store not found"), peer);
                 return;
             }
             var store = npcstores.storedata[storeid];
 
             if (store.inventory.ContainsKey(itemlistid) == false)
             {
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Item not found"), peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Item not found"), peer);
                 return;
             }
             var storeentry = store.inventory[itemlistid];
@@ -1114,12 +1113,12 @@ namespace Photon.LoadBalancing.GameServer
 			if (storeentry.Show == false)
 			{
                 //peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Invalid item"), peer);
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Item not found"), peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Item not found"), peer);
                 return;
 			}
 			if (System.DateTime.Now > storeentry.EndTime || System.DateTime.Now < storeentry.StartTime)
 			{
-				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Item not on sale for this time period"), peer);
+				peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Item not on sale for this time period"), peer);
 				return;
 			}
 
@@ -1129,7 +1128,7 @@ namespace Photon.LoadBalancing.GameServer
             {
                 if (transactions[transactionkey].remaining < purchaseamount && storeentry.DailyOrWeekly != NPCStoreInfo.Frequency.Unlimited)
                 {
-                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Purchase limit exceeded"), peer);
+                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Purchase limit exceeded"), peer);
                     return;
                 }
 
@@ -1164,7 +1163,7 @@ namespace Photon.LoadBalancing.GameServer
             if (buyresult == false)
             {
                 // money no enough, reject
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Insufficient currency"), peer);
+                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Insufficient currency"), peer);
                 return;
             }
 
@@ -1177,7 +1176,7 @@ namespace Photon.LoadBalancing.GameServer
             var success = GameApplication.dbGM.NPCStoreGMRepo.UpdateTransactions(transactions, charid).ConfigureAwait(false);
 
             //string scString = JsonConvert.SerializeObject("Success");
-            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedString("Transaction success"), peer);
+            peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Transaction success"), peer);
         }
 
         #endregion
@@ -1289,25 +1288,32 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipSkill)]
         public void EquipSkill(int skillid, int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.EquippedSkill[slot * slotGroup] = skillid;
+            peer.mPlayer.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))] = skillid;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveEquipSkill)]
         public void RemoveEquipSkill(int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.EquippedSkill[slot * slotGroup] = 0;
+            peer.mPlayer.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))] = 0;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.AutoEquipSkill)]
         public void AutoEquipSkill(int skillid, int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.AutoSkill[slot * slotGroup] = skillid;
+            peer.mPlayer.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))] = skillid;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveAutoEquipSkill)]
         public void RemoveAutoEquipSkill(int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.AutoSkill[slot * slotGroup] = 0;
+            peer.mPlayer.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))] = 0;
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateEquipSlots)]
+        public void UpdateEquipSlots(int equip, int auto, GameClientPeer peer)
+        {
+            peer.mPlayer.SkillStats.EquipGroup = equip;
+            peer.mPlayer.SkillStats.AutoGroup = auto;
         }
         #endregion
 
@@ -1316,6 +1322,18 @@ namespace Photon.LoadBalancing.GameServer
         public void PowerUp(int part, GameClientPeer peer)
         {
             peer.OnPowerUp(part);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianLevelUp)]
+        public void MeridianLevelUp(int type, GameClientPeer peer)
+        {
+            peer.OnMeridianLevelUp(type);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianExpUp)]
+        public void MeridianExpUp(int type, GameClientPeer peer)
+        {
+            peer.OnMeridianExpUp(type);
         }
         #endregion
 
@@ -1328,10 +1346,16 @@ namespace Photon.LoadBalancing.GameServer
         #endregion
 
         #region EquipFushion
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFushion)]
-        public void EquipFushion(int itemIndex, string consumeIndex, GameClientPeer peer)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFusion)]
+        public void EquipFusion(int itemIndex, string consumeIndex, bool changed, GameClientPeer peer)
         {
-            peer.OnEquipFushion(itemIndex, consumeIndex);
+            peer.OnEquipFusion(itemIndex, consumeIndex, changed);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFusionGive)]
+        public void EquipFusionGive(int itemIndex, string consumeIndex, GameClientPeer peer)
+        {
+            peer.OnEquipFusionGive(itemIndex, consumeIndex);
         }
         #endregion
 

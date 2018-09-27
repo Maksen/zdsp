@@ -69,6 +69,7 @@ namespace Zealot.Common
                 SoldType = soldtype;
                 SoldValue = soldvalue;
                 Discount = discount;
+                Type = type;
                 SortNumber = sortnumber;
                 StartTime = start;
                 EndTime = end;

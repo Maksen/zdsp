@@ -10,6 +10,8 @@
     {
         public double Duration { get; set; }
         public double ElapsedTime { get; set; }
+
+        public bool AutoReset { get; set; }
         public TimerDelegate TimerDelegate { get; set; }
         public object Argument { get; set; }
 
@@ -19,6 +21,7 @@
             ElapsedTime = 0;
             TimerDelegate = del;
             Argument = arg;
+            AutoReset = false;
         }
     }
 
@@ -94,8 +97,14 @@
                     GameTimer timer = entry.Value;
                     timer.ElapsedTime += dt;
                     if (timer.ElapsedTime >= timer.Duration)
-                    {                        
-                        mDeleteList.Add(timer);
+                    {                      
+                        if(!timer.AutoReset)  
+                            mDeleteList.Add(timer);
+                        else
+                        {
+                            timer.TimerDelegate(timer.Argument);
+                            timer.ElapsedTime = 0;
+                        }
                     }
                 }
                 
@@ -131,6 +140,14 @@
             if (gameTimers.ContainsKey(timer))
             {
                 gameTimers.Remove(timer);
+            }
+        }
+
+        public void ResetTimer(GameTimer timer)
+        {
+            if(gameTimers.ContainsKey(timer))
+            {
+                gameTimers[timer].ElapsedTime = 0;
             }
         }
 

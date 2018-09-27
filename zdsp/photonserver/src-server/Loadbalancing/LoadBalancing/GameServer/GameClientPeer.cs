@@ -512,7 +512,7 @@ namespace Photon.LoadBalancing.GameServer
         public SocialInventoryData mSocialInventory;
         public PowerUpController mPowerUpController;
         public EquipmentCraftController mEquipmentCraftController;
-        public EquipFushionController mEquipFushionController;
+        public EquipFusionController mEquipFusionController;
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -541,7 +541,7 @@ namespace Photon.LoadBalancing.GameServer
                             mInventory = new ItemInventoryController(this);
                             mPowerUpController = new PowerUpController(this);
                             mEquipmentCraftController = new EquipmentCraftController(this);
-                            mEquipFushionController = new EquipFushionController(this);
+                            mEquipFusionController = new EquipFusionController(this);
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
@@ -2948,7 +2948,6 @@ namespace Photon.LoadBalancing.GameServer
         {
             int currPartLevel = characterData.PowerUpInventory.powerUpSlots[part];
             int nextPartLevel = currPartLevel + 1;
-            PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)part, currPartLevel);
 
             int playerLevel = mPlayer.PlayerSynStats.Level;
             if(nextPartLevel > playerLevel)
@@ -2974,7 +2973,79 @@ namespace Photon.LoadBalancing.GameServer
 
             characterData.PowerUpInventory.powerUpSlots[part] = nextPartLevel;
             mPlayer.PowerUpStats.powerUpSlots[part] = nextPartLevel;
-            mPlayer.PowerUpStats.powerUpLvl = "0";
+        }
+
+        public void OnMeridianLevelUp(int type)
+        {
+            int currTypeLevel = characterData.PowerUpInventory.meridianLevelSlots[type];
+            int currTypeExp = characterData.PowerUpInventory.meridianExpSlots[type];
+            int currCurrency = mPlayer.SecondaryStats.Money;
+            MeridianUnlockListJson unlockData = PowerUpRepo.GetMeridianUnlockByTypesLevel(type, currTypeLevel);
+            MeridianExpListJson expData = PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeExp);
+
+            if(currTypeExp < expData.exp)
+            {
+                return;
+            }
+
+            MeridianUnlockListJson unlockNextData = PowerUpRepo.GetMeridianUnlockByTypesLevel(type, currTypeLevel + 1);
+            if (unlockNextData == null)
+            {
+                return;
+            }
+
+            if(currCurrency < unlockData.currency)
+            {
+                return;
+            }
+
+            List<ItemInfo> useMatList = PowerUpRepo.GetMeridianUnlockMaterial(type, currTypeLevel);
+            InvRetval result = mInventory.UseToolItems(useMatList, "MeridianLevelUp");
+            if (result.retCode == InvReturnCode.UseFailed)
+            {
+                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_MeridianLevelUp_NotEnoughMaterials"), "", false, mPlayer.Slot);
+                return;
+            }
+
+            characterData.PowerUpInventory.meridianLevelSlots[type] = currTypeLevel + 1;
+            characterData.PowerUpInventory.meridianExpSlots[type] = 0;
+            mPlayer.MeridianStats.meridianLevelSlots[type] = currTypeLevel + 1;
+            mPlayer.MeridianStats.meridianExpSlots[type] = 0;
+        }
+
+        public void OnMeridianExpUp(int type)
+        {
+            int currTypeLevel = characterData.PowerUpInventory.meridianLevelSlots[type];
+            int currTypeExp = characterData.PowerUpInventory.meridianExpSlots[type];
+            int currCurrency = mPlayer.SecondaryStats.Money;
+            MeridianExpListJson expData = PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeExp);
+
+            if(expData == null)
+            {
+                return;
+            }
+            
+            if (currTypeExp >= expData.exp)
+            {
+                return;
+            }
+
+            if(currCurrency < expData.currency)
+            {
+                return;
+            }
+
+            int ctr = PowerUpRepo.MeridianCriticalExp(type, currTypeLevel);
+            int expGain = mPowerUpController.GetExp() * ctr;
+            if(currTypeExp + expGain > expData.exp)
+            {
+                characterData.PowerUpInventory.meridianExpSlots[type] = expData.exp;
+                mPlayer.MeridianStats.meridianExpSlots[type] = expData.exp;
+            } else
+            {
+                characterData.PowerUpInventory.meridianExpSlots[type] += expGain;
+                mPlayer.MeridianStats.meridianExpSlots[type] = characterData.PowerUpInventory.meridianExpSlots[type];
+            }
         }
         #endregion
 
@@ -2986,7 +3057,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            List<ItemInfo> useMatList = EquipmentCraftRepo.GetEquipmentMaterial(itemId);
+            List<ItemInfo> useMatList = PowerUpUtilities.ConvertMaterialFormat(EquipmentCraftRepo.GetEquipmentMaterial(itemId));
 
             for (int i = 0; i < useMatList.Count; ++i)
             {
@@ -3027,67 +3098,118 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
-        #region EquipFushion
-        public void OnEquipFushion (int itemIndex, string consumeIndex)
+        #region EquipFusion
+        public void OnEquipFusion (int itemIndex, string consumeIndex, bool changed)
         {
-            if(mInventory.mInvData.Slots[itemIndex] as Equipment == null)
+            string fusionData = characterData.EquipFusionInventory.FusionData;
+
+            if(fusionData == string.Empty)
+            {
+                List<int> consumeIdx = FusionCheck(itemIndex, consumeIndex);
+                if (consumeIdx == null)
+                {
+                    return;
+                }
+                fusionData = FusionConsume(consumeIdx);
+            }
+
+            if (changed)
+                mInventory.UpdateEquipFusion(itemIndex, fusionData);
+
+            mPlayer.EquipFusionStats.FinishedFusion = true;
+            characterData.EquipFusionInventory.FusionData = string.Empty;
+            mPlayer.EquipFusionStats.FusionData = string.Empty;
+        }
+
+        public void OnEquipFusionGive (int itemIndex, string consumeIndex)
+        {
+            List<int> consumeIdx = FusionCheck(itemIndex, consumeIndex);
+            if(consumeIdx == null)
             {
                 return;
             }
-            
+
+            characterData.EquipFusionInventory.FusionItemSort = itemIndex;
+            mPlayer.EquipFusionStats.FusionItemSort = itemIndex;
+            characterData.EquipFusionInventory.FusionData = FusionConsume(consumeIdx);
+            mPlayer.EquipFusionStats.FusionData = characterData.EquipFusionInventory.FusionData;
+        }
+
+        List<int> FusionCheck (int itemIndex, string consumeIndex)
+        {
+            Equipment equip = mInventory.mInvData.Slots[itemIndex] as Equipment;
+            if (equip == null)
+            {
+                return null;
+            }
+
             List<string> consumeItemIndex = consumeIndex.Split('|').ToList();
             List<int> consumeIntIndex = new List<int>();
-            if(consumeItemIndex.Count != 4)
+            if (consumeItemIndex.Count != 4)
             {
-                return;
+                return null;
             }
             for (int i = 0; i < 4; ++i)
             {
                 int index = 0;
-                if(int.TryParse(consumeItemIndex[i], out index))
+                if (int.TryParse(consumeItemIndex[i], out index))
                 {
                     consumeIntIndex.Add(index);
-                } else
+                }
+                else
                 {
-                    return;
+                    return null;
                 }
             }
-            
+
             if (mInventory.mInvData.Slots[consumeIntIndex[0]] as Equipment == null)
             {
-                return;
+                return null;
             }
+
+            List<ElementalStone> stone = new List<ElementalStone>();
+
             for (int i = 1; i < 4; ++i)
             {
-                if (mInventory.mInvData.Slots[consumeIntIndex[i]] as ElementalStone == null)
+                stone.Add(mInventory.mInvData.Slots[consumeIntIndex[i]] as ElementalStone);
+            }
+
+            int type = EquipFusionRepo.ConvertStoneType(equip.JsonObject.itemsort);
+
+            for (int i = 0; i < stone.Count; ++i)
+            {
+                if(type != EquipFusionRepo.GetStoneJson(stone[i].ItemID).type)
                 {
-                    return;
+                    return null;
                 }
             }
-            
-            int totalCurrency = 0;
-            List<ElementalStone> fushionStones = new List<ElementalStone>();
+            return consumeIntIndex;
+        }
+
+        string FusionConsume (List<int> itemIndex)
+        {
+            List<ElementalStone> fusionStones = new List<ElementalStone>();
             for (int i = 1; i < 4; ++i)
             {
-                fushionStones.Add(mInventory.mInvData.Slots[consumeIntIndex[i]] as ElementalStone);
+                fusionStones.Add(mInventory.mInvData.Slots[itemIndex[i]] as ElementalStone);
             }
-            totalCurrency = EquipFushionRepo.GetTotalCurrencyCount(fushionStones[0].JsonObject.itemid,
-                                                                   fushionStones[1].JsonObject.itemid,
-                                                                   fushionStones[2].JsonObject.itemid);
-            if(totalCurrency > mPlayer.SecondaryStats.Money)
+
+            int totalCurrency = 0;
+            totalCurrency = EquipFusionRepo.GetTotalCurrencyCount(fusionStones[0].ItemID,
+                                                                   fusionStones[1].ItemID,
+                                                                   fusionStones[2].ItemID);
+            if (totalCurrency > mPlayer.SecondaryStats.Money)
             {
-                return;
+                return string.Empty;
             }
-            
-            Equipment equi = mInventory.mInvData.Slots[itemIndex] as Equipment;
-            mInventory.UpdateEquipFushion(itemIndex, EquipFushionRepo.RandomSideEffectPutEquip(fushionStones));
-            for (int i = 0; i < consumeIntIndex.Count; ++i)
+
+            for (int i = 0; i < itemIndex.Count; ++i)
             {
-                mInventory.RemoveInvItem(consumeIntIndex[i], "EquipFushionRemoveItem");
+                mInventory.RemoveInvItem(itemIndex[i], "EquipFusionRemoveItem");
             }
-            mPlayer.DeductCurrency((CurrencyType)1, totalCurrency, false, "EquipFushionUseCurrency");
-            
-            mPlayer.EquipFushionStats.FinishedFushion = true;
+            mPlayer.DeductCurrency((CurrencyType)1, totalCurrency, false, "EquipFusionUseCurrency");
+
+            return EquipFusionRepo.RandomSideEffectPutEquip(fusionStones);
         }
         #endregion
 

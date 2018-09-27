@@ -8,9 +8,6 @@ public class GameIcon_Equip : GameIcon_Base
     GameObject iconStatusCannotuse = null;
 
     [SerializeField]
-    GameObject iconStatusBreak = null;
-
-    [SerializeField]
     Text txtPowerUp = null;
 
     [SerializeField]
@@ -25,12 +22,11 @@ public class GameIcon_Equip : GameIcon_Base
     [SerializeField]
     GameIconCmpt_SelectCheckmark toggleSelect = null;
 
-    public void Init(int itemId, int powerUp, int evolve, int upgrade, bool statusCannotUse, bool statusBreak, 
+    public void Init(int itemId, int powerUp, int evolve, int upgrade, bool statusCannotUse, 
         bool isNew, bool isToggleSelectOn, UnityAction onClickCallback = null)
     {
         Init(itemId, isNew);
         StatusCannotUse = statusCannotUse;
-        StatusBreak = statusBreak;
         PowerUp = powerUp;
         Evolve = evolve;
         itemUpgrade.SetUpgradeCount(upgrade);
@@ -42,22 +38,17 @@ public class GameIcon_Equip : GameIcon_Base
 
     public void InitWithoutCallback(int itemId, int powerUp, int evolve, int upgrade)
     {
-        Init(itemId, powerUp, evolve, upgrade, false, false, false, false);
+        Init(itemId, powerUp, evolve, upgrade, false, false, false);
     }
 
     public void InitWithToolTipView(int itemId, int powerUp, int evolve, int upgrade)
     {
-        Init(itemId, powerUp, evolve, upgrade, false, false, false, false, OnClickShowItemToolTip);
+        Init(itemId, powerUp, evolve, upgrade, false, false, false, () => OnClickShowItemToolTip(1));
     }
 
     public bool StatusCannotUse
     {
         set { iconStatusCannotuse.SetActive(value); }
-    }
-
-    public bool StatusBreak
-    {
-        set { iconStatusBreak.SetActive(value); }
     }
 
     public int PowerUp

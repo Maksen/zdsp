@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,8 +23,9 @@ public class Hero_GiftItemData : MonoBehaviour
             item = icon.GetComponent<GameIcon_MaterialConsumable>();
         }
         item.InitWithoutCallback(itemid, itemcount);
-        itemNameText.text = item.inventoryItem.JsonObject.localizedname;
-        itemDescText.text = item.inventoryItem.JsonObject.description;
+        ItemBaseJson itemBaseJson = item.InventoryItem.JsonObject;
+        itemNameText.text = itemBaseJson.localizedname;
+        itemDescText.text = itemBaseJson.description;
         OnSendItemCallback = callback;
     }
 

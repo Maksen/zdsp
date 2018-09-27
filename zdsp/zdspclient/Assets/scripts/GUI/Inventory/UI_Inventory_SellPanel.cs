@@ -139,7 +139,7 @@ public class UI_Inventory_SellPanel : MonoBehaviour
         InvDisplayItem invDisplayItem = displayItemList[displayItemIdx];
         invDisplayItem.DisplayStackCount -= amtToSell; // Remove amount from inv displayItem stackcount
         AddItemToSellList(invDisplayItem.InvItem, invDisplayItem.OriginSlotId, amtToSell);
-        if (invDisplayItem.DisplayStackCount == 0 && UIInventory.CurrentInventoryTab != BagType.Any)
+        if (invDisplayItem.DisplayStackCount == 0 && UIInventory.CurrentInventoryTab != BagTabType.All)
             displayItemList.RemoveAt(displayItemIdx);
 
         UIInventory.UpdateVisibleInvRows(false);

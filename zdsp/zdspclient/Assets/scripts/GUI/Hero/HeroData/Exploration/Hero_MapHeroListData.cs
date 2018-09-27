@@ -1,9 +1,8 @@
 ﻿using Kopio.JsonContracts;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
 using Zealot.Repository;
 
 public class Hero_MapHeroListData : MonoBehaviour
@@ -16,7 +15,7 @@ public class Hero_MapHeroListData : MonoBehaviour
     private int heroId;
     private Action<int> OnSelectCallback;
 
-	public void Init(Hero hero, Action<int> selectCallback, ExplorationMapJson mapData)
+    public void Init(Hero hero, Action<int> selectCallback, ExplorationMapJson mapData)
     {
         heroId = hero.HeroId;
         OnSelectCallback = selectCallback;

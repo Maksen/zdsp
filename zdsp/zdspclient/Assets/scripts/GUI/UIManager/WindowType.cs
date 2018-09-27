@@ -22,6 +22,8 @@
     ShopSell = 17,
     ShopBarter = 18,
     Mail = 19,
+    EquipCraft = 20,
+    EquipFusion = 21,
 
     // Add persistent type window here
     //-----------------------------------
@@ -68,8 +70,12 @@
     DialogHistoryFilter = 424,
     DialogMessageFilter = 425,
 
+    DialogEquipFusion = 426,
+
     DialogClaimReward = 440,
     DialogCutscene = 441,
+
+
 
     DialogEnd = 699,
 

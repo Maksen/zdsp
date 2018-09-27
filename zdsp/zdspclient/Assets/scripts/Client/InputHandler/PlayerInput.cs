@@ -19,7 +19,7 @@ public class PlayerInput : MonoBehaviour
     private const float sqrBufferDist = (bufferDist - 1) * (bufferDist - 1);
     private const float relevanceBoundaryRadiusSq = 25.0f * 25.0f;
 
-    //private HUD_Skills SkillButtons;
+    private HUD_Skills SkillButtons;
 
     private int PickableLayerMask;
     private GameObject moveIndicator = null;
@@ -48,8 +48,8 @@ public class PlayerInput : MonoBehaviour
             mainCam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
             joystick = UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>();
 
-            //SkillButtons = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
-            //SkillButtons.Init();
+            SkillButtons = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
+            SkillButtons.Init();
 
             PickableLayerMask = LayerMask.GetMask("Entities", "Destructible", "Nav_Walkable", "Boss");
         }

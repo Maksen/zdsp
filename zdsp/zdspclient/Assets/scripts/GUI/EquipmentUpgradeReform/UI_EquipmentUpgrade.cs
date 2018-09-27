@@ -495,7 +495,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             newEquipObj.transform.SetParent(selectSafeEquipIconParent, false);
             
             GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-            equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, false, 
+            equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, 
                 false, OnClickOpenSelectSafeUpgradeEquipment);
 
             _safeEquipMatIcon = newEquipObj;
@@ -788,7 +788,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         newEquipObj.transform.SetParent(selectEquipIconParent, false);
 
         GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, false, OnClickOpenSelectUpgradeEquipment);
+        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectUpgradeEquipment);
 
         _selectedEquipmentIcon = newEquipObj;
     }

@@ -1,14 +1,11 @@
-﻿using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
-using System;
+﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using UnityEngine;
+using UnityEngine.UI;
 using Zealot.Common;
 using Zealot.Client.Entities;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 
 public class UI_EquipmentReform : BaseWindowBehaviour
 {
@@ -680,7 +677,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         newEquipObj.transform.SetParent(selectEquipIconParent, false);
 
         GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, false, OnClickOpenSelectEquipment);
+        equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectEquipment);
 
         _selectedEquipmentIcon = newEquipObj;
     }

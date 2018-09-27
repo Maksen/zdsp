@@ -7,7 +7,8 @@ using UnityEngine.UI;
 public class HUD_SkillBtn : MonoBehaviour
 {
     public Image skillImage;
-    public Sprite emptySkillSprite;
+    public GameObject emptySkillIconObj;
+    public GameObject skillIconObj;
     public Image cdImage;
     public Text cdText;
 
@@ -16,34 +17,53 @@ public class HUD_SkillBtn : MonoBehaviour
     private float totalCdDuration;
     private Coroutine countdownTimer = null; //cooldown Coroutine is stopped when gameobject deactive;
     private bool resumeCD = false;
+    public int skillid;
     private int index;
     private HUD_Skills parent;
     public bool HasSkill = false;
+
+
+    public delegate void SkillCast(int param);
 
     void Awake()
     {
         button = GetComponent<Button>();
     }
 
-    public void Init(Action CastSkill, int idx, HUD_Skills myParent)
+    public void Init(SkillCast CastSkill, int idx, HUD_Skills myParent)
     {
-        button.onClick.AddListener(() => CastSkill());
-        index = idx;
+        button.onClick.AddListener(delegate { CastSkill(skillid); });
+        skillid = idx;
         parent = myParent;
     }
 
     public void OnSkillUpdated(int idx)
     {
-        index = idx;
+        skillid = idx;
     } 
+
+    public void UpdateSprite(string path)
+    {
+        HasSkill = true;
+        emptySkillIconObj.SetActive(false);
+        skillIconObj.SetActive(true);
+        skillImage.sprite = ClientUtils.LoadIcon(path) as Sprite;
+    }
+
+    public void SetEmptySkill()
+    {
+        HasSkill = false;
+        emptySkillIconObj.SetActive(true);
+        skillIconObj.SetActive(false);
+    }
 
     public void SetSkillImage(Sprite sprite)
     {
-        HasSkill = sprite != null;
-        if (sprite == null)
-            skillImage.sprite = emptySkillSprite;
-        else
-            skillImage.sprite = sprite;
+        //HasSkill = sprite != null;
+        //if (sprite == null)
+        //    skillImage.sprite = emptySkillSprite;
+        //else
+        //    skillImage.sprite = sprite;
     }
 
     void OnEnable()

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Repository;
@@ -8,7 +9,6 @@ public class UIShopBarter : UIShop
 	void Start ()
     {
         storetype = NPCStoreInfo.StoreType.Barter;
-        SortIcons();
     }
 
     override public void init(NPCStoreInfo store)
@@ -43,45 +43,34 @@ public class UIShopBarter : UIShop
 
             foreach (var item in newitemlist)
             {
-                var solditem = item;
-                item.data = GameRepo.ItemFactory.GetInventoryItem(item.ItemID);
-
-                if (item.data == null)
+                int itemId = item.ItemID;
+                IInventoryItem invItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
+                if (invItem == null)
                 {
-                    Debug.LogWarning("Item id: " + item.ItemID.ToString() + " not found");
+                    Debug.LogWarningFormat("Item id: {0} not found", itemId);
                     continue;
                 }
+                item.data = invItem;
 
-				if (item.Show == false) continue;
+                if (item.Show == false) continue;
 				if (System.DateTime.Now > item.EndTime || System.DateTime.Now < item.StartTime)
 					continue;
 
-				var icon = Instantiate(itemicon_prefab, itemlistparent);
+                if (item.Type != NPCStoreInfo.ItemStoreType.Barter)
+                    continue;
 
+				var icon = Instantiate(itemicon_prefab, itemlistparent, false);
+                ItemBaseJson itemJson = invItem.JsonObject;
                 var shopitem = icon.GetComponent<ShopItem>();
-                shopitem.itemname.text = item.data.JsonObject.name;
+                shopitem.itemname.text = itemJson.name;
                 shopitem.selectionEnabled.onEnabled = OnItemSelected;
                 shopitem.selectionEnabled.onDisabled = OnItemDeselected;
                 shopitem.itemdata = item;
 
-                var iconprefab = GetItemIconPrefab(item.data.JsonObject.itemtype);
-                var itemicon = Instantiate(iconprefab, shopitem.itemicon_parent).GetComponent<GameIcon_Base>();
-                IInventoryItem invItem = itemicon.inventoryItem;
-                BagType bagType = invItem.JsonObject.bagtype;
-                int itemId = invItem.JsonObject.itemid;
-                switch (bagType)
-                {
-                    case BagType.Equipment:
-                        ((GameIcon_Equip)itemicon).InitWithToolTipView(itemId, 0, 0, 0);
-                        break;
-                    case BagType.Consumable:
-                    case BagType.Material:
-                        ((GameIcon_MaterialConsumable)itemicon).InitWithToolTipView(itemId, invItem.StackCount);
-                        break;
-                    case BagType.Socket:
-                        ((GameIcon_DNA)itemicon).InitWithToolTipView(itemId, 0, 0);
-                        break;
-                }
+                ItemGameIconType iconType = invItem.ItemSortJson.gameicontype;
+                GameObject gameIcon = Instantiate(ClientUtils.LoadGameIcon(iconType));
+                gameIcon.transform.SetParent(shopitem.itemicon_parent, false);
+                ClientUtils.InitGameIcon(gameIcon, invItem, itemId, iconType, invItem.StackCount, true);
 
                 currentitemlist.Add(shopitem);
             }

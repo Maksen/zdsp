@@ -772,6 +772,10 @@
                     PartyRules.OnCharacterOnline(peer, player);
             }
 
+            /*********************   AchievementStats   ***************************/
+            AchievementStatsServer achStats = player.AchievementStats;
+            achStats.Init(player, peer, characterData.AchievementInventory);
+
             /************************   BattleTime Stats   *****************/
             //player.InitFromInventory(characterData.BattleTimeInventoryData);
             //player.BattleTime(characterData.BattleTimeInventoryData);
@@ -785,8 +789,8 @@
             /*********************   EquipmentCraftInventory   ***************************/
             player.InitEquipmentCraftStats(characterData.EquipmentCraftInventory);
 
-            /*********************   EquipFushionInventory   ***************************/
-            player.InitEquipFushionStats(characterData.EquipFushionInventory);
+            /*********************   EquipFusionInventory   ***************************/
+            player.InitEquipFusionStats(characterData.EquipFusionInventory);
 
             /*********************   SevenDaysInventory   ***************************/
             //player.InitSevenDaysStats(characterData.SevenDaysInventory);
@@ -884,6 +888,7 @@
             if (characterData.Mana < 0 || characterData.Mana > player.GetManaMax())
                 characterData.Mana = player.GetManaMax();
             player.SetMana(characterData.Mana);
+            player.StartManaRegen();
 
             if (mRealmController != null)
                 mRealmController.OnPlayerEnter(player);

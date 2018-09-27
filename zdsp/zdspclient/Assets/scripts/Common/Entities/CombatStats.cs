@@ -814,7 +814,7 @@ namespace Zealot.Common.Entities
             public IntelligencePercBonus()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Intelligence };
+                children = new FieldName[] { FieldName.Intelligence, FieldName.ManaRegen };
             }
         }
 
@@ -841,7 +841,7 @@ namespace Zealot.Common.Entities
             public Intelligence()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.CombatScore };
+                children = new FieldName[] { FieldName.CombatScore, FieldName.ManaRegen };
             }
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
@@ -1374,6 +1374,37 @@ namespace Zealot.Common.Entities
                     x_mod = fields[(int)FieldName.ManaRegenPercBonus_NoScore].GetValue() * 0.01f;
                     localCombatStats.ManaRegen = (int)(x * (1 + x_mod));
                 }
+            }
+        }
+
+        private class ManaReduceBonus : CombatStatsField
+        {
+            public ManaReduceBonus()
+            {
+                fieldValue = 0;
+                children = new FieldName[] {  };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
+            {
+                
+                if (localCombatStats != null)
+                    localCombatStats.ManaReduceBonus = (int)fieldValue;
+            }
+        }
+
+        private class ManaReducePercBonus : CombatStatsField
+        {
+            public ManaReducePercBonus()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
+            {
+                if (localCombatStats != null)
+                    localCombatStats.ManaReducePercBonus = (int)fieldValue;
             }
         }
 
@@ -3807,8 +3838,8 @@ namespace Zealot.Common.Entities
             mFields[(int)FieldName.ElementWeapon] = new ElementWeapon();
             mFields[(int)FieldName.ElementSideEffect] = new ElementSideEffect();
 
-            mFields[(int)FieldName.ManaReduceBonus] = new SimpleField();
-            mFields[(int)FieldName.ManaReducePercBonus] = new SimpleField();
+            mFields[(int)FieldName.ManaReduceBonus] = new ManaReduceBonus();
+            mFields[(int)FieldName.ManaReducePercBonus] = new ManaReducePercBonus();
 
             mFields[(int)FieldName.SkillAffect] = new SimpleField();
 
@@ -4254,7 +4285,9 @@ namespace Zealot.Common.Entities
                 FieldName.BlockValuePercBonus,
 
                 FieldName.MoveSpeedBuff,
-                FieldName.MoveSpeedDebuff
+                FieldName.MoveSpeedDebuff,
+                FieldName.ManaReduceBonus,
+                FieldName.ManaReducePercBonus
             };
 
             mTierFieldNames[1] = new List<FieldName>()

@@ -27,9 +27,9 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnPlayerEntity)]
-        public void SpawnPlayerEntity(bool isLocal, int ownerid, string playername, int pid, byte jobsect, byte gender, int mountID, RPCPosition rpcpos, RPCDirection rpcdir, int health, int maxhealth, object target)
+        public void SpawnPlayerEntity(bool isLocal, int ownerid, string playername, int pid, byte gender, RPCPosition rpcpos, RPCDirection rpcdir, object target)
         {
-            ProxyMethod("SpawnPlayerEntity", isLocal, ownerid, playername, pid, jobsect, gender, mountID, rpcpos, rpcdir, health, maxhealth, target);
+            ProxyMethod("SpawnPlayerEntity", isLocal, ownerid, playername, pid, gender, rpcpos, rpcdir, target);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnMonsterEntity)]

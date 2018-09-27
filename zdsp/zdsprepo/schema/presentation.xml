@@ -26,22 +26,22 @@
       <category uitext="Shop">
         <option uitext="Shop Item Map" datasource="ItemMallItem"/>
         <option uitext="Shop Item Map Treasure" datasource="ShopItemMapTreasure"/>
-        <option uitext="StoreSet" datasource="StoreSet"/>
-        <option uitext="ProductSetting" datasource="ProductSetting"/>
-        <option uitext="StoreRefresh" datasource="StoreRefresh"/>
+        <option uitext="Store Set" datasource="StoreSet"/>
+        <option uitext="Product Setting" datasource="ProductSetting"/>
+        <option uitext="Store Refresh" datasource="StoreRefresh"/>
       </category>
 
       <category uitext="Equipment Craft">
         <option uitext="Equipment Craft" datasource="EquipmentCraft"/>
       </category>
 
-      <category uitext="Equip Fushion">
-        <option uitext="Fushion Parts List" datasource="FushionPartsList"/>
-        <option uitext="Equip Fushion Side Effect" datasource="EquipFushionSideEffect"/>
-        <option uitext="Equip Fushion Cost" datasource="EquipFushionCost"/>
-        <option uitext="Equip Fushion Addition Rule" datasource="EquipFushionAdditionRule"/>
-        <option uitext="Equip Fushion Sell" datasource="EquipFushionSell"/>
-        <option uitext="Equip Fushion Store" datasource="EquipFushionStore"/>
+      <category uitext="Equip Fusion">
+        <option uitext="Fusion Parts List" datasource="FusionPartsList"/>
+        <option uitext="Equip Fusion Side Effect" datasource="EquipFusionSideEffect"/>
+        <option uitext="Equip Fusion Cost" datasource="EquipFusionCost"/>
+        <option uitext="Equip Fusion Addition Rule" datasource="EquipFusionAdditionRule"/>
+        <option uitext="Equip Fusion Sell" datasource="EquipFusionSell"/>
+        <option uitext="Equip Fusion Store" datasource="EquipFusionStore"/>
       </category>
 
       <category uitext="Equipment Upgrade">
@@ -59,9 +59,8 @@
       <category uitext="Power Up">
         <option uitext="Power Up" datasource="PowerUp"/>
         <option uitext="Power Up Parts List" datasource="PowerUpPartsList"/>
-        <option uitext="Meridian List" datasource="MeridianList"/>
-        <option uitext="Acupoint List" datasource="AcupointList"/>
-        <option uitext="Pay Material Item List" datasource="PayMaterialItemList"/>
+        <option uitext="Meridian Unlock List" datasource="MeridianUnlockList"/>
+        <option uitext="Meridian Exp List" datasource="MeridianExpList"/>
       </category>
 
       <category uitext="Crafting">
@@ -119,18 +118,26 @@
         <option uitext="Elite Map" datasource="EliteMap"/>-->
       </category>
 
+      <category uitext="Reward">
+        <option uitext="Reward List" datasource="RewardList"/>
+        <option uitext="Experience Rate" datasource="ExperienceRate"/>
+        <option uitext="ActivityReward" datasource="ActivityReward"/>
+      </category>
+
       <category uitext="Respawn">
         <option uitext="Respawn Type" datasource="Respawn"/>
       </category>
 
-      <category uitext="WordFilter">
-        <option uitext="WordFilter" datasource="WordFilter"/>
-      </category>
-
-      <category uitext="Reward">
-        <option uitext="Reward List" datasource="RewardList"/>
-        <option uitext="Experience Rate" datasource="ExperienceRate"/>
-		    <option uitext="ActivityReward" datasource="ActivityReward"/>
+      <category uitext="Skills">
+        <option uitext="Skill Group" datasource="SkillGroup"/>
+        <option uitext="Skill" datasource="Skill"/>
+        <option uitext="Skill Tree" datasource="SkillTree"/>
+        <option uitext="Side Effect" datasource="SideEffect"/>
+        <option uitext="SDG" datasource="SkillDescriptionGroup"/>
+        <option uitext="SideEffectGroup" datasource="SideEffectGroup"/>
+        <option uitext="NPC Skills link" datasource="NPCToSkillsLink"/>
+        <option uitext="Elemental Chart" datasource="ElementChart"/>
+        <option uitext="Weakness Chart" datasource="WeaknessChart"/>
       </category>
 
       <category uitext="NPC">
@@ -147,6 +154,10 @@
         <option uitext="LootLink" datasource="LootLink"/>
         <option uitext="EventLootLink" datasource="EventLootLink"/>
         <option uitext="LimitedItem" datasource="LimitedItem"/>        
+      </category>
+
+      <category uitext="WordFilter">
+        <option uitext="WordFilter" datasource="WordFilter"/>
       </category>
 
       <category uitext="GUI Localization">
@@ -180,19 +191,7 @@
         <option uitext="Donate Limit" datasource="DonateLimit"/>
         <option uitext="Donate" datasource="Donate"/>
       </category>
-      
-      <category uitext="Skills">
-        <option uitext="Skill Group" datasource="SkillGroup"/> 
-        <option uitext="Skill" datasource="Skill"/>
-        <option uitext="Skill Tree" datasource="SkillTree"/>
-        <option uitext="Side Effect" datasource="SideEffect"/>
-        <option uitext="SDG" datasource="SkillDescriptionGroup"/>
-        <option uitext="SideEffectGroup" datasource="SideEffectGroup"/>
-        <option uitext="NPC Skills link" datasource="NPCToSkillsLink"/>
-        <option uitext="Elemental Chart" datasource="ElementChart"/>
-        <option uitext="Weakness Chart" datasource="WeaknessChart"/>
-      </category>
-      
+
       <category uitext="Hero">
         <option uitext="Hero" datasource="Hero"/>
         <option uitext="Hero Growth" datasource="HeroGrowth"/>
@@ -282,7 +281,21 @@
 		    <option uitext="WorldMapCountryPlace" datasource="WorldMapCountryPlace"/>
 		    <option uitext="WorldMapCountry" datasource="WorldMapCountry"/>
 	    </category>
-	  
+
+      <category uitext="Achievement">
+        <option uitext="Collection Category" datasource="CollectionCategory"/>
+        <option uitext="Collection Objective" datasource="CollectionObjective"/>
+        <option uitext="Collection Photo" datasource="CollectionPhoto"/>
+        <option uitext="Achievement MainType" datasource="AchievementMainType"/>
+        <option uitext="Achievement SubType" datasource="AchievementSubType"/>
+        <option uitext="Achievement Objective" datasource="AchievementObjective"/>
+        <option uitext="Achievement Level" datasource="AchievementLevel"/>
+        <option uitext="LISA Transform Tier" datasource="LISATransformTier"/>
+        <option uitext="LISA Reward" datasource="LISAReward"/>
+        <option uitext="LISA Msg Behaviour" datasource="LISAMsgBehaviour"/>
+        <option uitext="LISA Msg" datasource="LISAMsg"/>
+      </category>
+
     </menu>
   </presentation>
 </magicalarea51>

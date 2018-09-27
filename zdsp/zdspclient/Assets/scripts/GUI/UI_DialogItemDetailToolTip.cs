@@ -1,10 +1,8 @@
 ﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using System.Collections.Generic;
-using System.Text;
-
 using Zealot.Repository;
 using Zealot.Common;
 using Zealot.Client.Entities;
@@ -35,16 +33,6 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                      dailyGetLimit == null || dailyGetLimit == null);
         }
     }
-
-    [Header("Game Icon Prefab")]
-    #region Game Icon Prefabs
-    [SerializeField]
-    GameObject mEquipIconPrefab;
-    [SerializeField]
-    GameObject mMaterialConsumableIconPrefab;
-    [SerializeField]
-    GameObject mGeneIconPrefab;
-    #endregion
 
     [Header("Tooltip Prefab list")]
     #region Tooltip Prefab
@@ -79,7 +67,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     Text mItemName;
     [SerializeField]
     Text mItemTypeName;
-    GameIcon_Base mIcon;
+    GameObject mGameIcon;
     #endregion
 
     [Header("Price")]
@@ -262,10 +250,10 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     #region ItemType Tooltip init
     private void ClearTT()
     {
-        if (mIconParentTransform != null)
+        if (mGameIcon != null)
         {
-            foreach (Transform child in mIconParentTransform)
-                Destroy(child.gameObject);
+            Destroy(mGameIcon);
+            mGameIcon = null;
         }
         if (mStatsParent != null)
         {
@@ -289,11 +277,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     }
     private void InitTT_Potion(IInventoryItem item)
     {
-        //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        //*** Icon - General item ***    
+        InitGameIcon(item);
 
         //*** Stats ***
         Text sideeffectTxt = null; //Side effect
@@ -337,10 +322,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_Material(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -367,10 +349,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_Exchange(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -415,10 +394,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_UpgradeItem(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -446,10 +422,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     {
         //Written in CR56
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -476,10 +449,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_LuckyPick(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -506,10 +476,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_Henshin(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -536,10 +503,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_Special(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -567,10 +531,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     {
         //Written in CR56 and 58 now
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -597,11 +558,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_Equipment(IInventoryItem item)
     {
         //*** Icon - Equipment ***
-        GameObject obj = CreateIcon(mEquipIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_Equip>();
-        GameIcon_Equip iconEq = obj.GetComponent<GameIcon_Equip>();
+        InitGameIcon(item);
         Equipment eq = item as Equipment;
-        iconEq.InitWithoutCallback(eq.ItemID, 0, 0, eq.UpgradeLevel);
 
         //*** Stats ***
         //Common
@@ -811,11 +769,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_DNA(IInventoryItem item)
     {
         //*** Icon - Gene ***
-        GameObject obj = CreateIcon(mGeneIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_DNA>();
-        GameIcon_DNA mcIcon = obj.GetComponent<GameIcon_DNA>();
-        mcIcon.InitWithoutCallback(item.ItemID, 1, 0);
-        DNA dnaItem = item as DNA;
+        InitGameIcon(item);
+        //DNA dnaItem = item as DNA;
         //mcIcon.Level = geneItem.GeneJson.;
         //mcIcon.EvolveLevel = geneItem.GeneJson.;
 
@@ -857,13 +812,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_Relic(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = Instantiate(mMaterialConsumableIconPrefab, Vector3.zero, Quaternion.identity);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mIcon.transform.SetParent(mIconParentTransform, false);
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
-        mItemName.text = item.JsonObject.localizedname;
-        mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
+        InitGameIcon(item);
 
         //*** Stats ***
         Text txtCanRecycle = null;
@@ -922,13 +871,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_QuestItem(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = Instantiate(mMaterialConsumableIconPrefab, Vector3.zero, Quaternion.identity);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mIcon.transform.SetParent(mIconParentTransform, false);
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
-        mItemName.text = item.JsonObject.localizedname;
-        mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -955,13 +898,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_MercenaryItem(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = Instantiate(mMaterialConsumableIconPrefab, Vector3.zero, Quaternion.identity);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mIcon.transform.SetParent(mIconParentTransform, false);
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
-        mItemName.text = item.JsonObject.localizedname;
-        mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -988,13 +925,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_InstanceItem(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = Instantiate(mMaterialConsumableIconPrefab, Vector3.zero, Quaternion.identity);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mIcon.transform.SetParent(mIconParentTransform, false);
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
-        mItemName.text = item.JsonObject.localizedname;
-        mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -1032,10 +963,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     private void InitTT_ElementalStone(IInventoryItem item)
     {
         //*** Icon - General item ***
-        GameObject obj = CreateIcon(mMaterialConsumableIconPrefab, item);
-        mIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        GameIcon_MaterialConsumable mcIcon = obj.GetComponent<GameIcon_MaterialConsumable>();
-        mcIcon.InitWithoutCallback(item.ItemID, item.StackCount);
+        InitGameIcon(item);
 
         //*** Stats ***
         TooltipCommon cTT = null;
@@ -1067,10 +995,10 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         ElementalStone es = item as ElementalStone;
         //Unique - Equip slot
         stoneSlotTxt.Identifier = GUILocalizationRepo.GetLocalizedString("ItemTooltip_ElemStone");
-        stoneSlotTxt.Value = EquipFushionRepo.StoneTypeGetName(es.ElementalStoneJson.type).ToString();
+        stoneSlotTxt.Value = EquipFusionRepo.StoneTypeGetName(es.ElementalStoneJson.type).ToString();
         //Unique - Sideeffects
         sideeffectTxt.text = string.Empty;
-        List<string> effectGroup = EquipFushionRepo.DecodeEffect(es.FushionData);
+        List<string> effectGroup = EquipFusionRepo.DecodeEffect(es.FusionData);
         for (int i = 0; i < effectGroup.Count; ++i)
             sideeffectTxt.text += effectGroup[i] + '\n';
     }
@@ -1180,20 +1108,21 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         GameObject obj = Instantiate(mTTLinePrefab, Vector3.zero, Quaternion.identity);
         return obj;
     }
-    private GameObject CreateIcon(GameObject prefab, IInventoryItem item)
+
+    private void InitGameIcon(IInventoryItem item)
     {
-        GameObject obj = Instantiate(prefab, Vector3.zero, Quaternion.identity);
-        obj.transform.SetParent(mIconParentTransform, false);
+        if (item == null)
+            return;
+
+        ItemSortJson itemSortJson = item.ItemSortJson;
+        mGameIcon = Instantiate(ClientUtils.LoadGameIcon(itemSortJson.gameicontype));
+        mGameIcon.transform.SetParent(mIconParentTransform, false);
+        ClientUtils.InitGameIcon(mGameIcon, null, item.ItemID, itemSortJson.gameicontype, item.StackCount, false);
 
         mItemName.text = item.JsonObject.localizedname;
-
-        if (GameRepo.ItemFactory.ItemSortTable.ContainsKey(item.JsonObject.itemsort))
-            mItemTypeName.text = GameRepo.ItemFactory.ItemSortTable[item.JsonObject.itemsort].localizedname;
-        else
-            mItemTypeName.text = item.JsonObject.itemtype.ToString();
-
-        return obj;
+        mItemTypeName.text = itemSortJson.localizedname;
     }
+
     private void CreateLeftPanelButton(ItemDetailsButton button)
     {
         GameObject obj = Instantiate(mLPBtnPrefab);
@@ -1278,7 +1207,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 #if ZEALOT_DEVELOPMENT
         if (ConsoleVariables.ShowItemID)
         {
-            mItemName.text += ClientUtils.ColorizedText(string.Format(" (#ID: {0})", mItem.JsonObject.itemid.ToString()), "#ff00ffff");
+            mItemTypeName.text += ClientUtils.ColorizedText(string.Format(" (#ID: {0})", mItem.JsonObject.itemid.ToString()), "#ff00ffff");
         }
 #endif
     }

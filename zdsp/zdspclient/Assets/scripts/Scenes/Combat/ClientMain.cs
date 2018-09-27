@@ -442,7 +442,7 @@ public partial class ClientMain : MonoBehaviour
     //-------------------------------------------------------------------------------------------------------
     //RPC Calls:
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnPlayerEntity)]
-    public void SpawnPlayerEntity(bool isLocal, int ownerid, string playername, int pid, byte jobsect, byte gender, int mountID, RPCPosition rpcpos, RPCDirection rpcdir, int health, int healthmax)
+    public void SpawnPlayerEntity(bool isLocal, int ownerid, string playername, int pid, byte gender, RPCPosition rpcpos, RPCDirection rpcdir)
     {
         Vector3 pos = rpcpos.ToVector3();
         Debug.Log("SpawnPlayerEntity owner = " + ownerid + ", playername = " + playername + ", persistentid = " + pid + ",pos = (" + pos.x + ", " + pos.y + "," + pos.z);
@@ -451,7 +451,7 @@ public partial class ClientMain : MonoBehaviour
         playerghost.IsLocal = isLocal;
         playerghost.SetOwnerID(ownerid);
 
-        playerghost.Init(playername, (JobType)jobsect, gender, mountID, pos, rpcdir.ToVector3(), health, healthmax);
+        playerghost.Init(playername, gender, pos, rpcdir.ToVector3());
 
         //Setup camera and control if this is local playerghost
         if (playerghost.IsLocal)
@@ -460,17 +460,19 @@ public partial class ClientMain : MonoBehaviour
             GameInfo.gLocalPlayer = playerghost;
             playerghost.Idle();
 
-            mPlayerInput.Init(playerghost);
-            mPlayerInput.enabled = true;
-            GameInfo.gLocalPlayer.InitBot(mPlayerInput);
-
+            
             mNetClient.AddLocalEntity(playerghost);
             mTimers.SetTimer(100, UnLoadingScreen, null);
             GameInfo.gBasicAttackState = new PlayerBasicAttackState();
             GameInfo.gSkillCDState = new PlayerSkillCDState();
-            //OnSelectEntity(null);
             GameInfo.OnLocalPlayerSpawned();
             SpawnClientSpawners();
+            MailInvController.Init();
+
+            mPlayerInput.Init(playerghost);
+            mPlayerInput.enabled = true;
+            GameInfo.gLocalPlayer.InitBot(mPlayerInput);
+
 
             if (GameInfo.gDmgLabelPool == null)
             {
@@ -481,7 +483,7 @@ public partial class ClientMain : MonoBehaviour
             }
 
             //HUD_Skills SkillButtons = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
-            //SkillButtons.InitSkillButtons();
+            //SkillButtons.UpdateSkillButtons();
         }
     }
 
@@ -1265,6 +1267,10 @@ public partial class ClientMain : MonoBehaviour
         CastSkillCommand castcmd = new CastSkillCommand();
         castcmd.skillid = skillid;
         castcmd.targetpid = targetpid;
+
+        // pause party follow
+        PartyFollowTarget.Pause();
+
         if (pos.HasValue)
         {
             castcmd.targetPos = pos.Value;
@@ -1321,9 +1327,9 @@ public partial class ClientMain : MonoBehaviour
         bool canStart = localplayer.PerformAction(action);
         if (canStart)
         {
-            //todo: add cooldown in HUD
-            //int cooldownIndex = (int)skillno - 1; //starts from 0 to 4
-            //AddActiveSkillCooldown(cooldownIndex, skilldata.skillgroupJson);
+            HUD_Skills hud = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
+            if(hud != null)
+                hud.AddActiveSkillCooldown(skillid, skilldata.skillJson);
 
         }
     }
@@ -1335,15 +1341,69 @@ public partial class ClientMain : MonoBehaviour
     /// <param name="skillid"></param>
     public void TryCastActiveSkill(int skillid)
     {
+        //try to see if skill still cooling down
+        PlayerGhost localplayer = GameInfo.gLocalPlayer;
+        if (localplayer == null || !localplayer.CanCastSkill(true))
+            return;
+        PlayerSkillCDState cdstate = GameInfo.gSkillCDState;
+        if (cdstate.IsSkillCoolingDown(skillid))
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CastSkillFail_CD"));
+            return;
+        }
+
         SkillData sdata = SkillRepo.GetSkill(skillid);
         if (sdata == null)
             return;
-        //if (sdata.skillgroupJson.skilltype == SkillType.BasicAttack)
-        //{
-        //    //basic attack must click the target. if need auto select nearest enemy, do a query and callbackattack
-        //    //CommonCastBasicAttack();
-        //    return;
-        //}
+
+        //try to see if enough mana blyat
+        
+        if (sdata.skillgroupJson.costtype == CostType.Mana)
+        {
+            int manaMax = localplayer.LocalCombatStats.ManaMax;
+            int currentMana = localplayer.LocalCombatStats.Mana;
+            float cost = sdata.skillgroupJson.costab ? sdata.skillJson.cost : manaMax * sdata.skillJson.cost * 0.01f;
+            int finalCost = Mathf.CeilToInt((cost * (1 - localplayer.LocalCombatStats.ManaReducePercBonus)) - localplayer.LocalCombatStats.ManaReduceBonus);
+            if (currentMana < cost)
+            {
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CastSkillFail_NoMana"));
+                return;
+            }
+        }
+        else if (sdata.skillgroupJson.costtype == CostType.HP)
+        {
+
+        }
+
+        if (sdata.skillgroupJson.skilltype == SkillType.BasicAttack)
+        {
+            //basic attack must click the target. if need auto select nearest enemy, do a query and callbackattack
+            int pid = 0;
+            ActorGhost ghost = GameInfo.gSelectedEntity as ActorGhost;
+            if (GameInfo.gSelectedEntity != null)
+            {
+                pid = ghost.GetPersistentID();
+            }
+            else
+            {
+                ghost = GameInfo.gLocalPlayer.Bot.QueryForNonSpecificTarget(10, true, new int[] { });
+                if (ghost != null)
+                {
+                    pid = ghost.GetPersistentID();
+                }
+            }
+            mPlayerInput.SetMoveIndicator(Vector3.zero);
+
+            Vector3 dir = localplayer.Position - ghost.Position;
+            float dist = sdata.skillJson.radius;
+
+            if (dir.magnitude >= dist)
+                localplayer.ProceedToTarget(ghost.Position, pid, CallBackAction.BasicAttack);
+            else
+                DirectCastSkill(sdata.skillJson.id, pid);
+
+            return;
+        }
         if (sdata.skillgroupJson.skilltype != SkillType.Active)
             return;
         if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)

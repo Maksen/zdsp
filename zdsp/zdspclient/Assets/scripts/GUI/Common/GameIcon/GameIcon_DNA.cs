@@ -26,7 +26,7 @@ public class GameIcon_DNA : GameIcon_Base
 
     public void InitWithToolTipView(int itemId, int level, int evolve)
     {
-        Init(itemId, level, evolve, false, OnClickShowItemToolTip);
+        Init(itemId, level, evolve, false, () => OnClickShowItemToolTip(1));
     }
 
     public int Level

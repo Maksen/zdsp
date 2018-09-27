@@ -104,12 +104,6 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleServerNewDay");
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleLeaveRealm)]
-    public void ConsoleLeaveRealm()
-    {
-        ProxyMethod("ConsoleLeaveRealm");
-    }
-
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleCompleteRealm)]
     public void ConsoleCompleteRealm()
     {
@@ -206,10 +200,16 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleAddRewardGroupCheckBagSlot", grpID);
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSetAchievement)]
-    public void ConsoleSetAchievement(string name, int count, bool increment)
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetCollection)]
+    public void ConsoleGetCollection(string objtype, int target)
     {
-        ProxyMethod("ConsoleSetAchievement", name, count, increment);
+        ProxyMethod("ConsoleGetCollection", objtype, target);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAchievement)]
+    public void ConsoleGetAchievement(string objtype, string target, int count, bool increment)
+    {
+        ProxyMethod("ConsoleGetAchievement", objtype, target, count, increment);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddHero)]
@@ -222,12 +222,6 @@ public partial class NonCombatRPC : RPCBase
     public void ConsoleRemoveHero(int heroId)
     {
         ProxyMethod("ConsoleRemoveHero", heroId);
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetHeroSkin)]
-    public void ConsoleGetHeroSkin(int heroId, int itemId)
-    {
-        ProxyMethod("ConsoleGetHeroSkin", heroId, itemId);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetExplorations)]
@@ -408,6 +402,12 @@ public partial class NonCombatRPC : RPCBase
     public void ConsoleRemoveAllSkill()
     {
         ProxyMethod("ConsoleRemoveAllSkill");
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSendMail)]
+    public void ConsoleSendMail(int id)
+    {
+        ProxyMethod("ConsoleSendMail", id);
     }
     #endregion
 
@@ -885,6 +885,12 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("RemoveAutoEquipSkill", slot, slotGroup);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateEquipSlots)]
+    public void UpdateEquipSlots(int equip, int auto)
+    {
+        ProxyMethod("UpdateEquipSlots", equip, auto);
+    }
     #endregion
 
     #region PowerUp
@@ -892,6 +898,18 @@ public partial class NonCombatRPC : RPCBase
     public void PowerUp(int part)
     {
         ProxyMethod("PowerUp", part);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianLevelUp)]
+    public void MeridianLevelUp(int type)
+    {
+        ProxyMethod("MeridianLevelUp", type);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianExpUp)]
+    public void MeridianExpUp(int type)
+    {
+        ProxyMethod("MeridianExpUp", type);
     }
     #endregion
 
@@ -903,11 +921,17 @@ public partial class NonCombatRPC : RPCBase
     }
     #endregion
 
-    #region EquipFushion
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFushion)]
-    public void EquipFushion(int itemIndex, string consumeIndex)
+    #region EquipFusion
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFusion)]
+    public void EquipFusion(int itemIndex, string consumeIndex, bool changed)
     {
-        ProxyMethod("EquipFushion", itemIndex, consumeIndex);
+        ProxyMethod("EquipFusion", itemIndex, consumeIndex, changed);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipFusionGive)]
+    public void EquipFusionGive(int itemIndex, string consumeIndex)
+    {
+        ProxyMethod("EquipFusionGive", itemIndex, consumeIndex);
     }
     #endregion
 

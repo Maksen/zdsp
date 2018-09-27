@@ -52,7 +52,7 @@ public class UI_Hero_LockedPanel : MonoBehaviour
     {
         if (showSpendConfirmation)
         {
-            IInventoryItem bindItem = unlockItem.inventoryItem;
+            IInventoryItem bindItem = unlockItem.InventoryItem;
             IInventoryItem unbindItem = GameRepo.ItemFactory.GetInventoryItem(unbindItemId);
             if (bindItem != null && unbindItem != null)
             {

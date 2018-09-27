@@ -1085,13 +1085,9 @@ public class CommandManager
     public void LeaveRealm(string[] param)
     {
         if (param.Length == 0)
-        {
-            RPCFactory.NonCombatRPC.ConsoleLeaveRealm();
-        }
+            RPCFactory.CombatRPC.LeaveRealm();
         else
-        {
             PrintToConsole("Format: \\LeaveRealm");
-        }
     }
 
     [ConsoleCmd("CompleteRealm")]
@@ -1315,28 +1311,61 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("Set Achievement. Parameters: name|reset [count]|max")]
-    public void SetAchievement(string[] param)
+    [ConsoleCmd("Get Collection. Parameters: objtype|reset|all [target]")]
+    public void GetCollection(string[] param)
     {
-        if (param.Length == 2)
+        if (param.Length == 1)
         {
-            int count;
-            bool succeed = int.TryParse(param[1], out count);
-            if (succeed == true)
-                RPCFactory.NonCombatRPC.ConsoleSetAchievement(param[0], count, false);
-            else if (param[1].ToLower() == "max")
-                RPCFactory.NonCombatRPC.ConsoleSetAchievement(param[0], -1, false);
-        }
-        else if (param.Length == 1)
-        {
-            if (param[0].ToLower() == "help")
-                PrintToConsole(GUILocalizationRepo.GetLocalizedString("help_achievement"));
+            if (string.Equals(param[0], "all", StringComparison.OrdinalIgnoreCase))
+                RPCFactory.NonCombatRPC.ConsoleGetCollection("all", 0);
             else
-                RPCFactory.NonCombatRPC.ConsoleSetAchievement(param[0], 1, true);
+            {
+                if (string.Equals(param[0], "reset", StringComparison.OrdinalIgnoreCase))
+                    GameInfo.gLocalPlayer.AchievementStats.ClearCollectionsDict();
+                RPCFactory.NonCombatRPC.ConsoleGetCollection(param[0], 0);
+            }
+        }
+        else if (param.Length == 2)
+        {
+            int target;
+            if (int.TryParse(param[1], out target))
+                RPCFactory.NonCombatRPC.ConsoleGetCollection(param[0], target);
         }
         else
         {
-            PrintToConsole("Format: \\SetAchievement  name|reset [count]|max");
+            PrintToConsole("Format: \\GetCollection objtype|reset|all [target]");
+        }
+    }
+
+    [ConsoleCmd("Get Achievement. Parameters: objtype|reset [target] [count]|[max]")]
+    public void GetAchievement(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            if (string.Equals(param[0], "all", StringComparison.OrdinalIgnoreCase))
+                RPCFactory.NonCombatRPC.ConsoleGetAchievement("all", "-1", -1, false);
+            else
+            {
+                if (string.Equals(param[0], "reset", StringComparison.OrdinalIgnoreCase))
+                    GameInfo.gLocalPlayer.AchievementStats.ClearAchievementDict();
+                RPCFactory.NonCombatRPC.ConsoleGetAchievement(param[0], "-1", 1, true);
+            }
+        }
+        else if (param.Length == 2)
+        {
+            RPCFactory.NonCombatRPC.ConsoleGetAchievement(param[0], param[1], 1, true);
+        }
+        else if (param.Length == 3)
+        {
+            int count;
+            if (int.TryParse(param[2], out count))
+                RPCFactory.NonCombatRPC.ConsoleGetAchievement(param[0], param[1], count, false);
+            else if (string.Equals(param[2], "max", StringComparison.OrdinalIgnoreCase))
+                RPCFactory.NonCombatRPC.ConsoleGetAchievement(param[0], param[1], -1, false);
+        }
+        else
+        {
+            PrintToConsole("Format: \\GetAchievement objtype|reset [target] [count]|[max]");
         }
     }
 
@@ -2017,6 +2046,26 @@ public class CommandManager
             {
                 RPCFactory.NonCombatRPC.ConsoleUpdateDonate(type);
             }
+        }
+    }
+
+    [ConsoleCmd("SendMail")]
+    public void SendMail(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int mailid;
+            if (!int.TryParse(param[0], out mailid))
+            {
+                PrintToConsole("SendMail: invalid mail id.");
+                return;
+            }
+
+            RPCFactory.NonCombatRPC.ConsoleSendMail(mailid);
+        }
+        else
+        {
+            PrintToConsole("Format: \\SendMail <Mail ID>");
         }
     }
 

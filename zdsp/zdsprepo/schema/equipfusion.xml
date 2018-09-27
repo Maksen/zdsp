@@ -2,14 +2,14 @@
 <magicalarea51>
   <data>
 
-    <element name="FushionPartsList" useexcel="true" collectionkey="name">
+    <element name="FusionPartsList" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="type_name" type="string" uitext="TypeName"/>
       <property name="type_id" type="int" uitext="TypeId"/>
       <property name="sort_id" type="int" uitext="SortId"/>
     </element>
     
-    <element name="EquipFushionSideEffect" useexcel="true" collectionkey="name">
+    <element name="EquipFusionSideEffect" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="group_id" type="string" uitext="GroupId"/>
       <property name="sideeffectid" type="string" uitext="SideEffectId"/>
@@ -17,26 +17,26 @@
       <property name="weight" type="int" uitext="Weight" default="0"/>
     </element>
 
-    <element name="EquipFushionCost" useexcel="true" collectionkey="name">
+    <element name="EquipFusionCost" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="stone_rarity" type="int" uitext="StoneRarity"/>
       <property name="cost_currency" type="int" uitext="CostCurrency"/>
     </element>
 
-    <element name="EquipFushionAdditionRule" useexcel="true" collectionkey="name">
+    <element name="EquipFusionAdditionRule" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="se_rarity" type="int" uitext="SeRarity"/>
       <property name="weight" type="int" uitext="Weight"/>
     </element>
 
-    <element name="EquipFushionSell" useexcel="true" collectionkey="name">
+    <element name="EquipFusionSell" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="sell_rarity" type="int" uitext="SellRarity"/>
       <property name="token_id" type="int" uitext="TokenId" default="0"/>
       <property name="token_amout" type="int" uitext="TokenAmout" default="0"/>
     </element>
 
-    <element name="EquipFushionStore" useexcel="true" collectionkey="name">
+    <element name="EquipFusionStore" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Name"/>
       <property name="stone_id" type="int" uitext="StoneId"/>
       <property name="token_id" type="int" uitext="TokenId" default="0"/>

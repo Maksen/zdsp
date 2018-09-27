@@ -30,13 +30,11 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "EquipmentCraft")]
         public bool EquipmentCrafted;
 
-        [JsonProperty(PropertyName = "EquipmentSlots")]
-        public Dictionary<int, int> EquipmentCraftSlots = new Dictionary<int, int>();
+        [JsonProperty(PropertyName = "achievementRequireList")]
+        public Dictionary<int, int> achievementRequireList = new Dictionary<int, int>();
         #endregion
 
-                                                            //totalCraftItem 
-        //public const int MAX_EQUIPMENTCRAFTSLOTS_LEN = (int)EquipmentSlot.MAXSOLTS;
-        public const int MAX_EQUIPMENTCRAFTSLOTS_LEN = 200;
+        public const int MAX_EQUIPMENTACHIEVEMENT = 500;
 
         public EquipmentCraftInventoryData()
         {
@@ -46,9 +44,9 @@ namespace Zealot.Common
         public void InitDefault()
         {
             EquipmentCrafted = false;
-            if (EquipmentCraftSlots.Count == 0)
+            if (achievementRequireList.Count == 0)
             {
-                EquipmentCraftSlots = new Dictionary<int, int>();
+                achievementRequireList = new Dictionary<int, int>();
             }
         }
     }

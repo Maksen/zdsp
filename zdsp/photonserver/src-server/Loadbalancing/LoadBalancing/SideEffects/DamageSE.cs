@@ -166,48 +166,52 @@
 
             package.basicsInfo.weaponAttribute = MainWeaponAttribute.Str; // this is hack only 
 
-            if (mbBasicAttack) {
-                CombatFormula.GeneratePackage(package);
-                mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-            }
-            else {
+            //if (mbBasicAttack) {
+            //    CombatFormula.GeneratePackage(package);
+            //    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+            //}
+            //else {
                 if (mSideeffectData.effecttype == EffectType.Damage_NoElementDamage) {
                     //mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
                     package.basicsInfo.elementInfo.attacker = Element.None;
-                    CombatFormula.GeneratePackage(package);
-                    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                    //CombatFormula.GeneratePackage(package);
+                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
                 }
                 else if (mSideeffectData.effecttype == EffectType.Damage_MetalDamage) {
                     package.basicsInfo.elementInfo.attacker = Element.Metal;
-                    CombatFormula.GeneratePackage(package);
-                    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
+                    //CombatFormula.GeneratePackage(package);
+                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_MetalDamage;
                 }
                 else if (mSideeffectData.effecttype == EffectType.Damage_WoodDamage) {
                     package.basicsInfo.elementInfo.attacker = Element.Wood;
-                    CombatFormula.GeneratePackage(package);
-                    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
+                    //CombatFormula.GeneratePackage(package);
+                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_WoodDamage;
                 }
                 else if (mSideeffectData.effecttype == EffectType.Damage_EarthDamage) {
                     package.basicsInfo.elementInfo.attacker = Element.Earth;
-                    CombatFormula.GeneratePackage(package);
-                    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
+                    //CombatFormula.GeneratePackage(package);
+                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_EarthDamage;
                 }
                 else if (mSideeffectData.effecttype == EffectType.Damage_WaterDamage) {
                     package.basicsInfo.elementInfo.attacker = Element.Water;
-                    CombatFormula.GeneratePackage(package);
-                    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
+                    //CombatFormula.GeneratePackage(package);
+                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_WaterDamage;
                 }
                 else if (mSideeffectData.effecttype == EffectType.Damage_FireDamage) {
                     package.basicsInfo.elementInfo.attacker = Element.Fire;
-                    CombatFormula.GeneratePackage(package);
-                    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
+                    //CombatFormula.GeneratePackage(package);
+                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_FireDamage;
                 }
-            }
+
+                CombatFormula.GeneratePackage(package);
+                mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+                mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
+            //}
             
             
             mAttackResult.TargetPID = mTarget.GetPersistentID();

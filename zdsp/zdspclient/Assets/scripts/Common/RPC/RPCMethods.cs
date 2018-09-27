@@ -546,7 +546,6 @@
         GoToMainQuest,
         ConsoleNewDay,
         ConsoleServerNewDay,
-        ConsoleLeaveRealm,
         ConsoleCompleteRealm,
         ConsoleFullHealPlayer,
         ConsoleFullRecoverMana,
@@ -559,10 +558,10 @@
         ConsoleAddRewardGroupBag,
         ConsoleAddRewardGroupCheckBagSlot,
         ConsoleAddRewardGroupCheckBagMail,
-        ConsoleSetAchievement,
+        ConsoleGetCollection,
+        ConsoleGetAchievement,
         ConsoleAddHero,
         ConsoleRemoveHero,
-        ConsoleGetHeroSkin,
         ConsoleResetExplorations,
         ConsoleKillPlayer,
         ConsoleItemMallTopUp,
@@ -594,6 +593,7 @@
         ConsoleAddSkillPoint,
         ConsoleUpdateDonate,
         ConsoleRemoveAllSkills,
+        ConsoleSendMail,
         #endregion
 
         #region LeaderBoard
@@ -729,18 +729,22 @@
         RemoveEquipSkill,
         AutoEquipSkill,
         RemoveAutoEquipSkill,
+        UpdateEquipSlots,
         #endregion
 
         #region PowerUp
         PowerUp,
+        MeridianLevelUp,
+        MeridianExpUp,
         #endregion
 
         #region EquipmentCraft
         EquipmentCraft,
         #endregion
 
-        #region EquipFushion
-        EquipFushion,
+        #region EquipFusion
+        EquipFusion,
+        EquipFusionGive,
         #endregion
 
         #region Destiny Clue

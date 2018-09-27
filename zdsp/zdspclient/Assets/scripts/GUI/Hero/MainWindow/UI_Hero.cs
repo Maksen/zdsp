@@ -1,5 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using Zealot.Common;
 
 public class UI_Hero : BaseWindowBehaviour
 {

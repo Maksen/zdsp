@@ -37,13 +37,18 @@ public class GameIcon_BuffDebuff : MonoBehaviour
         buffAmtText.text = amount > 0 ? amount.ToString() : "";
     }
 
-    private void OnEnable()
+    void OnEnable()
     {
         if (lateCountdown)
         {
             lateCountdown = false;
             countdownTimer = StartCoroutine(Countdown());
         }
+    }
+
+    void OnDisable()
+    {
+        StopCountdown();
     }
 
     private IEnumerator Countdown()
@@ -78,11 +83,9 @@ public class GameIcon_BuffDebuff : MonoBehaviour
             case BuffEnum.Buff:
                 path = "zzz_DefaultTest.tif";
                 break;
-
             case BuffEnum.Debuff:
                 path = "zzz_DefaultTest.tif";
                 break;
-
             default:
                 break;
         }
@@ -91,10 +94,5 @@ public class GameIcon_BuffDebuff : MonoBehaviour
             return ClientUtils.LoadIcon(string.Format("UI_ZDSP_Icons/Element_Attacks/{0}", path));
 
         return null;
-    }
-
-    private void OnDisable()
-    {
-        StopCountdown();
     }
 }

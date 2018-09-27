@@ -130,8 +130,9 @@ public class HUD_Map : MonoBehaviour
         {
             //mPlayerIconLst[0] always meant the player itself
             //Update player icon rotation
-            mPlayerIconLst[0].transform.localEulerAngles = new Vector3(0f, 0f, -GameInfo.gLocalPlayer.AnimObj.transform.localEulerAngles.y);
-            SetIconPos(mPlayerIconLst[0], HUD_MapController.ScalePos_WorldToMap(GameInfo.gLocalPlayer.AnimObj.transform.position));
+            Transform t = GameInfo.gLocalPlayer.AnimObj.transform;
+            mPlayerIconLst[0].transform.localEulerAngles = new Vector3(0f, 0f, -t.localEulerAngles.y);
+            SetIconPos(mPlayerIconLst[0], HUD_MapController.ScalePos_WorldToMap(t.position));
         }
     }
 
@@ -417,7 +418,7 @@ public class HUD_Map : MonoBehaviour
     }
     private void SetIconPos(Image img, Vector3 pos)
     {
-        img.gameObject.transform.localPosition = pos;
+        img.gameObject.transform.localPosition = ScaleMapCoordinates(ref pos);
     }
     private void GetPartyMemberNames(List<string> nameLst)
     {
@@ -489,6 +490,18 @@ public class HUD_Map : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+    }
+    private Vector2 NormalizeMapCoordinates(ref Vector2 pos)
+    {
+        pos.x /= mImgMap.rectTransform.rect.width * 0.5f;
+        pos.y /= mImgMap.rectTransform.rect.height * 0.5f;
+        return pos;
+    }
+    private Vector3 ScaleMapCoordinates(ref Vector3 pos)
+    {
+        pos.x *= mImgMap.rectTransform.rect.width * 0.5f;
+        pos.y *= mImgMap.rectTransform.rect.height * 0.5f;
+        return pos;
     }
     #endregion
 
@@ -641,14 +654,21 @@ public class HUD_Map : MonoBehaviour
 
     public void OnMapClick(Vector2 pos)
     {
+        NormalizeMapCoordinates(ref pos);
         Vector3 mapPos = new Vector3(pos.x, 0f, pos.y);
         OnMapClick(mapPos);
     }
     public void OnMapClick(Vector3 pos)
     {
+        //pos.x = pos.x / mImgMap.rectTransform.rect.width * HUD_MapController.mMap.texture.width * 0.5f;
+        //pos.z = pos.z / mImgMap.rectTransform.rect.height * HUD_MapController.mMap.texture.height * 0.5f;
+
         //SetIconPos(mPlayerIconLst[0], pos);
         Vector3 worldPos = HUD_MapController.ScalePos_MapToWorld(pos);
         GameInfo.gLocalPlayer.PathFindToTarget(worldPos, -1, 0f, false, false, null);
+
+        Debug.Log(string.Format("Map Vec2 pos: {0}, {1}", pos.x, pos.z));
+        Debug.Log(string.Format("Map Vec3 pos: {0}, {1}, {2}", worldPos.x, worldPos.y, worldPos.z));
     }
     public void OnMapExpanderClick(Vector3 pos)
     {

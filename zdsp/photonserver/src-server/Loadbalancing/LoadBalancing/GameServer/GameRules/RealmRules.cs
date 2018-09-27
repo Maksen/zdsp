@@ -150,7 +150,7 @@ namespace Zealot.Server.Rules
         public static void CreateRealmById(int realmId, bool logAI, bool checkAll, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
-            if (player == null || player.Destroyed)
+            if (player == null || !player.IsAlive())
                 return;
             RealmJson realm = null;
             string levelScene = "";
@@ -165,7 +165,7 @@ namespace Zealot.Server.Rules
         public static void EnterRealmById(int realmId, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
-            if (player == null || player.Destroyed)
+            if (player == null || !player.IsAlive())
                 return;
             RealmJson realm = null;
             string levelScene = "";
@@ -279,7 +279,7 @@ namespace Zealot.Server.Rules
         public static void InspectMode(int realmId, GameClientPeer peer)
         {
             //Player player = peer.mPlayer;
-            //if (player == null || player.Destroyed)
+            //if (player == null || !player.IsAlive())
             //    return;
             //RealmJson realm = null;
             //string levelScene = "";
@@ -338,15 +338,13 @@ namespace Zealot.Server.Rules
         {
             //bool isSuccess = true;
             Player player = peer.mPlayer;
+            if (player == null || !player.IsAlive())
+                return;
             RealmJson realm = null;
             string levelScene = "";
-            if (player == null || player.Destroyed)
+            if (!GetRealmInfo(realmId, out realm, out levelScene))
                 return;
-            else if (!GetRealmInfo(realmId, out realm, out levelScene))
-                return;
-            else if (!CheckRealmRequirement(realm, player, peer, true))
-                return;
-            else if (realm.type != RealmType.Dungeon)
+            if (!CheckRealmRequirement(realm, player, peer, true) || realm.type != RealmType.Dungeon)
                 return;
 
             DungeonJson dungeonJson = (DungeonJson)realm;
@@ -403,19 +401,13 @@ namespace Zealot.Server.Rules
         {
             Player player = peer.mPlayer;
             string myName = peer.mChar;
-            if (player == null || player.Destroyed)
+            if (player == null || !player.IsAlive())
                 return;
-
             RealmJson realm = null;
             string levelScene = "";
             if (!GetRealmInfo(realmId, out realm, out levelScene))
                 return;
-            bool isCompletingQuest = false;
-            //if (realm.type == RealmType.DungeonStory)
-            //{
-            //    DungeonStoryJson dStoryJson = (DungeonStoryJson)realm;
-            //}
-            if (!CheckRealmRequirement(realm, player, peer, !isCompletingQuest))
+            if (!CheckRealmRequirement(realm, player, peer, false))
                 return;
 
             int partyId = player.PlayerSynStats.Party;
@@ -578,7 +570,7 @@ namespace Zealot.Server.Rules
             //List<string> memberNames = members.Select(x => x.name).ToList();
             //GameClientPeer leaderPeer = GameApplication.Instance.GetCharPeer(partyLeader);
             //Player player = leaderPeer.mPlayer;
-            //if (player == null || player.Destroyed || !memberNames.Contains(partyLeader))
+            //if (player == null || !player.IsAlive() || !memberNames.Contains(partyLeader))
             //    return;
             //RealmJson realm = null;
             //string levelScene = "";
@@ -707,100 +699,6 @@ namespace Zealot.Server.Rules
                     //                string.Format("name;{0}", playerToCheck.Name), false, peerToInform);
                     //        return false;
                     //    }
-                    //    break;
-
-                    //case RealmType.DungeonDailySpecial:
-                    //    DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
-                    //    if (!CheckDungeonIsOpen(dDailySpecialJson))
-                    //    {
-                    //        peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_DungeonNotOpen", "", false, peerToInform);
-                    //        return false;
-                    //    }
-                    //    Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
-                    //                                                ? playerToCheck.RealmStats.GetDungeonDailyDict()
-                    //                                                : playerToCheck.RealmStats.GetDungeonSpecialDict();
-                    //    seq = dDailySpecialJson.sequence;
-                    //    if (realmInfoDict[seq].DailyEntry+realmInfoDict[seq].ExtraEntry <= 0)
-                    //    {
-                    //        if (samePlayer)
-                    //            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft", "", false, peerToInform);
-                    //        else
-                    //            peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft_PartyMember",
-                    //                string.Format("name;{0}", playerToCheck.Name), false, peerToInform);
-                    //        return false;
-                    //    }
-                    //    break;
-
-                    //case RealmType.InvitePVP:
-                    //    if (GetInvitePVPData(playerToCheck.Name) == null)
-                    //        return false;
-                    //    break;
-
-                    //case RealmType.ActivityGuardWar:
-                        //int heroId, defendeGuild;
-                        //int[] attackGuild;
-
-                        //HeroesHouseRules.GetGuardBattleInfo(out heroId, out defendeGuild, out attackGuild);
-                        //if (defendeGuild == 0)
-                        //    return false;
-                        //if (attackGuild == null || attackGuild.Length == 0)
-                        //    return false;
-                        //if (!RealmRepo.mActivityGuardWar.ContainsKey(heroId))
-                        //    return false;
-                        //bool pass = false;
-                        //if (guildId == defendeGuild)
-                        //    pass = true;
-                        //foreach (var id in attackGuild)
-                        //{
-                        //    if (guildId == id)
-                        //        pass = true;
-                        //}
-                        //if (pass == false)
-                        //    return false;
-
-                        //int worldLevel = GameApplication.Instance.Leaderboard.GetWorldLevel();
-                        //ActivityGuardWarJson ActivityGuardWarJson = RealmRepo.GetActivityGuardWarJson(heroId, worldLevel);
-                        //if (ActivityGuardWarJson == null)
-                        //    return false;
-                        //break;
-
-                    //case RealmType.ActivityGuildSMBoss:
-                    //    if (guildId == 0)
-                    //        return false;
-
-                    //    GuildStats guildStats = GuildRules.GetGuildById(guildId);
-                    //    GuildSMBossJson guildSMBossJson = GuildRepo.GetGuildSMBossByLvl(guildStats.SMBossLevel);
-                    //    if (guildSMBossJson != null && guildStats.SMBossDmgDone >= guildSMBossJson.healthmax)
-                    //    {
-                    //        peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Guild_SMBossDefeated", "", false, peerToInform);
-                    //        return false;
-                    //    }
-                    //    if (playerToCheck.SecondaryStats.GuildSMBossEntry+playerToCheck.SecondaryStats.GuildSMBossExtraEntry <= 0)
-                    //    {
-                    //        peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Guild_SMBossNoEntryLeft", "", false, peerToInform);
-                    //        return false;
-                    //    }
-                    //    break;
-
-                    //case RealmType.ActivityWorldBoss:
-                    //    RealmInfo dWorldBossInfo = playerToCheck.RealmStats.GetWorldBossDict()[0];
-                    //    if (dWorldBossInfo.DailyEntry + dWorldBossInfo.ExtraEntry <= 0)
-                    //    {
-                    //        peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_NoEntryLeft", "", false, peerToInform);
-                    //        return false;
-                    //    }
-                    //    break;
-
-                    //case RealmType.EliteMap:
-                    //    int progressLvl = playerToCheck.GetAccumulatedLevel();
-                    //    EliteMapJson eliteMapInfo = RealmRepo.GetEliteMapByPlayerLevel(progressLvl);
-                    //    if (eliteMapInfo == null)
-                    //        return false;
-                    //    if (playerToCheck.RealmStats.GetEliteMapDailyTimeLeft(progressLvl) == 0)
-                    //    {
-                    //        peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_EliteMap_TimeUp", "", false, peerToInform);
-                    //        return false;
-                    //    }                     
                     //    break;
                 //}
             }

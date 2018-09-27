@@ -7,9 +7,6 @@ using Zealot.Common;
 public class UI_DialogItemSellUse : MonoBehaviour
 {
     [SerializeField]
-    GameObject[] prefabGameicons = null;
-
-    [SerializeField]
     Text txtItemName = null;
 
     [SerializeField]
@@ -32,23 +29,10 @@ public class UI_DialogItemSellUse : MonoBehaviour
         if (invItem == null)
             return;
 
-        BagType bagType = invItem.JsonObject.bagtype;
-        gameIcon = Instantiate(prefabGameicons[(int)bagType-1]);
+        ItemGameIconType iconType = invItem.ItemSortJson.gameicontype;
+        gameIcon = Instantiate(ClientUtils.LoadGameIcon(iconType));
         gameIcon.transform.SetParent(parentGameIconSlot, false);
-        switch (bagType)
-        {
-            case BagType.Equipment:
-                Equipment eq = invItem as Equipment;
-                gameIcon.GetComponent<GameIcon_Equip>().InitWithoutCallback(eq.ItemID, 0, 0, eq.UpgradeLevel);
-                break;
-            case BagType.Consumable:
-            case BagType.Material:
-                gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(invItem.ItemID, invDisplayItem.DisplayStackCount);
-                break;
-            case BagType.Socket:
-                gameIcon.GetComponent<GameIcon_DNA>().InitWithoutCallback(invItem.ItemID, 0, 0);
-                break;
-        }
+        ClientUtils.InitGameIcon(gameIcon, invItem, invItem.ItemID, iconType, invDisplayItem.DisplayStackCount, false);
 
         txtItemName.text = invItem.JsonObject.localizedname;
         spinnerInput.Max = invDisplayItem.DisplayStackCount;

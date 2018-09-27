@@ -14,15 +14,6 @@ using System.Collections.Generic;
 
 public class HUD_Skills : MonoBehaviour
 {
-    public enum SkillNo
-    {
-        Skill0 = 0,
-        Skill1 = 1,
-        Skill2 = 2,
-        Skill3 = 3,
-        Skill4 = 4
-    }
-
     //public HUD_BasicAttackBtn BasicAttackButton;
     public HUD_SkillBtn[] SkillButtons;
     public Animator[] SkillCDEnd;
@@ -37,8 +28,7 @@ public class HUD_Skills : MonoBehaviour
     {
         //BasicAttackButton.Init();
         localplayer = GameInfo.gLocalPlayer;
-        //InitSkillButtons();
-
+        InitSkillButtons();
         
         //lastWeaponPromptTime = -99999;
     }
@@ -55,16 +45,15 @@ public class HUD_Skills : MonoBehaviour
         //    BasicAttackButtonLock = ptrans.gameObject;
         localplayer = GameInfo.gLocalPlayer;
         //ButtonLocks = new List<GameObject>();
-        Zealot.Common.Datablock.CollectionHandler<object> skillequipped;
+        //Zealot.Common.Datablock.CollectionHandler<object> skillequipped;
         
-        skillequipped = localplayer.SkillStats.EquippedSkill;
-        int group = localplayer.SkillStats.EquipGroup;
+        //skillequipped = localplayer.SkillStats.EquippedSkill;
+        //int group = localplayer.SkillStats.EquipGroup;
 
 
-        for (int i = 0; i < SkillButtons.Length; i++)
+        for (int i = 0; i < SkillButtons.Length - 1; i++)
         {
-            int skillno = (int)skillequipped[i * group];
-            SkillButtons[i].Init(() => CastSkill(skillno), i, this);
+            SkillButtons[i].Init(CastSkill, i, this);
             //Transform imgtrans = SkillButtons[i].gameObject.transform.Find("Image_Lock");
             //if (imgtrans != null)
             //    ButtonLocks.Add(imgtrans.gameObject);
@@ -81,8 +70,15 @@ public class HUD_Skills : MonoBehaviour
         int group = localplayer.SkillStats.EquipGroup;
         for (int i = 0; i < SkillButtons.Length; i++)
         {
-            int skillno = (int)skillequipped[i * group];
+            int skillno = (int)skillequipped[(5 * (group - 1)) + i];
             SkillButtons[i].OnSkillUpdated(skillno);
+            if (skillno == 0)
+            {
+                SkillButtons[i].SetEmptySkill();
+                continue;
+            }
+            SkillData skd = SkillRepo.GetSkill(skillno);
+            SkillButtons[i].UpdateSprite(skd.skillgroupJson.icon);
         }
     }
 
@@ -121,41 +117,16 @@ public class HUD_Skills : MonoBehaviour
             SkillCDEnd[index].Play("SkillCDFlare");
     }
 
-    public void CastSkill(int number)
+    public void CastSkill(int skillid)
     {      
-        int skillid = 0;
-        //SkillNo skillNo = SkillNo.BasicAttack; 
-
-        switch (number)
-        {
-            case 1:
-                skillid = localplayer.SkillStats.JobskillAttackSId;
-                //skillNo = SkillNo.Skill1;
-                break;
-            //case 2:
-            //    skillid = localplayer.SkillStats.RedHeroCardSkillAttackSId;
-            //    skillNo = SkillNo.Skill2;
-            //    break;
-            //case 3:
-            //    skillid = localplayer.SkillStats.GreenHeroCardSkillAttackSId;
-            //    skillNo = SkillNo.Skill3;
-            //    break;
-            //case 4:
-            //    skillid = localplayer.SkillStats.BlueHeroCardSkillAttackSId;
-            //    skillNo = SkillNo.Skill4;
-            //    break;
-            //case 5:
-            //    break;
-        }
-        
         if (skillid > 0)
         {
+            //SkillData skill = SkillRepo.GetSkill(skillid);
+            //GameTimer timer = null;
             GameInfo.gCombat.TryCastActiveSkill(skillid);
             localplayer.ActionInterupted();
         }
-        
     }
-     
 
     public void AddActiveSkillCooldown(int cooldownIndex, SkillJson skgp)
     {
@@ -165,7 +136,16 @@ public class HUD_Skills : MonoBehaviour
         float finalcd = skgp.cooldown;
         finalcd = CombatUtils.GetFinalSkillCooldown(GameInfo.gLocalPlayer.SkillPassiveStats, cooldownIndex, finalcd);
         cdstate.mCDEnd[cooldownIndex] = now + finalcd;
-        SkillButtons[cooldownIndex].StartCooldown(finalcd);
+
+        for(int i = 0; i < SkillButtons.Length - 1; ++i)
+        {
+            if (SkillButtons[i].skillid == cooldownIndex)
+            {
+                SkillButtons[i].StartCooldown(finalcd);
+                break;
+            }
+        }
+        
         //if (skilldata.skillgroupJson.globalcooldown > 0)//no global
         //if (false)
         //{
@@ -193,9 +173,9 @@ public class HUD_Skills : MonoBehaviour
     }
 
      
-    public void OnAutoCombatToggle(bool toggle)
+    public void OnAutoCombatToggle()
     {
-        if (toggle)
+        if (AutoCombatToggle.isOn)
             GameInfo.gLocalPlayer.Bot.StartBot();
         else
             GameInfo.gLocalPlayer.Bot.StopBot();
@@ -210,6 +190,9 @@ public class HUD_Skills : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Turn on the Bot HUD
+    /// </summary>
     public void OnBotStart()
     {
         if (!AutoCombatToggle.isOn)
@@ -217,7 +200,9 @@ public class HUD_Skills : MonoBehaviour
             AutoCombatToggle.isOn = true;
         }
     }
-
+    /// <summary>
+    /// Turn off the Bot HUD
+    /// </summary>
     public void OnBotStop()
     {
         if (AutoCombatToggle.isOn)

@@ -225,7 +225,7 @@
 
         EquipmentStats, // Equipment Inventory
         EquipmentCraftStats,
-        EquipFushionStats,
+        EquipFusionStats,
         AvatarStats, // Avatar Inventory
         ItemHotbarStats, // Item Hotbar
         RealmPartyDamageList, // Shared object, record damage list of a realm party after realm created.
@@ -253,12 +253,13 @@
         QuestExtraRewardsStats,
         StoreStats,
         ExchangeShopStats,
-
+        AchievementStats,
         CompensateStats,
         TongbaoCostBuff,
 
         PortraitDataStats,
         PowerUpStats,
+        MeridianStats,
     }
 
     public static class LocalObjectAllowType

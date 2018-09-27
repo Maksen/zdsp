@@ -471,13 +471,20 @@
       <item key="ElementalStone" value="13"/>
     </enum>
 
-    <enum name="BagType">
-      <item key="Any" value="0"/>
+    <enum name="BagTabType">
+      <item key="All" value="0"/>
       <item key="Equipment" value="1"/>
       <item key="Consumable" value="2"/>
       <item key="Material" value="3"/>
       <item key="Socket" value="4"/>
       <item key="Special" value="5"/>
+    </enum>
+
+    <enum name="ItemGameIconType">
+      <item key="Equipment" value="0"/>
+      <item key="Consumable" value="1"/>
+      <item key="Material" value="2"/>
+      <item key="DNA" value="3"/>
     </enum>
 
     <enum name="MaterialType">

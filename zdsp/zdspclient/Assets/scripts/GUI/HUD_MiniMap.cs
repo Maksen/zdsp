@@ -55,6 +55,8 @@ public class HUD_MiniMap : MonoBehaviour
     GameObject mMMIconParent_Party;
     [SerializeField]
     GameObject mMMIconParent_Player;
+    [SerializeField]
+    GameObject mMMIconParent_Revive;
 
     List<Image> mPlayerIconLst = new List<Image>();
     List<Image> mPartyIconLst = new List<Image>();
@@ -73,7 +75,10 @@ public class HUD_MiniMap : MonoBehaviour
         string lvname = ClientUtils.GetCurrentLevelName();
         Kopio.JsonContracts.LevelJson curLvJson = LevelRepo.GetInfoByName(lvname);
 
+        CleanMiniMap();
+
         mMapName.text = curLvJson.localizedname;
+        mMap.sprite = null;
         HUD_MapController.LoadMapAsync();
         mMiniMapStaticIconInitCoroutine = StartCoroutine(MiniMapInitStaticIconCoroutine());
         mMiniMapUpdateCoroutine = StartCoroutine(MiniMapUpdateCoroutine());
@@ -81,25 +86,7 @@ public class HUD_MiniMap : MonoBehaviour
     }
     public void OnDestroy()
     {
-        if (mMiniMapUpdateCoroutine != null)
-            StopCoroutine(mMiniMapUpdateCoroutine);
-        if (mMiniMapIconUpdateCoroutine != null)
-            StopCoroutine(mMiniMapIconUpdateCoroutine);
-
-        //Delete all game icons
-        DeleteAllChildren( mMMIconParent_Teleport );
-        DeleteAllChildren( mMMIconParent_Monster );
-        DeleteAllChildren( mMMIconParent_QuestNPC );
-        DeleteAllChildren( mMMIconParent_ShopNPC );
-        DeleteAllChildren( mMMIconParent_Boss );
-        DeleteAllChildren( mMMIconParent_MiniBoss );
-        DeleteAllChildren( mMMIconParent_Party );
-        DeleteAllChildren( mMMIconParent_Player );
-
-        mPartyIconLst.Clear();
-        mMonsterIconLst.Clear();
-        mMiniBossIconLst.Clear();
-        mBossIconLst.Clear();
+        CleanMiniMap();
     }
 
     #region Helper function
@@ -152,12 +139,12 @@ public class HUD_MiniMap : MonoBehaviour
                 img.gameObject.SetActive(false);
                 break;
             case IconType.SHOP:
-                //img.sprite = mSpr
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                img.sprite = mSprShop;
+                img.gameObject.transform.SetParent(mMMIconParent_ShopNPC.transform, false);
                 break;
             case IconType.REVIVE:
                 img.sprite = mSprRevive;
-                img.gameObject.transform.SetParent(mMMIconParent_Party.transform, false);
+                img.gameObject.transform.SetParent(mMMIconParent_Revive.transform, false);
                 break;
             case IconType.EMPTY:
                 img.sprite = null;
@@ -169,6 +156,8 @@ public class HUD_MiniMap : MonoBehaviour
     }
     private void SetIconPos(Image img, Vector3 pos)
     {
+        pos.x *= mMap.rectTransform.rect.width * 0.5f;
+        pos.y *= mMap.rectTransform.rect.height * 0.5f;
         img.gameObject.transform.localPosition = pos;
     }
     private void DeleteAllChildren(GameObject parent)
@@ -180,6 +169,30 @@ public class HUD_MiniMap : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+    }
+    private void CleanMiniMap()
+    {
+        if (mMiniMapUpdateCoroutine != null)
+            StopCoroutine(mMiniMapUpdateCoroutine);
+        if (mMiniMapIconUpdateCoroutine != null)
+            StopCoroutine(mMiniMapIconUpdateCoroutine);
+
+        //Delete all game icons
+        DeleteAllChildren(mMMIconParent_Teleport);
+        DeleteAllChildren(mMMIconParent_Monster);
+        DeleteAllChildren(mMMIconParent_QuestNPC);
+        DeleteAllChildren(mMMIconParent_ShopNPC);
+        DeleteAllChildren(mMMIconParent_Boss);
+        DeleteAllChildren(mMMIconParent_MiniBoss);
+        DeleteAllChildren(mMMIconParent_Party);
+        DeleteAllChildren(mMMIconParent_Player);
+        DeleteAllChildren(mMMIconParent_Revive);
+
+        mPartyIconLst.Clear();
+        mMonsterIconLst.Clear();
+        mMiniBossIconLst.Clear();
+        mBossIconLst.Clear();
+        mPlayerIconLst.Clear();
     }
     #endregion
 
@@ -196,6 +209,8 @@ public class HUD_MiniMap : MonoBehaviour
 
                 //displace the map from the player position
                 Vector3 invPlayerMapPos = -HUD_MapController.ScalePos_WorldToMap(GameInfo.gLocalPlayer.AnimObj.transform.position);
+                invPlayerMapPos.x *= mMap.rectTransform.rect.width * 0.5f;
+                invPlayerMapPos.y *= mMap.rectTransform.rect.height * 0.5f;
 
                 mMapTransform.localPosition = invPlayerMapPos;
 

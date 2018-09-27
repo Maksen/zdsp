@@ -2,6 +2,7 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
 using Zealot.Repository;
 
 public class Hero_MapEfficiencyData : MonoBehaviour

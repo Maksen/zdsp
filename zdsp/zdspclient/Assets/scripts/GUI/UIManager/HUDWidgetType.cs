@@ -27,6 +27,7 @@
     HideWhenDeath = 21,
     DestinyNews = 22,
     DestinyStart = 23,
+    RealmExit = 24,
 
     //----------------------------
 

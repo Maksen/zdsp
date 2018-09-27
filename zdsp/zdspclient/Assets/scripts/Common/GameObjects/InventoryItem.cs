@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +8,6 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using Kopio.JsonContracts;
 using Zealot.Repository;
 
 namespace Zealot.Common
@@ -77,7 +77,7 @@ namespace Zealot.Common
 
         public void InitDefault()
         {
-            int max = GameRepo.ItemFactory.GetItemSortTableLength();
+            int max = GameRepo.ItemFactory.ItemSortTable.Count;
             for (int i = 1; i <= max; ++i)
                 Slots.Add(new IItemData((ushort)i, 0, 0, DateTime.MinValue));
         }
@@ -127,12 +127,12 @@ namespace Zealot.Common
     {
         #region GameDB Properties   
         ItemBaseJson JsonObject { get; set; }
-
+        ItemSortJson ItemSortJson { get; set; }
         int SortOrder { get; set; }
-
         ushort MaxStackCount { get; set; }
         #endregion
 
+        #region serializable properties
         [JsonProperty(PropertyName = "id")]
         ushort ItemID { get; set; }
 
@@ -150,6 +150,7 @@ namespace Zealot.Common
 
         //[DefaultValue(0)]
         //int ItemCode { get; set; }
+        #endregion
 
         void LoadJson(ItemBaseJson jsonobject);
         void EncodeItem();
@@ -172,6 +173,7 @@ namespace Zealot.Common
     {
         #region GameDB Properties   
         public ItemBaseJson JsonObject { get; set; }
+        public ItemSortJson ItemSortJson { get; set; }
         public int SortOrder { get; set; }
         public ushort MaxStackCount { get; set; }
         #endregion
@@ -197,8 +199,9 @@ namespace Zealot.Common
         {
             JsonObject = jsonobject;
             ItemID = (ushort)jsonobject.itemid;
-            MaxStackCount = (ushort)GameRepo.ItemFactory.GetItemMaxStackCount(jsonobject.bagtype);
-            SortOrder = GameRepo.ItemFactory.GetItemOrderById(jsonobject.itemsort);
+            ItemSortJson = GameRepo.ItemFactory.GetItemSortById(jsonobject.itemsort);
+            SortOrder = ItemSortJson.sortorder;
+            MaxStackCount = (ushort)GameRepo.ItemFactory.GetItemMaxStackCount(ItemSortJson.bagtabtype);
         }
 
         public virtual void EncodeItem()
@@ -360,34 +363,16 @@ namespace Zealot.Common
             public uint effectValue1;
             public uint effectId2;
             public uint effectValue2;
+            public uint groupId2;
             public uint effectId3;
             public uint effectValue3;
             public uint effectId4;
             public uint effectValue4;
+            public uint groupId3;
             public uint effectId5;
             public uint effectValue5;
-            public uint groupId2;
             public uint effectId6;
             public uint effectValue6;
-            public uint effectId7;
-            public uint effectValue7;
-            public uint effectId8;
-            public uint effectValue8;
-            public uint effectId9;
-            public uint effectValue9;
-            public uint effectId10;
-            public uint effectValue10;
-            public uint groupId3;
-            public uint effectId11;
-            public uint effectValue11;
-            public uint effectId12;
-            public uint effectValue12;
-            public uint effectId13;
-            public uint effectValue13;
-            public uint effectId14;
-            public uint effectValue14;
-            public uint effectId15;
-            public uint effectValue15;
         }
         public EquipmentAttribute equipAttr;
         string equipmentItemCode;
@@ -402,7 +387,7 @@ namespace Zealot.Common
         public string Selection { get; set; }
 
         [JsonProperty(PropertyName = "3")]
-        public string FushionEffect { get; set; }
+        public string FusionEffect { get; set; }
 
         //[JsonProperty(PropertyName = "2")]
         //public ushort BasicAttributeType { get; set; }
@@ -422,9 +407,9 @@ namespace Zealot.Common
             {
                 Selection = "-|-|-|-|-|-|-|-|-|-|-|-|-|-|-";
             }
-            if (string.IsNullOrEmpty(FushionEffect))
+            if (string.IsNullOrEmpty(FusionEffect))
             {
-                FushionEffect = "0|0,0|0,0|0,0|0,0|0,0|0|0,0|0,0|0,0|0,0|0,0|0|0,0|0,0|0,0|0,0|0,0";
+                FusionEffect = "0|0,0|0,0|0|0,0|0,0|0|0,0|0,0";
             }
         }
 
@@ -481,7 +466,7 @@ namespace Zealot.Common
             equipAttr.upgradeLevel = UpgradeLevel;
             equipAttr.reformStep = ReformStep;
             EncodeSelectionForSync();
-            EncodeFushionForSync();
+            EncodeFusionForSync();
 
             var arrProperties = getBytes(ref equipAttr);
             if (base64encode)
@@ -509,7 +494,7 @@ namespace Zealot.Common
                 UpgradeLevel = getUInt16FromBytes(attributes[4], attributes[5]);
                 ReformStep = getUInt16FromBytes(attributes[6], attributes[7]);
                 DecodeSelectionsToSingle(attributes);
-                DecodeFushionToSingle(attributes);
+                DecodeFusionToSingle(attributes);
             }
         }
 
@@ -533,43 +518,25 @@ namespace Zealot.Common
             equipAttr.selection14   = selections[13];
             equipAttr.selection15   = selections[14];
         }
-        private void EncodeFushionForSync ()
+        private void EncodeFusionForSync ()
         {
-            List<uint> fushionEffects = GetEffectList();
+            List<uint> fusionEffects = GetEffectList();
 
-            equipAttr.groupId1         = fushionEffects[0];
-            equipAttr.effectId1        = fushionEffects[1];
-            equipAttr.effectValue1     = fushionEffects[2];
-            equipAttr.effectId2        = fushionEffects[3];
-            equipAttr.effectValue2     = fushionEffects[4];
-            equipAttr.effectId3        = fushionEffects[5];
-            equipAttr.effectValue3     = fushionEffects[6];
-            equipAttr.effectId4        = fushionEffects[7];
-            equipAttr.effectValue4     = fushionEffects[8];
-            equipAttr.effectId5        = fushionEffects[9];
-            equipAttr.effectValue5     = fushionEffects[10];
-            equipAttr.groupId2         = fushionEffects[11];
-            equipAttr.effectId6        = fushionEffects[12];
-            equipAttr.effectValue6     = fushionEffects[13];
-            equipAttr.effectId7        = fushionEffects[14];
-            equipAttr.effectValue7     = fushionEffects[15];
-            equipAttr.effectId8        = fushionEffects[16];
-            equipAttr.effectValue8     = fushionEffects[17];
-            equipAttr.effectId9        = fushionEffects[18];
-            equipAttr.effectValue9     = fushionEffects[19];
-            equipAttr.effectId10       = fushionEffects[20];
-            equipAttr.effectValue10    = fushionEffects[21];
-            equipAttr.groupId3         = fushionEffects[22];
-            equipAttr.effectId11       = fushionEffects[23];
-            equipAttr.effectValue11    = fushionEffects[24];
-            equipAttr.effectId12       = fushionEffects[25];
-            equipAttr.effectValue12    = fushionEffects[26];
-            equipAttr.effectId13       = fushionEffects[27];
-            equipAttr.effectValue13    = fushionEffects[28];
-            equipAttr.effectId14       = fushionEffects[29];
-            equipAttr.effectValue14    = fushionEffects[30];
-            equipAttr.effectId15       = fushionEffects[31];
-            equipAttr.effectValue15    = fushionEffects[32];
+            equipAttr.groupId1         = fusionEffects[0];
+            equipAttr.effectId1        = fusionEffects[1];
+            equipAttr.effectValue1     = fusionEffects[2];
+            equipAttr.effectId2        = fusionEffects[3];
+            equipAttr.effectValue2     = fusionEffects[4];
+            equipAttr.groupId2         = fusionEffects[5];
+            equipAttr.effectId3        = fusionEffects[6];
+            equipAttr.effectValue3     = fusionEffects[7];
+            equipAttr.effectId4        = fusionEffects[8];
+            equipAttr.effectValue4     = fusionEffects[9];
+            equipAttr.groupId3         = fusionEffects[10];
+            equipAttr.effectId5        = fusionEffects[11];
+            equipAttr.effectValue5     = fusionEffects[12];
+            equipAttr.effectId6        = fusionEffects[13];
+            equipAttr.effectValue6     = fusionEffects[14];
         }
         private void DecodeSelectionsToSingle(byte[] attributes)
         {
@@ -604,44 +571,26 @@ namespace Zealot.Common
             selectionStr.Append(DecodeSelection(getUInt16FromBytes(attributes[36], attributes[37])));
             Selection = selectionStr.ToString();
         }
-        private void DecodeFushionToSingle (byte[] attributes)
+        private void DecodeFusionToSingle (byte[] attributes)
         {
-            StringBuilder fushionStr = new StringBuilder(getUInt32FromBytes(attributes[40], attributes[41], attributes[42], attributes[43]).ToString());
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[44], attributes[45], attributes[46], attributes[47]), getUInt32FromBytes(attributes[48], attributes[49], attributes[50], attributes[51])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[52], attributes[53], attributes[54], attributes[55]), getUInt32FromBytes(attributes[56], attributes[57], attributes[58], attributes[59])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[60], attributes[61], attributes[62], attributes[63]), getUInt32FromBytes(attributes[64], attributes[65], attributes[66], attributes[67])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[68], attributes[69], attributes[70], attributes[71]), getUInt32FromBytes(attributes[72], attributes[73], attributes[74], attributes[75])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[76], attributes[77], attributes[78], attributes[79]), getUInt32FromBytes(attributes[80], attributes[81], attributes[82], attributes[83])));
-            fushionStr.Append("|");
-            fushionStr.Append(getUInt32FromBytes(attributes[84], attributes[85], attributes[86], attributes[87]).ToString());
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[88], attributes[89], attributes[90], attributes[91]), getUInt32FromBytes(attributes[92], attributes[93], attributes[94], attributes[95])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[96], attributes[97], attributes[98], attributes[99]), getUInt32FromBytes(attributes[100], attributes[101], attributes[102], attributes[103])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[104], attributes[105], attributes[106], attributes[107]), getUInt32FromBytes(attributes[108], attributes[109], attributes[110], attributes[111])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[112], attributes[113], attributes[114], attributes[115]), getUInt32FromBytes(attributes[116], attributes[117], attributes[118], attributes[119])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[120], attributes[121], attributes[122], attributes[123]), getUInt32FromBytes(attributes[124], attributes[125], attributes[126], attributes[127])));
-            fushionStr.Append("|");
-            fushionStr.Append(getUInt32FromBytes(attributes[128], attributes[129], attributes[130], attributes[131]).ToString());
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[132], attributes[133], attributes[134], attributes[135]), getUInt32FromBytes(attributes[136], attributes[137], attributes[138], attributes[139])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[140], attributes[141], attributes[142], attributes[143]), getUInt32FromBytes(attributes[144], attributes[145], attributes[146], attributes[147])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[148], attributes[149], attributes[150], attributes[151]), getUInt32FromBytes(attributes[152], attributes[153], attributes[154], attributes[155])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[156], attributes[157], attributes[158], attributes[159]), getUInt32FromBytes(attributes[160], attributes[161], attributes[162], attributes[163])));
-            fushionStr.Append("|");
-            fushionStr.Append(DecodeFushionEffect(getUInt32FromBytes(attributes[164], attributes[164], attributes[166], attributes[167]), getUInt32FromBytes(attributes[168], attributes[169], attributes[170], attributes[171])));
-            FushionEffect = fushionStr.ToString();
+            StringBuilder fusionStr = new StringBuilder(getUInt32FromBytes(attributes[40], attributes[41], attributes[42], attributes[43]).ToString());
+            fusionStr.Append("|");
+            fusionStr.Append(DecodeFusionEffect(getUInt32FromBytes(attributes[44], attributes[45], attributes[46], attributes[47]), getUInt32FromBytes(attributes[48], attributes[49], attributes[50], attributes[51])));
+            fusionStr.Append("|");
+            fusionStr.Append(DecodeFusionEffect(getUInt32FromBytes(attributes[52], attributes[53], attributes[54], attributes[55]), getUInt32FromBytes(attributes[56], attributes[57], attributes[58], attributes[59])));
+            fusionStr.Append("|");
+            fusionStr.Append((getUInt32FromBytes(attributes[60], attributes[61], attributes[62], attributes[63]).ToString()));
+            fusionStr.Append("|");
+            fusionStr.Append(DecodeFusionEffect(getUInt32FromBytes(attributes[64], attributes[65], attributes[66], attributes[67]), getUInt32FromBytes(attributes[68], attributes[69], attributes[70], attributes[71])));
+            fusionStr.Append("|");
+            fusionStr.Append(DecodeFusionEffect(getUInt32FromBytes(attributes[72], attributes[73], attributes[74], attributes[75]), getUInt32FromBytes(attributes[76], attributes[77], attributes[78], attributes[79])));
+            fusionStr.Append("|");
+            fusionStr.Append(getUInt32FromBytes(attributes[80], attributes[81], attributes[82], attributes[83]).ToString());
+            fusionStr.Append("|");
+            fusionStr.Append(DecodeFusionEffect(getUInt32FromBytes(attributes[84], attributes[85], attributes[86], attributes[87]), getUInt32FromBytes(attributes[88], attributes[89], attributes[90], attributes[91])));
+            fusionStr.Append("|");
+            fusionStr.Append(DecodeFusionEffect(getUInt32FromBytes(attributes[92], attributes[93], attributes[94], attributes[95]), getUInt32FromBytes(attributes[96], attributes[97], attributes[98], attributes[99])));
+            FusionEffect = fusionStr.ToString();
         }
 
         public List<ushort> GetSelectionsList()
@@ -666,7 +615,7 @@ namespace Zealot.Common
 
         private List<uint> GetEffectList()
         {
-            List<string> decode = FushionEffect.Split(new char[] { '|', ',' }).ToList();
+            List<string> decode = FusionEffect.Split(new char[] { '|', ',' }).ToList();
             List<uint> lis = new List<uint>();
             for (int i = 0; i < decode.Count; ++i)
             {
@@ -707,9 +656,9 @@ namespace Zealot.Common
             Selection = selStr.ToString();
         }
 
-        public void CompileFushionEffectsList(string effectsList)
+        public void CompileFusionEffectsList(string effectsList)
         {
-            FushionEffect = effectsList;
+            FusionEffect = effectsList;
         }
 
         public ushort GetSelectionByReformStep(int reformStep)
@@ -726,7 +675,7 @@ namespace Zealot.Common
 
         public string GetFusionEffect ()
         {
-            return FushionEffect;
+            return FusionEffect;
         }
 
         public void AddSelection(int reformStep, ushort selection)
@@ -761,21 +710,14 @@ namespace Zealot.Common
             return realSel;
         }
 
-        private string DecodeFushionEffect(uint id, uint value)
+        private string DecodeFusionEffect(uint id, uint value)
         {
-            if (id >= 18)
-            {
-                return "0,0";
-            }
-            else
-            {
-                StringBuilder bind = new StringBuilder();
-                bind.Append(id.ToString());
-                bind.Append(",");
-                bind.Append(value.ToString());
+            StringBuilder bind = new StringBuilder();
+            bind.Append(id.ToString());
+            bind.Append(",");
+            bind.Append(value.ToString());
 
-                return bind.ToString();
-            }
+            return bind.ToString();
         }
 
         uint getUInt32FromBytes(byte byte1, byte byte2, byte byte3, byte byte4)
@@ -902,7 +844,7 @@ namespace Zealot.Common
         public override ItemEncodingType EncodingType { get { return ItemEncodingType.String; } }
         #endregion
 
-        public struct FushionAttribute
+        public struct FusionAttribute
         {
             public ushort itemId;
             public byte newItem;
@@ -911,46 +853,28 @@ namespace Zealot.Common
             public uint effectValue1;
             public uint effectId2;
             public uint effectValue2;
+            public uint groupId2;
             public uint effectId3;
             public uint effectValue3;
             public uint effectId4;
             public uint effectValue4;
+            public uint groupId3;
             public uint effectId5;
             public uint effectValue5;
-            public uint groupId2;
             public uint effectId6;
             public uint effectValue6;
-            public uint effectId7;
-            public uint effectValue7;
-            public uint effectId8;
-            public uint effectValue8;
-            public uint effectId9;
-            public uint effectValue9;
-            public uint effectId10;
-            public uint effectValue10;
-            public uint groupId3;
-            public uint effectId11;
-            public uint effectValue11;
-            public uint effectId12;
-            public uint effectValue12;
-            public uint effectId13;
-            public uint effectValue13;
-            public uint effectId14;
-            public uint effectValue14;
-            public uint effectId15;
-            public uint effectValue15;
         }
-        public FushionAttribute fushionAttr;
-        string equipFushionCode;
+        public FusionAttribute fusionAttr;
+        string equipFusionCode;
 
         [JsonProperty(PropertyName = "0")]
-        public string FushionData { get; set; }
+        public string FusionData { get; set; }
 
         public ElementalStone()
         {
-            if (string.IsNullOrEmpty(FushionData))
+            if (string.IsNullOrEmpty(FusionData))
             {
-                FushionData = "0|0,0|0,0|0,0|0,0|0,0|0|0,0|0,0|0,0|0,0|0,0|0|0,0|0,0|0,0|0,0|0,0";
+                FusionData = "0|0,0|0,0|0|0,0|0,0|0|0,0|0,0";
             }
         }
 
@@ -962,21 +886,21 @@ namespace Zealot.Common
 
         public override void EncodeItem()
         {
-            if (FushionData == "0|0,0|0,0|0,0|0,0|0,0|0|0,0|0,0|0,0|0,0|0,0|0|0,0|0,0|0,0|0,0|0,0")
+            if (FusionData == "0|0,0|0,0|0|0,0|0,0|0|0,0|0,0")
             {
-                FushionData = EquipFushionRepo.RandomGemEffect(ItemID);
+                FusionData = EquipFusionRepo.RandomGemEffect(ItemID);
             }
-            equipFushionCode = EncodeElementalStoneItem();
+            equipFusionCode = EncodeElementalStoneItem();
         }
 
-        public override void InitFromCode(int fushionCode)
+        public override void InitFromCode(int fusionCode)
         {
             throw new Exception("should not init equipment from integer code");
         }
 
-        public override void InitFromCode(string fushionCode, bool base64encode = false)
+        public override void InitFromCode(string fusionCode, bool base64encode = false)
         {
-            DecodeElementalStoneItem(fushionCode, base64encode);
+            DecodeElementalStoneItem(fusionCode, base64encode);
         }
 
         public override string GetStrEncodedItemCode(bool base64encode = false)
@@ -986,22 +910,22 @@ namespace Zealot.Common
 
         public override object GetItemCodeForLocalObj()
         {
-            return equipFushionCode;
+            return equipFusionCode;
         }
 
         string EncodeElementalStoneItem(bool base64encode = false)
         {
-            fushionAttr.itemId = ItemID;
-            fushionAttr.newItem = (byte)(newItem ? 1 : 0);
+            fusionAttr.itemId = ItemID;
+            fusionAttr.newItem = (byte)(newItem ? 1 : 0);
             EncodeEffectForSync();
 
-            var arrproperties = getBytes(ref fushionAttr);
+            var arrproperties = getBytes(ref fusionAttr);
             if (base64encode)
-                equipFushionCode = Convert.ToBase64String(arrproperties);
+                equipFusionCode = Convert.ToBase64String(arrproperties);
             else
-                equipFushionCode = Encoding.Unicode.GetString(arrproperties);
+                equipFusionCode = Encoding.Unicode.GetString(arrproperties);
 
-            return equipFushionCode;
+            return equipFusionCode;
         }
 
         void DecodeElementalStoneItem(string propertystr, bool base64encode = false)
@@ -1024,85 +948,49 @@ namespace Zealot.Common
         {
             List<uint> selections = GetEffectList();
 
-            fushionAttr.groupId1 = selections[0];
-            fushionAttr.effectId1 = selections[1];
-            fushionAttr.effectValue1 = selections[2];
-            fushionAttr.effectId2 = selections[3];
-            fushionAttr.effectValue2 = selections[4];
-            fushionAttr.effectId3 = selections[5];
-            fushionAttr.effectValue3 = selections[6];
-            fushionAttr.effectId4 = selections[7];
-            fushionAttr.effectValue4 = selections[8];
-            fushionAttr.effectId5 = selections[9];
-            fushionAttr.effectValue5 = selections[10];
-            fushionAttr.groupId2 = selections[11];
-            fushionAttr.effectId6 = selections[12];
-            fushionAttr.effectValue6 = selections[13];
-            fushionAttr.effectId7 = selections[14];
-            fushionAttr.effectValue7 = selections[15];
-            fushionAttr.effectId8 = selections[16];
-            fushionAttr.effectValue8 = selections[17];
-            fushionAttr.effectId9 = selections[18];
-            fushionAttr.effectValue9 = selections[19];
-            fushionAttr.effectId10 = selections[20];
-            fushionAttr.effectValue10 = selections[21];
-            fushionAttr.groupId3 = selections[22];
-            fushionAttr.effectId11 = selections[23];
-            fushionAttr.effectValue11 = selections[24];
-            fushionAttr.effectId12 = selections[25];
-            fushionAttr.effectValue12 = selections[26];
-            fushionAttr.effectId13 = selections[27];
-            fushionAttr.effectValue13 = selections[28];
-            fushionAttr.effectId14 = selections[29];
-            fushionAttr.effectValue14 = selections[30];
-            fushionAttr.effectId15 = selections[31];
-            fushionAttr.effectValue15 = selections[32];
+            fusionAttr.groupId1 = selections[0];
+            fusionAttr.effectId1 = selections[1];
+            fusionAttr.effectValue1 = selections[2];
+            fusionAttr.effectId2 = selections[3];
+            fusionAttr.effectValue2 = selections[4];
+            fusionAttr.groupId2 = selections[5];
+            fusionAttr.effectId3 = selections[6];
+            fusionAttr.effectValue3 = selections[7];
+            fusionAttr.effectId4 = selections[8];
+            fusionAttr.effectValue4 = selections[9];
+            fusionAttr.groupId3 = selections[10];
+            fusionAttr.effectId5 = selections[11];
+            fusionAttr.effectValue5 = selections[12];
+            fusionAttr.effectId6 = selections[13];
+            fusionAttr.effectValue6 = selections[14];
         }
 
         void DecodeElementalStoneToSingle(byte[] decode)
         {
             StringBuilder bind = new StringBuilder(getUInt32FromBytes(decode[4], decode[5], decode[6], decode[7]).ToString());
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[8], decode[9], decode[10], decode[11]), getUInt32FromBytes(decode[12], decode[13], decode[14], decode[15])));
+            bind.Append(DecodeFusionData(getUInt32FromBytes(decode[8], decode[9], decode[10], decode[11]), getUInt32FromBytes(decode[12], decode[13], decode[14], decode[15])));
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[16], decode[17], decode[18], decode[19]), getUInt32FromBytes(decode[20], decode[21], decode[22], decode[23])));
+            bind.Append(DecodeFusionData(getUInt32FromBytes(decode[16], decode[17], decode[18], decode[19]), getUInt32FromBytes(decode[20], decode[21], decode[22], decode[23])));
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[24], decode[25], decode[26], decode[27]), getUInt32FromBytes(decode[28], decode[29], decode[30], decode[31])));
+            bind.Append(getUInt32FromBytes(decode[24], decode[25], decode[26], decode[27]).ToString());
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[32], decode[33], decode[34], decode[35]), getUInt32FromBytes(decode[36], decode[37], decode[38], decode[39])));
+            bind.Append(DecodeFusionData(getUInt32FromBytes(decode[28], decode[29], decode[30], decode[31]), getUInt32FromBytes(decode[32], decode[33], decode[34], decode[35])));
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[40], decode[41], decode[42], decode[43]), getUInt32FromBytes(decode[44], decode[45], decode[46], decode[47])));
+            bind.Append(DecodeFusionData(getUInt32FromBytes(decode[36], decode[37], decode[38], decode[39]), getUInt32FromBytes(decode[40], decode[41], decode[42], decode[43])));
             bind.Append("|");
-            bind.Append(getUInt32FromBytes(decode[48], decode[49], decode[50], decode[51]).ToString());
+            bind.Append(getUInt32FromBytes(decode[44], decode[45], decode[46], decode[47]).ToString());
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[52], decode[53], decode[54], decode[55]), getUInt32FromBytes(decode[56], decode[57], decode[58], decode[59])));
+            bind.Append(DecodeFusionData(getUInt32FromBytes(decode[48], decode[49], decode[50], decode[51]), getUInt32FromBytes(decode[52], decode[53], decode[54], decode[55])));
             bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[60], decode[61], decode[62], decode[63]), getUInt32FromBytes(decode[64], decode[65], decode[66], decode[67])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[68], decode[69], decode[70], decode[71]), getUInt32FromBytes(decode[72], decode[73], decode[74], decode[75])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[76], decode[77], decode[78], decode[79]), getUInt32FromBytes(decode[80], decode[81], decode[82], decode[83])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[84], decode[85], decode[86], decode[87]), getUInt32FromBytes(decode[88], decode[89], decode[90], decode[91])));
-            bind.Append("|");
-            bind.Append(getUInt32FromBytes(decode[92], decode[93], decode[94], decode[95]).ToString());
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[96], decode[97], decode[98], decode[99]), getUInt32FromBytes(decode[100], decode[101], decode[102], decode[103])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[104], decode[105], decode[106], decode[107]), getUInt32FromBytes(decode[108], decode[109], decode[110], decode[111])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[112], decode[113], decode[114], decode[115]), getUInt32FromBytes(decode[116], decode[117], decode[118], decode[119])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[120], decode[121], decode[122], decode[123]), getUInt32FromBytes(decode[124], decode[125], decode[126], decode[127])));
-            bind.Append("|");
-            bind.Append(DecodeFushionData(getUInt32FromBytes(decode[128], decode[129], decode[130], decode[131]), getUInt32FromBytes(decode[132], decode[133], decode[134], decode[135])));
+            bind.Append(DecodeFusionData(getUInt32FromBytes(decode[56], decode[57], decode[58], decode[59]), getUInt32FromBytes(decode[60], decode[61], decode[62], decode[63])));
 
-            FushionData = bind.ToString();
+            FusionData = bind.ToString();
         }
 
         private List<uint> GetEffectList()
         {
-            List<string> decode = FushionData.Split(new char[] { '|', ',' }).ToList();
+            List<string> decode = FusionData.Split(new char[] { '|', ',' }).ToList();
             List<uint> lis = new List<uint>();
             for (int i = 0; i < decode.Count; ++i)
             {
@@ -1110,30 +998,22 @@ namespace Zealot.Common
                 if (uint.TryParse(decode[i], out selection))
                 {
                     lis.Add(selection);
-                }
-                else
+                } else
                 {
-                    lis.Add(0); lis.Add(0);
+                    lis.Add(selection);
                 }
             }
             return lis;
         }
 
-        private string DecodeFushionData(uint id, uint value)
+        private string DecodeFusionData(uint id, uint value)
         {
-            if (id >= 18)
-            {
-                return "0,0";
-            }
-            else
-            {
-                StringBuilder bind = new StringBuilder();
-                bind.Append(id.ToString());
-                bind.Append(",");
-                bind.Append(value.ToString());
+            StringBuilder bind = new StringBuilder();
+            bind.Append(id.ToString());
+            bind.Append(",");
+            bind.Append(value.ToString());
 
-                return bind.ToString();
-            }
+            return bind.ToString();
         }
 
         uint getUInt32FromBytes(byte byte1, byte byte2, byte byte3, byte byte4)
@@ -1154,7 +1034,7 @@ namespace Zealot.Common
             return result;
         }
 
-        byte[] getBytes(ref FushionAttribute fa)
+        byte[] getBytes(ref FusionAttribute fa)
         {
             int size = Marshal.SizeOf(fa);
             byte[] arr = new byte[size];

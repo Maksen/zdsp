@@ -87,6 +87,7 @@
                     int finalCost = Mathf.CeilToInt((cost * (1 - cs.GetField(FieldName.ManaReducePercBonus))) - cs.GetField(FieldName.ManaReduceBonus));
                     if (currentMana < finalCost)
                         return false;
+
                     player.SetMana(currentMana - finalCost);
                 }
                 else if (mSkillData.skillgroupJson.costtype == CostType.HP)
@@ -311,10 +312,7 @@
                             //se.Apply(target, caster, ispos);
                             if (sideeffectjson.delay != 0)
                             {
-                                GameTimer timer = null;
-                                timer = mTimers.SetTimer((long)(sideeffectjson.delay * 1000), delegate { se.Apply(target, caster, ispos);
-                                    mTimers.StopTimer(timer);
-                                }, timer);
+                                OnTimesUpCastSkill((long)(sideeffectjson.delay * 1000), se, target, caster, ispos);
                             }
                             else
                                 se.Apply(target, caster, ispos);
@@ -342,6 +340,17 @@
                     }
                 }
             }
+        }
+
+        private void OnTimesUpCastSkill(long delay, SideEffect se, Actor target, Actor caster, bool isPos)
+        {
+            GameTimer timer = null;
+            timer = mTimers.SetTimer(delay,
+                                    delegate
+                                    {
+                                        se.Apply(target, caster, isPos);
+                                        mTimers.StopTimer(timer);
+                                    }, timer);
         }
 
         protected void OnApplySE()

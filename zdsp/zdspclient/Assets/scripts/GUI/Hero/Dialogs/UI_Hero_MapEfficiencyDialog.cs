@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
 
 public class UI_Hero_MapEfficiencyDialog : BaseWindowBehaviour
 {

@@ -35,7 +35,7 @@ namespace Zealot.DBRepository.GM.NPCStore
                     var b = (int)row["entryid"];
                     var c = (bool)row["show"];
                     var d = (int)row["itemid"];
-                    var e = NPCStoreInfo.ItemStoreType.Normal;
+                    var e = (NPCStoreInfo.ItemStoreType)((string)row["shoptype"]).ToCharArray()[0];
                     var f = (int)row["itemvalue"];
                     var g = (NPCStoreInfo.SoldCurrencyType)((string)row["soldtype"]).ToCharArray()[0];
                     var h = (int)row["soldvalue"];

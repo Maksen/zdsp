@@ -93,8 +93,7 @@ public class StaticMapIconGameObjectPair
 
 public static class HUD_MapController
 {
-    public static Vector2 mWorld2MapRatio = Vector2.zero;
-    public static Vector2 mMap2WorldRatio = Vector2.zero;
+    public static Vector2 mWorldDim = Vector2.zero;
     static MapInfoJson mMapInfo = null;
     public static Sprite mMap = null;
     static string mCurMapName = "";
@@ -144,9 +143,10 @@ public static class HUD_MapController
             return;
         }
 
+        mMap = null;
         ClientUtils.LoadIconAsync(lvJson.maptexture, (sprite) =>
         {
-            mMap = (sprite != null) ? sprite : mMap;
+            mMap = sprite;
             CalculateScaleRatio(lvinfo);
             LoadStaticIcon(lvinfo);
             LoadNPCIcon(lvinfo);
@@ -176,6 +176,11 @@ public static class HUD_MapController
         mMonPairLst.Clear();
         mMiniBossPairLst.Clear();
         mBossPairLst.Clear();
+
+        mQuestNPCPosLst.Clear();
+        mShopNPCPosLst.Clear();
+        mPortalPosLst.Clear();
+        mRevivePosLst.Clear();
     }
     public static bool isControllerInitialized()
     {
@@ -443,18 +448,8 @@ public static class HUD_MapController
         }
 
         //world length and width
-        float worldLength = mMapInfo.mapScale.x * mMapInfo.width;
-        float worldBreadth = mMapInfo.mapScale.y * mMapInfo.height;
-
-        //Texture length and width
-        //Map (0,0) starts from the middle
-        Vector2 mapSpriteDim = new Vector2(mMap.texture.width / 2, mMap.texture.height / 2);
-
-        //Set scale
-        mWorld2MapRatio.x = mapSpriteDim.x / worldLength;
-        mWorld2MapRatio.y = mapSpriteDim.y / worldBreadth;
-        mMap2WorldRatio.x = worldLength / mapSpriteDim.x;
-        mMap2WorldRatio.y = worldBreadth / mapSpriteDim.y;
+        mWorldDim.x = mMapInfo.mapScale.x * mMapInfo.width;
+        mWorldDim.y = mMapInfo.mapScale.x * mMapInfo.width;
     }
     private static void GetPartyMemberNames(List<string> nameLst)
     {
@@ -471,6 +466,18 @@ public static class HUD_MapController
             }
         }
     }
+    public static Vector3 ScaleNormPosToMapPos(ref Vector3 normPos)
+    {
+        normPos.x *= (mMap.texture.width * 0.5f);
+        normPos.y *= (mMap.texture.height * 0.5f);
+        return normPos;
+    }
+    /// <summary>
+    /// Take in world position and transform to normalized map position [-1 ~ 1]
+    /// [-1 ~ 1] to preserve floating-point accuracy
+    /// </summary>
+    /// <param name="worldPos"></param>
+    /// <returns></returns>
     public static Vector3 ScalePos_WorldToMap(Vector3 worldPos)
     {
         Vector3 mappos = Vector3.zero;
@@ -478,12 +485,18 @@ public static class HUD_MapController
         if (mMapInfo == null)
             return mappos;
 
-        mappos.x = (worldPos.x - mMapInfo.centerPoint.x) * mWorld2MapRatio.x;
-        mappos.y = (worldPos.z - mMapInfo.centerPoint.z) * mWorld2MapRatio.y;
+        mappos.x = (worldPos.x - mMapInfo.centerPoint.x) / (mWorldDim.x * 0.5f);
+        mappos.y = (worldPos.z - mMapInfo.centerPoint.z) / (mWorldDim.y * 0.5f);
         mappos.z = 0f;
 
         return mappos;
     }
+    /// <summary>
+    /// Takes in normalized position [-1 ~ 1] on the map and transform to world position
+    /// [-1 ~ 1] to preserve floating-point accuracy
+    /// </summary>
+    /// <param name="mapPos"></param>
+    /// <returns></returns>
     public static Vector3 ScalePos_MapToWorld(Vector3 mapPos)
     {
         Vector3 worldPos = Vector3.zero;
@@ -491,9 +504,9 @@ public static class HUD_MapController
         if (mMapInfo == null)
             return worldPos;
 
-        worldPos.x = mapPos.x * mMap2WorldRatio.x + mMapInfo.centerPoint.x;
+        worldPos.x = mMapInfo.centerPoint.x + mapPos.x * mWorldDim.x * 0.5f;
         worldPos.y = GameInfo.gLocalPlayer.Position.y;
-        worldPos.z = mapPos.z * mMap2WorldRatio.y + mMapInfo.centerPoint.z;
+        worldPos.z = mMapInfo.centerPoint.z + mapPos.z * mWorldDim.y * 0.5f;
 
         return worldPos;
     }

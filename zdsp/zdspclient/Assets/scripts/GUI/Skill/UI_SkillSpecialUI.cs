@@ -25,6 +25,8 @@ public class UI_SkillSpecialUI : MonoBehaviour {
     private int m_RowCount = 0;
     private GameObject m_CurrentRow;
 
+    private UI_SkillSpecialSelectButton m_BasicAttack;
+
     [SerializeField]
     private UnityEngine.UI.Button m_Close;
 
@@ -64,6 +66,13 @@ public class UI_SkillSpecialUI : MonoBehaviour {
 
     public void GenerateList(JobType job)
     {
+        // Add basic attack as a special skill
+        //PartsType weaponType = GameInfo.gLocalPlayer.WeaponTypeUsed;
+        //string genderStr = (GameInfo.gLocalPlayer.PlayerSynStats.Gender == 0) ? "M" : "F";
+        SkillData bskill = SkillRepo.GetSkill(GameInfo.gLocalPlayer.SkillStats.basicAttack1SId);
+        m_BasicAttack = AddSkillToList(bskill);
+        m_BasicAttack.Init(bskill, delegate { m_BasicAttack.OnSelected(OnSelectSkill); });
+
         // get list of special skills from repo
         List<int> skills = SkillRepo.GetSpecialSkillGivenJob(job);
         foreach(var skill in skills)
@@ -104,5 +113,12 @@ public class UI_SkillSpecialUI : MonoBehaviour {
     public void CloseUI()
     {
         m_Close.onClick.Invoke();
+    }
+
+    public void UpdateBasicAttack(int skid)
+    {
+        SkillData skd = SkillRepo.GetSkill(skid);
+        if(skd != null && m_BasicAttack != null)
+        m_BasicAttack.OnValueUpdate(skd);
     }
 }

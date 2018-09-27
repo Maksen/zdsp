@@ -558,7 +558,7 @@ public class UI_Hero_Exploration : MonoBehaviour
         {
             if (showSpendConfirmation)
             {
-                IInventoryItem bindItem = requiredItem.inventoryItem;
+                IInventoryItem bindItem = requiredItem.InventoryItem;
                 IInventoryItem unbindItem = GameRepo.ItemFactory.GetInventoryItem(unbindItemId);
                 if (bindItem != null && unbindItem != null)
                 {

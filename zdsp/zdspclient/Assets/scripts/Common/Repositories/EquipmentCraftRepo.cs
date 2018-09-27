@@ -112,31 +112,12 @@ namespace Zealot.Repository
             return null;
         }
         
-        public static List<ItemInfo> GetEquipmentMaterial(int id)
+        public static string GetEquipmentMaterial(int id)
         {
             if (equipmentMap.ContainsKey(id))
             {
-                List<ItemInfo> materialList = new List<ItemInfo>();
-                string dividePart = equipmentMap[id].material;
-                List<string> Split_List = dividePart.Split(';').ToList();
-                for (int i = 0; i < Split_List.Count; i++)
-                {
-                    List<string> EndSplit_List = Split_List[i].Split('|').ToList();
-
-                    int ItemId = 0;
-                    int ItemCount = 0;
-                    
-                    if (int.TryParse(EndSplit_List[0], out ItemId) && int.TryParse(EndSplit_List[1], out ItemCount))
-                    {
-                        ItemInfo myinfo = new ItemInfo();
-                        myinfo.itemId = Convert.ToUInt16(EndSplit_List[0]);
-                        myinfo.stackCount = Convert.ToUInt16(EndSplit_List[1]);
-                        materialList.Add(myinfo);
-                    }
-                }
-                return materialList;
+                return equipmentMap[id].material;
             }
-
             return null;
         }
 

@@ -1,68 +1,63 @@
-﻿using Kopio.JsonContracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Zealot.Server.Entities;
-using Zealot.Server.SideEffects;
-using Zealot.Server.Entities;
-
-class FrozenSE : ControlSE
+﻿namespace Zealot.Server.SideEffects
 {
-    public FrozenSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
-    {
-        mNeedCaster = false;
-        mControlSEType = ControlSEType.Freeze;
-    }
+    using Kopio.JsonContracts;
+    using Zealot.Server.Entities;
 
-    protected override void OnStart()
+    class FrozenSE : ControlSE
     {
-        base.OnStart();
-        if (IsImmune)
+        public FrozenSE(SideEffectJson sideeffectData)
+                : base(sideeffectData)
         {
-            //mTarget.ControlStats.StunImmuned  = true;
-            mTarget.SetImmune(ImmuneSEType.Freeze);
-            return;
+            mNeedCaster = true;
+            mControlSEType = ControlSEType.Freeze | ControlSEType.Stun;
         }
-        mTarget.OnFrozen();
-        mTarget.SetControlStatus(ControlSEType.Freeze);
-    }
 
-    public override bool IsHot()
-    {
-        return false;
-    }
-
-    protected override bool OnApply(int equipid = -1)
-    {
-        if (base.OnApply(equipid))
+        protected override void OnStart()
         {
-            mTarget.SetControlStatus(Zealot.Server.Entities.ControlSEType.Stun);
-            if (mTarget.IsMonster())
+            base.OnStart();
+            if (IsImmune)
             {
-                Monster target = mTarget as Monster;
-                target.OnFrozen(mDuration);
+                //mTarget.ControlStats.StunImmuned  = true;
+                mTarget.SetImmune(ImmuneSEType.Freeze);
+                return;
             }
-            return true;
+            //mTarget.OnFrozen();
+            //mTarget.SetControlStatus(ControlSEType.Freeze);
         }
 
-        
-        return false;
-    }
+        public override bool IsHot()
+        {
+            return false;
+        }
 
-    protected override void OnInterval()
-    {
-        base.OnInterval();
+        protected override bool OnApply(int equipid = -1)
+        {
+            if (base.OnApply(equipid))
+            {
+                if (mTarget.IsMonster())
+                {
+                    Monster target = mTarget as Monster;
+                    target.SetControlStatus(mControlSEType);
+                    target.OnFrozen(mDuration);
+                }
+                return true;
+            }
 
-        
-    }
 
-    protected override void OnRemove()
-    {
-        mTarget.RemoveControlStatus(Zealot.Server.Entities.ControlSEType.Stun);
+            return false;
+        }
 
-        base.OnRemove();
+        protected override void OnInterval()
+        {
+            base.OnInterval();
+
+
+        }
+
+        protected override void OnRemove()
+        {
+            mTarget.RemoveControlStatus(mControlSEType);
+            base.OnRemove();
+        }
     }
 }

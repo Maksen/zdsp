@@ -8,45 +8,45 @@ namespace Zealot.Common
     {
         public void InitFormInventory(EquipmentCraftStats equipmentCraftStats)
         {
-            if (EquipmentCraftSlots.Count <= 0)
+            if (achievementRequireList.Count <= 0)
             {
-                Console.Write("void InitFromStats(EquipmentCraftStats equipmentCraftStats) error: EquipmentCraftSlots empty");
+                Console.Write("void InitFromInventory(EquipmentCraftStats equipmentCraftStats) error: achievementRequireList empty");
                 return;
             }
 
             equipmentCraftStats.finishedCraft = EquipmentCrafted;
 
-            foreach (KeyValuePair<int, int> entry in EquipmentCraftSlots)
+            foreach (KeyValuePair<int, int> entry in achievementRequireList)
             {
-                if (equipmentCraftStats.equipmentCraftList.ContainsKey(entry.Key))
+                if (equipmentCraftStats.achievementRequireList.ContainsKey(entry.Key))
                 {
-                    equipmentCraftStats.equipmentCraftList[entry.Key] = entry.Value;
+                    equipmentCraftStats.achievementRequireList[entry.Key] = entry.Value;
                 } else
                 {
-                    equipmentCraftStats.equipmentCraftList.Add(entry.Key, entry.Value);
+                    equipmentCraftStats.achievementRequireList.Add(entry.Key, entry.Value);
                 }
             }
         }
 
         public void InitFormStats(EquipmentCraftStats equipmentCraftStats)
         {
-            if (EquipmentCraftSlots.Count <= 0)
+            if (achievementRequireList.Count <= 0)
             {
-                Console.Write("void InitFromStats(EquipmentCraftStats equipmentCraftStats) error: EquipmentCraftSlots empty");
+                Console.Write("void InitFromStats(EquipmentCraftStats equipmentCraftStats) error: achievementRequireList empty");
                 return;
             }
 
             EquipmentCrafted = equipmentCraftStats.finishedCraft;
 
-            foreach (KeyValuePair<int, int> entry in equipmentCraftStats.equipmentCraftList)
+            foreach (KeyValuePair<int, int> entry in equipmentCraftStats.achievementRequireList)
             {
-                if (equipmentCraftStats.equipmentCraftList.ContainsKey(entry.Key))
+                if (equipmentCraftStats.achievementRequireList.ContainsKey(entry.Key))
                 {
-                    EquipmentCraftSlots[entry.Key] = entry.Value;
+                    achievementRequireList[entry.Key] = entry.Value;
                 }
                 else
                 {
-                    EquipmentCraftSlots.Add(entry.Key, entry.Value);
+                    achievementRequireList.Add(entry.Key, entry.Value);
                 }
             }
         }

@@ -1,14 +1,9 @@
-﻿using UnityEngine;
-using UnityEngine.Events;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Zealot.Common;
-using Zealot.Client.Entities;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 
 public class ReformBagData : MonoBehaviour
 {

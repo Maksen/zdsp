@@ -45,7 +45,7 @@ public class ItemHotbarButton : MonoBehaviour
             {
                 UIManager.GetWindowGameObject(WindowType.Inventory).GetComponent<UI_Inventory>().InitOnEnable = false;
                 UIManager.OpenWindow(WindowType.Inventory, 
-                    (window) => window.GetComponent<UI_Inventory>().Init(BagType.Consumable));
+                    (window) => window.GetComponent<UI_Inventory>().Init(BagTabType.Consumable));
             }
         }
     }

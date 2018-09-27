@@ -24,6 +24,11 @@ public class UI_DialogItemDetailTooltip_WhereToGet : MonoBehaviour
     }
     public void Init(IInventoryItem item)
     {
+        for (int i = 0; i < mOriginSourceLst.Count; ++i)
+        {
+            mOriginSourceLst[i].Clear();
+        }
+
         //Do nothing if item is null
         if (item == null)
             return;
@@ -31,11 +36,6 @@ public class UI_DialogItemDetailTooltip_WhereToGet : MonoBehaviour
         //Do nothing if origin is invalid or equals -1
         if (item.JsonObject.origin == "-1")
             return;
-
-        for (int i = 0; i < mOriginSourceLst.Count; ++i)
-        {
-            mOriginSourceLst[i].Clear();
-        }
 
         //Parse origin and create buttons
         string[] difforigin = item.JsonObject.origin.Split(';');

@@ -50,6 +50,12 @@ public class EfxSystem : MonoSingleton<EfxSystem>
             AddEffect(sdata.skillJson.name+"_gethit", sdata.skillJson.effectgethit, true);
         }
 
+        foreach(KeyValuePair<int, SideEffectJson> entry in SideEffectRepo.mIdMap)
+        {
+            SideEffectJson sdata = entry.Value;
+            AddEffect(sdata.effectpath, sdata.name, true);
+        }
+
         AddEffect("levelup", "Effects_ZDSP_characters/buff/prefab/level_up.prefab", true);
         /*AddEffect(EffectVisualTypes.Stun.ToString(), "Effects_piliq/characters/sw/prefab/sw_stun.prefab");//TODO: replace this se with the correct effect
         AddEffect(EffectVisualTypes.Slow.ToString(), "Effects_generic/prefab/bleed.prefab");

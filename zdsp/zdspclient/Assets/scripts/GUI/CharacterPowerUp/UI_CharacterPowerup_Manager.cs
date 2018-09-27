@@ -6,14 +6,13 @@ using Zealot.Client.Entities;
 using Kopio.JsonContracts;
 using Zealot.Repository;
 using Zealot.Common;
-using System.Linq;
 
 public class UI_CharacterPowerup_Manager : MonoBehaviour
 {
     [SerializeField]
     private GameObject requiredItemDataPrefab;
     [SerializeField]
-    private Transform ItemRequirements_Parents; //Content_RequiredItems //requiredItemDataParent
+    private Transform ItemRequirements_Parents;
 
     PowerUpJson powerupData = new PowerUpJson();
     PowerUpJson NextpowerupData = new PowerUpJson();
@@ -30,20 +29,20 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     private Text TXT_PartName;
 
     [SerializeField]
-    private Text TXT_NowLevel;  //部位等級/玩家等級
+    private Text TXT_NowLevel;
     [SerializeField]
-    private Text TXT_NexeLevel; //下個等級
+    private Text TXT_NexeLevel;
 
     [SerializeField]
-    private Text TXT_Effect;    //屬性能力:串聯SideEffect表
+    private Text TXT_Effect;
     [SerializeField]
-    private Text TXT_NowValue;  //目前屬性數值
+    private Text TXT_NowValue;
     [SerializeField]
-    private Text TXT_NextValue; //下個等級的屬性數值
+    private Text TXT_NextValue;
 
     [Space(5)]
     [SerializeField]
-    private Animator AT_NoEnough;  //材料不足
+    private Animator AT_NoEnough;
 
     [Space(10)]
     [Header("Data")]
@@ -70,26 +69,43 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     public static int nowPartTypeCount;
 
     [SerializeField]
+    private Transform[] selectPartButtonParents;
+    [SerializeField]
     private Toggle[] powerUpToggle;
+    
+    private List<GameIcon_Equip> equipIconData = new List<GameIcon_Equip>();
 
+    PlayerGhost player;
     string[] partLocalName = new string[] { "頭部", "身體", "背部", "脖子", "慣用手", "腳部", "裝飾部位", "裝飾部位", "手指", "手指" };
+
+    #region BasicSetting
+    void Awake()
+    {
+        for (int i = 0; i < selectPartButtonParents.Length; ++i)
+        {
+            equipIconData.Add(selectPartButtonParents[i].Find("GameIcon_Equip").GetComponent<GameIcon_Equip>());
+        }
+    }
 
     void OnEnable()
     {
         mManager = this;
-        for (int i = 0; i < powerUpToggle.Length; ++i)
+        player = GameInfo.gLocalPlayer;
+        for (int i = 0; i < equipIconData.Count; ++i)
         {
-            int x = i;
-            powerUpToggle[i].onValueChanged.AddListener(delegate {
-                Init(x);
-            });
+            int index = i;
+            equipIconData[index].SetEquipIconClickCallback(() => Init(index));
         }
         Init(nowPartTypeCount);
     }
+    #endregion
 
+    #region Refresh
     public void Init(int part)
     {
+        powerUpToggle[nowPartTypeCount].isOn = false;
         nowPartTypeCount = part;
+        powerUpToggle[nowPartTypeCount].isOn = true;
         ClientUtils.DestroyChildren(ItemRequirements_Parents);
         LevelCanPowerUp = false;
         haveEnoughMaterial = false;
@@ -102,10 +118,12 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     {
         mManager.Init(nowPartTypeCount);
     }
+    #endregion
+
+    #region ShowInUI
 
     void RefreshPowerUpShow(int part)
     {
-        PlayerGhost player = GameInfo.gLocalPlayer;
         TXT_PartName.text = partLocalName[part];
         IMG_PartIcon.sprite = SP_PartIcon[part];
         int partLevel = player.clientPowerUpCtrl.PowerUpInventory.powerUpSlots[part];
@@ -144,7 +162,6 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
 
     void InstantiatePartRequir(int part)
     {
-        PlayerGhost player = GameInfo.gLocalPlayer;
         powerupData = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, player.clientPowerUpCtrl.PowerUpInventory.powerUpSlots[part]);
 
         if (powerupData != null)
@@ -153,35 +170,26 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
             SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(powerupData.effect);
             haveEnoughMaterial = true;
             string RawMatDataString = powerupData.material;
+            List<ItemInfo> Split_List = PowerUpUtilities.ConvertMaterialFormat(RawMatDataString);
 
-            List<string> Split_List = RawMatDataString.Split(';').ToList();
-            for (int i = 0; i < Split_List.Count; i++)
+            for (int i = 0; i < Split_List.Count; ++i)
             {
-                List<string> EndSplit_List = Split_List[i].Split('|').ToList();
+                GameObject reqITemDataObj = Instantiate(requiredItemDataPrefab);
+                reqITemDataObj.transform.SetParent(ItemRequirements_Parents, false);
 
-                int ItemId = 0;
-                int ItemCount = 0;
-                
-                if (int.TryParse(EndSplit_List[0], out ItemId) && int.TryParse(EndSplit_List[1], out ItemCount))
-                {
+                if (player == null) { return; }
 
-                    GameObject reqITemDataObj = Instantiate(requiredItemDataPrefab);
-                    reqITemDataObj.transform.SetParent(ItemRequirements_Parents, false);
+                int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(Split_List[i].itemId);
+                int money = player.SecondaryStats.Money;
 
-                    if (player == null) { return; } //如果玩家還沒生成，return
-
-                    int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)ItemId); //玩家擁有的道具
-                    int money = player.SecondaryStats.Money; //玩家擁有的金錢
-
-                    RequiredItemData reqItemData = reqITemDataObj.GetComponent<RequiredItemData>(); // 
-                    reqItemData.InitMaterial(ItemId, invAmount, ItemCount); //初始化Material
-                }
-                else
-                { /*Debug.LogError("Don't have ItemId or ItemCount");*/ }
+                RequiredItemData reqItemData = reqITemDataObj.GetComponent<RequiredItemData>();
+                reqItemData.InitMaterial(Split_List[i].itemId, invAmount, Split_List[i].stackCount);
             }
         }
     }
+    #endregion
 
+    #region CompareConsume
     public static void CompareMaterial(Text colorText, int invAmount, int reqAmount)
     {
         if (invAmount >= reqAmount)
@@ -199,30 +207,47 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     {
         AT_NoEnough.Play((haveEnoughMaterial == true) ? "inv_notenough_DEFAULT" : "inv_notenough");
     }
+    #endregion
 
-    #region BTN Event
+    #region ClickEvent
     public void GameIconSwitch(bool Open)
     {
         int iconCount = GameIcon.childCount;
         if (Open)
         {
-            CS_Inventory.RefreshLeft(GameInfo.gLocalPlayer);
+            for (int i = 0; i < equipIconData.Count; ++i)
+            {
+                int index = i;
+                equipIconData[index].SetEquipIconClickCallback(() => CS_Inventory.OnEquipmentSlotClickedCB(index));
+            }
+            CS_Inventory.RefreshLeft(player);
         }
         else
         {
+            List<int> mySlot = player.clientPowerUpCtrl.PowerUpInventory.powerUpSlots;
             for (int i = 0; i < iconCount; ++i)
             {
-                GameIcon.GetChild(i).transform.GetChild(2).gameObject.SetActive(false);
-                GameIcon.GetChild(i).transform.GetChild(1).gameObject.SetActive(true);
+                int index = i;
+                equipIconData[index].gameObject.SetActive(true);
+                equipIconData[index].InitWithoutCallback(3, mySlot[index], 0, 0);
             }
         }
     }
+
     public void CloseSwitch ()
     {
-        powerUpToggle[nowPartTypeCount].isOn = false;
-        powerUpToggle[0].isOn = true;
-        nowPartTypeCount = 0;
-        CS_Inventory.RefreshLeft(GameInfo.gLocalPlayer);
+        if (player != null)
+        {
+            powerUpToggle[nowPartTypeCount].isOn = false;
+            powerUpToggle[0].isOn = true;
+            nowPartTypeCount = 0;
+            for (int i = 0; i < equipIconData.Count; ++i)
+            {
+                int index = i;
+                equipIconData[index].SetEquipIconClickCallback(() => CS_Inventory.OnEquipmentSlotClickedCB(index));
+            }
+            CS_Inventory.RefreshLeft(player);
+        }
     }
     #endregion
 }

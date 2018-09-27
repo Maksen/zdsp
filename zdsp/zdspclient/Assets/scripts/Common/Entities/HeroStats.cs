@@ -10,20 +10,10 @@ namespace Zealot.Common.Entities
         private string _explorations;
         private string _explored;
 
-        public Dictionary<int, Hero> GetHeroesDict()
-        {
-            return mHeroesDict;
-        }
-
+        public Dictionary<int, Hero> GetHeroesDict() { return mHeroesDict; }
         protected Dictionary<int, Hero> mHeroesDict;
-
-        public Dictionary<int, ExploreMapData> GetExplorationsDict()
-        {
-            return explorationsDict;
-        }
-
+        public Dictionary<int, ExploreMapData> GetExplorationsDict() { return explorationsDict; }
         protected Dictionary<int, ExploreMapData> explorationsDict;
-
         protected HashSet<int> exploredMaps;
 
         public HeroStats() : base(LOTYPE.HeroStats)
@@ -39,7 +29,7 @@ namespace Zealot.Common.Entities
             exploredMaps = new HashSet<int>();
         }
 
-        public CollectionHandler<object> heroes { get; set; } // Store member info in string
+        public CollectionHandler<object> heroes { get; set; } // Store hero info in string
 
         public int SummonedHeroId
         {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Repository;
-using Zealot.Common;
 
 public enum CollectRewardType
 {
@@ -31,22 +30,13 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
     Transform ItemContent;
 
     [SerializeField]
-    GameObject EquipmentData;
-
-    [SerializeField]
-    GameObject MaterialData;
-
-    [SerializeField]
-    GameObject DnaData;
-
-    [SerializeField]
     Button Claim;
 
     [SerializeField]
     Text ClaimButtonText;
 
-    List<RewardItem> mRewardList;
-    private List<GameObject> mRewardItem;
+    private List<RewardItem> mRewardList;
+    private List<GameObject> mRewardItems;
     private CollectRewardData mCollectRewardData;
 
     public void Init(List<RewardItem> rewardlist, CollectRewardData data, string title = null, bool claimable = true)
@@ -62,43 +52,31 @@ public class UI_DialogClaimReward : BaseWindowBehaviour
     private void UpdateRewardItem()
     {
         Clean();
-        mRewardItem = new List<GameObject>();
+        mRewardItems = new List<GameObject>();
 
         foreach(RewardItem reward in mRewardList)
         {
-            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(reward.itemId);
-            BagType bagType = itemJson.bagtype;
-            GameObject itemobj = null;
-            switch (bagType)
+            int itemId = reward.itemId;
+            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
+            if (itemJson != null)
             {
-                case BagType.Equipment:
-                    itemobj = Instantiate(EquipmentData);
-                    itemobj.GetComponent<GameIcon_Equip>().InitWithToolTipView(itemJson.itemid, 0, 0, 0);
-                    break;
-                case BagType.Socket:
-                    itemobj = Instantiate(DnaData);
-                    itemobj.GetComponent<GameIcon_DNA>().InitWithToolTipView(itemJson.itemid, 0, 0);
-                    break;
-                default:
-                    itemobj = Instantiate(MaterialData);
-                    itemobj.GetComponent<GameIcon_MaterialConsumable>().InitWithToolTipView(itemJson.itemid, reward.count);
-                    break;
-                
+                ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
+                GameObject gameIcon = Instantiate(ClientUtils.LoadGameIcon(itemSortJson.gameicontype));
+                gameIcon.transform.SetParent(ItemContent, false);
+                ClientUtils.InitGameIcon(gameIcon, null, itemId, itemSortJson.gameicontype, reward.count, true);
+                mRewardItems.Add(gameIcon);
             }
-            itemobj.transform.SetParent(ItemContent, false);
-            mRewardItem.Add(itemobj);
         }
     }
 
     private void Clean()
     {
-        if (mRewardItem != null)
+        if (mRewardItems != null)
         {
-            foreach(GameObject obj in mRewardItem)
-            {
+            foreach (GameObject obj in mRewardItems)
                 Destroy(obj);
-            }
-            mRewardItem = new List<GameObject>();
+
+            mRewardItems.Clear();
         }
     }
 

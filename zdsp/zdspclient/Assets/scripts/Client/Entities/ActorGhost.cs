@@ -241,9 +241,6 @@ namespace Zealot.Client.Entities
                     case EffectVisualTypes.Frozen:
                         {
                             //SetActorMaterial(t);
-
-                            
-
                             var animators = mCharController.gameObject.GetComponentsInChildren<Animator>();
 
                             foreach (var animator in animators)
@@ -379,15 +376,13 @@ namespace Zealot.Client.Entities
             }
             else if (field == "ElementalVisualSE")
             {
-                int seid = (int)value;
-                if (seid > 0)
+                if ((int)value > 0)
                 {
-                    SideEffectJson sideeffectJson = SideEffectRepo.GetSideEffect(seid);
-                    //Debug.Log("To Play elemental Effect: " + sideeffectJson.effectpath);
-                    if (sideeffectJson != null)
+                    SideEffectJson se = SideEffectRepo.GetSideEffect((int)value);
+                    //Debug.Log("To Play elemental Effect: " + se.name);
+                    if (value != null)
                     {
-                        mPrevPosVisualSEName = sideeffectJson.name;
-                        PlaySEEffect(mPrevPosVisualSEName);
+                        PlaySEEffect(se.name);
                     }
                 }
             }
@@ -555,6 +550,24 @@ namespace Zealot.Client.Entities
                 }
             }
             return false;
+        }
+
+        public virtual void SetAnimationActive(bool active)
+        {
+            if (active)
+            {
+                var animators = mCharController.gameObject.GetComponentsInChildren<Animator>();
+
+                foreach (var animator in animators)
+                    animator.StartPlayback();
+            }
+            else
+            {
+                var animators = mCharController.gameObject.GetComponentsInChildren<Animator>();
+
+                foreach (var animator in animators)
+                    animator.StopPlayback();
+            }
         }
 
         public abstract int GetMinDmg();

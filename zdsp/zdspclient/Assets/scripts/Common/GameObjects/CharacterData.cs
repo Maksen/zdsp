@@ -206,8 +206,8 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "equipmentcraftinv")]
         public EquipmentCraftInventoryData EquipmentCraftInventory { get; set; }
 
-        [JsonProperty(PropertyName = "equipfushioninv")]
-        public EquipFushionInventoryData EquipFushionInventory { get; set; }
+        [JsonProperty(PropertyName = "equipfusioninv")]
+        public EquipFusionInventoryData EquipFusionInventory { get; set; }
 
         [JsonProperty(PropertyName = "offlineexpinv2")]
         public OfflineExpInventory2 OfflineExpInv2 { get; set; }
@@ -239,9 +239,8 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "PrizeGuaranteeData")]
         public PrizeGuaranteeData PrizeGuaranteeData { get; set; }
 
-        [DefaultValue("")]
-        [JsonProperty(PropertyName = "achievements")]
-        public string Achievements { get; set; }
+        [JsonProperty(PropertyName = "achievement")]
+        public AchievementInvData AchievementInventory { get; set; }
 
         [JsonProperty(PropertyName = "CombatStats")]
         public InspectCombatStats InspectCombatStats;
@@ -268,7 +267,7 @@ namespace Zealot.Common
             ItemInventory = new ItemInventoryData();
             EquipmentInventory = new EquipmentInventoryData();
             EquipmentCraftInventory = new EquipmentCraftInventoryData();
-            EquipFushionInventory = new EquipFushionInventoryData();
+            EquipFusionInventory = new EquipFusionInventoryData();
             RealmInventory = new RealmInventoryData();
             QuestInventory = new QuestInventoryData();
             ClueInventory = new DestinyClueInventory();
@@ -293,6 +292,7 @@ namespace Zealot.Common
             CharInfoData = new CharacterInfoData();
             HeroInventory = new HeroInvData();
             PowerUpInventory = new PowerUpInventoryData();
+            AchievementInventory = new AchievementInvData();
         }
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace Zealot.Common
             //StoreData.InitDefault();
             PowerUpInventory.InitDefault();
             EquipmentCraftInventory.InitDefault();
-            EquipFushionInventory.InitDefault();
+            EquipFusionInventory.InitDefault();
         }
 
         public void ValidateDefault()

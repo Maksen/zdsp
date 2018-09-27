@@ -35,7 +35,7 @@ public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
             if (itemids.Length > 0 && int.TryParse(itemids[0], out bindItemId))
             {
                 item.InitWithToolTipView(bindItemId, 1);
-                itemName.text = item.inventoryItem.JsonObject.localizedname;
+                itemName.text = item.InventoryItem.JsonObject.localizedname;
 
                 int bindCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)bindItemId);
                 int unbindCount = 0;
@@ -60,7 +60,7 @@ public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
     {
         if (showSpendConfirmation)
         {
-            IInventoryItem bindItem = item.inventoryItem;
+            IInventoryItem bindItem = item.InventoryItem;
             IInventoryItem unbindItem = GameRepo.ItemFactory.GetInventoryItem(unbindItemId);
             if (bindItem != null && unbindItem != null)
             {
@@ -81,5 +81,4 @@ public class UI_Hero_AddSkillPointsDialog : MonoBehaviour
     {
         RPCFactory.CombatRPC.AddHeroSkillPoint(heroId);
     }
-
 }

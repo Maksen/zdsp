@@ -27,7 +27,8 @@
     {
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
         private GameTimer mRespawnTimer;
-        private GameTimer mSaveCharacterTimer;   
+        private GameTimer mSaveCharacterTimer;
+        private GameTimer mManaRegenTimer;
         private List<AttackResult> mDamageResults;
 
         #region Stats Local Objects
@@ -38,7 +39,7 @@
         public InventoryStats[] InventoryStats { get; private set; }
         public EquipmentStats EquipmentStats { get; set; }
         public EquipmentCraftStats EquipmentCraftStats { get; private set; }
-        public EquipFushionStats EquipFushionStats { get; private set; }
+        public EquipFusionStats EquipFusionStats { get; private set; }
         public ItemHotbarStats ItemHotbarStats { get; set; }
         public QuestSynStatsServer QuestStats { get; private set; }
         public SkillSynStats SkillStats { get; private set; }
@@ -57,10 +58,12 @@
         public HeroStatsServer HeroStats { get; private set; }
         public DestinyClueSynStats DestinyClueStats { get; private set; }
         public DonateSynStats DonateStats { get; private set; }
+        public AchievementStatsServer AchievementStats { get; private set; }
 
         //public BattleTimeStats BattleTimeStats { get; private set; }
 
         public PowerUpStats PowerUpStats { get; private set; }
+        public MeridianStats MeridianStats { get; private set; }
 
         #endregion
 
@@ -287,16 +290,22 @@
             //BattleTimeStats = new BattleTimeStats();
 
             PowerUpStats = new PowerUpStats();
-            LOStats.Add(LOTYPE.PowerUpStats, PowerUpStats);            
+            LOStats.Add(LOTYPE.PowerUpStats, PowerUpStats);
+
+            MeridianStats = new MeridianStats();
+            LOStats.Add(LOTYPE.MeridianStats, MeridianStats);
 
             EquipmentCraftStats = new EquipmentCraftStats();
             LOStats.Add(LOTYPE.EquipmentCraftStats, EquipmentCraftStats);
 
-            EquipFushionStats = new EquipFushionStats();
-            LOStats.Add(LOTYPE.EquipFushionStats, EquipFushionStats);
+            EquipFusionStats = new EquipFusionStats();
+            LOStats.Add(LOTYPE.EquipFusionStats, EquipFusionStats);
 
             DonateStats = new DonateSynStats();
             LOStats.Add(LOTYPE.DonateSynStats, DonateStats);
+
+            AchievementStats = new AchievementStatsServer();
+            LOStats.Add(LOTYPE.AchievementStats, AchievementStats);
         }
 
         void InitInvStats()
@@ -372,9 +381,8 @@
         public override void SpawnAtClient(GameClientPeer peer)
         {
             bool isLocal = peer == Slot;
-            peer.ZRPC.CombatRPC.SpawnPlayerEntity(isLocal, mnOwnerID, PlayerSynStats.name, mnPersistentID, 
-                PlayerSynStats.jobsect, PlayerSynStats.Gender, PlayerSynStats.MountID,
-                Position.ToRPCPosition(), Forward.ToRPCDirection(), GetHealth(), GetHealthMax(), peer);
+            peer.ZRPC.CombatRPC.SpawnPlayerEntity(isLocal, mnOwnerID, PlayerSynStats.name, mnPersistentID,
+                PlayerSynStats.Gender, Position.ToRPCPosition(), Forward.ToRPCDirection(), peer);
         }
         #endregion
 
@@ -825,6 +833,8 @@
                         DeductBattleTime();
                 }
             }
+
+            StartManaRegen();
         }
 
         public void DeductBattleTime()
@@ -856,6 +866,27 @@
             //Slot.CharacterData.ExchangeShopInv.NewDayReset();
             //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();                           
 			QuestController.ResetOnNewDay();
+        }
+
+        public void StartManaRegen()
+        {
+            if (mManaRegenTimer != null || GetMana() == GetManaMax()) return;
+            mManaRegenTimer = mInstance.SetTimer(10000, ManaRegen, null);
+            mManaRegenTimer.AutoReset = true;
+        }
+
+        public void ManaRegen(object args)
+        {
+            float amt = CombatStats.GetField(FieldName.ManaRegen);
+            int current = GetMana();
+            amt += current;
+            SetMana(amt > GetManaMax() ? GetManaMax() : (int)amt);
+
+            if(GetMana() == GetManaMax())
+            {
+                mInstance.StopTimer(mManaRegenTimer);
+                mManaRegenTimer = null;
+            }
         }
          
         public void SaveToCharacterData(bool exitroom)
@@ -948,13 +979,16 @@
             
             SkillInventoryData skillInventory = characterData.SkillInventory;
             skillInventory.basicAttack1SId = SkillStats.basicAttack1SId;
-            skillInventory.basicAttack2SId = SkillStats.basicAttack2SId;
-            skillInventory.basicAttack3SId = SkillStats.basicAttack3SId;
             skillInventory.SkillInvCount = SkillStats.SkillInvCount;
+            skillInventory.equipGroup = SkillStats.EquipGroup;
+            skillInventory.autoGroup = SkillStats.AutoGroup;
 
             int count = SkillStats.EquippedSkill.Count;
             for (int i = 0; i < count; ++i)
+            {
                 skillInventory.EquippedSkill[i] = (int)SkillStats.EquippedSkill[i];
+                skillInventory.AutoSkill[i] = (int)SkillStats.AutoSkill[i];
+            }
             count = SkillStats.SkillInv.Count;
             for (int i = 0; i < count; ++i)
                 skillInventory.SkillInv[i] = (int)SkillStats.SkillInv[i];
@@ -983,6 +1017,7 @@
                 sideeffectInv.SERecords.Add(iter.Value);
             }
 
+            // Hero
             HeroInvData heroInv = characterData.HeroInventory;
             heroInv.HeroesList.Clear();
             foreach (Hero hero in HeroStats.GetHeroesDict().Values)
@@ -992,6 +1027,14 @@
             foreach (ExploreMapData map in HeroStats.GetExplorationsDict().Values)
                 heroInv.OngoingMaps.Add(map);
             heroInv.ExploredMaps = HeroStats.Explored;
+
+            // Achievement
+            AchievementInvData achInv = characterData.AchievementInventory;
+            achInv.Collections = AchievementStats.CollectionsToString();
+            achInv.Achievements = AchievementStats.AchievementsToString();
+            achInv.RewardClaims = AchievementStats.RewardClaims;
+            achInv.LatestCollections = AchievementStats.LatestCollections;
+            achInv.LatestAchievements = AchievementStats.LatestAchievements;
 
             //SocialInventoryData socialInv = Slot.mSocialInventory;
             //IList<string> socialInvFriendList = socialInv.friendList;
@@ -1010,7 +1053,7 @@
             //        continue;
             //    socialInvFriendList.Add(friendRequest as string);
             //}
-                        
+
             //characterData.ItemKindInv = Slot.mInventory.GetItemKindData();
             //characterData.StoreData.list_store.Clear();
             //for (int i = 0; i < StoreSynStats.list_store.Count; i++)
@@ -1048,13 +1091,14 @@
             //characterData.PortraitData.SaveToPortraitData(PortraitDataStats.portraitDataInfoString);
 
             // PowerUp
-            characterData.PowerUpInventory.SaveToInventoryData(PowerUpStats);
+            characterData.PowerUpInventory.SaveToPowerUpInventoryData(PowerUpStats);
+            characterData.PowerUpInventory.SaveToMeridianInventoryData(MeridianStats);
 
             //EquipmentCraft
             characterData.EquipmentCraftInventory.SaveToInventoryData(EquipmentCraftStats);
 
             //EquipFushion
-            characterData.EquipFushionInventory.SaveToInventoryData(EquipFushionStats);
+            characterData.EquipFusionInventory.SaveToInventoryData(EquipFusionStats);
 
             Slot.mCanSaveDB = true;
         }
@@ -1448,7 +1492,10 @@
                     equipment.EncodeItem();
                     EquipmentStats.EquipInventory[i] = equipment.GetItemCodeForLocalObj();
                     if (i == weaponSlotIndex)
+                    {
                         WeaponTypeUsed = EquipmentRepo.GetWeaponTypeByPartType(equipment.EquipmentJson.partstype);
+                        UpdateBasicAttack(equipment.EquipmentJson);
+                    }
                 }
             }
             for (int i = 0; i < (int)FashionSlot.MAXSLOTS; ++i)
@@ -1629,7 +1676,8 @@
 
         public void InitPowerUpStats(PowerUpInventoryData powerupInv)
         {
-            powerupInv.InitFromInventory(PowerUpStats);
+            powerupInv.InitFromPowerUpInventory(PowerUpStats);
+            powerupInv.InitFromMeridianInventory(MeridianStats);
         }
 
         public void InitEquipmentCraftStats (EquipmentCraftInventoryData equipmentCraftInv)
@@ -1637,9 +1685,9 @@
             equipmentCraftInv.InitFormInventory(EquipmentCraftStats);
         }
 
-        public void InitEquipFushionStats (EquipFushionInventoryData equipFushionInv)
+        public void InitEquipFusionStats (EquipFusionInventoryData equipFusionInv)
         {
-            equipFushionInv.InitFromInventory(EquipFushionStats);
+            equipFusionInv.InitFromInventory(EquipFusionStats);
         }
 
         // LotteryShopStats
@@ -3404,6 +3452,14 @@
             if (PlayerSynStats != null)
                 return PlayerSynStats.Party;
             return -1;
+        }
+
+        public void UpdateBasicAttack(EquipmentJson equipment)
+        {
+            PartsType weaponType = equipment.partstype;
+            string genderStr = (PlayerSynStats.Gender == 0) ? "M" : "F";
+            SkillData skill = SkillRepo.GetGenderWeaponBasicAttackData(weaponType, 1, genderStr);
+            SkillStats.basicAttack1SId = skill.skillJson.id;
         }
     }
 }

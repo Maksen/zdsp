@@ -348,7 +348,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             Hero hero = GetHero(heroId);
             HeroInterestType interest = (HeroInterestType)assignedInterest;
-            if (hero != null && hero.Interest != interest)
+            if (hero != null && hero.Interest != interest && !hero.IsAway)
             {
                 if (interest == HeroInterestType.Random) // random
                 {

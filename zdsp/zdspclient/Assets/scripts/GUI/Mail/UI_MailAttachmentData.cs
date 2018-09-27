@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
-using Zealot.Repository;
 
 public class UI_MailAttachmentData : MonoBehaviour
 {
-    public Image mItemSlot;                     //item window frame
     public Text mItemCount;                     //how many item of this type
-    GameIcon_Equip mItemIcon;
+    GameIcon_Base mItemIcon;
     [HideInInspector]
     public ItemType mItemType;
 
+    [Header("Parent")]
+    [SerializeField]
+    GameObject mIconParent;
+
     void OnDestroy()
     {
-
     }
 
     void OnClickedIcon_MailAttachment(IInventoryItem item)
@@ -32,14 +33,18 @@ public class UI_MailAttachmentData : MonoBehaviour
     public void SetItem(IInventoryItem item, bool flag=true)
     {
         //Note: cannot support 10 digits of 9 (9999999999)
-        mItemCount.text = "X" + item.StackCount.ToString();
+        int stackCount = item.StackCount;
+        mItemCount.text = "X" + stackCount.ToString();
         mItemType = item.JsonObject.itemtype;
 
-        Equipment eq = item as Equipment;
-        mItemIcon.InitWithToolTipView(eq.JsonObject.itemid, 0, eq.ReformStep, eq.UpgradeLevel);
+        ItemGameIconType iconType = item.ItemSortJson.gameicontype;
+        GameObject gameIcon = Instantiate(ClientUtils.LoadGameIcon(iconType));
+        gameIcon.transform.SetParent(mIconParent.transform, false);
+        ClientUtils.InitGameIcon(gameIcon, item, item.ItemID, iconType, stackCount, true);
+
+        mItemIcon = gameIcon.GetComponent<GameIcon_Base>();
 
         //enabled = flag;
-        mItemSlot.enabled = flag;
         mItemCount.enabled = flag;
     }
 }

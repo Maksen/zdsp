@@ -344,6 +344,9 @@ public partial class ClientMain : MonoBehaviour
            // UIManager.AlertManager2.SetAlert(AlertType.ArenaFreeCount, arenafreeentry);
         }
 
+        GameObject skb = UIManager.GetWidget(HUDWidgetType.SkillButtons);
+        skb.GetComponent<HUD_Skills>().UpdateSkillButtons();
+
         //string[] auctionInfo = auctionStatus.Split(';');
         //player.CheckAuctionStatus(int.Parse(auctionInfo[0]));
 
@@ -451,53 +454,47 @@ public partial class ClientMain : MonoBehaviour
 
     #region Mail
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_SendMail)]
-    //public void Ret_SendMail(string serializedMailString)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.SendMail_Callback(serializedMailString);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_HasNewMail)]
+    public void Ret_HasNewMail(bool hasNewMail, string hudID)
+    {
+        MailInvController.HasNewMail_Callback(hasNewMail, hudID);
+    }
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_HasNewMail)]
-    //public void Ret_HasNewMail(bool hasNewMail, string hudID)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.HasNewMail_Callback(hasNewMail, hudID);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_RetrieveMail)]
+    public void Ret_RetrieveMail(string serializedMailString)
+    {
+        MailInvController.RetrieveMail_Callback(serializedMailString);
+    }
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_RetrieveMail)]
-    //public void Ret_RetrieveMail(string serializedMailString)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.RetrieveMail_Callback(serializedMailString);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_OpenMail)]
+    public void Ret_OpenMail(int mailReturnCode, int mailIdx)
+    {
+        MailInvController.OpenMail_Callback(mailReturnCode, mailIdx);
+    }
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_OpenMail)]
-    //public void Ret_OpenMail(int mailReturnCode, int mailIdx)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.OpenMail_Callback(mailReturnCode, mailIdx);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_TakeAttachment)]
+    public void Ret_TakeAttachment(int mailReturnCode, int mailIdx)
+    {
+        MailInvController.TakeAttachment_Callback(mailReturnCode, mailIdx);
+    }
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_TakeAttachment)]
-    //public void Ret_TakeAttachment(int mailReturnCode, int mailIdx)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.TakeAttachment_Callback(mailReturnCode, mailIdx);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_TakeAllAttachment)]
+    public void Ret_TakeAllAttachment(int mailReturnCode, string lstTakenMailIndexSerialStr)
+    {
+        MailInvController.TakeAllAttachment_Callback(mailReturnCode, lstTakenMailIndexSerialStr);
+    }
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_TakeAllAttachment)]
-    //public void Ret_TakeAllAttachment(int mailReturnCode, string lstTakenMailIndexSerialStr)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.TakeAllAttachment_Callback(mailReturnCode, lstTakenMailIndexSerialStr);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_DeleteMail)]
+    public void Ret_DeleteMail(int mailReturnCode, int mailIdx)
+    {
+        MailInvController.DeleteMail_Callback(mailReturnCode, mailIdx);
+    }
 
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_DeleteMail)]
-    //public void Ret_DeleteMail(int mailReturnCode, int mailIdx)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.DeleteMail_Callback(mailReturnCode, mailIdx);
-    //}
-
-    //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_DeleteAllMail)]
-    //public void Ret_DeleteAllMail(int mailReturnCode)
-    //{
-    //    GameInfo.gLocalPlayer.mailInvCtrl.DeleteAllMail_Callback(mailReturnCode);
-    //}
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_DeleteAllMail)]
+    public void Ret_DeleteAllMail(int mailReturnCode)
+    {
+        MailInvController.DeleteAllMail_Callback(mailReturnCode);
+    }
 
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.Ret_OpenNewInvSlot)]
     public void Ret_OpenNewInvSlot(byte retcode, int nextOpenTime)

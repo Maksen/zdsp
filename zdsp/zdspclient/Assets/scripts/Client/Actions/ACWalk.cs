@@ -59,9 +59,11 @@ namespace Zealot.Client.Actions
             if (ghost.IsHitted())
                 return;
 
-            float moveSpeed = ghost.PlayerStats.MoveSpeed;
+            float moveSpeed = ((WalkActionCommand)mdbCommand).speed;
+            if (moveSpeed == 0)
+                moveSpeed = ghost.PlayerStats.MoveSpeed;
             Vector3 motion = ClientUtils.MoveTowards(forward, distToTarget, moveSpeed, dt / 1000.0f);
-            ghost.Move(motion);           
+            ghost.Move(motion);
         }
 
         public override bool Update(Action newAction)

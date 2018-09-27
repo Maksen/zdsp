@@ -5,9 +5,6 @@ using Zealot.Common;
 
 public class InvSellPanelScrollRow : MonoBehaviour
 {
-    [SerializeField]
-    GameObject[] prefabGameicons = null;
-
     List<GameObject> ChildList = null;
 
     // Use this for initialization
@@ -52,27 +49,27 @@ public class InvSellPanelScrollRow : MonoBehaviour
 
             InvDisplayItem invDisplayItem = sellItemList[realIdx];
             IInventoryItem invItem = invDisplayItem.InvItem;
-            BagType bagType = invItem.JsonObject.bagtype;
             UnityAction callback = () => uiInvSellPanel.RemoveFromSellPanelByIndex(realIdx);
 
-            GameObject gameIcon = Instantiate(prefabGameicons[(int)bagType-1]);
+            ItemGameIconType iconType = invItem.ItemSortJson.gameicontype;
+            GameObject gameIcon = Instantiate(ClientUtils.LoadGameIcon(iconType));
             gameIcon.transform.SetParent(parent, false);
-            switch (bagType)
+            switch (iconType)
             {
-                case BagType.Equipment:
+                case ItemGameIconType.Equipment:
                     Equipment eq = invItem as Equipment;
-                    gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, eq.IsNew, false, callback);
+                    gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, eq.ReformStep, eq.UpgradeLevel, false, eq.IsNew, false, callback);
                     break;
-                case BagType.Consumable:
-                case BagType.Material:
+                case ItemGameIconType.Consumable:
+                case ItemGameIconType.Material:
                     gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, 
                         false, invItem.IsNew, false, callback);
                     break;
-                case BagType.Socket:
+                case ItemGameIconType.DNA:
                     gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, invItem.IsNew, callback);
                     break;
             }
-              
+           
             ChildList.Add(gameIcon);
         }
     }

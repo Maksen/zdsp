@@ -54,7 +54,7 @@ public class UI_Inventory : BaseWindowBehaviour
     public UI_Inventory_SellPanel InvSellPanel = null;
     public UI_Inventory_QuickSlot InvQuickSlot = null;
 
-    public BagType CurrentInventoryTab { get; private set; }
+    public BagTabType CurrentInventoryTab { get; private set; }
     public List<InvDisplayItem> DisplayItemList { get; private set; }
 
     [NonSerialized]
@@ -66,7 +66,7 @@ public class UI_Inventory : BaseWindowBehaviour
     // Use this for initialization
     void Awake()
     {
-        CurrentInventoryTab = BagType.Any;
+        CurrentInventoryTab = BagTabType.All;
         DisplayItemList = new List<InvDisplayItem>();
         int length = equipSlots.Length;
         for (int index = 0; index < length; ++index)
@@ -93,7 +93,7 @@ public class UI_Inventory : BaseWindowBehaviour
     void OnEnable()
     {
         if (InitOnEnable)
-            Init(BagType.Any);
+            Init(BagTabType.All);
     }
 
     void OnDisable()
@@ -117,7 +117,7 @@ public class UI_Inventory : BaseWindowBehaviour
             avatar.PlayAnimation(ClientUtils.GetStandbyAnimationByWeaponType(player.WeaponTypeUsed));
     }
 
-    public void Init(BagType inventoryTab, DNAType dnaTypeFilter = DNAType.None)
+    public void Init(BagTabType inventoryTab, DNAType dnaTypeFilter = DNAType.None)
     {
         InvSellPanel.UIInventory = this;
         InvQuickSlot.UIInventory = this;
@@ -129,7 +129,7 @@ public class UI_Inventory : BaseWindowBehaviour
             this.dnaTypeFilter = dnaTypeFilter;
             if (CurrentInventoryTab == inventoryTab)
             {
-                toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagType.Consumable);
+                toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagTabType.Consumable);
                 RefreshRight(player);  
             }
             defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
@@ -168,7 +168,7 @@ public class UI_Inventory : BaseWindowBehaviour
         for (int i = 0; i < invItemListCnt; ++i)
         {
             IInventoryItem invItem = invItemList[i];
-            if (CurrentInventoryTab == BagType.Any || (invItem != null && CurrentInventoryTab == invItem.JsonObject.bagtype))
+            if (CurrentInventoryTab == BagTabType.All || (invItem != null && CurrentInventoryTab == invItem.ItemSortJson.bagtabtype))
             {
                 int stackCount = (invItem != null) ? invItem.StackCount : 0;
                 for (int j = 0; j < sellRefListCnt; ++j)
@@ -193,7 +193,7 @@ public class UI_Inventory : BaseWindowBehaviour
                 {
                     showItem = false;
                 }
-                if (CurrentInventoryTab == BagType.Any || showItem)
+                if (CurrentInventoryTab == BagTabType.All || showItem)
                     DisplayItemList.Add(new InvDisplayItem { OriginSlotId = i , InvItem = invItem,
                                                              OriginStackCount = stackCount,
                                                              DisplayStackCount = stackCount });
@@ -221,7 +221,7 @@ public class UI_Inventory : BaseWindowBehaviour
         if (player != null)
         {
             if (toggleQuickSlot)
-                toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagType.Consumable);
+                toggleCheckboxQuickSlot.isOn = (CurrentInventoryTab == BagTabType.Consumable);
             RefreshRight(player);
         }
     }
@@ -241,17 +241,17 @@ public class UI_Inventory : BaseWindowBehaviour
 
     public void OnValueChangedInventoryTab(int index)
     {
-        if (CurrentInventoryTab == (BagType)index)
+        if (CurrentInventoryTab == (BagTabType)index)
             return;
 
-        CurrentInventoryTab = (BagType)index;
+        CurrentInventoryTab = (BagTabType)index;
         UpdateVisibleInvRows(true);
     }
 
     public void OnValueChangedToggleQuickSlot(bool value)
     {
-        if (value && CurrentInventoryTab != BagType.Consumable)
-            defaultToggleingrpInvTabs.GoToPage((byte)BagType.Consumable);
+        if (value && CurrentInventoryTab != BagTabType.Consumable)
+            defaultToggleingrpInvTabs.GoToPage((byte)BagTabType.Consumable);
     }
 
     public void OnClickSortInventory()
@@ -315,7 +315,7 @@ public class UI_Inventory : BaseWindowBehaviour
             RPCFactory.NonCombatRPC.HideHelm(hidehelm);
     }
 
-    private void OnEquipmentSlotClickedCB(int slotid)
+    public void OnEquipmentSlotClickedCB(int slotid)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         var _item = player.mEquipmentInvData.GetEquipmentBySlotId(slotid);

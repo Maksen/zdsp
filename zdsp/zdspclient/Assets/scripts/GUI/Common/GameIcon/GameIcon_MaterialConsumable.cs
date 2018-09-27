@@ -30,7 +30,7 @@ public class GameIcon_MaterialConsumable : GameIcon_Base
 
     public void InitWithToolTipView(int itemId, int stackCount)
     {
-        Init(itemId, stackCount, false, false, false, OnClickShowItemToolTip);
+        Init(itemId, stackCount, false, false, false, () => OnClickShowItemToolTip(stackCount));
     }
 
     public void SetStackCount(int count)

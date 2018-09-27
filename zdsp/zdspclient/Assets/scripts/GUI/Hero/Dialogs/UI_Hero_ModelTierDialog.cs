@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
 using Zealot.Repository;
 
 public class UI_Hero_ModelTierDialog : BaseWindowBehaviour

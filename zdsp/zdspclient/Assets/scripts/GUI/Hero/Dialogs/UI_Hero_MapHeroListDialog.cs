@@ -1,10 +1,10 @@
 ﻿using Kopio.JsonContracts;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
 
 public class UI_Hero_MapHeroListDialog : BaseWindowBehaviour
 {

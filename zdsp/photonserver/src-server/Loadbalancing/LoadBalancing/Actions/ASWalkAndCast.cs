@@ -15,10 +15,13 @@ namespace Zealot.Server.Actions
 
         protected override void OnActiveEnter(string prevstate)
         {
-            if (IsSkillUsable())
+            if (!IsSkillUsable())
             {
-                base.OnActiveEnter(prevstate);
+                GotoState("Completed");
+                return;
             }
+
+            base.OnActiveEnter(prevstate);
         }
 
         protected override void OnActiveLeave()

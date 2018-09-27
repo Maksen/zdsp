@@ -279,6 +279,10 @@
                     relative = FieldName.ManaReducePercBonus;
                     nonRelative = FieldName.ManaReduceBonus;
                     break;
+                case EffectType.Stats_EnergyShield:
+                    relative = FieldName.EnergyShield;
+                    nonRelative = FieldName.EnergyShield;
+                    break;
                 case EffectType.Stats_IgnoreArmor:
                     relative = FieldName.IgnoreArmorBonus;
                     nonRelative = FieldName.IgnoreArmorBonus;

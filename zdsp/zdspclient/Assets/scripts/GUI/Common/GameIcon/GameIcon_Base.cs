@@ -19,30 +19,32 @@ public class GameIcon_Base : MonoBehaviour
     [SerializeField]
     protected GameObject newDot = null;
 
-    public IInventoryItem inventoryItem { get; private set; }
+    public IInventoryItem InventoryItem { get; private set; }
 
     UnityAction onClickIconCallback = null;
 
     protected void Init(int itemId, bool isNew = false)
     {
-        inventoryItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
-        if (inventoryItem == null)
+        InventoryItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
+        if (InventoryItem == null)
             return;
 
-        ItemBaseJson itemBaseJson = inventoryItem.JsonObject;
+        ItemBaseJson itemBaseJson = InventoryItem.JsonObject;
         Sprite sprite = ClientUtils.LoadIcon(itemBaseJson.iconspritepath);
         if (sprite != null)
             imgIcon.sprite = sprite;
 
-        itemRarity.SetRarity(itemBaseJson.bagtype, itemBaseJson.rarity);
+        itemRarity.SetRarity(InventoryItem.ItemSortJson.gameicontype, itemBaseJson.rarity);
 
         newDot.SetActive(isNew);
     }
 
-    protected void OnClickShowItemToolTip()
+    protected void OnClickShowItemToolTip(int stackCount)
     {
+        if (InventoryItem != null)
+            InventoryItem.StackCount = stackCount;
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(inventoryItem);
+            window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(InventoryItem);
         });
     }
 

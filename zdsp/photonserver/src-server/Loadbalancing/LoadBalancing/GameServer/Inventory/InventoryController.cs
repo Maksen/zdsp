@@ -267,7 +267,8 @@ namespace Photon.LoadBalancing.GameServer
             ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
             if (itemJson == null)
                 return false;
-            if (itemJson.bagtype != BagType.Equipment)
+            ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
+            if (itemSortJson.bagtabtype != BagTabType.Equipment)
             {
                 while (stackCount > 0 && slotexist)
                 {
@@ -460,7 +461,10 @@ namespace Photon.LoadBalancing.GameServer
             int equipSlot = (int)_equipSlot;
             Equipment destItem = mEquipInvData.GetEquipmentBySlotId(equipSlot);
             if (destItem != null)
+            {
+                UpdateEquipmentSideEffect(mSlot.mPlayer, destItem.EquipmentJson, false);
                 mInvData.SetSlotItem(slotId, destItem);
+            }
             else
                 mInvData.SetSlotItem(slotId, null);
             retval.SetInvSlot(slotId, 1);
@@ -470,6 +474,8 @@ namespace Photon.LoadBalancing.GameServer
 
             SyncInvData(retval.invSlot);
             SyncEquipmentData(retval.equipSlot, false);
+            if(equipitem.EquipmentJson.equiptype == EquipmentType.Weapon)
+                mSlot.mPlayer.UpdateBasicAttack(equipitem.EquipmentJson);
             UpdateEquipmentCombatStats(true, slotId, equipSlot);
             // Update sideeffects
             UpdateEquipmentSideEffect(mSlot.mPlayer, equipitem.EquipmentJson, true);
@@ -637,7 +643,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             InvRetval retval = new InvRetval();
             IInventoryItem item = mInvData.Slots[slotId];
-            if (item == null || item.JsonObject.bagtype != BagType.Consumable || mSlot.mPlayer == null || item.StackCount < useAmount)
+            if (item == null || mSlot.mPlayer == null || item.StackCount < useAmount || item.JsonObject.useable)
             {
                 retval.retCode = InvReturnCode.UseFailed;
                 return retval;
@@ -807,7 +813,7 @@ namespace Photon.LoadBalancing.GameServer
             IInventoryItem item = mInvData.GetItemByItemId(itemId);
             if (item != null)
             {
-                if (item.JsonObject.bagtype == BagType.Consumable)
+                if (item.ItemSortJson.bagtabtype == BagTabType.Consumable)
                     retval = UseToolItems(itemId, useAmount, from);
                 else
                 {
@@ -1035,10 +1041,10 @@ namespace Photon.LoadBalancing.GameServer
             foreach (int slotId in slots)
             {
                 if (slotId < 0 || slotId > mInvData.Slots.Count)
-                    continue;//skip
+                    continue; //skip
 
-                var item = mInvData.Slots[slotId];
-                if (item == null || item.JsonObject.bagtype != BagType.Consumable/* || item.itemtype != ItemType.Currency*/)
+                IInventoryItem item = mInvData.Slots[slotId];
+                if (item == null || item.ItemSortJson.bagtabtype != BagTabType.Consumable/* || item.itemtype != ItemType.Currency*/)
                 {
                     retval.retCode = InvReturnCode.UseFailed;
                     return retval;
@@ -1558,10 +1564,10 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public void UpdateEquipFushion(int slotID, string value)
+        public void UpdateEquipFusion(int slotID, string value)
         {
             Equipment equip = mInvData.Slots[slotID] as Equipment;
-            equip.FushionEffect = value;
+            equip.FusionEffect = value;
             equip.EncodeItem();
             Dictionary<int, int> refreshEquipment = new Dictionary<int, int>();
             refreshEquipment.Add(slotID, equip.JsonObject.itemid);

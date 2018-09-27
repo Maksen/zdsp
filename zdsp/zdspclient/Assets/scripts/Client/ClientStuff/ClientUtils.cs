@@ -221,6 +221,76 @@ public static class ClientUtils
         return string.Format("<color={0}>{1}</color>", hexcolor, str);
     }
 
+    // Note: Set IInventoryItem to null if not available
+    public static void InitGameIcon(GameObject gameIcon, IInventoryItem invItem, int itemId, 
+        ItemGameIconType gameIconType, int stackCount, bool withToolTip)
+    {
+        if (gameIcon == null || itemId == 0)
+            return;
+
+        switch (gameIconType)
+        {
+            case ItemGameIconType.Equipment:
+                int evolve = 0, upgrade = 0;
+                if (invItem != null)
+                {
+                    Equipment eq = (Equipment)invItem;
+                    evolve = eq.ReformStep;
+                    upgrade = eq.UpgradeLevel;
+                }
+                if (withToolTip)
+                    gameIcon.GetComponent<GameIcon_Equip>().InitWithToolTipView(itemId, 0, evolve, upgrade);
+                else
+                    gameIcon.GetComponent<GameIcon_Equip>().InitWithoutCallback(itemId, 0, evolve, upgrade);
+                break;
+            case ItemGameIconType.Consumable:
+            case ItemGameIconType.Material:
+                if (withToolTip)
+                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithToolTipView(itemId, stackCount);
+                else
+                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().InitWithoutCallback(itemId, stackCount);
+                break;
+            case ItemGameIconType.DNA:
+                if (withToolTip)
+                    gameIcon.GetComponent<GameIcon_DNA>().InitWithToolTipView(itemId, 0, 0);
+                else
+                    gameIcon.GetComponent<GameIcon_DNA>().InitWithoutCallback(itemId, 0, 0);
+                break;
+        }
+    }
+
+    public static GameObject LoadGameIcon(ItemGameIconType gameIconType)
+    {
+        switch (gameIconType)
+        {
+            case ItemGameIconType.Equipment:
+                return AssetLoader.Instance.Load<GameObject>("UI_ZDSP_GameIcon/GameIcon_Equip/P_GameIcon_Equip/GameIcon_Equip.prefab");
+            case ItemGameIconType.Consumable:
+            case ItemGameIconType.Material:
+                return AssetLoader.Instance.Load<GameObject>("UI_ZDSP_GameIcon/GameIcon_Material/P_GameIcon_Material/GameIcon_Material.prefab");
+            case ItemGameIconType.DNA:
+                return AssetLoader.Instance.Load<GameObject>("UI_ZDSP_GameIcon/GameIcon_DNA/P_GameIcon_DNA/GameIcon_DNA.prefab");
+            default: return null;
+        }
+    }
+
+    public static void LoadGameIconAsync(ItemGameIconType gameIconType, Action<GameObject> callback)
+    {
+        switch (gameIconType)
+        {
+            case ItemGameIconType.Equipment:
+                AssetLoader.Instance.LoadAsync("UI_ZDSP_GameIcon/GameIcon_Equip/P_GameIcon_Equip/GameIcon_Equip.prefab", callback);
+                break;
+            case ItemGameIconType.Consumable:
+            case ItemGameIconType.Material:
+                AssetLoader.Instance.LoadAsync("UI_ZDSP_GameIcon/GameIcon_Material/P_GameIcon_Material/GameIcon_Material.prefab", callback);
+                break;
+            case ItemGameIconType.DNA:
+                AssetLoader.Instance.LoadAsync("UI_ZDSP_GameIcon/GameIcon_DNA/P_GameIcon_DNA/GameIcon_DNA.prefab", callback);
+                break;
+        }
+    }
+
     public static Sprite LoadIcon(string assetName)
     {
         if (string.IsNullOrEmpty(assetName))
@@ -232,7 +302,7 @@ public static class ClientUtils
     {
         if (string.IsNullOrEmpty(assetName))
             return;
-        AssetLoader.Instance.LoadAsync<Sprite>(assetName, callback);
+        AssetLoader.Instance.LoadAsync(assetName, callback);
     }
 
     public static Sprite LoadItemIcon(int itemid)
@@ -243,38 +313,38 @@ public static class ClientUtils
         return LoadIcon(item.iconspritepath);
     }
 
-    public static Sprite LoadItemQualityIcon(BagType bagType, ItemRarity rarity)
+    public static Sprite LoadItemQualityIcon(ItemGameIconType gameIconType, ItemRarity rarity)
     {
         string path = "";
         switch (rarity)
         {
             case ItemRarity.Common:
-                path = (bagType == BagType.Equipment)
+                path = (gameIconType == ItemGameIconType.Equipment)
                     ? "UI_ZDSP_Icons/GameIcon/quality_equip_common.tif"
                     : "UI_ZDSP_Icons/GameIcon/quality_default_common.tif";
                 break;
             case ItemRarity.Uncommon:
-                path = (bagType == BagType.Equipment)
+                path = (gameIconType == ItemGameIconType.Equipment)
                     ? "UI_ZDSP_Icons/GameIcon/quality_equip_uncommon.tif"
                     : "UI_ZDSP_Icons/GameIcon/quality_default_uncommon.tif";
                 break;
             case ItemRarity.Rare:
-                path = (bagType == BagType.Equipment)
+                path = (gameIconType == ItemGameIconType.Equipment)
                     ? "UI_ZDSP_Icons/GameIcon/quality_equip_rare.tif"
                     : "UI_ZDSP_Icons/GameIcon/quality_default_rare.tif";
                 break;
             case ItemRarity.Epic:
-                path = (bagType == BagType.Equipment)
+                path = (gameIconType == ItemGameIconType.Equipment)
                     ? "UI_ZDSP_Icons/GameIcon/quality_equip_epic.tif"
                     : "UI_ZDSP_Icons/GameIcon/quality_default_epic.tif";
                 break;
             case ItemRarity.Celestial:
-                path = (bagType == BagType.Equipment)
+                path = (gameIconType == ItemGameIconType.Equipment)
                     ? "UI_ZDSP_Icons/GameIcon/quality_equip_celestial.tif"
                     : "UI_ZDSP_Icons/GameIcon/quality_default_celestial.tif";
                 break;
             case ItemRarity.Legendary:
-                path = (bagType == BagType.Equipment)
+                path = (gameIconType == ItemGameIconType.Equipment)
                     ? "UI_ZDSP_Icons/GameIcon/quality_equip_legendary.tif"
                     : "UI_ZDSP_Icons/GameIcon/quality_default_legendary.tif";
                 break;
@@ -282,18 +352,18 @@ public static class ClientUtils
         return LoadIcon(path);
     }
 
-    public static void LoadVideoAsync(string assetName, Action<VideoClip> callback)
-    {
-        if (string.IsNullOrEmpty(assetName))
-            return;
-        AssetLoader.Instance.LoadAsync<VideoClip>(assetName, callback);
-    }
-
     public static VideoClip LoadVideo(string assetName)
     {
         if (string.IsNullOrEmpty(assetName))
             return null;
         return AssetLoader.Instance.Load<VideoClip>(assetName) as VideoClip;
+    }
+
+    public static void LoadVideoAsync(string assetName, Action<VideoClip> callback)
+    {
+        if (string.IsNullOrEmpty(assetName))
+            return;
+        AssetLoader.Instance.LoadAsync(assetName, callback);
     }
 
     public static AudioClip LoadAudio(string assetName)
@@ -307,7 +377,7 @@ public static class ClientUtils
     {
         if (string.IsNullOrEmpty(assetName))
             return;
-        AssetLoader.Instance.LoadAsync<AudioClip>(assetName, callback);
+        AssetLoader.Instance.LoadAsync(assetName, callback);
     }
 
     public static bool OpenUIWindowByLinkUI(LinkUIType linkUI, string param = "")
@@ -566,111 +636,54 @@ public static class ClientUtils
             }
             else
             {
-                if(times > 0)
-                {
-                    return string.Format("{0}{1}", GetRomanDigitTens(times), GetRomanDigitSgl(number));
-                }
-                else
-                {
-                    return GetRomanDigitSgl(number);
-                }
+                return (times > 0) ? string.Format("{0}{1}", GetRomanDigitTens(times), GetRomanDigitSgl(number)) 
+                                   : GetRomanDigitSgl(number);
             }
         }
-
         return "Invalid number or number too big!";
     }
 
     private static string GetRomanDigitSgl(int number)
     {
         if(number > 10)
-        {
             return "Num too big!";
-        }
-
-        string num_str = "";
 
         switch(number)
         {
-            case 1:
-                num_str = "I";
-                break;
-            case 2:
-                num_str = "II";
-                break;
-            case 3:
-                num_str = "III";
-                break;
-            case 4:
-                num_str = "IV";
-                break;
-            case 5:
-                num_str = "V";
-                break;
-            case 6:
-                num_str = "VI";
-                break;
-            case 7:
-                num_str = "VII";
-                break;
-            case 8:
-                num_str = "VIII";
-                break;
-            case 9:
-                num_str = "IX";
-                break;
-            case 10:
-                num_str = "X";
-                break;
+            case 1:  return "I";
+            case 2:  return "II";
+            case 3:  return "III";
+            case 4:  return "IV";
+            case 5:  return "V";
+            case 6:  return "VI";
+            case 7:  return "VII";
+            case 8:  return "VIII";
+            case 9:  return "IX";
+            case 10: return "X";
+            default: return "";
         }
-
-        return num_str;
     }
 
     private static string GetRomanDigitTens(int mul)
     {
         // mul > 10 means actual number is > 100
         if(mul > 10)
-        {
             return "Num too big!";
-        }
-
-        string num_str = "";
 
         switch (mul)
         {
-            case 1:
-                num_str = "X";
-                break;
-            case 2:
-                num_str = "XX";
-                break;
-            case 3:
-                num_str = "XXX";
-                break;
-            case 4:
-                num_str = "XL";
-                break;
-            case 5:
-                num_str = "L";
-                break;
-            case 6:
-                num_str = "LX";
-                break;
-            case 7:
-                num_str = "LXX";
-                break;
-            case 8:
-                num_str = "LXXX";
-                break;
-            case 9:
-                num_str = "XC";
-                break;
-            case 10:
-                num_str = "C";
-                break;
+            case 1:  return "X";
+            case 2:  return "XX";
+            case 3:  return "XXX";
+            case 4:  return "XL";
+            case 5:  return "L";
+            case 6:  return "LX";
+            case 7:  return "LXX";
+            case 8:  return "LXXX";
+            case 9:  return "XC";
+            case 10: return "C";
+            default: return "";
         }
-
-        return num_str;
     }
 
     public static string ColorizedText(string text, string colorStr)

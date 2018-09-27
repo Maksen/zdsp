@@ -314,14 +314,18 @@ namespace Zealot.Common
         public virtual Dictionary<int, IInventoryItem> GetStackableSlot(ushort itemId)
         {
             Dictionary<int, IInventoryItem> ret = new Dictionary<int, IInventoryItem>();
-            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
-            if (itemJson != null && itemJson.bagtype != BagType.Equipment)
+            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);            
+            if (itemJson != null)
             {
-                for (int index = 0; index < UnlockedSlotCount; ++index)
+                ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
+                if (itemSortJson != null && itemSortJson.bagtabtype != BagTabType.Equipment)
                 {
-                    IInventoryItem element = Slots[index];
-                    if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
-                        ret.Add(index, element);
+                    for (int index = 0; index < UnlockedSlotCount; ++index)
+                    {
+                        IInventoryItem element = Slots[index];
+                        if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
+                            ret.Add(index, element);
+                    }
                 }
             }
             return ret;
@@ -399,7 +403,8 @@ namespace Zealot.Common
                 ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
                 if (itemJson == null)
                     return false;
-                if (itemJson.bagtype == BagType.Equipment || !IsExistSlotAvailableByItemId(itemId, item.stackCount, GameConstantRepo.ItemMaxStackCount))
+                ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
+                if (itemSortJson.bagtabtype == BagTabType.Equipment || !IsExistSlotAvailableByItemId(itemId, item.stackCount, GameConstantRepo.ItemMaxStackCount))
                 {
                     emptySlot--;
                     if (emptySlot < 0)
@@ -612,19 +617,23 @@ namespace Zealot.Common
         public override Dictionary<int, IInventoryItem> GetStackableSlot(ushort itemId)
         {
             Dictionary<int, IInventoryItem> ret = new Dictionary<int, IInventoryItem>();
-            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
-            if (itemJson != null && itemJson.bagtype != BagType.Equipment)
+            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);         
+            if (itemJson != null)
             {
-                if (itemSlotMap.ContainsKey(itemId))
+                ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
+                if (itemSortJson != null && itemSortJson.bagtabtype != BagTabType.Equipment)
                 {
-                    List<int> slotIdxs = itemSlotMap[itemId].slotIds;
-                    int slotIdxCnt = slotIdxs.Count;
-                    for (int index = 0; index < slotIdxCnt; ++index)
+                    if (itemSlotMap.ContainsKey(itemId))
                     {
-                        int slotIdx = slotIdxs[index];
-                        IInventoryItem element = Slots[slotIdx];
-                        if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
-                            ret.Add(slotIdx, element);
+                        List<int> slotIdxs = itemSlotMap[itemId].slotIds;
+                        int slotIdxCnt = slotIdxs.Count;
+                        for (int index = 0; index < slotIdxCnt; ++index)
+                        {
+                            int slotIdx = slotIdxs[index];
+                            IInventoryItem element = Slots[slotIdx];
+                            if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
+                                ret.Add(slotIdx, element);
+                        }
                     }
                 }
             }

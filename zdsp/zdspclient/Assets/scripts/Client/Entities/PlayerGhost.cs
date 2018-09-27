@@ -21,7 +21,7 @@ namespace Zealot.Client.Entities
         public InventoryStats[] InventoryStats { get; private set; }
         public EquipmentStats EquipmentStats { get; set; }
         public EquipmentCraftStats EquipmentCraftStats { get; set; }
-        public EquipFushionStats EquipFushionStats { get; set; }
+        public EquipFusionStats EquipFusionStats { get; set; }
         public ItemHotbarStats ItemHotbarStats { get; set; }
         public SkillSynStats SkillStats { get; set; }
         public QuestSynStatsClient QuestStats { get; set; }
@@ -36,8 +36,10 @@ namespace Zealot.Client.Entities
         public LotteryInfoStats LotteryInfoStats { get; set; }
         public HeroStatsClient HeroStats { get; private set; }
         public PowerUpStats PowerUpStats { get; set; }
+        public MeridianStats MeridianStats { get; set; }
         public DestinyClueStatsClient DestinyClueStats { get; set; }
         public DonateSynStatsClient DonateStats { get; set; }
+        public AchievementStatsClient AchievementStats { get; set; }
 
         // Shared stats 
         public PartyStatsClient PartyStats { get; set; }
@@ -49,7 +51,7 @@ namespace Zealot.Client.Entities
         public ItemInventoryController clientItemInvCtrl;
         public PowerUpController clientPowerUpCtrl;
         public EquipmentCraftController clientEquipmentCraftCtrl;
-        public EquipFushionController clientEquipFushionCtrl;
+        public EquipFusionController clientEquipFusionCtrl;
         public QuestClientController QuestController { get; private set; }
         public DestinyClueClientController DestinyClueController { get; private set; }
         public DonateClientController DonateController { get; private set; }
@@ -386,6 +388,10 @@ namespace Zealot.Client.Entities
                         UpdateQuestRequirement(QuestRequirementType.Companian, -1);
                     }
                     break;
+                case "PassiveShieldBuff":
+                    if (HeadLabel != null && HeadLabel.IsControllerCreated())
+                        HeadLabel.mPlayerLabel.Shield = (int)value;
+                    break;
                 default:
                     break;
             }
@@ -464,6 +470,7 @@ namespace Zealot.Client.Entities
             if (hudskill == null)
                 return;
 
+            hudskill.UpdateSkillButtons();
             //for(int i = 0; i < 9; ++i)
             //{
             //    SkillData data = SkillRepo.GetSkill((int)SkillStats.SkillInv[i]);
@@ -502,6 +509,13 @@ namespace Zealot.Client.Entities
             if (field.Contains("SId"))
             {
                 int skillId = (int)value;
+                GameObject ui = UIManager.GetWindowGameObject(WindowType.Skill);
+                UI_SkillTree st = ui.GetComponent<UI_SkillTree>();
+                if(st != null)
+                {
+                    st.UpdateBasicAttack(skillId);
+                }
+
                 if (field == "basicAttack1SId")
                 {
                     //Debug.Log("basicAttack1SId changed: " + value);                   
@@ -693,13 +707,8 @@ namespace Zealot.Client.Entities
                     break;
                 case "Mana":
                 case "ManaMax":
-                    Debug.Log(field + ": " + value);
                     GameObject gom = UIManager.GetWidget(HUDWidgetType.PlayerPortrait);
                     gom.GetComponent<HUD_PlayerPortrait>().UpdateMPBar(LocalCombatStats.Mana, LocalCombatStats.ManaMax);
-                    break;
-                case "EnergyShield":
-                    if (HeadLabel != null && HeadLabel.IsControllerCreated())
-                        HeadLabel.mPlayerLabel.Shield = (int)value;
                     break;
                 case "IsInCombat":
                     if(IsLocal)
@@ -863,9 +872,8 @@ namespace Zealot.Client.Entities
 
         public void OnPowerUpStatsChanged()
         {
-            clientPowerUpCtrl.InitFromStats(PowerUpStats);
-
-            // Refresh
+            clientPowerUpCtrl.InitFromPowerUpStats(PowerUpStats);
+            
             GameObject uiPowerUpObj = UIManager.GetWindowGameObject(WindowType.Inventory);
             if (uiPowerUpObj != null)
             {
@@ -877,17 +885,10 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void OnPowerUpStatsValueChanged(string field, object value, object oldvalue)
-        {
-        }
-
         public void OnPowerUpStatsCollectionChanged(string field, byte idx, object value)
         {
-            //clientPowerUpCtrl.InitFromStats(PowerUpStats);
-
             clientPowerUpCtrl.PowerUpInventory.powerUpSlots[idx] = (int)value;
-
-            // Refresh
+            
             GameObject uiPowerUpObj = UIManager.GetWindowGameObject(WindowType.Inventory);
             if(uiPowerUpObj != null)
             {
@@ -898,6 +899,11 @@ namespace Zealot.Client.Entities
                 }
             }
             //UI_CharacterPowerup_Manager.CharacterToggle.CS_MG_ToggleSelected(UI_CharacterPowerup_Manager.CP_State);
+        }
+
+        public void OnMeridianStatsChanged()
+        {
+            clientPowerUpCtrl.InitFromMeridianStats(MeridianStats);
         }
 
         public void OnEquipmentCraftStatsChanged()
@@ -922,25 +928,46 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void OnEquipFushionStatsChanged()
+        public void OnEquipFusionStatsChanged()
         {
-            if (EquipFushionStats.FinishedFushion)
+            if (EquipFusionStats.FinishedFusion)
             {
-                UI_CharacterEquipFushionManager.RefreshFushion();
-                EquipFushionStats.FinishedFushion = false;
+                UI_CharacterEquipFusionManager.RefreshFusion();
+                EquipFusionStats.FinishedFusion = false;
+            }
+
+            string data = EquipFusionStats.FusionData;
+
+            if (data == null) { return; }
+
+            GameObject uiEquipFusionObj = UIManager.GetWindowGameObject(WindowType.DialogEquipFusion);
+
+            if (data != string.Empty)
+            {
+                uiEquipFusionObj.SetActive(true);
+
+                Equipment myEquip = clientItemInvCtrl.itemInvData.Slots[EquipFusionStats.FusionItemSort] as Equipment;
+
+                List<string> equipStats = EquipFusionRepo.BuildEquipStats(myEquip);
+                List<string> beforeEffect = EquipFusionRepo.DecodeEffect(myEquip.FusionEffect);
+                List<string> afterEffect = EquipFusionRepo.DecodeEffect(EquipFusionStats.FusionData);
+                uiEquipFusionObj.GetComponent<Dialog_EquipFusionManager>().EnterUI(myEquip.ItemID, equipStats, beforeEffect, afterEffect);
+            } else
+            {
+                uiEquipFusionObj.SetActive(false);
             }
         }
 
-        public void OnEquipFushionStatsCollectionChanged(string field, byte idx, object value)
-        {
-            clientEquipFushionCtrl.EquipFushionInventory.EndOfFushion = (bool)value;
+        //public void OnEquipFusionStatsCollectionChanged(string field, byte idx, object value)
+        //{
+        //    clientEquipFusionCtrl.EquipFusionInventory.EndOfFusion = (bool)value;
 
-            if (EquipFushionStats.FinishedFushion)
-            {
-                UI_CharacterEquipFushionManager.RefreshFushion();
-                EquipFushionStats.FinishedFushion = false;
-            }
-        }
+        //    if (EquipFusionStats.FinishedFusion)
+        //    {
+        //        UI_CharacterEquipFusionManager.RefreshFusion();
+        //        EquipFusionStats.FinishedFusion = false;
+        //    }
+        //}
 
         public void OnLotteryInfoStatsChanged(int stat_index)
         {
@@ -959,6 +986,7 @@ namespace Zealot.Client.Entities
                     break;
             }
         }
+
         private void OnHeroStatsChanged(string field, object value, object oldvalue)
         {
             if (HeroStats.IsNewlyAdded)
@@ -1046,6 +1074,37 @@ namespace Zealot.Client.Entities
             RemoveLocalObject(LOTYPE.PartyStats);
         }
 
+        #endregion
+
+        #region Achievement
+        public void OnAchievementStatsCollectionChanged(string field, byte idx, object value)
+        {
+            switch (field)
+            {
+                case "Collections":
+                    AchievementStats.UpdateCollections(idx, (string)value);
+                    break;
+                case "Achievements":
+                    AchievementStats.UpdateAchievements(idx, (string)value);
+                    break;
+            }
+        }
+
+        public void OnAchievementStatsChanged(string field, object value, object oldvalue)
+        {
+            switch (field)
+            {
+                case "RewardClaims":
+                    AchievementStats.UpdateRewardClaims();
+                    break;
+                case "LatestCollections":
+                    AchievementStats.UpdateLatestRecords(AchievementType.Collection, (string)value);
+                    break;
+                case "LatestAchievements":
+                    AchievementStats.UpdateLatestRecords(AchievementType.Achievement, (string)value);
+                    break;
+            }
+        }
         #endregion
 
         public void OnLotteryInfoStatsCollectionChange(string field, byte idx, object value)
@@ -1225,11 +1284,11 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void Init(string playername, JobType jobType, byte gender, int mount, Vector3 pos, Vector3 dir, int health, int healthmax)
+        public void Init(string playername, byte gender, Vector3 pos, Vector3 dir)
         {
             Position = pos;
             Forward = dir;
-            this.Name = playername;
+            Name = playername;
             mGender = (Gender)gender;
 
             if (IsLocal)
@@ -1273,11 +1332,10 @@ namespace Zealot.Client.Entities
                     EquipmentCraftStats.OnCollectionChanged = OnEquipmentCraftStatsCollectionChanged;
                     mylocalobj = EquipmentCraftStats;
                     break;
-                case LOTYPE.EquipFushionStats:
-                    EquipFushionStats = new EquipFushionStats();
-                    EquipFushionStats.OnLocalObjectChanged = OnEquipFushionStatsChanged;
-                    EquipFushionStats.OnCollectionChanged = OnEquipFushionStatsCollectionChanged;
-                    mylocalobj = EquipFushionStats;
+                case LOTYPE.EquipFusionStats:
+                    EquipFusionStats = new EquipFusionStats();
+                    EquipFusionStats.OnLocalObjectChanged = OnEquipFusionStatsChanged;
+                    mylocalobj = EquipFusionStats;
                     break;
                 case LOTYPE.ItemHotbarStats:
                     ItemHotbarStats = new ItemHotbarStats();
@@ -1337,9 +1395,22 @@ namespace Zealot.Client.Entities
                     PowerUpStats = new PowerUpStats();
                     PowerUpStats.powerUpSlots.SetNotifyParent(false);
                     PowerUpStats.OnCollectionChanged = OnPowerUpStatsCollectionChanged;
-                    PowerUpStats.OnValueChanged = OnPowerUpStatsValueChanged;
                     PowerUpStats.OnLocalObjectChanged = OnPowerUpStatsChanged;
                     mylocalobj = PowerUpStats;
+                    break;
+                case LOTYPE.AchievementStats:
+                    AchievementStats = new AchievementStatsClient();
+                    AchievementStats.OnCollectionChanged = OnAchievementStatsCollectionChanged;
+                    AchievementStats.OnValueChanged = OnAchievementStatsChanged;
+                    AchievementStats.OnNewlyAdded = AchievementStats.Init;
+                    mylocalobj = AchievementStats;
+                    break;
+                case LOTYPE.MeridianStats:
+                    MeridianStats = new MeridianStats();
+                    MeridianStats.meridianLevelSlots.SetNotifyParent(false);
+                    MeridianStats.meridianExpSlots.SetNotifyParent(false);
+                    MeridianStats.OnLocalObjectChanged = OnMeridianStatsChanged;
+                    mylocalobj = MeridianStats;
                     break;
                 // Shared Objects
                 case LOTYPE.PartyStats:
@@ -1432,10 +1503,10 @@ namespace Zealot.Client.Entities
         }
         #endregion
 
-        public override void RemoveLocalObject(LOTYPE lotype)
+        public override void RemoveLocalObject(LOTYPE objtype)
         {
-            base.RemoveLocalObject(lotype);
-            switch (lotype)
+            base.RemoveLocalObject(objtype);
+            switch (objtype)
             {
                 case LOTYPE.PartyStats:
                     PartyStats = null;
@@ -1473,11 +1544,11 @@ namespace Zealot.Client.Entities
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
 
-        private void InitEquipFushionCtrl()
+        private void InitEquipFusionCtrl()
         {
-            clientEquipFushionCtrl = new EquipFushionController();
-            if (clientEquipFushionCtrl == null)
-                Debug.LogError("clientEquipFushionCtrl is null");
+            clientEquipFusionCtrl = new EquipFusionController();
+            if (clientEquipFusionCtrl == null)
+                Debug.LogError("clientEquipFusionCtrl is null");
 
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
 
@@ -2131,7 +2202,8 @@ namespace Zealot.Client.Entities
 
             if (Bot.Enabled)
             {
-                Bot.StopBot();
+                // TODO - Bot can't be interrupted even user manually move the player.
+                //Bot.StopBot(); 
             }
         }
 

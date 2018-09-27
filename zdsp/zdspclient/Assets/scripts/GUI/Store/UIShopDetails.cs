@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UIWidgets;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
-using Zealot.Repository;
 
 public abstract class UIShopDetails : MonoBehaviour 
 {

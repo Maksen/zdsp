@@ -20,6 +20,7 @@ namespace Photon.LoadBalancing.GameServer
     using System.Linq;
     using Hive.Caching;
     using Hive;
+    using System;
 
     public partial class GameLogic
     {
@@ -313,14 +314,6 @@ namespace Photon.LoadBalancing.GameServer
             GameApplication.Instance.OnGameServerNewDay();
         }
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleLeaveRealm)]
-        public void ConsoleLeaveRealm(GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            if (player != null && mRoom.RealmID > 0)
-                peer.LeaveRealm();
-        }
-
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleCompleteRealm)]
         public void ConsoleCompleteRealm(GameClientPeer peer)
         {
@@ -472,22 +465,47 @@ namespace Photon.LoadBalancing.GameServer
                 null, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
         }
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSetAchievement)]
-        public void ConsoleSetAchievement(string name, int count, bool increment, GameClientPeer peer)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetCollection)]
+        public void ConsoleGetCollection(string objtype, int target, GameClientPeer peer)
         {
-            //Player player = peer.mPlayer;
-            //if (player != null && !player.Destroyed)
-            //{
-            //    if (name.ToLower() == "reset")
-            //        player.VIPAchievementStats.ConsoleResetAchievements();
-            //    else if (name.ToLower() == "all")
-            //        player.VIPAchievementStats.ConsoleGetAllAchievements();
-            //    else
-            //        player.VIPAchievementStats.UpdateAchievement(name, count, increment, true);
-            //}                     
-            peer.mPlayer.PlayerSynStats.Level = int.Parse(name);
-            if (peer.mPlayer.PartyStats != null)
-                peer.mPlayer.PartyStats.SetMemberLevel(peer.mPlayer.Name, peer.mPlayer.PlayerSynStats.Level);
+            Player player = peer.mPlayer;
+            if (player != null)
+            {
+                if (string.Equals(objtype, "reset", StringComparison.OrdinalIgnoreCase))
+                    player.AchievementStats.ConsoleResetCollections();
+                else if (string.Equals(objtype, "all", StringComparison.OrdinalIgnoreCase))
+                    player.AchievementStats.ConsoleGetAllCollections(-1);
+                else
+                {
+                    int type;
+                    if (int.TryParse(objtype, out type))
+                    {
+                        if (target == 0)
+                            player.AchievementStats.ConsoleGetAllCollections(type);
+                        else
+                            player.AchievementStats.UpdateCollection((CollectionType)type, target);
+                    }
+                }
+            }
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAchievement)]
+        public void ConsoleGetAchievement(string objtype, string target, int count, bool increment, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+            {
+                if (string.Equals(objtype, "reset", StringComparison.OrdinalIgnoreCase))
+                    player.AchievementStats.ConsoleResetAchievements();
+                else if (string.Equals(objtype, "all", StringComparison.OrdinalIgnoreCase))
+                    player.AchievementStats.ConsoleGetAllAchievements();
+                else
+                {
+                    int type;
+                    if (int.TryParse(objtype, out type))
+                        player.AchievementStats.UpdateAchievement((AchievementObjectiveType)type, target, count, increment, true);
+                }
+            }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddHero)]
@@ -504,14 +522,6 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if (player != null)
                 player.HeroStats.RemoveHero(heroId);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetHeroSkin)]
-        public void ConsoleGetHeroSkin(int heroId, int itemId, GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            if (player != null)
-                player.HeroStats.UnlockHeroSkin(heroId, itemId);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetExplorations)]
@@ -847,6 +857,19 @@ namespace Photon.LoadBalancing.GameServer
                 player.SkillStats.SkillInvCount = 0;
                 player.SkillStats.EquippedSkill.Clear();
             }
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSendMail)]
+        public void ConsoleSendMail(int mailid, GameClientPeer peer)
+        {
+            MailContentJson mcj = MailRepo.mIdMap[mailid];
+            MailObject mo = new MailObject();
+            mo.mailName = mcj.name;
+            mo.rcvName = peer.mChar;
+            PotionFood pf = new PotionFood();
+            pf.LoadJson(GameRepo.ItemFactory.GetItemById(501));
+            mo.lstAttachment.Add(pf);
+            Photon.LoadBalancing.GameServer.Mail.MailManager.Instance.SendMail(mo);
         }
         #endregion
     }

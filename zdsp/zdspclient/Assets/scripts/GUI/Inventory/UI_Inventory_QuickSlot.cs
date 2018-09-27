@@ -42,7 +42,7 @@ public class UI_Inventory_QuickSlot : MonoBehaviour
 
     void OnDisable()
     {
-        if (UIInventory.CurrentInventoryTab == BagType.Consumable)
+        if (UIInventory.CurrentInventoryTab == BagTabType.Consumable)
             UIInventory.UpdateScrollViewCallback();
     }
 

@@ -27,12 +27,15 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
 
         List<KeyValuePair<int, int>> temp = new List<KeyValuePair<int, int>>();
 
+        SkillData basic = SkillRepo.GetSkill(GameInfo.gLocalPlayer.SkillStats.basicAttack1SId);
+        temp.Add(new KeyValuePair<int, int>(basic.skillgroupJson.id, basic.skillJson.id));
+
         for(int i = 0; i < skill.Count >> 1; i += 2)
         {
             if ((int)skill[i] == 0) break;
             SkillData skd = SkillRepo.GetSkill((int)skill[i + 1]);
-            if (skd.skillgroupJson.skilltype == Zealot.Common.SkillType.Active &&
-                skd.skillgroupJson.skillclass == Zealot.Common.SkillClass.Normal)
+            if (skd.skillgroupJson.skilltype == Zealot.Common.SkillType.Active)// &&
+                //skd.skillgroupJson.skillclass == Zealot.Common.SkillClass.Normal)
                 temp.Add(new KeyValuePair<int, int>((int)skill[i], (int)skill[i + 1]));
         }
 

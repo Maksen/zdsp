@@ -82,9 +82,11 @@ namespace Zealot.Repository
 			DestinyClueRepo.Init(GameData);
             PowerUpRepo.Init(GameData);
             EquipmentCraftRepo.Init(GameData);
-            EquipFushionRepo.Init(GameData);
+            EquipFusionRepo.Init(GameData);
             MapRepo.Init(GameData);
             DonateRepo.Init(GameData);
+            MailRepo.Init(GameData);
+            AchievementRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("Other Repos", ref heapsize);
             _loaded = true;
         }

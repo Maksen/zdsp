@@ -4,8 +4,8 @@ using UnityEngine.UI;
 public class Item_Currency_Data : MonoBehaviour
 {
     [Header("Prefabs")]
-    public GameObject   gameIconPrefab;
-    public Transform    gameIconParent;
+    public GameObject gameIconPrefab;
+    public Transform gameIconParent;
 
     [Header("Texts")]
     public Text requireAmtTxt;

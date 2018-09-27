@@ -7,31 +7,31 @@ using System.Text;
 
 namespace Zealot.Repository
 {
-    public class EquipFushionRepo
+    public class EquipFusionRepo
     {
         private static Dictionary<int, ElementalStoneJson> elementalStoneMap;
         private static Dictionary<int, ItemSortJson> itemSortMap;
-        private static Dictionary<int, FushionPartsListJson> convertMap;
+        private static Dictionary<int, FusionPartsListJson> convertMap;
         private static Dictionary<int, string> typesNameMap;
-        private static Dictionary<int, EquipFushionSideEffectJson> equipFushionSideEffectMap;
-        private static Dictionary<string, List<EquipFushionSideEffectJson>> equipFushionSideEffectSort;
-        private static Dictionary<int, EquipFushionCostJson> equipFushionCostMap;
-        private static Dictionary<int, EquipFushionAdditionRuleJson> equipFushionAdditionRuleMap;
-        private static Dictionary<int, EquipFushionSellJson> equipFushionSellMap;
-        private static Dictionary<int, EquipFushionStoreJson> equipFushionStoreMap;
+        private static Dictionary<int, EquipFusionSideEffectJson> equipFusionSideEffectMap;
+        private static Dictionary<string, List<EquipFusionSideEffectJson>> equipFusionSideEffectSort;
+        private static Dictionary<int, EquipFusionCostJson> equipFusionCostMap;
+        private static Dictionary<int, EquipFusionAdditionRuleJson> equipFusionAdditionRuleMap;
+        private static Dictionary<int, EquipFusionSellJson> equipFusionSellMap;
+        private static Dictionary<int, EquipFusionStoreJson> equipFusionStoreMap;
 
-        static EquipFushionRepo()
+        static EquipFusionRepo()
         {
             elementalStoneMap = new Dictionary<int, ElementalStoneJson>();
             itemSortMap = new Dictionary<int, ItemSortJson>();
-            convertMap = new Dictionary<int, FushionPartsListJson>();
+            convertMap = new Dictionary<int, FusionPartsListJson>();
             typesNameMap = new Dictionary<int, string>();
-            equipFushionSideEffectMap = new Dictionary<int, EquipFushionSideEffectJson>();
-            equipFushionSideEffectSort = new Dictionary<string, List<EquipFushionSideEffectJson>>();
-            equipFushionCostMap = new Dictionary<int, EquipFushionCostJson>();
-            equipFushionAdditionRuleMap = new Dictionary<int, EquipFushionAdditionRuleJson>();
-            equipFushionSellMap = new Dictionary<int, EquipFushionSellJson>();
-            equipFushionStoreMap = new Dictionary<int, EquipFushionStoreJson>();
+            equipFusionSideEffectMap = new Dictionary<int, EquipFusionSideEffectJson>();
+            equipFusionSideEffectSort = new Dictionary<string, List<EquipFusionSideEffectJson>>();
+            equipFusionCostMap = new Dictionary<int, EquipFusionCostJson>();
+            equipFusionAdditionRuleMap = new Dictionary<int, EquipFusionAdditionRuleJson>();
+            equipFusionSellMap = new Dictionary<int, EquipFusionSellJson>();
+            equipFusionStoreMap = new Dictionary<int, EquipFusionStoreJson>();
         }
 
         public static void Init(GameDBRepo gameData)
@@ -55,7 +55,7 @@ namespace Zealot.Repository
                 }
             }
 
-            foreach (KeyValuePair<int, FushionPartsListJson> entry in gameData.FushionPartsList)
+            foreach (KeyValuePair<int, FusionPartsListJson> entry in gameData.FusionPartsList)
             {
                 int convertId = entry.Value.sort_id;
                 if (!convertMap.ContainsKey(convertId))
@@ -70,70 +70,79 @@ namespace Zealot.Repository
                 }
             }
 
-            foreach (KeyValuePair<int, EquipFushionSideEffectJson> entry in gameData.EquipFushionSideEffect)
+            foreach (KeyValuePair<int, EquipFusionSideEffectJson> entry in gameData.EquipFusionSideEffect)
             {
                 string effectName = entry.Value.group_id;
 
-                if (!equipFushionSideEffectSort.ContainsKey(effectName))
+                if (!equipFusionSideEffectSort.ContainsKey(effectName))
                 {
-                    equipFushionSideEffectSort.Add(effectName, new List<EquipFushionSideEffectJson>());
+                    equipFusionSideEffectSort.Add(effectName, new List<EquipFusionSideEffectJson>());
                 }
-                equipFushionSideEffectSort[effectName].Add(entry.Value);
+                equipFusionSideEffectSort[effectName].Add(entry.Value);
 
                 int effectId = entry.Value.id;
 
-                if (!equipFushionSideEffectMap.ContainsKey(effectId))
+                if (!equipFusionSideEffectMap.ContainsKey(effectId))
                 {
-                    equipFushionSideEffectMap.Add(effectId, entry.Value);
+                    equipFusionSideEffectMap.Add(effectId, entry.Value);
                 }
             }
 
-            foreach (KeyValuePair<int, EquipFushionCostJson> entry in gameData.EquipFushionCost)
+            foreach (KeyValuePair<int, EquipFusionCostJson> entry in gameData.EquipFusionCost)
             {
                 int rarity = entry.Value.stone_rarity;
 
-                if (!equipFushionCostMap.ContainsKey(rarity))
+                if (!equipFusionCostMap.ContainsKey(rarity))
                 {
-                    equipFushionCostMap.Add(rarity, entry.Value);
+                    equipFusionCostMap.Add(rarity, entry.Value);
                 }
             }
 
-            foreach (KeyValuePair<int, EquipFushionAdditionRuleJson> entry in gameData.EquipFushionAdditionRule)
+            foreach (KeyValuePair<int, EquipFusionAdditionRuleJson> entry in gameData.EquipFusionAdditionRule)
             {
                 int rarity = entry.Value.se_rarity;
 
-                if (!equipFushionAdditionRuleMap.ContainsKey(rarity))
+                if (!equipFusionAdditionRuleMap.ContainsKey(rarity))
                 {
-                    equipFushionAdditionRuleMap.Add(rarity, entry.Value);
+                    equipFusionAdditionRuleMap.Add(rarity, entry.Value);
                 }
             }
 
-            foreach (KeyValuePair<int, EquipFushionSellJson> entry in gameData.EquipFushionSell)
+            foreach (KeyValuePair<int, EquipFusionSellJson> entry in gameData.EquipFusionSell)
             {
                 int rarity = entry.Value.sell_rarity;
 
-                if (!equipFushionSellMap.ContainsKey(rarity))
+                if (!equipFusionSellMap.ContainsKey(rarity))
                 {
-                    equipFushionSellMap.Add(rarity, entry.Value);
+                    equipFusionSellMap.Add(rarity, entry.Value);
                 }
             }
 
-            foreach (KeyValuePair<int, EquipFushionStoreJson> entry in gameData.EquipFushionStore)
+            foreach (KeyValuePair<int, EquipFusionStoreJson> entry in gameData.EquipFusionStore)
             {
                 int id = entry.Value.stone_id;
 
-                if (!equipFushionStoreMap.ContainsKey(id))
+                if (!equipFusionStoreMap.ContainsKey(id))
                 {
-                    equipFushionStoreMap.Add(id, entry.Value);
+                    equipFusionStoreMap.Add(id, entry.Value);
                 }
             }
         }
 
-        public static List<EquipFushionSideEffectJson> GetGemSideEffect(string GemEffect)
+        public static ElementalStoneJson GetStoneJson (int id)
         {
-            if (equipFushionSideEffectSort.ContainsKey(GemEffect))
+            if (elementalStoneMap.ContainsKey(id))
             {
-                return equipFushionSideEffectSort[GemEffect];
+                return elementalStoneMap[id];
+            }
+            return null;
+        }
+
+        public static List<EquipFusionSideEffectJson> GetGemSideEffect(string GemEffect)
+        {
+            if (equipFusionSideEffectSort.ContainsKey(GemEffect))
+            {
+                return equipFusionSideEffectSort[GemEffect];
             }
             return null;
         }
@@ -153,7 +162,7 @@ namespace Zealot.Repository
             {
                 return typesNameMap[type];
             }
-            return "";
+            return string.Empty;
         }
 
         public static Dictionary<int, ItemSortJson> Look()
@@ -174,9 +183,9 @@ namespace Zealot.Repository
                     statsLis.Add(RandomGemEffectBySideEffectId(elementalStoneMap[GemId].se1group));
                     statsLis.Add(RandomGemEffectBySideEffectId(elementalStoneMap[GemId].se2group));
                     statsLis.Add(RandomGemEffectBySideEffectId(elementalStoneMap[GemId].se3group));
-                } while (statsLis[0] == "0|0,0|0,0|0,0|0,0|0,0|" &&
-                         statsLis[1] == "0|0,0|0,0|0,0|0,0|0,0|" &&
-                         statsLis[2] == "0|0,0|0,0|0,0|0,0|0,0|");
+                } while (statsLis[0] == "0|0,0|0,0|" &&
+                         statsLis[1] == "0|0,0|0,0|" &&
+                         statsLis[2] == "0|0,0|0,0|");
 
                 statsLis = SortEffectList(statsLis);
 
@@ -193,10 +202,10 @@ namespace Zealot.Repository
 
         static string RandomGemEffectBySideEffectId(string GemEffect)
         {
-            if (equipFushionSideEffectSort.ContainsKey(GemEffect))
+            if (equipFusionSideEffectSort.ContainsKey(GemEffect))
             {
-                List<EquipFushionSideEffectJson> sortData = new List<EquipFushionSideEffectJson>();
-                sortData = equipFushionSideEffectSort[GemEffect];
+                List<EquipFusionSideEffectJson> sortData = new List<EquipFusionSideEffectJson>();
+                sortData = equipFusionSideEffectSort[GemEffect];
                 List<int> prob = new List<int>();
 
                 for (int i = 0; i < sortData.Count; ++i)
@@ -204,24 +213,24 @@ namespace Zealot.Repository
                     prob.Add(sortData[i].weight);
                 }
 
-                int order = RandomUtility(prob);
+                int order = PowerUpUtilities.RandomWeightOrder(prob);
 
                 if(order == -1)
                 {
-                    Console.Write("Kopio weight is error, please write probably weight");
-                    return "0|0,0|0,0|0,0|0,0|0,0|";
+                    //ElementalStone effect is illegal
+                    return "0|0,0|0,0|";
                 }
 
                 return GetSideEffect(sortData[order].id, sortData[order].sideeffectid);
             }
-            return "0|0,0|0,0|0,0|0,0|0,0|";
+            return "0|0,0|0,0|";
         }
 
         static string GetSideEffect(int EffectId, string EffectString)
         {
             if (EffectString == "-1")
             {
-                return "0|0,0|0,0|0,0|0,0|0,0|";
+                return "0|0,0|0,0|";
             }
             List<int> numValue = EffectString.Split(';').Select(int.Parse).ToList();
             List<SideEffectJson> sideEffect = new List<SideEffectJson>();
@@ -238,7 +247,7 @@ namespace Zealot.Repository
 
             for (int i = 0; i < numValue.Count; ++i)
             {
-                Random rnd = new Random();
+                Random rnd = GameUtils.GetRandomGenerator();
                 int val = rnd.Next((int)sideEffect[i].min, (int)sideEffect[i].max + 1);
 
                 valList.Append(numValue[i]);
@@ -247,7 +256,7 @@ namespace Zealot.Repository
                 valList.Append("|");
             }
 
-            for (int i = numValue.Count; i < 5; ++i)
+            for (int i = numValue.Count; i < 2; ++i)
             {
                 valList.Append("0,0|");
             }
@@ -259,67 +268,25 @@ namespace Zealot.Repository
         public static List<string> DecodeEffect(string EffectString)
         {
             List<string> effectGroup = EffectString.Split('|').ToList();
-            List<string> effectLis = new List<string>();
-
-            int loopCount = 0;
-
-            if(effectGroup[0] == "0")
-            {
-                return new List<string>();
-            }
-            else if(effectGroup[6] == "0")
-            {
-                loopCount = 1;
-                for (int i = 0; i < 6; ++i)
-                {
-                    effectLis.Add(effectGroup[i]);
-                }
-            }
-            else if(effectGroup[12] == "0")
-            {
-                loopCount = 2;
-                for (int i = 0; i < 12; ++i)
-                {
-                    effectLis.Add(effectGroup[i]);
-                }
-            }
-            else
-            {
-                loopCount = 3;
-                for (int i = 0; i < 18; ++i)
-                {
-                    effectLis.Add(effectGroup[i]);
-                }
-            }
-
             List<string> lis = new List<string>();
 
-            for (int i = 0; i < loopCount; ++i)
+            for (int i = 0; i < 3; ++i)
             {
-                StringBuilder bind = new StringBuilder();
-                for (int j = 1; j < 6; ++j)
+                for (int j = 1; j < 3; ++j)
                 {
-                    int order = i * 6 + j;
+                    int order = i * 3 + j;
 
-                    if (effectLis[order] != "0,0")
+                    if (effectGroup[order] != "0,0")
                     {
-                        List<string> devideLis = effectLis[order].Split(',').ToList();
-                        bind.Append(SideEffectRepo.GetSideEffect(int.Parse(devideLis[0])).localizedname);
+                        List<string> devideLis = effectGroup[order].Split(',').ToList();
+                        StringBuilder bind = new StringBuilder(SideEffectRepo.GetSideEffect(int.Parse(devideLis[0])).localizedname);
                         bind.Append("+");
                         bind.Append(devideLis[1]);
-                        bind.Append(", ");
+                        lis.Add(bind.ToString());
                     }
                     else
                     {
-                        bind.Remove(bind.ToString().Length - 2, 2);
-                        lis.Add(bind.ToString());
-                        break;
-                    }
-
-                    if(j == 5)
-                    {
-                        bind.Remove(bind.ToString().Length - 2, 2);
-                        lis.Add(bind.ToString());
+                        lis.Add(string.Empty);
                     }
                 }
             }
@@ -332,11 +299,11 @@ namespace Zealot.Repository
             {
                 int totalCurrency = 0, rarity = 0;
                 rarity = (int)elementalStoneMap[GemId1].rarity;
-                totalCurrency += equipFushionCostMap[rarity].cost_currency;
+                totalCurrency += equipFusionCostMap[rarity].cost_currency;
                 rarity = (int)elementalStoneMap[GemId2].rarity;
-                totalCurrency += equipFushionCostMap[rarity].cost_currency;
+                totalCurrency += equipFusionCostMap[rarity].cost_currency;
                 rarity = (int)elementalStoneMap[GemId3].rarity;
-                totalCurrency += equipFushionCostMap[rarity].cost_currency;
+                totalCurrency += equipFusionCostMap[rarity].cost_currency;
                 return totalCurrency;
             }
             return -1;
@@ -346,21 +313,21 @@ namespace Zealot.Repository
         #region GetAdditionRule
         static int AdditionWeightSearch (int id)
         {
-            if (equipFushionSideEffectMap.ContainsKey(id))
+            if (equipFusionSideEffectMap.ContainsKey(id))
             {
                 int rarity = 0;
-                rarity = equipFushionSideEffectMap[id].se_rarity;
-                return equipFushionAdditionRuleMap[rarity].weight;
+                rarity = equipFusionSideEffectMap[id].se_rarity;
+                return equipFusionAdditionRuleMap[rarity].weight;
             }
             return -1;
         }
         #endregion
 
-        #region RandomEquipFushion
+        #region RandomEquipFusion
         public static string RandomSideEffectPutEquip (List<ElementalStone> SlotsStoneEffect)
         {
             //!!!this part probably rewrite or add random type
-            List<string> stoneEffectList = new List<string>() { SlotsStoneEffect[0].FushionData, SlotsStoneEffect[1].FushionData, SlotsStoneEffect[2].FushionData };
+            List<string> stoneEffectList = new List<string>() { SlotsStoneEffect[0].FusionData, SlotsStoneEffect[1].FusionData, SlotsStoneEffect[2].FusionData };
 
             StringBuilder bind = new StringBuilder();
             bind.Append(GetAttributeInGemEffect(stoneEffectList[0]));
@@ -378,7 +345,7 @@ namespace Zealot.Repository
 
             for (int i = 0; i < 3; ++i)
             {
-                int effectId = int.Parse(effectList[i * 6]);
+                int effectId = int.Parse(effectList[i * 3]);
                 if (effectId != 0)
                 {
                     weight.Add(AdditionWeightSearch(effectId));
@@ -392,11 +359,11 @@ namespace Zealot.Repository
             int order = 0;
             do
             {
-                order = RandomUtility(weight);
-            } while (effectList[order * 6] == "0");
+                order = PowerUpUtilities.RandomWeightOrder(weight);
+            } while (effectList[order * 3] == "0");
 
-            int startLength = order * 6;
-            int maxLenght = (order + 1) * 6;
+            int startLength = order * 3;
+            int maxLenght = (order + 1) * 3;
 
             StringBuilder bind = new StringBuilder();
             bind.Append(effectList[startLength]);
@@ -410,52 +377,30 @@ namespace Zealot.Repository
             return bind.ToString();
         }
         #endregion
-
-        static int RandomUtility (List<int> probability)
-        {
-            int totalWeight = 0;
-            for (int i = 0; i < probability.Count; ++i)
-            {
-                totalWeight += probability[i];
-            }
-            if(totalWeight == 0)
-            {
-                return -1;
-            }
-
-            Random rnd = new Random();
-            int target = rnd.Next(0, totalWeight);
-            int compare = 0;
-
-            for (int i = 0; i < probability.Count; ++i)
-            {
-                int addition = probability[i] + compare;
-                if(probability[i] == 0)
-                {
-                    continue;
-                }
-                if(target >= compare && addition > target)
-                {
-                    return i;
-                } else
-                {
-                    compare = addition;
-                }
-            }
-            return -1;
-        }
         
         static List<string> SortEffectList (List<string> effectString)
         {
             List<string> lis = effectString;
             for (int i = 2; i > -1; --i)
             {
-                if(lis[i] == "0|0,0|0,0|0,0|0,0|0,0|")
+                if(lis[i] == "0|0,0|0,0|")
                 {
                     lis.RemoveAt(i);
-                    lis.Add("0|0,0|0,0|0,0|0,0|0,0|");
+                    lis.Add("0|0,0|0,0|");
                 }
             }
+            return lis;
+        }
+
+        public static List<string> BuildEquipStats(Equipment equip)
+        {
+            List<string> lis = new List<string>();
+            lis.Add(equip.GetEquipmentName());
+            lis.Add(equip.UpgradeLevel.ToString());
+            StringBuilder st = new StringBuilder("+");
+            st.Append(equip.ReformStep);
+            lis.Add(st.ToString());
+            lis.Add("階");
             return lis;
         }
     }

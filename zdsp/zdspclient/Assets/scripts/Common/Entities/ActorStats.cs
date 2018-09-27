@@ -393,6 +393,8 @@ namespace Zealot.Common.Entities
             _Mana = 0;
             _ManaMax = 0;
             _ManaRegen = 0;
+            _ManaReduceBonus = 0;
+            _ManaReducePercBonus = 0;
             _MoveSpeed = 0;
             _ExpBonus = 0;
             _WeaponAttack = 0;
@@ -465,6 +467,8 @@ namespace Zealot.Common.Entities
         private int _Mana;
         private int _ManaMax;
         private int _ManaRegen;
+        private int _ManaReduceBonus;
+        private int _ManaReducePercBonus;
         private int _MoveSpeed;
         private int _ExpBonus;
         private int _WeaponAttack;
@@ -564,6 +568,18 @@ namespace Zealot.Common.Entities
         {
             get { return _ManaRegen; }
             set { OnSetAttribute("ManaRegen", value); _ManaRegen = value; }
+        }
+
+        public int ManaReduceBonus
+        {
+            get { return _ManaReduceBonus; }
+            set { OnSetAttribute("ManaReduceBonus", value); _ManaReduceBonus = value; }
+        }
+
+        public int ManaReducePercBonus
+        {
+            get { return _ManaReducePercBonus; }
+            set { OnSetAttribute("ManaReducePercBonus", value); _ManaReducePercBonus = value; }
         }
 
         public int MoveSpeed
@@ -1981,6 +1997,11 @@ namespace Zealot.Common.Entities
         private int _autoGroup;
 
         
+        /// <summary>
+        /// How to use equip skills and Auto skills collection
+        /// index -> [slot + ((Slot Group - 1) * number of slots)]
+        /// Warning : Slot Group is required to start with 0, thus the - 1
+        /// </summary>
         public CollectionHandler<object> EquippedSkill { get; set; }
         public CollectionHandler<object> AutoSkill { get; set; }
         public CollectionHandler<object> SkillInv { get; set; }
@@ -2036,7 +2057,7 @@ namespace Zealot.Common.Entities
         {
 
             // Init basicattack skill id from inventory;
-            //basicAttack1SId = sid.basicAttack1SId;
+            basicAttack1SId = sid.basicAttack1SId;
             //basicAttack2SId = sid.basicAttack2SId;
             //basicAttack3SId = sid.basicAttack3SId;
 
@@ -2956,6 +2977,20 @@ namespace Zealot.Common.Entities
         }
     }
 
+    public class MeridianStats : LocalObject
+    {
+        public CollectionHandler<object> meridianLevelSlots { get; set; }
+        public CollectionHandler<object> meridianExpSlots { get; set; }
+
+        public MeridianStats() : base(LOTYPE.MeridianStats)
+        {
+            meridianLevelSlots = new CollectionHandler<object>(PowerUpInventoryData.MAX_MERIDIANLEVELSLOTS);
+            meridianLevelSlots.SetParent(this, "meridianLevelSlots");
+            meridianExpSlots = new CollectionHandler<object>(PowerUpInventoryData.MAX_MERIDIANLEVELSLOTS);
+            meridianExpSlots.SetParent(this, "meridianExpSlots");
+        }
+    }
+
     #endregion
 
     #region EquipmentCraft
@@ -2963,12 +2998,12 @@ namespace Zealot.Common.Entities
     {
         private bool _finishedCraft;
 
-        public Dictionary<int, int> equipmentCraftList { get; set; }
+        public Dictionary<int, int> achievementRequireList { get; set; }
 
         public EquipmentCraftStats() : base(LOTYPE.EquipmentCraftStats)
         {
             _finishedCraft = false;
-            equipmentCraftList = new Dictionary<int, int>(EquipmentCraftInventoryData.MAX_EQUIPMENTCRAFTSLOTS_LEN);
+            achievementRequireList = new Dictionary<int, int>(EquipmentCraftInventoryData.MAX_EQUIPMENTACHIEVEMENT);
         }
 
         public bool finishedCraft
@@ -2979,29 +3014,44 @@ namespace Zealot.Common.Entities
     }
     #endregion
 
-    #region EquipFushion
-    public class EquipFushionStats : LocalObject
+    #region EquipFusion
+    public class EquipFusionStats : LocalObject
     {
-        private bool _FinishedFushion;
+        private bool _FinishedFusion;
+        private int _EquipFusionCoin;
+        private int _FusionItemSort;
+        private string _FusionData;
 
-        private int _EquipFushionCoin;
-
-        public EquipFushionStats() : base(LOTYPE.EquipFushionStats)
+        public EquipFusionStats() : base(LOTYPE.EquipFusionStats)
         {
-            _FinishedFushion = false;
-            _EquipFushionCoin = 0;
+            _FinishedFusion = false;
+            _EquipFusionCoin = 0;
+            _FusionItemSort = 0;
+            _FusionData = string.Empty;
         }
 
-        public bool FinishedFushion
+        public bool FinishedFusion
         {
-            get { return _FinishedFushion; }
-            set { OnSetAttribute("FinishedFushion", value); _FinishedFushion = value; }
+            get { return _FinishedFusion; }
+            set { OnSetAttribute("FinishedFusion", value); _FinishedFusion = value; }
         }
 
-        public int EquipFushionCoin
+        public int EquipFusionCoin
         {
-            get { return _EquipFushionCoin; }
-            set { OnSetAttribute("EquipFushionCoin", value); _EquipFushionCoin = value; }
+            get { return _EquipFusionCoin; }
+            set { OnSetAttribute("EquipFusionCoin", value); _EquipFusionCoin = value; }
+        }
+
+        public int FusionItemSort
+        {
+            get { return _FusionItemSort; }
+            set { OnSetAttribute("FusionItemSort", value); _FusionItemSort = value; }
+        }
+
+        public string FusionData
+        {
+            get { return _FusionData; }
+            set { OnSetAttribute("FusionData", value); _FusionData = value; }
         }
     }
     #endregion

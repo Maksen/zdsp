@@ -1,27 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
-
-using Kopio.JsonContracts;
-using Zealot.Repository;
 using Zealot.Client.Entities;
 
-public class RequiredItemData : MonoBehaviour {
-
+public class RequiredItemData : MonoBehaviour
+{
     public GameObject gameIconPrefab;
     public Transform  gameIconParent;
 
     public Text requiredAmount;
 
     int itemID;
-
-    /// 根據消耗、擁有數量、需要數量做判斷
+    
+	/// 根據消耗、擁有數量、需要數量做判斷
+	
     public void InitCurrency(CurrencyType type, int invAmount, int reqAmount)
     {
         GameObject gameIconObj = Instantiate(gameIconPrefab);
-        //Debug.LogError(gameIconObj + "UP");
         gameIconObj.transform.SetParent(gameIconParent, false);
 
         //GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
@@ -29,12 +25,13 @@ public class RequiredItemData : MonoBehaviour {
 
         requiredAmount.text = reqAmount.ToString();
     }
-
-    /// 根據ID、擁有數量、需要數量做判斷
+    
+	/// 根據ID、擁有數量、需要數量做判斷
+	
     public void InitMaterial(int itemId, int invAmount, int reqAmount)
     {
         GameObject gameIconObj = Instantiate(gameIconPrefab);
-        gameIconObj.transform.GetChild(3).GetComponent<Text>().text = invAmount.ToString();
+        gameIconObj.transform.GetChild(2).GetComponent<Text>().text = invAmount.ToString();
         gameIconObj.transform.SetParent(gameIconParent, false);
         itemID = itemId;
 
@@ -42,7 +39,7 @@ public class RequiredItemData : MonoBehaviour {
         gameIcon.Init(itemId, invAmount, false, false, false, OnClick);
         gameIcon.SetFullStackCount(invAmount);
         requiredAmount.text = reqAmount.ToString();
-        UI_CharacterPowerup_Manager.CompareMaterial(gameIconObj.transform.GetChild(3).GetComponent<Text>(), invAmount, reqAmount);
+        UI_CharacterPowerup_Manager.CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
     }
 
     public void OnClick()

@@ -86,6 +86,9 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\CombatUtils.cs">
       <Link>CombatUtils.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\AchievementStats.cs">
+      <Link>Entities\AchievementStats.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\ActorStats.cs">
       <Link>Entities\ActorStats.cs</Link>
     </Compile>
@@ -119,17 +122,20 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\RealmStats.cs">
       <Link>Entities\RealmStats.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipFushion\EquipFushionInventory.cs">
-      <Link>EquipFushion\EquipFushionInventory.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipFushion\EquipFusionInventory.cs">
+      <Link>EquipFushion\EquipFusionInventory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipFushion\EquipFushionInventory_Methods.cs">
-      <Link>EquipFushion\EquipFushionInventory_Methods.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipFushion\EquipFusionInventory_Methods.cs">
+      <Link>EquipFushion\EquipFusionInventory_Methods.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory.cs">
       <Link>EquipmentCraft\EquipmentCraftInventory.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory_Methods.cs">
       <Link>EquipmentCraft\EquipmentCraftInventory_Methods.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\AchievementData.cs">
+      <Link>GameObjects\AchievementData.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\ArenaInventory.cs">
       <Link>GameObjects\ArenaInventory.cs</Link>
@@ -317,6 +323,9 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\QuestExtraRewards\QuestExtraRewardsInventory_Methods.cs">
       <Link>QuestExtraRewards\QuestExtraRewardsInventory_Methods.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\AchievementRepo.cs">
+      <Link>Repositories\AchievementRepo.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ActivityOverviewRepo.cs">
       <Link>Repositories\ActivityOverviewRepo.cs</Link>
     </Compile>
@@ -344,8 +353,8 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ElementalChartRepo.cs">
       <Link>Repositories\ElementalChartRepo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipFushionRepo.cs">
-      <Link>Repositories\EquipFushionRepo.cs</Link>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipFusionRepo.cs">
+      <Link>Repositories\EquipFusionRepo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\EquipmentCraftRepo.cs">
       <Link>Repositories\EquipmentCraftRepo.cs</Link>

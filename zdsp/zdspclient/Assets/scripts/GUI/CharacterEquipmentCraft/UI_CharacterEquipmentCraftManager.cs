@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
-using Kopio.JsonContracts;
 using Zealot.Repository;
 using Zealot.Common;
 
-public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
-
+public class UI_CharacterEquipmentCraftManager : MonoBehaviour
+{
     static UI_CharacterEquipmentCraftManager managerScript;
 
     [SerializeField] Text categoryText;
@@ -44,7 +44,8 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
 
     PlayerGhost player;
 
-    void Start ()
+    #region BasicSetting
+    void Awake ()
     {
         managerScript = this;
 
@@ -69,7 +70,9 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
     {
         ShowPartName(EquipmentCraftRepo.EquipmentPartsType()[0]);
     }
+    #endregion
 
+    #region Refresh
     void Init()
     {
         player = GameInfo.gLocalPlayer;
@@ -78,6 +81,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
         ClientUtils.DestroyChildren(equipmentParent);
         ClientUtils.DestroyChildren(materialReqAmountParent);
     }
+    #endregion
 
     #region ShowInUI
     public void ShowPartName (PartsType part)
@@ -132,7 +136,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
     {
         ClientUtils.DestroyChildren(materialReqAmountParent);
         
-        List<ItemInfo> material = EquipmentCraftRepo.GetEquipmentMaterial(itemId);
+        List<ItemInfo> material = PowerUpUtilities.ConvertMaterialFormat(EquipmentCraftRepo.GetEquipmentMaterial(itemId));
         
         if (player == null)
         {
@@ -157,7 +161,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
             afterCraftMaterial.Add(gameIcon);
             gameIcon.Init(itemId, invAmount, false, false, false, OnClickMaterial);
             gameIcon.SetFullStackCount(invAmount);
-            CompareMaterial(gameIconObj.transform.GetChild(3).GetComponent<Text>(), invAmount, material[i].stackCount);
+            CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, material[i].stackCount);
         }
 
         cannotCraftObject.SetActive(false);
@@ -195,7 +199,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
 
     public static void AfterCraft()
     {
-        List<ItemInfo> material = EquipmentCraftRepo.GetEquipmentMaterial(nowItemId);
+        List<ItemInfo> material = PowerUpUtilities.ConvertMaterialFormat(EquipmentCraftRepo.GetEquipmentMaterial(nowItemId));
 
         haveEnoughMaterial = true;
         for (int i = 0; i < afterCraftMaterial.Count; ++i)
@@ -203,7 +207,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
             int invAmount = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(material[i].itemId);
             afterCraftMaterial[i].InitWithoutCallback(nowItemId, invAmount);
             afterCraftMaterial[i].SetFullStackCount(invAmount);
-            CompareMaterial(afterCraftMaterial[i].transform.GetChild(3).GetComponent<Text>(), invAmount, material[i].stackCount);
+            CompareMaterial(afterCraftMaterial[i].transform.GetChild(2).GetComponent<Text>(), invAmount, material[i].stackCount);
         }
 
         managerScript.InitCurrency(nowItemId);
@@ -211,6 +215,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
     }
     #endregion
 
+    #region ClickEvent
     public void OnClickMaterial()
     {
         var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)nowItemId);
@@ -235,4 +240,5 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour {
     {
 
     }
+    #endregion
 }

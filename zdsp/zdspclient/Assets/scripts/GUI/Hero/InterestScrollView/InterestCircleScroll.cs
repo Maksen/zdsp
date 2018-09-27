@@ -39,7 +39,7 @@ public class InterestCircleScroll : MonoBehaviour
         cellData = new List<InterestCellDto>();
         for (int i = 0; i < totalCellCount; i++)
         {
-            InterestCellDto cell = new InterestCellDto((byte)i, ((HeroInterestType)i).ToString());
+            InterestCellDto cell = new InterestCellDto((byte)i, "");
             cellData.Add(cell);
         }
 

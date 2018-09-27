@@ -61,9 +61,9 @@ namespace Zealot.Repository
                 ItemTable.Add(kvp.Value.itemid, kvp.Value);
         }
 
-        public int GetItemMaxStackCount(BagType type)
+        public int GetItemMaxStackCount(BagTabType type)
         {
-            return (type != BagType.Equipment) ? GameConstantRepo.ItemMaxStackCount : 1;
+            return (type != BagTabType.Equipment) ? GameConstantRepo.ItemMaxStackCount : 1;
         }
 
         public ItemBaseJson GetItemById(int itemId)
@@ -183,16 +183,11 @@ namespace Zealot.Repository
             return null;
         }
 
-        public int GetItemSortTableLength()
+        public ItemSortJson GetItemSortById(int id)
         {
-            return ItemSortTable.Count;
-        }
-
-        public int GetItemOrderById(int id)
-        {
-            if (ItemSortTable.ContainsKey(id))
-                return ItemSortTable[id].sortorder;
-            return 0;
+            ItemSortJson itemSortJson = null;
+            ItemSortTable.TryGetValue(id, out itemSortJson);
+            return itemSortJson;
         }
 
         public LinkUIJson GetLinkUI(int UIId)

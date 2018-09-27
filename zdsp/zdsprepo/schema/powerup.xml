@@ -19,36 +19,33 @@
       <property name="part" type="int" uitext="Part"/>
     </element>
     
-    <element name="MeridianList" useexcel="true" collectionkey="name">
+    <element name="MeridianUnlockList" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Excel Name"/>
       <property name="mlid" type="int" uitext="Mlid"/>
-      <property name="mlname" type="string" uitext="Mlname"/>
-      <property name="apid" type="int"  uitext="Apid" info="apid ; apid ; apid ; apid ; apid ; apid ; apid ; apid"/>
+      <property name="mlname" type="string" uitext="MlName"/>
+      <property name="mltype" type="int" uitext="MlType"/>
       <property name="mlrank" type="int" uitext="Mlrank" info="0 mean unlock"/>
-      <property name="aplvup" type="int" uitext="Aplvup"/>
-      <property name="item" type="int" uitext="Item" info="itemid|count ; itemid|count ; itemid|count ; itemid|count ; itemid|count"/>
-      <property name="currency" type="int" uitext="Currency" info="currency|count"/>
-      <property name="effect" type="int" uitext="Effect" info="effectid ; effectid ;effectid"/>
+      <property name="item" type="string" uitext="Item" info="itemid|count;itemid|count;itemid|count;itemid|count;itemid|count"/>
+      <property name="currency" type="int" uitext="Currency" info="count"/>
+      <property name="effect" type="int" uitext="SideEffect" info="effectid;effectid;effectid"/>
+      <property name="value" type="int" uitext="Value"/>
     </element>
     
-    <element name="AcupointList" useexcel="true" collectionkey="name">
+    <element name="MeridianExpList" useexcel="true" collectionkey="name">
       <property name="name" type="string" uitext="Excel Name"/>
-      <property name="apid" type="int" uitext="Apid"/>
-      <property name="apname" type="string" uitext="Apname"/>
-      <property name="aplevel" type="int"  uitext="Aplevel"/>
-      <property name="apexp" type="int"  uitext="Apexp"/>
-      <property name="payid" type="int"  uitext="Payid"/>
-      <property name="effect" type="int"  uitext="Effect" info="effectid"/>
-    </element>
-    
-    <element name="PayMaterialItemList" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Excel Name"/>
-      <property name="payid" type="int"  uitext="Payid"/>
-      <property name="item" type="int"  uitext="Item" info="Format: itemid|count ; itemid|count"/>
-      <property name="currency" type="int"  uitext="Currency" info="currency|count"/>
-      <property name="earnexp" type="int"  uitext="Earnexp"/>
-      <property name="amplification" type="int"  uitext="Amplification"/>
-      <property name="probability" type="int"  uitext="Probability"/>
+      <property name="mlid" type="int" uitext="Mlid"/>
+      <property name="mlname" type="string" uitext="MlName"/>
+      <property name="mltype" type="int" uitext="MlType"/>
+      <property name="mlrank" type="int"  uitext="Mlrank" info="start form 0"/>
+      <property name="exp" type="int"  uitext="Exp"/>
+      <property name="item" type="string"  uitext="Item" info="itemid|count"/>
+      <property name="currency" type="int" uitext="Currency" info="count"/>
+      <property name="multiple1" type="int" uitext="Multiple1"/>
+      <property name="crt1" type="int" uitext="Crt1"/>
+      <property name="multiple2" type="int" uitext="Multiple2"/>
+      <property name="crt2" type="int" uitext="Crt2"/>
+      <property name="multiple3" type="int" uitext="Multiple3"/>
+      <property name="crt3" type="int" uitext="Crt3"/>
     </element>
     
   </data>

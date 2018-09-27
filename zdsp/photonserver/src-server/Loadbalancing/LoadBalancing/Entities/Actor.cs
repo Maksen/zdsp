@@ -1071,10 +1071,6 @@
         {
         }
 
-        public virtual void OnFrozen()
-        {
-        }
-
         public virtual void OnRoot()
         {
         }

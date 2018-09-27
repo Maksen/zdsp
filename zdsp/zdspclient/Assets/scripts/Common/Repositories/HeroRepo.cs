@@ -119,7 +119,11 @@ namespace Zealot.Repository
             {
                 var se = gameData.HeroBond__sideeffects[i];
                 if (heroBondDict.ContainsKey(se.herobondid))
-                    heroBondDict[se.herobondid].sideeffects.Add(se.sideeffectsid, SideEffectRepo.GetSideEffect(se.sideeffectsid));
+                {
+                    SideEffectJson sejson = SideEffectRepo.GetSideEffect(se.sideeffectsid);
+                    if (sejson != null)
+                        heroBondDict[se.herobondid].sideeffects.Add(se.sideeffectsid, sejson);
+                }
             }
 
             foreach (var entry in heroBondDict.Values)

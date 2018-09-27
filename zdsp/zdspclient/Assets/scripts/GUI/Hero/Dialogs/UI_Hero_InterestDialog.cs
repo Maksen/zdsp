@@ -188,7 +188,7 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
         if (itemids.Length > 0 && int.TryParse(itemids[0], out bindItemId))
         {
             item.InitWithToolTipView(bindItemId, 1);
-            itemNameText.text = item.inventoryItem.JsonObject.localizedname;
+            itemNameText.text = item.InventoryItem.JsonObject.localizedname;
             hasEnoughItem = player.clientItemInvCtrl.itemInvData.HasItem((ushort)bindItemId, 1);
             if (!hasEnoughItem && itemids.Length > 1 && int.TryParse(itemids[1], out unbindItemId))
             {
@@ -201,7 +201,7 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
     private void ShowUseUnbindItemConfirmation(Action confirmCallback)
     {
-        IInventoryItem bindItem = item.inventoryItem;
+        IInventoryItem bindItem = item.InventoryItem;
         IInventoryItem unbindItem = GameRepo.ItemFactory.GetInventoryItem(unbindItemId);
         if (bindItem != null && unbindItem != null)
         {
@@ -215,6 +215,12 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
     public void OnClickRandomSpin()
     {
+        if (hero.IsAway)
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_IsAwayCannotChangeInterest"));
+            return;
+        }
+
         if (hasEnoughItem)
         {
             if (showSpendConfirmation)
@@ -236,6 +242,12 @@ public class UI_Hero_InterestDialog : BaseWindowBehaviour
 
     public void OnClickConfirm()
     {
+        if (hero.IsAway)
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_hero_IsAwayCannotChangeInterest"));
+            return;
+        }
+
         if (hasEnoughItem)
         {
             EnableCicleScroll(false);

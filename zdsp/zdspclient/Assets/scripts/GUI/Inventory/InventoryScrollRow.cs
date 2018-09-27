@@ -5,14 +5,14 @@ using Zealot.Common;
 
 public class InvRowIcon
 {
-    public BagType bagType = BagType.Any;
-    public GameObject gameIcon = null;
+    public int IconType = 0;
+    public GameObject GameIcon = null;
 }
 
 public class InventoryScrollRow : MonoBehaviour
 {
     [SerializeField]
-    GameObject[] prefabGameicons = null;
+    GameObject prefabIconEmptyslot = null;
 
     List<InvRowIcon> ChildList { get; set; }
 
@@ -34,8 +34,8 @@ public class InventoryScrollRow : MonoBehaviour
         {
             for (int i = 0; i < count; ++i)
             {
-                Destroy(ChildList[i].gameIcon);
-                ChildList[i].gameIcon = null;
+                Destroy(ChildList[i].GameIcon);
+                ChildList[i].GameIcon = null;
             }
             ChildList.Clear();
         }
@@ -46,7 +46,7 @@ public class InventoryScrollRow : MonoBehaviour
         Clear();
 
         List<InvDisplayItem> displayItemList = uiInventory.DisplayItemList;
-        BagType currInvTab = uiInventory.CurrentInventoryTab;
+        BagTabType currInvTab = uiInventory.CurrentInventoryTab;
         int totalCount = displayItemList.Count;
         int unlockSlotCnt = GameInfo.gLocalPlayer.SecondaryStats.UnlockedSlotCount;
         UI_Inventory_SellPanel invSellPanel = uiInventory.InvSellPanel;
@@ -62,12 +62,11 @@ public class InventoryScrollRow : MonoBehaviour
 
             // Init game icon
             InvDisplayItem invDisplayItem = displayItemList[realIdx];
-            int originSlotId = invDisplayItem.OriginSlotId;
             IInventoryItem invItem = invDisplayItem.InvItem;
-            GameObject gameIcon = null;            
-            if (currInvTab == BagType.Any && invItem == null)
+            GameObject gameIcon = null;
+            if (currInvTab == BagTabType.All && invItem == null)
             {
-                gameIcon = Instantiate(prefabGameicons[0]);
+                gameIcon = Instantiate(prefabIconEmptyslot);
                 gameIcon.GetComponent<GameIcon_EmptySlot>().SetLock(realIdx >= unlockSlotCnt);
             }
             else
@@ -76,35 +75,32 @@ public class InventoryScrollRow : MonoBehaviour
                 if (invSellPanel.gameObject.activeInHierarchy)
                     callback = () => invSellPanel.OnOpenDialogItemSellUse(realIdx);
                 else if (invQuickSlot.gameObject.activeInHierarchy)
-                    callback = () => invQuickSlot.OnSetItemToSlot(originSlotId);
+                    callback = () => invQuickSlot.OnSetItemToSlot(invDisplayItem.OriginSlotId);
                 else
-                    callback = () => uiInventory.OnClicked_InventoryItem(originSlotId, invItem);
+                    callback = () => uiInventory.OnClicked_InventoryItem(invDisplayItem.OriginSlotId, invItem);
 
-                BagType bagType = invItem.JsonObject.bagtype;
-                gameIcon = Instantiate(prefabGameicons[(int)bagType]);
-                switch (bagType)
+                ItemGameIconType iconType = invItem.ItemSortJson.gameicontype;
+                gameIcon = Instantiate(ClientUtils.LoadGameIcon(iconType));
+                switch (iconType)
                 {
-                    case BagType.Equipment:
+                    case ItemGameIconType.Equipment:
                         Equipment eq = invItem as Equipment;
-                        if(eq != null)
-                            gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, 0, eq.UpgradeLevel, false, false, eq.IsNew, false, callback);
-
-                        Relic relic = invItem as Relic;
-                        if(relic != null)
-                            gameIcon.GetComponent<GameIcon_Equip>().Init(relic.ItemID, 0, 0, 0, false, false, eq.IsNew, false, callback);
+                        gameIcon.GetComponent<GameIcon_Equip>().Init(eq.ItemID, 0, eq.ReformStep, eq.UpgradeLevel, false, 
+                            eq.IsNew, false, callback);
                         break;
-                    case BagType.Consumable:
-                    case BagType.Material:
-                        gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, invDisplayItem.DisplayStackCount, false, invItem.IsNew, false, callback);
+                    case ItemGameIconType.Consumable:
+                    case ItemGameIconType.Material:
+                        gameIcon.GetComponent<GameIcon_MaterialConsumable>().Init(invItem.ItemID, 
+                            invDisplayItem.DisplayStackCount, false, invItem.IsNew, false, callback);
                         break;
-                    case BagType.Socket:
+                    case ItemGameIconType.DNA:
                         gameIcon.GetComponent<GameIcon_DNA>().Init(invItem.ItemID, 0, 0, invItem.IsNew, callback);
                         break;
                 }
             }
 
             gameIcon.transform.SetParent(parent, false);
-            ChildList.Add(new InvRowIcon { bagType = (invItem != null) ? invItem.JsonObject.bagtype : BagType.Any, gameIcon = gameIcon });
+            ChildList.Add(new InvRowIcon { IconType = (invItem != null) ? (int)invItem.ItemSortJson.gameicontype : -1, GameIcon = gameIcon });
         }
     }
 
@@ -117,32 +113,34 @@ public class InventoryScrollRow : MonoBehaviour
         int count = ChildList.Count;
         for (int i = 0; i < count; ++i)
         {
-            int realIdx = startIndex + i;
-            InvDisplayItem invDisplayItem = displayItemList[realIdx];
-            int originSlotId = invDisplayItem.OriginSlotId;
-
-            UnityAction callback = null;
-            if (invSellPanel.gameObject.activeInHierarchy)
-                callback = () => invSellPanel.OnOpenDialogItemSellUse(realIdx);
-            else if (invQuickSlot.gameObject.activeInHierarchy)
-                callback = () => invQuickSlot.OnSetItemToSlot(originSlotId);
-            else
-                callback = () => uiInventory.OnClicked_InventoryItem(originSlotId, invDisplayItem.InvItem);
-
-            BagType bagType = ChildList[i].bagType;
-            GameObject gameIcon = ChildList[i].gameIcon;
-            switch (bagType)
+            InvRowIcon invRowIcon = ChildList[i];
+            if (invRowIcon.IconType != -1)
             {
-                case BagType.Equipment:
-                    gameIcon.GetComponent<GameIcon_Equip>().SetClickCallback(callback);
-                    break;
-                case BagType.Consumable:
-                case BagType.Material:
-                    gameIcon.GetComponent<GameIcon_MaterialConsumable>().SetClickCallback(callback);
-                    break;
-                case BagType.Socket:
-                    gameIcon.GetComponent<GameIcon_DNA>().SetClickCallback(callback);
-                    break;
+                int realIdx = startIndex + i;
+                InvDisplayItem invDisplayItem = displayItemList[realIdx];
+
+                UnityAction callback = null;
+                if (invSellPanel.gameObject.activeInHierarchy)
+                    callback = () => invSellPanel.OnOpenDialogItemSellUse(realIdx);
+                else if (invQuickSlot.gameObject.activeInHierarchy)
+                    callback = () => invQuickSlot.OnSetItemToSlot(invDisplayItem.OriginSlotId);
+                else
+                    callback = () => uiInventory.OnClicked_InventoryItem(invDisplayItem.OriginSlotId, invDisplayItem.InvItem);
+            
+                ItemGameIconType iconType = (ItemGameIconType)invRowIcon.IconType;
+                switch (iconType)
+                {
+                    case ItemGameIconType.Equipment:
+                        invRowIcon.GameIcon.GetComponent<GameIcon_Equip>().SetClickCallback(callback);
+                        break;
+                    case ItemGameIconType.Consumable:
+                    case ItemGameIconType.Material:
+                        invRowIcon.GameIcon.GetComponent<GameIcon_MaterialConsumable>().SetClickCallback(callback);
+                        break;
+                    case ItemGameIconType.DNA:
+                        invRowIcon.GameIcon.GetComponent<GameIcon_DNA>().SetClickCallback(callback);
+                        break;
+                }
             }
         }
     }
@@ -156,7 +154,7 @@ public class InventoryScrollRow : MonoBehaviour
         {
             InvRowIcon child = ChildList[i];
             parentInvRow.ChildList.Add(child);
-            child.gameIcon.transform.SetParent(parent, false);
+            child.GameIcon.transform.SetParent(parent, false);
         }
         ChildList.Clear();
     }

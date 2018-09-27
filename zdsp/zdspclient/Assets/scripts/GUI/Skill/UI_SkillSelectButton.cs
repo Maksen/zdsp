@@ -13,7 +13,7 @@ public class UI_SkillSelectButton : UI_SkillButtonBase{
         m_Toggle.onValueChanged.AddListener(delegate { function(this); });
     }
 
-    public void EquipSkill(int skillid, bool isPlayerEquip)
+    public void EquipSkill(int skillid)
     {
         m_Skillid = skillid;
         if (m_Skillid == 0)
@@ -23,10 +23,12 @@ public class UI_SkillSelectButton : UI_SkillButtonBase{
         else
         {
             m_Icon.sprite = ClientUtils.LoadIcon(SkillRepo.GetSkill(skillid).skillgroupJson.icon);
-            if(isPlayerEquip)
-                GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_skgID * m_parentPanel.GetEquipGroup()] = skillid;
-            else
-                GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_skgID * m_parentPanel.GetEquipGroup()] = skillid;
+            //if (isPlayerEquip)
+            //    //GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_skgID * m_parentPanel.GetEquipGroup()] = skillid;
+            //    RPCFactory.NonCombatRPC.EquipSkill(skillid, m_skgID, m_parentPanel.GetEquipGroup());
+            //else
+            //    //GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_skgID * m_parentPanel.GetEquipGroup()] = skillid;
+            //    RPCFactory.NonCombatRPC.AutoEquipSkill(skillid, m_skgID, m_parentPanel.GetEquipGroup());
         }
     }
 }

@@ -455,7 +455,7 @@ namespace Zealot.Common
             float racial = packet.defender.CombatStats.GetField(packet.fieldInfo.defenderVSRace);
             float def = packet.defender.CombatStats.GetField(FieldName.DecreaseFinalDamage);
 
-            return strikedef * elemdef * racial * def;
+            return 1.0f - (strikedef * elemdef * racial * def);
         }
 
         public static float FinalDefendModBlock(FIELDNAMEPACKET packet) {

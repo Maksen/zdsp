@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f716ec81201fa84c991b71f8f90a277, type: 3}
+  m_Name: UI_ZDSP_GameIcon
+  m_EditorClassIdentifier: 
+  preload: 1
+  build: 1
+  individualAssetBundle: 0
+  containerAssetsPath: UI_ZDSP/Widgets/GameIcon
+  allowAbsolutePath: 0
+  ExportedAssets:
+  - assetPath: GameIcon_Equip/P_GameIcon_Equip/GameIcon_Equip.prefab
+    asset: {fileID: 1707756757330234, guid: b0bdd33dd9825024c8eb9d43cb606399, type: 2}
+  - assetPath: GameIcon_Material/P_GameIcon_Material/GameIcon_Material.prefab
+    asset: {fileID: 1701380584179628, guid: cb12997439a9de04bb42e3869aa4dc1f, type: 2}
+  - assetPath: GameIcon_DNA/P_GameIcon_DNA/GameIcon_DNA.prefab
+    asset: {fileID: 1701380584179628, guid: 09a955d4dda39bb42ba213a6293bd9db, type: 2}
+  PrefabList:
+  - {fileID: 1707756757330234, guid: b0bdd33dd9825024c8eb9d43cb606399, type: 2}
+  - {fileID: 1701380584179628, guid: cb12997439a9de04bb42e3869aa4dc1f, type: 2}
+  - {fileID: 1701380584179628, guid: 09a955d4dda39bb42ba213a6293bd9db, type: 2}

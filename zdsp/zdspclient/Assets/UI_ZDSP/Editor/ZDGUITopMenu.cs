@@ -118,65 +118,67 @@ public class ZDGUITopMenu : EditorWindow
 	[MenuItem("ZDGUI/UI_LoginHierarchy", false, 55)]
     static void LoginHierarchy()
     {
-        string myScene = "Assets/UI_ZDSP/Scenes/UI_LoginHierarchy/UI_LoginHierarchy.unity";
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/UI_LoginHierarchy.unity";
         OpenNewScene(myScene);
     }
 	
 	[MenuItem("ZDGUI/Login (UI file)", false, 58)]
     static void Login()
     {
-        string myScene = "Assets/UI_ZDSP/Scenes/Login/UI_Login.unity";
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/Login/UI_Login.unity";
         OpenNewScene(myScene);
     }
 	
-	[MenuItem("ZDGUI/MenuOthers", false, 59)]
-    static void MenuOthers()
+	
+	[MenuItem("ZDGUI/CharacterCreation", false, 60)]
+    static void CharacterCreation()
     {
-        string myScene = "Assets/UI_ZDSP/Scenes/MenuOthers/UI_MenuOthers.unity";
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/CharacterCreation/UI_CharacterCreation.unity";
         OpenNewScene(myScene);
     }
-
-    [MenuItem("ZDGUI/CreateChar", false, 60)]
-    static void CreateChar()
+	
+	[MenuItem("ZDGUI/CharacterSelection", false, 60)]
+    static void CharacterSelection()
     {
-        string myScene = "Assets/UI_ZDSP/Scenes/CreateChar/UI_CreateChar.unity";
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/CharacterSelection/UI_CharacterSelection.unity";
         OpenNewScene(myScene);
     }
 	
 	[MenuItem("ZDGUI/Tutorial", false, 61)]
     static void Tutorial()
     {
-        string myScene = "Assets/UI_ZDSP/Scenes/Dialog/Tutorial/Tutorial/Dialog_Tutorial.unity";
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_Dialog/Tutorial/Tutorial.unity";
         OpenNewScene(myScene);
     }
 
-    [MenuItem("ZDGUI/ViewPlayer ----for Artists", false, 62)]
-    static void ViewPlayer()
-    {
-        string myScene = "Assets/UI_ZDSP/Tools/ViewPlayer/ViewPlayerPiliQ.unity";
-        OpenNewScene(myScene);
-    }
-	
-	[MenuItem("ZDGUI/----CharacterInfo", false, 60)]
+    [MenuItem("ZDGUI/CharacterInfo", false, 60)]
     static void CharacterInfo()
     {
         string myScene = "Assets/UI_ZDSP/Scenes/CharacterInfo/UI_CharacterInfo.unity";
         OpenNewScene(myScene);
     }
 	
-	[MenuItem("ZDGUI/----Inventory", false, 60)]
+	[MenuItem("ZDGUI/Inventory", false, 60)]
     static void Inventory()
     {
         string myScene = "Assets/UI_ZDSP/Scenes/Inventory/UI_Inventory.unity";
         OpenNewScene(myScene);
     }
 	
-	[MenuItem("ZDGUI/----ItemDetail", false, 60)]
+	[MenuItem("ZDGUI/ItemDetail", false, 60)]
     static void ItemDetail()
     {
         string myScene = "Assets/UI_ZDSP/Scenes/aaa_Dialog/ItemDetail/Dialog_ItemDetail.unity";
         OpenNewScene(myScene);
     }
+	
+	[MenuItem("ZDGUI/ViewPlayer ----for Artists", false, 62)]
+    static void ViewPlayer()
+    {
+        string myScene = "Assets/UI_ZDSP/Tools/ViewPlayer/ViewPlayerPiliQ.unity";
+        OpenNewScene(myScene);
+    }
+	
 
     //####################################################################
     // Open Scene with confirmation

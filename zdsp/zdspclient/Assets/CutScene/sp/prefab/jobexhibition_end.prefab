@@ -944,6 +944,7 @@ GameObject:
   - component: {fileID: 4139412414818280}
   - component: {fileID: 320141988020117948}
   - component: {fileID: 95501455253381838}
+  - component: {fileID: 114457539443400274}
   m_Layer: 0
   m_Name: jobexhibition_end
   m_TagString: Untagged
@@ -1357,7 +1358,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1799542952425368}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 78.01904, y: 39.484375, z: 112.77939}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2526,6 +2527,17 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &114457539443400274
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1799542952425368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7ed4c1f5c70cdc4089b162d242e79ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114633229970613984
 MonoBehaviour:
   m_ObjectHideFlags: 1

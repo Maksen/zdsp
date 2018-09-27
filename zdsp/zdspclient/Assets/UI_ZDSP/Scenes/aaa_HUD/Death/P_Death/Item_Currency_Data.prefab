@@ -439,10 +439,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e53f5432f08150479bb527e8b3bf8cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  button: {fileID: 0}
   imgIcon: {fileID: 114926547840032868}
   itemRarity: {fileID: 114673425718575092}
+  newDot: {fileID: 0}
   iconStatusCannotuse: {fileID: 1361949789666400}
   itemStackCount: {fileID: 114795982034813522}
+  toggleSelect: {fileID: 0}
 --- !u!114 &114367146593908154
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -473,7 +476,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fef5f3a11aa6284eb97336b3ae4d23c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameIconPrefab: {fileID: 1596480431857618, guid: 3c7b487d3f6c81849b2fe227ec184cc9,
+  gameIconPrefab: {fileID: 1701380584179628, guid: cb12997439a9de04bb42e3869aa4dc1f,
     type: 2}
   gameIconParent: {fileID: 224942461592006310}
   requireAmtTxt: {fileID: 114879995422735972}

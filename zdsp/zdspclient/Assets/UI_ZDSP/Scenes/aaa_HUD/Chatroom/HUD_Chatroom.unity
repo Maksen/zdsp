@@ -19522,7 +19522,7 @@ Prefab:
     - target: {fileID: 224162015756053686, guid: d23865e915f30e04d846c130c741ceb3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 39.844357
+      value: 38.702362
       objectReference: {fileID: 0}
     - target: {fileID: 114016695153496302, guid: d23865e915f30e04d846c130c741ceb3,
         type: 2}
@@ -43396,7 +43396,7 @@ MonoBehaviour:
   - {fileID: 211136364}
   - {fileID: 1199752782}
   list_tabcontent: []
-  defaultAutoEnable: 1
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 194205865}
 --- !u!1 &549517787
 GameObject:
@@ -60344,9 +60344,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1133876865}
   - component: {fileID: 1133876866}
-  - component: {fileID: 1133876867}
   - component: {fileID: 1133876869}
   - component: {fileID: 1133876868}
+  - component: {fileID: 1133876867}
   m_Layer: 22
   m_Name: HUD_Chatroom
   m_TagString: Untagged
@@ -60388,7 +60388,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   widgetType: 5
   ActiveOnStartup: 0
-  toggle: {fileID: 0}
 --- !u!114 &1133876867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80586,7 +80585,7 @@ MonoBehaviour:
   - {fileID: 2071333309}
   - {fileID: 444626851}
   list_tabcontent: []
-  defaultAutoEnable: 1
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 2071333309}
 --- !u!1001 &1382230045
 Prefab:
@@ -81166,7 +81165,7 @@ MonoBehaviour:
   - {fileID: 928206100}
   - {fileID: 777853194}
   list_tabcontent: []
-  defaultAutoEnable: 1
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 928206100}
 --- !u!1 &1407150983
 GameObject:
@@ -86864,7 +86863,7 @@ MonoBehaviour:
   - {fileID: 1579766803}
   - {fileID: 1410385126}
   list_tabcontent: []
-  defaultAutoEnable: 1
+  enableDefaultToggle: 1
   defaultToggle: {fileID: 29268276}
 --- !u!1 &1601549508
 GameObject:

@@ -849,6 +849,7 @@ GameObject:
   - component: {fileID: 4675735773579310}
   - component: {fileID: 320891341263403592}
   - component: {fileID: 95859886561679086}
+  - component: {fileID: 114053533035057596}
   m_Layer: 0
   m_Name: jobexhibition_start
   m_TagString: Untagged
@@ -2022,7 +2023,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1754019190116798}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 78.01904, y: 39.484375, z: 112.77939}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -2508,6 +2509,17 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &114053533035057596
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1754019190116798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7ed4c1f5c70cdc4089b162d242e79ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114798102324372414
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2803,5 +2815,7 @@ PlayableDirector:
     value: {fileID: 1869729050445674}
   - key: {fileID: 114903357112642276, guid: fe6f3cc4ede1c68439b5b9680cc8513f, type: 2}
     value: {fileID: 1869729050445674}
+  - key: {fileID: 114902379599121636, guid: fe6f3cc4ede1c68439b5b9680cc8513f, type: 2}
+    value: {fileID: 1754019190116798}
   m_ExposedReferences:
     m_References: []

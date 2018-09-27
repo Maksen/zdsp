@@ -153,7 +153,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerLabelPrefab: {fileID: 196262, guid: 0673695cfab381a43900778fffe47f4c, type: 2}
+  PlayerLabelExtPrefab: {fileID: 0}
   DmgLabelPrefab: {fileID: 141912, guid: d100b4135934d2b458b9d97319e46611, type: 2}
+  CastingAndCutscenePrefab: {fileID: 0}
+  NpcLabelPrefab: {fileID: 0}
 --- !u!4 &13414537
 Transform:
   m_ObjectHideFlags: 0
@@ -300,7 +303,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -644282265
-  m_SortingLayer: 7
+  m_SortingLayer: 8
   m_SortingOrder: 2
   m_RenderMode: 0
   m_SortMode: 0
@@ -823,7 +826,7 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 5
     enabled: 1
-    type: 15
+    type: 5
     angle: 0
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
@@ -835,8 +838,8 @@ ParticleSystem:
     placementMode: 1
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 8.64
-    m_Mesh: {fileID: 4300000, guid: 1f343a618c80f2943a776a5f0b7c00e7, type: 3}
-    m_MeshRenderer: {fileID: 2300000, guid: 2e91257aebd4c4449892122398057f1a, type: 3}
+    m_Mesh: {fileID: 0}
+    m_MeshRenderer: {fileID: 0}
     m_SkinnedMeshRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
     m_UseMeshColors: 0
@@ -3899,7 +3902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: a2dba2685ba4c3b4884d32f036672fd6, type: 2}
-  m_Color: {r: 0.41960785, g: 0.53333336, b: 0.67058825, a: 1}
+  m_Color: {r: 0.58823526, g: 0.58823526, b: 0.58823526, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:

@@ -65,7 +65,7 @@ namespace Zealot.Server.Entities
 
                     IInventoryItem factionReward = GameRules.GenerateItem(factionItemID, peer);
                     if (factionReward != null)
-                        peer.mInventory.AddItemsIntoInventory(factionReward, true, "NewCharFaction");
+                        peer.mInventory.AddItemsToInventory(factionReward, true, "NewCharFaction");
                 }
 
                 //var jobItem = JobSectRepo.GetJobByType((JobType)mPlayer.PlayerSynStats.jobsect).itemid;

@@ -301,7 +301,7 @@ namespace Zealot.Server.Rules
                 byte faction = player.PlayerSynStats.faction;
                 int combatscore = 0;
                 int progresslvl = player.PlayerSynStats.Level;
-                int viplvl = player.PlayerSynStats.vipLvl;
+                int viplvl = 0;
                 List<GuildStatsServer> sortedGuildStats = GuildList.Values.OrderByDescending(x => x.totalCombatScore).ThenByDescending(x => x.guildLevel).
                     Where(x => x.faction == faction && x.mRequestSetting.CombatScore <= combatscore && x.mRequestSetting.ProgressLvl <= progresslvl &&
                     x.mRequestSetting.VipLvl <= viplvl && !x.IsMemberFull()).ToList();
@@ -524,11 +524,11 @@ namespace Zealot.Server.Rules
                     peer.ZRPC.CombatRPC.Ret_GuildJoin((byte)GuildReturnCode.InsufficientPlayerLevel, peer);
                     return;
                 }
-                if (player.PlayerSynStats.vipLvl < requestSetting.VipLvl)
-                {
-                    peer.ZRPC.CombatRPC.Ret_GuildJoin((byte)GuildReturnCode.VIPLevelTooLow, peer);
-                    return;
-                }
+                //if (player.PlayerSynStats.vipLvl < requestSetting.VipLvl)
+                //{
+                //    peer.ZRPC.CombatRPC.Ret_GuildJoin((byte)GuildReturnCode.VIPLevelTooLow, peer);
+                //    return;
+                //}
 
                 if (requestSetting.AutoAccept && !guildStats.IsMemberFull())
                 {
@@ -550,7 +550,7 @@ namespace Zealot.Server.Rules
                     PlayerSynStats pSynStats = player.PlayerSynStats;
                     DateTime timeRequested = DateTime.Now;
                     int slotidx = guildStats.Request_GetEmptySlot();
-                    AddMemberRequestToGuildStats(guildStats, new GuildMemberStatsRequest(playerName, player.PlayerSynStats.PortraitID, pSynStats.vipLvl, pSynStats.Level, 0, timeRequested, slotidx));
+                    AddMemberRequestToGuildStats(guildStats, new GuildMemberStatsRequest(playerName, player.PlayerSynStats.PortraitID, 0, pSynStats.Level, 0, timeRequested, slotidx));
                     guildStats.mGuildDataDirty = true;
                     guildStats.saveToDB = true;                    
                     if (RemoveOldRequest(playerName))
@@ -1403,7 +1403,7 @@ namespace Zealot.Server.Rules
                 PlayerSynStats playerSynStats = player.PlayerSynStats;
                 string message = GameUtils.GetHyperTextTag(link, GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Guild_Recruit", paramters));
                 ChatMessage newMsg = new ChatMessage(MessageType.World, message, player.Name, "", playerSynStats.PortraitID, 
-                                                     playerSynStats.jobsect, playerSynStats.vipLvl, playerSynStats.faction);
+                                                     playerSynStats.jobsect, 0, playerSynStats.faction);
                 GameApplication.Instance.BroadcastChatMessage(newMsg);
                 player.Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Guild_RecuritSent", "", false, player.Slot);
             }

@@ -528,7 +528,6 @@
             playerStats.name = playername;
             playerStats.jobsect = characterData.JobSect;
             playerStats.Level = characterData.ProgressLevel;
-            playerStats.vipLvl = characterData.CurrencyInventory.VIPLevel;
             playerStats.PortraitID = characterData.portraitID;
             playerStats.faction = characterData.Faction;
             playerStats.Gender = characterData.Gender;
@@ -661,7 +660,6 @@
             secStats.bindgold = CurrencyInventory.BindGold;
             secStats.lotterypoints = CurrencyInventory.LotteryPoints;
             secStats.honor = CurrencyInventory.Honor;
-            secStats.vippoints = CurrencyInventory.VIPPoints;
             secStats.battlecoin = CurrencyInventory.BattleCoin;
 
             secStats.guildId = characterData.GuildId;
@@ -759,10 +757,9 @@
             //storeStats.Load(storeData);
 
             /*********************   HeroStats   ***************************/
-            HeroStatsServer heroStats = player.HeroStats;
-            heroStats.Init(player, peer, characterData.HeroInventory);
+            player.HeroStats.Init(player, peer, characterData.HeroInventory);
 
-            /*********************   Party Stats   ***************************/
+            /*********************   PartyStats   ***************************/
             int partyId = PartyRules.GetPartyIdByPlayerName(playername);
             if (partyId > 0)
             {
@@ -773,8 +770,7 @@
             }
 
             /*********************   AchievementStats   ***************************/
-            AchievementStatsServer achStats = player.AchievementStats;
-            achStats.Init(player, peer, characterData.AchievementInventory);
+            player.AchievementStats.Init(player, peer, characterData.AchievementInventory);
 
             /************************   BattleTime Stats   *****************/
             //player.InitFromInventory(characterData.BattleTimeInventoryData);
@@ -907,7 +903,7 @@
             // Sideeffect inventrory. 
             player.ResumeSideEffects(characterData.SideEffectInventory);
 
-            //RandomBoxReward.RandomBoxRewardManager.Instance.SendCurrentStateToClient(peer);
+            player.AchievementStats.PostSpawnCheckAchievements();
 
             TickerTapeSystem.OnLogin(peer);
 

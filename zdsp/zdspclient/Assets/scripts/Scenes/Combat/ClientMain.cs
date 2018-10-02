@@ -878,8 +878,8 @@ public partial class ClientMain : MonoBehaviour
                         UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Guild_IncompatibleFaction"));
                     else if (localplayer.PlayerSynStats.Level < progresslvl)
                         UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Guild_Request_LvlTooLow"));
-                    else if (localplayer.PlayerSynStats.vipLvl < viplvl)
-                        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Guild_Request_VIPLvlTooLow"));
+                    //else if (localplayer.PlayerSynStats.vipLvl < viplvl)
+                    //    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Guild_Request_VIPLvlTooLow"));
                     else
                         RPCFactory.CombatRPC.GuildJoin(guildId);
                 }
@@ -916,8 +916,8 @@ public partial class ClientMain : MonoBehaviour
         }
         sb.Append(GUILocalizationRepo.GetLocalizedString("dun_ConfirmCountdown"));
 
-        System.Action okCallBack = () => { RPCFactory.CombatRPC.DungeonEnterState(realmId, 1); };
-        System.Action cancelCallBack = () => { RPCFactory.CombatRPC.DungeonEnterState(realmId, 2); };
+        System.Action okCallBack = () => { RPCFactory.CombatRPC.EnterRealmWithPartyResponse(realmId, 1); };
+        System.Action cancelCallBack = () => { RPCFactory.CombatRPC.EnterRealmWithPartyResponse(realmId, 2); };
         UIManager.OpenYesNoDialog(sb.ToString(), okCallBack, cancelCallBack, 5, okCallBack);
     }
 

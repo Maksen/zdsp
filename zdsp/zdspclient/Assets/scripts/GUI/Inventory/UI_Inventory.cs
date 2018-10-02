@@ -280,7 +280,7 @@ public class UI_Inventory : BaseWindowBehaviour
         EquipmentInventoryData equipmentInvData = player.mEquipmentInvData;
         avatar.Change(equipmentInvData, (JobType)player.PlayerSynStats.jobsect, player.mGender);
         RefreshEquipIcons(equipmentInvData.Slots, equipSlots);
-        RefreshEquipIcons(equipmentInvData.Fashions, fashionSlots);
+        RefreshEquipIcons(equipmentInvData.FashionSlots, fashionSlots);
     }
 
     private void RefreshEquipIcons(List<Equipment> _equipmentSlots, GameObject[] _uiSlots)

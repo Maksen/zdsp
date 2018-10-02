@@ -228,7 +228,7 @@ namespace Photon.LoadBalancing.GameServer.Lottery
                     return false;
                 }
 
-                InvRetval retval = player.Slot.mInventory.DeductItem((ushort)info.ticketId, (ushort)base_count, "Lottery");
+                InvRetval retval = player.Slot.mInventory.DeductItems((ushort)info.ticketId, base_count, "Lottery");
                 if (retval.retCode == InvReturnCode.UseSuccess)
                 {
                     extra = Math.Max(0, ticketCount - base_count);
@@ -327,7 +327,7 @@ namespace Photon.LoadBalancing.GameServer.Lottery
             str_ids = str_ids.Substring(0, str_ids.Length - 1);
             str_counts = str_counts.Substring(0, str_counts.Length - 1);
 
-            InvRetval retval = player.Slot.mInventory.AddItemsIntoInventory(additems, false, "Lottery");
+            InvRetval retval = player.Slot.mInventory.AddItemsToInventory(additems, false, "Lottery");
             if (retval.retCode == InvReturnCode.AddFailed || retval.retCode == InvReturnCode.Full)
                 return false;
 
@@ -506,7 +506,7 @@ namespace Photon.LoadBalancing.GameServer.Lottery
                 ids = ids.Substring(ids.Length - 1, 1);
                 counts = counts.Substring(counts.Length - 1, 1);
 
-                InvRetval retval = player.Slot.mInventory.AddItemsIntoInventory(additems, false, "Lottery");
+                InvRetval retval = player.Slot.mInventory.AddItemsToInventory(additems, false, "Lottery");
                 if (retval.retCode == InvReturnCode.AddFailed || retval.retCode == InvReturnCode.Full)
                 {
                     // Maybe need error message
@@ -555,7 +555,7 @@ namespace Photon.LoadBalancing.GameServer.Lottery
             }
 
             int oldpt = player.GetLotteryPoint(ID);
-            InvRetval retval = player.Slot.mInventory.DeductItem((ushort)item_id, 1, "Lottery");
+            InvRetval retval = player.Slot.mInventory.DeductItems((ushort)item_id, 1, "Lottery");
             if (retval.retCode == InvReturnCode.UseSuccess)
             {
                 player.AddLotteryPoint(ID, info.pointItemGetPoint);

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using Zealot.Common;
 
 public class GameIcon_MaterialConsumable : GameIcon_Base
 {
@@ -23,9 +24,25 @@ public class GameIcon_MaterialConsumable : GameIcon_Base
             SetClickCallback(onClickCallback);
     }
 
+    public void Init(CurrencyType currencyType, int stackCount, bool statusCannotUse, bool isNew, bool isToggleSelectOn, UnityAction onClickCallback = null)
+    {
+        Init(currencyType, isNew);
+        StatusCannotUse = statusCannotUse;
+        SetStackCount(stackCount);
+        if (toggleSelect != null)
+            SetToggleSelectOn(isToggleSelectOn);
+        if (onClickCallback != null)
+            SetClickCallback(onClickCallback);
+    }
+
     public void InitWithoutCallback(int itemId, int stackCount)
     {
         Init(itemId, stackCount, false, false, false);
+    }
+
+    public void InitWithoutCallback(CurrencyType currencyType, int stackCount)
+    {
+        Init(currencyType, stackCount, false, false, false);
     }
 
     public void InitWithToolTipView(int itemId, int stackCount)

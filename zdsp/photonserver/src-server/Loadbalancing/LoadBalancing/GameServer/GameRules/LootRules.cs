@@ -221,31 +221,7 @@ namespace Zealot.Server.Rules
                 }
             }
 
-            var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemList, true, "Loot");
-            if (retValue.retCode != InvReturnCode.AddSuccess)
-            {
-                // If can't add to inventory, send mail
-                List<IInventoryItem> itemsToAdd = new List<IInventoryItem>();
-                foreach (var item in itemList)
-                    itemsToAdd.Add(GameRules.GenerateItem(item.itemId, null, item.stackCount));
-                GameRules.SendMailWithAttachment(player.Name, "Loot", itemsToAdd, currencyToAdd);
-            }
-            else
-            {
-                // Add currency
-                foreach (var currency in currencyToAdd)
-                    player.AddCurrency(currency.Key, currency.Value, "Loot");
-            }
-        }
-
-        // Doesn't check LootCorrection, battle time, no displayloot
-        public static void GenerateLootItems(List<int> grpIds, Dictionary<int, int> itemsToAdd, Dictionary<CurrencyType, int> currencyToAdd)
-        {
-            if (grpIds.Count == 0)
-                return;
-
-            List<LootItem> lootItemList = LootRepo.RandomItems(grpIds);
-            GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, null);
+            player.Slot.mInventory.AddItemsToInventoryMailIfFail(itemList, currencyToAdd, "Loot");
         }
 
         public static void GenerateLootItems_SendMail(string playerName, List<LootItem> lootItemList, LootItemDisplayInventory displayInventory)
@@ -258,6 +234,16 @@ namespace Zealot.Server.Rules
                 List<IInventoryItem> itemList = GetInvItemListToAdd(itemsToAdd, true);
                 GameRules.SendMailWithAttachment(playerName, "Loot", itemList, currencyToAdd);
             }
+        }
+
+        // Doesn't check LootCorrection, battle time, no displayloot
+        public static void GenerateLootItems(List<int> grpIds, Dictionary<int, int> itemsToAdd, Dictionary<CurrencyType, int> currencyToAdd)
+        {
+            if (grpIds.Count == 0)
+                return;
+
+            List<LootItem> lootItemList = LootRepo.RandomItems(grpIds);
+            GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, null);
         }
 
         public static bool GenerateLootItems(List<LootItem> lootItemList, Dictionary<int, int> itemsToAdd, Dictionary<CurrencyType, int> currencyToAdd,

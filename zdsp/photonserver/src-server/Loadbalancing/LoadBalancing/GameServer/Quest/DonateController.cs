@@ -229,7 +229,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (donateJson != null)
                 {
                     int amount = ((donateOrder.Count * donateJson.increase) + donateJson.amount);
-                    InvRetval retval = mPlayer.Slot.mInventory.DeductItem((ushort)donateJson.donateitemid, (ushort)amount, "Donate");
+                    InvRetval retval = mPlayer.Slot.mInventory.DeductItems((ushort)donateJson.donateitemid, amount, "Donate");
                     if (retval.retCode == InvReturnCode.UseSuccess)
                     {
                         bool isfull = false;

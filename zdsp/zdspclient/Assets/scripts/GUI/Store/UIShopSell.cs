@@ -7,11 +7,11 @@ using Zealot.Repository;
 
 public abstract class UIShop : MonoBehaviour
 {
-    public NPCStoreInfo.StoreType storetype;
+    //public NPCStoreInfo.ItemStoreType storetype;
 
     public Transform itemlistparent = null;
-    public GameObject itemicon_prefab = null;
-    public UIShopDetails detailswindow;    
+    protected GameObject itemicon_prefab = null;
+    protected UIShopDetails detailswindow;    
     public Text shopname, heldcurrency, heldauctioncurrency;
 
     public int id;
@@ -100,64 +100,70 @@ public abstract class UIShop : MonoBehaviour
         }
     }
 
-    protected void OnItemSelected(GameObject selecteditem)
+    ShopItem GetItemFromEnableScript(GameObject selecteditem, bool toggleoff = true)
     {
+        ShopItem ret = null;
         foreach (var item in currentitemlist)
         {
             if (item.selectionEnabled.gameObject != selecteditem)
             {
-                item.GetComponent<Toggle>().isOn = false;
+                if (toggleoff) item.GetComponent<Toggle>().isOn = false;
             }
             else
             {
-                if (item.selectionEnabled.gameObject.activeSelf)
-                {
-                    ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(item.itemdata.data.JsonObject.itemsort);
-                    GameObject itemprefab = ClientUtils.LoadGameIcon(itemSortJson.gameicontype);
-
-                    current_item_selection = item;
-
-                    detailswindow.itemiconprefab = itemprefab;
-                    detailswindow.gameObject.SetActive(true);
-                    detailswindow.selecteditem = current_item_selection.itemdata;
-
-                    var animator = detailswindow.gameObject.GetComponent<Animator>();
-                    animator.enabled = true;
-                    switch (storetype)
-                    {
-                        case NPCStoreInfo.StoreType.Normal:
-                            ((UIShopSellDetails)detailswindow).init(item);                            
-                            animator.Play("ShopSellItemDetail_Open");
-                            break;
-
-                        case NPCStoreInfo.StoreType.Barter:
-                            ((UIShopBarterDetails)detailswindow).init(item);
-                            animator.Play("ShopBarterItemDetail_Open");
-                            break;
-                    }                                                            
-                }
+                ret = item;
             }
         }
+
+        return ret;
+    }
+
+    protected virtual void OnItemSelected(GameObject selecteditem)
+    {
+        var item = GetItemFromEnableScript(selecteditem, true);
+        
+        if (item.selectionEnabled.gameObject.activeSelf)
+        {
+            ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(item.itemdata.data.JsonObject.itemsort);
+            GameObject itemprefab = ClientUtils.LoadGameIcon(itemSortJson.gameicontype);
+
+            current_item_selection = item;
+
+            detailswindow.itemiconprefab = itemprefab;
+            detailswindow.gameObject.SetActive(true);
+            detailswindow.selecteditem = current_item_selection.itemdata;
+
+            var animator = detailswindow.gameObject.GetComponent<Animator>();
+            animator.enabled = true;
+            switch (item.itemdata.Type)
+            {
+                case NPCStoreInfo.ItemStoreType.Normal:
+                    ((UIShopSellDetails)detailswindow).init(item);                            
+                    animator.Play("ShopSellItemDetail_Open");
+                    break;
+
+                case NPCStoreInfo.ItemStoreType.Barter:
+                    ((UIShopBarterDetails)detailswindow).init(item);
+                    animator.Play("ShopBarterItemDetail_Open");
+                    break;
+            }                                                            
+        }    
     }
 
     protected void OnItemDeselected(GameObject selecteditem)
     {
-        foreach (var item in currentitemlist)
-        {
-            if (item.selectionEnabled.gameObject.activeSelf)
-                return;
-        }
+        var item = GetItemFromEnableScript(selecteditem, false);
 
         var animator = detailswindow.gameObject.GetComponent<Animator>();
         animator.enabled = true;
         detailswindow.gameObject.SetActive(true);
-        switch (storetype)
+        switch (item.itemdata.Type)
         {
-            case NPCStoreInfo.StoreType.Normal:
+            case NPCStoreInfo.ItemStoreType.Normal:
                 animator.Play("ShopSellItemDetail_Close");
                 break;
 
-            case NPCStoreInfo.StoreType.Barter:
+            case NPCStoreInfo.ItemStoreType.Barter:
                 animator.Play("ShopBarterItemDetail_Close");
                 break;
         }        
@@ -176,9 +182,15 @@ public abstract class UIShop : MonoBehaviour
 
 public class UIShopSell : UIShop
 {
+    public UIShopBarterDetails BarterDetails;
+    public UIShopSellDetails SellDetails;
+
+    public GameObject soldicon_prefab = null;
+    public GameObject bartericon_prefab = null;
+
     void Start ()
     {
-        storetype = NPCStoreInfo.StoreType.Normal;    
+        //storetype = NPCStoreInfo.ItemStoreType.Normal;    
 	}
 
     override public void init(NPCStoreInfo store)
@@ -191,14 +203,45 @@ public class UIShopSell : UIShop
         }        
 
         init(store.NameCT, arg.ToArray());
-    }    
+    }
+
+    override protected void OnItemSelected(GameObject selecteditem)
+    {
+        ShopItem shopitem = null;
+
+        foreach (var item in currentitemlist)
+        {
+            if (item.selectionEnabled.gameObject == selecteditem)
+            {
+                shopitem = item;
+            }
+        }
+
+        switch (shopitem.itemdata.Type)
+        {
+            case NPCStoreInfo.ItemStoreType.Barter:
+                detailswindow = BarterDetails;
+                SellDetails.gameObject.SetActive(false);
+                break;
+
+            default:
+                detailswindow = SellDetails;
+                BarterDetails.gameObject.SetActive(false);
+                break;
+        }
+
+        base.OnItemSelected(selecteditem);
+    }
 
     override public void init(string storename, NPCStoreInfo.StandardItem[] newitemlist)
     {
         shopname.text = storename;
-        storetype = NPCStoreInfo.StoreType.Normal;
+        //storetype = NPCStoreInfo.ItemStoreType.Normal;
 
-        detailswindow.gameObject.SetActive(false);
+        //detailswindow.gameObject.SetActive(false);
+        BarterDetails.gameObject.SetActive(false);
+        SellDetails.gameObject.SetActive(false);
+
         ClearShopList();
         UpdateCurrencyDisplay();
 
@@ -208,10 +251,11 @@ public class UIShopSell : UIShop
 
             foreach (var item in newitemlist)
             {
-                if (item.Type != NPCStoreInfo.ItemStoreType.Normal)
+                if (item.Show == false)
                     continue;
 
-                var solditem = item;
+                if (System.DateTime.Now > item.EndTime || System.DateTime.Now < item.StartTime)
+                    continue;
 
                 int itemId = item.ItemID;
                 IInventoryItem invItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
@@ -219,17 +263,26 @@ public class UIShopSell : UIShop
                 {
                     Debug.LogWarningFormat("Item id: {0} not found", itemId);
                     continue;
-                }
+                }               
+                var solditem = item;
+                    
                 item.data = invItem;
 
-                if (item.Show == false) continue;
+                switch (item.Type)
+                {
+                    case NPCStoreInfo.ItemStoreType.Barter:
+                        itemicon_prefab = bartericon_prefab;
+                        break;
 
-				var icon = Instantiate(itemicon_prefab, itemlistparent, false);
+                    case NPCStoreInfo.ItemStoreType.Normal:
+                        itemicon_prefab = soldicon_prefab;
+                        break;
+                }
+
+                var icon = Instantiate(itemicon_prefab, itemlistparent, false);
                 var shopitem = icon.GetComponent<ShopItem>();
                 ItemBaseJson itemJson = invItem.JsonObject;
-                shopitem.itemname.text = itemJson.name;
-                shopitem.price.text = solditem.DiscountedPrice().ToString();
-                shopitem.currencyicon.type = (CurrencyType)solditem.SoldType;
+                shopitem.itemname.text = itemJson.name;                      
                 shopitem.selectionEnabled.onEnabled = OnItemSelected;
                 shopitem.selectionEnabled.onDisabled = OnItemDeselected;
                 shopitem.itemdata = item;
@@ -238,6 +291,12 @@ public class UIShopSell : UIShop
                 GameObject gameIcon = Instantiate(ClientUtils.LoadGameIcon(iconType));
                 gameIcon.transform.SetParent(shopitem.itemicon_parent, false);
                 ClientUtils.InitGameIcon(gameIcon, invItem, itemId, iconType, invItem.StackCount, true);
+
+                if (item.Type == NPCStoreInfo.ItemStoreType.Normal)
+                {
+                    shopitem.price.text = solditem.DiscountedPrice().ToString();
+                    shopitem.currencyicon.type = (CurrencyType)solditem.SoldType;                    
+                }
 
                 currentitemlist.Add(shopitem);
             }

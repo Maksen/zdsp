@@ -123,11 +123,6 @@ namespace Zealot.Repository
                 _currencyType = CurrencyType.Money;
                 _rewardCurrency = moneyReward;
             }
-            else if (vipExpReward != 0)
-            {
-                _currencyType = CurrencyType.VIP;
-                _rewardCurrency = vipExpReward;
-            }
         }
     }
 

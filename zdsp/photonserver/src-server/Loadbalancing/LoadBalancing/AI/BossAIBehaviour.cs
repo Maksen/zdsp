@@ -1,13 +1,12 @@
 ﻿#define LOG_BOSS_AI
-using System.Collections.Generic;
 using Kopio.JsonContracts;
+using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Common.Entities;
 using Zealot.Server.Entities;
 using Zealot.Repository;
-using Zealot.Server.SideEffects;
 
 namespace Zealot.Server.AI
 { 

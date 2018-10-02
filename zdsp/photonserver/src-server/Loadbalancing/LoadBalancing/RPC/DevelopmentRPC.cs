@@ -39,7 +39,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddItem)]
         public void AddItem(int itemId, int amount, GameClientPeer peer)
         {
-            InvRetval retval = peer.mInventory.AddItemsIntoInventory((ushort)itemId, amount, true, "AddItem");
+            InvRetval retval = peer.mInventory.AddItemsToInventory((ushort)itemId, amount, true, "AddItem");
         }
 
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AddItem)]
@@ -437,32 +437,44 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupMail)]
         public void ConsoleAddRewardMail(int grpID, GameClientPeer peer)
         {
-            GameRules.GiveReward_Mail(peer.mPlayer.Name, "Reward_TestRewardGroup", peer.mPlayer.PlayerSynStats, new List<int>() { grpID }, null);
             //GameRules.GiveRewardGrp_Mail(peer.mPlayer.Name, "Reward_TestRewardGroup", new List<int>() { grpID }, null);
+            GameRules.GiveReward_Mail(peer.mPlayer.Name, "Reward_TestRewardGroup", peer.mPlayer.PlayerSynStats, new List<int>() { grpID }, null);
         }
+
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupBag)]
         public void ConsoleAddRewardBag(int grpID, GameClientPeer peer) 
         {
             //GameRules.GiveRewardGrp_Bag(peer.mPlayer, new List<int>() { grpID }, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
             GameRules.GiveReward_Bag(peer.mPlayer, new List<int>() { grpID }, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
         }
+
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupCheckBagSlot)]
         public void ConsoleAddRewardGroupCheckBagSlot(int grpID, GameClientPeer peer)
         {
             bool isFull = false;
             //GameRules.GiveRewardGrp_CheckBagSlot(peer.mPlayer, new List<int>() { grpID }, out isFull, 
             //    true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
-
             GameRules.GiveReward_CheckBagSlot(peer.mPlayer, new List<int>() { grpID }, out isFull, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
         }
+
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupCheckBagMail)]
         public void ConsoleAddRewardGroupCheckBagMail(int grpID, GameClientPeer peer)
         {
             //GameRules.GiveRewardGrp_CheckBagSlotThenMail(peer.mPlayer, new List<int>() { grpID }, "Reward_TestRewardGroup", 
             //    null, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
-
             GameRules.GiveReward_CheckBagSlotThenMail(peer.mPlayer, new List<int>() { grpID }, "Reward_TestRewardGroup", 
                 null, true, true, string.Format("ConsoleAddReward grpid={0}", grpID));
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSetAchievementLevel)]
+        public void ConsoleSetAchievementLevel(int level, GameClientPeer peer)
+        {
+            if (level <= 0 || level > AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
+                return;
+
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ConsoleSetAchievementLevel(level);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetCollection)]
@@ -503,9 +515,17 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     int type;
                     if (int.TryParse(objtype, out type))
-                        player.AchievementStats.UpdateAchievement((AchievementObjectiveType)type, target, count, increment, true);
+                        player.AchievementStats.UpdateAchievement((AchievementObjectiveType)type, target, false, count, increment, true);
                 }
             }
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleClearAchievementRewards)]
+        public void ConsoleClearAchievementRewards(GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ConsoleClearAchievementRewards();
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddHero)]

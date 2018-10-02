@@ -565,7 +565,7 @@
                 mPersistentSideEffects.Remove(se);
             }
         }
-                     
+
         public virtual int AddSideEffect(SideEffect se, bool positiveEffect)
         {   
             SideEffect[] sideeffects;
@@ -592,7 +592,7 @@
                 } 
             } 
             return slotid; 
-        }  
+        }
 
         public virtual bool AddEquipmentSideEffect(SideEffect se, int equipid)
         {
@@ -614,6 +614,8 @@
             else
             {
                 int index = m_EquipmentSE[equipid].FindIndex(x => x.mSideeffectData.id == se.mSideeffectData.id);
+                if (index != -1)
+                    return false;
                 RemoveSideEffectFromList(m_EquipmentSE[equipid][index]);
                 m_EquipmentSE[equipid].RemoveAt(index);
                 return true;

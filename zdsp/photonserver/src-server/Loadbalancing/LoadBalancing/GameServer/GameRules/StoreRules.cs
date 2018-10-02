@@ -238,7 +238,7 @@ namespace Zealot.Server.Rules
             List<int> ret_List = new List<int>();
             var datalist = StoreRepo.dic_shortStoreProducts[cat];
 
-            int vipLevel = peer.mPlayer.PlayerSynStats.vipLvl;
+            int vipLevel = 0;
             int vipShelfLimit = 5; //VIPRepo.GetVIPPrivilege("Store", vipLevel);
             int maxCount = (datalist.Count < vipShelfLimit) ? datalist.Count : vipShelfLimit;
 
@@ -302,7 +302,7 @@ namespace Zealot.Server.Rules
             List<int> ret_List = new List<int>();
             var datalist = StoreRepo.dic_shortStoreProducts[cat];
             
-            int vipLevel = peer.mPlayer.PlayerSynStats.vipLvl;
+            int vipLevel = 0;
             int vipShelfLimit = 5; // VIPRepo.GetVIPPrivilege("Store", vipLevel);
             int maxCount = (datalist.Count < vipShelfLimit) ? datalist.Count : vipShelfLimit;
             int curCount = peer.CharacterData.StoreInventory.list_store[cat].list_storeitem.Count;
@@ -516,7 +516,7 @@ namespace Zealot.Server.Rules
 
             int actualAmtToBuy = product.itemCount * stackToBuy;
             IInventoryItem item = GameRules.GenerateItem(product.itemID, null, actualAmtToBuy);
-            InvRetval invRetVal = peer.mInventory.AddItemsIntoInventory((ushort)product.itemID, actualAmtToBuy, true, "Store_Buy");
+            InvRetval invRetVal = peer.mInventory.AddItemsToInventory((ushort)product.itemID, actualAmtToBuy, true, "Store_Buy");
             switch (invRetVal.retCode)
             {
                 case InvReturnCode.AddSuccess:

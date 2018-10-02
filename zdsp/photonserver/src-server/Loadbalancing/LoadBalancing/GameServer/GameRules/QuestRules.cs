@@ -939,7 +939,7 @@ namespace Zealot.Server.Rules
                 case QuestRequirementType.Item:
                     if (requirement.para3 > 0)
                     {
-                        InvRetval retval = player.Slot.mInventory.DeductItem((ushort)requirement.para1, (ushort)requirement.para2, "Quest");
+                        InvRetval retval = player.Slot.mInventory.DeductItems((ushort)requirement.para1, requirement.para2, "Quest");
                         if (retval.retCode == InvReturnCode.UseFailed)
                         {
                             return false;

@@ -114,11 +114,8 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if (player != null && !player.Destroyed)
             {
-                if (player.PlayerSynStats.vipLvl >= 2)
-                {
-                    player.Position = pos.ToVector3();
-                    ZRPC.CombatRPC.TeleportSetPos(pos, peer);
-                }
+                player.Position = pos.ToVector3();
+                ZRPC.CombatRPC.TeleportSetPos(pos, peer);               
             }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToPosInLevel)]
@@ -150,79 +147,48 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
+            Kopio.JsonContracts.RespawnJson mRespawnInfo;
+            RealmController realmController = player.mInstance.mRealmController;
+
+            int respawnId = realmController.mRealmInfo.respawn;
+            mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
+
+            List<ItemInfo> itemList = RespawnRepo.GetItemListByID(respawnId);
+            bool itemRes = true;
+            if(itemList.Count > 0)
+            {
+                itemRes = DeathRules.IsEnoughRespawnItems(itemList, peer);
+                if(itemRes == false)
+                {
+                    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Death_InsufficientReviveItem"), "", false, this);
+                }
+            }
+
+            List<CurrencyInfo> currencyList = RespawnRepo.GetCurrencyListByID(respawnId);
+            bool currencyRes = true;
+            if(currencyList.Count > 0)
+            {
+                currencyRes = DeathRules.IsEnoughRespawnCurrency(currencyList, peer);
+                if(currencyRes == false)
+                {
+                    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Death_InsufficientReviveCurrency"), "", false, this);
+                }
+            }
+
+            // Respawn fails if either not enough items or currency
+            if(itemRes == false || currencyRes == false)
+            {
+                return;
+            }
+
+            // Deduct items and currency
+            DeathRules.UseRespawnItem(itemList, peer);
+            DeathRules.DeductRespawnCurrency(currencyList, peer);
+
             int mapId = player.mInstance.mCurrentLevelID;
             DeathRules.LogDeathRespawnType("Button", mapId, peer);
 
-            int viplevel = player.PlayerSynStats.vipLvl;
-
-            // VIP count
-            int vipFreeLeft = 0; // VIPRepo.GetVIPPrivilege("FreeRevive", viplevel) - player.SecondaryStats.FreeReviveOnSpot;
-
-            // Item count
-            ushort itemid = (ushort)GameConstantRepo.GetConstantInt("Respawn_Item");
-            int itemCount = peer.GetTotalStackCountByItemID(itemid);
-
-            // Gold count
-            int goldCost = GameConstantRepo.GetConstantInt("Respawn_GoldIngot");
-            int gold = player.SecondaryStats.Gold;
-            int lockGold = player.SecondaryStats.bindgold;
-            int lockgoldBef = lockGold;
-            int goldBef = gold;
-            if (vipFreeLeft > 0)
-            {
-                player.SecondaryStats.FreeReviveOnSpot += 1;
-                peer.CharacterData.FreeReviveOnSpot += 1;
-                player.RespawnOnSpot();
-
-                int newVipFreeLeft = 0; //VIPRepo.GetVIPPrivilege("FreeRevive", viplevel) - player.SecondaryStats.FreeReviveOnSpot;
-                DeathRules.LogDeathRespawnType("FreeRevive", mapId, peer);
-                DeathRules.LogDeathRespawnFree("FreeRevive", 1, vipFreeLeft, newVipFreeLeft, peer);
-            }
-            else if (peer.RemoveItemFromInventory(itemid, 1, "Respawn_OnSpot"))
-            {
-                player.RespawnOnSpot();
-                DeathRules.LogDeathRespawnType("ItemRevive", mapId, peer);
-                DeathRules.LogDeathRespawnItem("ItemRevive", itemid, itemCount, peer);
-            }
-            else if (player.SecondaryStats.IsGoldEnough(goldCost))
-            {
-                if (lockGold >= goldCost)
-                {
-                    lockGold = goldCost;
-                    gold = 0;
-                }
-                else
-                {
-                    gold = goldCost - goldCost;
-                }
-
-                // Case 1: Plenty of lock gold
-                if (lockGold >= goldCost || (lockGold < goldCost && lockGold > 0))
-                {
-                    if (peer.mPlayer.DeductGold(goldCost, true, true, "Respawn_OnSpot"))
-                    {
-                        player.RespawnOnSpot();
-                    }
-                }
-                // Case 2: 0 lock gold
-                else if (lockGold == 0)
-                {
-                    if (peer.mPlayer.DeductGold(goldCost, false, true, "Respawn_OnSpot"))
-                    {
-                        player.RespawnOnSpot();
-                    }
-                }
-
-                int lockGoldAft = player.SecondaryStats.bindgold;
-                int goldAft = player.SecondaryStats.Gold;
-                DeathRules.LogDeathRespawnType("GoldRevive", mapId, peer);
-                DeathRules.LogDeathRespawnFree("LockGoldRevive", lockGold, lockgoldBef, lockGoldAft, peer);
-                DeathRules.LogDeathRespawnFree("GoldRevive", gold, goldBef, goldAft, peer);
-            }
-            else
-            {
-                ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Death_ReviveFailed"), "", false, this);
-            }
+            player.RespawnOnSpot();
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RespawnOnSpot)]
         public void RespawnOnSpotProxy(object[] args)
@@ -271,7 +237,7 @@ namespace Photon.LoadBalancing.GameServer
             int mapId = player.mInstance.mCurrentLevelID;
             //DeathRules.LogDeathRespawnType("Button", mapId, peer);
 
-            int viplevel = player.PlayerSynStats.vipLvl;
+            int viplevel = 0;
 
             // VIP count
             int vipFreeLeft = 0; // VIPRepo.GetVIPPrivilege("FreeRevive", viplevel) - player.SecondaryStats.FreeReviveOnSpot;
@@ -376,9 +342,10 @@ namespace Photon.LoadBalancing.GameServer
 
                         ChatMessage newMsg = new ChatMessage(MessageType.Whisper, message, player.Name, whisperTo,
                                                              playerSynStats.PortraitID, playerSynStats.jobsect,
-                                                             playerSynStats.vipLvl, playerSynStats.faction, isVoiceChat);
+                                                             0, playerSynStats.faction, isVoiceChat);
                         recipient.mPlayer.AddToChatMessageQueue(newMsg);
                         player.AddToChatMessageQueue(newMsg);
+                        player.UpdateAchievement(AchievementObjectiveType.PrivateChat);
                     }
                     else
                         peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Chat_NoWhisperYourself", "", true, peer);
@@ -430,13 +397,14 @@ namespace Photon.LoadBalancing.GameServer
                 // Receive chat messages from client
                 ChatMessage newMsg = new ChatMessage((MessageType)msgType, message, peer.mChar, whisperTo,
                                                      playerSynStats.PortraitID, playerSynStats.jobsect,
-                                                     playerSynStats.vipLvl, playerSynStats.faction, isVoiceChat);
+                                                     0, playerSynStats.faction, isVoiceChat);
 
                 // Queue message at GameApplication
                 switch (msgType)
                 {
                     case (byte)MessageType.World:
                     case (byte)MessageType.System:
+                        player.UpdateAchievement(AchievementObjectiveType.WorldChat);
                         GameApplication.Instance.BroadcastChatMessage(newMsg);
                         break;
                     //case (byte)MessageType.Faction:
@@ -446,6 +414,7 @@ namespace Photon.LoadBalancing.GameServer
                         int guildId = player.SecondaryStats.guildId;
                         if (guildId == 0)
                             return;
+                        player.UpdateAchievement(AchievementObjectiveType.GuildChat);
                         GameApplication.Instance.BroadcastChatMessage_Guild(newMsg, guildId);
                         break;
                     case (byte)MessageType.Party:
@@ -542,26 +511,26 @@ namespace Photon.LoadBalancing.GameServer
             InspectMode((GameClientPeer)args[0]);
         }
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnter)]
-        public void DungeonEnter(int realmId, GameClientPeer peer)
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterRequest)]
+        public void DungeonEnterRequest(int realmId, GameClientPeer peer)
         {
-            RealmRules.TryDungeonEnter(realmId, peer);
+            RealmRules.DungeonEnterRequest(realmId, peer);
         }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnter)]
-        public void DungeonEnterProxy(object[] args)
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterRequest)]
+        public void DungeonEnterRequestProxy(object[] args)
         {
-            DungeonEnter((int)args[0], (GameClientPeer)args[1]);
+            DungeonEnterRequest((int)args[0], (GameClientPeer)args[1]);
         }
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterState)]
-        public void DungeonEnterState(int realmId, byte state, GameClientPeer peer)
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EnterRealmWithPartyResponse)]
+        public void EnterRealmWithPartyResponse(int realmId, byte status, GameClientPeer peer)
         {
-            RealmRules.PartyEnterResponse(realmId, state, peer);
+            RealmRules.EnterRealmWithPartyResponse(realmId, status, peer);
         }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterState)]
-        public void DungeonEnterStateProxy(object[] args)
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EnterRealmWithPartyResponse)]
+        public void DungeonEnterResponseProxy(object[] args)
         {
-            DungeonEnterState((int)args[0], (byte)args[1], (GameClientPeer)args[2]);
+            EnterRealmWithPartyResponse((int)args[0], (byte)args[1], (GameClientPeer)args[2]);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonAutoClear)]
@@ -614,7 +583,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItem)]
         public void UseItem(int slotId, int amount, GameClientPeer peer)
         {
-            InvRetval retval = peer.mInventory.UseItemInInventory(slotId, (ushort)amount);
+            InvRetval retval = peer.mInventory.UseItemInInventory(slotId, amount);
             if (retval.retCode == InvReturnCode.UseFailed)
                 ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_UseItemFailed", "", false, peer);
             else if (retval.retCode == InvReturnCode.MaxCurrency)
@@ -770,7 +739,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (!player.SecondaryStats.IsGoldEnough(gold))
                     return;
                 int amount = GameConstantRepo.GetConstantInt("Potion_AutoNum", 50);
-                if (peer.mInventory.AddItemsIntoInventory(itemid, amount, true, "Store").retCode == InvReturnCode.AddSuccess)
+                if (peer.mInventory.AddItemsToInventory(itemid, amount, true, "Store").retCode == InvReturnCode.AddSuccess)
                     player.DeductGold(gold, true, true, "BuyPotion");
             }
             else
@@ -779,7 +748,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (player.SecondaryStats.Money < money)
                     return;
                 int amount = GameConstantRepo.GetConstantInt("Potion_ManualNum", 50);
-                if (peer.mInventory.AddItemsIntoInventory(itemid, amount, true, "Store").retCode == InvReturnCode.AddSuccess)
+                if (peer.mInventory.AddItemsToInventory(itemid, amount, true, "Store").retCode == InvReturnCode.AddSuccess)
                     player.DeductMoney(money, "BuyPotion");
             }
         }
@@ -1874,6 +1843,50 @@ namespace Photon.LoadBalancing.GameServer
         public void ClaimExplorationRewardProxy(object[] args)
         {
             ClaimExplorationReward((int)args[0], (GameClientPeer)args[1]);
+        }
+        #endregion
+
+        #region Achievement
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAchievementReward)]
+        public void ClaimAchievementReward(byte type, int id, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ClaimReward((AchievementType)type, id);
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAchievementReward)]
+        public void ClaimAchievementRewardProxy(object[] args)
+        {
+            ClaimAchievementReward((byte)args[0], (int)args[1], (GameClientPeer)args[2]);
+        }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAllAchievementRewards)]
+        public void ClaimAllAchievementRewards(GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ClaimAllRewards();
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAllAchievementRewards)]
+        public void ClaimAllAchievementRewardsProxy(object[] args)
+        {
+            ClaimAllAchievementRewards((GameClientPeer)args[0]);
+        }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AchievementNPCInteract)]
+        public void AchievementNPCInteract(int npcId, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+            {
+                player.AchievementStats.UpdateCollection(CollectionType.NPC, npcId);
+                player.UpdateAchievement(AchievementObjectiveType.NPCInteract, npcId.ToString(), true);
+            }
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AchievementNPCInteract)]
+        public void AchievementNPCInteractProxy(object[] args)
+        {
+            AchievementNPCInteract((int)args[0], (GameClientPeer)args[1]);
         }
         #endregion
 

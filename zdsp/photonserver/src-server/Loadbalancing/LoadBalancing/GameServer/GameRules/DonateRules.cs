@@ -127,7 +127,7 @@ namespace Zealot.Server.Rules
 
             DonateInventory donateInventory = new DonateInventory();
             donateInventory.PortraitId = peer.mPlayer.PlayerSynStats.PortraitID;
-            donateInventory.VipLvl = peer.mPlayer.PlayerSynStats.vipLvl;
+            donateInventory.VipLvl = 0;
             donateInventory.HeroId = heroCardId;
             donateInventory.DonateStatusMin = 0;
             donateInventory.DonateStatusMax = GameConfig.Donate_EachRequestCount;
@@ -547,7 +547,7 @@ namespace Zealot.Server.Rules
 
         private static void SendRewardToPlayer(List<IInventoryItem> itemsToAttach, Dictionary<CurrencyType, int> currencyAdded, GameClientPeer peer, string reason)
         {
-            peer.mPlayer.Slot.mInventory.AddItemsIntoInventory(itemsToAttach, true, reason);
+            peer.mPlayer.Slot.mInventory.AddItemsToInventory(itemsToAttach, true, reason);
 
             //add currency for player
             foreach (var currency in currencyAdded)
@@ -559,7 +559,7 @@ namespace Zealot.Server.Rules
             IInventoryItem item = peer.mInventory.mInvData.Slots[slotId];
             if (item == null || count < 1)
                 return false;
-            InvRetval retval = peer.mInventory.DeductItem(item.ItemID, (ushort)count, "Donate");
+            InvRetval retval = peer.mInventory.DeductItems(item.ItemID, count, "Donate");
             return retval.retCode == InvReturnCode.UseSuccess;
         }
 

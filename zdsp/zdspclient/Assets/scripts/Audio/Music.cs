@@ -37,7 +37,7 @@ namespace Zealot.Audio
         private float maxVolume;
         private float volume;
         private bool isFadingOut;
-        public float timer;
+        private float timer;
         private Coroutine coroutiner;
 
         public const string assetContainerName = "Musics";

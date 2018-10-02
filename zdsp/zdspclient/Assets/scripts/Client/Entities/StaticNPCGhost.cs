@@ -193,6 +193,8 @@ namespace Zealot.Client.Entities
             {
                 UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, null, false, onDialogueOver));
             }
+
+            RPCFactory.CombatRPC.AchievementNPCInteract(mArchetypeId);
         }
 
         public override int GetDisplayLevel()

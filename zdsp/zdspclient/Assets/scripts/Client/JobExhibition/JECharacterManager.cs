@@ -54,6 +54,7 @@ public class JECharacterManager : MonoBehaviour
     public PlayableDirector start = null, end = null;
     public List<PlayableDirector> class_cutscenes = new List<PlayableDirector>();
     public Transform class_cutscenes_parent;
+    public Panner CameraPanner;
 
     public void init(GameObject obj = null)
     {
@@ -68,6 +69,9 @@ public class JECharacterManager : MonoBehaviour
             start.gameObject.SetActive(true);
             var onenable = start.GetComponent<OnEnableScript>();
 
+            if (onenable == null)
+                onenable = start.gameObject.AddComponent<OnEnableScript>();
+
             onenable.onDisabled += init;
         }
     }
@@ -77,6 +81,7 @@ public class JECharacterManager : MonoBehaviour
 		
 	}
 
+    int selectedjobindex = 0;
     string selectedjob = "";
     public void SetDescription(string job)
     {
@@ -108,6 +113,8 @@ public class JECharacterManager : MonoBehaviour
             }
             else
                 right.gameObject.GetComponent<Animator>().SetBool("On/Off", false);
+
+            CameraPanner.SetPoint((int)Jobs.instance.JobMap[job]);
         }
     }
 
@@ -123,5 +130,24 @@ public class JECharacterManager : MonoBehaviour
 
         var jobtype = Jobs.instance.JobMap[job];
         class_cutscenes[(int)jobtype].Play();
+    }
+
+    public void Next() 
+    {
+        if (end != null)
+        {
+            end.gameObject.SetActive(true);
+            var onenable = end.GetComponent<OnEnableScript>();
+
+            if (onenable == null)
+                onenable = end.gameObject.AddComponent<OnEnableScript>();
+
+            onenable.onDisabled += GoToCharacterCreate;
+        }
+    }
+
+    void GoToCharacterCreate(GameObject obj)
+    {
+        SceneLoader.Instance.LoadLevel("UI_CreateChar");
     }
 }

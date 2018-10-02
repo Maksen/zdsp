@@ -28,17 +28,18 @@ public class StoreTestingCube : MonoBehaviour
             GameRepo.InitClient(AssetManager.LoadPiliQGameData());
         }
 
-        switch (theshop.storetype)
+        var randlist = new List<NPCStoreInfo.StandardItem>();
+        int count = Random.Range(5, 15);
+        for (int i = 0; i < count; ++i)
         {
-            case NPCStoreInfo.StoreType.Normal:
-                {
-                    var randlist = new List<NPCStoreInfo.StandardItem>();
+            var itemtype = (NPCStoreInfo.ItemStoreType)Random.Range((int)NPCStoreInfo.ItemStoreType.Normal, (int)NPCStoreInfo.ItemStoreType.Barter + 1);
 
-                    int count = Random.Range(5, 15);
-                    for (int i = 0; i < count; ++i)
-                    {
-                        var newitem = new NPCStoreInfo.StandardItem(0, 0, true, 0, NPCStoreInfo.ItemStoreType.Normal, 1, NPCStoreInfo.SoldCurrencyType.Normal, 1, 0.0f, 1, new System.DateTime(), new System.DateTime(), 1, NPCStoreInfo.Frequency.Unlimited);
+            var newitem = new NPCStoreInfo.StandardItem(0, 0, true, 0, itemtype, 1, NPCStoreInfo.SoldCurrencyType.Normal, 1, 0.0f, 1, System.DateTime.Now, new System.DateTime(3000, 12, 30), 1, NPCStoreInfo.Frequency.Unlimited);
 
+            switch (itemtype)
+            {
+                case NPCStoreInfo.ItemStoreType.Normal:
+                    {                                          
                         IInventoryItem randitem = null;
 
                         while (randitem == null)
@@ -51,29 +52,19 @@ public class StoreTestingCube : MonoBehaviour
                         newitem.data = randitem;
                         newitem.SoldType = currencytypes[Random.Range(0, currencytypes.Length)];
 
-                        randlist.Add(newitem);
+                        randlist.Add(newitem);                        
                     }
+                    break;
 
-                    ((UIShopSell)theshop).init("CubeTestShop", randlist.ToArray());
-                }
-                break;
-
-            case NPCStoreInfo.StoreType.Barter:                
-                {
-                    var randlist = new List<NPCStoreInfo.StandardItem>();
-
-                    int count = Random.Range(5, 15);
-                    for (int i = 0; i < count; ++i)
-                    {
-                        var newitem = new NPCStoreInfo.StandardItem(0, 0, true, 0, NPCStoreInfo.ItemStoreType.Barter, 1, NPCStoreInfo.SoldCurrencyType.Normal, 1, 0.0f, 1, new System.DateTime(), new System.DateTime(), 1, NPCStoreInfo.Frequency.Unlimited);
-
-						IInventoryItem randitem = null;
+                case NPCStoreInfo.ItemStoreType.Barter:
+                    {                        
+                        IInventoryItem randitem = null;
 
                         while (randitem == null)
                         {
                             var randid = Random.Range(0, GameRepo.ItemFactory.ItemTable.Count);
                             randitem = GameRepo.ItemFactory.GetInventoryItem(randid);
-                        }                        
+                        }
                         newitem.ItemID = randitem.ItemID;
                         newitem.data = randitem;
 
@@ -83,15 +74,15 @@ public class StoreTestingCube : MonoBehaviour
                             newitem.required_items.Add(new NPCStoreInfo.BarterReq { StoreID = theshop.id, ItemListID = newitem.ItemListID, ReqItemID = Random.Range(0, 10), ReqItemValue = Random.Range(1, 4) });
                         }
 
-                        randlist.Add(newitem);
+                        randlist.Add(newitem);                        
                     }
-
-                    ((UIShopBarter)theshop).init("CubeTestShop", randlist.ToArray());
-                }
-                break;                
+                    break;
+            }            
         }
+
+        ((UIShopSell)theshop).init("CubeTestShop", randlist.ToArray());
     }
-    
+
     private void OnEnable()
     { GetShop(); }
 

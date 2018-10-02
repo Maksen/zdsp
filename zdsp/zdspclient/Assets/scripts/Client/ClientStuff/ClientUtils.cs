@@ -146,8 +146,6 @@ public static class ClientUtils
                 return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_BattleCoin.png");
             case CurrencyType.Exp:
                 return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_Exp.png");
-            case CurrencyType.VIP:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_VIP.png");
             default:
                 return null;
         }
@@ -349,6 +347,23 @@ public static class ClientUtils
                     : "UI_ZDSP_Icons/GameIcon/quality_default_legendary.tif";
                 break;
         }
+        return LoadIcon(path);
+    }
+
+    public static Sprite LoadCurrencyIcon(CurrencyType currencyType)
+    {
+        string path = "";
+
+        switch(currencyType)
+        {
+            case CurrencyType.Money:
+                path = "";
+                break;
+            case CurrencyType.Gold:
+                path = "";
+                break;
+        }
+
         return LoadIcon(path);
     }
 

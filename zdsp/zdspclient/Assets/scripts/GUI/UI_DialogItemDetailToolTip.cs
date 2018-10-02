@@ -174,6 +174,9 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             case ItemType.InstanceItem:
                 InitTT_InstanceItem(item);             
                 break;
+            case ItemType.ElementalStone:
+                InitTT_ElementalStone(item);
+                break;
         }
 
         DebugShowInfo();
@@ -570,6 +573,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 
         //Create common element
         InitTT_CommonShared(item, out cTT);
+        mExtraEffectTog.gameObject.SetActive(true);
+        m3DViewTog.gameObject.SetActive(true);
 
         //Common - Req Lv
         mNormalStatsLst.Add(cTT.reqLv.gameObject);
@@ -1058,6 +1063,10 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         mAuctionPrice.text = (auctionVal == -1) ? GUILocalizationRepo.GetLocalizedString("id_cannotauction") : auctionStr[0];
         mSellIcon.SetActive(item.JsonObject.sellprice != -1);
         mSellPrice.text = (item.JsonObject.sellprice != -1) ? item.JsonObject.sellprice.ToString() : GUILocalizationRepo.GetLocalizedString("id_cannotsell");
+
+        //mWhereToGetTog;
+        mExtraEffectTog.gameObject.SetActive(false);
+        m3DViewTog.gameObject.SetActive(false);
     }
 
     #region shortcut create
@@ -1207,7 +1216,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 #if ZEALOT_DEVELOPMENT
         if (ConsoleVariables.ShowItemID)
         {
-            mItemTypeName.text += ClientUtils.ColorizedText(string.Format(" (#ID: {0})", mItem.JsonObject.itemid.ToString()), "#ff00ffff");
+            mItemTypeName.text += ClientUtils.ColorizedText(string.Format(" (#ID: {0})", mItem.JsonObject.itemid), "#ff00ffff");
         }
 #endif
     }

@@ -1,17 +1,14 @@
 ﻿#define LOG_BOSS_AI
-using System;
+using ExitGames.Logging;
+using Kopio.JsonContracts;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Common.Entities;
 using Zealot.Server.Entities;
 using Zealot.Entities;
-using Zealot.Server.Actions;
-using Kopio.JsonContracts;
 using Zealot.Repository;
-using UnityEngine;
-using ExitGames.Logging;
 
 namespace Zealot.Server.AI
 {

@@ -312,6 +312,7 @@ namespace Zealot.Server.Entities
             else if (ne.IsHero())
                 killer = (attacker as HeroEntity).Owner;  //set the hero's owner as the killer
             HandleLoot(killer);
+            UpdateMonsterKillAchievement(killer);
             mSp.OnChildDead(this, killer);
             mSp = null;
         }
@@ -680,6 +681,24 @@ namespace Zealot.Server.Entities
             }
         }
         #endregion
+
+        private void UpdateMonsterKillAchievement(Player killer)
+        {
+            killer.AchievementStats.UpdateCollection(CollectionType.Monster, mArchetype.id);
+            killer.UpdateAchievement(AchievementObjectiveType.SpecificMonsterKill, mArchetype.archetype, false);
+            switch (mArchetype.monstertype)
+            {
+                case MonsterType.Normal:
+                    killer.UpdateAchievement(AchievementObjectiveType.MonsterKill);
+                    break;
+                case MonsterType.MiniBoss:
+                    killer.UpdateAchievement(AchievementObjectiveType.MiniKill);
+                    break;
+                case MonsterType.Boss:
+                    killer.UpdateAchievement(AchievementObjectiveType.BossKill);
+                    break;
+            }
+        }
 
         public override void OnDamage(IActor attacker, AttackResult res, bool pbasicattack)
         {

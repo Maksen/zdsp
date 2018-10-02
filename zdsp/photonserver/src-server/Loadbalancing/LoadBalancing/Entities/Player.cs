@@ -51,6 +51,7 @@
         public WelfareStats WelfareStats { get; private set; }
         public SevenDaysStats SevenDaysStats { get; private set; }
         public QuestExtraRewardsStats QuestExtraRewardsStats { get; private set; }
+        //public DNAStats DNAStats { get; private set; }
         public LotteryInfoStats LotteryInfoStats { get; private set; } 
         public ExchangeShopSynStats ExchangeShopSynStats { get; private set; }
         public PortraitDataStats PortraitDataStats { get; private set; }
@@ -217,10 +218,11 @@
 
         public override void OnComputeCombatStats()
         {
-            //if (VIPAchievementStats != null)
-            //{
-            //    VIPAchievementStats.UpdateAchievement("cs", LocalCombatStats.CombatScore, false);
-            //}
+            UpdateAchievement(AchievementObjectiveType.Strength, "-1", true, LocalCombatStats.Strength, false);
+            UpdateAchievement(AchievementObjectiveType.Agility, "-1", true, LocalCombatStats.Agility, false);
+            UpdateAchievement(AchievementObjectiveType.Dexterity, "-1", true, LocalCombatStats.Dexterity, false);
+            UpdateAchievement(AchievementObjectiveType.Constitution, "-1", true, LocalCombatStats.Constitution, false);
+            UpdateAchievement(AchievementObjectiveType.Intelligence, "-1", true, LocalCombatStats.Intelligence, false);
         }
 
         /// <summary>
@@ -278,6 +280,9 @@
 
             QuestExtraRewardsStats = new QuestExtraRewardsStats();
             //LOStats.Add(LOTYPE.QuestExtraRewardsStats, QuestExtraRewardsStats);
+
+            //DNAStats = new DNAStats();
+            //LOStats.Add(LOTYPE.DNAStats, DNAStats);
 
             LotteryInfoStats = new LotteryInfoStats();
             //LOStats.Add(LOTYPE.LotteryShopItemsTabStats, LotteryInfoStats);
@@ -523,10 +528,11 @@
 
         public override void OnKilled(IActor attacker)
         {
-            StopAllSideEffects(); 
+            StopAllSideEffects();
             //TODO: save logstr              
             //string logstr = string.Format("[{0}][{1}][{2}][{3}][{4}]", DateTime.Now.ToString(), Name, "Was Killed by", ((Actor)attacker).IsPlayer() ? attacker.Name : ((Actor)attacker).GetPersistentID().ToString(), mInstance.mCurrentLevelID);
-            if (((Actor)attacker).IsPlayer())
+            Actor attackerActor = (Actor)attacker;
+            if (attackerActor.IsPlayer())
             {
                 string logstr2 = string.Format("[{0}][{1}][{2}][{3}][{4}]", DateTime.Now.ToString(), attacker.Name, "Killed", Name, mInstance.mCurrentLevelID);
                 LogStr(logstr2, attacker as Player);
@@ -541,29 +547,16 @@
 
             base.OnKilled(attacker);
             RealmController realmController = mInstance.mRealmController;
-            if (realmController != null)
+            if(realmController != null)
             {
                 int respawnId = realmController.mRealmInfo.respawn;
                 mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
                 string attackername = attacker.Name == null ? "" : attacker.Name;
                 Slot.ZRPC.CombatRPC.OnPlayerDead(attackername, (byte)respawnId, Slot);
+
                 if(mRespawnInfo.respawntype == RespawnType.City)
                 {
-                    if (mRespawnInfo.countdown != -1)
-                    {
-                        int realCD = mRespawnInfo.countdown * 1000;
-                        mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
-                        {
-                            mRespawnTimer = null;
-                            RespawnAtSafezone();
-                            int mapId = mInstance.mCurrentLevelID;
-                            DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
-                        }, null);
-                    }
-                }
-                else if(mRespawnInfo.respawntype == RespawnType.SafeZone)
-                {
-                    if (mRespawnInfo.countdown != -1)
+                    if(mRespawnInfo.countdown != -1)
                     {
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
@@ -575,37 +568,23 @@
                         }, null);
                     }
                 }
-                //if (mRespawnType != RespawnType.None)
-                //{
-                //    long respawn_countdown = realmController.mRealmInfo.respawncd * 1000;
-                //    switch (realmController.mRealmInfo.respawntype)
-                //    {
-                //        case RespawnType.Spot_City_CountdownSafeZoon:
-                //        case RespawnType.SafeZoon_CountdownSafeZoon:
-                //        case RespawnType.CountdownSafeZoon:
-                //        case RespawnType.SafeZoneCost_CountdownSafeZoon:
-                //        case RespawnType.SpotCost_CountdownSafeZoon:
-                //            mRespawnTimer = mInstance.SetTimer(respawn_countdown, (arg) => {
-                //                mRespawnTimer = null;
-                //                RespawnAtSafezone();
-                //                int mapId = mInstance.mCurrentLevelID;
-                //                DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
-                //            }, null);
-                //            break;
-                //        case RespawnType.Spot_City_CountdownCity:
-                //        case RespawnType.City_CountdownCity:
-                //            mRespawnTimer = mInstance.SetTimer(respawn_countdown, (arg) => {
-                //                mRespawnTimer = null;
-                //                RespawnAtCity();
-                //                int mapId = mInstance.mCurrentLevelID;
-                //                DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
-                //            }, null);
-                //            break;
-                //    }
-                //}
+                else if(mRespawnInfo.respawntype == RespawnType.SafeZone)
+                {
+                    if(mRespawnInfo.countdown != -1)
+                    {
+                        int realCD = mRespawnInfo.countdown * 1000;
+                        mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
+                        {
+                            mRespawnTimer = null;
+                            RespawnAtSafezone();
+                            int mapId = mInstance.mCurrentLevelID;
+                            DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
+                        }, null);
+                    }
+                }
                 realmController.OnPlayerDead(this, attacker as Actor);
             }
-            if (((Actor)attacker).IsPlayer())
+            if (attackerActor.IsPlayer())
             {
                 Player killer = attacker as Player;
                 if (killer.PlayerSynStats.faction != PlayerSynStats.faction)
@@ -613,7 +592,10 @@
                     killer.Slot.CharacterData.FactionKill++;
                     Slot.CharacterData.FactionDeath++;
                 }
+                killer.UpdateAchievement(AchievementObjectiveType.PVPKill);
+                UpdateAchievement(AchievementObjectiveType.PVPDie);
             }
+            UpdateAchievement(AchievementObjectiveType.DieNumber);
         }
 
         private long lastComboTime = 0; 
@@ -857,7 +839,6 @@
             RealmStats.ResetOnNewDay();
             Slot.mInventory.NewDayReset();
 
-            //int addtimes = VIPRepo.GetVIPPrivilege("GuildQuest", PlayerSynStats.vipLvl);
             Slot.CharacterData.GuildQuests.ResetOnNewDay();
             UpdateGuildQuestDailyTimes();
          
@@ -870,25 +851,26 @@
 
         public void StartManaRegen()
         {
-            if (mManaRegenTimer != null || GetMana() == GetManaMax()) return;
-            mManaRegenTimer = mInstance.SetTimer(10000, ManaRegen, null);
-            mManaRegenTimer.AutoReset = true;
+            if (mManaRegenTimer != null || GetMana() == GetManaMax())
+                return;
+
+            int amt = (int)CombatStats.GetField(FieldName.ManaRegen);
+            if (amt > 0)  // ensure player can regen mana before starting timer
+                mManaRegenTimer = mInstance.SetTimer(10000, OnManaRegenTimerUp, null);
         }
 
-        public void ManaRegen(object args)
+        private void OnManaRegenTimerUp(object arg)
         {
-            float amt = CombatStats.GetField(FieldName.ManaRegen);
-            int current = GetMana();
-            amt += current;
-            SetMana(amt > GetManaMax() ? GetManaMax() : (int)amt);
+            // get regen value here again in case value changed after starting timer
+            int amt = (int)CombatStats.GetField(FieldName.ManaRegen);
+            AddToMana(amt);
 
-            if(GetMana() == GetManaMax())
-            {
-                mInstance.StopTimer(mManaRegenTimer);
+            if (GetMana() < GetManaMax() && amt > 0)
+                mManaRegenTimer = mInstance.SetTimer(10000, OnManaRegenTimerUp, null);
+            else
                 mManaRegenTimer = null;
-            }
         }
-         
+
         public void SaveToCharacterData(bool exitroom)
         {
             if (mInstance.IsDoingFirstGuideRealm())
@@ -1018,23 +1000,10 @@
             }
 
             // Hero
-            HeroInvData heroInv = characterData.HeroInventory;
-            heroInv.HeroesList.Clear();
-            foreach (Hero hero in HeroStats.GetHeroesDict().Values)
-                heroInv.HeroesList.Add(hero);
-            heroInv.SummonedHero = HeroStats.SummonedHeroId;
-            heroInv.OngoingMaps.Clear();
-            foreach (ExploreMapData map in HeroStats.GetExplorationsDict().Values)
-                heroInv.OngoingMaps.Add(map);
-            heroInv.ExploredMaps = HeroStats.Explored;
+            HeroStats.SaveToInventory(characterData.HeroInventory);
 
             // Achievement
-            AchievementInvData achInv = characterData.AchievementInventory;
-            achInv.Collections = AchievementStats.CollectionsToString();
-            achInv.Achievements = AchievementStats.AchievementsToString();
-            achInv.RewardClaims = AchievementStats.RewardClaims;
-            achInv.LatestCollections = AchievementStats.LatestCollections;
-            achInv.LatestAchievements = AchievementStats.LatestAchievements;
+            AchievementStats.SaveToInventory(characterData.AchievementInventory);
 
             //SocialInventoryData socialInv = Slot.mSocialInventory;
             //IList<string> socialInvFriendList = socialInv.friendList;
@@ -1083,6 +1052,9 @@
             //characterData.SevenDaysInventory.SaveToInventory(SevenDaysStats);
             //characterData.QuestExtraRewardsInventory.SaveToInventory(QuestExtraRewardsStats);
             //WardrobeController.Save();
+
+            // DNA
+            //characterData.DNAInventory.SaveToInventory(DNAStats);
 
             //ExchangeShop
             //characterData.ExchangeShopInv.SaveToExchangeShopInventory(ExchangeShopSynStats.exchangeLeftMapJsonString);
@@ -1316,6 +1288,9 @@
             if (IsInParty())
                 PartyStats.SetMemberLevel(Name, PlayerSynStats.Level);
 
+            QuestController.ConditionCheck(QuestRequirementType.Level);
+            UpdateAchievement(AchievementObjectiveType.Level, "-1", true, PlayerSynStats.Level, false);
+
             //PlayerSynStats.progressLevel = currentlevel;
             //SecondaryStats.experience = currentExp;
             //string changetype = "lvl";
@@ -1323,8 +1298,6 @@
             //int after = PlayerSynStats.progressLevel;
             //int gold = 0;
             //int crystal = 0;
-
-            QuestController.ConditionCheck(QuestRequirementType.Level);
 
             //string message = string.Format("changetype: {0} | before: {1} | after: {2} | goldDeducted: {3}  | crystalDeducted: {4}", 
             //    changetype, 
@@ -1361,7 +1334,6 @@
             //SetHealth(GetHealthMax());
             //CombatStats.ComputeAll();
 
-            //Slot.mSevenDaysController.UpdateTask(NewServerActivityType.Level, PlayerSynStats.progressLevel);
         }
 
         public void JobLevelUp()
@@ -1500,7 +1472,7 @@
             }
             for (int i = 0; i < (int)FashionSlot.MAXSLOTS; ++i)
             {
-                Equipment equipment = eqInvData.Fashions[i] as Equipment;
+                Equipment equipment = eqInvData.FashionSlots[i] as Equipment;
                 if (equipment != null)
                 {
                     equipment.EncodeItem();
@@ -1776,39 +1748,18 @@
             questExtraRewardsInv.InitFromInventory(QuestExtraRewardsStats);
         }
         #endregion
+
+        //#region DNA
+        //public void InitDNAStats(DNAInvData dnaInv)
+        //{
+        //    dnaInv.InitFromInventory(DNAStats);
+        //}
+        //#endregion
+
         //public void InitBattleTimeStats(BattleTimeInventoryData battleTimeInv)
         //{
         //    battleTimeInv.InitFromInventory(SecondaryStats.BattleTime);
         //}
-        private void VIPLevelUp()
-        {
-            //int pointsNeeded = VIPRepo.GetPointsByVIPLevel(PlayerSynStats.vipLvl);
-            //int oldLvl = PlayerSynStats.vipLvl;
-            //while (PlayerSynStats.vipLvl < VIPRepo.MAX_LEVEL && SecondaryStats.vippoints >= pointsNeeded)
-            //{
-            //    SecondaryStats.vippoints -= pointsNeeded;
-            //    PlayerSynStats.vipLvl += 1;                
-            //    pointsNeeded = VIPRepo.GetPointsByVIPLevel(PlayerSynStats.vipLvl);
-
-            //    // open free slots given by this level
-            //    int numOfSlots = VIPRepo.GetVIPPrivilege("BagSlot", PlayerSynStats.vipLvl);
-            //    Slot.OpenNewInvSlot(numOfSlots, ItemInventoryController.OpenNewSlotType.FREE);
-                 
-            //}
-
-            //if (!string.IsNullOrEmpty(PlayerSynStats.guildName) && PlayerSynStats.vipLvl > oldLvl)
-            //{
-            //    int times = VIPRepo.GetVIPPrivilege("GuildQuest", PlayerSynStats.vipLvl) - VIPRepo.GetVIPPrivilege("GuildQuest", oldLvl);
-            //    Slot.CharacterData.GuildQuests.ResetOnNewDay(times, false);
-            //}
-
-            //if (PlayerSynStats.vipLvl == VIPRepo.MAX_LEVEL)
-            //    SecondaryStats.vippoints = 0;
-
-            //Free refresh money store
-            //StoreRules.RefreshCategoryFree(StoreRepo.GetStoreOrder(UIStoreLinkType.MoneyStore), Slot);
-            StoreRules.UpdateRefreshCategoryFree(StoreRepo.GetStoreOrder(UIStoreLinkType.MoneyStore), Slot);
-        }
 
         #endregion
 
@@ -1999,7 +1950,7 @@
                         {
                             IInventoryItem item = GameRepo.ItemFactory.GetInventoryItem(itemid);
                             item.StackCount = (ushort)itemcount;
-                            InvRetval addRes = Slot.mInventory.AddItemsIntoInventory(item, true, "GuildQuest");
+                            InvRetval addRes = Slot.mInventory.AddItemsToInventory(item, true, "GuildQuest");
                             if (addRes.retCode != InvReturnCode.AddSuccess)
                             {
                                 GameRules.SendMailWithAttachment(Slot.mChar, "Reward_GuildQuestReward", new List<IInventoryItem>() { item }, null);
@@ -2143,29 +2094,39 @@
             LogCurrencyChange(from, CurrencyType.HonorValue, honorpt, SecondaryStats.honor);
         }
 
-        public void AddVIPPoint(int amt)
+        public void AddAchievementExp(int amt)
         {
-            //if (PlayerSynStats.vipLvl < VIPRepo.MAX_LEVEL)
-            //{
-            //    int oldvippoints = SecondaryStats.vippoints;
-            //    SecondaryStats.vippoints += amt;
+            if (PlayerSynStats.AchievementLevel < AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
+            {
+                SecondaryStats.AchievementExp += amt;
 
-            //    string message = string.Format("addAmt: {0} | before: {1} | after: {2}", amt, oldvippoints, SecondaryStats.vippoints);
-            //    Zealot.Logging.Client.LogClasses.AddVIPPoint sysLog = new Zealot.Logging.Client.LogClasses.AddVIPPoint();
-            //    sysLog.userId = Slot.mUserId;
-            //    sysLog.charId = Slot.GetCharId();
-            //    sysLog.message = message;
-            //    sysLog.addAmt = amt;
-            //    sysLog.before = oldvippoints;
-            //    sysLog.after = SecondaryStats.vippoints;
-            //    var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(sysLog);
+                AchievementLevel info = AchievementRepo.GetAchievementLevelInfo(PlayerSynStats.AchievementLevel);
+                if (info != null && info.expToNextLv > 0 && SecondaryStats.AchievementExp >= info.expToNextLv)
+                {
+                    AchievementLevelUp();
+                }
+            }
+        }
 
-            //    int pointsNeeded = VIPRepo.GetPointsByVIPLevel(PlayerSynStats.vipLvl);
-            //    if (pointsNeeded > 0 && SecondaryStats.vippoints >= pointsNeeded)
-            //    {
-            //        VIPLevelUp();
-            //    }
-            //}
+        private void AchievementLevelUp()
+        {
+            AchievementLevel info = AchievementRepo.GetAchievementLevelInfo(PlayerSynStats.AchievementLevel);
+            while (PlayerSynStats.AchievementLevel < AchievementRepo.ACHIEVEMENT_MAX_LEVEL
+                && info != null && SecondaryStats.AchievementExp >= info.expToNextLv)
+            {
+                SecondaryStats.AchievementExp -= info.expToNextLv;
+                PlayerSynStats.AchievementLevel++;
+
+                // levelled up to this level, give this level's reward
+                info = AchievementRepo.GetAchievementLevelInfo(PlayerSynStats.AchievementLevel);
+                if (info != null && info.hasReward)
+                    AchievementStats.GiveLevelUpReward(info);
+            }
+
+            if (PlayerSynStats.AchievementLevel == AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
+                SecondaryStats.AchievementExp = 0;
+
+            UpdateAchievement(AchievementObjectiveType.AchievementLevel, "-1", true, PlayerSynStats.AchievementLevel, false);
         }
 
         public void AddGuildGold(int amount, Logging.Client.LogClasses.GuildQuestFinish log =null)
@@ -2285,8 +2246,8 @@
                 case CurrencyType.Exp:
                     AddExperience(amount);
                     break;
-                case CurrencyType.VIP:
-                    AddVIPPoint(amount);
+                case CurrencyType.AExp:
+                    AddAchievementExp(amount);
                     break;
                 case CurrencyType.BattleCoin:
                     AddBattleCoin(amount, from);
@@ -2387,9 +2348,6 @@
                 case CurrencyType.HonorValue:
                     curval = SecondaryStats.honor;
                     break;
-                case CurrencyType.VIP:
-                    curval = SecondaryStats.vippoints;
-                    break;
                 case CurrencyType.GuildGold:
                     curval = 0;
                     if(SecondaryStats.guildId > 0)
@@ -2424,8 +2382,6 @@
                     return SecondaryStats.lotterypoints;
                 case CurrencyType.HonorValue:
                     return SecondaryStats.honor;
-                case CurrencyType.VIP:
-                    return SecondaryStats.vippoints;
                 case CurrencyType.BattleCoin:
                     return SecondaryStats.battlecoin;
                 default:
@@ -2532,7 +2488,7 @@
             int max = SocialInventoryData.MAX_FRIENDS;
             if (myFriendsDict != null)
             {
-                SocialInfo mySocialInfo = new SocialInfo(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, PlayerSynStats.vipLvl,
+                SocialInfo mySocialInfo = new SocialInfo(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, 0,
                                                          PlayerSynStats.Level, 0, PlayerSynStats.faction, 
                                                          PlayerSynStats.guildName, true, 0);
                 string mySocialInfoStr = mySocialInfo.ToString();
@@ -2560,7 +2516,7 @@
                             int mySlotIdx = SocialStats.GetAvailableSlotFriends();
                             PlayerSynStats playerSynStats = requestPeer.mPlayer.PlayerSynStats;
                             SocialInfo currSocialInfo = new SocialInfo(currRequestName, (byte)playerSynStats.PortraitID, playerSynStats.jobsect, 
-                                                                       playerSynStats.vipLvl, playerSynStats.Level,
+                                                                       0, playerSynStats.Level,
                                                                        0, playerSynStats.faction, 
                                                                        playerSynStats.guildName, true, mySlotIdx);
                             myFriendsDict[currRequestName] = currSocialInfo;
@@ -2658,7 +2614,7 @@
             {
                 StringBuilder friendAddSB = new StringBuilder();
                 SocialInfoBase mySocialInfo = new SocialInfoBase(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, 
-                                                                 PlayerSynStats.vipLvl, PlayerSynStats.Level, 
+                                                                 0, PlayerSynStats.Level, 
                                                                  0, 0);
                 string mySocialInfoStr = mySocialInfo.ToString();
                 int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
@@ -2847,7 +2803,7 @@
 
                     if (foundCnt != 0) friendSB.Append('|');
                     friendSB.AppendFormat("{0}`{1}`{2}`{3}`{4}`{5}", currCharName, currPlayerSynStats.PortraitID, currPlayerSynStats.jobsect,
-                                          currPlayerSynStats.vipLvl, currPlayerSynStats.Level, 
+                                          0, currPlayerSynStats.Level, 
                                           0);
                     friendRemoveSB.AppendFormat("{0}|", currCharName);
                     friendsRecDict[currCharName] = currCharName;
@@ -2896,7 +2852,7 @@
                     Player currPlayer = peer.mPlayer;
                     PlayerSynStats currPlayerStats = currPlayer.PlayerSynStats;
                     socialInfo.portraitId = currPlayerStats.PortraitID;
-                    socialInfo.vipLvl = currPlayerStats.vipLvl;
+                    socialInfo.vipLvl = 0;
                     socialInfo.charLvl = currPlayerStats.Level;
                     //socialInfo.combatScore = currPlayer.LocalCombatStats.CombatScore;
                     socialInfo.guildName = currPlayerStats.guildName;
@@ -3141,6 +3097,11 @@
             {
                 mInstance.StopTimer(mSaveCharacterTimer);
                 mSaveCharacterTimer = null;
+            }
+            if (mManaRegenTimer != null)
+            {
+                mInstance.StopTimer(mManaRegenTimer);
+                mManaRegenTimer = null;
             }
 
             ((ServerEntitySystem)EntitySystem).UnregisterPlayerName(Name);
@@ -3460,6 +3421,11 @@
             string genderStr = (PlayerSynStats.Gender == 0) ? "M" : "F";
             SkillData skill = SkillRepo.GetGenderWeaponBasicAttackData(weaponType, 1, genderStr);
             SkillStats.basicAttack1SId = skill.skillJson.id;
+        }
+
+        public void UpdateAchievement(AchievementObjectiveType objType, string target = "-1", bool isNonTarget = true, int count = 1, bool increment = true)
+        {
+            AchievementStats.UpdateAchievement(objType, target, isNonTarget, count, increment);
         }
     }
 }

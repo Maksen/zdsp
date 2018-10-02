@@ -30,7 +30,7 @@ public class Hero_MapTargetData : MonoBehaviour
             iconImage.sprite = ClientUtils.LoadIcon(data.iconpath);
             nameText.text = data.localizedname;
             noteText.text = "";
-            bool canSelect = GameInfo.gLocalPlayer.PlayerSynStats.vipLvl >= reqLevel; // to revisit after achievement done
+            bool canSelect = GameInfo.gLocalPlayer.PlayerSynStats.AchievementLevel >= reqLevel;
             if (!canSelect)
             {
                 noteText.text = GUILocalizationRepo.GetLocalizedString("hro_explore_monster_requirement") + GUILocalizationRepo.colon + reqLevel;

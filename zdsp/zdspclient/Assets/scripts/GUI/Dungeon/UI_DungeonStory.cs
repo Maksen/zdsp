@@ -257,6 +257,6 @@ public class UI_DungeonStory : MonoBehaviour
 
     public void OnClickEnterDungeon()
     {
-        RPCFactory.CombatRPC.CreateRealmByID(currentDungeonInfo.id, false, false);
+        RPCFactory.CombatRPC.DungeonEnterRequest(currentDungeonInfo.id);
     }
 }

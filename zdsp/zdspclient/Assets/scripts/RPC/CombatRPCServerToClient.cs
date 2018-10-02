@@ -243,6 +243,16 @@ public partial class ClientMain : MonoBehaviour
     }
     #endregion
 
+    #region Hero
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_ClaimAllAchievementRewards)]
+    public void Ret_ClaimAllAchievementRewards(string claimedRewards)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player != null)
+            player.AchievementStats.OnClaimAllRewards(claimedRewards);
+    }
+    #endregion
+
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.SpawnGate)]
     public void SpawnGate(int pid, float width, float height, string prefab, RPCPosition rpcpos, RPCDirection rpcdir)
     {

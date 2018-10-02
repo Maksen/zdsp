@@ -316,10 +316,10 @@ namespace Photon.LoadBalancing.GameServer.ItemMall
                 {
                     return (int)ItemMallReturnCode.PurchaseItem_Fail_InvalidDateTime;
                 }
-                if (CanPurchaseVIP(mallItem, player.PlayerSynStats.vipLvl) == false)
-                {
-                    return (int)ItemMallReturnCode.PurchaseItem_Fail_VIPLevel;
-                }
+                //if (CanPurchaseVIP(mallItem, player.PlayerSynStats.vipLvl) == false)
+                //{
+                //    return (int)ItemMallReturnCode.PurchaseItem_Fail_VIPLevel;
+                //}
 
 
                 cost = mallItem.price * stackToBuy;
@@ -337,7 +337,7 @@ namespace Photon.LoadBalancing.GameServer.ItemMall
                 int actualAmtToBuy = stackCount * stackToBuy;
                 IInventoryItem item = GameRules.GenerateItem(itemId, null, actualAmtToBuy, true);
                 int beforeStackcount = playerPeer.mInventory.GetItemStackCountByItemId((ushort)itemId);
-                InvRetval invRetVal = playerPeer.mInventory.AddItemsIntoInventory((ushort)itemId, actualAmtToBuy, true, "ItemMall");
+                InvRetval invRetVal = playerPeer.mInventory.AddItemsToInventory((ushort)itemId, actualAmtToBuy, true, "ItemMall");
                 int afterStackcount = playerPeer.mInventory.GetItemStackCountByItemId((ushort)itemId);
                 switch (invRetVal.retCode)
                 {

@@ -163,7 +163,7 @@ namespace Photon.LoadBalancing.GameServer
                         avatarData.Faction = charData.Faction;
                         if (charData.GuildId > 0)
                             avatarData.Guild = GuildRules.GetGuildNameById(charData.GuildId);
-                        avatarData.VIP = charData.CurrencyInventory.VIPLevel;
+                        avatarData.VIP = 0;
                         avatarData.CombatScore = charData.EquipScore;
                         avatarData.InspectCombatStats = charData.InspectCombatStats;
                         strAvatarData = avatarData.SerializeForCharCreation();

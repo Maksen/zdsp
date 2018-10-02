@@ -150,8 +150,8 @@
                         gold = topUpItemJson.gold;
                         player.AddCurrency(CurrencyType.Gold, gold, "TopUp");
 
-                        vipPoints = topUpItemJson.vippoints;
-                        player.AddCurrency(CurrencyType.VIP, vipPoints, "TopUp");
+                        //vipPoints = topUpItemJson.vippoints;
+                        //player.AddCurrency(CurrencyType.VIP, vipPoints, "TopUp");
 
                         if (DateTime.Now >= GetEarliestActivityBonusDateTimeAsync())
                         {
@@ -169,8 +169,8 @@
                         gold = topUpItemJson.gold;
                         player.AddCurrency(CurrencyType.Gold, gold, "TopUp");
 
-                        vipPoints = topUpItemJson.vippoints;
-                        player.AddCurrency(CurrencyType.VIP, vipPoints, "TopUp");
+                        //vipPoints = topUpItemJson.vippoints;
+                        //player.AddCurrency(CurrencyType.VIP, vipPoints, "TopUp");
 
                         if (DateTime.Now >= GetEarliestActivityBonusDateTimeAsync())
                         {

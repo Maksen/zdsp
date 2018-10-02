@@ -4,7 +4,7 @@ using UnityEngine;
 using Zealot.Common;
 using Zealot.Repository;
 
-class UIShopBarterDetails : UIShopDetails
+public class UIShopBarterDetails : UIShopDetails
 {
     public GameObject RequiredBarterItemPrefab;
     public Transform RequiredWindowParent;

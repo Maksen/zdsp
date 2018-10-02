@@ -69,7 +69,6 @@ namespace Zealot.Common
                 SoldType = soldtype;
                 SoldValue = soldvalue;
                 Discount = discount;
-                Type = type;
                 SortNumber = sortnumber;
                 StartTime = start;
                 EndTime = end;
@@ -101,19 +100,18 @@ namespace Zealot.Common
 
             public int remaining;
         };
-
-        public enum StoreType { Normal = 0, Random = 1, Barter = 2 };
+        
         public enum SoldCurrencyType { Normal = 0, Auction = 1 };
         public enum Frequency { Unlimited = 2, Daily = 0, Weekly = 1 };
 
         public int StoreID;
         public string NameCT;
         public string NameEN;
-        public StoreType Type;
+        public ItemStoreType Type;
 
         public Dictionary<int, StandardItem> inventory = new Dictionary<int, StandardItem>();
 
-        public NPCStoreInfo(int id, string namect, string nameen, StoreType type)
+        public NPCStoreInfo(int id, string namect, string nameen, ItemStoreType type)
         {
             StoreID = id; NameCT = namect; NameEN = nameen; Type = type;
         }

@@ -55,7 +55,7 @@ namespace Zealot.Common
     public enum JobType {Newbie = 0, Warrior = 1, Soldier = 2, Tactician = 3, Killer = 4, Samurai = 5, Swordsman = 6, Lieutenant = 7, SpecialForce = 8, Alchemist = 9, QigongMaster = 10, Assassin = 11, Shadow = 12, BladeMaster = 13, SwordMaster = 14, General = 15, Commando = 16, Strategist = 17, Schemer = 18, Executioner = 19, Slaughter = 20};
     public enum CharPortraitType {None = 0, Knife = 1, Sword = 2, Spear = 3, Hammer = 4, Hero = 5};
     public enum FactionType {None = 0, Dragon = 1, Tiger = 2, Pig = 3, Leopard = 4};
-    public enum CurrencyType {None = 0, Money = 1, GuildContribution = 2, GuildGold = 3, Gold = 4, LockGold = 5, LotteryTicket = 6, HonorValue = 7, BattleCoin = 8, Exp = 9, VIP = 10, JExp = 11, DonateContribution = 12};
+    public enum CurrencyType {None = 0, Money = 1, GuildContribution = 2, GuildGold = 3, Gold = 4, LockGold = 5, LotteryTicket = 6, HonorValue = 7, BattleCoin = 8, Exp = 9, AExp = 10, JExp = 11, DonateContribution = 12};
     public enum EquipmentType {Weapon = 0, Armor = 8, Accessory = 12};
     public enum PartsType {Sword = 0, Blade = 1, Lance = 2, Hammer = 3, Fan = 4, Xbow = 5, Dagger = 6, Sanxian = 7, Helm = 101, Body = 102, Wing = 103, Boots = 104, Bathrobe = 105, Ring = 201, Jewelry = 202, Accessory = 203};
     public enum PowerUpPartsType {Helmet = 0, Chest = 1, Wing = 2, Amulet = 3, Weapon = 4, Boots = 5, Accessory = 6, Ring = 7};
@@ -8310,7 +8310,7 @@ namespace Kopio.JsonContracts
         public int achlevel { get; set; } 
         
         [JsonProperty("5")]
-        public int experience { get; set; } 
+        public int expreq { get; set; } 
         
         [JsonProperty("6")]
         public bool hasreward { get; set; } 
@@ -8331,7 +8331,7 @@ namespace Kopio.JsonContracts
             localizedname = (string)vals["localizedname"];
             localizeddescription = (string)vals["localizeddescription"];
             achlevel = (int)vals["achlevel"];
-            experience = (int)vals["experience"];
+            expreq = (int)vals["expreq"];
             hasreward = (bool)vals["hasreward"];
             itemreward = (string)vals["itemreward"];
             currencyreward = (string)vals["currencyreward"];

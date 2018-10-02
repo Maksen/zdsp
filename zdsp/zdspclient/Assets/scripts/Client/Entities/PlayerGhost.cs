@@ -260,7 +260,11 @@ namespace Zealot.Client.Entities
                 case "bindgold":
                 case "Gold":
                     break;
-                case "vippoints":
+                case "AchievementLevel":
+                    //Debug.Log("AchievementLevel: " + value);
+                    break;
+                case "AchievementExp":
+                    //Debug.Log("AchievementExp: " + value);
                     break;
                 case "guildId":
                     if ((int)value == 0 && (int)oldvalue > 0)
@@ -1769,7 +1773,6 @@ namespace Zealot.Client.Entities
         public void InitBot(PlayerInput input)
         {
             mBotController = new BotController(this, input);
-            //AutoPotion = new AutoPotion(this);
         }
 
         public bool CanStartNewBot()
@@ -1810,7 +1813,6 @@ namespace Zealot.Client.Entities
                 case "lotterypoints":
                 case "honor":
                 case "battlecoin":
-                case "vippoints":
                 case "bindgold":
                     ConfirmNotifyIncrement(field, value, oldvalue);
                     break;
@@ -1899,7 +1901,6 @@ namespace Zealot.Client.Entities
                 if (PartyStats != null)
                     PartyStats.Update(dt);
                 Bot.Update(dt);
-                //AutoPotion.Update(dt);
                 long temp = comboTimer;
                 comboTimer += dt;
                 if (temp < CombatUtils.COMBOTHIT_TIMEOUT && comboTimer >= CombatUtils.COMBOTHIT_TIMEOUT && ui_combohit != null)

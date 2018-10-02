@@ -41,14 +41,6 @@ namespace Zealot.Common
         public long GuildFundTotal { get; set; }
 
         [DefaultValue(0)]
-        [JsonProperty(PropertyName = "viplvl")]
-        public byte VIPLevel { get; set; }
-
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "vippts")]
-        public int VIPPoints { get; set; }
-
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "battlecoin")]
         public int BattleCoin { get; set; }
         #endregion
@@ -61,8 +53,6 @@ namespace Zealot.Common
             LotteryPoints = secondaryStats.lotterypoints;
             Honor = secondaryStats.honor;
             GuildContribute = secondaryStats.contribute;
-            VIPLevel = playerSynStats.vipLvl;
-            VIPPoints = secondaryStats.vippoints;          
             BattleCoin = secondaryStats.battlecoin;
         }
     }

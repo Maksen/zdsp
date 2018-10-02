@@ -158,6 +158,10 @@
         Ret_RandomInterestResult,
         #endregion
 
+        #region Achievement
+        Ret_ClaimAllAchievementRewards,
+        #endregion
+
         #region Mail
 
         Ret_HasNewMail,//called after server wants to inform the player the result of new mail
@@ -321,8 +325,8 @@
         EnterRealmByID,
         LeaveRealm,
         InspectMode,
-        DungeonEnter,
-        DungeonEnterState,
+        DungeonEnterRequest,
+        EnterRealmWithPartyResponse,
         DungeonAutoClear,
         OnPickResource,
         RealmCollectReward,
@@ -444,6 +448,12 @@
         ClaimExplorationReward,
         #endregion
 
+        #region Achievement
+        ClaimAchievementReward,
+        ClaimAllAchievementRewards,
+        AchievementNPCInteract,
+        #endregion
+
         #region Crafting
         CraftItem,
         #endregion
@@ -558,8 +568,10 @@
         ConsoleAddRewardGroupBag,
         ConsoleAddRewardGroupCheckBagSlot,
         ConsoleAddRewardGroupCheckBagMail,
+        ConsoleSetAchievementLevel,
         ConsoleGetCollection,
         ConsoleGetAchievement,
+        ConsoleClearAchievementRewards,
         ConsoleAddHero,
         ConsoleRemoveHero,
         ConsoleResetExplorations,

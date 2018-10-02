@@ -200,6 +200,12 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleAddRewardGroupCheckBagSlot", grpID);
     }
 
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSetAchievementLevel)]
+    public void ConsoleSetAchievementLevel(int level)
+    {
+        ProxyMethod("ConsoleSetAchievementLevel", level);
+    }
+
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetCollection)]
     public void ConsoleGetCollection(string objtype, int target)
     {
@@ -210,6 +216,12 @@ public partial class NonCombatRPC : RPCBase
     public void ConsoleGetAchievement(string objtype, string target, int count, bool increment)
     {
         ProxyMethod("ConsoleGetAchievement", objtype, target, count, increment);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleClearAchievementRewards)]
+    public void ConsoleClearAchievementRewards()
+    {
+        ProxyMethod("ConsoleClearAchievementRewards");
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddHero)]

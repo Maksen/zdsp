@@ -256,14 +256,14 @@ namespace Zealot.Common.Entities
             _name = "";
             _jobsect = 1;
             _faction = 0;
-            _guildName = "";
-            _vipLvl = 0;            
+            _guildName = "";          
             Team = -1;
             _portraitID = 1;
             _Gender = 0;
             _Party = 0;
             _QuestCompanionId = -1;
-        }
+            _achievementLevel = 1;
+    }
 
         private int _Party;
         public int Party
@@ -307,13 +307,6 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("guildName", value); _guildName = value; }
         }
 
-        private byte _vipLvl;
-        public byte vipLvl
-        {
-            get { return _vipLvl; }
-            set { OnSetAttribute("vipLvl", value); _vipLvl = value; }
-        }
-
         private int _portraitID;
         public int PortraitID
         {
@@ -340,6 +333,13 @@ namespace Zealot.Common.Entities
         {
             get { return _QuestCompanionId; }
             set { OnSetAttribute("QuestCompanionId", value); _QuestCompanionId = value; }
+        }
+
+        private int _achievementLevel;
+        public int AchievementLevel
+        {
+            get { return _achievementLevel; }
+            set { OnSetAttribute("AchievementLevel", value); _achievementLevel = value; }
         }
     }
 
@@ -1033,12 +1033,13 @@ namespace Zealot.Common.Entities
         private int _jobexperience;
         private int _realmscore;
 
+        private int _achievementExp;
+
         private int _money;
         private int _gold;
         private int _bindgold;
         private int _lotterypoints;
         private int _honor;
-        private int _vippoints;
         private int _contribute;
         private int _battlecoin;
 
@@ -1053,7 +1054,7 @@ namespace Zealot.Common.Entities
         private string _guildDreamHouseCollected;
         private bool _guildDonateDot;
         private long _lastFreeLotteryRoll;
-        private int _FreeReviveOnSpot;     
+        private int _FreeReviveOnSpot;
         private long _RandomBoxTimeTick;
         private int _costbuffid;
         private int _costbuffgold;
@@ -1067,15 +1068,15 @@ namespace Zealot.Common.Entities
             _experience = 0;
             _jobexperience = 0;
             _realmscore = 0;
+            _achievementExp = 0;
 
-            // Currency start
+        // Currency start
             _money = 0;
             _gold = 0;
             _bindgold = 0;
 
             _lotterypoints = 0;
             _honor = 0;
-            _vippoints = 0;
             _contribute = 0;
             _battlecoin = 0;
             _BattleTime = 0;
@@ -1114,15 +1115,23 @@ namespace Zealot.Common.Entities
             get { return _experience; }
             set { OnSetAttribute("experience", value); _experience = value; }
         }
+
         public int jobexperience
         {
             get { return _jobexperience; }
             set { OnSetAttribute("jobexperience", value); _jobexperience = value; }
         }
+
         public int realmscore
         {
             get { return _realmscore; }
             set { OnSetAttribute("realmscore", value); _realmscore = value; }
+        }
+
+        public int AchievementExp
+        {
+            get { return _achievementExp; }
+            set { OnSetAttribute("AchievementExp", value); _achievementExp = value; }
         }
 
         public int Money
@@ -1154,12 +1163,6 @@ namespace Zealot.Common.Entities
         {
             get { return _honor; }
             set { OnSetAttribute("honor", value); _honor = value; }
-        }
-
-        public int vippoints
-        {
-            get { return _vippoints; }
-            set { OnSetAttribute("vippoints", value); _vippoints = value; }
         }
 
         public int contribute

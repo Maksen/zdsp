@@ -22,7 +22,7 @@ public class UI_Hero_AddTrustDialog : BaseWindowBehaviour
         heroId = hero.HeroId;
         trustLevelText.text = hero.TrustLevel.ToString();
 
-        var giftItems = player.clientItemInvCtrl.itemInvData.FindItemByItemType(ItemType.MercenaryItem).Values.Where(CanUseItem);
+        var giftItems = player.clientItemInvCtrl.itemInvData.GetItemsByItemType(ItemType.MercenaryItem).Values.Where(CanUseItem);
         foreach (var item in giftItems)
         {
             if (usableItemsList.ContainsKey(item.ItemID))

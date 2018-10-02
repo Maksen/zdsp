@@ -1,10 +1,59 @@
 ﻿using Photon.LoadBalancing.GameServer;
+using System.Collections.Generic;
+using Zealot.Common;
 
 
 namespace Zealot.Server.Rules
 {
     public static class DeathRules
     {
+        public static bool IsEnoughRespawnItems(List<ItemInfo> itemList, GameClientPeer peer)
+        {
+            for(int i = 0; i < itemList.Count; ++i)
+            {
+                ItemInfo item = itemList[i];
+                int invItemCount = peer.GetTotalStackCountByItemID(item.itemId);
+
+                if(invItemCount < item.stackCount)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static void UseRespawnItem(List<ItemInfo> itemList, GameClientPeer peer)
+        {
+            InvRetval useRes = peer.mInventory.DeductItems(itemList, "Death");
+        }
+        
+        public static bool IsEnoughRespawnCurrency(List<CurrencyInfo> currencyList, GameClientPeer peer)
+        {
+            for(int i = 0; i < currencyList.Count; ++i)
+            {
+                CurrencyInfo currency = currencyList[i];
+                int invCurrencyCount = peer.mPlayer.GetCurrencyAmt(currency.currencyType);
+
+                if(invCurrencyCount < currency.amount)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static void DeductRespawnCurrency(List<CurrencyInfo> currencyList, GameClientPeer peer)
+        {
+            for(int i = 0; i < currencyList.Count; ++i)
+            {
+                CurrencyInfo currency = currencyList[i];
+                CurrencyType type = currency.currencyType;
+                peer.mPlayer.DeductCurrency(type, currency.amount, type == CurrencyType.Gold || type == CurrencyType.LockGold, "Death");
+            }
+        }
+
         public static void LogDeathRespawnType(string method, int mapId, GameClientPeer peer)
         {
             string message = string.Format("Respawn Method: {0} | Map Id: {1}",

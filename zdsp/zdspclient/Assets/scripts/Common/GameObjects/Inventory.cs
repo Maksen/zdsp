@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
-using Newtonsoft.Json;
 using Zealot.Repository;
-using Kopio.JsonContracts;
 
 namespace Zealot.Common
 {
@@ -108,6 +108,12 @@ namespace Zealot.Common
         public int stackCount;
     }
 
+    public class CurrencyInfo
+    {
+        public CurrencyType currencyType;
+        public int amount;
+    }
+
     public class ItemSlotInfo
     {
         public int stackTotal;
@@ -168,18 +174,7 @@ namespace Zealot.Common
                 Slots[i] = null;
         }
 
-        public virtual IInventoryItem GetItemByItemId(ushort itemId)
-        {
-            for (int index = 0; index < UnlockedSlotCount; ++index)
-            {
-                IInventoryItem element = Slots[index];
-                if (element != null && element.ItemID == itemId)
-                    return element;
-            }
-            return null;
-        }
-
-        public Dictionary<int, IInventoryItem> FindItemByItemType(ItemType type)
+        public Dictionary<int, IInventoryItem> GetItemsByItemType(ItemType type)
         {
             Dictionary<int, IInventoryItem> ret = new Dictionary<int, IInventoryItem>();
             for (int index = 0; index < UnlockedSlotCount; ++index)
@@ -191,7 +186,18 @@ namespace Zealot.Common
             return ret;
         }
 
-        public virtual Dictionary<int, IInventoryItem> FindItemByItemId(ushort itemId)
+        public virtual IInventoryItem GetItemByItemId(ushort itemId)
+        {
+            for (int index = 0; index < UnlockedSlotCount; ++index)
+            {
+                IInventoryItem element = Slots[index];
+                if (element != null && element.ItemID == itemId)
+                    return element;
+            }
+            return null;
+        }
+
+        public virtual Dictionary<int, IInventoryItem> GetItemsByItemId(ushort itemId)
         {
             Dictionary<int, IInventoryItem> ret = new Dictionary<int, IInventoryItem>();
             for (int index = 0; index < UnlockedSlotCount; ++index)
@@ -280,12 +286,12 @@ namespace Zealot.Common
             return -1;
         }
 
-        public virtual int GetAvailableSlotsByItemId(ushort itemId)
+        public virtual int GetAvailableSlotByItemId(ushort itemId)
         {
             for (int index = 0; index < UnlockedSlotCount; ++index)
             {
-                IInventoryItem element = Slots[index];
-                if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
+                IInventoryItem invItem = Slots[index];
+                if (invItem != null && invItem.ItemID == itemId && invItem.StackCount < invItem.MaxStackCount)
                     return index;
             }
             return -1;
@@ -295,10 +301,10 @@ namespace Zealot.Common
         {
             for (int index = 0; index < UnlockedSlotCount; ++index)
             {
-                IInventoryItem element = Slots[index];
-                if (element != null && element.ItemID == itemId)
+                IInventoryItem invItem = Slots[index];
+                if (invItem != null && invItem.ItemID == itemId)
                 {
-                    stackCount -= (maxStack - element.StackCount);
+                    stackCount -= (maxStack - invItem.StackCount);
                     if (stackCount <= 0)
                         return true;
                 }
@@ -322,9 +328,9 @@ namespace Zealot.Common
                 {
                     for (int index = 0; index < UnlockedSlotCount; ++index)
                     {
-                        IInventoryItem element = Slots[index];
-                        if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
-                            ret.Add(index, element);
+                        IInventoryItem invItem = Slots[index];
+                        if (invItem != null && invItem.ItemID == itemId && invItem.StackCount < invItem.MaxStackCount)
+                            ret.Add(index, invItem);
                     }
                 }
             }
@@ -392,11 +398,11 @@ namespace Zealot.Common
         public bool CanAdd(List<ItemInfo> itemsToAdd)
         {
             int emptySlot = GetEmptySlotCount();
-            int itemsToAddCnt = itemsToAdd.Count;
-            if (emptySlot >= itemsToAddCnt)
+            int itemsToAddCount = itemsToAdd.Count;
+            if (emptySlot >= itemsToAddCount)
                 return true;
 
-            for (int index = 0; index < itemsToAddCnt; ++index)
+            for (int index = 0; index < itemsToAddCount; ++index)
             {
                 ItemInfo item = itemsToAdd[index];
                 ushort itemId = item.itemId;
@@ -406,8 +412,7 @@ namespace Zealot.Common
                 ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
                 if (itemSortJson.bagtabtype == BagTabType.Equipment || !IsExistSlotAvailableByItemId(itemId, item.stackCount, GameConstantRepo.ItemMaxStackCount))
                 {
-                    emptySlot--;
-                    if (emptySlot < 0)
+                    if (--emptySlot < 0)
                         return false;
                 }
             }
@@ -418,7 +423,7 @@ namespace Zealot.Common
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class ItemInventoryServerData : ItemInventoryData
     {
-        private Dictionary<int, ItemSlotInfo> itemSlotMap; //itemId <- ItemSlotInfo
+        private Dictionary<int, ItemSlotInfo> itemSlotMap; // itemId <- ItemSlotInfo
         private int emptySlots; // Number of empty slots
 
         public ItemInventoryServerData()
@@ -468,10 +473,10 @@ namespace Zealot.Common
 
         public int OnAddItem(int slotIdx, int stackCount)
         {
-            IInventoryItem item = Slots[slotIdx];
-            int itemId = item.ItemID;
+            IInventoryItem item = Slots[slotIdx];         
             if (item.StackCount == stackCount)
                 --emptySlots;
+            int itemId = item.ItemID;
             if (!itemSlotMap.ContainsKey(itemId))
                 itemSlotMap.Add(itemId, new ItemSlotInfo());
             itemSlotMap[itemId].Add(slotIdx, stackCount);
@@ -498,16 +503,16 @@ namespace Zealot.Common
             return itemSlotMap.ContainsKey(itemId) ? Slots[itemSlotMap[itemId].slotIds[0]] : null;
         }
 
-        public override Dictionary<int, IInventoryItem> FindItemByItemId(ushort itemId)
+        public override Dictionary<int, IInventoryItem> GetItemsByItemId(ushort itemId)
         {
             Dictionary<int, IInventoryItem> ret = new Dictionary<int, IInventoryItem>();
             if (itemSlotMap.ContainsKey(itemId))
             {
-                List<int> itemSlotIdxs = itemSlotMap[itemId].slotIds;
-                int slotCount = itemSlotIdxs.Count;
-                for (int index = 0; index < slotCount; ++index)
+                List<int> slotIdxs = itemSlotMap[itemId].slotIds;
+                int slotIdxCount = slotIdxs.Count;
+                for (int index = 0; index < slotIdxCount; ++index)
                 {
-                    int slotIdx = itemSlotIdxs[index];
+                    int slotIdx = slotIdxs[index];
                     ret.Add(slotIdx, Slots[slotIdx]);
                 }
             }
@@ -579,25 +584,23 @@ namespace Zealot.Common
             if (emptySlots > 0)
             {
                 for (int index = 0; index < UnlockedSlotCount; ++index)
-                {
                     if (Slots[index] == null)
                         return index;
-                }
             }
             return -1;
         }
 
-        public override int GetAvailableSlotsByItemId(ushort itemId)
+        public override int GetAvailableSlotByItemId(ushort itemId)
         {
             if (itemSlotMap.ContainsKey(itemId))
             {
                 List<int> slotIdxs = itemSlotMap[itemId].slotIds;
-                int slotCount = slotIdxs.Count;
-                for (int index = 0; index < slotCount; ++index)
+                int slotIdxCount = slotIdxs.Count;
+                for (int index = 0; index < slotIdxCount; ++index)
                 {
                     int slotIdx = slotIdxs[index];
-                    IInventoryItem element = Slots[slotIdx];
-                    if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
+                    IInventoryItem invItem = Slots[slotIdx];
+                    if (invItem != null && invItem.ItemID == itemId && invItem.StackCount < invItem.MaxStackCount)
                         return slotIdx;
                 }
             }
@@ -606,11 +609,10 @@ namespace Zealot.Common
 
         public override bool IsExistSlotAvailableByItemId(ushort itemId, int stackCount, int maxstack)
         {
-            if (itemSlotMap.ContainsKey(itemId))
-            {
-                ItemSlotInfo itemSlotInfo = itemSlotMap[itemId];
+            ItemSlotInfo itemSlotInfo = null;
+            if (itemSlotMap.TryGetValue(itemId, out itemSlotInfo))
                 return (itemSlotInfo.slotIds.Count * maxstack - itemSlotInfo.stackTotal) >= stackCount;
-            }
+
             return false;
         }
 
@@ -626,13 +628,13 @@ namespace Zealot.Common
                     if (itemSlotMap.ContainsKey(itemId))
                     {
                         List<int> slotIdxs = itemSlotMap[itemId].slotIds;
-                        int slotIdxCnt = slotIdxs.Count;
-                        for (int index = 0; index < slotIdxCnt; ++index)
+                        int slotIdxCount = slotIdxs.Count;
+                        for (int index = 0; index < slotIdxCount; ++index)
                         {
                             int slotIdx = slotIdxs[index];
-                            IInventoryItem element = Slots[slotIdx];
-                            if (element != null && element.ItemID == itemId && element.StackCount < element.MaxStackCount)
-                                ret.Add(slotIdx, element);
+                            IInventoryItem invItem = Slots[slotIdx];
+                            if (invItem != null && invItem.ItemID == itemId && invItem.StackCount < invItem.MaxStackCount)
+                                ret.Add(slotIdx, invItem);
                         }
                     }
                 }
@@ -654,7 +656,7 @@ namespace Zealot.Common
         public List<Equipment> Slots = new List<Equipment>();
 
         [JsonProperty(PropertyName = "fsslots")]
-        public List<Equipment> Fashions = new List<Equipment>();
+        public List<Equipment> FashionSlots = new List<Equipment>();
 
         [JsonProperty(PropertyName = "helm")]
         public bool HideHelm = false;
@@ -665,7 +667,7 @@ namespace Zealot.Common
         public void InitDefault()
         {
             Slots = new List<Equipment>(new Equipment[mEquipmentSlotSize]);
-            Fashions = new List<Equipment>(new Equipment[mFashionSlotSize]);
+            FashionSlots = new List<Equipment>(new Equipment[mFashionSlotSize]);
         }
 
         public void ClearEquipmentInventory()
@@ -674,9 +676,9 @@ namespace Zealot.Common
             for (int i = 0; i < count; ++i)
                 Slots[i] = null;
 
-            int fashion_count = Fashions.Count;
-            for (int i = 0; i < fashion_count; ++i)
-                Fashions[i] = null;
+            count = FashionSlots.Count;
+            for (int i = 0; i < count; ++i)
+                FashionSlots[i] = null;
         }
 
         public Equipment GetEquipmentBySlotId(int idx)
@@ -694,18 +696,18 @@ namespace Zealot.Common
         public Equipment GetFashionSlot(int slotIdx)
         {
             if (slotIdx < mFashionSlotSize)
-                return Fashions[slotIdx];
+                return FashionSlots[slotIdx];
             return null;
         }
 
         public void SetFashionToSlot(int slotIdx, Equipment equipment)
         {
-            Fashions[slotIdx] = equipment;
+            FashionSlots[slotIdx] = equipment;
         }
 
         public bool IsFashionSlotEmpty(int slotIdx)
         {
-            return Fashions[slotIdx] == null;
+            return FashionSlots[slotIdx] == null;
         }
 
         public EquipmentSlot FindAEquipSlotToSwap(Equipment equipitem)
@@ -739,15 +741,12 @@ namespace Zealot.Common
             return EquipmentSlot.MAXSLOTS;
         }
 
-        public Equipment GetEquipmentByItemId(ushort itemid)
+        public Equipment GetEquipmentByItemId(ushort itemId)
         {
             foreach(Equipment equipment in Slots)
-            {
-                if (equipment.ItemID == itemid)
-                {
+                if (equipment.ItemID == itemId)
                     return equipment;
-                }
-            }
+
             return null;
         }
     }

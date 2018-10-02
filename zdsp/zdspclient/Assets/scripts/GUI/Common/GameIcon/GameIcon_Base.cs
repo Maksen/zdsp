@@ -39,6 +39,17 @@ public class GameIcon_Base : MonoBehaviour
         newDot.SetActive(isNew);
     }
 
+    protected void Init(CurrencyType currencyType, bool isNew = false)
+    {
+        Sprite sprite = ClientUtils.LoadCurrencyIcon(currencyType);
+        if (sprite != null)
+            imgIcon.sprite = sprite;
+
+        //itemRarity.SetRarity(InventoryItem.ItemSortJson.gameicontype, itemBaseJson.rarity);
+
+        newDot.SetActive(isNew);
+    }
+
     protected void OnClickShowItemToolTip(int stackCount)
     {
         if (InventoryItem != null)

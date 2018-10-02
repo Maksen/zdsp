@@ -113,9 +113,9 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.EnterRealm)]
-        public void EnterRealm(int realmId, byte realmState, int elapsed, object target)
+        public void EnterRealm(int realmId, byte realmState, int elapsed, long serverNowTick, object target)
         {
-            ProxyMethod("EnterRealm", realmId, realmState, elapsed, target);
+            ProxyMethod("EnterRealm", realmId, realmState, elapsed, serverNowTick, target);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnGate)]
@@ -508,6 +508,14 @@ namespace Zealot.RPC
         public void Ret_RandomInterestResult(byte interest, object target)
         {
             ProxyMethod("Ret_RandomInterestResult", interest, target);
+        }
+        #endregion
+
+        #region Achievement
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_ClaimAllAchievementRewards)]
+        public void Ret_ClaimAllAchievementRewards(string claimedRewards, object target)
+        {
+            ProxyMethod("Ret_ClaimAllAchievementRewards", claimedRewards, target);
         }
         #endregion
 

@@ -296,7 +296,7 @@ namespace Zealot.Server.Rules
             //try and add all items
             foreach (var item in itemOutput)
             {
-                var retVale = player.Slot.mInventory.AddItemsIntoInventory(item.itemId, item.stackCount, setnew, reason);
+                var retVale = player.Slot.mInventory.AddItemsToInventory(item.itemId, item.stackCount, setnew, reason);
                 if (retVale.retCode == InvReturnCode.AddSuccess)
                 {
                     if (checkNotification)
@@ -325,7 +325,7 @@ namespace Zealot.Server.Rules
                                             itemOutput,
                                             currencyAdded);
 
-            var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemOutput, setnew, reason);
+            var retValue = player.Slot.mInventory.AddItemsToInventory(itemOutput, setnew, reason);
             if (retValue.retCode != InvReturnCode.AddSuccess)
             {
                 isfull = true;
@@ -360,7 +360,7 @@ namespace Zealot.Server.Rules
                                             itemOutput, 
                                             currencyAdded, expboost);
 
-            var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemOutput, setnew, reason);
+            var retValue = player.Slot.mInventory.AddItemsToInventory(itemOutput, setnew, reason);
             if (retValue.retCode != InvReturnCode.AddSuccess)
             {
                 //if cant add to bag, send mail
@@ -369,13 +369,11 @@ namespace Zealot.Server.Rules
                     items_Attachment.Add(GenerateItem(item.itemId, null, item.stackCount));
                 SendMailWithAttachment(player.Name, mailName, items_Attachment, currencyAdded, parameters);
             }
-            else
+            else // Add items success, add currency
             {
-                //add currency
                 foreach (var currency in currencyAdded)
-                {
                     player.AddCurrency(currency.Key, currency.Value, reason);
-                }
+
                 if (checkNotification)
                 {
                     for (int index = 0; index < itemOutput.Count; ++index)
@@ -449,7 +447,7 @@ namespace Zealot.Server.Rules
                 itemOutput.Add(newItem);
             }
 
-            var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemOutput, setnew, reason);
+            var retValue = player.Slot.mInventory.AddItemsToInventory(itemOutput, setnew, reason);
             if (retValue.retCode != InvReturnCode.AddSuccess)
             {
                 // If cant add to bag, send mail
@@ -458,13 +456,11 @@ namespace Zealot.Server.Rules
                     items_Attachment.Add(GenerateItem(item.itemId, null, item.stackCount));
                 SendMailWithAttachment(playername, mailName, items_Attachment, currencyAdded, parameters);
             }
-            else
+            else  // Add items success, add currency
             {
-                // Add currency
                 foreach (var currency in currencyAdded)
-                {
                     player.AddCurrency(currency.Key, currency.Value * rewardMultiplier, reason);
-                }
+
                 if (checkNotification)
                 {
                     for (int index = 0; index < itemOutput.Count; ++index)

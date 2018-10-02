@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
 using Photon.LoadBalancing.GameServer;
-using Kopio.JsonContracts;
+using System;
+using System.Collections.Generic;
 using Zealot.Common;
 using Zealot.Entities;
 using Zealot.Repository;
@@ -121,8 +121,9 @@ namespace Zealot.Server.Entities
         {
             mPlayers.Add(player.Name, player);
             GameClientPeer peer = player.Slot;
-            int timespan = (int)(DateTime.Now - mTimerStart).TotalSeconds;           
-            peer.ZRPC.CombatRPC.EnterRealm(mRealmInfo.id, (byte)mRealmState, timespan, peer);
+            DateTime dtNow = DateTime.Now;
+            int timespan = (int)(dtNow - mTimerStart).TotalSeconds;
+            peer.ZRPC.CombatRPC.EnterRealm(mRealmInfo.id, (byte)mRealmState, timespan, dtNow.Ticks, peer);
         }
 
         public virtual void OnPlayerExit(Player player)

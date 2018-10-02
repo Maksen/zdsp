@@ -603,7 +603,7 @@ namespace Zealot.Server.Rules
                     if (itemToCollect.isWinner)
                     {
                         // try give item to player                       
-                        InvRetval retval = peer.mInventory.AddItemsIntoInventory((ushort)itemToCollect.itemId, itemToCollect.itemCount, true, "Auction");
+                        InvRetval retval = peer.mInventory.AddItemsToInventory((ushort)itemToCollect.itemId, itemToCollect.itemCount, true, "Auction");
                         if (retval.retCode != InvReturnCode.AddSuccess)  // inventory full
                         {
                             peer.ZRPC.CombatRPC.Ret_AuctionCollectItem((byte)AuctionReturnCode.InventoryFull, peer);

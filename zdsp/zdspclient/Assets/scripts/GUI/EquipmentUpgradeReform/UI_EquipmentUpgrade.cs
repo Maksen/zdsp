@@ -756,6 +756,37 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         return true;
     }
 
+    private bool IsMatSelected()
+    {
+        for(int i = 0; i < _materialIconsList.Count; ++i)
+        {
+            GameIcon_MaterialConsumable matIcon = _materialIconsList[i].GetComponent<GameIcon_MaterialConsumable>();
+            if(matIcon == null)
+            {
+                continue;
+            }
+
+            GameIconCmpt_SelectCheckmark checkMark = matIcon.GetToggleSelect();
+            if(checkMark == null)
+            {
+                continue;
+            }
+
+            Toggle matIconToggle = checkMark.GetToggleSelect();
+            if(matIconToggle == null)
+            {
+                continue;
+            }
+
+            if(matIconToggle.isOn)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void SetEquipmentUpgradeButtonState(Equipment equipment)
     {
         EquipmentType equipType = _selectedEquipment.EquipmentJson.equiptype;
@@ -776,6 +807,15 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         {
             confirmUpgradeBtn.interactable = false;
             upgradeCostText.color = ClientUtils.ColorRed;
+        }
+
+        if(IsMatSelected() == true)
+        {
+            confirmUpgradeBtn.interactable = true;
+        }
+        else
+        {
+            confirmUpgradeBtn.interactable = false;
         }
     }
 

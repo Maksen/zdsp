@@ -174,35 +174,29 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
 
             for (int i = 0; i < Split_List.Count; ++i)
             {
-                GameObject reqITemDataObj = Instantiate(requiredItemDataPrefab);
-                reqITemDataObj.transform.SetParent(ItemRequirements_Parents, false);
+                GameObject reqItemDataObj = Instantiate(requiredItemDataPrefab);
+                reqItemDataObj.transform.SetParent(ItemRequirements_Parents, false);
 
                 if (player == null) { return; }
 
                 int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(Split_List[i].itemId);
-                int money = player.SecondaryStats.Money;
 
-                RequiredItemData reqItemData = reqITemDataObj.GetComponent<RequiredItemData>();
+                RequiredItemData reqItemData = reqItemDataObj.GetComponent<RequiredItemData>();
                 reqItemData.InitMaterial(Split_List[i].itemId, invAmount, Split_List[i].stackCount);
             }
+            
+            int playerCurrency = player.SecondaryStats.Money;
+            int requireCurrency = powerupData.cost;
+
+            GameObject reqCurrencyObj = ClientUtils.CreateChild(ItemRequirements_Parents, requiredItemDataPrefab);
+            RequiredItemData reqCurrency = reqCurrencyObj.GetComponent<RequiredItemData>();
+
+            reqCurrency.InitCurrency(CurrencyType.Money, playerCurrency, requireCurrency);
         }
     }
     #endregion
 
     #region CompareConsume
-    public static void CompareMaterial(Text colorText, int invAmount, int reqAmount)
-    {
-        if (invAmount >= reqAmount)
-        {
-            colorText.color = Color.white;
-        }
-        else
-        {
-            colorText.color = Color.red;
-            haveEnoughMaterial = false;
-        }
-    }
-
     public void NotEnoughAnimator()
     {
         AT_NoEnough.Play((haveEnoughMaterial == true) ? "inv_notenough_DEFAULT" : "inv_notenough");

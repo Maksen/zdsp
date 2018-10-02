@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
@@ -8,7 +9,7 @@ using Zealot.Repository;
 public partial class ClientMain : MonoBehaviour
 {
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.EnterRealm)]
-    public void EnterRealm(int realmId, byte realmState, int elapsed)
+    public void EnterRealm(int realmId, byte realmState, int elapsed, long serverNowTick)
     {
         RealmJson mRealmInfo = RealmRepo.GetInfoById(realmId);       
         //LevelJson LevelInfo = LevelRepo.GetInfoById(mRealmInfo.level);
@@ -21,7 +22,9 @@ public partial class ClientMain : MonoBehaviour
         switch (realmType)
         {
             case RealmType.Dungeon:
-                UIManager.GetWidget(HUDWidgetType.RealmExit).GetComponent<HUD_RealmExit>().Init(elapsed);
+                DateTime dtServerNow = new DateTime(serverNowTick);
+                int actualElapsed = elapsed + (int)(DateTime.Now - dtServerNow).TotalSeconds;
+                UIManager.GetWidget(HUDWidgetType.RealmExit).GetComponent<HUD_RealmExit>().Init(actualElapsed);
                 break;
         }
     }

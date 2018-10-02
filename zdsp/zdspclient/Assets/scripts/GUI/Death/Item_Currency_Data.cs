@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Common;
 
 public class Item_Currency_Data : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class Item_Currency_Data : MonoBehaviour
     // Private Variables
     private GameObject _dataIcon;
 
-    public void Init(DeathItemData item)
+    public void Init(ItemInfo item)
     {
         ClearIcon();
 
@@ -21,20 +22,20 @@ public class Item_Currency_Data : MonoBehaviour
         _dataIcon.transform.SetParent(gameIconParent, false);
 
         GameIcon_MaterialConsumable gameIcon = _dataIcon.GetComponent<GameIcon_MaterialConsumable>();
-        gameIcon.InitWithoutCallback(item.ItemID(), item.Amount());
-        requireAmtTxt.text = item.Amount().ToString();
+        gameIcon.InitWithoutCallback(item.itemId, 0); // Don't show amount on icon
+        requireAmtTxt.text = item.stackCount.ToString();
     }
 
-    public void Init(DeathCurrencyData currency)
+    public void Init(CurrencyInfo currency)
     {
         ClearIcon();
 
         GameObject _dataIcon = Instantiate(gameIconPrefab);
         _dataIcon.transform.SetParent(gameIconParent, false);
 
-        //GameIcon_MaterialConsumable gameIcon = _dataIcon.GetComponent<GameIcon_MaterialConsumable>();
-        //gameIcon.Init(currency.ItemID(), currency.Amount(), false);
-        requireAmtTxt.text = currency.Amount().ToString();
+        GameIcon_MaterialConsumable gameIcon = _dataIcon.GetComponent<GameIcon_MaterialConsumable>();
+        gameIcon.InitWithoutCallback(currency.currencyType, 0); // Don't show amount on icon
+        requireAmtTxt.text = currency.amount.ToString();
     }
 
     private void ClearIcon()

@@ -13,14 +13,13 @@ public class AchievementStatsClient : AchievementStats
 
     public void Init()
     {
-
-        
+        //windowObj = UIManager.GetWindowGameObject(WindowType.Achievement);
+        //uiAchieve = windowObj.GetComponent<UI_Achievement>();
     }
 
     public void UpdateCollections(byte idx, string value)
     {
         //Debug.Log("col index: " + idx + "-" + value);
-
         if (string.IsNullOrEmpty(value))
             return;
 
@@ -36,7 +35,7 @@ public class AchievementStatsClient : AchievementStats
                 if (colData.Length > 2)
                     photodesc = colData[2];
 
-                CollectionElement elem = new CollectionElement(id, date, photodesc);
+                CollectionElement elem = new CollectionElement(id, date, false, photodesc);
                 collectionsDict.Add(id, elem);
             }
         }
@@ -45,7 +44,6 @@ public class AchievementStatsClient : AchievementStats
     public void UpdateAchievements(byte idx, string value)
     {
         //Debug.Log("ach index: " + idx + "-" + value);
-
         if (string.IsNullOrEmpty(value))
             return;
 
@@ -67,7 +65,7 @@ public class AchievementStatsClient : AchievementStats
                 AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(id);
                 if (obj != null)
                 {
-                    elem = new AchievementElement(id, count, obj.completeCount, obj.slotIdx);
+                    elem = new AchievementElement(id, count, obj.completeCount, false, obj.slotIdx);
                     achievementsDict.Add(id, elem);
                 }
             }
@@ -76,7 +74,7 @@ public class AchievementStatsClient : AchievementStats
 
     public void UpdateRewardClaims()
     {
-        //Debug.Log(RewardClaims);
+        //Debug.Log("claimable rewards: " + RewardClaims);
         claimsList.Clear();
         if (!string.IsNullOrEmpty(RewardClaims))
         {
@@ -95,6 +93,11 @@ public class AchievementStatsClient : AchievementStats
     public bool HasUnclaimedRewards()
     {
         return claimsList.Count > 0;
+    }
+
+    public void OnClaimAllRewards(string claimedRewards)
+    {
+        //Debug.Log("claimed rewards: " + claimedRewards);
     }
 
     public void UpdateLatestRecords(AchievementType type, string value)
@@ -126,6 +129,5 @@ public class AchievementStatsClient : AchievementStats
     {
         achievementsDict.Clear();
     }
-
 #endif
 }

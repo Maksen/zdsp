@@ -65,7 +65,8 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
 
     void OnEnable ()
     {
-        GetInventoryItem();
+        InitVariable();
+        RefreshData();
     }
 
     void OnDisable()
@@ -105,25 +106,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
         ClientUtils.DestroyChildren(materialParent.transform);
     }
 
-    void GetInventoryItem()
-    {
-        ClientUtils.DestroyChildren(materialParent.transform);
-
-        player = GameInfo.gLocalPlayer;
-        RefreshUI();
-        equipList.Clear();
-        elementalList.Clear();
-
-        fusionButton.interactable = false;
-
-        selectedMaterial = new SelectItemData[] { new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null) };
-        buttonDown = new List<bool>() { false, false, false, false, false };
-        compeletStep = new List<bool>() { false, false, false, false, false };
-
-        SearchFusionInventory();
-    }
-
-    void RefreshUI()
+    void InitVariable ()
     {
         SetFusionEquipStats(string.Empty, string.Empty, string.Empty, string.Empty);
         costCurrencyText.text = "0";
@@ -134,6 +117,21 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
             gemEffect2[i].text = string.Empty;
             gemEffect3[i].text = string.Empty;
         }
+        equipList.Clear();
+        elementalList.Clear();
+
+        fusionButton.interactable = false;
+
+        selectedMaterial = new SelectItemData[] { new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null), new SelectItemData(-1, -1, null) };
+        buttonDown = new List<bool>() { false, false, false, false, false };
+        compeletStep = new List<bool>() { false, false, false, false, false };
+    }
+
+    void RefreshData()
+    {
+        ClientUtils.DestroyChildren(materialParent.transform);
+        player = GameInfo.gLocalPlayer;
+        SearchFusionInventory();
     }
 
     public void SearchFusionInventory()
@@ -348,22 +346,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
                 SelectButton(index, ItemId);
                 ElementalStone stone = selectedMaterial[index].Item as ElementalStone;
                 List<string> stoneEffect = EquipFusionRepo.DecodeEffect(stone.FusionData);
-                for (int j = 0; j < 6; ++j)
-                {
-                    switch (index)
-                    {
-                        case 2:
-                            gemEffect1[j].text = stoneEffect[j];
-                            break;
-                        case 3:
-                            gemEffect2[j].text = stoneEffect[j];
-                            break;
-                        case 4:
-                            gemEffect3[j].text = stoneEffect[j];
-                            break;
-                    }
-                    
-                }
+                SetGemEffect(stoneEffect, index);
             }
         }
         if(compeletStep[0] && compeletStep[1] && compeletStep[2] && compeletStep[3] && compeletStep[4])
@@ -390,6 +373,25 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
         int totalCurrency = EquipFusionRepo.GetTotalCurrencyCount(selectedMaterial[2].Item.ItemID, selectedMaterial[3].Item.ItemID, selectedMaterial[4].Item.ItemID);
         costCurrencyText.text = totalCurrency.ToString("N0");
         fusionButton.interactable = (player.SecondaryStats.Money >= totalCurrency) ? true : false;
+    }
+
+    void SetGemEffect(List<string> effectList, int indexOfEffect)
+    {
+        for (int i = 0; i < 6; ++i)
+        {
+            switch (indexOfEffect)
+            {
+                case 2:
+                    gemEffect1[i].text = effectList[i];
+                    break;
+                case 3:
+                    gemEffect2[i].text = effectList[i];
+                    break;
+                case 4:
+                    gemEffect3[i].text = effectList[i];
+                    break;
+            }
+        }
     }
     #endregion
 
@@ -423,7 +425,8 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
         if (mine != null)
         {
             mine.FinishedFusion();
-            mine.GetInventoryItem();
+            mine.InitVariable();
+            mine.RefreshData();
         }
     }
 

@@ -581,7 +581,7 @@ namespace Photon.LoadBalancing.GameServer.Mail
             MailData mailData = mailInvData.lstMailData[mailIdx];
 
             //Add items into inventory
-            InvRetval invRetVal = rcvPeer.mInventory.AddItemsIntoInventory(mailData.lstIInventoryItem, true, "Mail");
+            InvRetval invRetVal = rcvPeer.mInventory.AddItemsToInventory(mailData.lstIInventoryItem, true, "Mail");
             switch (invRetVal.retCode)
             {
                 case InvReturnCode.AddSuccess:
@@ -633,7 +633,7 @@ namespace Photon.LoadBalancing.GameServer.Mail
                 }
 
                 //Add item attachments into player's inventory
-                invRetVal = rcvPeer.mInventory.AddItemsIntoInventory(mailData.lstIInventoryItem, true, "Mail");
+                invRetVal = rcvPeer.mInventory.AddItemsToInventory(mailData.lstIInventoryItem, true, "Mail");
                 //Do nothing if items cannot be added
                 if (invRetVal.retCode != InvReturnCode.AddSuccess)
                     break;

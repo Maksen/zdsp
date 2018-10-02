@@ -895,17 +895,17 @@ namespace Photon.LoadBalancing.GameServer
             else
             {
                 //Add item to player inventory
-                peer.mInventory.AddItemsIntoInventory((ushort)itemInfo.rewarditem_id, itemInfo.rewarditem_count, true, "Exchange");
+                peer.mInventory.AddItemsToInventory((ushort)itemInfo.rewarditem_id, itemInfo.rewarditem_count, true, "Exchange");
 
                 //Decrease exchange count
                 exLeftMap[recipeid]--;
                 peer.mPlayer.ExchangeShopSynStats.exchangeLeftMapJsonString = JsonConvert.SerializeObject(exLeftMap);
 
                 //Decrease item
-                peer.mInventory.DeductItem((ushort)itemInfo.item1_id, (ushort)itemInfo.item1_count, "Exchange");
-                peer.mInventory.DeductItem((ushort)itemInfo.item2_id, (ushort)itemInfo.item2_count, "Exchange");
-                peer.mInventory.DeductItem((ushort)itemInfo.item3_id, (ushort)itemInfo.item3_count, "Exchange");
-                peer.mInventory.DeductItem((ushort)itemInfo.item4_id, (ushort)itemInfo.item4_count, "Exchange");
+                peer.mInventory.DeductItems((ushort)itemInfo.item1_id, itemInfo.item1_count, "Exchange");
+                peer.mInventory.DeductItems((ushort)itemInfo.item2_id, itemInfo.item2_count, "Exchange");
+                peer.mInventory.DeductItems((ushort)itemInfo.item3_id, itemInfo.item3_count, "Exchange");
+                peer.mInventory.DeductItems((ushort)itemInfo.item4_id, itemInfo.item4_count, "Exchange");
 
                 //Check if need rare item notification
                 RareItemNotificationRules.CheckNotification(itemInfo.rewarditem_id, peer.mPlayer.PlayerSynStats.name);
@@ -1149,15 +1149,39 @@ namespace Photon.LoadBalancing.GameServer
             var totalcost = (int)(purchaseamount * storeentry.DiscountedPrice());
 
             bool buyresult = false;
-            switch (storeentry.SoldType)
-            {
-                case NPCStoreInfo.SoldCurrencyType.Normal:
-                    buyresult = peer.mPlayer.DeductMoney(totalcost, "NPCStoreBuy");
-                    break;
 
-                case NPCStoreInfo.SoldCurrencyType.Auction:
-                    buyresult = peer.mPlayer.DeductGold(totalcost, false, true, "NPCStoreBuy");
-                    break;
+            if (storeentry.Type == NPCStoreInfo.ItemStoreType.Normal)
+            {
+                switch (storeentry.SoldType)
+                {
+                    case NPCStoreInfo.SoldCurrencyType.Normal:
+                        buyresult = peer.mPlayer.DeductMoney(totalcost, "NPCStoreBuy");
+                        break;
+
+                    case NPCStoreInfo.SoldCurrencyType.Auction:
+                        buyresult = peer.mPlayer.DeductGold(totalcost, false, true, "NPCStoreBuy");
+                        break;
+                }
+            }
+            else
+            {
+                buyresult = true;
+                foreach (var req in storeentry.required_items)
+                {
+                    if (peer.mInventory.HasItem((ushort)req.ReqItemID, req.ReqItemValue) == false)
+                    {
+                        buyresult = false;
+                        break;
+                    }
+                }
+
+                if (buyresult)
+                {
+                    foreach (var req in storeentry.required_items)
+                    {
+                        peer.mInventory.DeductItems((ushort)req.ReqItemID, (ushort)req.ReqItemValue, "Barter cost");
+                    }
+                }
             }
 
             if (buyresult == false)
@@ -1170,7 +1194,7 @@ namespace Photon.LoadBalancing.GameServer
             var totalstackcount = purchaseamount * storeentry.ItemValue;
 
             // transaction legal, give the item
-            InvRetval retval = peer.mInventory.AddItemsIntoInventory((ushort)storeentry.ItemID, totalstackcount, true, "NPCStoreBuy");
+            InvRetval retval = peer.mInventory.AddItemsToInventory((ushort)storeentry.ItemID, totalstackcount, true, "NPCStoreBuy");
                 
             // record transaction            
             var success = GameApplication.dbGM.NPCStoreGMRepo.UpdateTransactions(transactions, charid).ConfigureAwait(false);

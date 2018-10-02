@@ -142,16 +142,16 @@ public class CombatRPC : RPCBase
         ProxyMethod("InspectMode");
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnter)]
-    public void DungeonEnter(int realmId)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterRequest)]
+    public void DungeonEnterRequest(int realmId)
     {
-        ProxyMethod("DungeonEnter", realmId);
+        ProxyMethod("DungeonEnterRequest", realmId);
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonEnterState)]
-    public void DungeonEnterState(int realmId, byte state)
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.EnterRealmWithPartyResponse)]
+    public void EnterRealmWithPartyResponse(int realmId, byte status)
     {
-        ProxyMethod("DungeonEnterState", realmId, state);
+        ProxyMethod("EnterRealmWithPartyResponse", realmId, status);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.DungeonAutoClear)]
@@ -717,6 +717,26 @@ public class CombatRPC : RPCBase
     public void ClaimExplorationReward(int mapId)
     {
         ProxyMethod("ClaimExplorationReward", mapId);
+    }
+    #endregion
+
+    #region Achievement
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAchievementReward)]
+    public void ClaimAchievementReward(byte type, int id)
+    {
+        ProxyMethod("ClaimAchievementReward", type, id);
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAllAchievementRewards)]
+    public void ClaimAllAchievementRewards()
+    {
+        ProxyMethod("ClaimAllAchievementRewards");
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.AchievementNPCInteract)]
+    public void AchievementNPCInteract(int npcId)
+    {
+        ProxyMethod("AchievementNPCInteract", npcId);
     }
     #endregion
 

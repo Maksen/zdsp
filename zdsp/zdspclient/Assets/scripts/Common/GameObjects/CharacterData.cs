@@ -320,7 +320,7 @@ namespace Zealot.Common
 
         public void ValidateDefault()
         {
-            if (EquipmentInventory.Fashions.Count == 0)
+            if (EquipmentInventory.FashionSlots.Count == 0)
                 EquipmentInventory.InitDefault();
         }
 

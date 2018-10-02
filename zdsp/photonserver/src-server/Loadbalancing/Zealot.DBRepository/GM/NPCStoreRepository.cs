@@ -21,7 +21,7 @@ namespace Zealot.DBRepository.GM.NPCStore
             var storerows = await GetStoresAsync().ConfigureAwait(false);
             foreach (var row in storerows)
             {
-                ret.Add((int)row["ID"], new NPCStoreInfo((int)row["ID"], (string)row["localisedname"], (string)row["name"], (NPCStoreInfo.StoreType)((string)row["type"]).ToCharArray()[0]));
+                ret.Add((int)row["ID"], new NPCStoreInfo((int)row["ID"], (string)row["localisedname"], (string)row["name"], (NPCStoreInfo.ItemStoreType)((string)row["type"]).ToCharArray()[0]));
             }
 
             var normalitemrows = await GetSoldItemsAsync().ConfigureAwait(false);

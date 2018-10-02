@@ -5,51 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Zealot.Common;
+using Zealot.Client.Entities;
 using Zealot.Repository;
-
-public class DeathItemData
-{
-    private int _itemId;
-    private int _amount;
-
-    public DeathItemData(int itemid, int amount)
-    {
-        _itemId = itemid;
-        _amount = amount;
-    }
-
-    public int ItemID()
-    {
-        return _itemId;
-    }
-
-    public int Amount()
-    {
-        return _amount;
-    }
-}
-
-public class DeathCurrencyData
-{
-    private CurrencyType    _type;
-    private int             _amount;
-
-    public DeathCurrencyData(CurrencyType type, int amount)
-    {
-        _type   = type;
-        _amount = amount;
-    }
-
-    public CurrencyType Type()
-    {
-        return _type;
-    }
-
-    public int Amount()
-    {
-        return _amount;
-    }
-}
 
 public class UI_Death : BaseWindowBehaviour
 {
@@ -73,8 +30,8 @@ public class UI_Death : BaseWindowBehaviour
     private bool                    _autoRespawn            = false;
     private float                   _autoRespawnStartTime   = 0;
     private RespawnJson             _respawnData;
-    private List<DeathItemData>     _itemList;
-    private List<DeathCurrencyData> _currencyList;
+    private List<ItemInfo>          _itemList;
+    private List<CurrencyInfo>      _currencyList;
     private List<GameObject>        _itemCurrencyList;
 
     public void Init(string killer, int respawnid)
@@ -97,8 +54,8 @@ public class UI_Death : BaseWindowBehaviour
             return;
         }
 
-        _itemList = GetRequiredItemsFromString(_respawnData.deductitem);
-        _currencyList = GetRequiredCurrencyFromString(_respawnData.deductcurrency);
+        _itemList = RespawnRepo.GetItemListByID(respawnid);
+        _currencyList = RespawnRepo.GetCurrencyListByID(respawnid);
         if(_itemList == null && _currencyList == null)
         {
             itmCurrScrollView.SetActive(false);
@@ -109,7 +66,7 @@ public class UI_Death : BaseWindowBehaviour
             {
                 for(int i = 0; i < _itemList.Count; ++i)
                 {
-                    DeathItemData data = _itemList[i];
+                    ItemInfo data = _itemList[i];
                     GameObject newItemData = Instantiate(respawnItemCurrPrefab);
                     newItemData.transform.SetParent(respawnItemCurrParent, false);
 
@@ -124,7 +81,7 @@ public class UI_Death : BaseWindowBehaviour
             {
                 for(int i = 0; i < _currencyList.Count; ++i)
                 {
-                    DeathCurrencyData data = _currencyList[i];
+                    CurrencyInfo data = _currencyList[i];
                     GameObject newCurrencyData = Instantiate(respawnItemCurrPrefab);
                     newCurrencyData.transform.SetParent(respawnItemCurrParent, false);
 
@@ -158,7 +115,7 @@ public class UI_Death : BaseWindowBehaviour
             return;
         }
 
-        if (_respawnData.countdown > -1 && _timeLeft <= 0)
+        if(_respawnData.countdown > -1 && _timeLeft <= 0)
         {
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("death_RespawnNotNeeded"));
 
@@ -167,22 +124,27 @@ public class UI_Death : BaseWindowBehaviour
 
         if(_respawnData.siturespawn == true)
         {
-            if(_itemList.Count == 0 && _currencyList.Count == 0)
+            if(_itemList.Count > 0 || _currencyList.Count > 0)
             {
-                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("death_SituRespawnNoItemData"));
+                if(IsSuffcient() == false)
+                {
+                    return;
+                }
 
-                return;
+                RPCFactory.CombatRPC.RespawnOnSpot();
             }
             else
             {
-                // Open dialog for deducting item and currency
+                RPCFactory.CombatRPC.RespawnOnSpot();
             }
-        }
 
-        switch (_respawnData.respawntype)
+            return;
+        }
+        
+        switch(_respawnData.respawntype)
         {
             case RespawnType.City:
-                if(GameInfo.mRealmInfo.maptype == MapType.City || GameInfo.mRealmInfo.maptype == MapType.Wilderness)
+                if(GameInfo.mRealmInfo.maptype != MapType.City)
                 {
                     RPCFactory.CombatRPC.RespawnAtSafeZone();
                 }
@@ -248,70 +210,65 @@ public class UI_Death : BaseWindowBehaviour
         }
     }
 
-    private List<DeathItemData> GetRequiredItemsFromString(string itemListStr)
-    {
-        if(string.IsNullOrEmpty(itemListStr))
-        {
-            return null;
-        }
-
-        List<DeathItemData> itemList = new List<DeathItemData>();
-
-        List<string> itemListDataList = itemListStr.Split('|').ToList();
-        if(itemListDataList != null)
-        {
-            for(int i = 0; i < itemListDataList.Count; ++i)
-            {
-                int itemid = 0;
-                int amount = 0;
-                List<string> itemDataList = itemListDataList[i].Split(';').ToList();
-                if (int.TryParse(itemDataList[0], out itemid) && int.TryParse(itemDataList[1], out amount))
-                {
-                    DeathItemData newItem = new DeathItemData(itemid, amount);
-                    itemList.Add(newItem);
-                }
-            }
-        }
-
-        return itemList;
-    }
-
     private void OnDisable()
     {
         SetHideWhenDeath(true);
     }
 
-    private List<DeathCurrencyData> GetRequiredCurrencyFromString(string currencyListStr)
+    private void SetHideWhenDeath(bool bShow)
     {
-        if (string.IsNullOrEmpty(currencyListStr))
+        UIManager.SetWidgetActive(HUDWidgetType.HideWhenDeath, bShow);
+    }
+
+    private bool IsSuffcient()
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
         {
-            return null;
+            return false;
         }
 
-        List<DeathCurrencyData> currencyList = new List<DeathCurrencyData>();
-
-        List<string> currencyListDataList = currencyListStr.Split('|').ToList();
-        if (currencyListDataList != null)
+        bool res = true;
+        List<ItemInfo> itemList = RespawnRepo.GetItemListByID(_respawnId);
+        List<CurrencyInfo> currencyList = RespawnRepo.GetCurrencyListByID(_respawnId);
+        if(itemList.Count == 0 && currencyList.Count == 0)
         {
-            for (int i = 0; i < currencyListDataList.Count; ++i)
+            return false;
+        }
+
+        if(itemList.Count > 0)
+        {
+            for(int i = 0; i < itemList.Count; ++i)
             {
-                int currencyid = 0;
-                int amount = 0;
-                List<string> currencyDataList = currencyListDataList[i].Split(';').ToList();
-                if (int.TryParse(currencyDataList[0], out currencyid) && int.TryParse(currencyDataList[1], out amount))
+                ItemInfo item = itemList[i];
+                int invItemCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(item.itemId);
+
+                if(invItemCount < item.stackCount)
                 {
-                    DeathCurrencyData newCurrency = new DeathCurrencyData((CurrencyType)currencyid, amount);
-                    currencyList.Add(newCurrency);
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Death_InsufficientReviveItem"));
+
+                    res = false;
                 }
             }
         }
 
-        return currencyList;
-    }
+        if(currencyList.Count > 0)
+        {
+            for(int i = 0; i < currencyList.Count; ++i)
+            {
+                CurrencyInfo currency = currencyList[i];
+                long invCurrencyCount = player.GetCurrencyAmount(currency.currencyType);
 
-    private void SetHideWhenDeath(bool bShow)
-    {
-        UIManager.SetWidgetActive(HUDWidgetType.HideWhenDeath, bShow);
+                if(invCurrencyCount < currency.amount)
+                {
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Death_InsufficientReviveCurrency"));
+
+                    res = false;
+                }
+            }
+        }
+
+        return res;
     }
 
     private void ClearItemCurrencyList()
@@ -335,7 +292,7 @@ public class UI_Death : BaseWindowBehaviour
     {
         if(_itemList == null)
         {
-            _itemList = new List<DeathItemData>();
+            _itemList = new List<ItemInfo>();
 
             return;
         }
@@ -347,7 +304,7 @@ public class UI_Death : BaseWindowBehaviour
     {
         if(_currencyList == null)
         {
-            _currencyList = new List<DeathCurrencyData>();
+            _currencyList = new List<CurrencyInfo>();
 
             return;
         }

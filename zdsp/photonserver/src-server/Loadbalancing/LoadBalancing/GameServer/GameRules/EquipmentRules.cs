@@ -1,12 +1,6 @@
-﻿using Kopio.JsonContracts;
-using Photon.LoadBalancing.GameServer;
-using System;
+﻿using Photon.LoadBalancing.GameServer;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Zealot.Common;
-using Zealot.Common.Entities;
 using Zealot.Repository;
 
 namespace Zealot.Server.Rules
@@ -22,12 +16,12 @@ namespace Zealot.Server.Rules
     {
         public static InvRetval UseMaterials(EquipUpgMaterial material, GameClientPeer peer)
         {
-            return peer.mPlayer.Slot.mInventory.UseToolItems((ushort)material.mMat.itemId, (ushort)material.mMat.stackCount, "EquipUpgrade");
+            return peer.mPlayer.Slot.mInventory.DeductItems(material.mMat.itemId, material.mMat.stackCount, "EquipUpgrade");
         }
 
         public static InvRetval UseMaterials(List<ItemInfo> materials, GameClientPeer peer)
         {
-            return peer.mPlayer.Slot.mInventory.UseToolItems(materials, "EquipReform");
+            return peer.mPlayer.Slot.mInventory.DeductItems(materials, "EquipReform");
         }
 
         public static bool IsEnoughReformMaterials(List<ItemInfo> matList, GameClientPeer peer)

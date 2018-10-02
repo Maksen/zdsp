@@ -9,7 +9,6 @@ using Zealot.Common.RPC;
 using Zealot.Common.Entities;
 using Zealot.Server.Entities;
 using Zealot.Repository;
-using Zealot.Common.Datablock;
 
 namespace Zealot.Server.Rules
 {
@@ -21,34 +20,34 @@ namespace Zealot.Server.Rules
         RealmEnterSuccess,
     }
 
-    enum DungeonMemberState : byte
+    enum RealmPartyEnterResponse : byte
     {
         Pending = 0,
         Ready,
         Cancel
     }
 
-    class DungeonMember
+    class RealmPartyMember
     {
-        public string memberName = "";
-        public DungeonMemberState state = DungeonMemberState.Pending;
+        public string Name = "";
+        public RealmPartyEnterResponse Response = RealmPartyEnterResponse.Pending;
     }
 
-    class DungeonParty
+    class RealmParty
     {
-        public List<DungeonMember> members = new List<DungeonMember>(3);
-        public int realmId = 0;
-        public DateTime dtRequested;
+        public Dictionary<string, RealmPartyMember> Members = new Dictionary<string, RealmPartyMember>();
+        public RealmJson RealmInfo = null;
+        public DateTime DTRequested;
 
-        public DungeonParty(int id)
+        public RealmParty(RealmJson realmInfo)
         {
-            realmId = id;
-            dtRequested = DateTime.Now;
+            RealmInfo = realmInfo;
+            DTRequested = DateTime.Now;
         }
 
         public void AddMember(string name)
         {
-            members.Add(new DungeonMember() { memberName = name });
+            Members.Add(name, new RealmPartyMember() { Name = name });
         }
     }
 
@@ -59,13 +58,13 @@ namespace Zealot.Server.Rules
 
     static class RealmRules
     {
-        public static Dictionary<string, DungeonParty> DungeonStateDict = null;
+        public static readonly int UpdateInterval = 5000;
+
+        public static Dictionary<int, RealmParty> RealmPartyEnterStatus= null; // realmId <- RealmParty
         private static readonly PoolFiber executionFiber;
 
         private static Dictionary<string, InvitePVPData> InvitePVPList = new Dictionary<string, InvitePVPData>();
 
-        public static readonly int UpdateInterval = 5000;
-        
         static RealmRules()
         {
             executionFiber = GameApplication.Instance.executionFiber;
@@ -73,20 +72,20 @@ namespace Zealot.Server.Rules
 
         public static void Init()
         {
-            DungeonStateDict = new Dictionary<string, DungeonParty>();
+            RealmPartyEnterStatus = new Dictionary<int, RealmParty>();
         }
 
         public static void Update()
         {
-            List<string> keys = DungeonStateDict.Keys.ToList();
-            for (int index = 0; index < keys.Count; index++)
+            List<int> partyIds = RealmPartyEnterStatus.Keys.ToList();
+            int count = partyIds.Count;
+            for (int i = 0; i < count; ++i)
             {
-                string partyName = keys[index];
-                DungeonParty dungeonParty = DungeonStateDict[partyName];
-                DateTime dtRequest = dungeonParty.dtRequested;
-                TimeSpan timeElapsed = DateTime.Now.Subtract(dtRequest);
+                int partyId = partyIds[i];
+                RealmParty realmParty = RealmPartyEnterStatus[partyId];
+                TimeSpan timeElapsed = DateTime.Now.Subtract(realmParty.DTRequested);
                 if (timeElapsed.TotalSeconds > 6)
-                    DungeonStateDict.Remove(partyName);
+                    RealmPartyEnterStatus.Remove(partyId);
             }
             executionFiber.Schedule(Update, UpdateInterval); // Reschedule next interval
         }
@@ -147,32 +146,32 @@ namespace Zealot.Server.Rules
             return RealmRetCode.RealmEnterFailed;
         }
 
-        public static void CreateRealmById(int realmId, bool logAI, bool checkAll, GameClientPeer peer)
+        public static string CreateRealmById(int realmId, bool logAI, bool checkAll, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
             if (player == null || !player.IsAlive())
-                return;
+                return "";
             RealmJson realm = null;
             string levelScene = "";
             if (!GetRealmInfo(realmId, out realm, out levelScene))
-                return;
+                return "";
             if (!CheckRealmRequirement(realm, player, peer, checkAll))
-                return;
+                return "";
 
-            peer.CreateRealm(realmId, levelScene, logAI);
+            return peer.CreateRealm(realmId, levelScene, logAI);
         }
 
-        public static void EnterRealmById(int realmId, GameClientPeer peer)
+        public static string EnterRealmById(int realmId, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
             if (player == null || !player.IsAlive())
-                return;
+                return "";
             RealmJson realm = null;
             string levelScene = "";
             if (!GetRealmInfo(realmId, out realm, out levelScene))
-                return;
+                return "";
             if (!CheckRealmRequirement(realm, player, peer, true))
-                return;
+                return "";
 
             // Enter realm logic here
             string roomGuid = "";
@@ -201,32 +200,32 @@ namespace Zealot.Server.Rules
                 //    break;
 
                 //case RealmType.ActivityGuardWar:
-                    //string partyName = peer.GetPartyName();
-                    //PartyInfoStats partyStats = string.IsNullOrEmpty(partyName) ? null : GameRules.PartyController.GetPartyInfoStatsByPartyName(partyName);
-                    //if (partyStats == null || partyStats.MemberCount() == 1)
-                    //{
-                    //    roomGuid = GameApplication.Instance.GameCache.TryGetRealmRoomGuid(realmId, realm.maxplayer);
-                    //    if (!string.IsNullOrEmpty(roomGuid))
-                    //    {
-                    //        Room room;
-                    //        GameApplication.Instance.GameCache.TryGetRoomWithoutReference(roomGuid, out room);
-                    //        if (((Game)room).controller != null)
-                    //        {
-                    //            RealmController realmcontroller = ((Game)room).controller.mRealmController;
-                    //            if (realmcontroller == null || !realmcontroller.CanReconnect())
-                    //            {
-                    //                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_activity_End", "", false, peer);
-                    //                return;
-                    //            }
-                    //        }
-                    //        peer.TransferRoom(roomGuid, levelScene);
-                    //    }
-                    //    else
-                    //        peer.CreateRealm(realmId, levelScene);
-                    //}
-                    //else
-                    //    PartyEnterRequest(partyStats, realm, peer);
-                    //break;
+                //    string partyName = peer.GetPartyName();
+                //    PartyInfoStats partyStats = string.IsNullOrEmpty(partyName) ? null : GameRules.PartyController.GetPartyInfoStatsByPartyName(partyName);
+                //    if (partyStats == null || partyStats.MemberCount() == 1)
+                //    {
+                //        roomGuid = GameApplication.Instance.GameCache.TryGetRealmRoomGuid(realmId, realm.maxplayer);
+                //        if (!string.IsNullOrEmpty(roomGuid))
+                //        {
+                //            Room room;
+                //            GameApplication.Instance.GameCache.TryGetRoomWithoutReference(roomGuid, out room);
+                //            if (((Game)room).controller != null)
+                //            {
+                //                RealmController realmcontroller = ((Game)room).controller.mRealmController;
+                //                if (realmcontroller == null || !realmcontroller.CanReconnect())
+                //                {
+                //                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_activity_End", "", false, peer);
+                //                    return;
+                //                }
+                //            }
+                //            peer.TransferRoom(roomGuid, levelScene);
+                //        }
+                //        else
+                //            peer.CreateRealm(realmId, levelScene);
+                //    }
+                //    else
+                //        EnterRealmWithPartyRequest(partyStats, realm, peer);
+                //    break;
 
                 //case RealmType.ActivityGuildSMBoss:
                 //    EnterRealmCheckAndLeaveParty(player);
@@ -274,6 +273,7 @@ namespace Zealot.Server.Rules
                         peer.TransferRoom(roomGuid, levelScene);
                     break;
             }
+            return roomGuid;
         }
 
         public static void InspectMode(int realmId, GameClientPeer peer)
@@ -324,14 +324,209 @@ namespace Zealot.Server.Rules
             //peer.mInspectMode = true;
         }
 
-        public static void EnterRealmCheckAndLeaveParty(Player player)
+        public static void EnterRealmCheckAndLeaveParty(Player player, bool includeHero)
         {
-            //string partyName = player.Slot.GetPartyName();
-            //if (string.IsNullOrEmpty(partyName))
-            //    return;
-            //PartyInfoStats partyStats = GameRules.PartyController.GetPartyInfoStatsByPartyName(partyName);
-            //if (partyStats != null && partyStats.MemberCount() > 1)
-            //    GameRules.PartyController.LeaveParty(partyName, player, player.Name);
+            int partyId = player.PlayerSynStats.Party;
+            PartyStats partyStats = PartyRules.GetPartyById(partyId);
+            if (partyStats != null && partyStats.MemberCount(includeHero) > 1)
+                PartyRules.LeaveParty(partyId, player.Name, LeavePartyReason.Self);
+        }
+
+        public static void DungeonEnterRequest(int realmId, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            string myName = peer.mChar;
+            if (player == null || !player.IsAlive())
+                return;
+            RealmJson realm = null;
+            string levelScene = "";
+            if (!GetRealmInfo(realmId, out realm, out levelScene))
+                return;
+            if (!CheckRealmRequirement(realm, player, peer, false) || realm.type != RealmType.Dungeon)
+                return;
+
+            int partyId = player.PlayerSynStats.Party;
+            PartyStats partyStats = PartyRules.GetPartyById(partyId);
+            if (partyStats == null || partyStats.MemberCount() == 1)
+            {
+                if (realm.minplayer == 1)
+                    peer.CreateRealm(realmId, levelScene);
+                else
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_LessThanMinPlayer", "", false, peer);
+            }
+            else
+            {
+                int memberCount = partyStats.MemberCount();
+                DungeonType dungeonType = ((DungeonJson)realm).dungeontype;
+                switch (dungeonType)
+                {
+                    default:
+                        if (realm.maxplayer == 1)
+                        {
+                            PartyRules.LeaveParty(partyId, player.Name, LeavePartyReason.Self);
+                            peer.CreateRealm(realmId, levelScene);
+                        }
+                        else
+                        {
+                            if (memberCount >= realm.minplayer)
+                            {
+                                //EnterRealmWithPartyRequest(partyStats, memberCount, realm, peer);
+                                // TODO: For testing, remove later
+                                RealmParty realmParty = new RealmParty(realm);
+                                Dictionary<string, PartyMember>.ValueCollection partyMembers = partyStats.GetPartyMemberList().Values;
+                                foreach (var member in partyMembers)
+                                    realmParty.AddMember(member.name);
+                                EnterRealmWithParty(partyStats.partyId, realmParty);
+                                // end testing
+                            }
+                            else
+                                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_LessThanMinPlayer", "", false, peer);
+                        }
+                        break;
+                }
+            }
+        }
+
+        public static void EnterRealmWithPartyRequest(PartyStats partyStats, int memberCount, RealmJson realm, GameClientPeer requestPeer)
+        {
+            string requestPeerName = requestPeer.mChar;
+            if (partyStats.IsLeader(requestPeerName))
+            {
+                requestPeer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_OnlyPartyLeaderAllow", "", false, requestPeer);
+                return;
+            }
+            if (realm.maxplayer != 0 && memberCount > realm.maxplayer)
+            {
+                requestPeer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_PlayerCountOver", "", false, requestPeer);
+                return;
+            }
+
+            // Party members availability check
+            Dictionary<string, PartyMember>.ValueCollection partyMembers = partyStats.GetPartyMemberList().Values;
+            List<GameClientPeer> memberPeerList = new List<GameClientPeer>();            
+            foreach (var member in partyMembers)
+            {
+                string memberName = member.name;
+                if (memberName != requestPeerName)
+                {
+                    GameClientPeer memberPeer = GameApplication.Instance.GetCharPeer(memberName);
+                    Player memberPlayer = memberPeer == null ? null : memberPeer.mPlayer;
+                    if (memberPlayer == null || !memberPlayer.IsAlive())
+                    {
+                        requestPeer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_TransferringRealm",
+                            string.Format("name;{0}", memberName), false, requestPeer);
+                        return;
+                    }
+                    if (!CheckRealmRequirement(realm, memberPlayer, requestPeer, false))
+                        return;
+                    memberPeerList.Add(memberPeer);
+                }
+                else
+                    memberPeerList.Add(requestPeer);
+            }
+
+            // Send RPC to each party member to query enter realm
+            int realmId = realm.id;
+            RealmParty realmParty = new RealmParty(realm);
+            int count = memberPeerList.Count;
+            for (int i = 0; i < count; ++i)
+            {
+                GameClientPeer memberPeer = memberPeerList[i];
+                bool hasEntry = true;
+                //if (memberPeer.mChar != requestPeerName) // Check entry of other members
+                //{
+                //    Player memberPlayer = memberPeer.mPlayer;
+                //    if (realm.type == RealmType.DungeonDailySpecial)
+                //    {
+                //        DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
+                //        Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
+                //                                                    ? memberPlayer.RealmStats.GetDungeonDailyDict()
+                //                                                    : memberPlayer.RealmStats.GetDungeonSpecialDict();
+                //        int seq = dDailySpecialJson.sequence;
+                //        hasEntry = (realmInfoDict[seq].DailyEntry + realmInfoDict[seq].ExtraEntry > 0);
+                //    }
+                //}
+                memberPeer.ZRPC.CombatRPC.Ret_DungeonEnterConfirmResult(realmId, hasEntry, "", memberPeer);
+                realmParty.AddMember(memberPeer.mChar);
+            }
+            RealmPartyEnterStatus[partyStats.partyId] = realmParty;
+        }
+
+        public static void EnterRealmWithPartyResponse(int realmId, byte status, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player == null || !player.IsAlive())
+                return;
+
+            string playerName = player.Name;
+            int partyId = player.PlayerSynStats.Party;
+            RealmParty realmParty = null;
+            if (RealmPartyEnterStatus.TryGetValue(partyId, out realmParty))
+            {
+                bool canEnter = true;
+                Dictionary<string, RealmPartyMember>.ValueCollection realmPartyMembers = realmParty.Members.Values;
+                foreach (RealmPartyMember realmPartyMember in realmPartyMembers)
+                {
+                    string memberName = realmPartyMember.Name;
+                    if (memberName == playerName) // Is sender name
+                        realmPartyMember.Response = (RealmPartyEnterResponse)status;
+                    else if ((RealmPartyEnterResponse)status == RealmPartyEnterResponse.Cancel)
+                    {
+                        GameClientPeer memberPeer = GameApplication.Instance.GetCharPeer(memberName);
+                        if (memberPeer != null)
+                            memberPeer.ZRPC.CombatRPC.Ret_DungeonEnterConfirmResult(realmId, true, memberName, memberPeer);
+                    }
+                    if (realmPartyMember.Response != RealmPartyEnterResponse.Ready)
+                        canEnter = false;
+                }
+                if (canEnter)
+                {              
+                    EnterRealmWithParty(partyId, realmParty);
+                    RealmPartyEnterStatus.Remove(partyId);
+                }
+                else if (status == (byte)RealmPartyEnterResponse.Cancel)
+                    RealmPartyEnterStatus.Remove(partyId);
+            }
+        }
+
+        public static void EnterRealmWithParty(int partyId, RealmParty realmParty)
+        {
+            PartyStats partyStats = PartyRules.GetPartyById(partyId);
+            if (partyStats == null)
+                return;
+
+            string partyLeader = partyStats.leader;
+            GameClientPeer leaderPeer = GameApplication.Instance.GetCharPeer(partyLeader);
+            Player leaderPlayer = leaderPeer == null ? null : leaderPeer.mPlayer;
+            if (leaderPlayer == null || !leaderPlayer.IsAlive() || !realmParty.Members.ContainsKey(partyLeader))
+                return;
+
+            RealmJson realm = realmParty.RealmInfo;
+            RealmType realmType = realm.type;
+            string roomGuid = "";
+            switch (realmType)
+            {
+                default:
+                    roomGuid = CreateRealmById(realm.id, false, true, leaderPeer);
+                    break;
+            }
+            if (string.IsNullOrEmpty(roomGuid))
+                return;
+
+            Dictionary<string, PartyMember> partyMembers = partyStats.GetPartyMemberList();
+            Dictionary<string, RealmPartyMember>.ValueCollection realmPartyMembers = realmParty.Members.Values;
+            foreach (RealmPartyMember realmPartyMember in realmPartyMembers)
+            {
+                string memberName = realmPartyMember.Name;
+                if (memberName == partyLeader || !partyMembers.ContainsKey(memberName))
+                    continue;
+                GameClientPeer memberPeer = GameApplication.Instance.GetCharPeer(memberName);
+                Player memberPlayer = memberPeer == null ? null : memberPeer.mPlayer;
+                if (memberPlayer == null || !memberPlayer.IsAlive() || !CheckRealmRequirement(realm, memberPlayer, leaderPeer, false))
+                    continue;
+
+                memberPeer.TransferRoom(roomGuid, LevelRepo.GetSceneById(realm.level));
+            }
         }
 
         public static void DungeonAutoClear(int realmId, bool clearAll, GameClientPeer peer)
@@ -377,266 +572,10 @@ namespace Zealot.Server.Rules
                     LootRules.GenerateLootItems(lootLinks[j].gids, itemsToAdd, currencyToAdd);
 
                 List<ItemInfo> itemInfoList = LootRules.GetItemInfoListToAdd(itemsToAdd, true);
-                var retValue = player.Slot.mInventory.AddItemsIntoInventory(itemInfoList, true, "Loot");
-                if (retValue.retCode != InvReturnCode.AddSuccess)
-                {
-                    // If can't add to inventory, send mail
-                    List<IInventoryItem> itemList = new List<IInventoryItem>();
-                    foreach (var item in itemInfoList)
-                        itemList.Add(GameRules.GenerateItem(item.itemId, null, item.stackCount));
-                    GameRules.SendMailWithAttachment(player.Name, "Loot", itemList, currencyToAdd);
-                }
-                else
-                {
-                    // Add currency
-                    foreach (var currency in currencyToAdd)
-                        player.AddCurrency(currency.Key, currency.Value, "Loot");
-                }
+                player.Slot.mInventory.AddItemsToInventoryMailIfFail(itemInfoList, currencyToAdd, "DungeonAutoClear");
             }
 
             //peer.ZRPC.CombatRPC.Ret_RaidReward(isSuccess, rewardGrp, GameUtils.SerializeItemInfoList(itemInfos), peer); // Return reward result
-        }
-
-        public static void TryDungeonEnter(int realmId, GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            string myName = peer.mChar;
-            if (player == null || !player.IsAlive())
-                return;
-            RealmJson realm = null;
-            string levelScene = "";
-            if (!GetRealmInfo(realmId, out realm, out levelScene))
-                return;
-            if (!CheckRealmRequirement(realm, player, peer, false))
-                return;
-
-            int partyId = player.PlayerSynStats.Party;
-            PartyStats partyStats = PartyRules.GetPartyById(partyId);           
-            if (partyStats == null || partyStats.MemberCount() == 1)
-            {
-                if (realm.minplayer == 1)
-                    peer.CreateRealm(realmId, levelScene);
-                else
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_LessThanMinPlayer", "", false, peer);
-            }
-            else
-            {
-                int membersCnt = partyStats.MemberCount();
-                switch (realm.type)
-                {
-                    case RealmType.Dungeon:
-                        //PartyRules.LeaveParty(partyId, player, myName);
-                        peer.CreateRealm(realmId, levelScene);
-                        break;
-                    //case RealmType.DungeonDailySpecial:
-                    //    if (realm.maxplayer == 1)
-                    //    {
-                            //GameRules.PartyController.LeaveParty(partyName, player, myName);
-                    //        peer.CreateRealm(realmId, levelScene);
-                    //    }
-                    //    else
-                    //    {
-                    //        if (membersCnt < realm.minplayer)
-                    //            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_LessThanMinPlayer", "", false, peer);
-                    //        else
-                    //            PartyEnterRequest(partyStats, realm, peer);
-                    //    }
-                    //    break;
-                }
-            }
-        }
-
-        public static void PartyEnterRequest(PartyStats partyStats, RealmJson realm, GameClientPeer peer)
-        {
-            string myName = peer.mChar;
-            if (partyStats.IsLeader(myName))
-            {
-                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_OnlyPartyLeaderAllow", "", false, peer);
-                return;
-            }
-            int membersCnt = partyStats.MemberCount();
-            if (realm.maxplayer != 0 && membersCnt > realm.maxplayer)
-            {
-                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_PlayerCountOver", "", false, peer);
-                return;
-            }
-
-            Player player = peer.mPlayer;
-            int guildId = player.SecondaryStats.guildId;
-            var members = partyStats.GetPartyMemberList();
-            Dictionary<string, GameClientPeer> memberPeers = new Dictionary<string, GameClientPeer>();            
-            foreach (var member in members.Values)
-            {
-                string memberName = member.name;
-                if (memberName != myName)
-                {
-                    GameClientPeer memberPeer = GameApplication.Instance.GetCharPeer(memberName);
-                    Player member_Player = memberPeer == null ? null : memberPeer.mPlayer;
-                    //Member requirements check.
-                    if (member_Player == null || member_Player.Destroyed)
-                    {
-                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_TransferringRealm",
-                                string.Format("name;{0}", memberName), false, peer);
-                        return;
-                    }
-                    if (!CheckRealmRequirement(realm, member_Player, peer, false))
-                        return;
-                    //if (realm.type == RealmType.ActivityGuardWar)
-                    {
-                        if (member_Player.SecondaryStats.guildId != guildId)
-                        {
-                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_HeroFight_NotSameGuild", 
-                                string.Format("member;{0}", memberName), false, peer);
-                            return;
-                        }
-                    }
-                    memberPeers.Add(memberName, memberPeer);
-                }
-                else
-                    memberPeers.Add(myName, peer);
-            }
-
-            // Send RPC to each party member to open enter realm confirm dialog
-            int realmId = realm.id;
-            DungeonParty dungeonParty = new DungeonParty(realmId);
-            foreach (var member in members.Values)
-            {
-                string memberName = member.name;
-                GameClientPeer memberPeer = memberPeers[memberName];
-                bool hasEntry = true;
-                if (memberName != myName) // Check entry of other members
-                {
-                    Player memberPlayer = memberPeer.mPlayer;
-                    //if (realm.type == RealmType.DungeonDailySpecial)
-                    //{
-                    //    DungeonDailySpecialJson dDailySpecialJson = (DungeonDailySpecialJson)realm;
-                    //    Dictionary<int, RealmInfo> realmInfoDict = (dDailySpecialJson.dungeontype == DungeonType.Daily)
-                    //                                                ? memberPlayer.RealmStats.GetDungeonDailyDict()
-                    //                                                : memberPlayer.RealmStats.GetDungeonSpecialDict();
-                    //    int seq = dDailySpecialJson.sequence;
-                    //    hasEntry = (realmInfoDict[seq].DailyEntry + realmInfoDict[seq].ExtraEntry > 0);
-                    //}
-                }
-                memberPeer.ZRPC.CombatRPC.Ret_DungeonEnterConfirmResult(realmId, hasEntry, "", memberPeer);
-                dungeonParty.AddMember(memberName);
-            }
-            DungeonStateDict[myName] = dungeonParty;
-        }
-
-        public static void PartyEnterResponse(int realmId, byte state, GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            if (player == null || player.Destroyed)
-                return;
-
-            //string charName = peer.mChar;
-            //string partyName = peer.GetPartyName();
-            //DungeonParty dungeonParty = null;
-            //if(DungeonStateDict.TryGetValue(partyName, out dungeonParty))
-            //{
-            //    bool canEnter = true;
-            //    int membersCnt = dungeonParty.members.Count;
-            //    for (int i = 0; i < membersCnt; ++i)
-            //    {
-            //        DungeonMember dungeonMember = dungeonParty.members[i];
-            //        if (dungeonMember.memberName == charName) // Is sender peer
-            //            dungeonMember.state = (DungeonMemberState)state;
-            //        else if((DungeonMemberState)state == DungeonMemberState.Cancel)
-            //        {
-            //            GameClientPeer memberPeer = GameApplication.Instance.GetCharPeer(dungeonMember.memberName);
-            //            if (memberPeer != null)
-            //                memberPeer.ZRPC.CombatRPC.Ret_DungeonEnterConfirmResult(realmId, true, charName, memberPeer);
-            //        }
-            //        DungeonMemberState currState = dungeonMember.state;
-            //        if (currState == DungeonMemberState.Pending || currState == DungeonMemberState.Cancel)
-            //            canEnter = false;
-            //    }
-            //    if (canEnter)
-            //    {
-            //        DungeonStateDict.Remove(partyName);
-            //        PartyEnter(partyName, dungeonParty);
-            //    }
-            //    else if (state == (byte)DungeonMemberState.Cancel)
-            //        DungeonStateDict.Remove(partyName);   
-            //}
-        }
-
-        public static void PartyEnter(string partyLeader, DungeonParty dungeonParty)
-        {
-            //PartyInfoStats partyStats = string.IsNullOrEmpty(partyLeader) ? null : GameRules.PartyController.GetPartyInfoStatsByPartyName(partyLeader);
-            //if (partyStats == null)
-            //    return;
-            //List<PartyInfoStats.PartyMemberInfo> members = partyStats.AllPartyMemberInfo;
-            //List<string> memberNames = members.Select(x => x.name).ToList();
-            //GameClientPeer leaderPeer = GameApplication.Instance.GetCharPeer(partyLeader);
-            //Player player = leaderPeer.mPlayer;
-            //if (player == null || !player.IsAlive() || !memberNames.Contains(partyLeader))
-            //    return;
-            //RealmJson realm = null;
-            //string levelScene = "";
-            //int realmId = dungeonParty.realmId;
-            //if (!GetRealmInfo(realmId, ref realm, ref levelScene))
-            //    return;
-            //string roomGuid = "";
-            //switch (realm.type)
-            //{
-            //    case RealmType.DungeonDailySpecial:
-            //        if (!CheckRealmRequirement(realm, player, leaderPeer, true))
-            //            return;
-            //        roomGuid = leaderPeer.CreateRealm(realmId, levelScene);
-            //        break;
-            //    case RealmType.ActivityGuardWar:
-            //        if (!CheckRealmRequirement(realm, player, leaderPeer, true))
-            //            return;
-            //        roomGuid = GameApplication.Instance.GameCache.TryGetRealmRoomGuid(realmId, realm.maxplayer);
-            //        if (!string.IsNullOrEmpty(roomGuid))
-            //        {
-            //            Room room;
-            //            GameApplication.Instance.GameCache.TryGetRoomWithoutReference(roomGuid, out room);
-            //            if (((Game)room).controller != null)
-            //            {
-            //                RealmController realmcontroller = ((Game)room).controller.mRealmController;
-            //                if (realmcontroller == null || !realmcontroller.CanReconnect())
-            //                {
-            //                    leaderPeer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_activity_End", "", false, leaderPeer);
-            //                    return;
-            //                }
-            //            }
-            //            leaderPeer.TransferRoom(roomGuid, levelScene);
-            //        }
-            //        else
-            //            roomGuid = leaderPeer.CreateRealm(realmId, levelScene);
-            //        break;
-            //    default:
-            //        return;
-            //}
-            //if (string.IsNullOrEmpty(roomGuid))
-            //    return;
-
-            //int guildId = player.SecondaryStats.guildId;
-            //int membersCnt = dungeonParty.members.Count;
-            //for (int i = 0; i < membersCnt; ++i)
-            //{
-            //    DungeonMember dungeonMember = dungeonParty.members[i];
-            //    string memberName = dungeonMember.memberName;
-            //    if (partyLeader == memberName || !memberNames.Contains(memberName))
-            //        continue;
-            //    GameClientPeer memberPeer = GameApplication.Instance.GetCharPeer(memberName);
-            //    Player member_Player = memberPeer == null ? null : memberPeer.mPlayer;
-            //    if (member_Player == null || member_Player.Destroyed || !CheckRealmRequirement(realm, member_Player, leaderPeer, false))
-            //        continue;
-            //    if (realm.type == RealmType.ActivityGuardWar)
-            //    {
-            //        if (member_Player.SecondaryStats.guildId != guildId)
-            //        {
-            //            leaderPeer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_HeroFight_NotSameGuild",
-            //                string.Format("member;{0}", member_Player.Name), false, leaderPeer);
-            //            continue;
-            //        }
-            //    }
-
-            //    memberPeer.TransferRoom(roomGuid, levelScene);
-            //}
         }
 
         public static bool GetRealmInfo(int realmId, out RealmJson realm, out string levelScene)

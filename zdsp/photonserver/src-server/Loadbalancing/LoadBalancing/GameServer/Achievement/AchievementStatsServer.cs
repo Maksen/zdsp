@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -6,6 +7,8 @@ using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.Entities;
+using Zealot.Server.Rules;
+using Zealot.Server.SideEffects;
 
 namespace Photon.LoadBalancing.GameServer
 {
@@ -13,6 +16,8 @@ namespace Photon.LoadBalancing.GameServer
     {
         private GameClientPeer peer;
         private Player player;
+        private List<IPassiveSideEffect> levelPassiveSEs = new List<IPassiveSideEffect>();
+        private Dictionary<AchievementObjectiveType, HashSet<string>> completedTargets = new Dictionary<AchievementObjectiveType, HashSet<string>>();
 
         private StringBuilder sb = new StringBuilder();
 
@@ -20,6 +25,9 @@ namespace Photon.LoadBalancing.GameServer
         {
             player = _player;
             peer = _peer;
+
+            player.PlayerSynStats.AchievementLevel = invData.AchievementLevel <= 0 ? 1 : invData.AchievementLevel;
+            player.SecondaryStats.AchievementExp = invData.AchievementExp;
 
             ParseCollections(invData.Collections);
             ParseAchievements(invData.Achievements);
@@ -29,8 +37,26 @@ namespace Photon.LoadBalancing.GameServer
             LatestAchievements = invData.LatestAchievements;
             ParseLatestRecords(latestCollectionsList, LatestCollections);
             ParseLatestRecords(latestAchievementList, LatestAchievements);
+            ParseCompleteTargets(invData.CompletedTargets);
+
+            AchievementLevel levelInfo = AchievementRepo.GetAchievementLevelInfo(player.PlayerSynStats.AchievementLevel);
+            if (levelInfo != null)
+                UpdateLevelPassiveSEs(levelInfo);
         }
 
+        public void SaveToInventory(AchievementInvData invData)
+        {
+            invData.AchievementLevel = player.PlayerSynStats.AchievementLevel;
+            invData.AchievementExp = player.SecondaryStats.AchievementExp;
+            invData.Collections = CollectionsToString();
+            invData.Achievements = AchievementsToString();
+            invData.RewardClaims = RewardClaims;
+            invData.LatestCollections = LatestCollections;
+            invData.LatestAchievements = LatestAchievements;
+            invData.CompletedTargets = CompletedTargetsToString();
+        }
+
+        #region ParseFromString
         private void ParseCollections(string value)
         {
             collectionsDict.Clear();
@@ -47,16 +73,20 @@ namespace Photon.LoadBalancing.GameServer
                     string[] colData = colArray[i].Split(';');
                     int id = int.Parse(colData[0]);
                     DateTime date = DateTime.ParseExact(colData[1], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                    bool claimed = int.Parse(colData[2]) == 1;
                     string photodesc = "";
-                    if (colData.Length > 2)
-                        photodesc = colData[2];
+                    if (colData.Length > 3)
+                        photodesc = colData[3];
                     CollectionObjective obj = AchievementRepo.GetCollectionObjectiveById(id);
                     if (obj != null)
                     {
-                        CollectionElement elem = new CollectionElement(id, date, photodesc);
+                        CollectionElement elem = new CollectionElement(id, date, claimed, photodesc);
                         collectionsDict.Add(id, elem);
                         int index = (int)obj.type;
                         sblist[index].AppendFormat("{0}|", colArray[i]);
+                        // apply any reward se if claimed
+                        if (obj.rewardType == AchievementRewardType.SideEffect && obj.rewardId > 0 && claimed)
+                            ApplyPassiveSE(obj.rewardId);
                     }
                 }
 
@@ -81,12 +111,16 @@ namespace Photon.LoadBalancing.GameServer
                     string[] achData = achArray[i].Split(';');
                     int id = int.Parse(achData[0]);
                     int count = int.Parse(achData[1]);
+                    bool claimed = int.Parse(achData[2]) == 1;
                     AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(id);
                     if (obj != null)
                     {
-                        AchievementElement elem = new AchievementElement(id, count, obj.completeCount, obj.slotIdx);
+                        AchievementElement elem = new AchievementElement(id, count, obj.completeCount, claimed, obj.slotIdx);
                         achievementsDict.Add(id, elem);
-                        sblist[obj.slotIdx].AppendFormat("{0}|", achArray[i]);
+                        sblist[obj.slotIdx].AppendFormat("{0};{1}|", id, count);
+                        // apply any reward se if claimed
+                        if (obj.rewardType == AchievementRewardType.SideEffect && obj.rewardId > 0 && claimed)
+                            ApplyPassiveSE(obj.rewardId);
                     }
                 }
 
@@ -129,12 +163,29 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+        private void ParseCompleteTargets(string value)
+        {
+            completedTargets.Clear();
+            if (!string.IsNullOrEmpty(value))
+            {
+                string[] strArray = value.Split('|');
+                for (int i = 0; i < strArray.Length; ++i)
+                {
+                    string[] rData = strArray[i].Split(';');
+                    AchievementObjectiveType objType = (AchievementObjectiveType)int.Parse(rData[0]);
+                    var set = JsonConvertDefaultSetting.DeserializeObject<HashSet<string>>(rData[1]);
+                    completedTargets.Add(objType, set);
+                }
+            }
+        }
+        #endregion
+
+        #region ConvertToString
         public string CollectionsToString()
         {
             foreach (var item in collectionsDict)
             {
-                sb.Append(item.Key);
-                sb.AppendFormat(";{0}", item.Value.CollectDate.ToString("yyyy/MM/dd"));
+                sb.AppendFormat("{0};{1};{2}", item.Key, item.Value.CollectDate.ToString("yyyy/MM/dd"), item.Value.Claimed ? 1 : 0);
                 if (!string.IsNullOrEmpty(item.Value.PhotoDesc))
                     sb.AppendFormat(";{0}", item.Value.PhotoDesc);
                 sb.Append("|");
@@ -147,7 +198,7 @@ namespace Photon.LoadBalancing.GameServer
         public string AchievementsToString()
         {
             foreach (var item in achievementsDict)
-                sb.AppendFormat("{0};{1}|", item.Key, item.Value.Count);
+                sb.AppendFormat("{0};{1};{2}|", item.Key, item.Value.Count, item.Value.Claimed ? 1 : 0);
             string achString = sb.ToString().TrimEnd('|');
             sb.Clear();
             return achString;
@@ -166,7 +217,7 @@ namespace Photon.LoadBalancing.GameServer
             if (type == AchievementType.Collection)
             {
                 for (int i = 0; i < latestCollectionsList.Count; ++i)
-                    sb.AppendFormat("{0};{1}|",latestCollectionsList[i].Id, latestCollectionsList[i].CompleteDate.ToString("yyyy/MM/dd"));
+                    sb.AppendFormat("{0};{1}|", latestCollectionsList[i].Id, latestCollectionsList[i].CompleteDate.ToString("yyyy/MM/dd"));
                 LatestCollections = sb.ToString().TrimEnd('|');
             }
             else
@@ -177,6 +228,19 @@ namespace Photon.LoadBalancing.GameServer
             }
             sb.Clear();
         }
+
+        private string CompletedTargetsToString()
+        {
+            foreach (var item in completedTargets)
+            {
+                string hashset = JsonConvertDefaultSetting.SerializeObject(item.Value);
+                sb.AppendFormat("{0};{1}|", (int)item.Key, hashset);
+            }
+            string targetString = sb.ToString().TrimEnd('|');
+            sb.Clear();
+            return targetString;
+        }
+        #endregion
 
         public void UpdateCollection(CollectionType objType, int target)
         {
@@ -190,9 +254,10 @@ namespace Photon.LoadBalancing.GameServer
                         info = AchievementRepo.GetRandomPhotoDescription(player.PartyStats.MemberCount(false));
                     else
                         info = AchievementRepo.GetRandomPhotoDescription(1);
+                    // to insert member names
                 }
                 DateTime now = DateTime.Now;
-                CollectionElement elem = new CollectionElement(obj.id, now, info);
+                CollectionElement elem = new CollectionElement(obj.id, now, false, info);
                 collectionsDict.Add(obj.id, elem);
 
                 int index = (int)objType;
@@ -206,14 +271,22 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public void UpdateAchievement(AchievementObjectiveType objType, string target = "-1", int count = 1, bool increment = true, bool debug = false)
+        public void UpdateAchievement(AchievementObjectiveType objType, string target = "-1", bool isNonTarget = true,
+            int count = 1, bool increment = true, bool debug = false)
         {
             if (count <= 0 && !debug)
                 return;
 
+            if (isNonTarget && target != "-1" && !CanUpdateAchievement(objType, target))
+                return;
+
+            string objTarget = "-1";
+            if (target != "-1" && !isNonTarget)
+                objTarget = target;
+
             bool hasNewlyCompleted = false;
             int dirtySlot = -1;
-            List<AchievementObjective> achList = AchievementRepo.GetAchievementObjectivesByKey(objType, target);
+            List<AchievementObjective> achList = AchievementRepo.GetAchievementObjectivesByKey(objType, objTarget);
             if (achList != null)
             {
                 int listCount = achList.Count;
@@ -227,12 +300,14 @@ namespace Photon.LoadBalancing.GameServer
                         isAlreadyCompleted = elem.IsCompleted();
                         if (isAlreadyCompleted)
                             continue;
+                        if (!increment && count <= elem.Count)
+                            continue;
                         elem.UpdateCount(count, increment);
-                        dirtySlot = obj.slotIdx;  // every objective in group should have same slot                        
+                        dirtySlot = obj.slotIdx;  // every objective in group should have same slot
                     }
                     else  // new achievement
                     {
-                        elem = new AchievementElement(obj.id, count, obj.completeCount, obj.slotIdx);
+                        elem = new AchievementElement(obj.id, count, obj.completeCount, false, obj.slotIdx);
                         achievementsDict.Add(obj.id, elem);
                         dirtySlot = obj.slotIdx;  // every objective in group should have same slot
                     }
@@ -242,6 +317,25 @@ namespace Photon.LoadBalancing.GameServer
                         AddToRewardClaims(AchievementType.Achievement, obj.id);
                         AddToLatestRecords(AchievementType.Achievement, obj.id, DateTime.Now);
                         hasNewlyCompleted = true;
+                    }
+                }
+
+                // certain objectives need record completed targets
+                if (isNonTarget && target != "-1")
+                {
+                    switch (objType)
+                    {
+                        case AchievementObjectiveType.MainQuest:
+                        case AchievementObjectiveType.SubQuest:
+                        case AchievementObjectiveType.DestinyQuest:
+                        case AchievementObjectiveType.GuildQuest:
+                        case AchievementObjectiveType.Scene:
+                        case AchievementObjectiveType.Photography:
+                        case AchievementObjectiveType.NPCInteract:
+                            if (!completedTargets.ContainsKey(objType))
+                                completedTargets.Add(objType, new HashSet<string>());
+                            completedTargets[objType].Add(target);
+                            break;
                     }
                 }
             }
@@ -262,6 +356,63 @@ namespace Photon.LoadBalancing.GameServer
                 UpdateRewardClaimsString();
                 UpdateRecordsString(AchievementType.Achievement);
             }
+        }
+
+        private bool CanUpdateAchievement(AchievementObjectiveType objType, string target)
+        {
+            HashSet<string> completedSet;
+            completedTargets.TryGetValue(objType, out completedSet);
+            return completedSet == null || !completedSet.Contains(target);
+        }
+
+        public void PostSpawnCheckAchievements()
+        {
+            if (peer.mFirstLogin)
+            {
+                // Collect item
+                List<string> targetList = AchievementRepo.GetTargetsByAchievementObjType(AchievementObjectiveType.CollectItem);
+                for (int i = 0; i < targetList.Count; ++i)
+                {
+                    ushort itemId;
+                    if (ushort.TryParse(targetList[i], out itemId))
+                    {
+                        int stackCount = peer.mInventory.GetItemStackCountByItemId(itemId);
+                        UpdateAchievement(AchievementObjectiveType.CollectItem, targetList[i], false, stackCount, false);
+                    }
+                }
+
+                // Achievement level
+                UpdateAchievement(AchievementObjectiveType.AchievementLevel, "-1", true, player.PlayerSynStats.AchievementLevel, false);
+
+                // Player level
+                UpdateAchievement(AchievementObjectiveType.Level, "-1", true, player.PlayerSynStats.Level, false);
+
+                // Hero rarity count
+                int rarityCount = Enum.GetValues(typeof(HeroRarity)).Length;
+                for (int i = 0; i < rarityCount; ++i)
+                {
+                    UpdateAchievement(AchievementObjectiveType.HeroNumber, i.ToString(), false,
+                        player.HeroStats.GetHeroCountByRarity((HeroRarity)i), false);
+                }
+
+                // Hero related
+                var ownedHeroes = player.HeroStats.GetHeroesDict();
+                int totalHeroLevels = 0;
+                foreach (var hero in ownedHeroes.Values)
+                {
+                    string heroId = hero.HeroId.ToString();
+                    totalHeroLevels += hero.Level;
+                    UpdateAchievement(AchievementObjectiveType.HeroLevel, heroId, false, hero.Level, false);
+                    UpdateAchievement(AchievementObjectiveType.HeroTrust, heroId, false, hero.TrustLevel, false);
+                    UpdateAchievement(AchievementObjectiveType.HeroSkill, heroId, false, hero.GetTotalSkillPoints(), false);
+                }
+                UpdateAchievement(AchievementObjectiveType.HeroGrowth, "-1", true, totalHeroLevels - ownedHeroes.Count, false);
+            }
+
+            // Visit level
+            string levelId = player.mInstance.mCurrentLevelID.ToString();
+            UpdateAchievement(AchievementObjectiveType.Scene, levelId, true);
+            UpdateAchievement(AchievementObjectiveType.Scene, levelId, false);
         }
 
         private void AddToRewardClaims(AchievementType type, int id)
@@ -287,22 +438,201 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+        #region Rewards
         public void ClaimReward(AchievementType type, int id)
         {
             AchievementRewardClaim claim = claimsList.Find(x => x.ClaimType == type && x.Id == id);
-            if (claim != null)
+            if (claim == null)
+                return;
+
+            if (type == AchievementType.Collection)
             {
-                claimsList.Remove(claim);
-                UpdateRewardClaimsString();
+                CollectionElement elem = GetCollectionById(id);
+                if (elem != null && !elem.Claimed)
+                {
+                    CollectionObjective obj = AchievementRepo.GetCollectionObjectiveById(id);
+                    if (obj == null)
+                        return;
+                    if (!GiveCompletedObjectiveReward(obj.rewardType, obj.rewardId, obj.rewardCount))
+                    {
+                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
+                        return;
+                    }
+                    player.AddAchievementExp(obj.exp);
+                    elem.Claimed = true;
+                }
             }
+            else
+            {
+                AchievementElement elem = GetAchievementById(id);
+                if (elem != null && !elem.Claimed && elem.IsCompleted())
+                {
+                    AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(id);
+                    if (obj == null)
+                        return;
+                    if (!GiveCompletedObjectiveReward(obj.rewardType, obj.rewardId, obj.rewardCount))
+                    {
+                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
+                        return;
+                    }
+                    player.AddAchievementExp(obj.exp);
+                    elem.Claimed = true;
+                }
+            }
+
+            claimsList.Remove(claim);
+            UpdateRewardClaimsString();
         }
 
         public void ClaimAllRewards()
         {
+            PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
+            combatStats.SuppressComputeAll = true;
+            bool inventoryFull = false;
+            List<int> indexToRemove = new List<int>();
+
             for (int i = 0; i < claimsList.Count; ++i)
             {
+                AchievementRewardClaim claim = claimsList[i];
+                if (claim.ClaimType == AchievementType.Collection)
+                {
+                    CollectionElement elem = GetCollectionById(claim.Id);
+                    if (elem != null && !elem.Claimed)
+                    {
+                        CollectionObjective obj = AchievementRepo.GetCollectionObjectiveById(claim.Id);
+                        if (obj == null)
+                            continue;
+                        if (!GiveCompletedObjectiveReward(obj.rewardType, obj.rewardId, obj.rewardCount))
+                        {
+                            inventoryFull = true;
+                            continue;
+                        }
+                        player.AddAchievementExp(obj.exp);
+                        elem.Claimed = true;
+                        indexToRemove.Add(i);
+                        sb.AppendFormat("{0};{1}|", (int)claim.ClaimType, claim.Id);
+                    }
+                }
+                else
+                {
+                    AchievementElement elem = GetAchievementById(claim.Id);
+                    if (elem != null && !elem.Claimed && elem.IsCompleted())
+                    {
+                        AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(claim.Id);
+                        if (obj == null)
+                            continue;
+                        if (!GiveCompletedObjectiveReward(obj.rewardType, obj.rewardId, obj.rewardCount))
+                        {
+                            inventoryFull = true;
+                            continue;
+                        }
+                        player.AddAchievementExp(obj.exp);
+                        elem.Claimed = true;
+                        indexToRemove.Add(i);
+                        sb.AppendFormat("{0};{1}|", (int)claim.ClaimType, claim.Id);
+                    }
+                }
+            }
+
+            int claimedCount = indexToRemove.Count;
+            if (claimedCount > 0)
+            {
+                // send to client claimed rewards
+                peer.ZRPC.CombatRPC.Ret_ClaimAllAchievementRewards(sb.ToString().TrimEnd('|'), peer);
+                sb.Clear();
+
+                if (claimedCount == claimsList.Count)  // all rewards claimed
+                    claimsList.Clear();
+                else // partially claimed, remove from back
+                {
+                    for (int i = claimedCount - 1; i >= 0; --i)
+                        claimsList.RemoveAt(indexToRemove[i]);
+                }
+                UpdateRewardClaimsString();
+            }
+
+            if (inventoryFull)
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
+
+            combatStats.SuppressComputeAll = false;
+            combatStats.ComputeAll();
+        }
+
+        private bool GiveCompletedObjectiveReward(AchievementRewardType rewardType, int rewardId, int rewardCount)
+        {
+            bool success = true;
+            switch (rewardType)
+            {
+                case AchievementRewardType.Item:
+                    InvRetval retval = peer.mInventory.AddItemsToInventory((ushort)rewardId, rewardCount, true, "Achievement");
+                    if (retval.retCode != InvReturnCode.AddSuccess)  // inventory full
+                        success = false;
+                    break;
+                case AchievementRewardType.Currency:
+                    player.AddCurrency((CurrencyType)rewardId, rewardCount, "Achievement");
+                    break;
+                case AchievementRewardType.SideEffect:
+                    ApplyPassiveSE(rewardId);
+                    break;
+            }
+            return success;
+        }
+
+        public void GiveLevelUpReward(AchievementLevel levelInfo)
+        {
+            if (levelInfo.rewardItems.Count > 0)
+                peer.mInventory.AddItemsToInventoryMailIfFail(levelInfo.rewardItems, null, "Achievement");
+
+            foreach (var currency in levelInfo.currencies)
+                player.AddCurrency(currency.Key, currency.Value, "Achievement");
+
+            UpdateLevelPassiveSEs(levelInfo);
+        }
+
+        private void ApplyPassiveSE(int seid)
+        {
+            SideEffectJson sejson = SideEffectRepo.GetSideEffect(seid);
+            if (sejson != null)
+            {
+                SideEffect se = SideEffectFactory.CreateSideEffect(sejson, true);
+                IPassiveSideEffect pse = se as IPassiveSideEffect;
+                if (pse != null)
+                    pse.AddPassive(player);
             }
         }
+
+        private void UpdateLevelPassiveSEs(AchievementLevel levelInfo)
+        {
+            PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
+            bool needCompute = (levelPassiveSEs.Count > 0 || levelInfo.sideEffects.Count > 0) && !combatStats.SuppressComputeAll;
+            if (needCompute)
+                combatStats.SuppressComputeAll = true;
+
+            // remove existing passives
+            for (int i = 0; i < levelPassiveSEs.Count; ++i)
+                levelPassiveSEs[i].RemovePassive();
+            levelPassiveSEs.Clear();
+
+            // add new passives
+            List<SideEffectJson> passiveSEs = levelInfo.sideEffects;
+            for (int i = 0; i < passiveSEs.Count; i++)
+            {
+                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], true);
+                IPassiveSideEffect pse = se as IPassiveSideEffect;
+                if (pse != null)
+                {
+                    pse.AddPassive(player);
+                    levelPassiveSEs.Add(pse);
+                }
+            }
+
+            if (needCompute)
+            {
+                combatStats.SuppressComputeAll = false;
+                combatStats.ComputeAll();
+            }
+        }
+        #endregion
 
 #if DEBUG
         public void ConsoleResetCollections()
@@ -318,7 +648,7 @@ namespace Photon.LoadBalancing.GameServer
                 ConsoleResetCollections();
                 foreach (var obj in AchievementRepo.collectionObjectives.Values)
                 {
-                    CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, "");
+                    CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, false, "");
                     collectionsDict.Add(obj.id, elem);
 
                     int index = (int)obj.type;
@@ -334,7 +664,7 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     if (GetCollectionById(obj.id) == null)
                     {
-                        CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, "");
+                        CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, false, "");
                         collectionsDict.Add(obj.id, elem);
                         string oldString = (string)Collections[objtype];
                         Collections[objtype] = string.IsNullOrEmpty(oldString) ? elem.ToString() : oldString + "|" + elem.ToString();
@@ -349,6 +679,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             achievementsDict.Clear();
             Achievements.ResetAll();
+            completedTargets.Clear();
         }
 
         public void ConsoleGetAllAchievements()
@@ -357,13 +688,32 @@ namespace Photon.LoadBalancing.GameServer
 
             foreach (var obj in AchievementRepo.achievementObjectives.Values)
             {
-                AchievementElement elem = new AchievementElement(obj.id, obj.completeCount, obj.completeCount, obj.slotIdx);
+                AchievementElement elem = new AchievementElement(obj.id, obj.completeCount, obj.completeCount, false, obj.slotIdx);
                 achievementsDict.Add(obj.id, elem);
                 string oldString = (string)Achievements[obj.slotIdx];
                 Achievements[obj.slotIdx] = string.IsNullOrEmpty(oldString) ? elem.ToString() : oldString + "|" + elem.ToString();
                 AddToRewardClaims(AchievementType.Achievement, obj.id);
             }
             UpdateRewardClaimsString();
+        }
+
+        public void ConsoleSetAchievementLevel(int newLevel)
+        {
+            player.PlayerSynStats.AchievementLevel = newLevel;
+            player.SecondaryStats.AchievementExp = 0;
+
+            // levelled up to this level, give this level's reward
+            var info = AchievementRepo.GetAchievementLevelInfo(newLevel);
+            if (info != null && info.hasReward)
+                GiveLevelUpReward(info);
+
+            UpdateAchievement(AchievementObjectiveType.AchievementLevel, "-1", true, newLevel, false);
+        }
+
+        public void ConsoleClearAchievementRewards()
+        {
+            claimsList.Clear();
+            RewardClaims = "";
         }
 #endif
     }

@@ -45,7 +45,7 @@ namespace Photon.LoadBalancing.GameServer.Chest
             foreach (ItemInfo itemInfo in itemsToAttach)
             {
                 IInventoryItem item = GameRules.GenerateItem(itemInfo.itemId,player.Slot, itemInfo.stackCount);
-                InvRetval res = inventory.AddItemsIntoInventory(item, true, "Chest");
+                InvRetval res = inventory.AddItemsToInventory(item, true, "Chest");
                 RareItemNotificationRules.CheckNotification(item.ItemID, player.Name);
 
                 ChestLog chestLog = new ChestLog();

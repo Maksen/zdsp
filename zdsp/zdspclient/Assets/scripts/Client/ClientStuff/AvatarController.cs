@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
+using UnityEngine;
 using System;
-using Zealot.Common;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
+using Zealot.Common;
 using Zealot.Repository;
 
 [Serializable]
@@ -166,7 +166,7 @@ public class AvatarController : MonoBehaviour
 
     public void InitAvatar(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender)
     {
-        List<Equipment> fashionSlots = equipmentInvData.Fashions;
+        List<Equipment> fashionSlots = equipmentInvData.FashionSlots;
         List<Equipment> equipmentSlots = equipmentInvData.Slots;
 
         //weapon

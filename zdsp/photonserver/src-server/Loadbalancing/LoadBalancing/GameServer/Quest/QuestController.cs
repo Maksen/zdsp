@@ -1212,6 +1212,8 @@ namespace Photon.LoadBalancing.GameServer
 
             mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Quest, questid);
 
+            UpdateQuestCompleteAchievement(questType, questid);
+
             return true;
         }
 
@@ -1631,6 +1633,37 @@ namespace Photon.LoadBalancing.GameServer
         public bool HasQuestBeenTriggered(int questId)
         {
             return GetQuestDataById(questId) != null || IsQuestCompleted(questId);
+        }
+
+        private void UpdateQuestCompleteAchievement(QuestType questType, int questId)
+        {
+            string target = questId.ToString();
+            switch (questType)
+            {
+                case QuestType.Main:
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.MainQuest, target, true);
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.MainQuest, target, false);
+                    break;
+                case QuestType.Destiny:
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.DestinyQuest, target, true);
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.DestinyQuest, target, false);
+                    break;
+                case QuestType.Sub:
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.SubQuest, target, true);
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.SubQuest, target, false);
+                    break;
+                case QuestType.Guild:
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.GuildQuest, target, true);
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.GuildQuest, target, false);
+                    break;
+                case QuestType.Signboard:
+                    mPlayer.UpdateAchievement(AchievementObjectiveType.QuestBoard);
+                    break;
+                case QuestType.Event:
+                    break;
+                default:
+                    break;
+            }
         }
 
         #region Development

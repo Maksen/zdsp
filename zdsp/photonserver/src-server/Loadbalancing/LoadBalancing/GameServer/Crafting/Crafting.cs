@@ -83,7 +83,7 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                     }
                 }
 
-                InvRetval result = mPlayer.Slot.mInventory.AddItemsIntoInventory((ushort)craftitem.crafteditemid, craftitem.craftedcount * craftcount, true, "Craft");
+                InvRetval result = mPlayer.Slot.mInventory.AddItemsToInventory((ushort)craftitem.crafteditemid, craftitem.craftedcount * craftcount, true, "Craft");
                 int totalcost = craftitem.cost * craftcount;
                 if (result.retCode == InvReturnCode.AddSuccess)
                 {
@@ -91,7 +91,7 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                     var temp2 = mPlayer.DeductMoney(totalcost, "Craft");//not suppose to fail
                     sysLog.AfterCraftedMoney = mPlayer.SecondaryStats.Money;
 
-                    var temp = mPlayer.Slot.mInventory.UseToolItems(allcraftitem, "Craft");//not suppose to fail
+                    var temp = mPlayer.Slot.mInventory.DeductItems(allcraftitem, "Craft");//not suppose to fail
                     for (int i = 0; i < allcraftitem.Count; i++)
                     {
                         int itemcount = mPlayer.Slot.mInventory.GetItemStackCountByItemId(allcraftitem[i].itemId);//the item count inside player bag
@@ -186,12 +186,11 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                 if (addtobag == true)
                 {
                     //if the code enter to here, money and use item will be enough for deduct
-                    InvRetval result = mPlayer.Slot.mInventory.AddItemsIntoInventory((ushort)craftitem.crafteditemid, craftitem.craftedcount, true, "Craft");
+                    InvRetval result = mPlayer.Slot.mInventory.AddItemsToInventory((ushort)craftitem.crafteditemid, craftitem.craftedcount, true, "Craft");
                     if(result.retCode == InvReturnCode.AddSuccess)
                     {
                         if (broadcast == true)
                             RareItemNotificationRules.CheckNotification(craftitem.crafteditemid, mPlayer.Name);
-
 
                         sysLog.userId = mPlayer.Slot.mUserId;
                         sysLog.charId = mPlayer.Slot.GetCharId();
@@ -213,7 +212,7 @@ namespace Photon.LoadBalancing.GameServer.Crafting
                 mPlayer.DeductMoney(craftitem.cost, "Craft");//this not suppose to fail
                 sysLog.AfterCraftedMoney = mPlayer.SecondaryStats.Money;
 
-                mPlayer.Slot.mInventory.UseToolItems(allcraftitem, "Craft");//this not suppose to fail
+                mPlayer.Slot.mInventory.DeductItems(allcraftitem, "Craft");//this not suppose to fail
                 for(int i=0;i<allcraftitem.Count;i++)
                 {
                     int itemcount = mPlayer.Slot.mInventory.GetItemStackCountByItemId(allcraftitem[i].itemId);//the item count inside player bag

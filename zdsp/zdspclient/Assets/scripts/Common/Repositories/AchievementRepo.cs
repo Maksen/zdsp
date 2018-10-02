@@ -91,14 +91,14 @@ namespace Zealot.Repository
         public string name;
         public string description;
         public bool hasReward;
-        public List<RewardItem> rewardItems = new List<RewardItem>();
+        public List<ItemInfo> rewardItems = new List<ItemInfo>();
         public Dictionary<CurrencyType, int> currencies = new Dictionary<CurrencyType, int>();
         public List<SideEffectJson> sideEffects = new List<SideEffectJson>();
 
         public AchievementLevel(AchievementLevelJson json)
         {
             level = json.achlevel;
-            expToNextLv = json.experience;
+            expToNextLv = json.expreq;
             name = json.localizedname;
             description = json.localizeddescription;
             hasReward = json.hasreward;
@@ -108,7 +108,7 @@ namespace Zealot.Repository
                 for (int i = 0; i < itemArray.Length; ++i)
                 {
                     string[] item = itemArray[i].Split(';');
-                    rewardItems.Add(new RewardItem(int.Parse(item[0]), int.Parse(item[1])));
+                    rewardItems.Add(new ItemInfo() { itemId = ushort.Parse(item[0]), stackCount = int.Parse(item[1]) });
                 }
                 string[] currencyArray = json.currencyreward.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0; i < currencyArray.Length; ++i)
@@ -244,11 +244,15 @@ namespace Zealot.Repository
         public static Dictionary<int, AchievementObjective> achievementObjectives; // key = id
         public static Dictionary<int, List<AchievementObjective>> achievementSubTypeToObjectives; // subtype -> sorted
         public static Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>> achievementKeyToObjectives; // server use
+        public static Dictionary<AchievementObjectiveType, List<string>> achievementObjTypeToTargets; // list of targets for each obj type
+
         public static Dictionary<int, AchievementLevel> achievementLevels;
         public static Dictionary<int, LISATransformTierJson> lisaTiers; // tier -> json
         public static List<LISARewardJson> lisaRewards;
         public static Dictionary<LISAMsgBehaviourType, LISAMessageDirectionGroup> lisaMsgBehaviours;
         public static Dictionary<LISAMsgDirectionType, LISAMessageGroup> lisaMsgGroups;
+
+        public static int ACHIEVEMENT_MAX_LEVEL;
 
         static AchievementRepo()
         {
@@ -264,6 +268,8 @@ namespace Zealot.Repository
             achievementObjectives = new Dictionary<int, AchievementObjective>();
             achievementSubTypeToObjectives = new Dictionary<int, List<AchievementObjective>>();
             achievementKeyToObjectives = new Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>>();
+            achievementObjTypeToTargets = new Dictionary<AchievementObjectiveType, List<string>>();
+
             achievementLevels = new Dictionary<int, AchievementLevel>();
             lisaTiers = new Dictionary<int, LISATransformTierJson>();
             lisaRewards = new List<LISARewardJson>();
@@ -285,6 +291,8 @@ namespace Zealot.Repository
             achievementObjectives.Clear();
             achievementSubTypeToObjectives.Clear();
             achievementKeyToObjectives.Clear();
+            achievementObjTypeToTargets.Clear();
+
             achievementLevels.Clear();
             lisaTiers.Clear();
             lisaRewards.Clear();
@@ -362,6 +370,14 @@ namespace Zealot.Repository
                     achievementKeyToObjectives[key].Add(obj);
                 else
                     achievementKeyToObjectives.Add(key, new List<AchievementObjective>() { obj });
+
+                if (achievementObjTypeToTargets.ContainsKey(obj.objType))
+                {
+                    if (!achievementObjTypeToTargets[obj.objType].Contains(obj.target))
+                        achievementObjTypeToTargets[obj.objType].Add(obj.target);
+                }
+                else
+                    achievementObjTypeToTargets.Add(obj.objType, new List<string>() { obj.target });
             }
             foreach (var type in achievementSubTypeToObjectives.Keys.ToList())
                 achievementSubTypeToObjectives[type] = achievementSubTypeToObjectives[type].OrderBy(x => x.json.sortorder).ToList(); // stable sort
@@ -369,7 +385,11 @@ namespace Zealot.Repository
                 achievementKeyToObjectives[key] = achievementKeyToObjectives[key].OrderBy(x => x.json.step).ToList(); // stable sort
 
             foreach (var entry in gameData.AchievementLevel)
+            {
                 achievementLevels.Add(entry.Value.achlevel, new AchievementLevel(entry.Value));
+                if (entry.Value.achlevel > ACHIEVEMENT_MAX_LEVEL)
+                    ACHIEVEMENT_MAX_LEVEL = entry.Value.achlevel;
+            }
 
             foreach (var entry in gameData.LISATransformTier)
                 lisaTiers.Add(entry.Value.tierid, entry.Value);
@@ -421,12 +441,20 @@ namespace Zealot.Repository
             return obj;
         }
 
-        public static List<AchievementObjective> GetAchievementObjectivesByKey(AchievementObjectiveType type, string target)
+        public static List<AchievementObjective> GetAchievementObjectivesByKey(AchievementObjectiveType objType, string target)
         {
-            var key = Pair.Create(type, target);
+            var key = Pair.Create(objType, target);
             List<AchievementObjective> objList;
             achievementKeyToObjectives.TryGetValue(key, out objList);
             return objList;
+        }
+
+        public static List<string> GetTargetsByAchievementObjType(AchievementObjectiveType objType)
+        {
+            List<string> list;
+            if (achievementObjTypeToTargets.TryGetValue(objType, out list))
+                return list;
+            return new List<string>();
         }
 
         public static string GetRandomPhotoDescription(int memberCount)
@@ -445,6 +473,13 @@ namespace Zealot.Repository
                     return kvp.Key;
             }
             return 0;
+        }
+
+        public static AchievementLevel GetAchievementLevelInfo(int currentLevel)
+        {
+            AchievementLevel info;
+            achievementLevels.TryGetValue(currentLevel, out info);
+            return info;
         }
     }
 }

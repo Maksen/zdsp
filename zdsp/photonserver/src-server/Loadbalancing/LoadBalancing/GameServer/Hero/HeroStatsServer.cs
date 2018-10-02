@@ -87,6 +87,18 @@ namespace Photon.LoadBalancing.GameServer
             ParseExploredString();
         }
 
+        public void SaveToInventory(HeroInvData invData)
+        {
+            invData.HeroesList.Clear();
+            foreach (Hero hero in mHeroesDict.Values)
+                invData.HeroesList.Add(hero);
+            invData.SummonedHero = SummonedHeroId;
+            invData.OngoingMaps.Clear();
+            foreach (ExploreMapData map in explorationsDict.Values)
+                invData.OngoingMaps.Add(map);
+            invData.ExploredMaps = Explored;
+        }
+
         public void PostPlayerSpawn()
         {
             Hero summonedHero = GetHero(SummonedHeroId);
@@ -132,10 +144,15 @@ namespace Photon.LoadBalancing.GameServer
             heroes[hero.SlotIdx] = hero.ToString();
         }
 
+        public int GetHeroCountByRarity(HeroRarity rarity)
+        {
+           return  mHeroesDict.Values.Count(x => x.HeroJson.rarity == rarity);
+        }
+
         private bool DeductItem(int itemId, int itemCount)
         {
             //itemCount = 0; // testing use
-            InvRetval retval = peer.mInventory.DeductItem((ushort)itemId, (ushort)itemCount, "Hero");
+            InvRetval retval = peer.mInventory.DeductItems((ushort)itemId, itemCount, "Hero");
             return retval.retCode == InvReturnCode.UseSuccess;
         }
 
@@ -197,6 +214,13 @@ namespace Photon.LoadBalancing.GameServer
                     combatStats.SuppressComputeAll = false;
                     if (applied1 || applied2)
                         combatStats.ComputeAll();
+
+                    // achievements
+                    player.AchievementStats.UpdateCollection(CollectionType.Hero, heroId);
+                    player.UpdateAchievement(AchievementObjectiveType.HeroNumber, ((int)heroData.rarity).ToString(), false,
+                        GetHeroCountByRarity(heroData.rarity), false);
+                    player.UpdateAchievement(AchievementObjectiveType.HeroLevel, heroId.ToString(), false, newHero.Level, false);
+
                 }
                 else
                     peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ShardsNotEnough", "", false, peer);
@@ -248,6 +272,10 @@ namespace Photon.LoadBalancing.GameServer
                         if (heroMember != null)
                             player.PartyStats.SetMemberLevel(heroMember.name, hero.Level);
                     }
+
+                    // achievements
+                    player.UpdateAchievement(AchievementObjectiveType.HeroLevel, heroId.ToString(), false, hero.Level, false);
+                    player.UpdateAchievement(AchievementObjectiveType.HeroGrowth);
                 }
                 else
                     peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_MoneyNotEnough", "", false, peer);
@@ -286,6 +314,10 @@ namespace Photon.LoadBalancing.GameServer
                 combatStats.SuppressComputeAll = false;
                 if (applied)
                     combatStats.ComputeAll();
+
+                // achievement: hero skill pts
+                player.UpdateAchievement(AchievementObjectiveType.HeroSkill, heroId.ToString(), false, hero.GetTotalSkillPoints(), false);
+
             }
             else
                 peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ShardsNotEnough", "", false, peer);
@@ -427,6 +459,9 @@ namespace Photon.LoadBalancing.GameServer
 
                                 trustLevelData = HeroRepo.GetTrustLevelData(hero.TrustLevel);
                                 nextLevelExp = trustLevelData == null ? 0 : trustLevelData.reqtrustexp;
+
+                                //achievement: trust level
+                                player.UpdateAchievement(AchievementObjectiveType.HeroTrust, heroId.ToString(), false, hero.TrustLevel, false);
                             }
                         }
 
@@ -438,6 +473,11 @@ namespace Photon.LoadBalancing.GameServer
                         heroes[hero.SlotIdx] = hero.ToString();
                         peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftSuccess",
                             string.Format("hero;{0};exp;{1}", hero.HeroJson.localizedname, totalExpAdded), false, player.Slot);
+
+                        // achievement: gift count
+                        string target = heroId + ";" + itemId;
+                        player.UpdateAchievement(AchievementObjectiveType.HeroGift, target, false);
+                        player.UpdateAchievement(AchievementObjectiveType.HeroInteract);
                     }
                     else
                         peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_GiftNotEnough", "", false, peer);
@@ -621,23 +661,37 @@ namespace Photon.LoadBalancing.GameServer
         private void UpdateHeroPassiveSEs(Hero hero)
         {
             PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
-            combatStats.SuppressComputeAll = true;
+            bool canCompute = !combatStats.SuppressComputeAll;
+            if (canCompute)
+                combatStats.SuppressComputeAll = true;
+
             bool applied1 = RemoveHeroPassiveSEs(hero.HeroId);  // remove any previous se
             bool applied2 = ApplyHeroPassiveSEs(hero, false);  // apply se from this hero
-            combatStats.SuppressComputeAll = false;
-            if (applied1 || applied2)
-                combatStats.ComputeAll();
+
+            if (canCompute)
+            {
+                combatStats.SuppressComputeAll = false;
+                if (applied1 || applied2)
+                    combatStats.ComputeAll();
+            }
         }
 
         private void UpdateSummonPassiveSEs()
         {
             PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
-            combatStats.SuppressComputeAll = true;
+            bool canCompute = !combatStats.SuppressComputeAll;
+            if (canCompute)
+                combatStats.SuppressComputeAll = true;
+
             bool applied1 = RemoveSummonPassiveSEs();  // remove any previous se
             bool applied2 = ApplyHeroPassiveSEs(summonedHeroEntity.Hero, true);  // apply se from this hero
-            combatStats.SuppressComputeAll = false;
-            if (applied1 || applied2)
-                combatStats.ComputeAll();
+
+            if (canCompute)
+            {
+                combatStats.SuppressComputeAll = false;
+                if (applied1 || applied2)
+                    combatStats.ComputeAll();
+            }
         }
 
         private bool ApplyHeroPassiveSEs(Hero hero, bool isSummon)
@@ -651,7 +705,7 @@ namespace Photon.LoadBalancing.GameServer
                 List<SideEffectJson> passiveSEs = passiveSkill.skills.mTarget;
                 for (int i = 0; i < passiveSEs.Count; i++)
                 {
-                    SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i]);
+                    SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], true);
                     IPassiveSideEffect pse = se as IPassiveSideEffect;
                     if (pse != null)
                     {
@@ -811,8 +865,7 @@ namespace Photon.LoadBalancing.GameServer
                 heroesList.Add(hero);
             }
 
-            // todo: have specific monster target, check player achievement level
-            if (targetId > 0 && player.PlayerSynStats.vipLvl < mapData.reqmonsterlevel)
+            if (targetId > 0 && player.PlayerSynStats.AchievementLevel < mapData.reqmonsterlevel)
                 return;
 
             if (DeductItem(mapData.reqitemid, mapData.reqitemcount))
@@ -830,6 +883,9 @@ namespace Photon.LoadBalancing.GameServer
 
                 explorationsDict.Add(mapId, map);
                 Explorations = JsonConvertDefaultSetting.SerializeObject(explorationsDict);
+
+                // achievements
+                player.UpdateAchievement(AchievementObjectiveType.HeroExploration);
             }
             else
                 peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ExploreItemNotEnough", "", false, peer);
@@ -971,7 +1027,7 @@ namespace Photon.LoadBalancing.GameServer
             if (map.Completed)
             {
                 // try give rewards
-                InvRetval retValue = player.Slot.mInventory.AddItemsIntoInventory(map.Rewards.items, true, "Exploration");
+                InvRetval retValue = player.Slot.mInventory.AddItemsToInventory(map.Rewards.items, true, "Exploration");
                 if (retValue.retCode == InvReturnCode.AddSuccess)
                 {
                     // add currency

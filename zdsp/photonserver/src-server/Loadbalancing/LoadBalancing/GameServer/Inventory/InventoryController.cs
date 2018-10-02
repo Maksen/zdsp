@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
-using Kopio.JsonContracts;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
@@ -14,14 +14,14 @@ public class InvRetval
     public Dictionary<int, int> invSlot = new Dictionary<int, int>();
     public Dictionary<int, ushort> equipSlot = new Dictionary<int, ushort>();
 
-    public void SetInvSlot(int index, int stackCount)
+    public void SetInvSlot(int slotIndex, int amount)
     {
-        if (stackCount == 0)
+        if (amount == 0)
             return;
-        if (invSlot.ContainsKey(index))
-            invSlot[index] += stackCount;
+        if (invSlot.ContainsKey(slotIndex))
+            invSlot[slotIndex] += amount;
         else
-            invSlot.Add(index, stackCount);
+            invSlot.Add(slotIndex, amount);
     }
 }
 
@@ -108,9 +108,10 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public InvRetval AddItemsIntoInventory(IInventoryItem item, bool isNew, string from)
+        public InvRetval AddItemsToInventory(IInventoryItem item, bool isNew, string from)
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.AddFailed;
             ItemInfo additem = new ItemInfo() { itemId = item.ItemID, stackCount = item.StackCount };
             bool canAdd = mInvData.CanAdd(new List<ItemInfo>() { additem });
             if (canAdd)
@@ -121,12 +122,10 @@ namespace Photon.LoadBalancing.GameServer
                     SyncInvData(retval.invSlot);
                     retval.retCode = InvReturnCode.AddSuccess;
                     LogItem(from, item.ItemID, item.StackCount, true);
+                    UpdateCollectItemAchievement(item.ItemID, item.StackCount);
                 }
                 else
-                {
                     RevertAdd(retval.invSlot);
-                    retval.retCode = InvReturnCode.AddFailed;
-                }
             }
             else
             {
@@ -135,19 +134,20 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public InvRetval AddItemsIntoInventory(List<IInventoryItem> items, bool isNew, string from)
+        public InvRetval AddItemsToInventory(List<IInventoryItem> items, bool isNew, string from)
         {
             InvRetval retval = new InvRetval();
-            List<ItemInfo> additems = new List<ItemInfo>();
+            retval.retCode = InvReturnCode.AddFailed;
+            List<ItemInfo> addItems = new List<ItemInfo>();
             foreach (IInventoryItem item in items)
             {
-                ItemInfo _iteminfo = additems.Find(x => x.itemId == item.ItemID);
+                ItemInfo _iteminfo = addItems.Find(x => x.itemId == item.ItemID);
                 if (_iteminfo != null)
                     _iteminfo.stackCount += item.StackCount;
                 else
-                    additems.Add(new ItemInfo() { itemId = item.ItemID, stackCount = item.StackCount });
+                    addItems.Add(new ItemInfo() { itemId = item.ItemID, stackCount = item.StackCount });
             }
-            bool canAdd = mInvData.CanAdd(additems);
+            bool canAdd = mInvData.CanAdd(addItems);
             if (canAdd)
             {
                 bool success = true;
@@ -162,19 +162,17 @@ namespace Photon.LoadBalancing.GameServer
 
                 if (success)
                 {
-                    for (int index = 0; index < items.Count; index++)
-                    {
-                        LogItem(from, items[index].ItemID, items[index].StackCount, true);
-                    }
                     OnAddItems(retval.invSlot);
                     SyncInvData(retval.invSlot);
-                    retval.retCode = InvReturnCode.AddSuccess;      
+                    retval.retCode = InvReturnCode.AddSuccess;
+                    for (int index = 0; index < items.Count; ++index)
+                    {
+                        LogItem(from, items[index].ItemID, items[index].StackCount, true);
+                        UpdateCollectItemAchievement(items[index].ItemID, items[index].StackCount);
+                    }
                 }
                 else
-                {
                     RevertAdd(retval.invSlot);
-                    retval.retCode = InvReturnCode.AddFailed;
-                }
             }
             else
             {
@@ -183,14 +181,16 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public InvRetval AddItemsIntoInventory(ushort itemid, int stackcount, bool isNew, string from)
+        public InvRetval AddItemsToInventory(ushort itemid, int stackcount, bool isNew, string from)
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.AddFailed;
             if (itemid == 0 || stackcount == 0)
             {
                 retval.retCode = InvReturnCode.AddSuccess;
                 return retval;
             }
+
             ItemInfo additem = new ItemInfo() { itemId = itemid, stackCount = stackcount};
             bool canAdd = mInvData.CanAdd(new List<ItemInfo>() { additem });
             if (canAdd)
@@ -201,12 +201,10 @@ namespace Photon.LoadBalancing.GameServer
                     SyncInvData(retval.invSlot);
                     retval.retCode = InvReturnCode.AddSuccess;
                     LogItem(from, itemid, stackcount, true);
+                    UpdateCollectItemAchievement(itemid, stackcount);
                 }
                 else
-                {
                     RevertAdd(retval.invSlot);
-                    retval.retCode = InvReturnCode.AddFailed;
-                }
             }
             else
             {
@@ -215,14 +213,16 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public InvRetval AddItemsIntoInventory(List<ItemInfo> items, bool isNew, string from)
+        public InvRetval AddItemsToInventory(List<ItemInfo> items, bool isNew, string from)
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.AddFailed;
             if (items.Count == 0)
             {
                 retval.retCode = InvReturnCode.AddSuccess;
                 return retval;
             }
+
             bool canAdd = mInvData.CanAdd(items);
             if (canAdd)
             {
@@ -238,19 +238,17 @@ namespace Photon.LoadBalancing.GameServer
 
                 if (success)
                 {
-                    for (int index = 0; index < items.Count; ++index)
-                    {
-                        LogItem(from, items[index].itemId, items[index].stackCount, true);
-                    }
                     OnAddItems(retval.invSlot);
                     SyncInvData(retval.invSlot);
                     retval.retCode = InvReturnCode.AddSuccess;
+                    for (int index = 0; index < items.Count; ++index)
+                    {
+                        LogItem(from, items[index].itemId, items[index].stackCount, true);
+                        UpdateCollectItemAchievement(items[index].itemId, items[index].stackCount);
+                    }
                 }
                 else
-                {
                     RevertAdd(retval.invSlot);
-                    retval.retCode = InvReturnCode.AddFailed;
-                }
             }
             else
             {
@@ -259,202 +257,184 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        private bool AddItems(ushort itemId, int stackCount, ref InvRetval retval, bool isNew = true)
+        public void AddItemsToInventoryMailIfFail(List<ItemInfo> items, Dictionary<CurrencyType, int> currencyToAdd, string from)
         {
-            int added;
-            bool slotexist = true;
-            int index;
+            Player player = mSlot.mPlayer;
+            if (player == null)
+                return;
+
+            var retValue = AddItemsToInventory(items, true, from);
+            if (retValue.retCode != InvReturnCode.AddSuccess)
+            {
+                // If can't add to inventory, send mail
+                List<IInventoryItem> itemsToAdd = new List<IInventoryItem>();
+                foreach (ItemInfo item in items)
+                    itemsToAdd.Add(GameRules.GenerateItem(item.itemId, null, item.stackCount));
+                GameRules.SendMailWithAttachment(player.Name, from, itemsToAdd, currencyToAdd);
+            }
+            else if (currencyToAdd != null) // Add items success, add currency
+            {
+                foreach (var currency in currencyToAdd)
+                    player.AddCurrency(currency.Key, currency.Value, from);
+            }
+        }
+
+        private bool AddItems(ushort itemId, int stackCount, ref InvRetval retval, bool isNew = true)
+        {       
             ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
             if (itemJson == null)
                 return false;
+
+            int slotId = -1;
             ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
             if (itemSortJson.bagtabtype != BagTabType.Equipment)
             {
-                while (stackCount > 0 && slotexist)
+                while (stackCount > 0)
                 {
-                    index = mInvData.GetAvailableSlotsByItemId(itemId);
-                    if (index == -1)
-                        slotexist = false;
+                    slotId = mInvData.GetAvailableSlotByItemId(itemId);
+                    if (slotId == -1)
+                        break;
                     else
-                    {
-                        added = 0;
-                        AddItem(index, ref stackCount, ref added, isNew);
-                        retval.SetInvSlot(index, added);
-                    }
+                        AddItem(mInvData.Slots[slotId], slotId, ref stackCount, ref retval, isNew);
                 }
             }
 
-            bool emptyslot = mInvData.GetEmptySlotCount() > 0;
-            while (stackCount > 0 && emptyslot)
+            while (stackCount > 0)
             {
-                index = mInvData.GetEmptySlotIndex();
-                if (index == -1)
-                    emptyslot = false;
+                slotId = mInvData.GetEmptySlotIndex();
+                if (slotId == -1)
+                    break;
                 else
                 {
                     IInventoryItem newitem = GameRules.GenerateItem(itemId, mSlot, 1);
                     if (newitem == null)
                         return false;
-
-                    if (newitem.MaxStackCount >= stackCount)
+                    if (stackCount <= newitem.MaxStackCount)
                     {
                         newitem.StackCount = stackCount;
-                        if (isNew)
-                            newitem.SetNewItem();
                         stackCount = 0;
                     }
                     else
                     {
                         newitem.StackCount = newitem.MaxStackCount;
-                        if (isNew)
-                            newitem.SetNewItem();
                         stackCount -= newitem.MaxStackCount;
                     }
-                    mInvData.SetSlotItem(index, newitem);
-                    retval.SetInvSlot(index, newitem.StackCount);
+                    if (isNew)
+                        newitem.SetNewItem();
+                    mInvData.SetSlotItem(slotId, newitem);
+                    retval.SetInvSlot(slotId, newitem.StackCount);
                 }
             }
 
-            if (stackCount > 0)
-                return false;
-            else
-                return true;
+            return stackCount == 0; // Fail if stackcount > 0
         }
 
         private bool AddItems(IInventoryItem item, ref InvRetval retval, bool isNew = true)
         {
+            int stackCount = item.StackCount;
             Dictionary<int, IInventoryItem> slots = mInvData.GetStackableSlot(item.ItemID);
-            if (slots.Count == 0)
-            {
-                if (mInvData.GetEmptySlotCount() > 0)
-                {
-                    int index = mInvData.GetEmptySlotIndex();
-                    if (index == -1)
-                        return false;
-                    if (isNew)
-                        item.SetNewItem();
-                    mInvData.SetSlotItem(index, item);
-                    retval.SetInvSlot(index, item.StackCount);
-                }
-            }
-            else
-            {
-                int added = 0;
-                int stackcount = item.StackCount;
+            if (slots.Count > 0)
+            {                
                 foreach (KeyValuePair<int, IInventoryItem> slot in slots)
                 {
-                    int index = slot.Key;
-                    IInventoryItem oitem = slot.Value;
-                    ushort available = (ushort)(oitem.MaxStackCount - oitem.StackCount);
-                    if (available >= stackcount)
-                    {
-                        oitem.StackCount += stackcount;
-                        added = stackcount;
-                        if (isNew)
-                            oitem.SetNewItem();
-                        stackcount = 0;
-                    }
-                    else
-                    {
-                        oitem.StackCount += available;
-                        added = available;
-                        if (isNew)
-                            oitem.SetNewItem();
-                        stackcount -= available;
-                    }                    
-                    retval.SetInvSlot(index, added);
-
-                    if (stackcount == 0)
+                    if (stackCount == 0)
                         break;
+                    AddItem(slot.Value, slot.Key, ref stackCount, ref retval, isNew);
                 }
+                item.StackCount = stackCount;
+            }
 
-                if (stackcount > 0 && mInvData.GetEmptySlotCount() > 0)
-                {
-                    int index = mInvData.GetEmptySlotIndex();
-                    if (index == -1)
-                        return false;
-
-                    item.StackCount = stackcount;
-                    mInvData.SetSlotItem(index, item);
-                    retval.SetInvSlot(index, item.StackCount);
-                }
+            if (stackCount > 0)
+            {
+                if (stackCount > item.MaxStackCount)
+                    return false;
+                int slotId = mInvData.GetEmptySlotIndex();
+                if (slotId == -1)
+                    return false;
+                if (isNew)
+                    item.SetNewItem();
+                mInvData.SetSlotItem(slotId, item);
+                retval.SetInvSlot(slotId, item.StackCount);
             }
             return true;
         }
 
-        private void AddItem(int slotId, ref int stackcount, ref int added, bool isNew = true)
+        private void AddItem(IInventoryItem invItem, int slotId, ref int stackCount, ref InvRetval retval, bool isNew)
         {
-            IInventoryItem item = mInvData.Slots[slotId];
-            if (item == null)
+            if (invItem == null)
                 return;
 
-            if (item.StackCount < item.MaxStackCount)
+            ushort remaining = (ushort)(invItem.MaxStackCount - invItem.StackCount);
+            if (remaining >= stackCount)
             {
-                ushort remain = (ushort)(item.MaxStackCount - item.StackCount);
-                if (remain >= stackcount)
-                {
-                    item.StackCount += stackcount;
-                    added = stackcount;
-                    stackcount = 0;
-                }
-                else
-                {
-                    item.StackCount += remain;
-                    added = remain;
-                    stackcount -= remain;
-                }
-                if (isNew)
-                    item.SetNewItem();
-            }
-        }
-
-        public InvRetval SwapEquipmentToInventory(int slotid)
-        {
-            InvRetval retval = new InvRetval();
-            Equipment equipitem = mEquipInvData.GetEquipmentBySlotId(slotid);
-            if (equipitem == null)
-            {
-                retval.retCode = InvReturnCode.UnEquipFailed;
-                return retval;
+                invItem.StackCount += stackCount;
+                retval.SetInvSlot(slotId, stackCount);
+                stackCount = 0; // Has added all
             }
             else
             {
-                int index = mInvData.GetEmptySlotIndex();
-                if (index == -1)
-                {
-                    retval.retCode = InvReturnCode.Full;
-                    return retval;
-                }
-                else
-                {
-                    mEquipInvData.SetEquipmentToSlot(slotid, null);
-                    retval.equipSlot[slotid] = 1;
-
-                    mInvData.SetSlotItem(index, equipitem);
-                    retval.SetInvSlot(index, 1);
-
-                    SyncInvData(retval.invSlot);
-                    SyncEquipmentData(retval.equipSlot, false);
-                    UpdateEquipmentCombatStats(false, index, slotid);
-                    // Update sideeffects
-                    UpdateEquipmentSideEffect(mSlot.mPlayer, equipitem.EquipmentJson, false);
-                    retval.retCode = InvReturnCode.UnEquipSuccess;
-                }
+                invItem.StackCount += remaining;
+                retval.SetInvSlot(slotId, remaining);
+                stackCount -= remaining;
             }
+            if (isNew)
+                invItem.SetNewItem();
+        }
+
+        public void OnAddItems(Dictionary<int, int> items)
+        {
+            foreach (KeyValuePair<int, int> slot in items)
+            {
+                int itemId = mInvData.OnAddItem(slot.Key, slot.Value);
+
+                // Update Destiny Clue
+                mSlot.mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Item, itemId);
+            }
+        }
+
+        public InvRetval SwapEquipmentToInventory(int eqSlotId)
+        {
+            InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.UnEquipFailed;
+            Equipment equipItem = mEquipInvData.GetEquipmentBySlotId(eqSlotId);
+            if (equipItem == null)
+                return retval;
+
+            int invSlotId = mInvData.GetEmptySlotIndex();
+            if (invSlotId == -1)
+            {
+                retval.retCode = InvReturnCode.Full;
+                return retval;
+            }
+
+            mInvData.SetSlotItem(invSlotId, equipItem);
+            retval.SetInvSlot(invSlotId, 1);
+
+            mEquipInvData.SetEquipmentToSlot(eqSlotId, null);
+            retval.equipSlot[eqSlotId] = 1;
+
+            SyncInvData(retval.invSlot);
+            SyncEquipmentData(retval.equipSlot, false);
+            UpdateEquipmentCombatStats(false, invSlotId, eqSlotId);
+            // Update sideeffects
+            UpdateEquipmentSideEffect(mSlot.mPlayer, equipItem.EquipmentJson, false);
+            retval.retCode = InvReturnCode.UnEquipSuccess;
 
             return retval;
         }
 
-        public InvRetval SwapEquipmentFromInventory(int slotId)
+        public InvRetval SwapEquipmentFromInventory(int invSlotId)
         {
             InvRetval retval = new InvRetval();
             retval.retCode = InvReturnCode.EquipFailed;
-
-            Equipment equipitem = mInvData.Slots[slotId] as Equipment;
-            if (equipitem == null || equipitem.EquipmentJson.fashionsuit)
+            IInventoryItem item = mInvData.Slots[invSlotId];
+            if (item == null || !CanUse(item, ref retval))
+                return retval;
+            Equipment equipItem = item as Equipment;
+            if (equipItem.EquipmentJson.fashionsuit)
                 return retval;
 
-            EquipmentSlot _equipSlot = mEquipInvData.FindAEquipSlotToSwap(equipitem);
+            EquipmentSlot _equipSlot = mEquipInvData.FindAEquipSlotToSwap(equipItem);
             if (_equipSlot == EquipmentSlot.MAXSLOTS)
                 return retval;
 
@@ -463,22 +443,22 @@ namespace Photon.LoadBalancing.GameServer
             if (destItem != null)
             {
                 UpdateEquipmentSideEffect(mSlot.mPlayer, destItem.EquipmentJson, false);
-                mInvData.SetSlotItem(slotId, destItem);
+                mInvData.SetSlotItem(invSlotId, destItem);
             }
             else
-                mInvData.SetSlotItem(slotId, null);
-            retval.SetInvSlot(slotId, 1);
+                mInvData.SetSlotItem(invSlotId, null);
+            retval.SetInvSlot(invSlotId, 1);
 
-            mEquipInvData.SetEquipmentToSlot(equipSlot, equipitem);
+            mEquipInvData.SetEquipmentToSlot(equipSlot, equipItem);
             retval.equipSlot[equipSlot] = 1;
 
             SyncInvData(retval.invSlot);
             SyncEquipmentData(retval.equipSlot, false);
-            if(equipitem.EquipmentJson.equiptype == EquipmentType.Weapon)
-                mSlot.mPlayer.UpdateBasicAttack(equipitem.EquipmentJson);
-            UpdateEquipmentCombatStats(true, slotId, equipSlot);
+            if(equipItem.EquipmentJson.equiptype == EquipmentType.Weapon)
+                mSlot.mPlayer.UpdateBasicAttack(equipItem.EquipmentJson);
+            UpdateEquipmentCombatStats(true, invSlotId, equipSlot);
             // Update sideeffects
-            UpdateEquipmentSideEffect(mSlot.mPlayer, equipitem.EquipmentJson, true);
+            UpdateEquipmentSideEffect(mSlot.mPlayer, equipItem.EquipmentJson, true);
             retval.retCode = InvReturnCode.EquipSuccess;
 
             return retval;
@@ -487,7 +467,6 @@ namespace Photon.LoadBalancing.GameServer
         public void UpdateEquipmentSideEffect(Player player, EquipmentJson equipmentJson, bool isEquipping)
         {              
             List<int> seIds = new List<int>();
-
             string seStr = equipmentJson.basese;
             if (!string.IsNullOrEmpty(seStr))
             {
@@ -520,62 +499,58 @@ namespace Photon.LoadBalancing.GameServer
                 SideEffectsUtils.ClientUpdateEquipmentSideEffects(player, seIds, equipmentJson.id, isEquipping);
         }
 
-        public InvRetval SwapFashionToInventory(int slotId)
+        public InvRetval SwapFashionToInventory(int eqSlotId)
         {
             InvRetval retval = new InvRetval();
-            Equipment equipitem = mEquipInvData.GetFashionSlot(slotId);
-            if (equipitem == null)
+            retval.retCode = InvReturnCode.UnEquipFailed;
+            Equipment equipItem = mEquipInvData.GetFashionSlot(eqSlotId);
+            if (equipItem == null)
+                return retval;
+
+            int invSlotId = mInvData.GetEmptySlotIndex();
+            if (invSlotId == -1)
             {
-                retval.retCode = InvReturnCode.UnEquipFailed;
+                retval.retCode = InvReturnCode.Full;
                 return retval;
             }
-            else
-            {
-                int index = mInvData.GetEmptySlotIndex();
-                if (index == -1)
-                {
-                    retval.retCode = InvReturnCode.Full;
-                    return retval;
-                }
-                else
-                {
-                    mEquipInvData.SetFashionToSlot(slotId, null);
-                    retval.equipSlot[slotId] = 1;
 
-                    mInvData.SetSlotItem(index, equipitem);
-                    retval.SetInvSlot(index, 1);
+            mInvData.SetSlotItem(invSlotId, equipItem);
+            retval.SetInvSlot(invSlotId, 1);
 
-                    SyncInvData(retval.invSlot);
-                    SyncEquipmentData(retval.equipSlot, true);
-                    retval.retCode = InvReturnCode.UnEquipSuccess;
-                }
-            }
+            mEquipInvData.SetFashionToSlot(eqSlotId, null);
+            retval.equipSlot[eqSlotId] = 1;
+
+            SyncInvData(retval.invSlot);
+            SyncEquipmentData(retval.equipSlot, true);
+            retval.retCode = InvReturnCode.UnEquipSuccess;
 
             return retval;
         }
 
-        public InvRetval SwapFashionFromInventory(int slotId)
+        public InvRetval SwapFashionFromInventory(int invSlotId)
         {
             InvRetval retval = new InvRetval();
             retval.retCode = InvReturnCode.EquipFailed;
-
-            Equipment equipitem = mInvData.Slots[slotId] as Equipment;
-            if (equipitem == null)
+            IInventoryItem item = mInvData.Slots[invSlotId];
+            if (item == null || !CanUse(item, ref retval))
+                return retval;
+            Equipment equipItem = mInvData.Slots[invSlotId] as Equipment;
+            if (!equipItem.EquipmentJson.fashionsuit)
                 return retval;
 
-            FashionSlot _equipSlot = InventoryHelper.GetFashionSlotByPartType(equipitem.EquipmentJson.partstype);
+            FashionSlot _equipSlot = InventoryHelper.GetFashionSlotByPartType(equipItem.EquipmentJson.partstype);
             if (_equipSlot == FashionSlot.MAXSLOTS)
                 return retval;
 
             int equipSlot = (int)_equipSlot;
             Equipment destItem = mEquipInvData.GetFashionSlot(equipSlot);
             if (destItem != null)
-                mInvData.SetSlotItem(slotId, destItem);
+                mInvData.SetSlotItem(invSlotId, destItem);
             else
-                mInvData.SetSlotItem(slotId, null);
-            retval.SetInvSlot(slotId, 1);
+                mInvData.SetSlotItem(invSlotId, null);
+            retval.SetInvSlot(invSlotId, 1);
 
-            mEquipInvData.SetFashionToSlot(equipSlot, equipitem);
+            mEquipInvData.SetFashionToSlot(equipSlot, equipItem);
             retval.equipSlot[equipSlot] = 1;
 
             SyncInvData(retval.invSlot);
@@ -585,264 +560,180 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public InvRetval UseItemInInventory(int slotId, ushort useAmount)
+        public InvRetval UseItemInInventory(int slotId, int useAmount)
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.UseFailed;
             IInventoryItem item = mInvData.Slots[slotId];
             if (item == null || mSlot.mPlayer == null || item.StackCount < useAmount)
-            {
-                retval.retCode = InvReturnCode.UseFailed;
-                return retval;
-            }
-
-            if (!CanUse(item, ref retval))
                 return retval;
 
-            switch (item.JsonObject.itemtype)
+            ItemBaseJson itemJson = item.JsonObject;
+            switch (itemJson.itemtype)
             {
                 case ItemType.Equipment:
                     retval = useAmount == 0 ? SwapFashionFromInventory(slotId) : SwapEquipmentFromInventory(slotId);
                     break;
-                case ItemType.MercenaryItem:
-                    retval = UseItems(slotId, useAmount);
-                    break;
-                case ItemType.PotionFood:
-                //    Player player = mSlot.mPlayer;
-                //    int health = player.GetHealth();
-                //    if (health > 0)
-                //    {
-                //        if (health == player.GetHealthMax())
-                //            retval.retcode = InvReturnCode.MaxHp;
-                //        else
-                //        {
-                //            var potionItem = item as PotionItem;
-                //            bool iscd = IsItemUnderCoolDown(potionItem.ItemType, potionItem.CooldownInSec);
-                //            if (iscd)
-                //                retval.retcode = InvReturnCode.ItemCoolDown;
-                //            else
-                //            {
-                //                useAmount = 1; //potion got cooldown.
-                                retval = UseItems(slotId, useAmount);
-                //            }
-                //        }
-                //    }
-                //    else
-                //        retval.retcode = InvReturnCode.UseFailed;
-
-                    break;
                 default:
-                    retval.retCode = InvReturnCode.UseFailed;
+                    retval = UseItem(slotId, useAmount);
                     break;
             }
-
             return retval;
         }
 
-        //*** From Inventory Bag ***//
-        public InvRetval UseItems(int slotId, ushort useAmount)
+        //*** Use from Inventory Bag ***//
+        public InvRetval UseItem(int slotId, int useAmount, string from = "")
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.UseFailed;
             IInventoryItem item = mInvData.Slots[slotId];
-            if (item == null || mSlot.mPlayer == null || item.StackCount < useAmount || item.JsonObject.useable)
-            {
-                retval.retCode = InvReturnCode.UseFailed;
+            if (item == null || item.StackCount < useAmount || !item.JsonObject.useable) 
                 return retval;
-            }
-
-            if (!CanUse(item, ref retval))
+            Player player = mSlot.mPlayer;
+            if (player == null || !player.IsAlive() || !CanUse(item, ref retval))
                 return retval;
-
-            //if (item.ItemType == ItemType.OpenWindow)
-            //{
-            //    retval.retcode = InvReturnCode.UseSuccess;
-            //    mSlot.ZRPC.CombatRPC.OpenUIWindow((byte)(item as OpenWindowItem).linkUI, slotId, mSlot);
-            //    return retval;
-            //}
-            //else if (item.ItemType == ItemType.SocketGemItem)
-            //{
-            //    retval.retcode = InvReturnCode.UseSuccess;
-            //    mSlot.ZRPC.CombatRPC.OpenUIWindow((byte)LinkUIType.Equipment_Gem_Equip, -1,mSlot);
-            //    return retval;
-            //}
 
             bool success = true;
-            if (!DeductItems(item.ItemID, slotId, useAmount, ref retval))
+            if (!mInvData.HasItem(item.ItemID, useAmount) || !DeductItem(item.ItemID, slotId, useAmount, ref retval))
                 success = false;
             if (success)
             {
-                bool used = false;
-                switch (item.JsonObject.itemtype)
+                bool usedSuccess = false;
+                ItemBaseJson itemJson = item.JsonObject;
+                switch (itemJson.itemtype)
                 {
+                    case ItemType.PotionFood:
+                        //var potionItem = item as PotionItem;
+                        //int healAbsolute = mSlot.mPlayer.AddHealthPercentage(potionItem.Heal);
+                        //int cooldownReduction = (int)mSlot.mPlayer.SkillPassiveStats.GetField(SkillPassiveFieldName.Potion_CD);
+                        //float realcooldown = potionItem.CooldownInSec * (1 - cooldownReduction * 0.01f); //really need a varaiant cooldown for different item at Server?
+                        //UpdateItemLastUsedDT(potionItem.ItemType, potionItem.ItemID, true, (int)realcooldown);
+                        ////Tell player about healing
+                        //{
+                        //    AttackResult ar = new AttackResult(mSlot.mPlayer.GetPersistentID(), healAbsolute);
+                        //    ar.IsHeal = true;
+                        //    mSlot.mPlayer.QueueDmgResult(ar);
+                        //}
+                        PotionFoodJson potionFood = (PotionFoodJson)itemJson;
+                        int sideffectid = -1;
+                        if (int.TryParse(potionFood.seid, out sideffectid))
+                        {
+                            if (SideEffectRepo.mIdMap.ContainsKey(sideffectid))
+                            {
+                                var sedata = SideEffectRepo.mIdMap[sideffectid];
+                                var se = SideEffectFactory.CreateSideEffect(sedata);
+                                if (se != null)
+                                    se.Apply(mSlot.mPlayer, mSlot.mPlayer, true);
+                                usedSuccess = true;
+                            }
+                        }
+                        break;
+                    case ItemType.LuckyPick:
+                        LuckyPickJson luckyPick = (LuckyPickJson)itemJson;                       
+                        Dictionary<CurrencyType, int> currencyToAdd = new Dictionary<CurrencyType, int>();
+                        string[] currencyList = luckyPick.currency.Split(';');
+                        int length = currencyList.Length;
+                        if (length > 0)
+                        {
+                            for (int i = 0; i < length; ++i)
+                            {
+                                string[] currencyStr = currencyList[i].Split('|');
+                                if (currencyStr.Length == 2)
+                                {
+                                    int type = 0, amt = 0;
+                                    if (int.TryParse(currencyStr[0], out type))
+                                        if (int.TryParse(currencyStr[1], out amt))
+                                        {
+                                            CurrencyType currencyType = (CurrencyType)type;
+                                            if (currencyToAdd.ContainsKey(currencyType))
+                                                currencyToAdd[currencyType] += amt;
+                                            else
+                                                currencyToAdd[currencyType] = amt;
+                                        }
+                                }
+                            }
+                        }
+                        Dictionary<int, int> itemsToAdd = new Dictionary<int, int>();
+                        List<int> lootGrpIds = GameUtils.ParseStringToIntList(luckyPick.luckypickgroup, ';');
+                        if (lootGrpIds.Count > 0)
+                            LootRules.GenerateLootItems(lootGrpIds, itemsToAdd, currencyToAdd);
+                        List<ItemInfo> itemInfoList = LootRules.GetItemInfoListToAdd(itemsToAdd, true);
+                        AddItemsToInventoryMailIfFail(itemInfoList, currencyToAdd, "LuckyPick");
+                        usedSuccess = true;
+                        break;
                     case ItemType.MercenaryItem:
-                        HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
+                        HeroItemJson heroItemJson = (HeroItemJson)itemJson;
                         int heroId;
                         if (int.TryParse(heroItemJson.heroid, out heroId) && heroId > 0)
                         {
                             if (heroItemJson.heroitemtype == HeroItemType.Gift && heroItemJson.ischangelike == 0)
                             {
                                 mSlot.mPlayer.HeroStats.AddHeroTrust(heroId, item.ItemID, false);
-                                used = true;
+                                usedSuccess = true;
                             }
                             else if (heroItemJson.heroitemtype == HeroItemType.HeroSkin)
                             {
                                 mSlot.mPlayer.HeroStats.UnlockHeroSkin(heroId, item.ItemID);
-                                used = true;
+                                usedSuccess = true;
                             }
                         }
                         break;
-                    case ItemType.PotionFood:
+                    //case (ItemType.Currency):
+                    //    var currencyItem = item as CurrencyItem;
+                    //    if (mSlot.mPlayer.IsCurrencyAddable(currencyItem.CurrencyType, currencyItem.Amount * useAmount))
+                    //    {
+                    //        if (currencyItem.CurrencyType == CurrencyType.GuildContribution || currencyItem.CurrencyType == CurrencyType.GuildGold)
+                    //        {
+                    //            if (mSlot.mPlayer.SecondaryStats.guildId > 0)
+                    //            {
+                    //                usedSuccess = true;
+                    //            }
+                    //            else
+                    //            {
+                    //                retval.retCode = InvReturnCode.UseFailed;
+                    //                usedSuccess = false;
+                    //                break;
+                    //            }
+                    //        }
+                    //        else
+                    //            usedSuccess = true;
 
-                //        var potionItem = item as PotionItem;
-                //        int healAbsolute = mSlot.mPlayer.AddHealthPercentage(potionItem.Heal);
-                //        int cooldownReduction = (int)mSlot.mPlayer.SkillPassiveStats.GetField(SkillPassiveFieldName.Potion_CD);
-                //        float realcooldown = potionItem.CooldownInSec * (1 - cooldownReduction * 0.01f); //really need a varaiant cooldown for different item at Server?
-                //        UpdateItemLastUsedDT(potionItem.ItemType, potionItem.ItemID, true, (int)realcooldown);
-                        used = true;
-
-                //        //Tell player about healing
-                //        {
-                //            AttackResult ar = new AttackResult(mSlot.mPlayer.GetPersistentID(), healAbsolute);
-                //            ar.IsHeal = true;
-                //            mSlot.mPlayer.QueueDmgResult(ar);
-                //        }
-
-                        var pot = (PotionFoodJson)item.JsonObject;
-
-                        int sideffectid = -1;
-
-                        if (int.TryParse(pot.seid, out sideffectid))
-                        {
-                            if (SideEffectRepo.mIdMap.ContainsKey(sideffectid))
-                            {
-                                var sedata = SideEffectRepo.mIdMap[sideffectid];
-                                var se = SideEffectFactory.CreateSideEffect(sedata);                                
-
-                                if(se != null) se.Apply(mSlot.mPlayer, mSlot.mPlayer, true);
-                            }
-                        }
-                        
-                        break;
-                //    case (ItemType.Currency):
-                //        var currencyItem = item as CurrencyItem;
-                //        if (mSlot.mPlayer.IsCurrencyAddable(currencyItem.CurrencyType, currencyItem.Amount * useAmount))
-                //        {
-                //            if(currencyItem.CurrencyType == CurrencyType.GuildContribution || currencyItem.CurrencyType == CurrencyType.GuildGold)
-                //            {
-                //                if (mSlot.mPlayer.SecondaryStats.guildId > 0)
-                //                {
-                //                    used = true;
-                //                }
-                //                else
-                //                {
-                //                    retval.retcode = InvReturnCode.UseFailed;
-                //                    used = false;
-                //                    break;
-                //                }
-                //            }
-                //            else
-                //                used = true;
-
-                //            mSlot.mPlayer.AddCurrency(currencyItem.CurrencyType, currencyItem.Amount * useAmount, "CurrencyItem");
-                //        }
-                //        else
-                //        {
-                //            retval.retcode = InvReturnCode.MaxCurrency;
-                //            used = false;
-                //        }
-                //        break;
-                //    case (ItemType.Ticket):
-                //        var ticketItem = item as TicketItem;
-                //        if (ticketItem.realmType == RealmType.ActivityGuildSMBoss)
-                //            mSlot.mPlayer.SecondaryStats.GuildSMBossExtraEntry += ticketItem.amountAdded * useAmount;
-                //        else
-                //            mSlot.mPlayer.RealmStats.AddExtraEntry(ticketItem.realmType, ticketItem.sequence, ticketItem.amountAdded * useAmount, ticketItem.dungeonType);
-
-                //        int count = ticketItem.amountAdded * useAmount;
-                //        Dictionary<string, string> dic = new Dictionary<string, string>();
-                //        string instanceName = RealmRepo.GetDungeonName(ticketItem.realmType, ticketItem.sequence, ticketItem.dungeonType);
-                //        dic.Add("name", instanceName);
-                //        dic.Add("num", count.ToString());
-                //        mSlot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_TicketAddTime", GameUtils.FormatString(dic), false, mSlot);
-                //        used = true;
-                //        break;
-                //    case (ItemType.GuildQuest):
-                //        var GuildQuestItem = item as GuildQuestItem;
-                //        mSlot.mPlayer.AddGuildQuestRefreshTimes(GuildQuestItem.amountAdded * useAmount);
-                //        used = true;
-                //        break;
-                //    case (ItemType.PetItem):
-                //        used = true;
-                //        break;
-                //    case (ItemType.PetEgg):
-                //        PetEgg petegg = item as PetEgg;
-                //        if (petegg != null)
-                //            used = mSlot.mPlayer.mPet.AddPet(petegg.petid, useAmount);
-                //        if (!used)
-                //            retval.retcode = InvReturnCode.PetBagFull;
-                //        break;
+                    //        mSlot.mPlayer.AddCurrency(currencyItem.CurrencyType, currencyItem.Amount * useAmount, "CurrencyItem");
+                    //    }
+                    //    else
+                    //    {
+                    //        retval.retCode = InvReturnCode.MaxCurrency;
+                    //        usedSuccess = false;
+                    //    }
+                    //    break;
                 }
-                if (used)
+                if (usedSuccess)
                 {
-                    RemoveEmptyItem(retval.invSlot);
-                    LogItem("UseItem", item.ItemID, useAmount, false);
+                    RemoveEmptyItem(retval.invSlot);                 
                     SyncInvData(retval.invSlot);
                     retval.retCode = InvReturnCode.UseSuccess;
+                    LogItem(string.IsNullOrEmpty(from) ? "UseItem" : from, item.ItemID, useAmount, false);
                 }
                 else
-                {
                     RevertRemove(retval.invSlot);
-                }
             }
             else
-            {
                 RevertRemove(retval.invSlot);
-                retval.retCode = InvReturnCode.UseFailed;
-            }
+
             return retval;
         }
 
-        public InvRetval DeductItem(ushort itemId, ushort useAmount, string from)
-        {      
-            InvRetval retval = new InvRetval();
-            if (useAmount <= 0)
-            {
-                retval.retCode = InvReturnCode.UseSuccess;
-                return retval;
-            }
-            retval.retCode = InvReturnCode.UseFailed;
-            IInventoryItem item = mInvData.GetItemByItemId(itemId);
-            if (item != null)
-            {
-                if (item.ItemSortJson.bagtabtype == BagTabType.Consumable)
-                    retval = UseToolItems(itemId, useAmount, from);
-                else
-                {
-                    if (mInvData.HasItem(itemId, useAmount))
-                    {
-                        if (!DeductItems(itemId, -1, useAmount, ref retval))
-                            RevertRemove(retval.invSlot);
-                        else
-                        {
-                            RemoveEmptyItem(retval.invSlot);
-                            LogItem(from, itemId, useAmount, false);
-                            SyncInvData(retval.invSlot);
-                            retval.retCode = InvReturnCode.UseSuccess;
-                        }
-                    }
-                }
-            }
-            return retval;
-        }
-
-        //*** For craft, upgrade, et... ***//
-        public InvRetval UseToolItems(List<ItemInfo> items, string from)
+        //*** For craft, upgrade, etc... ***//
+        public InvRetval DeductItems(List<ItemInfo> items, string from)
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.UseFailed;
             bool success = true;
-            for (int index = 0; index < items.Count; index++)
+            int count = items.Count;
+            for (int index = 0; index < count; ++index)
             {
                 ItemInfo iteminfo = items[index];
-                if (!mInvData.HasItem(iteminfo.itemId, iteminfo.stackCount) || !DeductItems(iteminfo.itemId, -1, iteminfo.stackCount, ref retval))
+                if (!mInvData.HasItem(iteminfo.itemId, iteminfo.stackCount) || !DeductItem(iteminfo.itemId, -1, iteminfo.stackCount, ref retval))
                 {
                     success = false;
                     break;
@@ -852,38 +743,33 @@ namespace Photon.LoadBalancing.GameServer
             if (success)
             {
                 RemoveEmptyItem(retval.invSlot);
-                for (int index = 0; index < items.Count; index++)
-                {
-                    LogItem(from, items[index].itemId, items[index].stackCount, false);
-                }
                 SyncInvData(retval.invSlot);
                 retval.retCode = InvReturnCode.UseSuccess;
+                for (int index = 0; index < items.Count; ++index)
+                    LogItem(from, items[index].itemId, items[index].stackCount, false);
             }
             else
-            {
                 RevertRemove(retval.invSlot);
-                retval.retCode = InvReturnCode.UseFailed;
-            }
 
             return retval;
         }
 
-        public InvRetval UseToolItems(ushort itemId, ushort useAmount, string from)
+        public InvRetval DeductItems(ushort itemId, int amount, string from)
         {
             InvRetval retval = new InvRetval();
             retval.retCode = InvReturnCode.UseFailed;
-            if (!mInvData.HasItem(itemId, useAmount))
+            if (amount <= 0 || !mInvData.HasItem(itemId, amount))
                 return retval;
 
-            if (!DeductItems(itemId, -1, useAmount, ref retval))
-                RevertRemove(retval.invSlot);
-            else
+            if (DeductItem(itemId, -1, amount, ref retval))
             {
                 RemoveEmptyItem(retval.invSlot);
-                LogItem(from, itemId, useAmount, false);
                 SyncInvData(retval.invSlot);
                 retval.retCode = InvReturnCode.UseSuccess;
+                LogItem(from, itemId, amount, false);
             }
+            else
+                RevertRemove(retval.invSlot);
 
             return retval;
         }
@@ -915,75 +801,68 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        //warehouse related
-        public InvRetval RemoveInvItem(int slotId, string from)
+        // warehouse related
+        public InvRetval RemoveInventoryItem(int slotId, string from)
         {
             InvRetval retval = new InvRetval();
+            retval.retCode = InvReturnCode.RemoveFailed;
             IInventoryItem item = mInvData.Slots[slotId];
             if (item != null)
             {
                 int stackcount = item.StackCount;
-                if (DeductItems(item.ItemID, slotId, stackcount, ref retval))
+                if (DeductItem(item.ItemID, slotId, stackcount, ref retval))
                 {
-                    LogItem(from, item.ItemID, stackcount, false);
                     RemoveEmptyItem(retval.invSlot);
                     SyncInvData(retval.invSlot);
                     retval.retCode = InvReturnCode.RemoveSuccess;
+                    LogItem(from, item.ItemID, stackcount, false);
                 }
                 else
-                {
                     RevertRemove(retval.invSlot);
-                    retval.retCode = InvReturnCode.RemoveFailed;
-                }
-            }         
+            }
             return retval;
         }
 
-        public bool DeductItems(ushort itemId, int slotId, int stackCount, ref InvRetval retval)
+        private bool DeductItem(ushort itemId, int slotId, int stackCount, ref InvRetval retval)
         {
             if (stackCount == 0)
                 return true;
 
-            int removed = 0;
             if (slotId >= 0)
             {
-                RemoveItem(slotId, ref stackCount, ref removed);
-                retval.SetInvSlot(slotId, removed);
+                RemoveItem(slotId, ref stackCount, ref retval);
             }
             else
             {
-                int index = 0;
-                Dictionary<int, IInventoryItem> stackableSlot = mInvData.FindItemByItemId(itemId); 
-                foreach(var kvp in stackableSlot)
+                Dictionary<int, IInventoryItem> invItems = mInvData.GetItemsByItemId(itemId); 
+                foreach(var kvp in invItems)
                 {
-                    index = kvp.Key;
-                    removed = 0;
-                    RemoveItem(index, ref stackCount, ref removed);
-                    retval.SetInvSlot(index, removed);
                     if (stackCount == 0)
                         return true;
+                    RemoveItem(kvp.Key, ref stackCount, ref retval);
                 }
             }
-            return stackCount == 0;
+
+            return stackCount == 0; // Fail if stackcount > 0
         }
 
-        public void RemoveItem(int slotId, ref int stackCount, ref int removed)
+        private void RemoveItem(int slotId, ref int stackCount, ref InvRetval retval)
         {
-            IInventoryItem item = mInvData.Slots[slotId];
-            if (item == null)
+            IInventoryItem invItem = mInvData.Slots[slotId];
+            if (invItem == null)
                 return;
 
-            if (item.StackCount >= stackCount)
+            if (invItem.StackCount >= stackCount)
             {
-                item.StackCount -= stackCount;
-                removed = stackCount;
+                invItem.StackCount -= stackCount;
+                retval.SetInvSlot(slotId, stackCount);
                 stackCount = 0;
             }
             else
             {
-                stackCount -= item.StackCount;
-                removed = item.StackCount;
-                item.StackCount = 0;
+                stackCount -= invItem.StackCount;
+                retval.SetInvSlot(slotId, invItem.StackCount);
+                invItem.StackCount = 0;
             }
         }
         
@@ -999,7 +878,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (item != null)
                 {
                     int amount = kvp.Value;
-                    if (!DeductItems(item.ItemID, slotId, amount, ref retval))
+                    if (!DeductItem(item.ItemID, slotId, amount, ref retval))
                         RevertRemove(retval.invSlot);
                     else
                         totalSellAmount += item.JsonObject.sellprice * amount;
@@ -1083,7 +962,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (slotId < 0 || slotId > mInvData.Slots.Count)
                     continue;//skip
                 var item = mInvData.Slots[slotId];
-                if (!DeductItems(item.ItemID, slotId, item.StackCount, ref retval))
+                if (!DeductItem(item.ItemID, slotId, item.StackCount, ref retval))
                 {
                     success = false;
                     break;
@@ -1109,16 +988,145 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
+        public InvRetval SellItem(int slotId, ushort amount)
+        {
+            InvRetval retval = new InvRetval();
+            IInventoryItem item = mInvData.Slots[slotId];
+            if (item == null || item.StackCount < amount || item.JsonObject.sellprice == 0)
+            {
+                retval.retCode = InvReturnCode.SellFailed;
+                return retval;
+            }
+
+            if (!DeductItem(item.ItemID, slotId, amount, ref retval) || !SellItemForMoney(item.JsonObject.sellprice * amount))
+            {
+                RevertRemove(retval.invSlot);
+                retval.retCode = InvReturnCode.SellFailed;
+                return retval;
+            }
+            else
+            {
+                LogItem("Sell", item.ItemID, amount, false);
+                RemoveEmptyItem(retval.invSlot);
+                SyncInvData(retval.invSlot);
+                retval.retCode = InvReturnCode.SellSuccess;
+                return retval;
+            }
+        }
+
+        private bool CanUse(IInventoryItem item, ref InvRetval retval)
+        {
+            int lvl = mSlot.mPlayer.GetAccumulatedLevel();
+            if (lvl < item.JsonObject.requirelvl)
+            {
+                retval.retCode = InvReturnCode.BelowLevel;
+                return false;
+            }
+            return true;
+        }
+        
+        public void InvSortItem()
+        {
+            mInvData.ItemInventorySorting();
+            UpdateInvStats();
+        }
+
+        public void SyncInvData(Dictionary<int, int> items)
+        {
+            Player player = mSlot.mPlayer;
+            if (player == null)
+                return;
+
+            List<IInventoryItem> itemSlots = mInvData.Slots;
+            Dictionary<int, int>.KeyCollection SlotIds = items.Keys;
+            foreach (int id in SlotIds)
+            {
+                player.UpdateInventoryStats(id, itemSlots[id]);
+            }
+        }
+
+        public void UpdateInvStats()
+        {
+            Player player = mSlot.mPlayer;
+            if (player == null)
+                return;
+
+            List<IInventoryItem> itemSlots = mInvData.Slots;
+            int count = itemSlots.Count;
+            for (int idx = 0; idx < count; ++idx)
+            {
+                player.UpdateInventoryStats(idx, itemSlots[idx]);
+            }
+        }
+
+        public void ClearItemInventory()
+        {
+            mInvData.ClearItemInventory();
+            UpdateInvStats();
+        }
+
+        public void RemoveEmptyItem(Dictionary<int, int> items)
+        {
+            foreach (KeyValuePair<int, int> slot in items)
+            {
+                mInvData.ItemRemoveBySlotId(slot.Key, slot.Value);
+            }
+        }
+
+        public void RevertAdd(Dictionary<int, int> items)
+        {
+            foreach (KeyValuePair<int, int> slot in items)
+            {
+                IInventoryItem oitem = mInvData.Slots[slot.Key];
+                oitem.StackCount -= slot.Value;
+                if (oitem.StackCount <= 0)
+                    mInvData.SetSlotItem(slot.Key, null);
+                else if(oitem.IsNew)
+                    oitem.ResetNewItem();
+            }
+        }
+
+        public void RevertRemove(Dictionary<int, int> items)
+        {
+            foreach (KeyValuePair<int, int> slot in items)
+            {
+                IInventoryItem oitem = mInvData.Slots[slot.Key];
+                oitem.StackCount += slot.Value;
+                //mInvData.SetSlotItem(slot.Key, oitem);
+            }
+        }
+
+        private void SyncEquipmentData(Dictionary<int, ushort> items, bool isFashion)
+        {
+            Player player = mSlot.mPlayer;
+            if (player == null)
+                return;
+
+            if (isFashion)
+            {
+                foreach (KeyValuePair<int, ushort> slot in items)
+                    player.UpdateFashionStats(slot.Key, mEquipInvData.GetFashionSlot(slot.Key));
+            }
+            else
+            {
+                foreach (KeyValuePair<int, ushort> slot in items)
+                    player.UpdateEquipmentStats(slot.Key, mEquipInvData.GetEquipmentBySlotId(slot.Key));
+            }
+
+            if (player.IsInParty())
+                player.PartyStats.SetDirty(player.Name);
+        }
+
         public UpdateRetval UpdateEquipmentProperties(ushort value, EquipPropertyType ptype, bool isEquipped, int slotID, ushort selection = ushort.MaxValue, List<int> buffList = null, bool isMultiSel = false, float currIncr = 0f, float nextIncr = 0f, List<int> reformSEAdd = null, List<int> recycleSERemove = null)
         {
             Equipment equipment = isEquipped ? mEquipInvData.Slots[slotID] as Equipment : mInvData.Slots[slotID] as Equipment;
 
             PlayerCombatStats combatStats = (PlayerCombatStats)mSlot.mPlayer.CombatStats;
             //combatStats.ComputeEquippedCombatStats(equipment, gemGroup, mSlot.mPlayer.EquipInvStats.selectedGemGroup, false); //CombatStats: take off equip
-            if(ptype == EquipPropertyType.Upgrade)
+            if (ptype == EquipPropertyType.Upgrade)
                 combatStats.ComputeEquippedCombatStats(equipment, currIncr, false);
 
-            switch(ptype)
+            switch (ptype)
             {
                 case EquipPropertyType.Upgrade:
                     equipment.UpgradeLevel = value;
@@ -1225,7 +1233,7 @@ namespace Photon.LoadBalancing.GameServer
             //        equipment.EncodeGemData(gemIDs, gemAttributes);
             //        break;
             //}
-            
+
             if (isEquipped)
             {
                 Dictionary<int, ushort> updatedEquipment = new Dictionary<int, ushort>();
@@ -1247,144 +1255,6 @@ namespace Photon.LoadBalancing.GameServer
 
             return UpdateRetval.Success;
         }
-        
-        public InvRetval SellItem(int slotId, ushort amount)
-        {
-            InvRetval retval = new InvRetval();
-            IInventoryItem item = mInvData.Slots[slotId];
-            if (item == null || item.StackCount < amount || item.JsonObject.sellprice == 0)
-            {
-                retval.retCode = InvReturnCode.SellFailed;
-                return retval;
-            }
-
-            if (!DeductItems(item.ItemID, slotId, amount, ref retval) || !SellItemForMoney(item.JsonObject.sellprice * amount))
-            {
-                RevertRemove(retval.invSlot);
-                retval.retCode = InvReturnCode.SellFailed;
-                return retval;
-            }
-            else
-            {
-                LogItem("Sell", item.ItemID, amount, false);
-                RemoveEmptyItem(retval.invSlot);
-                SyncInvData(retval.invSlot);
-                retval.retCode = InvReturnCode.SellSuccess;
-                return retval;
-            }
-        }
-
-        public void InvSortItem()
-        {
-            mInvData.ItemInventorySorting();
-            UpdateInvStats();
-        }
-
-        public void SyncInvData(Dictionary<int, int> items)
-        {
-            Player player = mSlot.mPlayer;
-            if (player == null)
-                return;
-
-            List<IInventoryItem> itemSlots = mInvData.Slots;
-            Dictionary<int, int>.KeyCollection SlotIds = items.Keys;
-            foreach (int id in SlotIds)
-            {
-                player.UpdateInventoryStats(id, itemSlots[id]);
-            }
-        }
-
-        public void UpdateInvStats()
-        {
-            Player player = mSlot.mPlayer;
-            if (player == null)
-                return;
-
-            List<IInventoryItem> itemSlots = mInvData.Slots;
-            int count = itemSlots.Count;
-            for (int idx = 0; idx < count; ++idx)
-            {
-                player.UpdateInventoryStats(idx, itemSlots[idx]);
-            }
-        }
-
-        public void ClearItemInventory()
-        {
-            mInvData.ClearItemInventory();
-            UpdateInvStats();
-        }
-
-        public void NewDayReset()
-        {
-            mItemKindData.NewDayReset();
-        }
-
-        public ItemKindData GetItemKindData()
-        {
-            return mItemKindData;
-        }
-
-        public void RevertAdd(Dictionary<int, int> items)
-        {
-            foreach (KeyValuePair<int, int> slot in items)
-            {
-                IInventoryItem oitem = mInvData.Slots[slot.Key];
-                oitem.StackCount -= slot.Value;
-                if (oitem.StackCount <= 0)
-                    mInvData.SetSlotItem(slot.Key, null);
-                else if(oitem.IsNew)
-                    oitem.ResetNewItem();
-            }
-        }
-
-        public void RevertRemove(Dictionary<int, int> items)
-        {
-            foreach (KeyValuePair<int, int> slot in items)
-            {
-                IInventoryItem oitem = mInvData.Slots[slot.Key];
-                oitem.StackCount += slot.Value;
-                //mInvData.SetSlotItem(slot.Key, oitem);
-            }
-        }
-
-        public void RemoveEmptyItem(Dictionary<int, int> items)
-        {
-            foreach (KeyValuePair<int, int> slot in items)
-            {
-                mInvData.ItemRemoveBySlotId(slot.Key, slot.Value);
-            }
-        }
-
-        public void OnAddItems(Dictionary<int, int> items)
-        {
-            List<int> itemlist = new List<int>();
-            foreach (KeyValuePair<int, int> slot in items)
-            {
-                itemlist.Add(mInvData.OnAddItem(slot.Key, slot.Value));
-            }
-            ItemChanged(itemlist);
-        }
-
-        private void SyncEquipmentData(Dictionary<int, ushort> items, bool isFashion)
-        {
-            Player player = mSlot.mPlayer;
-            if (player == null)
-                return;
-
-            if (isFashion)
-            {
-                foreach (KeyValuePair<int, ushort> slot in items)
-                    player.UpdateFashionStats(slot.Key, mEquipInvData.GetFashionSlot(slot.Key));
-            }
-            else
-            {
-                foreach (KeyValuePair<int, ushort> slot in items)
-                    player.UpdateEquipmentStats(slot.Key, mEquipInvData.GetEquipmentBySlotId(slot.Key));
-            }
-
-            if (player.IsInParty())
-                player.PartyStats.SetDirty(player.Name);
-        }
 
         private void UpdateEquipmentCombatStats(bool added, int invslot, int equipslot)
         {
@@ -1405,6 +1275,16 @@ namespace Photon.LoadBalancing.GameServer
             //{
             //    mSlot.mPlayer.UpdateEquipmentCombatStats(item, added);
             //}
+        }
+
+        public void NewDayReset()
+        {
+            mItemKindData.NewDayReset();
+        }
+
+        public ItemKindData GetItemKindData()
+        {
+            return mItemKindData;
         }
 
         private bool IsItemUnderCoolDown(int itemKind, int seconds)
@@ -1461,23 +1341,6 @@ namespace Photon.LoadBalancing.GameServer
             return true;
         }
 
-        private bool CanUse(IInventoryItem item, ref InvRetval retval)
-        {
-            int lvl = mSlot.mPlayer.GetAccumulatedLevel();
-            if (lvl < item.JsonObject.requirelvl)
-            {
-                retval.retCode = InvReturnCode.BelowLevel;
-                return false;
-            }
-
-            //if (lvl >= item.LimitLvl && item.LimitLvl != 0)
-            //{
-            //    retval.retcode = InvReturnCode.OverLevel;
-            //    return false;
-            //}
-            return true;
-        }
-
         private void UpdateItemBoundStatus(List<Dictionary<int, ushort>> items)
         {
             //foreach (Dictionary<int, ushort> item in items)
@@ -1496,6 +1359,7 @@ namespace Photon.LoadBalancing.GameServer
             mSlot.CharacterData.ItemInventory.UnlockedSlotCount = newUnlockedSlot;
         }
 
+        #region Equipment Requirement
         public void SyncEquipmentRequirement()
         {
             //called when Player join game,and when Player reset stats
@@ -1528,6 +1392,7 @@ namespace Photon.LoadBalancing.GameServer
             //if it contains the slot index means, can't wear that equipment at index
             return mEquipmentRequirementsFailed.Contains(slotIndex);
         }
+        #endregion
 
         public void SetItemToHotbar(byte idx, int slotId)
         {
@@ -1556,14 +1421,6 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        private void ItemChanged(List<int> itemlist)
-        {
-            foreach(int itemid in itemlist)
-            {
-                mSlot.mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Item, itemid);
-            }
-        }
-
         public void UpdateEquipFusion(int slotID, string value)
         {
             Equipment equip = mInvData.Slots[slotID] as Equipment;
@@ -1572,6 +1429,11 @@ namespace Photon.LoadBalancing.GameServer
             Dictionary<int, int> refreshEquipment = new Dictionary<int, int>();
             refreshEquipment.Add(slotID, equip.JsonObject.itemid);
             SyncInvData(refreshEquipment);
+        }
+
+        private void UpdateCollectItemAchievement(int itemId, int itemCount)
+        {
+            mSlot.mPlayer.UpdateAchievement(AchievementObjectiveType.CollectItem, itemId.ToString(), false, itemCount);
         }
     }
 }

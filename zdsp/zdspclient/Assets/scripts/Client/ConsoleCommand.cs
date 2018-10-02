@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using Kopio.JsonContracts;
 using Zealot.Common;
 using Zealot.Common.RPC;
 using Zealot.Common.Entities;
@@ -299,11 +299,28 @@ public class CommandManager
         }
     }
 
+    [ConsoleCmd("Get inventory item info by id", @"Example: \Inventory 1")]
+    public void GetInventoryItemInfo(string[] param)
+    {
+        if (param.Length > 0)
+        {
+            int id;
+            if (int.TryParse(param[0], out id) && id > 0)
+                RPCFactory.NonCombatRPC.ConsoleGetInventoryItemInfo(id);
+            else
+                PrintToConsole("GetInventoryItemInfo: invalid id");
+        }
+        else
+        {
+            PrintToConsole("Format: \\GetInventoryItemInfo <id>");
+        }
+    }
+
     [ConsoleCmd("Parameters: CurrencyType amount",
 @" Format: \addcurrency < CurrencyType > < amount > 
     Example: \addcurrency Gold 1000000000
     Can add:
-    Money Gold LockGold GuildGold GuildContribution VIP
+    Money Gold LockGold GuildGold GuildContribution
     ")]
     public void AddCurrency(string[] param)
     {
@@ -666,31 +683,6 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("Get inventory item info by id",
-        @"Example: \Inventory 1")]
-    public void GetInventoryItemInfo(string[] param)
-    {
-        if (param.Length > 0)
-        {
-            int id;
-            if (int.TryParse(param[0], out id) && id > 0)
-                RPCFactory.NonCombatRPC.ConsoleGetInventoryItemInfo(id);
-            else
-                PrintToConsole("GetInventoryItemInfo: invalid id");
-        }
-        else
-        {
-            PrintToConsole("Format: \\GetInventoryItemInfo <id>");
-        }
-    }
-
-    [ConsoleCmd("End TrainingRealm")]
-    public void EndTrainingRealm(string[] param)
-    {
-        GameInfo.gCombat.OnFinishedTraingingRealm();
-        UIManager.CloseWindow(WindowType.ConsoleCommand);
-    }
-
     [ConsoleCmd("TestDmgLabel")]
     public void TestDmgLabel(string[] param)
     {
@@ -789,7 +781,28 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("Enter Activity realmid")]
+    [ConsoleCmd("End TrainingRealm")]
+    public void EndTrainingRealm(string[] param)
+    {
+        GameInfo.gCombat.OnFinishedTraingingRealm();
+        UIManager.CloseWindow(WindowType.ConsoleCommand);
+    }
+
+    [ConsoleCmd("FinishTutorial")]
+    public void FinishTutorial(string[] param)
+    {
+        if (param.Length == 0)
+        {
+            RPCFactory.CombatRPC.TutorialStep((int)Trainingstep.Finished);
+            UIManager.CloseWindow(WindowType.ConsoleCommand);
+        }
+        else
+        {
+            PrintToConsole("Format: \\FinishTutorial");
+        }
+    }
+
+    [ConsoleCmd("Enter Activity Realm <realmid>")]
     public void ConsoleEnterActivity(string[] param)
     {
         if (param.Length == 1)
@@ -799,12 +812,10 @@ public class CommandManager
                 RPCFactory.NonCombatRPC.ConsoleEnterActivityByRealmID(realmid);
         }
         else
-        {
             PrintToConsole("Format: \\ConsoleEnterActivity <realmid>");
-        }
     }
 
-    [ConsoleCmd("Create Realm realmid")]
+    [ConsoleCmd("Create Realm <realmid>")]
     public void ConsoleCreateRealm(string[] param)
     {
         if (param.Length == 1)
@@ -824,9 +835,47 @@ public class CommandManager
             }
         }
         else
-        {
             PrintToConsole("Format: \\ConsoleCreateRealm <realmid>");
+    }
+
+    [ConsoleCmd("Enter Dungeon Realm <realmid>")]
+    public void ConsoleEnterDungeon(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int realmid;
+            if (int.TryParse(param[0], out realmid))
+                RPCFactory.CombatRPC.DungeonEnterRequest(realmid);
         }
+        else
+            PrintToConsole("Format: \\ConsoleEnterDungeon <realmid>");
+    }
+
+    [ConsoleCmd("Leave current realm.")]
+    public void LeaveRealm(string[] param)
+    {
+        if (param.Length == 0)
+            RPCFactory.CombatRPC.LeaveRealm();
+        else
+            PrintToConsole("Format: \\LeaveRealm");
+    }
+
+    [ConsoleCmd("CompleteRealm")]
+    public void CompleteRealm(string[] param)
+    {
+        if (param.Length == 0)
+        {
+            RPCFactory.NonCombatRPC.ConsoleCompleteRealm();
+            UIManager.CloseWindow(WindowType.ConsoleCommand);
+        }
+        else
+            PrintToConsole("Format: \\CompleteRealm");
+    }
+
+    [ConsoleCmd("Get realm info")]
+    public void GetAllRealmInfo(string[] param)
+    {
+        RPCFactory.NonCombatRPC.ConsoleGetAllRealmInfo();
     }
 
     [ConsoleCmd("ConsoleInspect")]
@@ -1081,29 +1130,6 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("Leave current realm.")]
-    public void LeaveRealm(string[] param)
-    {
-        if (param.Length == 0)
-            RPCFactory.CombatRPC.LeaveRealm();
-        else
-            PrintToConsole("Format: \\LeaveRealm");
-    }
-
-    [ConsoleCmd("CompleteRealm")]
-    public void CompleteRealm(string[] param)
-    {
-        if (param.Length == 0)
-        {
-            RPCFactory.NonCombatRPC.ConsoleCompleteRealm();
-            UIManager.CloseWindow(WindowType.ConsoleCommand);
-        }
-        else
-        {
-            PrintToConsole("Format: \\CompleteRealm");
-        }
-    }
-
     [ConsoleCmd("FullHealPlayer")]
     public void FullHealPlayer(string[] param)
     {
@@ -1130,26 +1156,6 @@ public class CommandManager
         {
             PrintToConsole("Format: \\FullRecoverMana");
         }
-    }
-
-    [ConsoleCmd("FinishTutorial")]
-    public void FinishTutorial(string[] param)
-    {
-        if (param.Length == 0)
-        {
-            RPCFactory.CombatRPC.TutorialStep((int)Trainingstep.Finished);
-            UIManager.CloseWindow(WindowType.ConsoleCommand);
-        }
-        else
-        {
-            PrintToConsole("Format: \\FinishTutorial");
-        }
-    }
-
-    [ConsoleCmd("Get realm info")]
-    public void GetAllRealmInfo(string[] param)
-    {
-        RPCFactory.NonCombatRPC.ConsoleGetAllRealmInfo();
     }
 
     [ConsoleCmd("Spawn Special Boss")]
@@ -1311,6 +1317,21 @@ public class CommandManager
         }
     }
 
+    [ConsoleCmd("Set Achievement level. Parameters: level")]
+    public void SetAchievementLevel(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int level;
+            if (int.TryParse(param[0], out level))
+                RPCFactory.NonCombatRPC.ConsoleSetAchievementLevel(level);
+        }
+        else
+        {
+            PrintToConsole("Format: \\SetAchievementLevel level");
+        }
+    }
+
     [ConsoleCmd("Get Collection. Parameters: objtype|reset|all [target]")]
     public void GetCollection(string[] param)
     {
@@ -1367,6 +1388,12 @@ public class CommandManager
         {
             PrintToConsole("Format: \\GetAchievement objtype|reset [target] [count]|[max]");
         }
+    }
+
+    [ConsoleCmd("Clear Achievement Rewards.")]
+    public void ClearAchievementRewards(string[] param)
+    {
+        RPCFactory.NonCombatRPC.ConsoleClearAchievementRewards();
     }
 
     [ConsoleCmd("AddHero. Parameters: heroId")]
@@ -1970,18 +1997,16 @@ public class CommandManager
         if(actorghost == null)
             return;
 
-        //Dictionary<int, IInventoryItem> itemList = playerghost.clientItemInvCtrl.itemInvData.FindItemByItemId(1);
+        //Dictionary<int, IInventoryItem> itemList = playerghost.clientItemInvCtrl.itemInvData.GetItemsByItemId(1);
         //if(itemList.Count == 0)
         //{
         //    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("reviveItem_NotEnoughItem"));
-
         //    return;
         //}
 
         //if(actorghost.IsAlive())
         //{
         //    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("reviveItem_RequesteeNotDead"));
-
         //    return;
         //}
 
@@ -1994,12 +2019,8 @@ public class CommandManager
         if (param.Length == 1)
         {
             byte type = 0;
-            byte.TryParse(param[0], out type);
-
-            if (type < 6)
-            {
+            if (byte.TryParse(param[0], out type) && type < 6)
                 RPCFactory.NonCombatRPC.ConsoleUpdateQuestProgress(type);
-            }
         }
     }
 
@@ -2009,9 +2030,7 @@ public class CommandManager
         if(param.Length == 1)
         {
             byte job = 0;
-            byte.TryParse(param[0], out job);
-
-            if (job < 21)
+            if (byte.TryParse(param[0], out job) && job < 21)
                 RPCFactory.NonCombatRPC.ConsoleChangeJob(job);
         }
     }
@@ -2060,13 +2079,10 @@ public class CommandManager
                 PrintToConsole("SendMail: invalid mail id.");
                 return;
             }
-
             RPCFactory.NonCombatRPC.ConsoleSendMail(mailid);
         }
         else
-        {
             PrintToConsole("Format: \\SendMail <Mail ID>");
-        }
     }
 
 #endif

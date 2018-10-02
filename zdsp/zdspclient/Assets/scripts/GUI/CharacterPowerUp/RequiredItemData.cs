@@ -22,8 +22,12 @@ public class RequiredItemData : MonoBehaviour
 
         //GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
         //gameIcon.Init(itemId, invAmount);
-
         requiredAmount.text = reqAmount.ToString();
+
+        GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
+        gameIcon.Init(2, invAmount, false, false, false, OnClick);
+        gameIcon.SetStackCount(invAmount);
+        CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
     }
     
 	/// 根據ID、擁有數量、需要數量做判斷
@@ -36,10 +40,23 @@ public class RequiredItemData : MonoBehaviour
         itemID = itemId;
 
         GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        gameIcon.Init(itemId, invAmount, false, false, false, OnClick);
+        gameIcon.Init(CurrencyType.Money, invAmount, false, false, false, OnClick);
         gameIcon.SetFullStackCount(invAmount);
         requiredAmount.text = reqAmount.ToString();
-        UI_CharacterPowerup_Manager.CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
+        CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
+    }
+
+    void CompareMaterial(Text colorText, int invAmount, int reqAmount)
+    {
+        if (invAmount >= reqAmount)
+        {
+            colorText.color = Color.white;
+        }
+        else
+        {
+            colorText.color = Color.red;
+            UI_CharacterPowerup_Manager.haveEnoughMaterial = false;
+        }
     }
 
     public void OnClick()

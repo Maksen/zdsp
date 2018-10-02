@@ -8,7 +8,7 @@ public class UIShopBarter : UIShop
 {	
 	void Start ()
     {
-        storetype = NPCStoreInfo.StoreType.Barter;
+        //storetype = NPCStoreInfo.ItemStoreType.Barter;
     }
 
     override public void init(NPCStoreInfo store)
@@ -26,7 +26,7 @@ public class UIShopBarter : UIShop
     public override void init(string storename, NPCStoreInfo.StandardItem[] newitemlist)
     {
         shopname.text = storename;
-        storetype = NPCStoreInfo.StoreType.Barter;
+        //storetype = NPCStoreInfo.ItemStoreType.Barter;
 
         detailswindow.gameObject.SetActive(false);
         ClearShopList();
@@ -59,9 +59,9 @@ public class UIShopBarter : UIShop
                 if (item.Type != NPCStoreInfo.ItemStoreType.Barter)
                     continue;
 
-				var icon = Instantiate(itemicon_prefab, itemlistparent, false);
-                ItemBaseJson itemJson = invItem.JsonObject;
+				var icon = Instantiate(itemicon_prefab, itemlistparent, false);                
                 var shopitem = icon.GetComponent<ShopItem>();
+                ItemBaseJson itemJson = invItem.JsonObject;
                 shopitem.itemname.text = itemJson.name;
                 shopitem.selectionEnabled.onEnabled = OnItemSelected;
                 shopitem.selectionEnabled.onDisabled = OnItemDeselected;

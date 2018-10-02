@@ -670,7 +670,7 @@ namespace Photon.LoadBalancing.GameServer
                                                                         characterData.EquipScore, characterData.portraitID,
                                                                         characterData.CurrencyInventory.Money, characterData.CurrencyInventory.Gold, characterData.CurrencyInventory.BindGold,
                                                                         characterData.GuildId, characterData.GuildRank,
-                                                                        characterData.CurrencyInventory.VIPLevel,
+                                                                        0,
                                                                         characterData.CurrencyInventory.GuildFundToday,
                                                                         characterData.CurrencyInventory.GuildFundTotal,
                                                                         characterData.FactionKill, characterData.FactionDeath,
@@ -781,7 +781,7 @@ namespace Photon.LoadBalancing.GameServer
                 ProgressLevel = playerSynStats.Level,
                 Faction = playerSynStats.faction,
                 Guild = playerSynStats.guildName,
-                VIP = playerSynStats.vipLvl,
+                //VIP = playerSynStats.vipLvl,
                 //CombatScore = mPlayer.LocalCombatStats.CombatScore,
                 Experience = mPlayer.SecondaryStats.experience
             };
@@ -904,9 +904,9 @@ namespace Photon.LoadBalancing.GameServer
             //}
         }
 
-        public bool RemoveItemFromInventory(ushort itemid, ushort count, string from)
+        public bool RemoveItemFromInventory(ushort itemid, int count, string from)
         {
-            InvRetval retval = mInventory.DeductItem(itemid, count, from);
+            InvRetval retval = mInventory.DeductItems(itemid, count, from);
             return retval.retCode == InvReturnCode.UseSuccess;
         }
         #endregion
@@ -1284,7 +1284,7 @@ namespace Photon.LoadBalancing.GameServer
             mPlayer.AddCurrency(CurrencyType.Money, moneyCost, "EquipRecycle");
 
             // Add materials
-            InvRetval result = mInventory.AddItemsIntoInventory(materialList, true, "EquipRecycle");
+            InvRetval result = mInventory.AddItemsToInventory(materialList, true, "EquipRecycle");
             if(result.retCode == InvReturnCode.AddFailed)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("sys_BagInventoryFull"), "", false, mPlayer.Slot);
@@ -1670,11 +1670,11 @@ namespace Photon.LoadBalancing.GameServer
             }
             else if (isPartClaimed)
             {
-                if (mPlayer.PlayerSynStats.vipLvl < vipData.mVIPLevel)
-                {
-                    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Welfare_SignInPrizeInsufficientVIPLevel"), "", false, mPlayer.Slot);
-                    return;
-                }
+                //if (mPlayer.PlayerSynStats.vipLvl < vipData.mVIPLevel)
+                //{
+                //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Welfare_SignInPrizeInsufficientVIPLevel"), "", false, mPlayer.Slot);
+                //    return;
+                //}
 
                 //bool res = mPlayer.DeductGold(goldCost, true, true);
 
@@ -1693,23 +1693,23 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             int bonus = 1;
-            if (isPartClaimed && mPlayer.PlayerSynStats.vipLvl >= vipData.mVIPLevel)
-            {
-                int count = reward.StackCount;
-                reward.StackCount *= (ushort)vipData.mMultiply;
-                reward.StackCount -= count;
+            //if (isPartClaimed && mPlayer.PlayerSynStats.vipLvl >= vipData.mVIPLevel)
+            //{
+            //    int count = reward.StackCount;
+            //    reward.StackCount *= (ushort)vipData.mMultiply;
+            //    reward.StackCount -= count;
 
-                bonus *= vipData.mMultiply;
-            }
-            else if (!isPartClaimed && mPlayer.PlayerSynStats.vipLvl >= vipData.mVIPLevel)
-            {
-                reward.StackCount *= (ushort)vipData.mMultiply;
+            //    bonus *= vipData.mMultiply;
+            //}
+            //else if (!isPartClaimed && mPlayer.PlayerSynStats.vipLvl >= vipData.mVIPLevel)
+            //{
+            //    reward.StackCount *= (ushort)vipData.mMultiply;
 
-                bonus *= vipData.mMultiply;
-            }
+            //    bonus *= vipData.mMultiply;
+            //}
 
             // Add reward items to inventory
-            InvRetval addRes = mInventory.AddItemsIntoInventory(reward, true, "Welfare_Sign");
+            InvRetval addRes = mInventory.AddItemsToInventory(reward, true, "Welfare_Sign");
 
             if (addRes.retCode == InvReturnCode.AddFailed)
             {
@@ -1729,7 +1729,7 @@ namespace Photon.LoadBalancing.GameServer
             //VIPData vipData = WelfareRepo.GetVIPLevelMultplyByDate(year, month, day);
 
             // Claim SignIn Prize
-            int playerVIPLvl = mPlayer.PlayerSynStats.vipLvl;
+            int playerVIPLvl = 0;// mPlayer.PlayerSynStats.vipLvl;
             if (isSpecialClaim || vipData == null || playerVIPLvl >= vipData.mVIPLevel)
             {
                 mWelfareCtrlr.ClaimSignInPrizeFull(dataid);
@@ -1804,7 +1804,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             // Add rolled items to inventory
-            InvRetval addRes = mInventory.AddItemsIntoInventory(rewardItems, true, "Welfare");
+            InvRetval addRes = mInventory.AddItemsToInventory(rewardItems, true, "Welfare");
 
             if (addRes.retCode == InvReturnCode.AddFailed)
             {
@@ -1873,7 +1873,7 @@ namespace Photon.LoadBalancing.GameServer
             IInventoryItem rewardItem = WelfareRepo.GetOnlinePrizeByOrder(order);
 
             // Add rolled items to inventory
-            InvRetval addRes = mInventory.AddItemsIntoInventory(rewardItem, true, "Welfare");
+            InvRetval addRes = mInventory.AddItemsToInventory(rewardItem, true, "Welfare");
 
             if (addRes.retCode == InvReturnCode.AddFailed)
             {
@@ -2022,7 +2022,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             // Add reward item to inventory
-            InvRetval addRes = mInventory.AddItemsIntoInventory(playerReward.mItem, true, "Welfare");
+            InvRetval addRes = mInventory.AddItemsToInventory(playerReward.mItem, true, "Welfare");
 
             if (addRes.retCode == InvReturnCode.AddFailed)
             {
@@ -2107,7 +2107,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            InvRetval addRes = mInventory.AddItemsIntoInventory(rewardsList, true, "FirstTopUp");
+            InvRetval addRes = mInventory.AddItemsToInventory(rewardsList, true, "FirstTopUp");
 
             if (addRes.retCode == InvReturnCode.AddFailed)
             {
@@ -2193,7 +2193,7 @@ namespace Photon.LoadBalancing.GameServer
                         return;
                     }
 
-                    InvRetval addRes = mInventory.AddItemsIntoInventory(rewardList, true, "Welfare");
+                    InvRetval addRes = mInventory.AddItemsToInventory(rewardList, true, "Welfare");
 
                     if (addRes.retCode == InvReturnCode.AddFailed)
                     {
@@ -2279,7 +2279,7 @@ namespace Photon.LoadBalancing.GameServer
                         return;
                     }
 
-                    InvRetval addRes = mInventory.AddItemsIntoInventory(rewardList, true, "Welfare");
+                    InvRetval addRes = mInventory.AddItemsToInventory(rewardList, true, "Welfare");
 
                     if (addRes.retCode == InvReturnCode.AddFailed)
                     {
@@ -2508,7 +2508,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            InvRetval addRes = mInventory.AddItemsIntoInventory(rewardData.mRewardList, true, "Welfare");
+            InvRetval addRes = mInventory.AddItemsToInventory(rewardData.mRewardList, true, "Welfare");
 
             if (addRes.retCode == InvReturnCode.AddFailed)
             {
@@ -2809,9 +2809,9 @@ namespace Photon.LoadBalancing.GameServer
                 case CurrencyType.Money:
                     QuestExtraRewardsRules.LogQERMoneyGet(taskData.TaskID(), "QER_MoneyGet", amount, currencyBef, currencyAft, peer);
                     break;
-                case CurrencyType.VIP:
-                    QuestExtraRewardsRules.LogQERVIPXPGet("Quest Extra Reward", taskData.TaskID(), "QER_VIPXPGet", amount, peer);
-                    break;
+                //case CurrencyType.VIP:
+                //    QuestExtraRewardsRules.LogQERVIPXPGet("Quest Extra Reward", taskData.TaskID(), "QER_VIPXPGet", amount, peer);
+                //    break;
                 case CurrencyType.LockGold:
                     QuestExtraRewardsRules.LogQERLockGoldGet(taskData.TaskID(), "QER_LockGoldGet", amount, currencyBef, currencyAft, peer);
                     break;
@@ -2919,13 +2919,10 @@ namespace Photon.LoadBalancing.GameServer
 
         public void DeductReviveItem(int sessionId, int itemId)
         {
-            if (itemId == -1)
-            {
-                // Invalid item id!
+            if (itemId == -1) // Invalid item id!
                 return;
-            }
 
-            InvRetval res = mInventory.UseToolItems((ushort)itemId, 1, "Revive Item");
+            InvRetval res = mInventory.DeductItems((ushort)itemId, 1, "Revive Item");
             if (res.retCode == InvReturnCode.UseFailed)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("reviveItem_DeductItemFailed"), "", false, this);
@@ -2963,7 +2960,7 @@ namespace Photon.LoadBalancing.GameServer
             }
             
             List<ItemInfo> useMatList = PowerUpRepo.GetPowerUpMaterialByPartsEffect((PowerUpPartsType)part, nextPartLevel);
-            InvRetval result = mInventory.UseToolItems(useMatList, "PowerUp");
+            InvRetval result = mInventory.DeductItems(useMatList, "PowerUp");
             if(result.retCode == InvReturnCode.UseFailed)
             {
                 // Handle use item failure
@@ -3000,7 +2997,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             List<ItemInfo> useMatList = PowerUpRepo.GetMeridianUnlockMaterial(type, currTypeLevel);
-            InvRetval result = mInventory.UseToolItems(useMatList, "MeridianLevelUp");
+            InvRetval result = mInventory.DeductItems(useMatList, "MeridianLevelUp");
             if (result.retCode == InvReturnCode.UseFailed)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_MeridianLevelUp_NotEnoughMaterials"), "", false, mPlayer.Slot);
@@ -3061,7 +3058,7 @@ namespace Photon.LoadBalancing.GameServer
 
             for (int i = 0; i < useMatList.Count; ++i)
             {
-                bool hasEnoughItem = mInventory.mInvData.HasItem(useMatList[i].itemId, useMatList[i].stackCount);
+                bool hasEnoughItem = mInventory.HasItem(useMatList[i].itemId, useMatList[i].stackCount);
                 if (!hasEnoughItem)
                 {
                     return;
@@ -3075,7 +3072,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            InvRetval result = mInventory.UseToolItems(useMatList, "EquipmentCraftUseMaterial");
+            InvRetval result = mInventory.DeductItems(useMatList, "EquipmentCraftUseMaterial");
             if (result.retCode == InvReturnCode.UseFailed)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipmentCraft_NotEnoughMaterials"), "", false, mPlayer.Slot);
@@ -3093,8 +3090,12 @@ namespace Photon.LoadBalancing.GameServer
 
             //GivePlayerEquipment
             IInventoryItem giveItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
-            mInventory.AddItemsIntoInventory(giveItem, true, "EquipmentCraftCraftedItem");
+            mInventory.AddItemsToInventory(giveItem, true, "EquipmentCraftCraftedItem");
             mPlayer.EquipmentCraftStats.finishedCraft = true;
+
+            // Achievements
+            mPlayer.UpdateAchievement(AchievementObjectiveType.CraftingItem, itemId.ToString(), false);
+            mPlayer.UpdateAchievement(AchievementObjectiveType.CraftingCount);
         }
         #endregion
 
@@ -3186,7 +3187,7 @@ namespace Photon.LoadBalancing.GameServer
             return consumeIntIndex;
         }
 
-        string FusionConsume (List<int> itemIndex)
+        string FusionConsume(List<int> itemIndex)
         {
             List<ElementalStone> fusionStones = new List<ElementalStone>();
             for (int i = 1; i < 4; ++i)
@@ -3205,7 +3206,7 @@ namespace Photon.LoadBalancing.GameServer
 
             for (int i = 0; i < itemIndex.Count; ++i)
             {
-                mInventory.RemoveInvItem(itemIndex[i], "EquipFusionRemoveItem");
+                mInventory.RemoveInventoryItem(itemIndex[i], "EquipFusionRemoveItem");
             }
             mPlayer.DeductCurrency((CurrencyType)1, totalCurrency, false, "EquipFusionUseCurrency");
 

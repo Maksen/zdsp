@@ -100,6 +100,20 @@ public class ZDGUITopMenu : EditorWindow
         string myScene = "Assets/Scenes/SplashScreen.unity";
         OpenNewScene(myScene);
     }
+	
+	[MenuItem("ZDGUI/SplashLoadingScreen", false, 52)]
+    static void SplashLoadingScreen()
+    {
+        string myScene = "Assets/Scenes/Dialog_SplashLoadingScreen.unity";
+        OpenNewScene(myScene);
+    }
+	
+	[MenuItem("ZDGUI/LoadingScreen", false, 52)]
+    static void LoadingScreen()
+    {
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_Dialog/LoadingScreen/Dialog_LoadingScreen.unity";
+        OpenNewScene(myScene);
+    }
 
     [MenuItem("ZDGUI/UI_Sample", false, 53)]
     static void UISample()
@@ -119,6 +133,13 @@ public class ZDGUITopMenu : EditorWindow
     static void LoginHierarchy()
     {
         string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/UI_LoginHierarchy.unity";
+        OpenNewScene(myScene);
+    }
+	
+	[MenuItem("ZDGUI/JobExhibition", false, 58)]
+    static void JobExhibition()
+    {
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/JobExhibition/JobExhibition.unity";
         OpenNewScene(myScene);
     }
 	

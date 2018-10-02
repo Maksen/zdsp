@@ -2970,7 +2970,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 2
         time: 0
-        value: {x: -0.12063599, y: -0.008508682, z: -0.2552719}
+        value: {x: -0.12063599, y: -0.15, z: -0.2552719}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -3167,7 +3167,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 2
         time: 0
-        value: -0.008508682
+        value: -0.15
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -4462,7 +4462,7 @@ MonoBehaviour:
     m_ClipIn: 0
     m_Asset: {fileID: 114299445960240556}
     m_UnderlyingAsset: {fileID: 74167046029845508}
-    m_Duration: 50.233333333333334
+    m_Duration: 49.666666666666664
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114023440905004032}
     m_EaseInDuration: 0
@@ -4536,7 +4536,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 1467732076, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
-  m_Name: Animation Track3
+  m_Name: LocalPlayer_01
   m_EditorClassIdentifier: 
   m_Locked: 0
   m_Muted: 0
@@ -4777,17 +4777,6 @@ MonoBehaviour:
   m_UseTrackMatchFields: 0
   m_MatchTargetFields: 63
   m_RemoveStartOffset: 1
---- !u!114 &114069417029431512
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 442072544, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
-  m_Name: ActivationPlayableAsset
-  m_EditorClassIdentifier: 
 --- !u!114 &114072803040099524
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4887,7 +4876,7 @@ MonoBehaviour:
     m_ClipIn: 0
     m_Asset: {fileID: 114927190732353260}
     m_UnderlyingAsset: {fileID: 114927190732353260}
-    m_Duration: 50.14999999999999
+    m_Duration: 43.233333333333334
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114076320078488190}
     m_EaseInDuration: 0
@@ -5836,8 +5825,6 @@ MonoBehaviour:
   - {fileID: 114279338272875120}
   - {fileID: 114734683505039302}
   - {fileID: 114163564313957406}
-  - {fileID: 114684629518012346}
-  - {fileID: 114241079972064260}
   - {fileID: 114150631600191492}
   m_Clips: []
 --- !u!114 &114157920222397162
@@ -5999,7 +5986,7 @@ MonoBehaviour:
     m_ClipIn: 0
     m_Asset: {fileID: 114137738386285358}
     m_UnderlyingAsset: {fileID: 114137738386285358}
-    m_Duration: 16.31666666666667
+    m_Duration: 13.649999999999999
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114162322687779486}
     m_EaseInDuration: 0
@@ -6400,89 +6387,12 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of talk3
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: 34ccb2de42c633748b12977a3295196a, type: 3}
+  m_Clip: {fileID: 7400000, guid: 7b71029f73bbd6e4bbb005e17e867928, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
   m_MatchTargetFields: 63
   m_RemoveStartOffset: 1
---- !u!114 &114241079972064260
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 46519060, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
-  m_Name: Activation Track3
-  m_EditorClassIdentifier: 
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename: 
-  m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 114153729395672560}
-  m_Children: []
-  m_Clips:
-  - m_Start: 48.983333333333334
-    m_ClipIn: 0
-    m_Asset: {fileID: 114069417029431512}
-    m_UnderlyingAsset: {fileID: 114069417029431512}
-    m_Duration: 6.883333333333333
-    m_TimeScale: 1
-    m_ParentTrack: {fileID: 114241079972064260}
-    m_EaseInDuration: 0
-    m_EaseOutDuration: 0
-    m_BlendInDuration: 0
-    m_BlendOutDuration: 0
-    m_MixInCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_MixOutCurve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    m_BlendInCurveMode: 0
-    m_BlendOutCurveMode: 0
-    m_ExposedParameterNames: []
-    m_AnimationCurves: {fileID: 0}
-    m_Recordable: 0
-    m_PostExtrapolationMode: 0
-    m_PreExtrapolationMode: 0
-    m_PostExtrapolationTime: 0
-    m_PreExtrapolationTime: 0
-    m_DisplayName: Active
-    m_Version: 1
-  m_PostPlaybackState: 3
 --- !u!114 &114244718701121036
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -6494,7 +6404,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of get up
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: dcf25d11140ce874faa4bd1dc592af73, type: 3}
+  m_Clip: {fileID: 7400000, guid: ac6d1aa7999f97548a0c7a55ccc6b0bf, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -6617,7 +6527,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of shake
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400002, guid: dcf25d11140ce874faa4bd1dc592af73, type: 3}
+  m_Clip: {fileID: 7400002, guid: ac6d1aa7999f97548a0c7a55ccc6b0bf, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -7030,7 +6940,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of talk1
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: 22744085f1505d344849c9879e9b7e5d, type: 3}
+  m_Clip: {fileID: 7400000, guid: abbc2cf5e4456cd45ab183446ea6fcc7, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -7339,7 +7249,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of blink
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400004, guid: dcf25d11140ce874faa4bd1dc592af73, type: 3}
+  m_Clip: {fileID: 7400004, guid: ac6d1aa7999f97548a0c7a55ccc6b0bf, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -7384,7 +7294,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of talk1
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: 22744085f1505d344849c9879e9b7e5d, type: 3}
+  m_Clip: {fileID: 7400000, guid: abbc2cf5e4456cd45ab183446ea6fcc7, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -7788,7 +7698,7 @@ MonoBehaviour:
     m_ClipIn: 0
     m_Asset: {fileID: 114689280498390938}
     m_UnderlyingAsset: {fileID: 114689280498390938}
-    m_Duration: 57.5
+    m_Duration: 49.666666666666664
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114444873447714858}
     m_EaseInDuration: 0
@@ -7961,19 +7871,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -8001,37 +7899,13 @@ MonoBehaviour:
     m_BlendOutDuration: 2
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -8059,37 +7933,13 @@ MonoBehaviour:
     m_BlendOutDuration: 2.3333333333333357
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -8117,19 +7967,7 @@ MonoBehaviour:
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -8249,19 +8087,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -8289,19 +8115,7 @@ MonoBehaviour:
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -8362,11 +8176,11 @@ MonoBehaviour:
   m_Parent: {fileID: 114050336082580040}
   m_Children: []
   m_Clips:
-  - m_Start: 4
+  - m_Start: 0
     m_ClipIn: 0
     m_Asset: {fileID: 114968126205677198}
     m_UnderlyingAsset: {fileID: 114968126205677198}
-    m_Duration: 98.96666666666667
+    m_Duration: 49.666666666666664
     m_TimeScale: 1
     m_ParentTrack: {fileID: 114470019678448346}
     m_EaseInDuration: 0
@@ -8443,7 +8257,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of atk
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400006, guid: dcf25d11140ce874faa4bd1dc592af73, type: 3}
+  m_Clip: {fileID: 7400006, guid: ac6d1aa7999f97548a0c7a55ccc6b0bf, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -8525,7 +8339,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of talk2
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: 68c2e3197efa1674e88b92805b3b6c2e, type: 3}
+  m_Clip: {fileID: 7400000, guid: a15e000fbe2912545a466e61e7a54c86, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0
@@ -9411,25 +9225,6 @@ MonoBehaviour:
   m_UseTrackMatchFields: 0
   m_MatchTargetFields: 63
   m_RemoveStartOffset: 0
---- !u!114 &114684629518012346
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 46519060, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
-  m_Name: Activation Track2
-  m_EditorClassIdentifier: 
-  m_Locked: 0
-  m_Muted: 0
-  m_CustomPlayableFullTypename: 
-  m_AnimClip: {fileID: 0}
-  m_Parent: {fileID: 114153729395672560}
-  m_Children: []
-  m_Clips: []
-  m_PostPlaybackState: 3
 --- !u!114 &114687367992571240
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -9939,19 +9734,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -9979,37 +9762,13 @@ MonoBehaviour:
     m_BlendOutDuration: 0.466666666666665
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -10037,37 +9796,13 @@ MonoBehaviour:
     m_BlendOutDuration: 1.2166666666666686
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -10095,19 +9830,7 @@ MonoBehaviour:
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -11348,19 +11071,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     m_MixOutCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -11388,19 +11099,7 @@ MonoBehaviour:
     m_BlendOutDuration: -1
     m_MixInCurve:
       serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 2
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
-      - serializedVersion: 2
-        time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 0
+      m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -11754,7 +11453,7 @@ MonoBehaviour:
   m_Script: {fileID: 2024714994, guid: 6a10b2909283487f913b00d94cd3faf5, type: 3}
   m_Name: AnimationPlayableAsset of talk3
   m_EditorClassIdentifier: 
-  m_Clip: {fileID: 7400000, guid: 34ccb2de42c633748b12977a3295196a, type: 3}
+  m_Clip: {fileID: 7400000, guid: 7b71029f73bbd6e4bbb005e17e867928, type: 3}
   m_Position: {x: 0, y: 0, z: 0}
   m_Rotation: {x: 0, y: 0, z: 0, w: 1}
   m_UseTrackMatchFields: 0

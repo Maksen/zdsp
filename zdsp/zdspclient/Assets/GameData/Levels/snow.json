@@ -1,22 +1,22 @@
 {
   "mEntities": {
     "StaticClientNPCSpawnerJson": {
-      "-131194": {
+      "-669770": {
         "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "snow_n001",
         "radius": 2.0,
-        "ObjectID": -131194,
+        "ObjectID": -669770,
         "position": {
           "x": 92.00602,
           "y": 12.2937822,
           "z": 122.538315
         }
       },
-      "-130850": {
+      "-669750": {
         "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
         "archetype": "snow_n002",
         "radius": 2.0,
-        "ObjectID": -130850,
+        "ObjectID": -669750,
         "position": {
           "x": 84.67601,
           "y": 13.7089539,
@@ -24,43 +24,8 @@
         }
       }
     },
-    "RealmControllerWorldJson": {
-      "-131068": {
-        "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
-        "spawnPos": [],
-        "spawnDir": [],
-        "forward": {
-          "x": -0.191312358,
-          "y": 0.0,
-          "z": 0.981529236
-        },
-        "EntityLinks_Server": {},
-        "ObjectID": -131068,
-        "position": {
-          "x": 121.296013,
-          "y": 4.72703075,
-          "z": 20.8483124
-        }
-      }
-    },
-    "PlayerSpawnerJson": {
-      "-130800": {
-        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
-        "forward": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 1.0
-        },
-        "ObjectID": -130800,
-        "position": {
-          "x": 118.9,
-          "y": 5.48,
-          "z": 25.11
-        }
-      }
-    },
     "MapInfoJson": {
-      "-131074": {
+      "-669688": {
         "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
         "centerPoint": {
           "x": 111.166016,
@@ -74,11 +39,46 @@
         },
         "width": 512.0,
         "height": 512.0,
-        "ObjectID": -131074,
+        "ObjectID": -669688,
         "position": {
           "x": 111.166016,
           "y": 98.2089539,
           "z": 75.2883148
+        }
+      }
+    },
+    "RealmControllerWorldJson": {
+      "-669684": {
+        "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
+        "spawnPos": [],
+        "spawnDir": [],
+        "forward": {
+          "x": -0.191312358,
+          "y": 0.0,
+          "z": 0.981529236
+        },
+        "EntityLinks_Server": {},
+        "ObjectID": -669684,
+        "position": {
+          "x": 121.296013,
+          "y": 4.72703075,
+          "z": 20.8483124
+        }
+      }
+    },
+    "PlayerSpawnerJson": {
+      "-669682": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "ObjectID": -669682,
+        "position": {
+          "x": 118.9,
+          "y": 5.48,
+          "z": 25.11
         }
       }
     }

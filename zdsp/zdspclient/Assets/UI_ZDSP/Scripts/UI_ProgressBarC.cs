@@ -16,6 +16,13 @@ public enum ProgressbarCTextTypes
     Range = 2,
 }
 
+public enum ProgressbarCTextDecimal
+{
+    None = 0,
+    One = 1,
+    Two = 2,
+}
+
 public class UI_ProgressBarC : MonoBehaviour {
 
     public enum ProgressbarType
@@ -80,8 +87,19 @@ public class UI_ProgressBarC : MonoBehaviour {
         }
     }
 
-    //[SerializeField]
-    //private int _decimal;
+    [SerializeField]
+    private ProgressbarCTextDecimal _decimal = ProgressbarCTextDecimal.None;
+    public ProgressbarCTextDecimal Decimal
+    {
+        get
+        {
+            return _decimal;
+        }
+        set
+        {
+            _decimal = value;
+        }
+    }
 
 
     [SerializeField]
@@ -171,8 +189,16 @@ public class UI_ProgressBarC : MonoBehaviour {
     public static string TextPercent(UI_ProgressBarC bar)
     {
         float percent = bar.Value / bar.Max;
-        //return percent.ToString("P");
-        return string.Format("{0:P0}", percent);
+        string format = "P";
+
+        if (bar.Decimal == ProgressbarCTextDecimal.None)
+            format = "P0";
+        else if (bar.Decimal == ProgressbarCTextDecimal.One)
+            format = "P1";
+        else if (bar.Decimal == ProgressbarCTextDecimal.Two)
+            format = "P2";
+
+        return percent.ToString(format);
     }
 
     public static string TextRange(UI_ProgressBarC bar)
@@ -270,7 +296,6 @@ public class UI_ProgressBarC : MonoBehaviour {
         Init();
     }
 
-    // Update is called once per frame
     void UpdateProgressbar ()
     {
 	    if (Max <= 0)

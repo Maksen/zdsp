@@ -13,8 +13,7 @@ public class UI_ProgressBarCEditor : Editor {
         "type",
         "barImage",
         "typeA",
-        "typeB",
-
+        "typeB",        
         "BarText",
         "textType",
         "showMax",
@@ -22,9 +21,13 @@ public class UI_ProgressBarCEditor : Editor {
     };
 
     SerializedProperty progressbartype;
+    SerializedProperty Decimal;
+
     protected void OnEnable()
     {
         progressbartype = serializedObject.FindProperty("_ProgressBarTypeFlagMask");
+        Decimal = serializedObject.FindProperty("_decimal");
+
         Array.ForEach(properties, x => {
             var p = serializedObject.FindProperty(x);
             serializedProperties.Add(x, p);
@@ -64,12 +67,12 @@ public class UI_ProgressBarCEditor : Editor {
         {
             EditorGUILayout.PropertyField(serializedProperties["BarText"]);
             EditorGUILayout.PropertyField(serializedProperties["textType"]);
+            if (serializedProperties["textType"].enumValueIndex == 1)
+                EditorGUILayout.PropertyField(Decimal);
             EditorGUILayout.PropertyField(serializedProperties["showMax"]);
         }
-
-       
-
-            EditorGUI.indentLevel--;
+      
+        EditorGUI.indentLevel--;
 
         serializedObject.ApplyModifiedProperties();
 

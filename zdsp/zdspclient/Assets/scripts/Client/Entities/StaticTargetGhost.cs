@@ -75,7 +75,7 @@ namespace Zealot.Client.Entities
 
             Show(true);
             ShowEffect(true);
-            mShadow.SetActive(false);
+            ShowShadow(false);
             UpdateQuestMarker();
         }
 

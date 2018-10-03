@@ -12,6 +12,9 @@
 		<property name="level" type="Level" uitext="level" display="excelname"/>
 		<property name="placeiconpath" type="string" uitext="place icon asset path" default=""/>
 		<property name="placename" type="string" uitext="Place or Interest Name" default=""/>
+		<property name="posx" type="float" uitext="Map marker position X" default="0.0"/>
+		<property name="posy" type="float" uitext="Map marker position Y" default="0.0"/>
+		<property name="posz" type="float" uitext="Map marker position Z" default="0.0"/>
 	</element>
 	
 	<element name="WorldMapCountryMonster" useexcel="true">

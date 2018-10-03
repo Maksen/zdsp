@@ -133,7 +133,7 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     }
     public long HP
     {
-        get { return mHpBarImg.Value; }
+        get { return (long)mHpBarImg.Value; }
         set
         {
             value = Math.Max(0, value);
@@ -142,7 +142,7 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     }
     public long MaxHP
     {
-        get { return mHpBarImg.Max; }
+        get { return (long)mHpBarImg.Max; }
         set
         {
             value = Math.Max(0, value);

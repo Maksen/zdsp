@@ -35,5 +35,4 @@ public class UIHud : MonoBehaviour
     {
         return (renderCamera.cullingMask & (1 << hudLayer)) != 0;
     }
-
 }

@@ -16,7 +16,7 @@ namespace Zealot.Repository
         public AchievementRewardType rewardType;
         public int rewardId;
         public int rewardCount;
-        public List<SideEffectJson> collectSEs = new List<SideEffectJson>();
+        public List<SideEffectJson> storeSEs = new List<SideEffectJson>();
 
         public CollectionObjective(CollectionObjectiveJson json)
         {
@@ -42,7 +42,7 @@ namespace Zealot.Repository
                     {
                         SideEffectJson se = SideEffectRepo.GetSideEffect(int.Parse(seArray[i]));
                         if (se != null)
-                            collectSEs.Add(se);
+                            storeSEs.Add(se);
                     }
                 }
             }

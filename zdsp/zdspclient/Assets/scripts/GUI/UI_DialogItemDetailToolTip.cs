@@ -106,6 +106,13 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     [SerializeField]
     UI_DialogItemDetailTooltip_WhereToGet mWhereToGet;
 
+    #region Limits
+    UI_DialogItemDetail_TextValue mDailyGetTV;
+    UI_DialogItemDetail_TextValue mDailyUseTV;
+    UI_DialogItemDetail_TextValue mWeeklyGetTV;
+    UI_DialogItemDetail_TextValue mWeeklyUseTV;
+    #endregion
+
     IInventoryItem mItem = null;
     List<GameObject> mNormalStatsLst = new List<GameObject>();
     List<GameObject> mExtraSideEffectLst = new List<GameObject>();
@@ -179,6 +186,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 break;
         }
 
+        RPCFactory.NonCombatRPC.Tooltip_DailyWeeklyLimit(mItem.JsonObject.itemid);
         DebugShowInfo();
     }
 
@@ -1051,6 +1059,10 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         cTT.dailyGetLimit.gameObject.SetActive(item.JsonObject.dailygetlimit > 0);
         cTT.weeklyUseLimit.gameObject.SetActive(item.JsonObject.weeklyuselimit > 0);
         cTT.weeklyGetLimit.gameObject.SetActive(item.JsonObject.weeklygetlimit > 0);
+        mDailyGetTV = cTT.dailyGetLimit;
+        mDailyUseTV = cTT.dailyUseLimit;
+        mWeeklyGetTV = cTT.weeklyGetLimit;
+        mWeeklyUseTV = cTT.weeklyUseLimit;
 
         int auctionVal;
         string[] auctionStr = item.JsonObject.auction.Split('|');
@@ -1208,7 +1220,21 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         Equipment eq = item as Equipment;
         return (eq.EquipmentJson.equiptype == EquipmentType.Weapon || eq.EquipmentJson.fashionsuit == true);
     }
+    public void SetDailyWeeklyLimit(int itemID, int dailyGet, int dailyUse, int weeklyGet, int weeklyUse)
+    {
+        if (mItem.JsonObject.itemid != itemID)
+            return;
 
+        string localstr = GUILocalizationRepo.GetLocalizedString("ItemTooltip_UseGetLimit");
+        if (dailyGet > -1)
+            mDailyGetTV.Value = string.Format(localstr, dailyGet, mItem.JsonObject.dailygetlimit);
+        if (dailyUse > -1)
+            mDailyUseTV.Value = string.Format(localstr, dailyUse, mItem.JsonObject.dailyuselimit);
+        if (weeklyGet > -1)
+            mWeeklyGetTV.Value = string.Format(localstr, weeklyGet, mItem.JsonObject.weeklygetlimit);
+        if (weeklyUse > -1)
+            mWeeklyUseTV.Value = string.Format(localstr, weeklyUse, mItem.JsonObject.weeklyuselimit);
+    }
 
     #region Debug
     private void DebugShowInfo()

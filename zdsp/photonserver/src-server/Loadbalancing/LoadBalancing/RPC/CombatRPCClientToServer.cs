@@ -1888,6 +1888,20 @@ namespace Photon.LoadBalancing.GameServer
         {
             AchievementNPCInteract((int)args[0], (GameClientPeer)args[1]);
         }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.StoreCollectionItem)]
+        public void StoreCollectionItem(int id, bool isStore, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.StoreCollectionItem(id, isStore);
+
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.StoreCollectionItem)]
+        public void StoreCollectionItemProxy(object[] args)
+        {
+            StoreCollectionItem((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
+        }
         #endregion
 
         #region Crafting

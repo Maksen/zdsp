@@ -7973,6 +7973,15 @@ namespace Kopio.JsonContracts
         [JsonProperty("4")]
         public string placename { get; set; } 
         
+        [JsonProperty("5")]
+        public float posx { get; set; } 
+        
+        [JsonProperty("6")]
+        public float posy { get; set; } 
+        
+        [JsonProperty("7")]
+        public float posz { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -7980,6 +7989,9 @@ namespace Kopio.JsonContracts
             level = (int)vals["level"];
             placeiconpath = (string)vals["placeiconpath"];
             placename = (string)vals["placename"];
+            posx = Convert.ToSingle((double)vals["posx"]);
+            posy = Convert.ToSingle((double)vals["posy"]);
+            posz = Convert.ToSingle((double)vals["posz"]);
         }
     }
     

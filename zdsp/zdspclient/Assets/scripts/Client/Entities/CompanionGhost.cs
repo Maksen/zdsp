@@ -35,10 +35,10 @@ namespace Zealot.Client.Entities
             OnAnimObjLoaded(AssetManager.LoadAsset<GameObject>(mModelPath));
         }
 
-        public override void OnAnimObjLoaded(UnityEngine.Object asset)
+        public override void OnAnimObjLoaded(Object asset)
         {
             if (asset != null)
-                AnimObj = (GameObject)UnityEngine.Object.Instantiate(asset);
+                AnimObj = (GameObject)Object.Instantiate(asset);
             InitAnimObj();
         }
 
@@ -57,7 +57,6 @@ namespace Zealot.Client.Entities
 
             Show(true);
             ShowEffect(true);
-            mShadow.SetActive(true);
         }
 
         public int GetNpcId()

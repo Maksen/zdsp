@@ -452,6 +452,7 @@
         ClaimAchievementReward,
         ClaimAllAchievementRewards,
         AchievementNPCInteract,
+        StoreCollectionItem,
         #endregion
 
         #region Crafting
@@ -553,7 +554,6 @@
         ConsoleTestSideEffect,
         ConsoleEnterActivityByRealmID,
         ConsoleInspect,
-        GoToMainQuest,
         ConsoleNewDay,
         ConsoleServerNewDay,
         ConsoleCompleteRealm,
@@ -767,6 +767,10 @@
         #region Donate
         DonateItem,
         #endregion
+
+        #region Tooltip
+        Tooltip_DailyWeeklyLimit,
+        #endregion
     }
 
     public enum ServerNonCombatRPCMethods : byte
@@ -873,6 +877,10 @@
 
         #region Donate
         Ret_DonateItem,
+        #endregion
+
+        #region Tooltip
+        Ret_Tooltip_DailyWeeklyLimit,
         #endregion
     }
 }

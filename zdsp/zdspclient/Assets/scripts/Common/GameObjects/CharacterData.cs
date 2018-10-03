@@ -261,6 +261,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "BattleTime")]
         public int BattleTime { get; set; } //max 900 minutes * 60seconds = 54000 seconds.
 
+        [JsonProperty(PropertyName = "itemlimitdata")]
+        public ItemUseDropLimitData ItemLimitData { get; set; }
+
         public CharacterData()
         {
             CurrencyInventory = new CurrencyInventoryData();
@@ -293,6 +296,7 @@ namespace Zealot.Common
             HeroInventory = new HeroInvData();
             PowerUpInventory = new PowerUpInventoryData();
             AchievementInventory = new AchievementInvData();
+            ItemLimitData = new ItemUseDropLimitData();
         }
 
         /// <summary>
@@ -354,6 +358,7 @@ namespace Zealot.Common
             ExchangeShopInv.NewDayReset();
             CurrencyInventory.GuildFundToday = 0;
             BattleTimeResetOnNewDay();
+            ItemLimitData.ResetNewDay();
         }
 
         public void ClearGuild()

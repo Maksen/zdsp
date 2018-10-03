@@ -75,6 +75,7 @@ namespace Zealot.Client.Entities
         protected Action mAction;
         protected ActionCommand mActionCmd;
         public bool mActionSent;
+
         protected ActorNameTagController mHeadLabel;
         public ActorNameTagController HeadLabel
         {

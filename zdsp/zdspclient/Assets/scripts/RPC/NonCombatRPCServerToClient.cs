@@ -228,4 +228,15 @@ public partial class ClientMain : MonoBehaviour
         }
     }
     #endregion
+
+    #region Tooltip
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_Tooltip_DailyWeeklyLimit)]
+    public void Ret_Tooltip_DailyWeeklyLimit(int itemID, int dailyGetLimit, int dailyUseLimit, int weeklyGetLimit, int weeklyUseLimit)
+    {
+        GameObject obj = UIManager.GetWindowGameObject(WindowType.DialogItemDetail);//UIManager.Get
+        UI_DialogItemDetailToolTip tt = obj.GetComponent<UI_DialogItemDetailToolTip>();
+
+        tt.SetDailyWeeklyLimit(itemID, dailyGetLimit, dailyUseLimit, weeklyGetLimit, weeklyUseLimit);
+    }
+    #endregion
 }

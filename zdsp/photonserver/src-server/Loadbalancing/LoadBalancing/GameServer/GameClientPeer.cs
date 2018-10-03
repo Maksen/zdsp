@@ -1098,6 +1098,9 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
 
+            mPlayer.UpdateAchievement(AchievementObjectiveType.RefineCount);
+            mPlayer.UpdateAchievement(AchievementObjectiveType.RefineEquipmentLV, upgradeLevel.ToString(), false);
+
             //moneyAfter = mPlayer.SecondaryStats.money;
             //EquipmentRules.LogEquipUpgrade("Equipment Upgrade", equipSlotName, upgradeLevel, this);
             //EquipmentRules.LogEquipItemUse(upgradeMaterial.mItemID, upgradeMaterial.mMatCount, systemName, this);

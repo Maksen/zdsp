@@ -517,6 +517,10 @@ namespace Zealot.Server.Rules
                     break;
             }
 
+            //if false means invalid item or player exceed daily limit or weekely limit
+            //if (peer.CharacterData.ItemLimitData.DropItem(retval) == false)
+            //    return null;
+
             //if (peer != null && retval.GenerateUID)
             //    retval.UID = peer.mInventory.GenerateItemUID();
             return retval;

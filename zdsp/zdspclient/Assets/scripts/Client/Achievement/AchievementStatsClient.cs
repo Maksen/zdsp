@@ -19,23 +19,35 @@ public class AchievementStatsClient : AchievementStats
 
     public void UpdateCollections(byte idx, string value)
     {
-        //Debug.Log("col index: " + idx + "-" + value);
         if (string.IsNullOrEmpty(value))
             return;
+        Debug.Log("col index: " + idx + "-" + value);
 
         string[] colArray = value.Split('|');
         for (int i = 0; i < colArray.Length; ++i)
         {
             string[] colData = colArray[i].Split(';');
             int id = int.Parse(colData[0]);
-            if (!collectionsDict.ContainsKey(id))
+            DateTime date = DateTime.ParseExact(colData[1], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+            string photodesc = "";
+            bool stored = false;
+            if (colData.Length > 2)
             {
-                DateTime date = DateTime.ParseExact(colData[1], "yyyy/MM/dd", CultureInfo.InvariantCulture);
-                string photodesc = "";
-                if (colData.Length > 2)
+                int isStored;
+                if (int.TryParse(colData[2], out isStored) && isStored == 1)
+                    stored = true;
+                else
                     photodesc = colData[2];
+            }
 
-                CollectionElement elem = new CollectionElement(id, date, false, photodesc);
+            CollectionElement elem = GetCollectionById(id);
+            if (elem != null) // existing, updated stored
+            {
+                elem.Stored = stored;
+            }
+            else
+            {
+                elem = new CollectionElement(id, date, false, photodesc, stored, idx);
                 collectionsDict.Add(id, elem);
             }
         }
@@ -43,9 +55,9 @@ public class AchievementStatsClient : AchievementStats
 
     public void UpdateAchievements(byte idx, string value)
     {
-        //Debug.Log("ach index: " + idx + "-" + value);
         if (string.IsNullOrEmpty(value))
             return;
+        Debug.Log("ach index: " + idx + " - " + value);
 
         string[] achArray = value.Split('|');
         for (int i = 0; i < achArray.Length; ++i)

@@ -22,21 +22,27 @@ namespace Zealot.Common
         public DateTime CollectDate { get; set; }
         public bool Claimed { get; set; }  // server use only
         public string PhotoDesc { get; set; }
+        public bool Stored { get; set; }
+        public int SlotIdx { get; set; } // server use only
 
-        public CollectionElement(int id, DateTime date, bool claim, string photodesc = "")
+        public CollectionElement(int id, DateTime date, bool claim, string photodesc, bool store, int idx)
         {
             Id = id;
             CollectDate = date;
             Claimed = claim;
             PhotoDesc = photodesc;
+            Stored = store;
+            SlotIdx = idx;
         }
 
-        public override string ToString()
+        public string ToClientString()
         {
-            if (string.IsNullOrEmpty(PhotoDesc))
-                return string.Format("{0};{1}", Id, CollectDate.ToString("yyyy/MM/dd"));
-            else
+            if (Stored)
+                return string.Format("{0};{1};1", Id, CollectDate.ToString("yyyy/MM/dd"));
+            else if (!string.IsNullOrEmpty(PhotoDesc))
                 return string.Format("{0};{1};{2}", Id, CollectDate.ToString("yyyy/MM/dd"), PhotoDesc);
+            else
+                return string.Format("{0};{1}", Id, CollectDate.ToString("yyyy/MM/dd"));
         }
     }
 
@@ -86,7 +92,7 @@ namespace Zealot.Common
             return Count >= CompleteCount;
         }
 
-        public override string ToString()
+        public string ToClientString()
         {
             return string.Format("{0};{1}", Id, Count);
         }

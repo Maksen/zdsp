@@ -79,6 +79,11 @@ namespace Photon.LoadBalancing.GameServer
             return mInvData.GetEmptySlotCount();
         }
 
+        public Dictionary<int, IInventoryItem> GetItemsByItemType(ItemType type)
+        {
+            return mInvData.GetItemsByItemType(type);
+        }
+
         public int GetItemStackCountByItemId(ushort itemId)
         {
             return mInvData.GetTotalStackCountByItemId(itemId);
@@ -1433,6 +1438,22 @@ namespace Photon.LoadBalancing.GameServer
 
         private void UpdateCollectItemAchievement(int itemId, int itemCount)
         {
+            IInventoryItem item = GameRepo.ItemFactory.GetInventoryItem(itemId);
+            if (item != null)
+            {
+                ItemType itemType = item.JsonObject.itemtype;
+                if (itemType == ItemType.Equipment)
+                {
+                    Equipment equipItem = item as Equipment;
+                    if (equipItem != null && equipItem.EquipmentJson.fashionsuit)
+                        mSlot.mPlayer.AchievementStats.UpdateCollection(CollectionType.Fashion, itemId);
+                }
+                else if (itemType == ItemType.Relic)
+                {
+                    mSlot.mPlayer.AchievementStats.UpdateCollection(CollectionType.Relic, itemId);
+                }
+            }
+
             mSlot.mPlayer.UpdateAchievement(AchievementObjectiveType.CollectItem, itemId.ToString(), false, itemCount);
         }
     }

@@ -55,7 +55,7 @@ namespace Zealot.Client.Entities
             
             Show(true);
             ShowEffect(false);
-            mShadow.SetActive(false);
+            ShowShadow(false);
         }
 
         public override bool Interact()

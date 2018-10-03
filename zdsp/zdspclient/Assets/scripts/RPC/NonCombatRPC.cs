@@ -86,12 +86,6 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleInspect");
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.GoToMainQuest)]
-    public void GoToMainQuest(int questid)
-    {
-        ProxyMethod("GoToMainQuest", questid);
-    }
-
     [RPCMethod(RPCCategory.Combat, (byte)ClientNonCombatRPCMethods.ConsoleNewDay)]
     public void ConsoleNewDay()
     {
@@ -966,6 +960,14 @@ public partial class NonCombatRPC : RPCBase
     public void DonateItem(string guid)
     {
         ProxyMethod("DonateItem", guid);
+    }
+    #endregion
+
+    #region Tooltip
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.Tooltip_DailyWeeklyLimit)]
+    public void Tooltip_DailyWeeklyLimit(int itemID)
+    {
+        ProxyMethod("Tooltip_DailyWeeklyLimit", itemID);
     }
     #endregion
 }

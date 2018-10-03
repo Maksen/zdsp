@@ -738,6 +738,12 @@ public class CombatRPC : RPCBase
     {
         ProxyMethod("AchievementNPCInteract", npcId);
     }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.StoreCollectionItem)]
+    public void StoreCollectionItem(int id, bool isStore)
+    {
+        ProxyMethod("StoreCollectionItem", id, isStore);
+    }
     #endregion
 
     #region Crafting

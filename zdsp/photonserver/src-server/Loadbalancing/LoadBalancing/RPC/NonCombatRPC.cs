@@ -324,6 +324,14 @@ namespace Zealot.RPC
             ProxyMethod("Ret_DonateItem", guid, result, target);
         }
         #endregion
+
+        #region Tooltip
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_Tooltip_DailyWeeklyLimit)]
+        public void Ret_Tooltip_DailyWeeklyLimit(int itemID, int dGet, int dUse, int wGet, int wUse, object target)
+        {
+            ProxyMethod("Ret_Tooltip_DailyWeeklyLimit", itemID, dGet, dUse, wGet, wUse, target);
+        }
+        #endregion
     }
 }
 
@@ -1492,6 +1500,21 @@ namespace Photon.LoadBalancing.GameServer
         {
             int result = peer.mPlayer.DonateController.DonateItem(guid);
             peer.ZRPC.NonCombatRPC.Ret_DonateItem(guid, result, peer);
+        }
+        #endregion
+
+        #region Tooltip
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.Tooltip_DailyWeeklyLimit)]
+        public void Tooltip_DailyWeeklyLimit(int itemID, GameClientPeer peer)
+        {
+            ItemLimit dil = peer.CharacterData.ItemLimitData.Droplimitlst.Find(o => o.ItemID == itemID);
+            ItemLimit uil = peer.CharacterData.ItemLimitData.Uselimitlst.Find(o => o.ItemID == itemID);
+
+            int dGet = (dil != null) ? dil.DailyLimit : -1;
+            int dUse = (uil != null) ? uil.DailyLimit : -1;
+            int wGet = (dil != null) ? dil.WeeklyLimit : -1;
+            int wUse = (uil != null) ? uil.WeeklyLimit : -1;
+            peer.ZRPC.NonCombatRPC.Ret_Tooltip_DailyWeeklyLimit(itemID, dGet, dUse, wGet, wUse, peer);
         }
         #endregion
     }

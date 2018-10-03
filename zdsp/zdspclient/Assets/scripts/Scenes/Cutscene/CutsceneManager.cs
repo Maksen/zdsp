@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 using Zealot.Spawners;
-using System;
 
 public class CutsceneManager : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class CutsceneManager : MonoBehaviour
     private Dictionary<int, CutsceneEntity> eventCutscenes;
     private Dictionary<string, int> questCutscenes;
 
-    [System.NonSerialized]
+    [NonSerialized]
     public bool CutsceneLoading = false;
 
     public Action OnFinishedCutsceneAction;
@@ -80,9 +80,7 @@ public class CutsceneManager : MonoBehaviour
         foreach (CutsceneEntity cutsceneEnt in cutsceneEntities)
         {
             if (cutsceneEnt.CutsceneName == name)
-            {
                 return true;
-            }
         }
         return false;
     }
@@ -169,16 +167,12 @@ public class CutsceneManager : MonoBehaviour
         UIManager.CloseDialog(WindowType.DialogCutscene);
 
         if (isBotEnabled)
-        {
             GameInfo.gLocalPlayer.Bot.StartBot();
-        }
+
         if (isHudVisible)
-        {
-            UIManager.UIHud.ShowHUD();//
-        }else
-        {
-            UIManager.UIHud.HideHUD();//the HUD also in the hierachy. 
-        }
+            UIManager.UIHud.ShowHUD();
+        else
+            UIManager.UIHud.HideHUD(); //the HUD also in the hierachy. 
 
         if (isPartyFollowEnabled)
             PartyFollowTarget.Resume();
@@ -192,9 +186,7 @@ public class CutsceneManager : MonoBehaviour
     public void SkipCutscene()
     {
         if (currentPlaying != null)
-        {
             currentPlaying.SkipCutScene();
-        }
     }
 
     #region Play Cutscene Triggers
@@ -208,9 +200,10 @@ public class CutsceneManager : MonoBehaviour
 
     public bool PlayEventCutscene(int objectId)
     {
-        if (eventCutscenes.ContainsKey(objectId))
+        CutsceneEntity cutsceneEntity;
+        if (eventCutscenes.TryGetValue(objectId, out cutsceneEntity))
         {
-            eventCutscenes[objectId].PlayCutscene();
+            cutsceneEntity.PlayCutscene();
             return true;
         }
         return false;

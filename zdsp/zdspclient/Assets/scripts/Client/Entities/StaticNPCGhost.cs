@@ -98,9 +98,9 @@ namespace Zealot.Client.Entities
 
             Show(true);
             ShowEffect(true);
-            PreloadEffect();
             string modelPath = mArchetype.modelprefabpath;
-            mShadow.SetActive(!string.IsNullOrEmpty(modelPath) && modelPath != "Models/Npcs/Prefabs/npc_null.prefab" && mActiveStatus);
+            ShowShadow(!string.IsNullOrEmpty(modelPath) && modelPath != "Models/Npcs/Prefabs/npc_null.prefab" && mActiveStatus);
+            PreloadEffect();
         }
 
         protected void PreloadEffect()
@@ -395,22 +395,21 @@ namespace Zealot.Client.Entities
             UpdateQuestMarker();
         }
 
-        private GameObjectToEntityRef mEntityRef = null;
         public override void UpdateDisplayStatus(bool status)
         {
             mActiveStatus = status;
             Show(true);
             if (AnimObj != null)
             {
-                mEntityRef = AnimObj.GetComponent<GameObjectToEntityRef>();
-                if (mEntityRef != null && !status)
+                GameObjectToEntityRef entityRef = AnimObj.GetComponent<GameObjectToEntityRef>();
+                if (entityRef != null && !status)
                 {
-                    GameObject.Destroy(mEntityRef);
+                    Object.Destroy(entityRef);
                 }
-                else if (mEntityRef == null && status)
+                else if (entityRef == null && status)
                 {
-                    mEntityRef = AnimObj.AddComponent<GameObjectToEntityRef>();
-                    mEntityRef.mParentEntity = this;
+                    entityRef = AnimObj.AddComponent<GameObjectToEntityRef>();
+                    entityRef.mParentEntity = this;
                 }
             }
         }

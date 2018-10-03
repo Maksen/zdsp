@@ -885,17 +885,47 @@ public class CommandManager
     }
 
     [ConsoleCmd("Go To Main Quest")]
-    public void GoToMainQuest(string[] param)
+    public void StartQuest(string[] param)
     {
         if (param.Length == 1)
         {
             int id;
             if (int.TryParse(param[0], out id))
-                RPCFactory.NonCombatRPC.GoToMainQuest(id);
+                RPCFactory.NonCombatRPC.StartQuest(id, 99, 0);
         }
         else
         {
-            PrintToConsole("Format: \\GoToMainQuest <questid>");
+            PrintToConsole("Format: \\StartQuest <questid>");
+        }
+    }
+
+    [ConsoleCmd("DeleteQuest")]
+    public void DeleteQuest(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int id;
+            if (int.TryParse(param[0], out id))
+                RPCFactory.NonCombatRPC.DeleteQuest(id, "null");
+        }
+        else
+        {
+            PrintToConsole("Format: \\DeleteQuest <questid>");
+        }
+    }
+
+    [ConsoleCmd("ResetQuest")]
+    public void ResetQuest(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int id;
+            if (int.TryParse(param[0], out id))
+                RPCFactory.NonCombatRPC.ResetQuest(id);
+        }
+        else
+        {
+            PrintToConsole("Format: \\ResetQuest <questid>");
         }
     }
 

@@ -1,12 +1,12 @@
 ﻿using Kopio.JsonContracts;
-using Zealot.Common.Entities;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using Zealot.Common;
+using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.Entities;
-using System.Collections.Generic;
 using Zealot.Server.Rules;
-using System.Linq;
-using System;
 
 namespace Photon.LoadBalancing.GameServer
 {

@@ -138,10 +138,9 @@ public class PlayerInput : MonoBehaviour
                             else
                                 if (entity.Interact())
                                     PartyFollowTarget.Pause();
-
                             //if (entity.IsActor())
                             //    Debug.Log("click on entity :" + ((ActorGhost)entity).GetPersistentID());
-
+                            
                             GameInfo.gCombat.OnSelectEntity(entity);
                             break;  // can select entity, so ignore remaining hits, else continue to check other hits
                         }
@@ -155,7 +154,6 @@ public class PlayerInput : MonoBehaviour
                         else if (mPlayerGhost.CanMove())
                         {
                             SetMoveIndicator(hits[i].point);
-                            mPlayerGhost.Bot.StopBot();
                             mPlayerGhost.ActionInterupted();
                             PartyFollowTarget.Pause();
                             mPlayerGhost.PathFindToTarget(hits[i].point, -1, 0, false, false, () =>

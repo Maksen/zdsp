@@ -77,7 +77,6 @@ namespace Zealot.Client.Entities
             return path;
         }
 
-
         public override void OnAnimObjLoaded(UnityEngine.Object asset)
         {
             if (asset != null)

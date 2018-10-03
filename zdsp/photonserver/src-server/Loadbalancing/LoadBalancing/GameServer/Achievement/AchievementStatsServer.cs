@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.Entities;
-using Zealot.Server.Rules;
 using Zealot.Server.SideEffects;
 
 namespace Photon.LoadBalancing.GameServer
@@ -16,10 +16,18 @@ namespace Photon.LoadBalancing.GameServer
     {
         private GameClientPeer peer;
         private Player player;
-        private List<IPassiveSideEffect> levelPassiveSEs = new List<IPassiveSideEffect>();
-        private Dictionary<AchievementObjectiveType, HashSet<string>> completedTargets = new Dictionary<AchievementObjectiveType, HashSet<string>>();
+        private List<IPassiveSideEffect> levelPassiveSEs;
+        private Dictionary<int, List<IPassiveSideEffect>> storedCollectionPassives;
+        private Dictionary<AchievementObjectiveType, HashSet<string>> completedTargets;
 
         private StringBuilder sb = new StringBuilder();
+
+        public AchievementStatsServer()
+        {
+            levelPassiveSEs = new List<IPassiveSideEffect>();
+            storedCollectionPassives = new Dictionary<int, List<IPassiveSideEffect>>();
+            completedTargets = new Dictionary<AchievementObjectiveType, HashSet<string>>();
+        }
 
         public void Init(Player _player, GameClientPeer _peer, AchievementInvData invData)
         {
@@ -75,18 +83,28 @@ namespace Photon.LoadBalancing.GameServer
                     DateTime date = DateTime.ParseExact(colData[1], "yyyy/MM/dd", CultureInfo.InvariantCulture);
                     bool claimed = int.Parse(colData[2]) == 1;
                     string photodesc = "";
+                    bool stored = false;
                     if (colData.Length > 3)
-                        photodesc = colData[3];
+                    {
+                        int isStored;
+                        if (int.TryParse(colData[3], out isStored) && isStored == 1)
+                            stored = true;
+                        else
+                            photodesc = colData[3];
+                    }
                     CollectionObjective obj = AchievementRepo.GetCollectionObjectiveById(id);
                     if (obj != null)
                     {
-                        CollectionElement elem = new CollectionElement(id, date, claimed, photodesc);
+                        int idx = (int)obj.type;
+                        CollectionElement elem = new CollectionElement(id, date, claimed, photodesc, stored, idx);
                         collectionsDict.Add(id, elem);
-                        int index = (int)obj.type;
-                        sblist[index].AppendFormat("{0}|", colArray[i]);
+                        sblist[idx].AppendFormat("{0}|", elem.ToClientString());
                         // apply any reward se if claimed
                         if (obj.rewardType == AchievementRewardType.SideEffect && obj.rewardId > 0 && claimed)
                             ApplyPassiveSE(obj.rewardId);
+                        // apply se if collection is stored
+                        if ((obj.type == CollectionType.Fashion || obj.type == CollectionType.Relic) && elem.Stored)
+                            ApplyStoredCollectionPassives(obj);
                     }
                 }
 
@@ -117,7 +135,7 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         AchievementElement elem = new AchievementElement(id, count, obj.completeCount, claimed, obj.slotIdx);
                         achievementsDict.Add(id, elem);
-                        sblist[obj.slotIdx].AppendFormat("{0};{1}|", id, count);
+                        sblist[obj.slotIdx].AppendFormat("{0}|", elem.ToClientString());
                         // apply any reward se if claimed
                         if (obj.rewardType == AchievementRewardType.SideEffect && obj.rewardId > 0 && claimed)
                             ApplyPassiveSE(obj.rewardId);
@@ -178,7 +196,7 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
         }
-        #endregion
+        #endregion ParseFromString
 
         #region ConvertToString
         public string CollectionsToString()
@@ -188,6 +206,8 @@ namespace Photon.LoadBalancing.GameServer
                 sb.AppendFormat("{0};{1};{2}", item.Key, item.Value.CollectDate.ToString("yyyy/MM/dd"), item.Value.Claimed ? 1 : 0);
                 if (!string.IsNullOrEmpty(item.Value.PhotoDesc))
                     sb.AppendFormat(";{0}", item.Value.PhotoDesc);
+                else if (item.Value.Stored)
+                    sb.AppendFormat(";1");
                 sb.Append("|");
             }
             string collectionString = sb.ToString().TrimEnd('|');
@@ -240,7 +260,7 @@ namespace Photon.LoadBalancing.GameServer
             sb.Clear();
             return targetString;
         }
-        #endregion
+        #endregion ConvertToString
 
         public void UpdateCollection(CollectionType objType, int target)
         {
@@ -257,17 +277,77 @@ namespace Photon.LoadBalancing.GameServer
                     // to insert member names
                 }
                 DateTime now = DateTime.Now;
-                CollectionElement elem = new CollectionElement(obj.id, now, false, info);
+                int idx = (int)objType;
+                CollectionElement elem = new CollectionElement(obj.id, now, false, info, false, idx);
                 collectionsDict.Add(obj.id, elem);
 
-                int index = (int)objType;
-                string oldString = (string)Collections[index];
-                Collections[index] = string.IsNullOrEmpty(oldString) ? elem.ToString() : oldString + "|" + elem.ToString();
+                string oldString = (string)Collections[idx];
+                Collections[idx] = string.IsNullOrEmpty(oldString) ? elem.ToClientString() : oldString + "|" + elem.ToClientString();
 
                 AddToRewardClaims(AchievementType.Collection, obj.id);
                 UpdateRewardClaimsString();
                 AddToLatestRecords(AchievementType.Collection, obj.id, now);
                 UpdateRecordsString(AchievementType.Collection);
+            }
+        }
+
+        public void StoreCollectionItem(int id, bool isStore)
+        {
+            CollectionElement elem = GetCollectionById(id);
+            if (elem == null)
+                return;
+            if ((elem.Stored && isStore) || (!elem.Stored && !isStore))
+                return;
+
+            CollectionObjective obj = AchievementRepo.GetCollectionObjectiveById(id);
+            if (obj != null)
+            {
+                if (obj.type != CollectionType.Fashion && obj.type != CollectionType.Relic)
+                    return;
+
+                PlayerCombatStats combatStats = (PlayerCombatStats)player.CombatStats;
+                if (isStore)
+                {
+                    InvRetval retval = peer.mInventory.DeductItems((ushort)obj.targetId, 1, "Achievement");
+                    if (retval.retCode != InvReturnCode.UseSuccess)
+                    {
+                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_ach_ItemNotFound", "", false, peer);
+                        return;
+                    }
+                    else
+                    {
+                        elem.Stored = true;
+                        combatStats.SuppressComputeAll = true;
+                        ApplyStoredCollectionPassives(obj);
+                    }
+                }
+                else
+                {
+                    InvRetval retval = peer.mInventory.AddItemsToInventory((ushort)obj.targetId, 1, false, "Achievement");
+                    if (retval.retCode != InvReturnCode.AddSuccess)
+                    {
+                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_BagInventoryFull", "", false, peer);
+                        return;
+                    }
+                    else
+                    {
+                        elem.Stored = false;
+                        combatStats.SuppressComputeAll = true;
+                        RemoveStoredCollectionPassives(obj.id);
+                    }
+                }
+
+                int idx = (int)obj.type;
+                foreach (var item in collectionsDict)
+                {
+                    if (item.Value.SlotIdx == idx)
+                        sb.AppendFormat("{0}|", item.Value.ToClientString());
+                }
+                Collections[idx] = sb.ToString().TrimEnd('|');
+                sb.Clear();
+
+                combatStats.SuppressComputeAll = false;
+                combatStats.ComputeAll();
             }
         }
 
@@ -369,6 +449,28 @@ namespace Photon.LoadBalancing.GameServer
         {
             if (peer.mFirstLogin)
             {
+                /*** Collections ***/
+                // check Fashion collection
+                var equipItemsInBag = peer.mInventory.GetItemsByItemType(ItemType.Equipment);
+                foreach (var item in equipItemsInBag) // check in bag
+                {
+                    Equipment equipItem = item.Value as Equipment;
+                    if (equipItem.EquipmentJson.fashionsuit)
+                        UpdateCollection(CollectionType.Fashion, equipItem.ItemID);
+                }
+                for (int index = 0; index < (int)FashionSlot.MAXSLOTS; ++index) // check currently equipped fashin
+                {
+                    Equipment equipItem = peer.CharacterData.EquipmentInventory.FashionSlots[index];
+                    if (equipItem != null)
+                        UpdateCollection(CollectionType.Fashion, equipItem.ItemID);
+                }
+
+                // check Relic collection
+                var relicItemsInBag = peer.mInventory.GetItemsByItemType(ItemType.Relic);
+                foreach (var equipItem in relicItemsInBag) // check in bag
+                    UpdateCollection(CollectionType.Relic, equipItem.Value.ItemID);
+
+                /*** Achievements ***/
                 // Collect item
                 List<string> targetList = AchievementRepo.GetTargetsByAchievementObjType(AchievementObjectiveType.CollectItem);
                 for (int i = 0; i < targetList.Count; ++i)
@@ -378,6 +480,35 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         int stackCount = peer.mInventory.GetItemStackCountByItemId(itemId);
                         UpdateAchievement(AchievementObjectiveType.CollectItem, targetList[i], false, stackCount, false);
+                    }
+                }
+
+                // No. of equipments with target upgrade level
+                targetList = AchievementRepo.GetTargetsByAchievementObjType(AchievementObjectiveType.RefineEquipmentLV);
+                if (targetList.Count > 0)
+                {
+                    for (int i = 0; i < targetList.Count; ++i)
+                    {
+                        int upgradeLv;
+                        int count = 0;
+                        if (int.TryParse(targetList[i], out upgradeLv))
+                        {
+                            // check currently equipped
+                            for (int index = 0; index < (int)EquipmentSlot.MAXSLOTS; ++index)
+                            {
+                                Equipment equipment = peer.CharacterData.EquipmentInventory.Slots[index];
+                                if (equipment != null && equipment.UpgradeLevel >= upgradeLv)
+                                    count++;
+                            }
+                            // check those in bag
+                            foreach (var item in equipItemsInBag)
+                            {
+                                var equip = item.Value as Equipment;
+                                if (equip.UpgradeLevel >= upgradeLv)
+                                    count++;
+                            }
+                            UpdateAchievement(AchievementObjectiveType.RefineEquipmentLV, targetList[i], false, count, false);
+                        }
                     }
                 }
 
@@ -400,6 +531,7 @@ namespace Photon.LoadBalancing.GameServer
                 int totalHeroLevels = 0;
                 foreach (var hero in ownedHeroes.Values)
                 {
+                    UpdateCollection(CollectionType.Hero, hero.HeroId);
                     string heroId = hero.HeroId.ToString();
                     totalHeroLevels += hero.Level;
                     UpdateAchievement(AchievementObjectiveType.HeroLevel, heroId, false, hero.Level, false);
@@ -632,13 +764,44 @@ namespace Photon.LoadBalancing.GameServer
                 combatStats.ComputeAll();
             }
         }
-        #endregion
+        #endregion Rewards
+
+        private void ApplyStoredCollectionPassives(CollectionObjective obj)
+        {
+            storedCollectionPassives.Add(obj.id, new List<IPassiveSideEffect>());
+            List<SideEffectJson> passiveSEs = obj.storeSEs;
+            for (int i = 0; i < passiveSEs.Count; i++)
+            {
+                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], true);
+                IPassiveSideEffect pse = se as IPassiveSideEffect;
+                if (pse != null)
+                {
+                    pse.AddPassive(player);
+                    storedCollectionPassives[obj.id].Add(pse);
+                }
+            }
+        }
+
+        private void RemoveStoredCollectionPassives(int id)
+        {
+            List<IPassiveSideEffect> passives;
+            if (storedCollectionPassives.TryGetValue(id, out passives))
+            {
+                for (int i = 0; i < passives.Count; i++)
+                    passives[i].RemovePassive();
+
+                passives.Clear();
+                storedCollectionPassives.Remove(id);
+            }
+        }
 
 #if DEBUG
         public void ConsoleResetCollections()
         {
             collectionsDict.Clear();
             Collections.ResetAll();
+            foreach (var id in storedCollectionPassives.Keys.ToList())
+                RemoveStoredCollectionPassives(id);
         }
 
         public void ConsoleGetAllCollections(int objtype)
@@ -648,12 +811,13 @@ namespace Photon.LoadBalancing.GameServer
                 ConsoleResetCollections();
                 foreach (var obj in AchievementRepo.collectionObjectives.Values)
                 {
-                    CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, false, "");
+                    int index = (int)obj.type;
+                    string info = obj.type == CollectionType.Photo ? "random photo description" : "";
+                    CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, false, info, false, index);
                     collectionsDict.Add(obj.id, elem);
 
-                    int index = (int)obj.type;
                     string oldString = (string)Collections[index];
-                    Collections[index] = string.IsNullOrEmpty(oldString) ? elem.ToString() : oldString + "|" + elem.ToString();
+                    Collections[index] = string.IsNullOrEmpty(oldString) ? elem.ToClientString() : oldString + "|" + elem.ToClientString();
                     AddToRewardClaims(AchievementType.Collection, obj.id);
                 }
             }
@@ -664,10 +828,11 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     if (GetCollectionById(obj.id) == null)
                     {
-                        CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, false, "");
+                        string info = obj.type == CollectionType.Photo ? "random photo description" : "";
+                        CollectionElement elem = new CollectionElement(obj.id, DateTime.Now, false, info, false, objtype);
                         collectionsDict.Add(obj.id, elem);
                         string oldString = (string)Collections[objtype];
-                        Collections[objtype] = string.IsNullOrEmpty(oldString) ? elem.ToString() : oldString + "|" + elem.ToString();
+                        Collections[objtype] = string.IsNullOrEmpty(oldString) ? elem.ToClientString() : oldString + "|" + elem.ToClientString();
                         AddToRewardClaims(AchievementType.Collection, obj.id);
                     }
                 }
@@ -691,7 +856,7 @@ namespace Photon.LoadBalancing.GameServer
                 AchievementElement elem = new AchievementElement(obj.id, obj.completeCount, obj.completeCount, false, obj.slotIdx);
                 achievementsDict.Add(obj.id, elem);
                 string oldString = (string)Achievements[obj.slotIdx];
-                Achievements[obj.slotIdx] = string.IsNullOrEmpty(oldString) ? elem.ToString() : oldString + "|" + elem.ToString();
+                Achievements[obj.slotIdx] = string.IsNullOrEmpty(oldString) ? elem.ToClientString() : oldString + "|" + elem.ToClientString();
                 AddToRewardClaims(AchievementType.Achievement, obj.id);
             }
             UpdateRewardClaimsString();

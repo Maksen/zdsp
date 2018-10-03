@@ -52,25 +52,6 @@ public class UI_CharacterInfoTabOne : MonoBehaviour
             mStatLst.Add(stat);
         }
 
-        //Localization needed
-        //mStatLst[(int)Enum_CharInfoTabOneStats.MAXHP].CombineName = "Max HP";
-        //mStatLst[(int)Enum_CharInfoTabOneStats.HPREGEN].CombineName = "HP Regen";
-        //mStatLst[(int)Enum_CharInfoTabOneStats.MAXMANA].CombineName = "Max Mana";     
-        //mStatLst[(int)Enum_CharInfoTabOneStats.MANAREGEN].CombineName = "Mana Regen";   
-        //mStatLst[(int)Enum_CharInfoTabOneStats.MOVESPD].CombineName = "Move Speed";     
-        //mStatLst[(int)Enum_CharInfoTabOneStats.EXPBONUS].CombineName = "Exp Bonus";    
-        //mStatLst[(int)Enum_CharInfoTabOneStats.WEAPONATK].CombineName = "Weapon Attack";
-        //mStatLst[(int)Enum_CharInfoTabOneStats.ATKPOWER].CombineName = "Attack Power";
-        //mStatLst[(int)Enum_CharInfoTabOneStats.ARMOR].CombineName = "Armor";       
-        //mStatLst[(int)Enum_CharInfoTabOneStats.IGNOREARMOR].CombineName = "Ignore Armor"; 
-        //mStatLst[(int)Enum_CharInfoTabOneStats.BLOCK].CombineName = "Block";       
-        //mStatLst[(int)Enum_CharInfoTabOneStats.BLOCKVALUE].CombineName = "Block Value";  
-        //mStatLst[(int)Enum_CharInfoTabOneStats.ACCURACY].CombineName = "Accuracy";    
-        //mStatLst[(int)Enum_CharInfoTabOneStats.EVASION].CombineName = "Evasion";     
-        //mStatLst[(int)Enum_CharInfoTabOneStats.CRITICAL].CombineName = "Critical";    
-        //mStatLst[(int)Enum_CharInfoTabOneStats.COCRITICAL].CombineName = "Cocritical"; 
-        //mStatLst[(int)Enum_CharInfoTabOneStats.CRITICALDAMAGE].CombineName = "Critical Damage";
-
         mStatLst[(int)Enum_CharInfoTabOneStats.MAXHP].CombineName = GUILocalizationRepo.GetLocalizedString("stats_maxhealth");
         mStatLst[(int)Enum_CharInfoTabOneStats.HPREGEN].CombineName = GUILocalizationRepo.GetLocalizedString("stats_healthregen");
         mStatLst[(int)Enum_CharInfoTabOneStats.MAXMANA].CombineName = GUILocalizationRepo.GetLocalizedString("stats_maxmana");

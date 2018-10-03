@@ -9,6 +9,9 @@ using Zealot.Common.RPC;
 namespace Photon.LoadBalancing.GameServer
 {
     using Kopio.JsonContracts;
+    using System;
+    using System.Threading.Tasks;
+    using System.Linq;
     using Zealot.Common.Entities;
     using Zealot.Server.Entities;
     using Zealot.Repository;
@@ -16,11 +19,8 @@ namespace Photon.LoadBalancing.GameServer
     using Zealot.Server.Rules;
     using Zealot.Server.SideEffects;
     using Zealot.Common;
-    using System.Threading.Tasks;
-    using System.Linq;
     using Hive.Caching;
     using Hive;
-    using System;
 
     public partial class GameLogic
     {

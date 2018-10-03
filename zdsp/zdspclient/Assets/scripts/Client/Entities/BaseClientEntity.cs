@@ -7,20 +7,17 @@ namespace Zealot.Client.Entities
 {
     public abstract class BaseClientEntity : Entity
     {
-        protected GameObject mAnimObj;
-
         private bool bShow;
         private bool bShowEfx;
 
-        public GameObject AnimObj
-        {
-            get { return mAnimObj; }
-            set { mAnimObj = value; }
-        }
+        protected GameObject mAnimObj = null;
+        protected GameObject mShadow = null;
+
+        public GameObject AnimObj { get { return mAnimObj; } set { mAnimObj = value; } }
 
         public bool HasAnimObj { get { return mAnimObj != null; } }
 
-        protected GameObject mShadow;
+        private bool isShadowVisible = true;
 
         public virtual string Name { get; set; }
 
@@ -69,15 +66,8 @@ namespace Zealot.Client.Entities
                 effectController.Animator = AnimObj.GetComponent<Animator>();
                 //ec.ShowAnimStates();
                 EffectController = effectController;
-                var entityRef = AnimObj.AddComponent<GameObjectToEntityRef>();
-                entityRef.mParentEntity = this;
+                AnimObj.AddComponent<GameObjectToEntityRef>().mParentEntity = this;
             }
-        }
-
-        public void SetShadowRadius(float radius)
-        {
-            float size = radius * 4;
-            mShadow.transform.localScale = new Vector3(size, size, 1);
         }
 
         public void SetAnimSpeed(string animation, float speed)
@@ -123,9 +113,7 @@ namespace Zealot.Client.Entities
         public void StopEffect(string efx)
         {
             if (AnimObj != null)
-            {
                 EffectController.StopEffect(efx);
-            }
         }
 
         public override void OnRemove()
@@ -142,12 +130,12 @@ namespace Zealot.Client.Entities
             if (mAnimObj != null)
             {
                 bShow = val;
-                int count = mAnimObj.transform.childCount;
+                Transform parent = mAnimObj.transform;
+                int count = parent.childCount;
                 for (int i = 0; i < count; ++i)
-                {
-                    Transform tx = mAnimObj.transform.GetChild(i);
-                    tx.gameObject.SetActive(val);
-                }
+                    parent.GetChild(i).gameObject.SetActive(val);
+
+                mShadow.SetActive(isShadowVisible);
             }
         }
 
@@ -160,7 +148,14 @@ namespace Zealot.Client.Entities
 
         public void ShowShadow(bool val)
         {
-            mShadow.SetActive(val);
+            isShadowVisible = val;
+            mShadow.SetActive(isShadowVisible);
+        }
+
+        public void SetShadowRadius(float radius)
+        {
+            float size = radius * 4;
+            mShadow.transform.localScale = new Vector3(size, size, 1);
         }
 
         public virtual int GetDisplayLevel()

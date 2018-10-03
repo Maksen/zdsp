@@ -13,156 +13,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   preload: 1
   build: 1
-  individualAssetBundle: 1
+  individualAssetBundle: 0
   containerAssetsPath: UI_ZDSP/Icons
   allowAbsolutePath: 0
   ExportedAssets:
-  - assetPath: Skill/00_ActiveEmpty.png
-    asset: {fileID: 21300000, guid: f722bccb5a8a2804e9071ddc24e58ba5, type: 3}
-  - assetPath: Skill/00_ActiveNotAvailable.png
-    asset: {fileID: 21300000, guid: 2437e5d412c62a747b1e78b0144797d6, type: 3}
-  - assetPath: Skill/01_PasiveNotAvailable.png
-    asset: {fileID: 21300000, guid: 8a34cfeebe1ffe640b362a6baf88988b, type: 3}
-  - assetPath: Skill/01_PassiveEmpty.png
-    asset: {fileID: 21300000, guid: ae67499d83389d349b955628b1eb55ea, type: 3}
-  - assetPath: Skill/as_samurai_001.png
-    asset: {fileID: 21300000, guid: aad862b3626d9bc4e8e9cd615b94a526, type: 3}
-  - assetPath: Skill/as_samurai_002.png
-    asset: {fileID: 21300000, guid: 46bfa8f14af41244c93c55655d152339, type: 3}
-  - assetPath: Skill/as_samurai_003.png
-    asset: {fileID: 21300000, guid: 7084b53f730f98544bb10e640415c031, type: 3}
-  - assetPath: Skill/as_samurai_004.png
-    asset: {fileID: 21300000, guid: 6a9ea490201c69f48b3623bb200a2ad3, type: 3}
-  - assetPath: Skill/as_samurai_005.png
-    asset: {fileID: 21300000, guid: fbf013c5f8807b64d9659051a1eac2cc, type: 3}
-  - assetPath: Skill/as_samurai_006.png
-    asset: {fileID: 21300000, guid: d504691c66c473f45be11f9a5d3fcd87, type: 3}
-  - assetPath: Skill/as_warrior_001.png
-    asset: {fileID: 21300000, guid: 84000502181d06b4fa1a63fd39f16e5c, type: 3}
-  - assetPath: Skill/as_warrior_002.png
-    asset: {fileID: 21300000, guid: 9ae8bcf8002dc3a4da03720f9813722a, type: 3}
+  - assetPath: root.tif
+    asset: {fileID: 21300000, guid: d29a4a0c80b242b4aac926e3d9edbd8a, type: 3}
+  - assetPath: zzz_ameicon_test_consumable.png
+    asset: {fileID: 21300000, guid: 15b5e3e267131844999186822591fbba, type: 3}
+  - assetPath: zzz_DefaultTest.tif
+    asset: {fileID: 21300000, guid: 6fe2f2c4b631d1047b4b890b53e20896, type: 3}
+  - assetPath: zzz_gameicon_test_material.png
+    asset: {fileID: 21300000, guid: 04593aca1357c63478e1d681d82e6eba, type: 3}
+  - assetPath: Crafting/zzz_crafting_test.png
+    asset: {fileID: 21300000, guid: d7926a5313a2dc04e8557093b17c2496, type: 3}
   - assetPath: Currency/currency_coin.png
     asset: {fileID: 21300000, guid: 96e2d92e4d22f774bb4aa6b29347ef6e, type: 3}
   - assetPath: Currency/currency_gold.png
     asset: {fileID: 21300000, guid: f13997511537d5248a0d48da10d48afb, type: 3}
   - assetPath: Currency/currency_skill.png
     asset: {fileID: 21300000, guid: f47edd71c28e94841afe1506b99aa800, type: 3}
-  - assetPath: Job/job_alchemist.png
-    asset: {fileID: 21300000, guid: 53807e41288feb649ba73ba57da60d5c, type: 3}
-  - assetPath: Job/job_assassin.png
-    asset: {fileID: 21300000, guid: e4a8ee981fe71bd4c8ffcaef0a29fe6f, type: 3}
-  - assetPath: Job/job_blademaster.png
-    asset: {fileID: 21300000, guid: 515cee67ddb37f94db64e4ecb457cd6e, type: 3}
-  - assetPath: Job/job_commando.png
-    asset: {fileID: 21300000, guid: 3f1f70a1152d7ef4a9bfe8cf1858ff4a, type: 3}
-  - assetPath: Job/job_executioner.png
-    asset: {fileID: 21300000, guid: c39104a4ef06afa4982027ee4d105c56, type: 3}
-  - assetPath: Job/job_general.png
-    asset: {fileID: 21300000, guid: d392621057cbfa7488960f6ab6be4f47, type: 3}
-  - assetPath: Job/job_hero.png
-    asset: {fileID: 21300000, guid: 9679db48a79637b4ba31e0fc4cc38ead, type: 3}
-  - assetPath: Job/job_killer.png
-    asset: {fileID: 21300000, guid: cf927345d1b1d984080a54e64dccddd7, type: 3}
-  - assetPath: Job/job_lieutenant.png
-    asset: {fileID: 21300000, guid: 239e8774b624f234b9a30b32f40d6b16, type: 3}
-  - assetPath: Job/job_newbie.png
-    asset: {fileID: 21300000, guid: 6dee6c4c3d53ac140ac4e9ec77919fb5, type: 3}
-  - assetPath: Job/job_qigongmaster.png
-    asset: {fileID: 21300000, guid: 9e103c7655ab2184c8637be090d03db7, type: 3}
-  - assetPath: Job/job_samurai.png
-    asset: {fileID: 21300000, guid: 507bd30b8b9915c4ab379903dee90805, type: 3}
-  - assetPath: Job/job_schemer.png
-    asset: {fileID: 21300000, guid: e94616728e4f1024791524b84e95990c, type: 3}
-  - assetPath: Job/job_shadow.png
-    asset: {fileID: 21300000, guid: 230afd9ac419401418b4fffc5be7314c, type: 3}
-  - assetPath: Job/job_slaughter.png
-    asset: {fileID: 21300000, guid: c955b7e6a340ccc4983ac78ffd593f9a, type: 3}
-  - assetPath: Job/job_soldier.png
-    asset: {fileID: 21300000, guid: e8dd38b435031b042b2408157d57f491, type: 3}
-  - assetPath: Job/job_specialforce.png
-    asset: {fileID: 21300000, guid: 55b0d803b909f7749a51694d9245efe9, type: 3}
-  - assetPath: Job/job_strategist.png
-    asset: {fileID: 21300000, guid: aa67c21f1f3a8f44abb5c978bfbba4b9, type: 3}
-  - assetPath: Job/job_swordman.png
-    asset: {fileID: 21300000, guid: bc4883152255d1848b4bfda5e4632ed8, type: 3}
-  - assetPath: Job/job_swordmaster.png
-    asset: {fileID: 21300000, guid: 11da649bb33fb8e499f8954722220519, type: 3}
-  - assetPath: Job/job_tactician.png
-    asset: {fileID: 21300000, guid: cf860c978fe3f3c429b7aa28c6e392b2, type: 3}
-  - assetPath: Job/job_test.tif
-    asset: {fileID: 21300000, guid: 1fa09220bb7862e47b67e917867736e6, type: 3}
-  - assetPath: Job/job_warrior.png
-    asset: {fileID: 21300000, guid: 1a2a363bdd5b52441930faa4104a3c3d, type: 3}
-  - assetPath: Mail/mail_MailItem.tif
-    asset: {fileID: 21300000, guid: ab45c585033e7fb4d9525ba4525cc7ff, type: 3}
-  - assetPath: Mail/mail_MailNew.tif
-    asset: {fileID: 21300000, guid: 1b9d818268bfd9047b48c8ca10f035ba, type: 3}
-  - assetPath: Mail/mail_MailOpen.tif
-    asset: {fileID: 21300000, guid: e5b83e494c3e8074bb435f1713aeb0b4, type: 3}
-  - assetPath: Portraits/portraits_alchemist.png
-    asset: {fileID: 21300000, guid: da53f247e73052d4a86f8b8e08b311db, type: 3}
-  - assetPath: Portraits/portraits_assassin.png
-    asset: {fileID: 21300000, guid: c86ea57da2c31ec44a84c61f4a233a99, type: 3}
-  - assetPath: Portraits/portraits_blademaster.png
-    asset: {fileID: 21300000, guid: 8e8facfc332e6384fae2f47976e92231, type: 3}
-  - assetPath: Portraits/portraits_commando.png
-    asset: {fileID: 21300000, guid: 241f2c1ccabbbda4ba17c8eee1282f0a, type: 3}
-  - assetPath: Portraits/portraits_executioner.png
-    asset: {fileID: 21300000, guid: f52c2800123d1334fb53ed73e2141d2c, type: 3}
-  - assetPath: Portraits/portraits_general.png
-    asset: {fileID: 21300000, guid: 5cadb5aed0d06eb489bb30ac41bde9c9, type: 3}
-  - assetPath: Portraits/portraits_hero.png
-    asset: {fileID: 21300000, guid: 095ce103e2b2ebc4d877985f1fadf9a6, type: 3}
-  - assetPath: Portraits/portraits_killer.png
-    asset: {fileID: 21300000, guid: a4736778ac7fc3c4ab25721187cf4594, type: 3}
-  - assetPath: Portraits/portraits_lieutenant.png
-    asset: {fileID: 21300000, guid: 00b90df616c00354c8aca9282feefbea, type: 3}
-  - assetPath: Portraits/portraits_newbie.png
-    asset: {fileID: 21300000, guid: 43f66fb05732dd24fa3a0558364576a5, type: 3}
-  - assetPath: Portraits/portraits_qigongmaster.png
-    asset: {fileID: 21300000, guid: 8b9d2b2f1db6e464ab253890105cca4f, type: 3}
-  - assetPath: Portraits/portraits_samurai.png
-    asset: {fileID: 21300000, guid: b6f710b54dbfaff4fb42b4c6a0780f2b, type: 3}
-  - assetPath: Portraits/portraits_schemer.png
-    asset: {fileID: 21300000, guid: 9d3fa02871c14b34e9c48fd88c519b6c, type: 3}
-  - assetPath: Portraits/portraits_shadow.png
-    asset: {fileID: 21300000, guid: 69425a597e2c7e54f8bad874081eda27, type: 3}
-  - assetPath: Portraits/portraits_slaughter.png
-    asset: {fileID: 21300000, guid: ff7a552bfab49014a9f522ea88b23d13, type: 3}
-  - assetPath: Portraits/portraits_soldier.png
-    asset: {fileID: 21300000, guid: a83781bbceb850c46961f6edb1654b0f, type: 3}
-  - assetPath: Portraits/portraits_specialforce.png
-    asset: {fileID: 21300000, guid: 652a641cb74e6be4c9aecfee749aad65, type: 3}
-  - assetPath: Portraits/portraits_strategist.png
-    asset: {fileID: 21300000, guid: 4b164c4636e51554a8e5175a4e08b913, type: 3}
-  - assetPath: Portraits/portraits_swordman.png
-    asset: {fileID: 21300000, guid: bf34ca9e8352bce42827543bbbae10ae, type: 3}
-  - assetPath: Portraits/portraits_swordmaster.png
-    asset: {fileID: 21300000, guid: a851bf39693a6ff48a8852541fbafbf2, type: 3}
-  - assetPath: Portraits/portraits_tactician.png
-    asset: {fileID: 21300000, guid: 4dbab360d62f805468935a4011889bd8, type: 3}
-  - assetPath: Portraits/portraits_warrior.png
-    asset: {fileID: 21300000, guid: 89f6b23c38d5ae44dbab1ae48cda5370, type: 3}
-  - assetPath: Skill/ps_samurai_001.png
-    asset: {fileID: 21300000, guid: 3ec0c733297ca7542b666b6518557392, type: 3}
-  - assetPath: Skill/ps_samurai_002.png
-    asset: {fileID: 21300000, guid: 788893e5c0307e94d8b08e6a297db9cc, type: 3}
-  - assetPath: Skill/ps_samurai_003.png
-    asset: {fileID: 21300000, guid: ac077e001e28cd042b82a504098a2df4, type: 3}
-  - assetPath: Skill/ps_samurai_004.png
-    asset: {fileID: 21300000, guid: 5af85576b45125b4a9e480371f03dd02, type: 3}
-  - assetPath: Skill/ps_samurai_005.png
-    asset: {fileID: 21300000, guid: 86c60f4d96adafd449c05b8846e39aa8, type: 3}
-  - assetPath: Skill/ps_samurai_007.png
-    asset: {fileID: 21300000, guid: bf365371baa139f4881c6a24738f814b, type: 3}
-  - assetPath: Skill/ps_warrior_001.png
-    asset: {fileID: 21300000, guid: c313a5ae4e731c8498b50db217132bd6, type: 3}
-  - assetPath: Skill/ps_warrior_002.png
-    asset: {fileID: 21300000, guid: 0f296af78da67fb47bcc667fe8fe6115, type: 3}
-  - assetPath: Skill/ps_warrior_003.png
-    asset: {fileID: 21300000, guid: edad8d3e70ed2aa4ca76354882acf9d5, type: 3}
-  - assetPath: Skill/ps_warrior_004.png
-    asset: {fileID: 21300000, guid: 52476499b17995c45b905abc93a11d7a, type: 3}
+  - assetPath: CustomizeCharacter/zzz_test_customize_character.png
+    asset: {fileID: 21300000, guid: 3ab93b6aa165cea4f989bdb853fc5035, type: 3}
+  - assetPath: Element_Attacks/zzz_test.png
+    asset: {fileID: 21300000, guid: 612cf7a94d75fc742ba57309e382ed5c, type: 3}
   - assetPath: GameIcon/quality_default_celestial.tif
     asset: {fileID: 21300000, guid: 4fed403407e82a543aa5da786371a0b9, type: 3}
   - assetPath: GameIcon/quality_default_common.tif
@@ -187,44 +61,10 @@ MonoBehaviour:
     asset: {fileID: 21300000, guid: 641e5d1eb3ca73a4ab024556945cc8d4, type: 3}
   - assetPath: GameIcon/quality_equip_uncommon.tif
     asset: {fileID: 21300000, guid: d8a2e39afa2487549a6555089f59d129, type: 3}
-  - assetPath: root.tif
-    asset: {fileID: 21300000, guid: d29a4a0c80b242b4aac926e3d9edbd8a, type: 3}
-  - assetPath: Skill/Skill_1.png
-    asset: {fileID: 21300000, guid: d00b2ee018948e64abf95cf8240d6b2d, type: 3}
-  - assetPath: zzz_ameicon_test_consumable.png
-    asset: {fileID: 21300000, guid: 15b5e3e267131844999186822591fbba, type: 3}
-  - assetPath: Crafting/zzz_crafting_test.png
-    asset: {fileID: 21300000, guid: d7926a5313a2dc04e8557093b17c2496, type: 3}
-  - assetPath: zzz_DefaultTest.tif
-    asset: {fileID: 21300000, guid: 6fe2f2c4b631d1047b4b890b53e20896, type: 3}
-  - assetPath: Skill/zzz_gameicon_active.png
-    asset: {fileID: 21300000, guid: 6e7f9d619e610b94ba60bd8672e3ef96, type: 3}
-  - assetPath: Skill/zzz_gameicon_passive.png
-    asset: {fileID: 21300000, guid: 5f1d3f13f0451d0489bb25c16f8c6af4, type: 3}
-  - assetPath: zzz_gameicon_test_material.png
-    asset: {fileID: 21300000, guid: 04593aca1357c63478e1d681d82e6eba, type: 3}
-  - assetPath: HeroPortrait/zzz_hero_portrait_test.png
-    asset: {fileID: 21300000, guid: e440b30b4af088b44bf5bf6e6a7ce10a, type: 3}
   - assetPath: HeroCell/zzz_herocell_test.png
     asset: {fileID: 21300000, guid: 5b8adcd7ad036254d8501391bf1d3d03, type: 3}
-  - assetPath: Element_Attacks/zzz_test.png
-    asset: {fileID: 21300000, guid: 612cf7a94d75fc742ba57309e382ed5c, type: 3}
-  - assetPath: Portraits/zzz_Test.png
-    asset: {fileID: 21300000, guid: e714566db41a6244fb29519bdc1b88da, type: 3}
-  - assetPath: Location/zzz_Test.png
-    asset: {fileID: 21300000, guid: 1557f81d94361e34893254269b6048de, type: 3}
-  - assetPath: Quest/Quest_001.png
-    asset: {fileID: 21300000, guid: 74a9c13716fe26842913ade8b6a52b58, type: 3}
-  - assetPath: Quest/Quest_002.png
-    asset: {fileID: 21300000, guid: e7638aa5e5e5ff74c8a87925d4011f52, type: 3}
-  - assetPath: Quest/Quest_003.png
-    asset: {fileID: 21300000, guid: d20b5bd6640288e4ebdee8e0bdd8efc2, type: 3}
-  - assetPath: Quest/Quest_004.png
-    asset: {fileID: 21300000, guid: 411f7dc8e4db89c43ad33ea5525ad64f, type: 3}
-  - assetPath: Quest/Quest_005.png
-    asset: {fileID: 21300000, guid: 55868533d71bc3b439b2bbc075639ca9, type: 3}
-  - assetPath: Quest/Quest_006.png
-    asset: {fileID: 21300000, guid: cdac652b477f72743ad4e25625c5f5ed, type: 3}
+  - assetPath: HeroPortrait/zzz_hero_portrait_test.png
+    asset: {fileID: 21300000, guid: e440b30b4af088b44bf5bf6e6a7ce10a, type: 3}
   - assetPath: Item/chest_b.png
     asset: {fileID: 21300000, guid: 5eb67f252870aaf4b99511e55e5ad3cb, type: 3}
   - assetPath: Item/chest_g.png
@@ -289,80 +129,179 @@ MonoBehaviour:
     asset: {fileID: 21300000, guid: d671a133cb4a89840b09ef56cd934ec9, type: 3}
   - assetPath: Item/transform_wood.png
     asset: {fileID: 21300000, guid: 0f3e6e2fe2edc3f4a863144c369bbfe4, type: 3}
+  - assetPath: Job/job_alchemist.png
+    asset: {fileID: 21300000, guid: 53807e41288feb649ba73ba57da60d5c, type: 3}
+  - assetPath: Job/job_assassin.png
+    asset: {fileID: 21300000, guid: e4a8ee981fe71bd4c8ffcaef0a29fe6f, type: 3}
+  - assetPath: Job/job_blademaster.png
+    asset: {fileID: 21300000, guid: 515cee67ddb37f94db64e4ecb457cd6e, type: 3}
+  - assetPath: Job/job_commando.png
+    asset: {fileID: 21300000, guid: 3f1f70a1152d7ef4a9bfe8cf1858ff4a, type: 3}
+  - assetPath: Job/job_executioner.png
+    asset: {fileID: 21300000, guid: c39104a4ef06afa4982027ee4d105c56, type: 3}
+  - assetPath: Job/job_general.png
+    asset: {fileID: 21300000, guid: d392621057cbfa7488960f6ab6be4f47, type: 3}
+  - assetPath: Job/job_hero.png
+    asset: {fileID: 21300000, guid: 9679db48a79637b4ba31e0fc4cc38ead, type: 3}
+  - assetPath: Job/job_killer.png
+    asset: {fileID: 21300000, guid: cf927345d1b1d984080a54e64dccddd7, type: 3}
+  - assetPath: Job/job_lieutenant.png
+    asset: {fileID: 21300000, guid: 239e8774b624f234b9a30b32f40d6b16, type: 3}
+  - assetPath: Job/job_newbie.png
+    asset: {fileID: 21300000, guid: 6dee6c4c3d53ac140ac4e9ec77919fb5, type: 3}
+  - assetPath: Job/job_qigongmaster.png
+    asset: {fileID: 21300000, guid: 9e103c7655ab2184c8637be090d03db7, type: 3}
+  - assetPath: Job/job_samurai.png
+    asset: {fileID: 21300000, guid: 507bd30b8b9915c4ab379903dee90805, type: 3}
+  - assetPath: Job/job_schemer.png
+    asset: {fileID: 21300000, guid: e94616728e4f1024791524b84e95990c, type: 3}
+  - assetPath: Job/job_shadow.png
+    asset: {fileID: 21300000, guid: 230afd9ac419401418b4fffc5be7314c, type: 3}
+  - assetPath: Job/job_slaughter.png
+    asset: {fileID: 21300000, guid: c955b7e6a340ccc4983ac78ffd593f9a, type: 3}
+  - assetPath: Job/job_soldier.png
+    asset: {fileID: 21300000, guid: e8dd38b435031b042b2408157d57f491, type: 3}
+  - assetPath: Job/job_specialforce.png
+    asset: {fileID: 21300000, guid: 55b0d803b909f7749a51694d9245efe9, type: 3}
+  - assetPath: Job/job_strategist.png
+    asset: {fileID: 21300000, guid: aa67c21f1f3a8f44abb5c978bfbba4b9, type: 3}
+  - assetPath: Job/job_swordman.png
+    asset: {fileID: 21300000, guid: bc4883152255d1848b4bfda5e4632ed8, type: 3}
+  - assetPath: Job/job_swordmaster.png
+    asset: {fileID: 21300000, guid: 11da649bb33fb8e499f8954722220519, type: 3}
+  - assetPath: Job/job_tactician.png
+    asset: {fileID: 21300000, guid: cf860c978fe3f3c429b7aa28c6e392b2, type: 3}
+  - assetPath: Job/job_test.tif
+    asset: {fileID: 21300000, guid: 1fa09220bb7862e47b67e917867736e6, type: 3}
+  - assetPath: Job/job_warrior.png
+    asset: {fileID: 21300000, guid: 1a2a363bdd5b52441930faa4104a3c3d, type: 3}
+  - assetPath: Location/zzz_Test.png
+    asset: {fileID: 21300000, guid: 1557f81d94361e34893254269b6048de, type: 3}
+  - assetPath: Mail/mail_MailItem.tif
+    asset: {fileID: 21300000, guid: ab45c585033e7fb4d9525ba4525cc7ff, type: 3}
+  - assetPath: Mail/mail_MailNew.tif
+    asset: {fileID: 21300000, guid: 1b9d818268bfd9047b48c8ca10f035ba, type: 3}
+  - assetPath: Mail/mail_MailOpen.tif
+    asset: {fileID: 21300000, guid: e5b83e494c3e8074bb435f1713aeb0b4, type: 3}
+  - assetPath: Portraits/portraits_alchemist.png
+    asset: {fileID: 21300000, guid: da53f247e73052d4a86f8b8e08b311db, type: 3}
+  - assetPath: Portraits/portraits_assassin.png
+    asset: {fileID: 21300000, guid: c86ea57da2c31ec44a84c61f4a233a99, type: 3}
+  - assetPath: Portraits/portraits_blademaster.png
+    asset: {fileID: 21300000, guid: 8e8facfc332e6384fae2f47976e92231, type: 3}
+  - assetPath: Portraits/portraits_commando.png
+    asset: {fileID: 21300000, guid: 241f2c1ccabbbda4ba17c8eee1282f0a, type: 3}
+  - assetPath: Portraits/portraits_executioner.png
+    asset: {fileID: 21300000, guid: f52c2800123d1334fb53ed73e2141d2c, type: 3}
+  - assetPath: Portraits/portraits_general.png
+    asset: {fileID: 21300000, guid: 5cadb5aed0d06eb489bb30ac41bde9c9, type: 3}
+  - assetPath: Portraits/portraits_hero.png
+    asset: {fileID: 21300000, guid: 095ce103e2b2ebc4d877985f1fadf9a6, type: 3}
+  - assetPath: Portraits/portraits_killer.png
+    asset: {fileID: 21300000, guid: a4736778ac7fc3c4ab25721187cf4594, type: 3}
+  - assetPath: Portraits/portraits_lieutenant.png
+    asset: {fileID: 21300000, guid: 00b90df616c00354c8aca9282feefbea, type: 3}
+  - assetPath: Portraits/portraits_newbie.png
+    asset: {fileID: 21300000, guid: 43f66fb05732dd24fa3a0558364576a5, type: 3}
+  - assetPath: Portraits/portraits_qigongmaster.png
+    asset: {fileID: 21300000, guid: 8b9d2b2f1db6e464ab253890105cca4f, type: 3}
+  - assetPath: Portraits/portraits_samurai.png
+    asset: {fileID: 21300000, guid: b6f710b54dbfaff4fb42b4c6a0780f2b, type: 3}
+  - assetPath: Portraits/portraits_schemer.png
+    asset: {fileID: 21300000, guid: 9d3fa02871c14b34e9c48fd88c519b6c, type: 3}
+  - assetPath: Portraits/portraits_shadow.png
+    asset: {fileID: 21300000, guid: 69425a597e2c7e54f8bad874081eda27, type: 3}
+  - assetPath: Portraits/portraits_slaughter.png
+    asset: {fileID: 21300000, guid: ff7a552bfab49014a9f522ea88b23d13, type: 3}
+  - assetPath: Portraits/portraits_soldier.png
+    asset: {fileID: 21300000, guid: a83781bbceb850c46961f6edb1654b0f, type: 3}
+  - assetPath: Portraits/portraits_specialforce.png
+    asset: {fileID: 21300000, guid: 652a641cb74e6be4c9aecfee749aad65, type: 3}
+  - assetPath: Portraits/portraits_strategist.png
+    asset: {fileID: 21300000, guid: 4b164c4636e51554a8e5175a4e08b913, type: 3}
+  - assetPath: Portraits/portraits_swordman.png
+    asset: {fileID: 21300000, guid: bf34ca9e8352bce42827543bbbae10ae, type: 3}
+  - assetPath: Portraits/portraits_swordmaster.png
+    asset: {fileID: 21300000, guid: a851bf39693a6ff48a8852541fbafbf2, type: 3}
+  - assetPath: Portraits/portraits_tactician.png
+    asset: {fileID: 21300000, guid: 4dbab360d62f805468935a4011889bd8, type: 3}
+  - assetPath: Portraits/portraits_warrior.png
+    asset: {fileID: 21300000, guid: 89f6b23c38d5ae44dbab1ae48cda5370, type: 3}
+  - assetPath: Portraits/zzz_Test.png
+    asset: {fileID: 21300000, guid: e714566db41a6244fb29519bdc1b88da, type: 3}
+  - assetPath: Quest/Quest_001.png
+    asset: {fileID: 21300000, guid: 74a9c13716fe26842913ade8b6a52b58, type: 3}
+  - assetPath: Quest/Quest_002.png
+    asset: {fileID: 21300000, guid: e7638aa5e5e5ff74c8a87925d4011f52, type: 3}
+  - assetPath: Quest/Quest_003.png
+    asset: {fileID: 21300000, guid: d20b5bd6640288e4ebdee8e0bdd8efc2, type: 3}
+  - assetPath: Quest/Quest_004.png
+    asset: {fileID: 21300000, guid: 411f7dc8e4db89c43ad33ea5525ad64f, type: 3}
+  - assetPath: Quest/Quest_005.png
+    asset: {fileID: 21300000, guid: 55868533d71bc3b439b2bbc075639ca9, type: 3}
+  - assetPath: Quest/Quest_006.png
+    asset: {fileID: 21300000, guid: cdac652b477f72743ad4e25625c5f5ed, type: 3}
+  - assetPath: Skill/00_ActiveEmpty.png
+    asset: {fileID: 21300000, guid: f722bccb5a8a2804e9071ddc24e58ba5, type: 3}
+  - assetPath: Skill/00_ActiveNotAvailable.png
+    asset: {fileID: 21300000, guid: 2437e5d412c62a747b1e78b0144797d6, type: 3}
+  - assetPath: Skill/01_PasiveNotAvailable.png
+    asset: {fileID: 21300000, guid: 8a34cfeebe1ffe640b362a6baf88988b, type: 3}
+  - assetPath: Skill/01_PassiveEmpty.png
+    asset: {fileID: 21300000, guid: ae67499d83389d349b955628b1eb55ea, type: 3}
+  - assetPath: Skill/as_samurai_001.png
+    asset: {fileID: 21300000, guid: aad862b3626d9bc4e8e9cd615b94a526, type: 3}
+  - assetPath: Skill/as_samurai_002.png
+    asset: {fileID: 21300000, guid: 46bfa8f14af41244c93c55655d152339, type: 3}
+  - assetPath: Skill/as_samurai_003.png
+    asset: {fileID: 21300000, guid: 7084b53f730f98544bb10e640415c031, type: 3}
+  - assetPath: Skill/as_samurai_004.png
+    asset: {fileID: 21300000, guid: 6a9ea490201c69f48b3623bb200a2ad3, type: 3}
+  - assetPath: Skill/as_samurai_005.png
+    asset: {fileID: 21300000, guid: fbf013c5f8807b64d9659051a1eac2cc, type: 3}
+  - assetPath: Skill/as_samurai_006.png
+    asset: {fileID: 21300000, guid: d504691c66c473f45be11f9a5d3fcd87, type: 3}
+  - assetPath: Skill/as_warrior_001.png
+    asset: {fileID: 21300000, guid: 84000502181d06b4fa1a63fd39f16e5c, type: 3}
+  - assetPath: Skill/as_warrior_002.png
+    asset: {fileID: 21300000, guid: 9ae8bcf8002dc3a4da03720f9813722a, type: 3}
+  - assetPath: Skill/ps_samurai_001.png
+    asset: {fileID: 21300000, guid: 3ec0c733297ca7542b666b6518557392, type: 3}
+  - assetPath: Skill/ps_samurai_002.png
+    asset: {fileID: 21300000, guid: 788893e5c0307e94d8b08e6a297db9cc, type: 3}
+  - assetPath: Skill/ps_samurai_003.png
+    asset: {fileID: 21300000, guid: ac077e001e28cd042b82a504098a2df4, type: 3}
+  - assetPath: Skill/ps_samurai_004.png
+    asset: {fileID: 21300000, guid: 5af85576b45125b4a9e480371f03dd02, type: 3}
+  - assetPath: Skill/ps_samurai_005.png
+    asset: {fileID: 21300000, guid: 86c60f4d96adafd449c05b8846e39aa8, type: 3}
+  - assetPath: Skill/ps_samurai_007.png
+    asset: {fileID: 21300000, guid: bf365371baa139f4881c6a24738f814b, type: 3}
+  - assetPath: Skill/ps_warrior_001.png
+    asset: {fileID: 21300000, guid: c313a5ae4e731c8498b50db217132bd6, type: 3}
+  - assetPath: Skill/ps_warrior_002.png
+    asset: {fileID: 21300000, guid: 0f296af78da67fb47bcc667fe8fe6115, type: 3}
+  - assetPath: Skill/ps_warrior_003.png
+    asset: {fileID: 21300000, guid: edad8d3e70ed2aa4ca76354882acf9d5, type: 3}
+  - assetPath: Skill/ps_warrior_004.png
+    asset: {fileID: 21300000, guid: 52476499b17995c45b905abc93a11d7a, type: 3}
+  - assetPath: Skill/Skill_1.png
+    asset: {fileID: 21300000, guid: d00b2ee018948e64abf95cf8240d6b2d, type: 3}
+  - assetPath: Skill/zzz_gameicon_active.png
+    asset: {fileID: 21300000, guid: 6e7f9d619e610b94ba60bd8672e3ef96, type: 3}
+  - assetPath: Skill/zzz_gameicon_passive.png
+    asset: {fileID: 21300000, guid: 5f1d3f13f0451d0489bb25c16f8c6af4, type: 3}
   SpriteList:
-  - {fileID: 21300000, guid: f722bccb5a8a2804e9071ddc24e58ba5, type: 3}
-  - {fileID: 21300000, guid: 2437e5d412c62a747b1e78b0144797d6, type: 3}
-  - {fileID: 21300000, guid: 8a34cfeebe1ffe640b362a6baf88988b, type: 3}
-  - {fileID: 21300000, guid: ae67499d83389d349b955628b1eb55ea, type: 3}
-  - {fileID: 21300000, guid: aad862b3626d9bc4e8e9cd615b94a526, type: 3}
-  - {fileID: 21300000, guid: 46bfa8f14af41244c93c55655d152339, type: 3}
-  - {fileID: 21300000, guid: 7084b53f730f98544bb10e640415c031, type: 3}
-  - {fileID: 21300000, guid: 6a9ea490201c69f48b3623bb200a2ad3, type: 3}
-  - {fileID: 21300000, guid: fbf013c5f8807b64d9659051a1eac2cc, type: 3}
-  - {fileID: 21300000, guid: d504691c66c473f45be11f9a5d3fcd87, type: 3}
-  - {fileID: 21300000, guid: 84000502181d06b4fa1a63fd39f16e5c, type: 3}
-  - {fileID: 21300000, guid: 9ae8bcf8002dc3a4da03720f9813722a, type: 3}
+  - {fileID: 21300000, guid: d29a4a0c80b242b4aac926e3d9edbd8a, type: 3}
+  - {fileID: 21300000, guid: 15b5e3e267131844999186822591fbba, type: 3}
+  - {fileID: 21300000, guid: 6fe2f2c4b631d1047b4b890b53e20896, type: 3}
+  - {fileID: 21300000, guid: 04593aca1357c63478e1d681d82e6eba, type: 3}
+  - {fileID: 21300000, guid: d7926a5313a2dc04e8557093b17c2496, type: 3}
   - {fileID: 21300000, guid: 96e2d92e4d22f774bb4aa6b29347ef6e, type: 3}
   - {fileID: 21300000, guid: f13997511537d5248a0d48da10d48afb, type: 3}
   - {fileID: 21300000, guid: f47edd71c28e94841afe1506b99aa800, type: 3}
-  - {fileID: 21300000, guid: 53807e41288feb649ba73ba57da60d5c, type: 3}
-  - {fileID: 21300000, guid: e4a8ee981fe71bd4c8ffcaef0a29fe6f, type: 3}
-  - {fileID: 21300000, guid: 515cee67ddb37f94db64e4ecb457cd6e, type: 3}
-  - {fileID: 21300000, guid: 3f1f70a1152d7ef4a9bfe8cf1858ff4a, type: 3}
-  - {fileID: 21300000, guid: c39104a4ef06afa4982027ee4d105c56, type: 3}
-  - {fileID: 21300000, guid: d392621057cbfa7488960f6ab6be4f47, type: 3}
-  - {fileID: 21300000, guid: 9679db48a79637b4ba31e0fc4cc38ead, type: 3}
-  - {fileID: 21300000, guid: cf927345d1b1d984080a54e64dccddd7, type: 3}
-  - {fileID: 21300000, guid: 239e8774b624f234b9a30b32f40d6b16, type: 3}
-  - {fileID: 21300000, guid: 6dee6c4c3d53ac140ac4e9ec77919fb5, type: 3}
-  - {fileID: 21300000, guid: 9e103c7655ab2184c8637be090d03db7, type: 3}
-  - {fileID: 21300000, guid: 507bd30b8b9915c4ab379903dee90805, type: 3}
-  - {fileID: 21300000, guid: e94616728e4f1024791524b84e95990c, type: 3}
-  - {fileID: 21300000, guid: 230afd9ac419401418b4fffc5be7314c, type: 3}
-  - {fileID: 21300000, guid: c955b7e6a340ccc4983ac78ffd593f9a, type: 3}
-  - {fileID: 21300000, guid: e8dd38b435031b042b2408157d57f491, type: 3}
-  - {fileID: 21300000, guid: 55b0d803b909f7749a51694d9245efe9, type: 3}
-  - {fileID: 21300000, guid: aa67c21f1f3a8f44abb5c978bfbba4b9, type: 3}
-  - {fileID: 21300000, guid: bc4883152255d1848b4bfda5e4632ed8, type: 3}
-  - {fileID: 21300000, guid: 11da649bb33fb8e499f8954722220519, type: 3}
-  - {fileID: 21300000, guid: cf860c978fe3f3c429b7aa28c6e392b2, type: 3}
-  - {fileID: 21300000, guid: 1fa09220bb7862e47b67e917867736e6, type: 3}
-  - {fileID: 21300000, guid: 1a2a363bdd5b52441930faa4104a3c3d, type: 3}
-  - {fileID: 21300000, guid: ab45c585033e7fb4d9525ba4525cc7ff, type: 3}
-  - {fileID: 21300000, guid: 1b9d818268bfd9047b48c8ca10f035ba, type: 3}
-  - {fileID: 21300000, guid: e5b83e494c3e8074bb435f1713aeb0b4, type: 3}
-  - {fileID: 21300000, guid: da53f247e73052d4a86f8b8e08b311db, type: 3}
-  - {fileID: 21300000, guid: c86ea57da2c31ec44a84c61f4a233a99, type: 3}
-  - {fileID: 21300000, guid: 8e8facfc332e6384fae2f47976e92231, type: 3}
-  - {fileID: 21300000, guid: 241f2c1ccabbbda4ba17c8eee1282f0a, type: 3}
-  - {fileID: 21300000, guid: f52c2800123d1334fb53ed73e2141d2c, type: 3}
-  - {fileID: 21300000, guid: 5cadb5aed0d06eb489bb30ac41bde9c9, type: 3}
-  - {fileID: 21300000, guid: 095ce103e2b2ebc4d877985f1fadf9a6, type: 3}
-  - {fileID: 21300000, guid: a4736778ac7fc3c4ab25721187cf4594, type: 3}
-  - {fileID: 21300000, guid: 00b90df616c00354c8aca9282feefbea, type: 3}
-  - {fileID: 21300000, guid: 43f66fb05732dd24fa3a0558364576a5, type: 3}
-  - {fileID: 21300000, guid: 8b9d2b2f1db6e464ab253890105cca4f, type: 3}
-  - {fileID: 21300000, guid: b6f710b54dbfaff4fb42b4c6a0780f2b, type: 3}
-  - {fileID: 21300000, guid: 9d3fa02871c14b34e9c48fd88c519b6c, type: 3}
-  - {fileID: 21300000, guid: 69425a597e2c7e54f8bad874081eda27, type: 3}
-  - {fileID: 21300000, guid: ff7a552bfab49014a9f522ea88b23d13, type: 3}
-  - {fileID: 21300000, guid: a83781bbceb850c46961f6edb1654b0f, type: 3}
-  - {fileID: 21300000, guid: 652a641cb74e6be4c9aecfee749aad65, type: 3}
-  - {fileID: 21300000, guid: 4b164c4636e51554a8e5175a4e08b913, type: 3}
-  - {fileID: 21300000, guid: bf34ca9e8352bce42827543bbbae10ae, type: 3}
-  - {fileID: 21300000, guid: a851bf39693a6ff48a8852541fbafbf2, type: 3}
-  - {fileID: 21300000, guid: 4dbab360d62f805468935a4011889bd8, type: 3}
-  - {fileID: 21300000, guid: 89f6b23c38d5ae44dbab1ae48cda5370, type: 3}
-  - {fileID: 21300000, guid: 3ec0c733297ca7542b666b6518557392, type: 3}
-  - {fileID: 21300000, guid: 788893e5c0307e94d8b08e6a297db9cc, type: 3}
-  - {fileID: 21300000, guid: ac077e001e28cd042b82a504098a2df4, type: 3}
-  - {fileID: 21300000, guid: 5af85576b45125b4a9e480371f03dd02, type: 3}
-  - {fileID: 21300000, guid: 86c60f4d96adafd449c05b8846e39aa8, type: 3}
-  - {fileID: 21300000, guid: bf365371baa139f4881c6a24738f814b, type: 3}
-  - {fileID: 21300000, guid: c313a5ae4e731c8498b50db217132bd6, type: 3}
-  - {fileID: 21300000, guid: 0f296af78da67fb47bcc667fe8fe6115, type: 3}
-  - {fileID: 21300000, guid: edad8d3e70ed2aa4ca76354882acf9d5, type: 3}
-  - {fileID: 21300000, guid: 52476499b17995c45b905abc93a11d7a, type: 3}
+  - {fileID: 21300000, guid: 3ab93b6aa165cea4f989bdb853fc5035, type: 3}
+  - {fileID: 21300000, guid: 612cf7a94d75fc742ba57309e382ed5c, type: 3}
   - {fileID: 21300000, guid: 4fed403407e82a543aa5da786371a0b9, type: 3}
   - {fileID: 21300000, guid: 88523f209865e804b8a39014765f9d20, type: 3}
   - {fileID: 21300000, guid: 492bca4da0e154e4d83f57afffc6cbbf, type: 3}
@@ -375,25 +314,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b460217e8556c6c4c885832d518120b3, type: 3}
   - {fileID: 21300000, guid: 641e5d1eb3ca73a4ab024556945cc8d4, type: 3}
   - {fileID: 21300000, guid: d8a2e39afa2487549a6555089f59d129, type: 3}
-  - {fileID: 21300000, guid: d29a4a0c80b242b4aac926e3d9edbd8a, type: 3}
-  - {fileID: 21300000, guid: d00b2ee018948e64abf95cf8240d6b2d, type: 3}
-  - {fileID: 21300000, guid: 15b5e3e267131844999186822591fbba, type: 3}
-  - {fileID: 21300000, guid: d7926a5313a2dc04e8557093b17c2496, type: 3}
-  - {fileID: 21300000, guid: 6fe2f2c4b631d1047b4b890b53e20896, type: 3}
-  - {fileID: 21300000, guid: 6e7f9d619e610b94ba60bd8672e3ef96, type: 3}
-  - {fileID: 21300000, guid: 5f1d3f13f0451d0489bb25c16f8c6af4, type: 3}
-  - {fileID: 21300000, guid: 04593aca1357c63478e1d681d82e6eba, type: 3}
-  - {fileID: 21300000, guid: e440b30b4af088b44bf5bf6e6a7ce10a, type: 3}
   - {fileID: 21300000, guid: 5b8adcd7ad036254d8501391bf1d3d03, type: 3}
-  - {fileID: 21300000, guid: 612cf7a94d75fc742ba57309e382ed5c, type: 3}
-  - {fileID: 21300000, guid: e714566db41a6244fb29519bdc1b88da, type: 3}
-  - {fileID: 21300000, guid: 1557f81d94361e34893254269b6048de, type: 3}
-  - {fileID: 21300000, guid: 74a9c13716fe26842913ade8b6a52b58, type: 3}
-  - {fileID: 21300000, guid: e7638aa5e5e5ff74c8a87925d4011f52, type: 3}
-  - {fileID: 21300000, guid: d20b5bd6640288e4ebdee8e0bdd8efc2, type: 3}
-  - {fileID: 21300000, guid: 411f7dc8e4db89c43ad33ea5525ad64f, type: 3}
-  - {fileID: 21300000, guid: 55868533d71bc3b439b2bbc075639ca9, type: 3}
-  - {fileID: 21300000, guid: cdac652b477f72743ad4e25625c5f5ed, type: 3}
+  - {fileID: 21300000, guid: e440b30b4af088b44bf5bf6e6a7ce10a, type: 3}
   - {fileID: 21300000, guid: 5eb67f252870aaf4b99511e55e5ad3cb, type: 3}
   - {fileID: 21300000, guid: 7b0f5928a91db9245a755d7e2eaa0cb7, type: 3}
   - {fileID: 21300000, guid: 7ba834557f119534083da61893ddc621, type: 3}
@@ -426,3 +348,84 @@ MonoBehaviour:
   - {fileID: 21300000, guid: da84560b79b12d3418ecc9571ad4d361, type: 3}
   - {fileID: 21300000, guid: d671a133cb4a89840b09ef56cd934ec9, type: 3}
   - {fileID: 21300000, guid: 0f3e6e2fe2edc3f4a863144c369bbfe4, type: 3}
+  - {fileID: 21300000, guid: 53807e41288feb649ba73ba57da60d5c, type: 3}
+  - {fileID: 21300000, guid: e4a8ee981fe71bd4c8ffcaef0a29fe6f, type: 3}
+  - {fileID: 21300000, guid: 515cee67ddb37f94db64e4ecb457cd6e, type: 3}
+  - {fileID: 21300000, guid: 3f1f70a1152d7ef4a9bfe8cf1858ff4a, type: 3}
+  - {fileID: 21300000, guid: c39104a4ef06afa4982027ee4d105c56, type: 3}
+  - {fileID: 21300000, guid: d392621057cbfa7488960f6ab6be4f47, type: 3}
+  - {fileID: 21300000, guid: 9679db48a79637b4ba31e0fc4cc38ead, type: 3}
+  - {fileID: 21300000, guid: cf927345d1b1d984080a54e64dccddd7, type: 3}
+  - {fileID: 21300000, guid: 239e8774b624f234b9a30b32f40d6b16, type: 3}
+  - {fileID: 21300000, guid: 6dee6c4c3d53ac140ac4e9ec77919fb5, type: 3}
+  - {fileID: 21300000, guid: 9e103c7655ab2184c8637be090d03db7, type: 3}
+  - {fileID: 21300000, guid: 507bd30b8b9915c4ab379903dee90805, type: 3}
+  - {fileID: 21300000, guid: e94616728e4f1024791524b84e95990c, type: 3}
+  - {fileID: 21300000, guid: 230afd9ac419401418b4fffc5be7314c, type: 3}
+  - {fileID: 21300000, guid: c955b7e6a340ccc4983ac78ffd593f9a, type: 3}
+  - {fileID: 21300000, guid: e8dd38b435031b042b2408157d57f491, type: 3}
+  - {fileID: 21300000, guid: 55b0d803b909f7749a51694d9245efe9, type: 3}
+  - {fileID: 21300000, guid: aa67c21f1f3a8f44abb5c978bfbba4b9, type: 3}
+  - {fileID: 21300000, guid: bc4883152255d1848b4bfda5e4632ed8, type: 3}
+  - {fileID: 21300000, guid: 11da649bb33fb8e499f8954722220519, type: 3}
+  - {fileID: 21300000, guid: cf860c978fe3f3c429b7aa28c6e392b2, type: 3}
+  - {fileID: 21300000, guid: 1fa09220bb7862e47b67e917867736e6, type: 3}
+  - {fileID: 21300000, guid: 1a2a363bdd5b52441930faa4104a3c3d, type: 3}
+  - {fileID: 21300000, guid: 1557f81d94361e34893254269b6048de, type: 3}
+  - {fileID: 21300000, guid: ab45c585033e7fb4d9525ba4525cc7ff, type: 3}
+  - {fileID: 21300000, guid: 1b9d818268bfd9047b48c8ca10f035ba, type: 3}
+  - {fileID: 21300000, guid: e5b83e494c3e8074bb435f1713aeb0b4, type: 3}
+  - {fileID: 21300000, guid: da53f247e73052d4a86f8b8e08b311db, type: 3}
+  - {fileID: 21300000, guid: c86ea57da2c31ec44a84c61f4a233a99, type: 3}
+  - {fileID: 21300000, guid: 8e8facfc332e6384fae2f47976e92231, type: 3}
+  - {fileID: 21300000, guid: 241f2c1ccabbbda4ba17c8eee1282f0a, type: 3}
+  - {fileID: 21300000, guid: f52c2800123d1334fb53ed73e2141d2c, type: 3}
+  - {fileID: 21300000, guid: 5cadb5aed0d06eb489bb30ac41bde9c9, type: 3}
+  - {fileID: 21300000, guid: 095ce103e2b2ebc4d877985f1fadf9a6, type: 3}
+  - {fileID: 21300000, guid: a4736778ac7fc3c4ab25721187cf4594, type: 3}
+  - {fileID: 21300000, guid: 00b90df616c00354c8aca9282feefbea, type: 3}
+  - {fileID: 21300000, guid: 43f66fb05732dd24fa3a0558364576a5, type: 3}
+  - {fileID: 21300000, guid: 8b9d2b2f1db6e464ab253890105cca4f, type: 3}
+  - {fileID: 21300000, guid: b6f710b54dbfaff4fb42b4c6a0780f2b, type: 3}
+  - {fileID: 21300000, guid: 9d3fa02871c14b34e9c48fd88c519b6c, type: 3}
+  - {fileID: 21300000, guid: 69425a597e2c7e54f8bad874081eda27, type: 3}
+  - {fileID: 21300000, guid: ff7a552bfab49014a9f522ea88b23d13, type: 3}
+  - {fileID: 21300000, guid: a83781bbceb850c46961f6edb1654b0f, type: 3}
+  - {fileID: 21300000, guid: 652a641cb74e6be4c9aecfee749aad65, type: 3}
+  - {fileID: 21300000, guid: 4b164c4636e51554a8e5175a4e08b913, type: 3}
+  - {fileID: 21300000, guid: bf34ca9e8352bce42827543bbbae10ae, type: 3}
+  - {fileID: 21300000, guid: a851bf39693a6ff48a8852541fbafbf2, type: 3}
+  - {fileID: 21300000, guid: 4dbab360d62f805468935a4011889bd8, type: 3}
+  - {fileID: 21300000, guid: 89f6b23c38d5ae44dbab1ae48cda5370, type: 3}
+  - {fileID: 21300000, guid: e714566db41a6244fb29519bdc1b88da, type: 3}
+  - {fileID: 21300000, guid: 74a9c13716fe26842913ade8b6a52b58, type: 3}
+  - {fileID: 21300000, guid: e7638aa5e5e5ff74c8a87925d4011f52, type: 3}
+  - {fileID: 21300000, guid: d20b5bd6640288e4ebdee8e0bdd8efc2, type: 3}
+  - {fileID: 21300000, guid: 411f7dc8e4db89c43ad33ea5525ad64f, type: 3}
+  - {fileID: 21300000, guid: 55868533d71bc3b439b2bbc075639ca9, type: 3}
+  - {fileID: 21300000, guid: cdac652b477f72743ad4e25625c5f5ed, type: 3}
+  - {fileID: 21300000, guid: f722bccb5a8a2804e9071ddc24e58ba5, type: 3}
+  - {fileID: 21300000, guid: 2437e5d412c62a747b1e78b0144797d6, type: 3}
+  - {fileID: 21300000, guid: 8a34cfeebe1ffe640b362a6baf88988b, type: 3}
+  - {fileID: 21300000, guid: ae67499d83389d349b955628b1eb55ea, type: 3}
+  - {fileID: 21300000, guid: aad862b3626d9bc4e8e9cd615b94a526, type: 3}
+  - {fileID: 21300000, guid: 46bfa8f14af41244c93c55655d152339, type: 3}
+  - {fileID: 21300000, guid: 7084b53f730f98544bb10e640415c031, type: 3}
+  - {fileID: 21300000, guid: 6a9ea490201c69f48b3623bb200a2ad3, type: 3}
+  - {fileID: 21300000, guid: fbf013c5f8807b64d9659051a1eac2cc, type: 3}
+  - {fileID: 21300000, guid: d504691c66c473f45be11f9a5d3fcd87, type: 3}
+  - {fileID: 21300000, guid: 84000502181d06b4fa1a63fd39f16e5c, type: 3}
+  - {fileID: 21300000, guid: 9ae8bcf8002dc3a4da03720f9813722a, type: 3}
+  - {fileID: 21300000, guid: 3ec0c733297ca7542b666b6518557392, type: 3}
+  - {fileID: 21300000, guid: 788893e5c0307e94d8b08e6a297db9cc, type: 3}
+  - {fileID: 21300000, guid: ac077e001e28cd042b82a504098a2df4, type: 3}
+  - {fileID: 21300000, guid: 5af85576b45125b4a9e480371f03dd02, type: 3}
+  - {fileID: 21300000, guid: 86c60f4d96adafd449c05b8846e39aa8, type: 3}
+  - {fileID: 21300000, guid: bf365371baa139f4881c6a24738f814b, type: 3}
+  - {fileID: 21300000, guid: c313a5ae4e731c8498b50db217132bd6, type: 3}
+  - {fileID: 21300000, guid: 0f296af78da67fb47bcc667fe8fe6115, type: 3}
+  - {fileID: 21300000, guid: edad8d3e70ed2aa4ca76354882acf9d5, type: 3}
+  - {fileID: 21300000, guid: 52476499b17995c45b905abc93a11d7a, type: 3}
+  - {fileID: 21300000, guid: d00b2ee018948e64abf95cf8240d6b2d, type: 3}
+  - {fileID: 21300000, guid: 6e7f9d619e610b94ba60bd8672e3ef96, type: 3}
+  - {fileID: 21300000, guid: 5f1d3f13f0451d0489bb25c16f8c6af4, type: 3}

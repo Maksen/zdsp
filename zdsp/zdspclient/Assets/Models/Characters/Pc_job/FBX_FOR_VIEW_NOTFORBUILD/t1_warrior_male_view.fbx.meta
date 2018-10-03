@@ -20,12 +20,22 @@ ModelImporter:
     4300000: t1_warrior_male_head
     4300002: t1_warrior_male_body
     9500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: t1_warrior_male_body
+    second: {fileID: 2100000, guid: 3be0d0f77052ff54b92d52e62392a018, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: t1_warrior_male_head
+    second: {fileID: 2100000, guid: 3ccf16f4f5dd4904c9d7228a2b4cb1b4, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 0
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

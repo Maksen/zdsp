@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 using System;
 using System.Linq;
 
@@ -26,7 +25,7 @@ public class UI_ProgressBarC : MonoBehaviour {
     }
 
     [SerializeField]
-    private long _max;
+    private float _max;
 
     [SerializeField]
     private bool _canExceedMax = false;
@@ -45,7 +44,7 @@ public class UI_ProgressBarC : MonoBehaviour {
         }
     }
 
-    public long Max
+    public float Max
     {
         get
         {
@@ -60,9 +59,9 @@ public class UI_ProgressBarC : MonoBehaviour {
     }
 
     [SerializeField]
-    private long _value;
+    private float _value;
     
-    public long Value
+    public float Value
     {
         get
         {
@@ -80,6 +79,10 @@ public class UI_ProgressBarC : MonoBehaviour {
 
         }
     }
+
+    //[SerializeField]
+    //private int _decimal;
+
 
     [SerializeField]
     private Image barImage;
@@ -146,7 +149,7 @@ public class UI_ProgressBarC : MonoBehaviour {
     RectTransform typeB;
 
     Func<UI_ProgressBarC, string> textFunc = TextPercent;
-    
+
     public Func<UI_ProgressBarC, string> TextFunc
     {
         get
@@ -164,15 +167,17 @@ public class UI_ProgressBarC : MonoBehaviour {
     {
         return string.Empty;
     }
-    
+
     public static string TextPercent(UI_ProgressBarC bar)
     {
-        return string.Format("{0:P0}", (double)bar.Value / bar.Max);
+        float percent = bar.Value / bar.Max;
+        //return percent.ToString("P");
+        return string.Format("{0:P0}", percent);
     }
-    
+
     public static string TextRange(UI_ProgressBarC bar)
     {
-        return string.Format("{0} / {1}", (int)bar.Value, (int)bar.Max);
+        return string.Format("{0} / {1}", bar.Value, bar.Max);
     }
 
     public static string TextMax(UI_ProgressBarC bar)
@@ -200,7 +205,7 @@ public class UI_ProgressBarC : MonoBehaviour {
     float lastValue;
     bool isEverything;
     bool isNothing;
-    // Use this for initialization
+    
     void Start () {
 
         Init();
@@ -266,15 +271,16 @@ public class UI_ProgressBarC : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void UpdateProgressbar () {
-	    if(Max <= 0)
+    void UpdateProgressbar ()
+    {
+	    if (Max <= 0)
         {
             return;
         }
 
-        if(barImage != null)
+        if (barImage != null)
         {
-            float percentage = ((float)Value) / ((float)Max);
+            float percentage = Value / Max;
             if (percentage > 1f) percentage = 1f;
             barImage.fillAmount = percentage;
         }
@@ -330,14 +336,12 @@ public class UI_ProgressBarC : MonoBehaviour {
         float posy = 0;
         posx = (Value * progressbarwidth) / Max;
         posy = type.anchoredPosition.y;
-        Vector2 result = new Vector2(posx, posy);
-
-        return result;
+        return new Vector2(posx, posy);
     }
 
     void UpdateText()
     {
-        if((int)(Value) >= (int)Max && showMax == true)
+        if (Value >= Max && showMax)
         {
             textFunc = TextMax;
         }
@@ -364,17 +368,14 @@ public class UI_ProgressBarC : MonoBehaviour {
         if (TextType == ProgressbarCTextTypes.None)
         {
             textFunc = TextNone;
-            return;
         }
-        if (TextType == ProgressbarCTextTypes.Percent)
+        else if (TextType == ProgressbarCTextTypes.Percent)
         {
             textFunc = TextPercent;
-            return;
         }
-        if (TextType == ProgressbarCTextTypes.Range)
+        else if (TextType == ProgressbarCTextTypes.Range)
         {
             textFunc = TextRange;
-            return;
         }
     }
 }

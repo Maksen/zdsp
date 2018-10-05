@@ -6,25 +6,70 @@ using Zealot.Common;
 
 namespace Zealot.Repository
 {
-   public static class CharacterNamingRepo
+   public static class CharacterCreationRepo
     {
-        public static Dictionary<int, CharacterNameJson> mCharacterNameIdMap;
+        private static Dictionary<ApperanceType, Dictionary<int, AppearanceJson>> mAppearanceIdMapByPartType;
         private static Dictionary<int, string> mFirstNameMap;
         private static Dictionary<int, string> mLastNameMap;
 
-        static CharacterNamingRepo()
+        static CharacterCreationRepo()
         {
+            mAppearanceIdMapByPartType = new Dictionary<ApperanceType, Dictionary<int, AppearanceJson>>();
             mFirstNameMap = new Dictionary<int, string>();
             mLastNameMap = new Dictionary<int, string>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
-            foreach(KeyValuePair<int, CharacterNameJson> entry in gameData.CharacterName)
+            foreach (KeyValuePair<int, AppearanceJson> entry in gameData.Appearance)
+            {
+                if (!mAppearanceIdMapByPartType.ContainsKey(entry.Value.parttype))
+                {
+                    mAppearanceIdMapByPartType.Add(entry.Value.parttype, new Dictionary<int, AppearanceJson>());
+                }
+
+                if (!mAppearanceIdMapByPartType[entry.Value.parttype].ContainsKey(entry.Value.partid))
+                {
+                    mAppearanceIdMapByPartType[entry.Value.parttype].Add(entry.Value.partid, entry.Value);
+                }
+            }
+
+            foreach (KeyValuePair<int, CharacterNameJson> entry in gameData.CharacterName)
             {
                 mFirstNameMap.Add(entry.Key, entry.Value.firstname);
                 mLastNameMap.Add(entry.Key, entry.Value.lastname);
             }
+        }
+
+        public static Dictionary<int, AppearanceJson> GetCustomizeDatas(ApperanceType apperanceType, List<int> ownedlist)
+        {
+            Dictionary<int, AppearanceJson> result = new Dictionary<int, AppearanceJson>();
+            if (mAppearanceIdMapByPartType.ContainsKey(apperanceType))
+            {
+                foreach (KeyValuePair<int, AppearanceJson> entry in mAppearanceIdMapByPartType[apperanceType])
+                {
+                    if (entry.Value.currencytype == ApperanceCurrency.Free || ownedlist.Contains(entry.Key))
+                    {
+                        result.Add(entry.Key, entry.Value);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static AppearanceJson GetCustomizeDatas(ApperanceType apperanceType, int partid)
+        {
+            if (mAppearanceIdMapByPartType.ContainsKey(apperanceType))
+            {
+                Dictionary<int, AppearanceJson> customizedatas = mAppearanceIdMapByPartType[apperanceType];
+                if (customizedatas.ContainsKey(partid))
+                {
+                    return customizedatas[partid];
+                }
+            }
+            
+            return null;
         }
 
         public static string GetRandomName()
@@ -45,7 +90,7 @@ namespace Zealot.Repository
             return "";
         }
 
-        public static string GetRandomLastName()
+        private static string GetRandomLastName()
         {
             Random rand = GameUtils.GetRandomGenerator();
             if (mLastNameMap.Count > 0)

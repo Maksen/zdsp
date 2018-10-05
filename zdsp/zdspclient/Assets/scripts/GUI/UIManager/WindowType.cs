@@ -24,6 +24,8 @@
     Mail = 19,
     EquipCraft = 20,
     EquipFusion = 21,
+    CharacterCreation = 22,
+    CharacterSelection = 23,
 
     // Add persistent type window here
     //-----------------------------------
@@ -74,7 +76,7 @@
 
     DialogClaimReward = 440,
     DialogCutscene = 441,
-
+    DialogCharacterName = 442,
 
 
     DialogEnd = 699,

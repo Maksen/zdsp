@@ -19,7 +19,7 @@
         public async Task<OperationResponse> InsertCharacter(byte jobsect, byte talent, byte faction, string charname, GameClientPeer peer)
         {
             string filteredTxt = "";
-            if (WordFilterRepo.FilterString(charname, '*', DirtyWordType.GameName, out filteredTxt))
+            if (WordFilterRepo.FilterString(charname, '*', FilterType.Naming, out filteredTxt))
             {
                 peer.ZRPC.LobbyRPC.ShowSystemMessage("sys_CharCreation_ForbiddenWord", peer);
                 return null;

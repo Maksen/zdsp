@@ -115,5 +115,35 @@ namespace Zealot.Repository
             filteredStr = hasInvalid ? new string(strArray) : str;
             return hasInvalid;
         }
+
+        public static bool CheckString(string word, FilterType type)
+        {
+            if (string.IsNullOrEmpty(word))
+            {
+                return false;
+            }
+
+            if (!mWordFilterList.ContainsKey(type))
+            {
+                return false;
+            }
+
+            List<string> wordFilterList = mWordFilterList[type];
+            if (wordFilterList.Count <= 0)
+            {
+                return false;
+            }
+
+            word = word.Normalize(NormalizationForm.FormKC);
+            foreach(string disabledword in wordFilterList)
+            {
+                if (word.Contains(disabledword))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

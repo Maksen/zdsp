@@ -395,7 +395,6 @@ namespace Zealot.Common.Entities
             _ManaRegen = 0;
             _ManaReduceBonus = 0;
             _ManaReducePercBonus = 0;
-            _MoveSpeed = 0;
             _ExpBonus = 0;
             _WeaponAttack = 0;
             _AttackPower = 0;
@@ -469,7 +468,6 @@ namespace Zealot.Common.Entities
         private int _ManaRegen;
         private int _ManaReduceBonus;
         private int _ManaReducePercBonus;
-        private int _MoveSpeed;
         private int _ExpBonus;
         private int _WeaponAttack;
         private int _AttackPower;
@@ -580,12 +578,6 @@ namespace Zealot.Common.Entities
         {
             get { return _ManaReducePercBonus; }
             set { OnSetAttribute("ManaReducePercBonus", value); _ManaReducePercBonus = value; }
-        }
-
-        public int MoveSpeed
-        {
-            get { return _MoveSpeed; }
-            set { OnSetAttribute("MoveSpeed", value); _MoveSpeed = value; }
         }
 
         public int ExpBonus
@@ -1998,7 +1990,7 @@ namespace Zealot.Common.Entities
         private int _SkillInvCount;
         private int _equipGroup;
         private int _autoGroup;
-
+        private int _equipSize;
         
         /// <summary>
         /// How to use equip skills and Auto skills collection
@@ -2023,6 +2015,7 @@ namespace Zealot.Common.Entities
             _SkillInvCount = 0;
             _equipGroup = 0;
             _autoGroup = 0;
+            _equipSize = 0;
             //_RedHeroCardSkillAttackSId = 0;
             //_GreenHeroSkillAttackSId = 0;
             //_BlueHeroSkillAttackSId = 0;
@@ -2068,6 +2061,7 @@ namespace Zealot.Common.Entities
             _SkillInvCount = sid.SkillInvCount;
             _equipGroup = sid.equipGroup;
             _autoGroup = sid.autoGroup;
+            _equipSize = sid.EquipSize;
 
             for (int i = 0; i < sid.EquippedSkill.Count; ++i)
             {
@@ -2138,6 +2132,11 @@ namespace Zealot.Common.Entities
         {
             get { return _autoGroup; }
             set { OnSetAttribute("AutoGroup", value); _autoGroup = value; }
+        }
+        public int EquipSize
+        {
+            get { return _equipSize; }
+            set { OnSetAttribute("EquipSize", value); _equipSize = value; }
         }
     }
 

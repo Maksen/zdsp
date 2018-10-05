@@ -136,8 +136,13 @@ public class PlayerInput : MonoBehaviour
                             if (isWaitingForTargetPos && entity.IsActor())
                                 _selectCallback((ActorGhost)entity, entity.Position);
                             else
+                            {
                                 if (entity.Interact())
                                     PartyFollowTarget.Pause();
+                                if (enemySelectCallback != null)
+                                    enemySelectCallback((ActorGhost)entity);
+                            }
+                                
                             //if (entity.IsActor())
                             //    Debug.Log("click on entity :" + ((ActorGhost)entity).GetPersistentID());
                             
@@ -289,6 +294,14 @@ public class PlayerInput : MonoBehaviour
         {
             isWaitingForTargetPos = false;
         };
+    }
+
+    public delegate void OnEnemySelected(ActorGhost entity);
+
+    private OnEnemySelected enemySelectCallback;
+    public void ListenForNewEnemy(OnEnemySelected selectCallback)
+    {
+        enemySelectCallback = selectCallback;
     }
     #endregion
 }

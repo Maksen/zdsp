@@ -162,14 +162,7 @@ public class CharacterCreationManager : MonoBehaviour
     public void OnPickRandomName()
     {
         string name;
-        if (jobSelected == JobType.Warrior || jobSelected == JobType.Tactician)
-        {
-            name = CharacterNamingRepo.GetRandomMaleName();
-        }
-        else
-        {
-            name = CharacterNamingRepo.GetRandomFemaleName();
-        }
+        name = CharacterCreationRepo.GetRandomName();
         inputField.GetComponent<InputField>().text = name;
         current_name = name;
     }
@@ -187,7 +180,7 @@ public class CharacterCreationManager : MonoBehaviour
             return;
         }
         string filteredTxt = "";
-        if (WordFilterRepo.FilterString(current_name, '*', DirtyWordType.GameName, out filteredTxt))
+        if (WordFilterRepo.FilterString(current_name, '*', FilterType.Naming, out filteredTxt))
         {
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CharCreation_ForbiddenWord", null));
             return;

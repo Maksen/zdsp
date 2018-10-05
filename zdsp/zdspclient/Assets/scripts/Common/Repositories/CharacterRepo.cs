@@ -6,47 +6,54 @@ using Zealot.Common;
 
 namespace Zealot.Repository
 {
-    public static class CharacterNamingRepo
+   public static class CharacterNamingRepo
     {
-        public static Dictionary<int, SurnameJson> mSurnameIdMap;
-        public static Dictionary<int, MaleNameJson> mMaleNameIdMap;
-        public static Dictionary<int, FemaleNameJson> mFemaleNameIdMap;
+        public static Dictionary<int, CharacterNameJson> mCharacterNameIdMap;
+        private static Dictionary<int, string> mFirstNameMap;
+        private static Dictionary<int, string> mLastNameMap;
 
         static CharacterNamingRepo()
         {
-            mSurnameIdMap = new Dictionary<int, SurnameJson>();
-            mMaleNameIdMap = new Dictionary<int, MaleNameJson>();
-            mFemaleNameIdMap = new Dictionary<int, FemaleNameJson>();
+            mFirstNameMap = new Dictionary<int, string>();
+            mLastNameMap = new Dictionary<int, string>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
-            mSurnameIdMap = gameData.Surname;
-            mMaleNameIdMap = gameData.MaleName;
-            mFemaleNameIdMap = gameData.FemaleName;
+            foreach(KeyValuePair<int, CharacterNameJson> entry in gameData.CharacterName)
+            {
+                mFirstNameMap.Add(entry.Key, entry.Value.firstname);
+                mLastNameMap.Add(entry.Key, entry.Value.lastname);
+            }
         }
 
-        public static string GetRandomMaleName()
+        public static string GetRandomName()
+        {
+            string firstname = GetRandomFirstName();
+            string lastname = GetRandomLastName();
+            return firstname + lastname;
+        }
+
+        private static string GetRandomFirstName()
         {
             Random rand = GameUtils.GetRandomGenerator();
-            if (mSurnameIdMap.Count > 0 && mMaleNameIdMap.Count > 0)
+            if (mFirstNameMap.Count > 0)
             {
-                string name = mSurnameIdMap.ElementAt(rand.Next(0, mSurnameIdMap.Count)).Value.surname + mMaleNameIdMap.ElementAt(rand.Next(0, mMaleNameIdMap.Count)).Value.name;
-                return name;
+                return mFirstNameMap.ElementAt(rand.Next(0, mFirstNameMap.Count)).Value;
             }
-            else return "";
 
+            return "";
         }
 
-        public static string GetRandomFemaleName()
+        public static string GetRandomLastName()
         {
             Random rand = GameUtils.GetRandomGenerator();
-            if (mSurnameIdMap.Count > 0 && mFemaleNameIdMap.Count > 0)
+            if (mLastNameMap.Count > 0)
             {
-                string name = mSurnameIdMap.ElementAt(rand.Next(0, mSurnameIdMap.Count)).Value.surname + mFemaleNameIdMap.ElementAt(rand.Next(0, mFemaleNameIdMap.Count)).Value.name;
-                return name;
+                return mLastNameMap.ElementAt(rand.Next(0, mLastNameMap.Count)).Value;
             }
-            else return "";
+
+            return "";
         }
-    }        
+    }
 }

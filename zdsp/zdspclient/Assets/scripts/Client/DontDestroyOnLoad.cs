@@ -3,7 +3,7 @@
 public class DontDestroyOnLoad : MonoBehaviour
 {
 	// Use this for initialization
-	void Awake () {        
+	void Awake() {        
         DontDestroyOnLoad(gameObject);
 	}
 }

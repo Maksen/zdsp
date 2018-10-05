@@ -38,11 +38,13 @@ namespace Zealot.Common
         }
         public bool Expend()
         {
-            if (mWeeklyLimit <= 0 || mDailyLimit <= 0)
+            if (mWeeklyLimit == 0 || mDailyLimit == 0)
                 return false;
 
-            mWeeklyLimit--;
-            mDailyLimit--;
+            if (mWeeklyLimit >= 0)
+                mWeeklyLimit--;
+            if (mDailyLimit >= 0)
+                mDailyLimit--;
             return true;
         }
     }

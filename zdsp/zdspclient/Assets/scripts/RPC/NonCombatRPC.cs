@@ -683,9 +683,9 @@ public partial class NonCombatRPC : RPCBase
 
     #region Equipment
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.HideHelm)]
-    public void HideHelm(bool hide)
+    public void HideHelm(bool isHiding)
     {
-        ProxyMethod("HideHelm", hide);
+        ProxyMethod("HideHelm", isHiding);
     }
     #endregion
 

@@ -12,7 +12,9 @@ public class UI_WorldMap_PlaceInterest : MonoBehaviour
     Text mName;
 
     UnityAction<string> selectCallback = null;
+    UnityAction<Sprite> spriteCallback = null;
     string mPlaceInterestName;
+    Sprite mAreaSprite = null;
 
     public Sprite IconSprite
     {
@@ -23,16 +25,19 @@ public class UI_WorldMap_PlaceInterest : MonoBehaviour
         set { mName.text = value; }
     }
 
-    public void Init(WorldMapCountryPlaceInterest wmcpi, UnityAction<string> _selectCallback)
+    public void Init(WorldMapCountryPlaceInterest wmcpi, UnityAction<string> _selectCallback, UnityAction<Sprite> _spriteCallback)
     {
         mName.text = wmcpi.name;
         mPlaceInterestName = LevelRepo.GetInfoById(wmcpi.levelID).unityscene;
+        //mAreaSprite = wmcpi.spritePath;
         selectCallback = _selectCallback;
+        spriteCallback = _spriteCallback;
     }
 
     public void OnClick()
     {
         //Tell UI_WorldMapCountry that this place/interest is selected
         selectCallback(mPlaceInterestName);
+        spriteCallback(mAreaSprite);
     }
 }

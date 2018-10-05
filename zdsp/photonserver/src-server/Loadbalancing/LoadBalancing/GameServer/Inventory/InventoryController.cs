@@ -484,21 +484,21 @@ namespace Photon.LoadBalancing.GameServer
                         seIds.Add(id);
                 }
             }
-            seStr = equipmentJson.extrase;
-            if (!string.IsNullOrEmpty(seStr))
-            {
-                string[] seStrIds = seStr.Split(';');
-                int length = seStrIds.Length;
-                for (int i = 0; i < length; ++i)
-                {
-                    int id;
-                    if (int.TryParse(seStrIds[i], out id))
-                    {
-                        if (id != -1)
-                            seIds.Add(id);
-                    }
-                }
-            }
+            //seStr = equipmentJson.extrase;
+            //if (!string.IsNullOrEmpty(seStr))
+            //{
+            //    string[] seStrIds = seStr.Split(';');
+            //    int length = seStrIds.Length;
+            //    for (int i = 0; i < length; ++i)
+            //    {
+            //        int id;
+            //        if (int.TryParse(seStrIds[i], out id))
+            //        {
+            //            if (id != -1)
+            //                seIds.Add(id);
+            //        }
+            //    }
+            //}
 
             if (seIds.Count > 0)
                 SideEffectsUtils.ClientUpdateEquipmentSideEffects(player, seIds, equipmentJson.id, isEquipping);
@@ -1025,6 +1025,11 @@ namespace Photon.LoadBalancing.GameServer
             if (lvl < item.JsonObject.requirelvl)
             {
                 retval.retCode = InvReturnCode.BelowLevel;
+                return false;
+            }
+            //Use item daily + weekly limit
+            if (mSlot.CharacterData.ItemLimitData.UseItem(item) == false)
+            {
                 return false;
             }
             return true;

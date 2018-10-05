@@ -17,7 +17,7 @@
                     {EffectType.Damage_EarthDamage, 0 },
                     {EffectType.Damage_WaterDamage, 0 },
                     {EffectType.Damage_FireDamage, 0 },
-                    {EffectType.Damage_DamageBasedOnWeaponElement, 0 },
+                    {EffectType.Damage_DamageBaseOnWeaponElement, 0 },
                     {EffectType.Damage_PureDamage, 0 }
                 }, // Damage types
                 new Dictionary<EffectType, byte>() {
@@ -114,7 +114,7 @@
                     {EffectType.StatsAttack_IncSmashDamage_Debuff, 2 },
                     {EffectType.StatsAttack_IncSliceDamage_Debuff, 2 },
                     {EffectType.StatsAttack_IncPierceDamage_Debuff, 2 },
-                    {EffectType.StatsAttack_IncEleNoneDamageDebuff, 2 },
+                    {EffectType.StatsAttack_IncEleNoneDamage_Debuff, 2 },
                     {EffectType.StatsAttack_IncEleMetalDamage_Debuff, 2 },
                     {EffectType.StatsAttack_IncEleWoodDamage_Debuff, 2 },
                     {EffectType.StatsAttack_IncEleEarthDamage_Debuff, 2 },
@@ -125,7 +125,7 @@
                     {EffectType.StatsAttack_VSVampireDamage_Debuff, 2 },
                     {EffectType.StatsAttack_VSAnimalDamage_Debuff, 2 },
                     {EffectType.StatsAttack_VSPlantDamage_Debuff, 2 },
-                    {EffectType.StatsAttack_VSEleNoneDamage_Deduff, 2 },
+                    {EffectType.StatsAttack_VSEleNoneDamage_Debuff, 2 },
                     {EffectType.StatsAttack_VSEleMetalDamage_Debuff, 2 },
                     {EffectType.StatsAttack_VsEleWoodDamage_Debuff, 2 },
                     {EffectType.StatsAttack_VSEleEarthDamage_Debuff, 2 },
@@ -343,7 +343,7 @@
                     nonRelative = FieldName.PierceDamageBonus;
                     break;
                 case EffectType.StatsAttack_IncEleNoneDamage:
-                case EffectType.StatsAttack_IncEleNoneDamageDebuff:
+                case EffectType.StatsAttack_IncEleNoneDamage_Debuff:
                     relative = FieldName.NullDamagePercBonus;
                     nonRelative = FieldName.NullDamageBonus;
                     break;
@@ -398,7 +398,7 @@
                     nonRelative = FieldName.VSPlantDamageBonus;
                     break;
                 case EffectType.StatsAttack_VSEleNoneDamage:
-                case EffectType.StatsAttack_VSEleNoneDamage_Deduff:
+                case EffectType.StatsAttack_VSEleNoneDamage_Debuff:
                     relative = FieldName.VSNullPercDamage;
                     nonRelative = FieldName.VSNullPercDamage;
                     break;

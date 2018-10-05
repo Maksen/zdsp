@@ -265,7 +265,7 @@
       <item key="Damage_EarthDamage" value="3"/>
       <item key="Damage_WaterDamage" value="4"/>
       <item key="Damage_FireDamage" value="5"/>
-      <item key="Damage_DamageBasedOnWeaponElement" value="6"/>
+      <item key="Damage_DamageBaseOnWeaponElement" value="6"/>
       <item key="Damage_PureDamage" value="7"/>
 
       <item key="Stats_Strength"              value="50"/>
@@ -323,7 +323,7 @@
       <item key="StatsAttack_IncPierceDamage"           value="124"/>
       <item key="StatsAttack_IncPierceDamage_Debuff"    value="125"/>
       <item key="StatsAttack_IncEleNoneDamage"          value="126"/>
-      <item key="StatsAttack_IncEleNoneDamageDebuff"    value="127"/>
+      <item key="StatsAttack_IncEleNoneDamage_Debuff"    value="127"/>
       <item key="StatsAttack_IncEleMetalDamage"         value="128"/>
       <item key="StatsAttack_IncEleMetalDamage_Debuff"  value="129"/>
       <item key="StatsAttack_IncEleWoodDamage"          value="130"/>
@@ -345,7 +345,7 @@
       <item key="StatsAttack_VSPlantDamage"             value="146"/>
       <item key="StatsAttack_VSPlantDamage_Debuff"      value="147"/>
       <item key="StatsAttack_VSEleNoneDamage"           value="148"/>
-      <item key="StatsAttack_VSEleNoneDamage_Deduff"    value="149"/>
+      <item key="StatsAttack_VSEleNoneDamage_Debuff"    value="149"/>
       <item key="StatsAttack_VSEleMetalDamage"          value="150"/>
       <item key="StatsAttack_VSEleMetalDamage_Debuff"   value="151"/>
       <item key="StatsAttack_VSEleWoodDamage"           value="152"/>
@@ -862,6 +862,32 @@
       <item key="Non" value="0"/>
       <item key="Event" value="1"/>
       <item key="Special" value="2"/>
+    </enum>
+
+    <enum name="ApperanceType">
+      <item key="HairStyle" value="0"/>
+      <item key="HairColor" value="1"/>
+      <item key="MakeUp" value="2"/>
+      <item key="SkinColor" value="3"/>
+    </enum>
+
+    <enum name="ApperanceGender">
+      <item key="Male" value="0"/>
+      <item key="Female" value="1"/>
+      <item key="All" value="2"/>
+    </enum>
+
+    <enum name="ApperanceCurrency">
+      <item key="Silver" value="0"/>
+      <item key="Ingot" value="1"/>
+      <item key="Free" value="2"/>
+      <item key="NFS" value="3"/>
+    </enum>
+
+    <enum name="FilterType">
+      <item key="All" value="0"/>
+      <item key="Naming" value="1"/>
+      <item key="Chat" value="2"/>
     </enum>
     
   </data>

@@ -1,5 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -135,8 +136,14 @@ public class UI_Inventory : BaseWindowBehaviour
             defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
             
             RefreshLeft(player);
-            hideHelm.isOn = !player.mEquipmentInvData.HideHelm;
+            StartCoroutine(InitOnNextFrame(player));
         }
+    }
+
+    IEnumerator InitOnNextFrame(PlayerGhost player)
+    {
+        yield return null;
+        hideHelm.isOn = !player.mEquipmentInvData.HideHelm;
     }
 
     #region Inventory right side
@@ -307,44 +314,44 @@ public class UI_Inventory : BaseWindowBehaviour
         }
     }
 
-    public void OnHelmToggleChanged(bool ison)
+    public void OnHelmToggleChanged(bool isOn)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
-        bool hidehelm = !ison;
-        if (player != null && player.mEquipmentInvData.HideHelm != hidehelm)
-            RPCFactory.NonCombatRPC.HideHelm(hidehelm);
+        bool hideHelm = !isOn;
+        if (player != null && player.mEquipmentInvData.HideHelm != hideHelm)
+            RPCFactory.NonCombatRPC.HideHelm(hideHelm);
     }
 
-    public void OnEquipmentSlotClickedCB(int slotid)
+    public void OnEquipmentSlotClickedCB(int slotId)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
-        var _item = player.mEquipmentInvData.GetEquipmentBySlotId(slotid);
+        var _item = player.mEquipmentInvData.GetEquipmentBySlotId(slotId);
         if (_item != null)
             UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-                OnClicked_InitTooltipEquipment(window.GetComponent<UI_DialogItemDetailToolTip>(), slotid, _item, false);
+                OnClicked_InitTooltipEquipment(window.GetComponent<UI_DialogItemDetailToolTip>(), slotId, _item, false);
             });
     }
 
-    private void OnFashionSlotClickedCB(int slotid)
+    private void OnFashionSlotClickedCB(int slotId)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
-        var _item = player.mEquipmentInvData.GetFashionSlot(slotid);
+        var _item = player.mEquipmentInvData.GetFashionSlot(slotId);
         if (_item != null)
             UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-                OnClicked_InitTooltipEquipment(window.GetComponent<UI_DialogItemDetailToolTip>(), slotid, _item, true);
+                OnClicked_InitTooltipEquipment(window.GetComponent<UI_DialogItemDetailToolTip>(), slotId, _item, true);
             });
     }
     #endregion
 
     #region OnClickInventoryItem
-    public void OnClicked_InventoryItem(int slotid, IInventoryItem item)
+    public void OnClicked_InventoryItem(int slotId, IInventoryItem item)
     {
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), slotid, item);
+            OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), slotId, item);
         });
     }
 
-    private void OnClicked_InitTooltipEquipment(UI_DialogItemDetailToolTip component, int slotid, IInventoryItem item, bool fashionslot)
+    private void OnClicked_InitTooltipEquipment(UI_DialogItemDetailToolTip component, int slotId, IInventoryItem item, bool fashionslot)
     {
         component.InitTooltip(item);
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
@@ -356,12 +363,12 @@ public class UI_Inventory : BaseWindowBehaviour
             AddEvolve(_buttons, item);
         if (_equipmentJson.upgradelimit > 0)
             AddUpgrade(_buttons, item);
-        AddUnEquip(_buttons, slotid, item, fashionslot);
+        AddUnEquip(_buttons, slotId, item, fashionslot);
 
         component.SetButtonCallback(_buttons);
     }
 
-    private void OnClicked_InitTooltip(UI_DialogItemDetailToolTip component, int slotid, IInventoryItem item)
+    private void OnClicked_InitTooltip(UI_DialogItemDetailToolTip component, int slotId, IInventoryItem item)
     {
         component.InitTooltip(item);
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
@@ -370,16 +377,16 @@ public class UI_Inventory : BaseWindowBehaviour
             case ItemType.PotionFood:
             case ItemType.LuckyPick:
             case ItemType.Henshin:
-                AddUse(_buttons, slotid, item);
+                AddUse(_buttons, slotId, item);
                 break;
             case ItemType.Material:
                 var _materialJson = (MaterialJson)item.JsonObject;
                 if (_materialJson.mattype == MaterialType.Exchange)
-                    AddExchange(_buttons, slotid, item);
+                    AddExchange(_buttons, slotId, item);
                 else if (_materialJson.mattype == MaterialType.UpgradeItem)
                     AddUpgrade(_buttons, item);
                 else if (_materialJson.mattype == MaterialType.Special)
-                    AddUse(_buttons, slotid, item);
+                    AddUse(_buttons, slotId, item);
                 else if (_materialJson.mattype == MaterialType.Token)
                     AddUILink(_buttons, item, _materialJson.uiid);
                 break;
@@ -394,7 +401,7 @@ public class UI_Inventory : BaseWindowBehaviour
                     AddEvolve(_buttons, item);
                 if (_equipmentJson.upgradelimit > 0)
                     AddUpgrade(_buttons, item);
-                AddEquip(_buttons, slotid, item);
+                AddEquip(_buttons, slotId, item);
                 break;
             case ItemType.DNA:
                 AddDNA(_buttons, item);
@@ -404,35 +411,35 @@ public class UI_Inventory : BaseWindowBehaviour
                 AddAchievement(_buttons, item);
                 break;
             case ItemType.QuestItem:
-                AddUse(_buttons, slotid, item);
+                AddUse(_buttons, slotId, item);
                 break;
             case ItemType.MercenaryItem:                    
-                AddHeroUI(_buttons, slotid, item);
-                AddHeroGift(_buttons, slotid, item);
-                AddHeroSkin(_buttons, slotid, item);
+                AddHeroUI(_buttons, slotId, item);
+                AddHeroGift(_buttons, slotId, item);
+                AddHeroSkin(_buttons, slotId, item);
                 break;
             case ItemType.InstanceItem:
-                AddTeleport(_buttons, slotid, item);
+                AddTeleport(_buttons, slotId, item);
                 break;
         }
         component.SetButtonCallback(_buttons);
     }
 
-    private void AddUse(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddUse(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_Use");
         _button.icon = "ButtonB_UseItem";
-        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotid, item);
+        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotId, item);
         buttons.Add(_button);
     }
 
-    private void AddExchange(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddExchange(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_Exchange");
         _button.icon = "ButtonB_UseItem"; //no exchange icon
-        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotid, item);
+        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotId, item);
         buttons.Add(_button);
     }
 
@@ -481,7 +488,7 @@ public class UI_Inventory : BaseWindowBehaviour
         buttons.Add(_button);
     }
 
-    private void AddHeroUI(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddHeroUI(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
         ItemDetailsButton _button = new ItemDetailsButton();
@@ -510,7 +517,7 @@ public class UI_Inventory : BaseWindowBehaviour
         buttons.Add(_button);
     }
 
-    private void AddHeroGift(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddHeroGift(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
         if (heroItemJson.heroitemtype != HeroItemType.Gift || heroItemJson.ischangelike != 0 || string.IsNullOrEmpty(heroItemJson.heroid))
@@ -523,7 +530,7 @@ public class UI_Inventory : BaseWindowBehaviour
         {
             _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_DirectGift");
             _button.icon = "ButtonB_UseItem";
-            _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotid, item);
+            _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotId, item);
         }
         else
         {
@@ -533,7 +540,7 @@ public class UI_Inventory : BaseWindowBehaviour
         }
     }
 
-    private void AddHeroSkin(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddHeroSkin(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
         if (heroItemJson.heroitemtype != HeroItemType.HeroSkin || string.IsNullOrEmpty(heroItemJson.heroid) || heroItemJson.heroid == "-1")
@@ -546,11 +553,11 @@ public class UI_Inventory : BaseWindowBehaviour
         {
             _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_GetHeroSkin");
             _button.icon = "ButtonB_UseItem";
-            _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotid, item);
+            _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotId, item);
         }
     }
 
-    private void AddTeleport(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddTeleport(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         string _coordinate = ((InstanceItemJson)item.JsonObject).coordinate;
         if (string.IsNullOrEmpty(_coordinate) || _coordinate == "-1")
@@ -558,11 +565,11 @@ public class UI_Inventory : BaseWindowBehaviour
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_Transfer");
         _button.icon = "ButtonB_UseItem";
-        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotid, item);
+        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotId, item);
         buttons.Add(_button);
     }
 
-    private void AddEquip(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item)
+    private void AddEquip(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_Equip");
@@ -587,17 +594,17 @@ public class UI_Inventory : BaseWindowBehaviour
                     return;
                 }
             }
-            GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_Equip(slotid, item, _fashionOn);
+            GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_Equip(slotId, item, _fashionOn);
         };
         buttons.Add(_button);
     }
 
-    private void AddUnEquip(List<ItemDetailsButton> buttons, int slotid, IInventoryItem item, bool fashionslot)
+    private void AddUnEquip(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item, bool fashionslot)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_UnEquip");
         _button.icon = "ButtonB_UnEquip";
-        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UnEquip(slotid, item, fashionslot);
+        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UnEquip(slotId, item, fashionslot);
         buttons.Add(_button);
     }
 

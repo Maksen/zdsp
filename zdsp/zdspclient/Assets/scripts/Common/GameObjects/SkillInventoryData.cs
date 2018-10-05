@@ -38,6 +38,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "AutoSkill")]
         public List<int> AutoSkill; // stores all equipped auto skills
 
+        [JsonProperty(PropertyName = "EquipSize")]
+        public int EquipSize; // stores the size of skills that can be equipped
+
         //cannot disable basic attack 
         public void InitDefault(JobsectJson jsj)
         {
@@ -47,7 +50,8 @@ namespace Zealot.Common
             AutoSkill = new List<int>(36);
             SkillInvCount = 0;
             equipGroup = autoGroup = 1;
-            for(int i = 0; i < 40; ++i)
+            EquipSize = 5;
+            for (int i = 0; i < 40; ++i)
             {
                 SkillInv.Add(0);
             }

@@ -15,7 +15,7 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
     private GameObjectPoolManager SKLPoolLv;
     private GameObjectPoolManager SKLPoolDescriptor;
     private GameObjectPoolManager SKLPoolCD;
-    private GameObject SKLLine;
+    public GameObject SKLLine;
 
     private List<SKLChunk> m_Chunks = new List<SKLChunk>();
 
@@ -31,12 +31,13 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         SKLPoolLv = new GameObjectPoolManager(3, parent, m_Prefabs[0]);
         SKLPoolDescriptor = new GameObjectPoolManager(3, parent, m_Prefabs[1]);
         SKLPoolCD = new GameObjectPoolManager(3, parent, m_Prefabs[2]);
-        SKLLine = Instantiate(m_Prefabs[3]);
+        //SKLLine = Instantiate(m_Prefabs[3]);
     }
 
     public void GenerateChunk(UI_SkillButtonBase reference)
     {
         SkillData skill = SkillRepo.GetSkill(reference.m_Skillid);
+        SKLLine.transform.parent = null;
         if (reference.m_SkillLevel == 0)
         {
             ChunkHelper(SkillRepo.GetSkillByGroupIDOfNextLevel(reference.m_skgID, 0), 1);
@@ -152,7 +153,6 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
             SKLPoolDescriptor.ReturnObject(chunk.m_Descriptor.gameObject);
             SKLPoolCD.ReturnObject(chunk.m_CoolDown.gameObject);
         }
-        SKLLine.transform.parent = null;
         m_Chunks.Clear();
     }
 }

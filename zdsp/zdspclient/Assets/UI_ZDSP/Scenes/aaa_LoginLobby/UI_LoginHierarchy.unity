@@ -329,7 +329,7 @@ Prefab:
     - target: {fileID: 224020307468704844, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 59.941463
+      value: 58.62857
       objectReference: {fileID: 0}
     - target: {fileID: 224986988231146350, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
@@ -344,7 +344,7 @@ Prefab:
     - target: {fileID: 224986988231146350, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 59.941463
+      value: 58.62857
       objectReference: {fileID: 0}
     - target: {fileID: 224986988231146350, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
@@ -354,7 +354,7 @@ Prefab:
     - target: {fileID: 224986988231146350, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 19.980488
+      value: 19.542858
       objectReference: {fileID: 0}
     - target: {fileID: 224303407091415154, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
@@ -369,7 +369,7 @@ Prefab:
     - target: {fileID: 224303407091415154, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 79.92195
+      value: 78.17143
       objectReference: {fileID: 0}
     - target: {fileID: 224303407091415154, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
@@ -379,12 +379,12 @@ Prefab:
     - target: {fileID: 224303407091415154, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 39.960976
+      value: 39.085716
       objectReference: {fileID: 0}
     - target: {fileID: 224391641495572372, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 119.88293
+      value: 117.25715
       objectReference: {fileID: 0}
     - target: {fileID: 224620847606601238, guid: 9a75ea9d66e0ae047b1143c260efd6c2,
         type: 2}
@@ -842,6 +842,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 442267597}
+  - component: {fileID: 442267598}
   m_Layer: 5
   m_Name: UI_LoginHierarchy
   m_TagString: Untagged
@@ -868,6 +869,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &442267598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 442267596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd1466dacb4cd1942acafa5b84ca9684, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerLabelPrefab: {fileID: 0}
+  PlayerLabelExtPrefab: {fileID: 0}
+  DmgLabelPrefab: {fileID: 0}
+  CastingAndCutscenePrefab: {fileID: 0}
+  NpcLabelPrefab: {fileID: 0}
 --- !u!1 &505937970
 GameObject:
   m_ObjectHideFlags: 0
@@ -3900,7 +3917,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3baf65fc95fc9c24aaaaacaf275025a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timer: 0
 --- !u!82 &604691924
 AudioSource:
   m_ObjectHideFlags: 0

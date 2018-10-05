@@ -614,7 +614,7 @@
             else
             {
                 int index = m_EquipmentSE[equipid].FindIndex(x => x.mSideeffectData.id == se.mSideeffectData.id);
-                if (index != -1)
+                if (index == -1)
                     return false;
                 RemoveSideEffectFromList(m_EquipmentSE[equipid][index]);
                 m_EquipmentSE[equipid].RemoveAt(index);
@@ -632,6 +632,11 @@
             else
             {
                 if (se.mSideeffectData.stackable && se.mSideeffectData.stackcount > m_SideEffectList[se.mSideeffectData.id])
+                {
+                    ++m_SideEffectList[se.mSideeffectData.id];
+                    return true;
+                }
+                else if (!se.mSideeffectData.stackable && m_SideEffectList[se.mSideeffectData.id] == 0)
                 {
                     ++m_SideEffectList[se.mSideeffectData.id];
                     return true;

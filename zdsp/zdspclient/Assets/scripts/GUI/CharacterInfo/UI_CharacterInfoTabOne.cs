@@ -108,13 +108,14 @@ public class UI_CharacterInfoTabOne : MonoBehaviour
         if (GameInfo.gLocalPlayer == null)
             return;
 
+        var ps = GameInfo.gLocalPlayer.PlayerStats;
         var lcs = GameInfo.gLocalPlayer.LocalCombatStats;
 
         mStatLst[(int)Enum_CharInfoTabOneStats.MAXHP].CombineVal = lcs.HealthMax;
         mStatLst[(int)Enum_CharInfoTabOneStats.HPREGEN].CombineVal = lcs.HealthRegen;
         mStatLst[(int)Enum_CharInfoTabOneStats.MAXMANA].CombineVal = lcs.ManaMax;
         mStatLst[(int)Enum_CharInfoTabOneStats.MANAREGEN].CombineVal = lcs.ManaRegen;
-        mStatLst[(int)Enum_CharInfoTabOneStats.MOVESPD].CombineVal = lcs.MoveSpeed;
+        mStatLst[(int)Enum_CharInfoTabOneStats.MOVESPD].CombineVal = (int)ps.MoveSpeed;
         mStatLst[(int)Enum_CharInfoTabOneStats.EXPBONUS].CombineValPercent = lcs.ExpBonus;
         mStatLst[(int)Enum_CharInfoTabOneStats.WEAPONATK].CombineVal = lcs.WeaponAttack;
         mStatLst[(int)Enum_CharInfoTabOneStats.ATKPOWER].CombineVal = lcs.AttackPower;

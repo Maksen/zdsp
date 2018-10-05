@@ -875,7 +875,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         else
             txtCanRecycle.text = GUILocalizationRepo.GetLocalizedString("id_cannotrecyle");
         //Socket ability?
-        txtCollectionTitle.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RelicSocket");
+        txtSocketTitle.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RelicSocket");
         txtSocketAbility.text = relic.RelicJson.sockability;
         //Collection ability
         txtCollectionTitle.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RelicCollection");

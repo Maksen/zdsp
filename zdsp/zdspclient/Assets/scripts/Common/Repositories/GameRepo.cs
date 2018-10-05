@@ -108,9 +108,7 @@ namespace Zealot.Repository
                 uint gamedbHash = (uint)jObject["GameDBHash"];
 
                 if (gamedbHash != GameDBRepo.GetSchemaHash())
-                {
                     throw new Exception("!!! Mismatched GameDB Hash. Update jsoncontracts and gamedata again.", ex);
-                }
                 else
                     throw ex;
             }
@@ -139,7 +137,6 @@ namespace Zealot.Repository
 
         public static void Validate()
         {
-
         }
 #endif
     }

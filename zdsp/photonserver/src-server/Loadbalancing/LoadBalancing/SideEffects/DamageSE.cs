@@ -155,15 +155,16 @@
                 package.basicsInfo.monsterType = ((Monster)mTarget).mArchetype.monstertype;
                 package.basicsInfo.elementInfo.defender = ((Monster)mTarget).mArchetype.element;
                 package.basicsInfo.race.defender = ((Monster)mTarget).mArchetype.race;
+                package.basicsInfo.isDefenderNPC = true;
                 
             }
             else {
                 package.basicsInfo.defender = AttackStyle.Slice; // this is hack only since not implemented...
                 package.basicsInfo.monsterType = MonsterType.Normal;
-                package.basicsInfo.elementInfo.attacker = Element.None; // this is a hack only
+                package.basicsInfo.elementInfo.attacker = (Element)mCaster.CombatStats.GetField(FieldName.Element); // this is a hack only
                 package.basicsInfo.race.attacker = Race.Human;
+                package.basicsInfo.isDefenderNPC = false;
             }
-
             package.basicsInfo.weaponAttribute = MainWeaponAttribute.Str; // this is hack only 
 
             //if (mbBasicAttack) {

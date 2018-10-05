@@ -17,14 +17,14 @@
     
     <element name="LinkUI" useexcel="true">
       <property name="uiid" type="int" uitext="UIID" unique="true"/>
-      <property name="localizedname" type="localizedstring" uitext="LocalizedName"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="uitype" type="LinkUIType" uitext="UI Type"/>
     </element>    
     
     <element name="ItemSort" useexcel="true">
       <property name="itemsortid" type="int" uitext="Item Sort Id" unique="true" default="0"/>
       <property name="name" type="string" uitext="Name" default=""/>
-      <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="sortorder" type="int" uitext="Sorting Order" default="0"/>
       <property name="bagtabtype" type="BagTabType" uitext="Bag Tab" default="0"/>
       <property name="gameicontype" type="ItemGameIconType" uitext="Game Icon Type" default="0"/>
@@ -33,8 +33,8 @@
     <element name="ItemBase" useexcel="true" collectionkey="name" localizeexport="itemid">
       <property name="itemid" type="int" uitext="Item ID" min="0" max="9999999"/>
       <property name="name" type="string" uitext="Name" default=""/>
-      <property name="localizedname" type="localizedstring" uitext="LocalizedName" default=""/>
-      <property name="description" type="localizedstring" uitext="Description" default=""/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)" default=""/>
+      <property name="description" type="localizedstring" uitext="Description(Localized)" default=""/>
       <constant name="itemtype" type="ItemType" value="ItemType.Invalid"/>
       <property name="useable" type="bool" uitext="Useable" default="true"/>
       <property name="rarity" type="ItemRarity" uitext="Item Rarity" default="0"/>
@@ -82,7 +82,7 @@
     
     <element name="Henshin" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Henshin"/>
-      <property name="henshinname" type="localizedstring" uitext="Henshin Name (Localized)" default=""/>
+      <property name="henshinname" type="localizedstring" uitext="Henshin Name(Localized)" default=""/>
       <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="prefabpath" type="asset" uitext="Prefab Path" default="" assettype="prefab"/>
@@ -162,7 +162,7 @@
     
     <element name="ExtraSideEffect">
       <property name="name" type="string" uitext="Name" default="#undefined#"/>
-      <property name="description" type="localizedstring" uitext="Description" default="#undefined#"/>
+      <property name="description" type="localizedstring" uitext="Description(Localized)" default="#undefined#"/>
       <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
       <property name="reqtype" type="ESERequireType" uitext="Require Type"/>
       <property name="requpgrade" type="string" uitext="Require Upgrade" default="-1" info="Format: 精鍊等級;精鍊等級;精鍊等級…"/>

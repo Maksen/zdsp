@@ -786,13 +786,13 @@ namespace Photon.LoadBalancing.GameServer
 
         #region Equipment
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.HideHelm)]
-        public void HideHelm(bool hide, GameClientPeer peer)
+        public void HideHelm(bool isHiding, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
-            if (player != null && player.EquipmentStats.HideHelm != hide)
+            if (player != null && player.EquipmentStats.HideHelm != isHiding)
             {
-                player.EquipmentStats.HideHelm = hide;
-                peer.CharacterData.EquipmentInventory.HideHelm = hide;
+                player.EquipmentStats.HideHelm = isHiding;
+                peer.CharacterData.EquipmentInventory.HideHelm = isHiding;
             }
         }
         #endregion
@@ -1222,43 +1222,17 @@ namespace Photon.LoadBalancing.GameServer
             int retVal = (peer.mPlayer.LocalCombatStats.StatsPoint < totalSpent) ? -1 : 0;
             if (retVal != -1)
             {
-                Player p = peer.mPlayer;
-                Zealot.Common.Entities.PlayerSynStats pss = p.PlayerSynStats;
-                Zealot.Common.Entities.LocalCombatStats lcs = p.LocalCombatStats;
+                Zealot.Common.Entities.ICombatStats ics = peer.mPlayer.CombatStats;
+                Zealot.Common.Entities.LocalCombatStats lcs = peer.mPlayer.LocalCombatStats;
 
-                lcs.Strength += statVal1;
-                lcs.Agility += statVal2;
-                lcs.Dexterity += statVal3;
-                lcs.Constitution += statVal4;
-                lcs.Intelligence += statVal5;
+                ics.AddToField(Zealot.Common.Entities.FieldName.StrengthBase, statVal1);
+                ics.AddToField(Zealot.Common.Entities.FieldName.AgilityBase, statVal2);
+                ics.AddToField(Zealot.Common.Entities.FieldName.DexterityBase, statVal3);
+                ics.AddToField(Zealot.Common.Entities.FieldName.ConstitutionBase, statVal4);
+                ics.AddToField(Zealot.Common.Entities.FieldName.IntelligenceBase, statVal5);
+                ics.ComputeAll();
+
                 lcs.StatsPoint -= totalSpent;
-
-                //Str
-                //peer.mPlayer.LocalCombatStats.WeaponAttack //NOTE: Reset everytime player change weapon
-                lcs.IgnoreArmor += (int)(statVal1 * 0.05f); //NOTE: Make this right
-
-                //Agi
-                lcs.Evasion += statVal2;
-                //atk spd
-
-                //Dex
-                //peer.mPlayer.LocalCombatStats.WeaponAttack //NOTE: Reset everytime player change weapon
-                lcs.Accuracy += statVal3;
-                //cast spd
-
-                //Con
-                //var JobJson = ExperienceRepo.GetJobParameterByJobType((JobType)pss.jobsect);
-                //lcs.HealthMax = (int)(JobJson.hp * (statVal4) + 0);
-                lcs.HealthMax = (int)(1f * (statVal4) + 0);
-                lcs.Armor += statVal4 * 2;
-                lcs.HealthRegen += statVal4 * 3;
-
-                //Int
-                //peer.mPlayer.LocalCombatStats.WeaponAttack  //NOTE: Reset everytime player change weapon
-                //recovery bonus
-                //elem def
-                lcs.ManaMax += (int)(statVal5);
-                lcs.ManaRegen += statVal5;
             }
 
             peer.ZRPC.NonCombatRPC.Ret_CharacterInfoSpendStatsPoints(retVal, peer);

@@ -41,6 +41,10 @@ public class UI_WorldMap : MonoBehaviour
             GameObject camPos = mCamPosList[i + 1]; //mCamPosList[0] is zoom-out cam position
             wmcc.Init(worldMapLst[i], ()=> {
                 ZoomToCountry(bigCountry, camPos);    
+            },
+            (sprite)=>
+            {
+                SetAreaPreview(sprite);
             });
 
             Toggle tg = obj.GetComponent<Toggle>();
@@ -60,5 +64,10 @@ public class UI_WorldMap : MonoBehaviour
 
         selectedCountry.SetActive(true);
         mMoveToObjClass.MoveTo(camPos.transform);
+    }
+
+    private void SetAreaPreview(Sprite areaSprite)
+    {
+        mMapAreaViewImg.sprite = areaSprite;
     }
 }

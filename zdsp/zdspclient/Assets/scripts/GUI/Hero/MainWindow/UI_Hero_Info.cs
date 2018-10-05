@@ -63,14 +63,14 @@ public class UI_Hero_Info : MonoBehaviour
         for (int i = 0; i < sortedList.Count; i++)
         {
             int heroid = sortedList[i].heroid;
-            HeroCellDto cell = new HeroCellDto(heroid, "Hero " + heroid, GameInfo.gLocalPlayer.HeroStats.IsHeroUnlocked(heroid));
+            HeroCellDto cell = new HeroCellDto(heroid, "", GameInfo.gLocalPlayer.HeroStats.IsHeroUnlocked(heroid));
             cellList.Add(cell);
             index++;
         }
 
         for (int i = index; i < 13; i++)
         {
-            HeroCellDto cell = new HeroCellDto(i + 1, "Cell " + (i + 1), false);
+            HeroCellDto cell = new HeroCellDto(i + 1, "", false);
             cellList.Add(cell);
         }
 

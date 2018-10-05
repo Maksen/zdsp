@@ -7,55 +7,24 @@ namespace Zealot.Repository
 {
     public static class WordFilterRepo
     {
-        public static Dictionary<int, WordFilterJson> mWordFilterIdMap; // Word Id <- WordFilterJson
-        public static Dictionary<int, List<string>> wordFilterListMap;
+        private static Dictionary<FilterType, List<string>> mWordFilterList;
 
         static WordFilterRepo()
 		{
-            mWordFilterIdMap = new Dictionary<int, WordFilterJson>();
-            wordFilterListMap = new Dictionary<int, List<string>>();
+            mWordFilterList = new Dictionary<FilterType, List<string>>();
         }
 
         public static void Init(GameDBRepo gameData)
 		{
-            mWordFilterIdMap = gameData.WordFilter;
-
-            foreach(KeyValuePair<int, WordFilterJson> kvp in mWordFilterIdMap)
+            foreach (KeyValuePair<int, DisableWordJson> entry in gameData.DisableWord)
             {
-                int wordType = (int)kvp.Value.dirtywordtype;
-                if(!wordFilterListMap.ContainsKey(wordType))
-                    wordFilterListMap.Add(wordType, new List<string>());
-
-                wordFilterListMap[wordType].Add(kvp.Value.word.Normalize(NormalizationForm.FormKC));
-            }
-            // Add BothChatName filter list into other filter list
-            int dWordIdx = (int)DirtyWordType.BothChatName;
-            if(wordFilterListMap.ContainsKey(dWordIdx))
-            {
-                List<string> bFilterList = wordFilterListMap[dWordIdx];
-                if(bFilterList != null && bFilterList.Count > 0)
+                if (!mWordFilterList.ContainsKey(entry.Value.filtertype))
                 {
-                    for(int i=0; i<dWordIdx; ++i)
-                    {
-                        if(!wordFilterListMap.ContainsKey(i))
-                            wordFilterListMap.Add(i, new List<string>());
-                        wordFilterListMap[i].AddRange(bFilterList);
-                    }
+                    mWordFilterList.Add(entry.Value.filtertype, new List<string>());
                 }
+
+                mWordFilterList[entry.Value.filtertype].Add(entry.Value.word);
             }
-            // Sort words
-            foreach(KeyValuePair<int, List<string>> kvp in wordFilterListMap)
-            {
-                kvp.Value.Sort(CompareStr);
-                kvp.Value.Reverse();
-            }
-            // For testing
-            /*int tmpWordType = (int)DirtyWordType.Chat;
-            if(!wordFilterListMap.ContainsKey(tmpWordType))
-                wordFilterListMap.Add(tmpWordType, new List<string>());
-            wordFilterListMap[tmpWordType].Add("appa");
-            wordFilterListMap[tmpWordType].Add("apaa");
-            wordFilterListMap[tmpWordType].Add("papa");*/
         }
 
         private static int CompareStr(string x, string y)
@@ -80,7 +49,7 @@ namespace Zealot.Repository
             }
         }
 
-        public static int IndexOf(char[] value, string compareTo, bool ignoreCase, int startIdx=0)
+        private static int IndexOf(char[] value, string compareTo, bool ignoreCase, int startIdx=0)
         {
             int valLen = value.Length;
             int compareToLen = compareTo.Length;
@@ -108,15 +77,14 @@ namespace Zealot.Repository
             return -1;
         }
 
-        public static bool FilterString(string str, char symbol, DirtyWordType type, out string filteredStr)
+        public static bool FilterString(string str, char symbol, FilterType type, out string filteredStr)
         {
             filteredStr = str;
             if (string.IsNullOrEmpty(str))
                 return false;
-            int dWordType = (int)type;
-            if(!wordFilterListMap.ContainsKey(dWordType))
+            if(!mWordFilterList.ContainsKey(type))
                 return false;
-            List<string> wordFilterList = wordFilterListMap[dWordType];
+            List<string> wordFilterList = mWordFilterList[type];
             int wordFilterListCnt = wordFilterList.Count;
             if (wordFilterListCnt <= 0)
                 return false;

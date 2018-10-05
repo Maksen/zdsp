@@ -356,6 +356,7 @@ namespace Zealot.Common
                 public MonsterType monsterType;
                 public ElementType elementInfo;
                 public Racial race;
+                public bool isDefenderNPC;
             }
             
             public struct Fields {
@@ -381,7 +382,7 @@ namespace Zealot.Common
         /// <param name="attacker"></param>
         /// <returns></returns>
         public static float BasicDamage(IActor attacker, SideEffectJson se) {
-            return attacker.CombatStats.GetField(FieldName.WeaponAttack) + (attacker.CombatStats.GetField(FieldName.WeaponAttack) * se.basicskilldamageperc);
+            return attacker.CombatStats.GetField(FieldName.WeaponAttack) + (attacker.CombatStats.GetField(FieldName.WeaponAttack) * (1 + (se.basicskilldamageperc) * 0.01f));
         }
 
         /// <summary>
@@ -403,7 +404,7 @@ namespace Zealot.Common
                     return attacker.CombatStats.GetField(FieldName.Intelligence) * 2 + attacker.CombatStats.GetField(FieldName.Attack);
 
                 default:
-                    return 0;
+                    return attacker.CombatStats.GetField(FieldName.Attack);
             }
         }
 
@@ -455,7 +456,7 @@ namespace Zealot.Common
             float racial = packet.defender.CombatStats.GetField(packet.fieldInfo.defenderVSRace);
             float def = packet.defender.CombatStats.GetField(FieldName.DecreaseFinalDamage);
 
-            return 1.0f - (strikedef * elemdef * racial * def);
+            return 1.0f + (strikedef * elemdef * racial * def);
         }
 
         public static float FinalDefendModBlock(FIELDNAMEPACKET packet) {
@@ -868,11 +869,14 @@ namespace Zealot.Common
                 mod = FinalAttackMod(info);
                 defmod = FinalDefendMod(info);
 
+                float weakness = (info.basicsInfo.isDefenderNPC) ? Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) : 0.0f;
+
                 // 無屬性普通攻擊傷害 = 無屬性攻擊方最終基礎傷害 * 攻擊方最終增傷係數 * 防禦方最終防禦係數
                 // 金 / 木 / 土 / 水 / 火屬性普通攻擊傷害 = 金 / 木 / 土 / 水 / 火屬性攻擊方最終基礎傷害 * 攻擊方最終增傷係數 * 防禦方最終防禦係數
                 switch (info.basicsInfo.elementInfo.attacker) {
                     case Element.None:
-                        dmg = ((basicAtk * Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) * info.defender.CombatStats.GetField(FieldName.IgnoreArmor))
+                        
+                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
                                         + cfmDamage - (info.defender.CombatStats.GetField(FieldName.Constitution)) * 2);
                         break;
                     case Element.Metal:
@@ -880,7 +884,7 @@ namespace Zealot.Common
                     case Element.Earth:
                     case Element.Water:
                     case Element.Fire:
-                        dmg = ((basicAtk * Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) * info.defender.CombatStats.GetField(FieldName.IgnoreArmor))
+                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
                                         + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2;
                                         
                         break;
@@ -903,12 +907,12 @@ namespace Zealot.Common
 
                 // 無屬性技能攻擊傷害 = 無屬性攻擊方最終基礎傷害 * 攻擊方最終技能倍率 * 攻擊方最終增傷係數 * 防禦方最終防禦係數
                 // 金/木/土/水/火屬性技能攻擊傷害 = 金/木/土/水/火屬性攻擊方最終基礎傷害 * 攻擊方最終技能倍率 * 攻擊方最終增傷係數 * 防禦方最終防禦係數
-
+                float weakness = (info.basicsInfo.isDefenderNPC) ? Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) : 0.0f;
                 switch (info.basicsInfo.elementInfo.attacker) {
                     case Element.None:
                         // 無屬性攻擊方最終基礎傷害 = ( ( 攻擊方基礎傷害 * 弱點修正係數 * 防禦方防禦減傷％ ) + 攻擊方保證傷害 - 防禦方減值減傷 )
-                        dmg = (basicAtk * Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) * info.defender.CombatStats.GetField(FieldName.IgnoreArmor))
-                                    + cfmDamage - info.defender.CombatStats.GetField(FieldName.Constitution) * 2;
+                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
+                                        + cfmDamage - (info.defender.CombatStats.GetField(FieldName.Constitution)) * 2);
                         break;
                     case Element.Metal:
                     case Element.Wood:
@@ -916,8 +920,8 @@ namespace Zealot.Common
                     case Element.Water:
                     case Element.Fire:
                         // 金/木/土/水/火屬性攻擊方最終基礎傷害 = ( ( 攻擊方基礎傷害 * 弱點修正係數 * 防禦方防禦減傷％ ) + 攻擊方保證傷害 ) - 防禦方五行減值減傷
-                        dmg = ((basicAtk * Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) * info.defender.CombatStats.GetField(FieldName.IgnoreArmor))
-                                + cfmDamage) - info.defender.CombatStats.GetField(FieldName.Intelligence) * 2;
+                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
+                                         + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2;
                         break;
                 }
                 result = Math.Max(1.0f, dmg * mod * atkmod * defmod);
@@ -934,14 +938,14 @@ namespace Zealot.Common
                 mod = FinalAttackMod(info);
                 atkmod = FinalAttackMod(info);
                 defmod = FinalDefendModBlock(info);
-
+                float weakness = (info.basicsInfo.isDefenderNPC) ? Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) : 0.0f;
                 // 防禦方發動格擋時無屬性技能攻擊傷害 = 無屬性攻擊方最終基礎傷害 * 攻擊方最終技能倍率 * 攻擊方最終增傷係數 * 防禦方發動格擋時最終防禦係數
                 // 防禦方發動格擋時金/木/土/水/火屬性技能攻擊傷害 = 金/木/土/水/火屬性攻擊方最終基礎傷害 * 攻擊方最終技能倍率 * 攻擊方最終增傷係數 * 防禦方發動格擋時最終防禦係數
                 switch (info.basicsInfo.elementInfo.attacker) {
                     case Element.None:
                         // 無屬性攻擊方最終基礎傷害 = ( ( 攻擊方基礎傷害 * 弱點修正係數 * 防禦方防禦減傷％ ) + 攻擊方保證傷害 - 防禦方減值減傷 )
-                        dmg = (basicAtk * Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) * info.defender.CombatStats.GetField(FieldName.IgnoreArmor))
-                                    + cfmDamage - info.defender.CombatStats.GetField(FieldName.Constitution) * 2;
+                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
+                                        + cfmDamage - (info.defender.CombatStats.GetField(FieldName.Constitution)) * 2);
                         break;
                     case Element.Metal:
                     case Element.Wood:
@@ -949,8 +953,8 @@ namespace Zealot.Common
                     case Element.Water:
                     case Element.Fire:
                         // 金/木/土/水/火屬性攻擊方最終基礎傷害 = ( ( 攻擊方基礎傷害 * 弱點修正係數 * 防禦方防禦減傷％ ) + 攻擊方保證傷害 ) - 防禦方五行減值減傷
-                        dmg = ((basicAtk * Zealot.Repository.ElementalChartRepo.WeaknessChartQuery(info.basicsInfo.attacker, info.basicsInfo.defender) * info.defender.CombatStats.GetField(FieldName.IgnoreArmor))
-                                + cfmDamage) - info.defender.CombatStats.GetField(FieldName.Intelligence) * 2;
+                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
+                                         + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2;
                         break;
                 }
                 result = Math.Max(1.0f, dmg * mod * atkmod * defmod);

@@ -126,7 +126,7 @@
     <element name="HeroInterest" useexcel="true">
       <property name="interesttype" type="HeroInterestType" uitext="Interest Type"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
-      <property name="description" type="localizedstring" uitext="Description"/>
+      <property name="description" type="localizedstring" uitext="Description(Localized)"/>
       <property name="assigneditemid" type="string" uitext="Assigned Change Item ID" default="" info="bind;unbind"/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
     </element>

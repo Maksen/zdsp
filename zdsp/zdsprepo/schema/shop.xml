@@ -26,14 +26,13 @@
       <property name ="points" type ="int" uitext="Treasure Xenjo Poin"/>
     </element>
 
-
     <element name="StoreSet" useexcel="true">
       <property name="storeorder" type ="int" uitext="StoreOrder"/>
       <property name="name" type="string" uitext="Name"/>
-      <property name="localizedname" type="localizedstring" uitext="LocalizedName"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="heroid" type="int" uitext="HeroID" default="-1"/>
-	  <property name="shoptype" type="UIStoreLinkType" uitext="shoptype"/>
-	  <property name="openlv" type="int" uitext="openlv" default="-1"/>
+      <property name="shoptype" type="UIStoreLinkType" uitext="shoptype"/>
+      <property name="openlv" type="int" uitext="openlv" default="-1"/>
       <property name="commoditycount" type="int" uitext="CommodityCount"/>
       <property name="refresh" type="bool" uitext="OnRefresh"/>
       <property name="refreshtime1" type="string" uitext="RefreshTime1"/>

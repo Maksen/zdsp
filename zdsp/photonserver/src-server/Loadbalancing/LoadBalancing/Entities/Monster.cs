@@ -125,8 +125,8 @@ namespace Zealot.Server.Entities
             PlayerStats.Level = mArchetype.level;
             mSpawnPos = sp.position;
 
-            PlayerCombatStats monstercombatstats = new PlayerCombatStats();
-            monstercombatstats.SetPlayerLocalAndSyncStats(null, PlayerStats, this);
+            MonsterCombatStats monstercombatstats = new MonsterCombatStats();
+            //monstercombatstats.SetPlayerLocalAndSyncStats(null, PlayerStats, this);
             
             CombatStats = monstercombatstats;
             SkillPassiveStats = new SkillPassiveCombatStats(EntitySystem.Timers, this);

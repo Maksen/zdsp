@@ -30,7 +30,7 @@
 			<property name="categoryid" type="int" uitext="categoryid" unique="true"/>
 			<property name="sequence" type="int" uitext="sequence"/>
 			<property name="name" type="string" uitext="name"/>
-			<property name="localizedname" type="string" uitext="localizedname"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
 			<property name="show" type="bool" uitext="show"/>
 			<property name="opentime" type="string" uitext="opentime"/>
 			<property name="closetime" type="string" uitext="closetime"/>

@@ -438,7 +438,120 @@ namespace Zealot.Common.Entities
         int GetRandomAttack();
     }
 
-    public class PlayerCombatStats : ICombatStats
+    public abstract class CombatStats : ICombatStats
+    {
+        protected abstract class CombatStatsField
+        {
+            protected float fieldValue;
+            protected FieldName[] children;
+            public bool Dirty { get; set; }
+
+            public float GetValue()
+            {
+                return fieldValue;
+            }
+
+            public void SetValue(float newval)
+            {
+                fieldValue = newval;
+            }
+
+            public void AddValue(float newval)
+            {
+                fieldValue += newval;
+            }
+
+            public virtual void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+            }
+
+            public FieldName[] GetChildren()
+            {
+                return children;
+            }
+        }
+
+        protected CombatStatsField[] mFields;
+        protected List<FieldName>[] mTierFieldNames;
+        protected LocalCombatStats mLocalCombatStats;
+        protected ActorSynStats mActorSynStats;
+        protected IActor mActor;
+
+        public virtual float GetField(FieldName fieldname)
+        {
+            return mFields[(int)fieldname].GetValue();
+        }      
+
+        public virtual void SetField(FieldName fieldname, float newval)
+        {
+            CombatStatsField field = mFields[(int)fieldname];
+            field.SetValue(newval);
+            SetDirty(field);
+        }
+
+        public virtual void AddToField(FieldName fieldname, float newval)
+        {
+            CombatStatsField field = mFields[(int)fieldname];
+            field.AddValue(newval);
+            SetDirty(field);
+        }
+
+        private void SetDirty(CombatStatsField field)
+        {
+            field.Dirty = true;
+            FieldName[] children = field.GetChildren();
+            for (int i = 0; i < children.Length; i++)
+            {
+                FieldName name = children[i];
+                CombatStatsField childfield = mFields[(int)name];
+                if (!childfield.Dirty) //set if not dirty yet and recurse
+                {
+                    SetDirty(childfield);
+                }
+            }
+        }
+
+        public bool SuppressComputeAll { get; set; }
+
+        public virtual void ComputeAll()
+        {
+            if (SuppressComputeAll)
+                return;
+
+            for (int i = 0; i < mTierFieldNames.Length; i++)
+            {
+                List<FieldName> currentTierNames = mTierFieldNames[i];
+                foreach (FieldName name in currentTierNames)
+                {
+                    CombatStatsField field = mFields[(int)name];
+                    if (field.Dirty)
+                    {
+                        field.Compute(mFields, mLocalCombatStats, mActorSynStats);
+                        field.Dirty = false;
+                    }
+                }
+            }
+            if (mActor != null)
+            {
+                mActor.UpdateLocalSkillPassiveStats();
+                mActor.OnComputeCombatStats();
+            }
+        }
+
+        public virtual List<FieldName>[] GetAllFields()
+        {
+            return mTierFieldNames;
+        }
+
+        public virtual int GetRandomAttack() //For Damage Computation
+        {
+            int attack = (int)GetField(FieldName.Attack);
+
+            return attack;
+        }
+    }
+
+    public class PlayerCombatStats : CombatStats
     {
         public static readonly int STRENGTH_MAX = 32767, STRENGTH_MIN = 0;
         public static readonly int AGILITY_MAX = 32767, AGILITY_MIN = 0;
@@ -469,36 +582,7 @@ namespace Zealot.Common.Entities
         public static readonly int SPSKILLDAMAGE_MAX = 200000, SPSKILLDAMAGE_MIN = 0;
         public static readonly int SPSKILLDAMAGEREDUCE_MAX = 200000, SPSKILLDAMAGEREDUCE_MIN = 0;
 
-        private abstract class CombatStatsField
-        {
-            protected float fieldValue;
-            protected FieldName[] children;
-            public bool Dirty { get; set; }
-
-            public float GetValue()
-            {
-                return fieldValue;
-            }
-
-            public void SetValue(float newval)
-            {
-                fieldValue = newval;
-            }
-
-            public void AddValue(float newval)
-            {
-                fieldValue += newval;
-            }
-
-            public virtual void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
-            {
-            }
-
-            public FieldName[] GetChildren()
-            {
-                return children;
-            }
-        }
+        
 
         private class AbsorbDamageBonusField : CombatStatsField
         {
@@ -1504,7 +1588,7 @@ namespace Zealot.Common.Entities
             {
                 float atk = fields[(int)FieldName.AttackBase].GetValue() + fields[(int)FieldName.AttackBonus].GetValue();
                 float atk_mod = fields[(int)FieldName.AttackPercBonus].GetValue() * 0.01f;
-                fieldValue = (int)(atk * (1 + atk_mod));
+                fieldValue = (atk * (1 + atk_mod));
 
                 if (localCombatStats != null)
                 {
@@ -3756,11 +3840,7 @@ namespace Zealot.Common.Entities
 
         //------------------------------------------------------------------------------
 
-        private CombatStatsField[] mFields;
-        private List<FieldName>[] mTierFieldNames;
-        private LocalCombatStats mLocalCombatStats;
-        private ActorSynStats mActorSynStats;
-        private IActor mActor;
+        
 
         /// <summary>
         /// passing the IActor for computation of LocalSKillPassiveStats.
@@ -4377,83 +4457,10 @@ namespace Zealot.Common.Entities
             };
         }
 
-        public float GetField(FieldName fieldname)
-        {
-            return mFields[(int)fieldname].GetValue();
-        }
-
         public float GetField(EquipmentAttributeType eqAtribType)
         {
             FieldName fieldname = GetFieldNameByEquipmentAbilityType(eqAtribType);
             return mFields[(int)fieldname].GetValue();
-        }
-
-        public void SetField(FieldName fieldname, float newval)
-        {
-            CombatStatsField field = mFields[(int)fieldname];
-            field.SetValue(newval);
-            SetDirty(field);
-        }
-
-        public void AddToField(FieldName fieldname, float newval)
-        {
-            CombatStatsField field = mFields[(int)fieldname];
-            field.AddValue(newval);
-            SetDirty(field);
-        }
-
-        private void SetDirty(CombatStatsField field)
-        {
-            field.Dirty = true;
-            FieldName[] children = field.GetChildren();
-            for (int i = 0; i < children.Length; i++)
-            {
-                FieldName name = children[i];
-                CombatStatsField childfield = mFields[(int)name];
-                if (!childfield.Dirty) //set if not dirty yet and recurse
-                {
-                    SetDirty(childfield);
-                }
-            }
-        }
-
-        public bool SuppressComputeAll { get; set; }
-
-        public void ComputeAll()
-        {
-            if (SuppressComputeAll)
-                return;
-
-            for (int i = 0; i < mTierFieldNames.Length; i++)
-            {
-                List<FieldName> currentTierNames = mTierFieldNames[i];
-                foreach (FieldName name in currentTierNames)
-                {
-                    CombatStatsField field = mFields[(int)name];
-                    if (field.Dirty)
-                    {
-                        field.Compute(mFields, mLocalCombatStats, mActorSynStats);
-                        field.Dirty = false;
-                    }
-                }
-            }
-            if (mActor != null)
-            {
-                mActor.UpdateLocalSkillPassiveStats();
-                mActor.OnComputeCombatStats();
-            }
-        }
-
-        public List<FieldName>[] GetAllFields()
-        {
-            return mTierFieldNames;
-        }
-
-        public int GetRandomAttack() //For Damage Computation
-        {
-            int attack = (int)GetField(FieldName.Attack);
-
-            return attack;
         }
 
         //public void ComputeEquippedCombatStats(EquipItem equipItem, int gemGroup, int selectedGemGroup, bool bAdd) {
@@ -4641,6 +4648,408 @@ namespace Zealot.Common.Entities
         }
     }
 
+
+    public class MonsterCombatStats : CombatStats
+    {
+        public override void ComputeAll()
+        {
+            if (SuppressComputeAll)
+                return;
+
+            for (int i = 0; i < mTierFieldNames.Length; i++)
+            {
+                List<FieldName> currentTierNames = mTierFieldNames[i];
+                foreach (FieldName name in currentTierNames)
+                {
+                    CombatStatsField field = mFields[(int)name];
+                    if (field.Dirty)
+                    {
+                        field.Compute(mFields);
+                        field.Dirty = false;
+                    }
+                }
+            }
+            if (mActor != null)
+            {
+                mActor.UpdateLocalSkillPassiveStats();
+                mActor.OnComputeCombatStats();
+            }
+        }
+
+        private class SimpleField : CombatStatsField
+        {
+            public SimpleField()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+        }
+
+        private class SimpleFieldModifier : CombatStatsField
+        {
+            public SimpleFieldModifier(FieldName name)
+            {
+                fieldValue = 0;
+                children = new FieldName[] { name };
+            }
+        }
+
+        private class Attack : CombatStatsField
+        {
+            public Attack()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.AttackBase].GetValue() + fields[(int)FieldName.AttackBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.AttackPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Armor : CombatStatsField
+        {
+            public Armor()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.ArmorBase].GetValue() + fields[(int)FieldName.ArmorBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.AttackPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Strength : CombatStatsField
+        {
+            public Strength()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
+            {
+                fieldValue = fields[(int)FieldName.StrengthBase].GetValue() + fields[(int)FieldName.StrengthBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.StrengthPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Agility : CombatStatsField
+        {
+            public Agility()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.AgilityBase].GetValue() + fields[(int)FieldName.AgilityBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.AgilityPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Dexterity : CombatStatsField
+        {
+            public Dexterity()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.DexterityBase].GetValue() + fields[(int)FieldName.DexterityBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.DexterityPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Constitution : CombatStatsField
+        {
+            public Constitution()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.ConstitutionBase].GetValue() + fields[(int)FieldName.ConstitutionBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.ConstitutionPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Intelligence : CombatStatsField
+        {
+            public Intelligence()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.IntelligenceBase].GetValue() + fields[(int)FieldName.IntelligenceBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.IntelligencePercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Accuracy : CombatStatsField
+        {
+            public Accuracy()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.AccuracyBase].GetValue() + fields[(int)FieldName.AccuracyBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.AccuracyPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Evasion : CombatStatsField
+        {
+            public Evasion()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.EvasionBase].GetValue() + fields[(int)FieldName.EvasionBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.EvasionPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Critical : CombatStatsField
+        {
+            public Critical()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.CriticalBase].GetValue() + fields[(int)FieldName.CriticalBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.CriticalPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class CriticalDamage : CombatStatsField
+        {
+            public CriticalDamage()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.CriticalDamageBase].GetValue() + fields[(int)FieldName.CriticalDamageBonus].GetValue();
+                //fieldValue *= 1.0f + fields[(int)FieldName.CriticalDamagePercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class CoCritical : CombatStatsField
+        {
+            public CoCritical()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.CocriticalBase].GetValue() + fields[(int)FieldName.CocriticalBonus].GetValue();
+                fieldValue *= 1.0f + fields[(int)FieldName.CocriticalPercBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class Movespeed : CombatStatsField
+        {
+            public Movespeed()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.MoveSpeedBase].GetValue() + (1.0f + (fields[(int)FieldName.MoveSpeedBuff].GetValue() - fields[(int)FieldName.MoveSpeedDebuff].GetValue()) * 0.01f);
+
+                fieldValue = Math.Max(18.0f, Math.Min(0.0f, fieldValue));
+            }
+        }
+
+        public MonsterCombatStats()
+        {
+            SuppressComputeAll = false;
+
+            int totalFields = (int)FieldName.LastField;
+            mFields = new CombatStatsField[totalFields];
+
+            mFields[(int)FieldName.Health] = new SimpleField();
+            mFields[(int)FieldName.HealthMax] = new SimpleField();
+
+            mFields[(int)FieldName.AttackBase] = new SimpleFieldModifier(FieldName.Attack);
+            mFields[(int)FieldName.AttackBonus] = new SimpleFieldModifier(FieldName.Attack);
+            mFields[(int)FieldName.AttackPercBonus] = new SimpleFieldModifier(FieldName.Attack);
+            mFields[(int)FieldName.Attack] = new Attack();
+
+            mFields[(int)FieldName.ArmorBase] = new SimpleFieldModifier(FieldName.Armor);
+            mFields[(int)FieldName.ArmorBonus] = new SimpleFieldModifier(FieldName.Armor);
+            mFields[(int)FieldName.ArmorPercBonus] = new SimpleFieldModifier(FieldName.Armor);
+            mFields[(int)FieldName.Armor] = new Armor();
+
+            mFields[(int)FieldName.StrengthBase] = new SimpleFieldModifier(FieldName.Strength);
+            mFields[(int)FieldName.StrengthBonus] = new SimpleFieldModifier(FieldName.Strength);
+            mFields[(int)FieldName.StrengthPercBonus] = new SimpleFieldModifier(FieldName.Strength);
+            mFields[(int)FieldName.Strength] = new Strength();
+
+            mFields[(int)FieldName.AgilityBase] = new SimpleFieldModifier(FieldName.Agility);
+            mFields[(int)FieldName.AgilityBonus] = new SimpleFieldModifier(FieldName.Agility);
+            mFields[(int)FieldName.AgilityPercBonus] = new SimpleFieldModifier(FieldName.Agility);
+            mFields[(int)FieldName.Agility] = new Agility();
+
+            mFields[(int)FieldName.DexterityBase] = new SimpleFieldModifier(FieldName.Dexterity);
+            mFields[(int)FieldName.DexterityBonus] = new SimpleFieldModifier(FieldName.Dexterity);
+            mFields[(int)FieldName.DexterityPercBonus] = new SimpleFieldModifier(FieldName.Dexterity);
+            mFields[(int)FieldName.Dexterity] = new Dexterity();
+
+            mFields[(int)FieldName.ConstitutionBase] = new SimpleFieldModifier(FieldName.Constitution);
+            mFields[(int)FieldName.ConstitutionBonus] = new SimpleFieldModifier(FieldName.Constitution);
+            mFields[(int)FieldName.ConstitutionPercBonus] = new SimpleFieldModifier(FieldName.Constitution);
+            mFields[(int)FieldName.Constitution] = new Constitution();
+
+            mFields[(int)FieldName.IntelligenceBase] = new SimpleFieldModifier(FieldName.Intelligence);
+            mFields[(int)FieldName.IntelligenceBonus] = new SimpleFieldModifier(FieldName.Intelligence);
+            mFields[(int)FieldName.IntelligencePercBonus] = new SimpleFieldModifier(FieldName.Intelligence);
+            mFields[(int)FieldName.Intelligence] = new Intelligence();
+
+            mFields[(int)FieldName.AccuracyBase] = new SimpleFieldModifier(FieldName.Accuracy);
+            mFields[(int)FieldName.AccuracyBonus] = new SimpleFieldModifier(FieldName.Accuracy);
+            mFields[(int)FieldName.AccuracyPercBonus] = new SimpleFieldModifier(FieldName.Accuracy);
+            mFields[(int)FieldName.Accuracy] = new Accuracy();
+
+            mFields[(int)FieldName.EvasionBase] = new SimpleFieldModifier(FieldName.Evasion);
+            mFields[(int)FieldName.EvasionBonus] = new SimpleFieldModifier(FieldName.Evasion);
+            mFields[(int)FieldName.EvasionPercBonus] = new SimpleFieldModifier(FieldName.Evasion);
+            mFields[(int)FieldName.Evasion] = new Evasion();
+
+            mFields[(int)FieldName.CriticalBase] = new SimpleFieldModifier(FieldName.Critical);
+            mFields[(int)FieldName.CriticalBonus] = new SimpleFieldModifier(FieldName.Critical);
+            mFields[(int)FieldName.CriticalPercBonus] = new SimpleFieldModifier(FieldName.Critical);
+            mFields[(int)FieldName.Critical] = new Critical();
+
+            mFields[(int)FieldName.CriticalDamageBase] = new SimpleFieldModifier(FieldName.CriticalDamage);
+            mFields[(int)FieldName.CriticalDamageBonus] = new SimpleFieldModifier(FieldName.CriticalDamage);
+            mFields[(int)FieldName.CriticalDamage] = new CriticalDamage();
+
+            mFields[(int)FieldName.CocriticalBase] = new SimpleFieldModifier(FieldName.Cocritical);
+            mFields[(int)FieldName.CocriticalBonus] = new SimpleFieldModifier(FieldName.Cocritical);
+            mFields[(int)FieldName.CocriticalPercBonus] = new SimpleFieldModifier(FieldName.Cocritical);
+            mFields[(int)FieldName.Cocritical] = new CoCritical();
+
+            mFields[(int)FieldName.MoveSpeedBase] = new SimpleFieldModifier(FieldName.MoveSpeed);
+            mFields[(int)FieldName.MoveSpeedBuff] = new SimpleFieldModifier(FieldName.MoveSpeed);
+            mFields[(int)FieldName.MoveSpeedDebuff] = new SimpleFieldModifier(FieldName.MoveSpeed);
+            mFields[(int)FieldName.MoveSpeed] = new Movespeed();
+
+            mFields[(int)FieldName.Element] = new SimpleField();
+
+            mTierFieldNames = new List<FieldName>[2]; //Number of tiers. Increase with deep dependencies.
+
+            mTierFieldNames[0] = new List<FieldName>()
+            {
+                FieldName.StrengthBase,
+                FieldName.StrengthBonus,
+                FieldName.StrengthPercBonus,
+                FieldName.AgilityBase,
+                FieldName.AgilityBonus,
+                FieldName.AgilityPercBonus,
+                FieldName.DexterityBase,
+                FieldName.DexterityBonus,
+                FieldName.DexterityPercBonus,
+                FieldName.ConstitutionBase,
+                FieldName.ConstitutionBonus,
+                FieldName.ConstitutionPercBonus,
+                FieldName.IntelligenceBase,
+                FieldName.IntelligenceBonus,
+                FieldName.IntelligencePercBonus,
+                FieldName.HealthMax,
+                FieldName.AttackBase,  
+                FieldName.AttackBonus,
+                FieldName.AttackPercBonus,
+                FieldName.ArmorBase,
+                FieldName.ArmorBonus,
+                FieldName.ArmorPercBonus,
+
+                FieldName.CriticalBase,
+                FieldName.CriticalBonus,
+                FieldName.CriticalPercBonus,
+                FieldName.CocriticalBase,
+                FieldName.CocriticalBonus,
+                FieldName.CocriticalPercBonus,
+                FieldName.EvasionBase,
+                FieldName.EvasionBonus,
+                FieldName.EvasionPercBonus,
+                FieldName.AccuracyBase,
+                FieldName.AccuracyBonus,
+                FieldName.AccuracyPercBonus,
+
+                FieldName.MoveSpeedBuff,
+                FieldName.MoveSpeedDebuff,
+            };
+
+            mTierFieldNames[1] = new List<FieldName>()
+            {
+                 FieldName.Strength,
+                 FieldName.Agility,
+                 FieldName.Dexterity,
+                 FieldName.Constitution,
+                 FieldName.Intelligence,
+                 FieldName.HealthMax,
+                 FieldName.Attack,
+
+                 FieldName.Critical,
+                 FieldName.CriticalDamage,
+                 FieldName.Cocritical,
+                 //FieldName.CoCriticalDamage,
+                 FieldName.Evasion,
+                 FieldName.Accuracy,
+
+                 FieldName.MoveSpeed,
+                 FieldName.Armor
+            };
+        }
+
+        public override float GetField(FieldName fieldname)
+        {
+            if (mFields[(int)fieldname] == null) return 0;
+            return mFields[(int)fieldname].GetValue();
+        }
+
+        public override void SetField(FieldName fieldname, float newval)
+        {
+            if (mFields[(int)fieldname] == null) return;
+            base.SetField(fieldname, newval);
+        }
+
+        public override void AddToField(FieldName fieldname, float newval)
+        {
+            if (mFields[(int)fieldname] == null) return;
+            base.AddToField(fieldname, newval);
+        }
+    }
 
     public enum SkillPassiveFieldName : int
     {

@@ -964,6 +964,7 @@
             skillInventory.SkillInvCount = SkillStats.SkillInvCount;
             skillInventory.equipGroup = SkillStats.EquipGroup;
             skillInventory.autoGroup = SkillStats.AutoGroup;
+            skillInventory.EquipSize = SkillStats.EquipSize;
 
             int count = SkillStats.EquippedSkill.Count;
             for (int i = 0; i < count; ++i)

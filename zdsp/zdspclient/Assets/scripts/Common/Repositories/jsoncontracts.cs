@@ -28,11 +28,11 @@ namespace Zealot.Common
     public enum TerrainType {Tavern = 0, TeaHouse = 1, Town = 2, Forest = 3, Inn = 4, Brothel = 5, Market = 6, Academy = 7, Villa = 8};
     public enum ChestRequirementType {None = 0, HeroID = 1, HeroInterest = 2, HeroTrust = 3};
     public enum ItemOriginType {Monster = 0, Item = 1, NPC = 2, UI = 3, Auction = 4};
-    public enum RealmType {World = 0, Dungeon = 1};
+    public enum RealmType {World = 0, Dungeon = 1, Tutorial = 2};
     public enum RealmPVPType {Peace = 0, FreeForAll = 1, Guild = 2, Faction = 3};
     public enum MapType {City = 0, Wilderness = 1, Dungeon = 2, Activity = 3, Others = 4};
     public enum DungeonDifficulty {None = 0, Easy = 1, Normal = 2, Hard = 3, Challenger = 4};
-    public enum DungeonType {Story = 0, Daily = 1, Special = 2, ChickenDinner = 3, EndlessTower = 4};
+    public enum DungeonType {Story = 0, Daily = 1, SpaceTime = 2, ChickenDinner = 3, EndlessTower = 4};
     public enum LootResetType {None = 0, Daily = 1, Weekly = 2};
     public enum LootCorrectionType {Minus10 = 1, Minus1120 = 2, Minus2130 = 3, Minus3140 = 4, Minus4150 = 5, Minus51 = 6};
     public enum LootType {Normal = 0, Share = 1, Boss = 2, BigBoss = 3, LastHit = 4, Explore = 5};
@@ -74,7 +74,7 @@ namespace Zealot.Common
     public enum HitType {Basic = 0, Definite = 1};
     public enum Threatzone {Single = 0, DegreeArc120 = 1, DegreeArc360 = 2, LongStream = 3};
     public enum CriticalType {Normal = 0, None = 1, Critical = 2};
-    public enum EffectType {Damage_NoElementDamage = 0, Damage_MetalDamage = 1, Damage_WoodDamage = 2, Damage_EarthDamage = 3, Damage_WaterDamage = 4, Damage_FireDamage = 5, Damage_DamageBasedOnWeaponElement = 6, Damage_PureDamage = 7, Stats_Strength = 50, Stats_Agility = 51, Stats_Dexterity = 52, Stats_Constitution = 53, Stats_Intelligence = 54, Stats_AttackSpeed = 55, Stats_AttackSpeed_Debuff = 56, Stats_CastSpeed = 57, Stats_CastSpeed_Debuff = 58, Stats_MoveSpeed = 59, Stats_MoveSpeed_Debuff = 60, Stats_ExpBonus = 61, Stats_MaxHealth = 62, Stats_HealthRegen = 63, Stats_MaxMana = 64, Stats_ManaRegen = 65, Stats_EnergyShield = 66, Stats_IgnoreArmor = 67, Stats_ChangeEleToNone = 68, Stats_ChangeEleToMetal = 69, Stats_ChangeEleToWood = 70, Stats_ChangeEleToEarth = 71, Stats_ChangeEleToWater = 72, Stats_ChangeEleToFire = 73, Stats_HeavyStand = 74, Stats_SkillCostReduce = 75, Stats_SkillAffectEnhance = 76, Stats_HealingPoint = 77, Stats_HealingPoint_Debuff = 78, Stats_HealingEffect = 79, Stats_HealingEffect_Debuff = 80, Stats_HealingIncome = 81, Stats_HealingIncome_Debuff = 82, Rejuvenate_HealthPotion = 100, Rejuvenate_ManaPotion = 101, Rejuvenate_Healing = 102, StatsAttack_WeaponAttack = 110, StatsAttack_WeaponAttack_Debuff = 111, StatsAttack_AttackPower = 112, StatsAttack_AttackPower_Debuff = 113, StatsAttack_Accuracy = 114, StatsAttack_Accuracy_Debuff = 115, StatsAttack_Critical = 116, StatsAttack_Critical_Debuff = 117, StatsAttack_CriticalDamage = 118, StatsAttack_CriticalDamage_Debuff = 119, StatsAttack_IncSmashDamage = 120, StatsAttack_IncSmashDamage_Debuff = 121, StatsAttack_IncSliceDamage = 122, StatsAttack_IncSliceDamage_Debuff = 123, StatsAttack_IncPierceDamage = 124, StatsAttack_IncPierceDamage_Debuff = 125, StatsAttack_IncEleNoneDamage = 126, StatsAttack_IncEleNoneDamageDebuff = 127, StatsAttack_IncEleMetalDamage = 128, StatsAttack_IncEleMetalDamage_Debuff = 129, StatsAttack_IncEleWoodDamage = 130, StatsAttack_IncEleWoodDamage_Debuff = 131, StatsAttack_IncEleEarthDamage = 132, StatsAttack_IncEleEarthDamage_Debuff = 133, StatsAttack_IncEleWaterDamage = 134, StatsAttack_IncEleWaterDamage_Debuff = 135, StatsAttack_IncEleFireDamage = 136, StatsAttack_IncEleFireDamage_Debuff = 137, StatsAttack_VSHumanDamage = 138, StatsAttack_VSHumanDamage_Debuff = 139, StatsAttack_VSZombieDamage = 140, StatsAttack_VSZombieDamage_Debuff = 141, StatsAttack_VSVampireDamage = 142, StatsAttack_VSVampireDamage_Debuff = 143, StatsAttack_VSAnimalDamage = 144, StatsAttack_VSAnimalDamage_Debuff = 145, StatsAttack_VSPlantDamage = 146, StatsAttack_VSPlantDamage_Debuff = 147, StatsAttack_VSEleNoneDamage = 148, StatsAttack_VSEleNoneDamage_Deduff = 149, StatsAttack_VSEleMetalDamage = 150, StatsAttack_VSEleMetalDamage_Debuff = 151, StatsAttack_VSEleWoodDamage = 152, StatsAttack_VsEleWoodDamage_Debuff = 153, StatsAttack_VSEleEarthDamage = 154, StatsAttack_VSEleEarthDamage_Debuff = 155, StatsAttack_VSEleWaterDamage = 156, StatsAttack_VSEleWaterDamage_Debuff = 157, StatsAttack_VSEleFireDamage = 158, StatsAttack_VSEleFireDamage_Debuff = 159, StatsAttack_VSBossDamage = 160, StatsAttack_IncFinalDamage = 161, StatsDefence_Armor = 200, StatsDefence_Armor_Debuff = 201, StatsDefence_Block = 202, StatsDefence_Block_Debuff = 203, StatsDefence_BlockValue = 204, StatsDefence_BlockValue_Debuff = 205, StatsDefence_Evasion = 206, StatsDefence_Evasion_Debuff = 207, StatsDefence_CoCritical = 208, StatsDefence_CoCritical_Debuff = 209, StatsDefence_IncSmashDefence = 210, StatsDefence_IncSmashDefence_Debuff = 211, StatsDefence_IncSliceDefence = 212, StatsDefence_IncSliceDefence_Debuff = 213, StatsDefence_IncPierceDefence = 214, StatsDefence_IncPierceDefence_Debuff = 215, StatsDefence_IncEleNoneDefence = 216, StatsDefence_IncEleNoneDefence_Debuff = 217, StatsDefence_IncEleMetalDefence = 218, StatsDefence_IncEleMetalDefence_Debuff = 219, StatsDefence_IncEleWoodDefence = 220, StatsDefence_IncEleWoodDefence_Debuff = 221, StatsDefence_IncEleEarthDefence = 222, StatsDefence_IncEleEarthDefence_Debuff = 223, StatsDefence_IncEleWaterDefence = 224, StatsDefence_IncEleWaterDefence_Debuff = 225, StatsDefence_IncEleFireDefence = 226, StatsDefence_IncEleFireDefence_Debuff = 227, StatsDefence_VSHumanDefence = 228, StatsDefence_VSHumanDefence_Debuff = 229, StatsDefence_VSZombieDefence = 230, StatsDefence_VSZombieDefence_Debuff = 231, StatsDefence_VSVampireDefence = 232, StatsDefence_VsVampireDefence_Debuff = 233, StatsDefence_VSAnimalDefence = 234, StatsDefence_VSAnimalDefence_Debuff = 235, StatsDefence_VSPlantDefence = 236, StatsDefence_VSPlantDefence_Debuff = 237, StatsDefence_DecreaseFinalDamage = 238, StatsDefence_AmplifyDamage = 239, StatsDefence_AmplifyDamage_Debuff = 240, Control_Stun = 300, Control_Root = 301, Control_Fear = 302, Control_Silence = 303, Control_Taunt = 304, Control_BeakBack = 305, SpecialControl_Freeze = 310, Immune_AllDamage = 350, Immune_AllDebuff = 351, Immune_AllImmune = 352, Immune_Stun = 353, Immune_Root = 354, Immune_Fear = 355, Immune_Silence = 356, Immune_Taunt = 357, Immune_Freeze = 358, Immune_BeakBack = 359, Remove_AllControl = 400, Remove_Stun = 401, Remove_Root = 402, Remove_Fear = 403, Remove_Silence = 404, Remove_RandomBuff = 405, Remove_RandomDebuff = 406, Remove_Freeze = 407, Stealth_Stealth = 420, Stealth_DetectStealth = 421, Trigger_OnNormalAttack = 450, Enhance_IncRepeatSE = 460, Enhance_IncSkillAffect = 461};
+    public enum EffectType {Damage_NoElementDamage = 0, Damage_MetalDamage = 1, Damage_WoodDamage = 2, Damage_EarthDamage = 3, Damage_WaterDamage = 4, Damage_FireDamage = 5, Damage_DamageBaseOnWeaponElement = 6, Damage_PureDamage = 7, Stats_Strength = 50, Stats_Agility = 51, Stats_Dexterity = 52, Stats_Constitution = 53, Stats_Intelligence = 54, Stats_AttackSpeed = 55, Stats_AttackSpeed_Debuff = 56, Stats_CastSpeed = 57, Stats_CastSpeed_Debuff = 58, Stats_MoveSpeed = 59, Stats_MoveSpeed_Debuff = 60, Stats_ExpBonus = 61, Stats_MaxHealth = 62, Stats_HealthRegen = 63, Stats_MaxMana = 64, Stats_ManaRegen = 65, Stats_EnergyShield = 66, Stats_IgnoreArmor = 67, Stats_ChangeEleToNone = 68, Stats_ChangeEleToMetal = 69, Stats_ChangeEleToWood = 70, Stats_ChangeEleToEarth = 71, Stats_ChangeEleToWater = 72, Stats_ChangeEleToFire = 73, Stats_HeavyStand = 74, Stats_SkillCostReduce = 75, Stats_SkillAffectEnhance = 76, Stats_HealingPoint = 77, Stats_HealingPoint_Debuff = 78, Stats_HealingEffect = 79, Stats_HealingEffect_Debuff = 80, Stats_HealingIncome = 81, Stats_HealingIncome_Debuff = 82, Rejuvenate_HealthPotion = 100, Rejuvenate_ManaPotion = 101, Rejuvenate_Healing = 102, StatsAttack_WeaponAttack = 110, StatsAttack_WeaponAttack_Debuff = 111, StatsAttack_AttackPower = 112, StatsAttack_AttackPower_Debuff = 113, StatsAttack_Accuracy = 114, StatsAttack_Accuracy_Debuff = 115, StatsAttack_Critical = 116, StatsAttack_Critical_Debuff = 117, StatsAttack_CriticalDamage = 118, StatsAttack_CriticalDamage_Debuff = 119, StatsAttack_IncSmashDamage = 120, StatsAttack_IncSmashDamage_Debuff = 121, StatsAttack_IncSliceDamage = 122, StatsAttack_IncSliceDamage_Debuff = 123, StatsAttack_IncPierceDamage = 124, StatsAttack_IncPierceDamage_Debuff = 125, StatsAttack_IncEleNoneDamage = 126, StatsAttack_IncEleNoneDamage_Debuff = 127, StatsAttack_IncEleMetalDamage = 128, StatsAttack_IncEleMetalDamage_Debuff = 129, StatsAttack_IncEleWoodDamage = 130, StatsAttack_IncEleWoodDamage_Debuff = 131, StatsAttack_IncEleEarthDamage = 132, StatsAttack_IncEleEarthDamage_Debuff = 133, StatsAttack_IncEleWaterDamage = 134, StatsAttack_IncEleWaterDamage_Debuff = 135, StatsAttack_IncEleFireDamage = 136, StatsAttack_IncEleFireDamage_Debuff = 137, StatsAttack_VSHumanDamage = 138, StatsAttack_VSHumanDamage_Debuff = 139, StatsAttack_VSZombieDamage = 140, StatsAttack_VSZombieDamage_Debuff = 141, StatsAttack_VSVampireDamage = 142, StatsAttack_VSVampireDamage_Debuff = 143, StatsAttack_VSAnimalDamage = 144, StatsAttack_VSAnimalDamage_Debuff = 145, StatsAttack_VSPlantDamage = 146, StatsAttack_VSPlantDamage_Debuff = 147, StatsAttack_VSEleNoneDamage = 148, StatsAttack_VSEleNoneDamage_Debuff = 149, StatsAttack_VSEleMetalDamage = 150, StatsAttack_VSEleMetalDamage_Debuff = 151, StatsAttack_VSEleWoodDamage = 152, StatsAttack_VsEleWoodDamage_Debuff = 153, StatsAttack_VSEleEarthDamage = 154, StatsAttack_VSEleEarthDamage_Debuff = 155, StatsAttack_VSEleWaterDamage = 156, StatsAttack_VSEleWaterDamage_Debuff = 157, StatsAttack_VSEleFireDamage = 158, StatsAttack_VSEleFireDamage_Debuff = 159, StatsAttack_VSBossDamage = 160, StatsAttack_IncFinalDamage = 161, StatsDefence_Armor = 200, StatsDefence_Armor_Debuff = 201, StatsDefence_Block = 202, StatsDefence_Block_Debuff = 203, StatsDefence_BlockValue = 204, StatsDefence_BlockValue_Debuff = 205, StatsDefence_Evasion = 206, StatsDefence_Evasion_Debuff = 207, StatsDefence_CoCritical = 208, StatsDefence_CoCritical_Debuff = 209, StatsDefence_IncSmashDefence = 210, StatsDefence_IncSmashDefence_Debuff = 211, StatsDefence_IncSliceDefence = 212, StatsDefence_IncSliceDefence_Debuff = 213, StatsDefence_IncPierceDefence = 214, StatsDefence_IncPierceDefence_Debuff = 215, StatsDefence_IncEleNoneDefence = 216, StatsDefence_IncEleNoneDefence_Debuff = 217, StatsDefence_IncEleMetalDefence = 218, StatsDefence_IncEleMetalDefence_Debuff = 219, StatsDefence_IncEleWoodDefence = 220, StatsDefence_IncEleWoodDefence_Debuff = 221, StatsDefence_IncEleEarthDefence = 222, StatsDefence_IncEleEarthDefence_Debuff = 223, StatsDefence_IncEleWaterDefence = 224, StatsDefence_IncEleWaterDefence_Debuff = 225, StatsDefence_IncEleFireDefence = 226, StatsDefence_IncEleFireDefence_Debuff = 227, StatsDefence_VSHumanDefence = 228, StatsDefence_VSHumanDefence_Debuff = 229, StatsDefence_VSZombieDefence = 230, StatsDefence_VSZombieDefence_Debuff = 231, StatsDefence_VSVampireDefence = 232, StatsDefence_VsVampireDefence_Debuff = 233, StatsDefence_VSAnimalDefence = 234, StatsDefence_VSAnimalDefence_Debuff = 235, StatsDefence_VSPlantDefence = 236, StatsDefence_VSPlantDefence_Debuff = 237, StatsDefence_DecreaseFinalDamage = 238, StatsDefence_AmplifyDamage = 239, StatsDefence_AmplifyDamage_Debuff = 240, Control_Stun = 300, Control_Root = 301, Control_Fear = 302, Control_Silence = 303, Control_Taunt = 304, Control_BeakBack = 305, SpecialControl_Freeze = 310, Immune_AllDamage = 350, Immune_AllDebuff = 351, Immune_AllImmune = 352, Immune_Stun = 353, Immune_Root = 354, Immune_Fear = 355, Immune_Silence = 356, Immune_Taunt = 357, Immune_Freeze = 358, Immune_BeakBack = 359, Remove_AllControl = 400, Remove_Stun = 401, Remove_Root = 402, Remove_Fear = 403, Remove_Silence = 404, Remove_RandomBuff = 405, Remove_RandomDebuff = 406, Remove_Freeze = 407, Stealth_Stealth = 420, Stealth_DetectStealth = 421, Trigger_OnNormalAttack = 450, Enhance_IncRepeatSE = 460, Enhance_IncSkillAffect = 461};
     public enum InteractiveType {OpenTalent = 0, OpenGem = 1};
     public enum ItemRarity {Common = 0, Uncommon = 1, Rare = 2, Epic = 3, Celestial = 4, Legendary = 5};
     public enum ItemType {Invalid = 0, PotionFood = 1, Material = 2, LuckyPick = 3, Henshin = 4, Features = 5, Equipment = 6, DNA = 7, Relic = 8, QuestItem = 9, MercenaryItem = 10, InstanceItem = 11, PetItem = 12, ElementalStone = 13};
@@ -124,6 +124,10 @@ namespace Zealot.Common
     public enum ClueCondition {None = 3, Quest = 0, Achivement = 1, Item = 2};
     public enum ClueCategory {Video = 0, Photo = 1, Sound = 2, Word = 3};
     public enum ClueMemoryType {Non = 0, Event = 1, Special = 2};
+    public enum ApperanceType {HairStyle = 0, HairColor = 1, MakeUp = 2, SkinColor = 3};
+    public enum ApperanceGender {Male = 0, Female = 1, All = 2};
+    public enum ApperanceCurrency {Silver = 0, Ingot = 1, Free = 2, NFS = 3};
+    public enum FilterType {All = 0, Naming = 1, Chat = 2};
 
 }
 
@@ -2954,50 +2958,94 @@ namespace Kopio.JsonContracts
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class SurnameJson
+    public class AppearanceJson
     {
         [JsonProperty("0")]
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public string surname { get; set; } 
+        public int partid { get; set; } 
+        
+        [JsonProperty("2")]
+        public ApperanceType parttype { get; set; } 
+        
+        [JsonProperty("3")]
+        public int sortid { get; set; } 
+        
+        [JsonProperty("4")]
+        public string iconpath { get; set; } 
+        
+        [JsonProperty("5")]
+        public string meshpath { get; set; } 
+        
+        [JsonProperty("6")]
+        public string materialpath { get; set; } 
+        
+        [JsonProperty("7")]
+        public string color { get; set; } 
+        
+        [JsonProperty("8")]
+        public ApperanceGender gender { get; set; } 
+        
+        [JsonProperty("9")]
+        public ApperanceCurrency currencytype { get; set; } 
+        
+        [JsonProperty("10")]
+        public int price { get; set; } 
+        
+        [JsonProperty("11")]
+        public int salerate { get; set; } 
+        
+        [JsonProperty("12")]
+        public string onsaletime { get; set; } 
+        
+        [JsonProperty("13")]
+        public string offsaletime { get; set; } 
+        
+        [JsonProperty("14")]
+        public string onstoretime { get; set; } 
+        
+        [JsonProperty("15")]
+        public string offstoretime { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
-            surname = (string)vals["surname"];
+            partid = (int)vals["partid"];
+            parttype = (ApperanceType)vals["parttype"];
+            sortid = (int)vals["sortid"];
+            iconpath = (string)vals["iconpath"];
+            meshpath = (string)vals["meshpath"];
+            materialpath = (string)vals["materialpath"];
+            color = (string)vals["color"];
+            gender = (ApperanceGender)vals["gender"];
+            currencytype = (ApperanceCurrency)vals["currencytype"];
+            price = (int)vals["price"];
+            salerate = (int)vals["salerate"];
+            onsaletime = (string)vals["onsaletime"];
+            offsaletime = (string)vals["offsaletime"];
+            onstoretime = (string)vals["onstoretime"];
+            offstoretime = (string)vals["offstoretime"];
         }
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class MaleNameJson
+    public class CharacterNameJson
     {
         [JsonProperty("0")]
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public string name { get; set; } 
+        public string firstname { get; set; } 
+        
+        [JsonProperty("2")]
+        public string lastname { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
-            name = (string)vals["name"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class FemaleNameJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public string name { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            name = (string)vals["name"];
+            firstname = (string)vals["firstname"];
+            lastname = (string)vals["lastname"];
         }
     }
     
@@ -3242,6 +3290,10 @@ namespace Kopio.JsonContracts
         [JsonProperty("7")]
         public string effectpath { get; set; } 
         
+        [AssetData("sprite")]
+        [JsonProperty("8")]
+        public string loadingbgpath { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -3252,6 +3304,7 @@ namespace Kopio.JsonContracts
             banitemtype = (string)vals["banitemtype"];
             banitemid = (string)vals["banitemid"];
             effectpath = (string)vals["effectpath"];
+            loadingbgpath = (string)vals["loadingbgpath"];
         }
     }
     
@@ -3527,6 +3580,74 @@ namespace Kopio.JsonContracts
             lootlimit = (int)vals["lootlimit"];
             lootresettype = (LootResetType)vals["lootresettype"];
             lootresettime = (string)vals["lootresettime"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class TutorialJson : RealmJson
+    {
+        [JsonProperty("0")]
+        public override int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public override string excelname { get; set; } 
+        
+        [JsonProperty("2")]
+        public override string localizedname { get; set; } 
+        
+        //type LevelJson
+        [JsonProperty("3")]
+        public override int level { get; set; } 
+        
+        [JsonProperty("4")]
+        public override int reqlvl { get; set; } 
+        
+        [JsonProperty("5")]
+        public override RealmPVPType pvptype { get; set; } 
+        
+        [JsonProperty("6")]
+        public override int preparation { get; set; } 
+        
+        [JsonProperty("7")]
+        public override int timelimit { get; set; } 
+        
+        //type RespawnJson
+        [JsonProperty("8")]
+        public override int respawn { get; set; } 
+        
+        [JsonProperty("9")]
+        public override int respawncd { get; set; } 
+        
+        [JsonProperty("10")]
+        public override int minplayer { get; set; } 
+        
+        [JsonProperty("11")]
+        public override int maxplayer { get; set; } 
+        
+        [JsonProperty("12")]
+        public override MapType maptype { get; set; } 
+        
+        public override RealmType type { get { return RealmType.Tutorial; } } 
+        
+        [JsonProperty("13")]
+        public string localizeddescription { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            excelname = (string)vals["excelname"];
+            localizedname = (string)vals["localizedname"];
+            level = (int)vals["level"];
+            reqlvl = (int)vals["reqlvl"];
+            pvptype = (RealmPVPType)vals["pvptype"];
+            preparation = (int)vals["preparation"];
+            timelimit = (int)vals["timelimit"];
+            respawn = (int)vals["respawn"];
+            respawncd = (int)vals["respawncd"];
+            minplayer = (int)vals["minplayer"];
+            maxplayer = (int)vals["maxplayer"];
+            maptype = (MapType)vals["maptype"];
+            localizeddescription = (string)vals["localizeddescription"];
         }
     }
     
@@ -4915,22 +5036,22 @@ namespace Kopio.JsonContracts
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class WordFilterJson
+    public class DisableWordJson
     {
         [JsonProperty("0")]
         public int id { get; set; } 
         
         [JsonProperty("1")]
-        public string word { get; set; } 
+        public FilterType filtertype { get; set; } 
         
         [JsonProperty("2")]
-        public DirtyWordType dirtywordtype { get; set; } 
+        public string word { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
+            filtertype = (FilterType)vals["filtertype"];
             word = (string)vals["word"];
-            dirtywordtype = (DirtyWordType)vals["dirtywordtype"];
         }
     }
     
@@ -6681,7 +6802,7 @@ namespace Kopio.JsonContracts
         public GuildTechType type { get; set; } 
         
         [JsonProperty("4")]
-        public string description { get; set; } 
+        public string localizeddescription { get; set; } 
         
         [AssetData("sprite")]
         [JsonProperty("5")]
@@ -6693,7 +6814,7 @@ namespace Kopio.JsonContracts
             name = (string)vals["name"];
             localizedname = (string)vals["localizedname"];
             type = (GuildTechType)vals["type"];
-            description = (string)vals["description"];
+            localizeddescription = (string)vals["localizeddescription"];
             icon = (string)vals["icon"];
         }
     }
@@ -8691,13 +8812,10 @@ namespace Kopio.JsonContracts
         public Dictionary<int, JobTreeJson> JobTree = new Dictionary<int, JobTreeJson>();
 
         [JsonProperty]
-        public Dictionary<int, SurnameJson> Surname = new Dictionary<int, SurnameJson>();
+        public Dictionary<int, AppearanceJson> Appearance = new Dictionary<int, AppearanceJson>();
 
         [JsonProperty]
-        public Dictionary<int, MaleNameJson> MaleName = new Dictionary<int, MaleNameJson>();
-
-        [JsonProperty]
-        public Dictionary<int, FemaleNameJson> FemaleName = new Dictionary<int, FemaleNameJson>();
+        public Dictionary<int, CharacterNameJson> CharacterName = new Dictionary<int, CharacterNameJson>();
 
         [JsonProperty]
         public Dictionary<int, PortraitJson> Portrait = new Dictionary<int, PortraitJson>();
@@ -8731,6 +8849,9 @@ namespace Kopio.JsonContracts
 
         [JsonProperty]
         public Dictionary<int, DungeonJson> Dungeon = new Dictionary<int, DungeonJson>();
+
+        [JsonProperty]
+        public Dictionary<int, TutorialJson> Tutorial = new Dictionary<int, TutorialJson>();
 
         [JsonProperty]
         public Dictionary<int, RewardListJson> RewardList = new Dictionary<int, RewardListJson>();
@@ -8802,7 +8923,7 @@ namespace Kopio.JsonContracts
         public Dictionary<int, LimitedItemJson> LimitedItem = new Dictionary<int, LimitedItemJson>();
 
         [JsonProperty]
-        public Dictionary<int, WordFilterJson> WordFilter = new Dictionary<int, WordFilterJson>();
+        public Dictionary<int, DisableWordJson> DisableWord = new Dictionary<int, DisableWordJson>();
 
         [JsonProperty]
         public Dictionary<int, GUILocalizedStringJson> GUILocalizedString = new Dictionary<int, GUILocalizedStringJson>();
@@ -9237,14 +9358,11 @@ namespace Kopio.JsonContracts
                 case "JobTreeJson":
                 JobTree.Add((item as JobTreeJson).id, item as JobTreeJson);
                 break;
-                case "SurnameJson":
-                Surname.Add((item as SurnameJson).id, item as SurnameJson);
+                case "AppearanceJson":
+                Appearance.Add((item as AppearanceJson).id, item as AppearanceJson);
                 break;
-                case "MaleNameJson":
-                MaleName.Add((item as MaleNameJson).id, item as MaleNameJson);
-                break;
-                case "FemaleNameJson":
-                FemaleName.Add((item as FemaleNameJson).id, item as FemaleNameJson);
+                case "CharacterNameJson":
+                CharacterName.Add((item as CharacterNameJson).id, item as CharacterNameJson);
                 break;
                 case "PortraitJson":
                 Portrait.Add((item as PortraitJson).id, item as PortraitJson);
@@ -9278,6 +9396,9 @@ namespace Kopio.JsonContracts
                 break;
                 case "DungeonJson":
                 Dungeon.Add((item as DungeonJson).id, item as DungeonJson);
+                break;
+                case "TutorialJson":
+                Tutorial.Add((item as TutorialJson).id, item as TutorialJson);
                 break;
                 case "RewardListJson":
                 RewardList.Add((item as RewardListJson).id, item as RewardListJson);
@@ -9348,8 +9469,8 @@ namespace Kopio.JsonContracts
                 case "LimitedItemJson":
                 LimitedItem.Add((item as LimitedItemJson).id, item as LimitedItemJson);
                 break;
-                case "WordFilterJson":
-                WordFilter.Add((item as WordFilterJson).id, item as WordFilterJson);
+                case "DisableWordJson":
+                DisableWord.Add((item as DisableWordJson).id, item as DisableWordJson);
                 break;
                 case "GUILocalizedStringJson":
                 GUILocalizedString.Add((item as GUILocalizedStringJson).id, item as GUILocalizedStringJson);

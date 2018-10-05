@@ -6,5 +6,33 @@
 			<property name="pclass" type="CharPortraitType" uitext="pclass"/>
 			<property name="path" type="string" uitext="path"/> 
 		</element>
+
+    <element name="Appearance" useexcel="true">
+      <property name="partid" type="int" uitext="Part Id" unique="true"/>
+      <property name="parttype" type="ApperanceType" uitext="Part Type" default="0"/>
+      <property name="sortid" type="int" uitext="Sort Id" default="0"/>
+      <property name="iconpath" type="string" uitext="Icon Path"/>
+      <property name="meshpath" type="string" uitext="Mesh Path"/>
+      <property name="materialpath" type="string" uitext="Material Path"/>
+      <property name="color" type="string" uitext="Color"/>
+      <property name="gender" type="ApperanceGender" uitext="Gender" default="0"/>
+      <property name="currencytype" type="ApperanceCurrency" uitext="Currency Type" default="0"/>
+      <property name="price" type="int" uitext="Price" default="0"/>
+      <property name="salerate" type="int" uitext="Sale Rate"  default="100"/>
+      <property name="onsaletime" type="string" uitext="On Sale Time" info="YYYY/MM/DD.HH:MM"/>
+      <property name="offsaletime" type="string" uitext="Off Sale Time" info="YYYY/MM/DD.HH:MM"/>
+      <property name="onstoretime" type="string" uitext="On Store Time" info="YYYY/MM/DD.HH:MM"/>
+      <property name="offstoretime" type="string" uitext="Off Store Time" info="YYYY/MM/DD.HH:MM"/>
+    </element>
+
+    <element name="CharacterName" useexcel="true">
+      <property name="firstname" type="localizedstring" uitext="First Name"/>
+      <property name="lastname" type="localizedstring" uitext="Last Name"/>
+    </element>
+
+    <element name="DisableWord" useexcel="true">
+      <property name="filtertype" type="FilterType" uitext="Filter Type"/>
+      <property name="word" type="localizedstring" uitext="Word"/>
+    </element>
 	</data>
 </magicalarea51>

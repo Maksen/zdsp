@@ -593,6 +593,17 @@ namespace Zealot.Repository
             return skillData.skillgroupJson.priority;
         }
 
+        public static TargetType GetSkillTargetType(int skillid)
+        {
+            if (skillid == 0)
+                return 0;
+
+            SkillData skillData;
+            mSkills.TryGetValue(skillid, out skillData);
+
+            return skillData.skillgroupJson.targettype;
+        }
+
         //public static SkillData GetSkill(int skillgroupId, int level)
         //{
         //    int sid = -1;

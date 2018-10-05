@@ -88,6 +88,16 @@ namespace Zealot.Client.Entities
             return LocalCombatStats.HealthMax;
         }
 
+        public int GetMana()
+        {
+            return LocalCombatStats.Mana;
+        }
+
+        public int GetManaMax()
+        {
+            return LocalCombatStats.ManaMax;
+        }
+
         public bool IsGuildLeader()
         {
             return SecondaryStats.guildRank == (byte)GuildRankType.Leader;
@@ -613,29 +623,23 @@ namespace Zealot.Client.Entities
                 }
 
                 GameObject uiEquipUpgradeObj = UIManager.GetWindowGameObject(WindowType.EquipUpgrade);
-                if(uiEquipUpgradeObj != null && uiEquipUpgradeObj.activeSelf == true)
+                if(uiEquipUpgradeObj.activeInHierarchy)
                 {
                     UI_EquipmentUpgrade uiEquipUpgrade = uiEquipUpgradeObj.GetComponent<UI_EquipmentUpgrade>();
                     if(uiEquipUpgrade != null)
-                    {
                         uiEquipUpgrade.Refresh();
-                    }
                 }
 
                 GameObject uiEquipReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
-                if(uiEquipReformObj != null && uiEquipReformObj.activeSelf == true)
+                if(uiEquipReformObj.activeInHierarchy)
                 {
                     UI_EquipmentReform uiEquipReform = uiEquipReformObj.GetComponent<UI_EquipmentReform>();
                     if(uiEquipReform != null)
                     {
                         if(uiEquipReform.reformTab.isOn)
-                        {
                             uiEquipReform.RefreshReform();
-                        }
                         else
-                        {
                             uiEquipReform.RefreshRecycle();
-                        }
                     }
                 }
             }
@@ -646,9 +650,6 @@ namespace Zealot.Client.Entities
                 else
                     mEquipmentInvData.SetFashionToSlot(idx, null);
             }
-            GameObject _inventoryWindow = UIManager.GetWindowGameObject(WindowType.Inventory);
-            if (_inventoryWindow != null && _inventoryWindow.activeSelf)
-                _inventoryWindow.GetComponent<UI_Inventory>().RefreshLeft(this);
         }
 
         public void OnEquipmentStatsLocalObjectChanged()
@@ -656,10 +657,13 @@ namespace Zealot.Client.Entities
             mEquipmentInvData.HideHelm = EquipmentStats.HideHelm;
             AvatarController controller = AnimObj.GetComponent<AvatarController>();
             controller.InitAvatar(mEquipmentInvData, (JobType)PlayerSynStats.jobsect, mGender);
+
+            GameObject inventoryWindow = UIManager.GetWindowGameObject(WindowType.Inventory);
+            if (inventoryWindow.activeInHierarchy)
+                inventoryWindow.GetComponent<UI_Inventory>().RefreshLeft(this);
+
             if (IsLocal)
-            {
                 UpdateQuestRequirement(QuestRequirementType.Equipment, -1);
-            }
         }
 
         public void OnItemHotbarCollectionChanged(string field, byte idx, object value)

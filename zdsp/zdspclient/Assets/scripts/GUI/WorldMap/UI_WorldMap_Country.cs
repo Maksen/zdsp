@@ -34,7 +34,7 @@ public class UI_WorldMap_Country : MonoBehaviour
         mDestinationLvStr = string.Empty;
     }
 
-    public void Init(WorldMapCountry wmr, UnityAction action)
+    public void Init(WorldMapCountry wmr, UnityAction action, UnityAction<Sprite> areaSpriteAction)
     {
         mCountryName.text = wmr.name;
         mLvReq.text = wmr.lvRange;
@@ -46,7 +46,7 @@ public class UI_WorldMap_Country : MonoBehaviour
             obj.transform.SetParent(mPlaceParent.transform, false);
 
             UI_WorldMap_PlaceInterest wmpi = obj.GetComponent<UI_WorldMap_PlaceInterest>();
-            wmpi.Init(wmr.placeLst[i], OnSelectPlaceInterest);
+            wmpi.Init(wmr.placeLst[i], OnSelectPlaceInterest, areaSpriteAction);
         }
         for (int i = 0; i < wmr.monLst.Count; ++i)
         {

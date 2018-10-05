@@ -1,5 +1,4 @@
-﻿
-using Zealot.Client.Entities;
+﻿using Zealot.Client.Entities;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Entities;
@@ -30,16 +29,16 @@ namespace Zealot.Bot
         NPC_Interact = 2,
         PartyFollow = 3
     }
+
     public class BotController
     {
         public static Vector3 DestMapPos = Vector3.zero;
         public static string DestLevel = "";
         public static ReachTargetAction DestAction = ReachTargetAction.None;
         public static int DestArchtypeID = -1;
-
         public static bool AutoStartInRealm = false;
-
         public static WorldMapGraphWithDijkstra TheDijkstra = new WorldMapGraphWithDijkstra();
+
         /// <summary>
         /// the actack type define the skill casting behavior of the player,
         /// from this enum, you should determine the skillid the player is current is using.
@@ -63,7 +62,7 @@ namespace Zealot.Bot
             DestMapPos = Vector3.zero;
             DestAction = ReachTargetAction.None;
             DestArchtypeID = -1;
-            if (TheDijkstra.LastRouterByPortal !=null)
+            if (TheDijkstra.LastRouterByPortal != null)
                 TheDijkstra.LastRouterByPortal.Clear();
         }
 
@@ -71,8 +70,6 @@ namespace Zealot.Bot
         {
             AutoSkillAndMove = 0,//the full automatic mode, castskill and move, also can be controlled by player.
             ManulControl = 1, //the bot disabled
-            AutoMove = 2, //atuo move and basic attack, skill only casted by player
-            AutoSkill = 3,//autocast skill if within attack radius only,  does not seek target. 
         }
 
         public static BotMode MODE = BotMode.ManulControl;
@@ -85,7 +82,10 @@ namespace Zealot.Bot
         private PlayerInput mPlayerInput;
         public Vector3 CurrentScreenCenterPos;
         private List<AutoSkill> autoSkills = new List<AutoSkill>();
-        private int autoSkillIndex = -1;
+        private int autoSkillIndex = -1; // The first index of list is 0
+        private int skillidToCast = 0; // 0 means no skill
+        private ActorGhost manualSelectTarget; // The target that is selected by user in bot mode
+
         private AttackType[] mAttackSequence = new AttackType[] {
             AttackType.JobSkill,
             AttackType.RedHeroCardSKill,
@@ -93,6 +93,7 @@ namespace Zealot.Bot
             AttackType.BlueHeroCardSKill,
             AttackType.BasicAttack
         };
+
 
         public BotController(PlayerGhost playerGhost, PlayerInput playerInput)
         {
@@ -104,18 +105,9 @@ namespace Zealot.Bot
         }
 
         private bool mEnabled;
-        public bool Enabled {
-            get { return mEnabled; }
-        }
-
-
-        //one function only do one task.
-        private void SetBotMode(int mode)
+        public bool Enabled
         {
-            if (mode >= 0 && mode < 4)
-            {
-                MODE = (BotMode)mode;
-            }
+            get { return mEnabled; }
         }
 
         public void StartBot(BotMode mode = BotMode.AutoSkillAndMove)
@@ -124,14 +116,29 @@ namespace Zealot.Bot
             mHUDSkills.OnBotStart();
             MODE = mode;
             GameSettings.AutoBotEnabled = true;
+            SetupManualSelectedTarget((ActorGhost)GameInfo.gSelectedEntity);
+        }
+
+        public void StopBot()
+        {
+            if (!mEnabled)
+                return;
+
+            mSeekingPosition = Vector3.zero;
+            StopMoving();
+            mEnabled = false;
+            mHUDSkills.OnBotStop();
+            GameSettings.AutoBotEnabled = false;
+            mPlayerInput.ListenForNewEnemy(null);
         }
 
         /// <summary>
         /// Update the auto skills that player can cast in the bot mode.
         /// </summary>
         /// <param name="autoSkillRow">This list stores the skill IDs</param>
-        public void UpdateAutoSkillRow(List<int> autoSkillRow)
+        public void UpdateAutoSkillRow()
         {
+            List<int> autoSkillRow = GetAutoSkillRow();
             if (autoSkillRow == null)
                 return;
 
@@ -150,30 +157,38 @@ namespace Zealot.Bot
             autoSkills.Sort((skill1, skill2) => { return -skill1.priority.CompareTo(skill2.priority); });
         }
 
-        private int GetNextAutoSkill(ref int index)
+        private int GetNextAutoSkill()
         {
-            index++;
-            if(index < autoSkills.Count)
+            if (++autoSkillIndex < autoSkills.Count)
             {
-                return autoSkills[index].skillid;
+                return autoSkills[autoSkillIndex].skillid;
             }
-            index = -1;
-            return 0;
+            return autoSkillIndex = -1;
         }
 
-        public void StopBot() //Call when interrupt by player's manual playerinput, teleport, killed, etc
+        private List<int> GetAutoSkillRow()
         {
-            if (mEnabled)
+            List<int> autoSkillRow = new List<int>();
+
+            for (int i = 0; i < 5; ++i)
             {
-                lastQueried = 0;
-                mCurrentTarget = null;
-                mSeekingPosition = Vector3.zero;
-                StopMoving();
-                mEnabled = false;
-                mHUDSkills.OnBotStop();
-                GameSettings.AutoBotEnabled = false;
+                int autoSkillID = (int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[ConvertToAutoSkillIndex(i)];
+
+                if (autoSkillID != 0) // 0 means no skill in the slot
+                {
+                    autoSkillRow.Add(autoSkillID);
+                }
             }
+
+            return autoSkillRow;
         }
+
+        private int ConvertToAutoSkillIndex(int index)
+        {
+            // TODO hardcode the EquippableSize for temp
+            return 5 * (GameInfo.gLocalPlayer.SkillStats.AutoGroup - 1) + index;
+        }
+
 
         private Vector3 mSeekingPosition = Vector3.zero;
         private System.Action OnSeekDone;
@@ -194,7 +209,7 @@ namespace Zealot.Bot
             mLocalPlayer.ForceIdle();//prepare for next update.
             mSeekingPosition = Pos;
             OnSeekDone = action;
-            
+
             mLocalPlayer.PathFindToTarget(mSeekingPosition, -1, ATTACK_RANGE, true, false, () => {
                 mSeekingPosition = Vector3.zero;
                 if (OnSeekDone != null)
@@ -202,7 +217,6 @@ namespace Zealot.Bot
                     OnSeekDone.Invoke();
                 }
             }); //  move closer thank the ATTACK_RANGE for hit easily
-
         }
 
         public bool IsSeekingWithRouter()
@@ -286,7 +300,7 @@ namespace Zealot.Bot
 
         private void StopMoving()
         {
-            if(mLocalPlayer.IsMoving())
+            if (mLocalPlayer.IsMoving())
                 mLocalPlayer.ForceIdle();
         }
 
@@ -319,114 +333,113 @@ namespace Zealot.Bot
             if (mLocalPlayer.IsStun())
                 return;
 
-
-            PlayerIsControlledByKeyboard();
+            if (IsControlledByKeyboard())
+                return;
 
             if (mSeekingPosition.sqrMagnitude > 0)
             {
-                if(mLocalPlayer.IsMoving()) //make sure player is walking .some target maybe unreachable
+                if (mLocalPlayer.IsMoving()) // Make sure player is walking. Some targets might be unreachable
                     return;
             }
 
-            if (MODE == BotMode.AutoSkill && mLocalPlayer.IsMoving())
+            if (!mLocalPlayer.IsMoving())
             {
-                mLocalPlayer.Idle();
-                return;
-            }
+                if (shouldResetTarget)
+                    ResetTarget();
 
-            //if user also init a skill cast, it will cast first . 
-            if (PlayerInputSkill > 0 && mCurrentTarget != null)
-            {
-                int pid = mCurrentTarget.GetPersistentID();
-                // TODO directly Cast skill
-                //mHUDSkills.DirectCastSkill(PlayerInputSkill, (HUD_Skills.SkillNo)mPlayerInputAttackType, pid);
-                PlayerInputSkill = 0;
-                return;
-            }
-
-            if (!mLocalPlayer.IsMoving() && MODE != BotMode.AutoSkill)
-            {
-                //trying to cast the playerInputSkill
-
-                ResetTarget();
-
-                if (mCurrentTarget != null && mCurrentTarget.IsAlive())
+                if (CurrentTargetIsValidAndAlive())
                 {
-                    Vector3 direction = mCurrentTarget.Position - mLocalPlayer.Position;
-                    direction.y = 0;
-                    int nextSkill = -1;
-                    //CastSkillWithAttackSequence(ref nextSkill);
-                    float skillRange = ATTACK_RANGE; // TODO The cast range should be gotten from the radius field from Skill Table
+                    SetupNextAutoSkill();
 
-                    if (direction.sqrMagnitude < skillRange * skillRange)//handle for dashattack distance
-                    {
-                        //determine the skill to use with the attack sequence, cast skill with high priority first
-                        //CastSkillWithAttackSequence(ref nextSkill);
-                        //GameInfo.gCombat.TryCastActiveSkill(nextSkill); // TODO cast skill to target
+                    if (!CanCastSkill())
+                        return;
 
-                        GameInfo.gSelectedEntity = mCurrentTarget;
-                        int nextSkillid = GetNextAutoSkill(ref autoSkillIndex);
-                        GameInfo.gCombat.TryCastActiveSkill(nextSkillid);
-                    }
-                    else
-                    {
-                        //if (!mLocalPlayer.IsRooted())
-                        if (mLocalPlayer.IsIdling())
-                        {
-                            Vector3 pos = mCurrentTarget.Position;
-                            Debug.Log("Pathfinding to target " + pos.ToString());
-                            mLocalPlayer.PathFindToTarget(pos, -1, skillRange - 1f, true, false, () => { StopMoving(); }); //  move closer thank the ATTACK_RANGE for hit easily
-                            //QueueQueryResult(mCurrentTarget.ID);//the target may be unreachable.
-                        }
-                    }
+                    AttackTarget();
                 }
                 else
                 {
-                    bResetTarget = true;
+                    shouldResetTarget = true;
                 }
             }
             else
             {
-                // mode is AutoSkill 
-                if (MODE == BotMode.AutoSkill) //this mode   only cast skill,  
-                {
-                    mCurrentTarget = QueryForNonSpecificTarget(ATTACK_RANGE, true, null);//this mode is good for boss
-                    if (mCurrentTarget != null && mCurrentTarget.IsAlive())
-                    {
-                        int castskillid = 999999;
-                        CastSkillWithAttackSequence(ref castskillid); //passing 99999 means direct check.no check
-                    }
-                }
-                else
-                {
-                    //let the bot move
-                    mMovedTime += BotUpdateFreq;//this is the time walking
-                    //Debug.Log("moving time " + mMovedTime);//3s timeout for approaching monster
-                    if (mMovedTime > 3000)
-                    {
-                        mMovedTime = 0;
-                        mCurrentTarget = null;
-                    }
-                }
+                if (GameInfo.gSelectedEntity != null)
+                    ManuallyChangeTarget();
+
+                shouldResetTarget = true;
+
+                //ClearTargetAfterTimeOut(3000);
             }
+        }
+
+        private bool CanCastSkill()
+        {
+            return IsSkillValid() && !IsSkillCoolingDown() && IsManaEnough();
+        }
+
+        private void ClearTargetAfterTimeOut(float time)
+        {
+            mMovedTime += BotUpdateFreq;//this is the time walking
+            //Debug.Log("moving time " + mMovedTime);//3s timeout for approaching monster
+            if (mMovedTime > time)
+            {
+                mMovedTime = 0;
+                SetupCurrentTarget(null);
+            }
+        }
+
+        private void SetupCurrentTarget(ActorGhost entity)
+        {
+            mCurrentTarget = entity;
+            GameInfo.gSelectedEntity = mCurrentTarget;
+
+            if (entity != null)
+                mPlayerInput.SetMoveIndicator(Vector3.zero);
+        }
+
+        private void SetupManualSelectedTarget(ActorGhost entity)
+        {
+            manualSelectTarget = entity;
+            GameInfo.gCombat.OnSelectEntity(entity);
+            SetupCurrentTarget(entity);
+        }
+
+        private bool CurrentTargetIsValidAndAlive()
+        {
+            return mCurrentTarget != null && mCurrentTarget.IsAlive();
+        }
+
+        private void ManuallyChangeTarget()
+        {
+            mPlayerInput.ListenForNewEnemy((ActorGhost entity) =>
+            {
+                if (entity == null) return;
+
+                SetupManualSelectedTarget(entity);
+                shouldResetTarget = false;
+
+                mLocalPlayer.PathFindToTarget(entity.Position, -1, 0, false, false, null);
+            });
         }
 
         private void ResetTarget()
         {
-            if (!bResetTarget)
+            if (IsManualSelectedTargetAlive())
                 return;
+            else
+                manualSelectTarget = null;
 
-            LookingForTarget();
+            var newTarget = GetNearestEnemyInRange(MaxQueryRadius);
+            SetupCurrentTarget(newTarget);
 
-            if (mCurrentTarget != null && mCurrentTarget.IsAlive())
+            if (CurrentTargetIsValidAndAlive())
             {
-                bResetTarget = false;
-                QueueQueryResult(mCurrentTarget.ID);//not query the same target continously 
-                Debug.Log("Current target is " + mCurrentTarget.Name);
+                shouldResetTarget = false;
             }
             else
             {
-                QueueQueryResult(0);
+                SetupCurrentTarget(null);
+
                 //no target availiable at the momment. 
                 NoMonstersTimer += BotUpdateFreq;
                 if (NoMonstersTimer >= 1000 && IsInRealm())
@@ -438,124 +451,88 @@ namespace Zealot.Bot
             }
         }
 
-        private void LookingForTarget()
+        private bool IsManualSelectedTargetAlive()
         {
-            // Exclude self when query for the closet target. 
-            int[] excludeSelfList = new int[2] { mLocalPlayer.ID, lastQueried }; //not query the same target always
-            mCurrentTarget = QueryForNonSpecificTarget(MaxQueryRadius, true, excludeSelfList);
-            //Debug.Log("setting target; " + mCurrentTarget.ID);
+            return (manualSelectTarget != null && manualSelectTarget.IsAlive());
         }
 
-        private void PlayerIsControlledByKeyboard()
+        private void SetupNextAutoSkill()
+        {
+            skillidToCast = GetNextAutoSkill();
+        }
+
+        private bool IsSkillValid()
+        {
+            SkillData sdata = SkillRepo.GetSkill(skillidToCast);
+            if (sdata == null)
+                return false;
+            return true;
+        }
+
+        private bool IsSkillCoolingDown()
+        {
+            PlayerSkillCDState cdstate = GameInfo.gSkillCDState;
+            if (cdstate.IsSkillCoolingDown(skillidToCast))
+                return true;
+            return false;
+        }
+
+        private bool IsManaEnough()
+        {
+            SkillData sdata = SkillRepo.GetSkill(skillidToCast);
+
+            float cost = 0;
+            if (sdata.skillgroupJson.costab)
+                cost = sdata.skillJson.cost;
+            else
+                cost = mLocalPlayer.GetManaMax() * sdata.skillJson.cost * 0.01f;
+
+            return mLocalPlayer.GetMana() >= cost;
+        }
+
+        private void AttackTarget()
+        {
+            GameInfo.gCombat.TryCastActiveSkill(skillidToCast);
+        }
+
+        private bool IsControlledByKeyboard()
         {
             if (mPlayerInput.IsControlling())
             {
-                // Reset target and seeking position
-                mCurrentTarget = null;
-                mSeekingPosition = Vector3.zero;
-                return;
+                shouldResetTarget = true;
+                mSeekingPosition = Vector3.zero; // Reset seeking position
+                return true;
             }
+            return false;
         }
 
         private bool IsInRealm()
         {
             return GameInfo.mRealmInfo.type == RealmType.Dungeon;
-                //|| GameInfo.mRealmInfo.type == RealmType.ActivityWorldBoss
-                //|| GameInfo.mRealmInfo.type == RealmType.ActivityGuildSMBoss
-                //|| GameInfo.mRealmInfo.type == RealmType.EliteMap;
+            //|| GameInfo.mRealmInfo.type == RealmType.ActivityWorldBoss
+            //|| GameInfo.mRealmInfo.type == RealmType.ActivityGuildSMBoss
+            //|| GameInfo.mRealmInfo.type == RealmType.EliteMap;
         }
 
         private long mMovedTime = 0;
-        private void QueueQueryResult(int id)
-        {
-            lastQueried = id;
-        }
-
-        private bool bResetTarget = true;
-        private int lastQueried = 0;
+        private bool shouldResetTarget = true;
         private int mLastAttackType = 0;
-        
         private int mPlayerInputSkill = 0;
         private AttackType mPlayerInputAttackType = AttackType.BasicAttack;
-                
 
         public int PlayerInputSkill
         {
-            get { return mPlayerInputSkill; }//now this is skillgroupid
-            set {
+            get { return mPlayerInputSkill; } // Now this is skillgroupid
+            set
+            {
                 mPlayerInputSkill = value;
                 if (mPlayerInputSkill == mLocalPlayer.SkillStats.JobskillAttackSId)
                     mPlayerInputAttackType = AttackType.JobSkill;
             }
         }
 
-        private int mBasicAttackIndex = 0;
         /// <summary>
-        /// Check the order of skills in the mAttackSequence,
-        /// basic attack is the last option if no skill is ready.
-        /// </summary>
-        /// <param name="castSkillID"></param>
-        void CastSkillWithAttackSequence(ref int castSkillID)
-        {
-            mLastAttackType = 0; // Always check skill in the queue.
-            for (int i = mLastAttackType; i < mAttackSequence.Length; i++)
-            {
-                AttackType attackType = mAttackSequence[i];
-                 
-                if (attackType == AttackType.BasicAttack  )
-                {
-                     
-                }
-                else
-                { 
-                    if (MODE == BotMode.AutoMove)
-                    {
-                        //can only cast basic attack 
-                        continue;
-                    }
-                    if (mLocalPlayer.IsSilenced())
-                    { 
-                        continue;//here must not use break, as basic Attack is still aviable if Silenced. 
-                    } 
-
-                    //Check if the skill was learnt and cooldowned                    
-                    int skillID = 0;
-                    SkillSynStats skillStats = mLocalPlayer.SkillStats;
-                    PlayerSkillCDState cdState = GameInfo.gSkillCDState;
-                    if (attackType == AttackType.JobSkill)
-                    {
-                        if (cdState.IsSkillCoolingDown(skillID))
-                            continue;
-
-                        skillID = skillStats.JobskillAttackSId;
-                    }
-                    
-                    //castskillid -1 means it is checking next avaible skill. not casting yet.                
-                    if (skillID > 0)//if skill is availiable, cast and record the order 
-                    {
-                        if (castSkillID < 0 && i != mAttackSequence.Length -1)//not basic attack;
-                        {
-                            castSkillID = skillID;
-                            break;
-                        }
-                        else
-                        {
-                            int pid = mCurrentTarget != null ? mCurrentTarget.GetPersistentID() : 0;                             
-                            //mHUDSkills.DirectCastSkill(skillid, (HUD_Skills.SkillNo)((int)attackType), pid);
-                            mLastAttackType = i;
-                            break; //once skill is cast , break out as only cast one skill each update 
-                        } 
-                    } 
-                }
-            }
-            //if (mLastAttackType == mAttackSequence.Length - 1 && mBasicAttackIndex >= 4)
-            //{
-               // mLastAttackType = 0; //reset to 0 if last cast is basic attack chain end. 
-            //}
-        }
-
-        /// <summary>
-        /// A helper function to automatically select the next target and cast skill.
+        /// A helper function to automatically select the next target.
         /// </summary>
         /// <param name="radius"></param>
         /// <param name="includeEliteAndBoss"></param>
@@ -596,13 +573,25 @@ namespace Zealot.Bot
             return target as ActorGhost;
         }
 
+        public ActorGhost GetNearestEnemyInRange(float radius)
+        {
+            int[] excludeSelfList = new int[1] { mLocalPlayer.ID }; // Exclude self when query for the closet target.
+            return QueryForNonSpecificTarget(radius, true, excludeSelfList);
+        }
+
+        public ActorGhost GetFriendlyInRange(float radius)
+        {
+            // TODO Query the friendly(include self) in the range
+            return null;
+        }
+
         /// <summary>
         /// a client helper function to face the nearest target.
         /// </summary>
         /// <returns></returns>
         public int FaceNearTarget()
-        { 
-            ActorGhost ghost =QueryForNonSpecificTarget(MaxQueryRadius, true,new int[] { mLocalPlayer.ID });
+        {
+            ActorGhost ghost = QueryForNonSpecificTarget(MaxQueryRadius, true, new int[] { mLocalPlayer.ID });
             if (ghost != null)
             {
                 Vector3 direction = ghost.Position - GameInfo.gLocalPlayer.Position;

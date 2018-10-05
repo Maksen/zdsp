@@ -1228,10 +1228,15 @@ public partial class ClientMain : MonoBehaviour
         if (sdata.skillgroupJson.skilltype != SkillType.Active)
             return;
 
-        if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)
+        if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self && sdata.skillgroupJson.targettype != TargetType.Enemy)
             return;
 
-        float distRequirement = sdata.skillJson.range;
+        float distRequirement = 0;
+        if (sdata.skillgroupJson.threatzone == Threatzone.Single)
+            distRequirement = sdata.skillJson.range;
+        else
+            distRequirement = sdata.skillJson.radius;
+
         PlayerGhost localplayer = GameInfo.gLocalPlayer;
         if (GameUtils.InRange(localplayer.Position, pos, distRequirement))
         {
@@ -1377,63 +1382,81 @@ public partial class ClientMain : MonoBehaviour
 
         if (sdata.skillgroupJson.skilltype == SkillType.BasicAttack)
         {
-            //basic attack must click the target. if need auto select nearest enemy, do a query and callbackattack
-            int pid = 0;
+            if (GameInfo.gSelectedEntity == null)
+                AutoSelectNearestEnemy();
+
             ActorGhost ghost = GameInfo.gSelectedEntity as ActorGhost;
-            if (GameInfo.gSelectedEntity != null)
+            if (ghost == null)
+                return;
+
+            int pid = ghost.GetPersistentID();
+            CommonCastBasicAttack(pid);
+
+            return;
+        }
+
+        if (sdata.skillgroupJson.skilltype != SkillType.Active)
+            return;
+
+        if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)
+        {
+            var skillTargetType = SkillRepo.GetSkillTargetType(skillid);
+
+            if (skillTargetType == TargetType.Enemy)
             {
-                pid = ghost.GetPersistentID();
+                if (GameSettings.AutoBotEnabled)
+                {
+                    if (GameInfo.gSelectedEntity == null)
+                        AutoSelectNearestEnemy();
+
+                    BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
+
+                    if (target == null)
+                        return;
+
+                    int pid = target.GetPersistentID();
+
+                    Vector3 dir = target.Position - localplayer.Position;
+                    float dist = sdata.skillJson.radius;
+
+                    if (dir.magnitude >= dist)
+                    {
+                        ApproachAndCastSkill(skillid, pid, target.Position);
+                        return;
+                    }
+                }
+
+                DirectCastSkill(skillid);
             }
-            else
+            else if (skillTargetType == TargetType.Friendly)
             {
-                ghost = GameInfo.gLocalPlayer.Bot.QueryForNonSpecificTarget(10, true, new int[] { });
+                int pid = localplayer.GetPersistentID();
+                DirectCastSkill(skillid, pid);
+            }
+            else // TODO Might cast buff skill to party
+            {
+                int pid = 0;
+                ActorGhost ghost = GameInfo.gLocalPlayer.Bot.QueryForNonSpecificTarget(10, true, new int[] { });
                 if (ghost != null)
                 {
                     pid = ghost.GetPersistentID();
                 }
+                mPlayerInput.SetMoveIndicator(Vector3.zero);
+                DirectCastSkill(skillid, pid);
             }
-            mPlayerInput.SetMoveIndicator(Vector3.zero);
-
-            Vector3 dir = localplayer.Position - ghost.Position;
-            float dist = sdata.skillJson.radius;
-
-            if (dir.magnitude >= dist)
-                localplayer.ProceedToTarget(ghost.Position, pid, CallBackAction.BasicAttack);
-            else
-                DirectCastSkill(sdata.skillJson.id, pid);
-
-            return;
-        }
-        if (sdata.skillgroupJson.skilltype != SkillType.Active)
-            return;
-        if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)
-        {
-            int pid = 0;
-            ActorGhost ghost = GameInfo.gLocalPlayer.Bot.QueryForNonSpecificTarget(10, true, new int[] { });
-            if (ghost != null)
-            {
-                pid = ghost.GetPersistentID();
-            }
-            mPlayerInput.SetMoveIndicator(Vector3.zero);
-            DirectCastSkill(skillid, pid);
         }
         else if(sdata.skillgroupJson.skillbehavior == SkillBehaviour.Target)
         {
-            Debug.Log("ID of selected : " + GameInfo.gSelectedEntity);
-            if(GameInfo.gSelectedEntity != null)
-            {
-                BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
-                ApproachAndCastSkill(skillid, target.GetPersistentID(), target.Position);
-            }
-            else
-            mPlayerInput.ListenForPos((ActorGhost entity, Vector3 pos) =>
-            {
-                if (entity == null) return;
-                Debug.Log("selected actor is " + entity.GetPersistentID().ToString());
-                mPlayerInput.SetMoveIndicator(Vector3.zero);
-                
-                ApproachAndCastSkill(skillid, entity.GetPersistentID(), pos);
-            }, false);
+            if (GameInfo.gSelectedEntity == null)
+                AutoSelectNearestEnemy();
+
+            BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
+            if (target == null)
+                return;
+
+            mPlayerInput.SetMoveIndicator(Vector3.zero);
+            Debug.Log("ID of selected : " + target.GetPersistentID());
+            ApproachAndCastSkill(skillid, target.GetPersistentID(), target.Position);
         }
         else if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
         {
@@ -1449,4 +1472,10 @@ public partial class ClientMain : MonoBehaviour
     }
 
     #endregion skill casting
+
+    private void AutoSelectNearestEnemy()
+    {
+        var nearestTarget = GameInfo.gLocalPlayer.Bot.GetNearestEnemyInRange(10);
+        GameInfo.gSelectedEntity = nearestTarget;
+    }
 }

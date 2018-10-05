@@ -4,8 +4,8 @@
     <enum name="RealmType">
       <item key="World" value="0"/>
       <item key="Dungeon" value="1"/>
-      <!--<item key="Tutorial" value="2"/>
-      <item key="ActivityGuardWar" value="3"/>
+      <item key="Tutorial" value="2"/>
+      <!--<item key="ActivityGuardWar" value="3"/>
       <item key="ActivityGuildSMBoss" value="4"/>
       <item key="ActivityWorldBoss" value="5"/>
       <item key="Arena" value="6"/>
@@ -39,7 +39,7 @@
     <enum name="DungeonType">
       <item key="Story" value="0"/>
       <item key="Daily" value="1"/>
-      <item key="Special" value="2"/>
+      <item key="SpaceTime" value="2"/>
       <item key="ChickenDinner" value="3"/>
       <item key="EndlessTower" value="4"/>
     </enum>
@@ -82,6 +82,7 @@
       <property name="banitemtype" type="string" uitext="Ban Item Type" default="" info="Seperated by ;"/>
       <property name="banitemid" type="string" uitext="Ban Item Id" default="" info="Seperated by ;"/>
       <property name="effectpath" type="asset" uitext="Scene Effect Prefab Path" default="" assettype="prefab"/>
+      <property name="loadingbgpath" type="asset" uitext="Loading Background Path" assettype="sprite"/>
     </element>
 
     <element name="Realm" useexcel="true" collectionkey="excelname">
@@ -111,7 +112,7 @@
       <property name="sequence" type="int" uitext=" Dungeon Sequence" default="1"/>
       <property name="iconpath" type="asset" uitext="UI Icon Path" default="" assettype="sprite"/>
       <property name="difficulty" type="DungeonDifficulty" uitext="Difficulty"/>
-      <property name="entrylimit" type="int" uitext="Entry limit" default="3" info="-1 means no limit"/>
+      <property name="entrylimit" type="int" uitext="Entry limit" default="-1" info="-1 means no limit"/>
       <property name="lootdisplayids" type="string" uitext="LootLink Display Ids" default="" info="id1;id2"/>
       <property name="lootrewardids" type="string" uitext="LootLink Reward Ids" default="" info="id1;id2"/>
       <property name="opendate" type="string" uitext="Open Date" info="Usage: 0101 to 1231"/>
@@ -129,11 +130,16 @@
       <property name="lootresettype" type="LootResetType" uitext="Loot Reset Type" default="1"/>
       <property name="lootresettime" type="string" uitext="Loot Reset Time" info="Usage: 0000 to 2359"/>
     </element>
+    
+    <element name="Tutorial" inherit="Realm" useexcel="true">
+      <constant name="type" type="RealmType" value="RealmType.Tutorial"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Description(Localized)"/>
+    </element>
 
     <!--<element name="RealmObjective" useexcel="true" collectionkey="excelname">
       <property name="excelname" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
-      <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Description(Localized)"/>
       <property name="realmobjectivetype" type="RealmObjectiveType" uitext="Realm Objective Type" default="0"/>
       <property name="timelimit" type="int" uitext="Time Limit" default="600" info="Time in seconds"/>
       <property name="hero" type="HeroCard" uitext="Hero" display="name" info="For Hero objective"/>
@@ -164,16 +170,11 @@
       <property name="worldlv" type="int" uitext="World Lv"/>
       <property name="tower" type="CombatNPC" uitext="Tower Archetype" display="archetype"/>
     </element>
-    
+
     <element name="ActivityGuildSMBoss" inherit="Realm" useexcel="true">
       <constant name="type" type="RealmType" value="RealmType.ActivityGuildSMBoss"/>
-      <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Description(Localized)"/>
     </element>  
-    
-    <element name="Tutorial" inherit="Realm" useexcel="true">
-      <constant name="type" type="RealmType" value="RealmType.Tutorial"/>
-      <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
-    </element>
 
     <element name="ActivityWorldBoss" inherit="Realm" useexcel="true" collectionkey="excelname">
       <constant name="type" type="RealmType" value="RealmType.ActivityWorldBoss"/>
@@ -230,7 +231,7 @@
 
     <element name="ArenaFakeRank" useexcel="true" collectionkey="rank" localizeexport="rank">
       <property name="rank" type="int" uitext="Arena Rank" unique="true"/>
-      <property name="localizedname" type="localizedstring" uitext="LocalizedName"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="jobsect" type="int" uitext="Jobsect"/>
       <property name="level" type="int" uitext="Level"/>
       <property name="equipscore" type="int" uitext="Equip Score"/>
@@ -252,7 +253,7 @@
 
     <element name="InvitePVP" inherit="Realm" useexcel="true">
       <constant name="type" type="RealmType" value="RealmType.InvitePVP"/>
-      <property name="localizeddescription" type="localizedstring" uitext="Localized Description" display="name"/>
+      <property name="localizeddescription" type="localizedstring" uitext="Description(Localized)"/>
     </element>
 
     <element name="EliteMap" inherit="Realm" useexcel="true" collectionkey="excelname">

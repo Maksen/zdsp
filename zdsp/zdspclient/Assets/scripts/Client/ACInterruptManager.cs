@@ -83,9 +83,9 @@ namespace Zealot.Client.Actions
                 Vector3 newFacing = (walkCmd.targetPos - currPos).normalized;
                 entity.Forward = newFacing;
                 return false;
-            }            
+            }
 
-            return false;
+            return current.IsCompleted();
         }
 
 

@@ -197,6 +197,7 @@ public class UI_SkillTree : BaseWindowBehaviour
     public Button m_CloseEquip;
 
     public GameObject m_ScrollPanel;
+    public UIWidgets.Spinner m_ScrollPanelGroup;
 
     [Header("Debug use variables")]
     public int m_EquippableSize;
@@ -228,7 +229,7 @@ public class UI_SkillTree : BaseWindowBehaviour
         //m_CloseEquip.gameObject.SetActive(false);
         m_ScrollPanel.SetActive(false);
 
-        GameInfo.gLocalPlayer.Bot.UpdateAutoSkillRow(GetAutoSkillRow());
+        GameInfo.gLocalPlayer.Bot.UpdateAutoSkillRow();
     }
 
     public override void OnOpenWindow()
@@ -313,7 +314,11 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_SkillDescriptor.Initialise(this.transform);
         m_SkillDescriptor.gameObject.SetActive(false);
 
+        m_EquippableSize = GameInfo.gLocalPlayer.SkillStats.EquipSize;
         m_EquipSkillInv = new List<UI_SkillSelectButton>(m_EquippableSize + 1);
+        m_AutoSlotGroup = GameInfo.gLocalPlayer.SkillStats.AutoGroup;
+        m_EquipSlotGroup = GameInfo.gLocalPlayer.SkillStats.EquipGroup;
+        m_ScrollPanelGroup.Value = m_EquipSlotGroup;
 
         for (int i = 0; i < m_EquippableSize; ++i)
         {
@@ -326,7 +331,6 @@ public class UI_SkillTree : BaseWindowBehaviour
         }
 
         m_EquipSkillInv.Add(m_EquipSkillInv[0]);
-
         m_SelectSkillDDL.m_PanelPanel = this;
         m_SelectSkillDDL.Initialise(this.transform);
         m_SpecialSkillPanel.m_Parent = this;
@@ -835,19 +839,24 @@ public class UI_SkillTree : BaseWindowBehaviour
     {
         this.isPlayerEquip = isPlayerEquip;
 
+
         // load the equipskillinv
         if (isPlayerEquip)
         {
+            m_ScrollPanelGroup.Value = m_EquipSlotGroup;
             for (int i = 0; i < m_EquippableSize; ++i)
             {
                 m_EquipSkillInv[i].EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
             }
         }
         else
+        {
+            m_ScrollPanelGroup.Value = m_AutoSlotGroup;
             for (int i = 0; i < m_EquippableSize; ++i)
             {
                 m_EquipSkillInv[i].EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
             }
+        }
     }
 
     public void OnSelectGroupEquipDown()
@@ -923,22 +932,7 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_SelectSkillDDL.CloseUI();
     }
 
-    private List<int> GetAutoSkillRow()
-    {
-        List<int> autoSkillRow = new List<int>();
-
-        for (int i = 0; i < m_EquippableSize; ++i)
-        {
-            int autoSkillID = (int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID];
-
-            if (autoSkillID != 0) // 0 means no skill in the slot
-            {
-                autoSkillRow.Add(autoSkillID);
-            }
-        }
-
-        return autoSkillRow;
-    }
+    
 
     public void UpdateBasicAttack(int skid)
     {

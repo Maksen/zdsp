@@ -2011,10 +2011,12 @@
     <Compile Include="Assets\scripts\Authentication\FBLogin.cs" />
     <Compile Include="Assets\scripts\Authentication\GoogleLogin.cs" />
     <Compile Include="Assets\scripts\Cameras\FlyCameraController.cs" />
+    <Compile Include="Assets\scripts\Cameras\Panner.cs" />
     <Compile Include="Assets\scripts\Cameras\SceneEffect.cs" />
     <Compile Include="Assets\scripts\Cameras\ScreenshotCamera.cs" />
     <Compile Include="Assets\scripts\Cameras\ZDSPCamera.cs" />
     <Compile Include="Assets\scripts\Cameras\ZDSPStaticCamera.cs" />
+    <Compile Include="Assets\scripts\Client\Achievement\AchievementStatsClient.cs" />
     <Compile Include="Assets\scripts\Client\ACInterruptManager.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACApproach.cs" />
     <Compile Include="Assets\scripts\Client\Actions\ACApproachWithPathFind.cs" />
@@ -2073,7 +2075,7 @@
     <Compile Include="Assets\scripts\Client\Entities\StaticTargetGhost.cs" />
     <Compile Include="Assets\scripts\Client\Entities\TeleportNPCTalk.cs" />
     <Compile Include="Assets\scripts\Client\Entities\TeleportNPCUIController.cs" />
-    <Compile Include="Assets\scripts\Client\EquipFushion\EquipFushionController.cs" />
+    <Compile Include="Assets\scripts\Client\EquipFushion\EquipFusionController.cs" />
     <Compile Include="Assets\scripts\Client\EquipmentCraft\EquipmentCraftController.cs" />
     <Compile Include="Assets\scripts\Client\Explorer\AutoHide.cs" />
     <Compile Include="Assets\scripts\Client\Explorer\CameraManager.cs" />
@@ -2085,6 +2087,11 @@
     <Compile Include="Assets\scripts\Client\InputHandler\PointerScreen.cs" />
     <Compile Include="Assets\scripts\Client\InputHandler\ZDSPJoystick.cs" />
     <Compile Include="Assets\scripts\Client\Inventory\ItemInventoryController.cs" />
+    <Compile Include="Assets\scripts\Client\JobExhibition\JECharacterManager.cs" />
+    <Compile Include="Assets\scripts\Client\JobExhibition\JECharacterManagerTester.cs" />
+    <Compile Include="Assets\scripts\Client\JobExhibition\JELeftUI.cs" />
+    <Compile Include="Assets\scripts\Client\JobExhibition\JERightUI.cs" />
+    <Compile Include="Assets\scripts\Client\JobExhibition\JEShowUI.cs" />
     <Compile Include="Assets\scripts\Client\LogManager.cs" />
     <Compile Include="Assets\scripts\Client\LootDisplayController.cs" />
     <Compile Include="Assets\scripts\Client\Mail\MailInvController.cs" />
@@ -2151,6 +2158,7 @@
     <Compile Include="Assets\scripts\Common\CombatFormula.cs" />
     <Compile Include="Assets\scripts\Common\CombatNode.cs" />
     <Compile Include="Assets\scripts\Common\CombatUtils.cs" />
+    <Compile Include="Assets\scripts\Common\Entities\AchievementStats.cs" />
     <Compile Include="Assets\scripts\Common\Entities\ActorStats.cs" />
     <Compile Include="Assets\scripts\Common\Entities\CombatStats.cs" />
     <Compile Include="Assets\scripts\Common\Entities\Entity.cs" />
@@ -2162,10 +2170,11 @@
     <Compile Include="Assets\scripts\Common\Entities\InventoryStats.cs" />
     <Compile Include="Assets\scripts\Common\Entities\PartyStats.cs" />
     <Compile Include="Assets\scripts\Common\Entities\RealmStats.cs" />
-    <Compile Include="Assets\scripts\Common\EquipFushion\EquipFushionInventory.cs" />
-    <Compile Include="Assets\scripts\Common\EquipFushion\EquipFushionInventory_Methods.cs" />
+    <Compile Include="Assets\scripts\Common\EquipFushion\EquipFusionInventory.cs" />
+    <Compile Include="Assets\scripts\Common\EquipFushion\EquipFusionInventory_Methods.cs" />
     <Compile Include="Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory.cs" />
     <Compile Include="Assets\scripts\Common\EquipmentCraft\EquipmentCraftInventory_Methods.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\AchievementData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\ArenaInventory.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\AuctionData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\BossKillData.cs" />
@@ -2184,6 +2193,7 @@
     <Compile Include="Assets\scripts\Common\GameObjects\Inventory.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\InventoryItem.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\InvitePvpData.cs" />
+    <Compile Include="Assets\scripts\Common\GameObjects\ItemDropLimitData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\ItemMallInventoryData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\LeaderboardData.cs" />
     <Compile Include="Assets\scripts\Common\GameObjects\LootItemData.cs" />
@@ -2228,6 +2238,7 @@
     <Compile Include="Assets\scripts\Common\ProfilerUtils.cs" />
     <Compile Include="Assets\scripts\Common\QuestExtraRewards\QuestExtraRewardsInventory.cs" />
     <Compile Include="Assets\scripts\Common\QuestExtraRewards\QuestExtraRewardsInventory_Methods.cs" />
+    <Compile Include="Assets\scripts\Common\Repositories\AchievementRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\ActivityOverviewRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\ArenaRankRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\CharacterLevelRepo.cs" />
@@ -2237,7 +2248,7 @@
     <Compile Include="Assets\scripts\Common\Repositories\DestinyClueRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\DonateRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\ElementalChartRepo.cs" />
-    <Compile Include="Assets\scripts\Common\Repositories\EquipFushionRepo.cs" />
+    <Compile Include="Assets\scripts\Common\Repositories\EquipFusionRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\EquipmentCraftRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\EquipmentModdingRepo.cs" />
     <Compile Include="Assets\scripts\Common\Repositories\EquipmentRepo.cs" />
@@ -2546,7 +2557,10 @@
     <Compile Include="Assets\scripts\GUI\AlertSystem\AlertComponentVersion2.cs" />
     <Compile Include="Assets\scripts\GUI\AlertSystem\AlertManagerVersion2.cs" />
     <Compile Include="Assets\scripts\GUI\AlertSystem\AlertType.cs" />
-    <Compile Include="Assets\scripts\GUI\CharacterEquipFashion\UI_CharacterEquipFushionManager.cs" />
+    <Compile Include="Assets\scripts\GUI\CharacterEquipFusion\Dialog_EquipFusionManager.cs" />
+    <Compile Include="Assets\scripts\GUI\CharacterEquipFusion\FusionData_BagItem.cs" />
+    <Compile Include="Assets\scripts\GUI\CharacterEquipFusion\FusionData_ConfirmItem.cs" />
+    <Compile Include="Assets\scripts\GUI\CharacterEquipFusion\UI_CharacterEquipFusionManager.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterEquipmentCraft\UI_CharacterEquipmentCraftManager.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterInfo\UI_CharacterInfo.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterInfo\UI_CharacterInfo_BasicStats.cs" />
@@ -2559,6 +2573,7 @@
     <Compile Include="Assets\scripts\GUI\CharacterInfo\UI_CharacterInfoTabThreeFour.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterInfo\UI_CharacterInfoTabTwo.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterPowerUp\RequiredItemData.cs" />
+    <Compile Include="Assets\scripts\GUI\CharacterPowerUp\UI_CharacterMeridian_Manager.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterPowerUp\UI_CharacterPartToggle.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterPowerUp\UI_CharacterPower.cs" />
     <Compile Include="Assets\scripts\GUI\CharacterPowerUp\UI_CharacterPowerup_Manager.cs" />
@@ -2682,6 +2697,7 @@
     <Compile Include="Assets\scripts\GUI\HUD\PortraitFunctions\HUD_PortraitFunctions.cs" />
     <Compile Include="Assets\scripts\GUI\HUD\ProgressBar\Hud_ProgressBar.cs" />
     <Compile Include="Assets\scripts\GUI\HUD\Quest\HUD_QuestList.cs" />
+    <Compile Include="Assets\scripts\GUI\HUD\RealmExit\HUD_RealmExit.cs" />
     <Compile Include="Assets\scripts\GUI\HUD\SelectTarget\HUD_SelectTarget.cs" />
     <Compile Include="Assets\scripts\GUI\HUD\SkillButtons\HUD_BasicAttackBtn.cs" />
     <Compile Include="Assets\scripts\GUI\HUD\SkillButtons\HUD_SkillBtn.cs" />
@@ -3871,6 +3887,7 @@
     <None Include="Assets\Shaders\Zealot_Art\UI\Additive_DoubleSided_UVAnimated_SoftenAround_Rotator.shader" />
     <None Include="Assets\Shaders\Zealot_Art\UI\Additive_DoubleSided_UVAnimated_SoftenAround_SPDistortion01.shader" />
     <None Include="Assets\Shaders\Zealot_Art\UI\Additive_DoubleSided_UVAnimated_SoftenAround_SPDistortion02.shader" />
+    <None Include="Assets\Shaders\Zealot_Art\UI\Additive_Emission_UVAnimated_Angle_Hologram.shader" />
     <None Include="Assets\Shaders\Zealot_Art\UI\Emission(AlphaBlend).shader" />
     <None Include="Assets\Shaders\Zealot_Art\UI\Emission(AlphaBlend)_UVanimated(Mask) _Angle.shader" />
     <None Include="Assets\Shaders\Zealot_Art\UI\Emission(AlphaBlend)_UVanimated(Mask) _Rotator.shader" />

@@ -99,6 +99,7 @@
       <property name="partstype" type="PartsType" uitext="Parts Type"/>
       <property name="fashionsuit" type="bool" uitext="Is Fashion Suit"/>
       <property name="mainwepattrib" type="MainWeaponAttribute" uitext="Main Weapon Attribute"/>
+      <property name="wepskill" type="string" uitext="Weapon Skill" default=""/>
       <property name="equipclass" type="string" uitext="Class" default="-1"/>
       <property name="basese" type="string" uitext="Base Side Effect" default="-1"/>
       <property name="extrase" type="string" uitext="Extra Side Effect" default="-1"/>
@@ -130,6 +131,7 @@
       <constant name="itemtype" type="ItemType" value="ItemType.Relic"/>
       <property name="relictype" type="RelicType" uitext="Relic Type" default="0"/>
       <property name="sockability" type="string" uitext="Socket Ability" default="null"/>
+      <property name="sockskill" type="string" uitext="Socket Skill" default="null"/>
       <property name="collectability" type="string" uitext="Collect Ability" default="null"/>
       <property name="recycle" type="bool" uitext="Recycle" default="true"/>
     </element>

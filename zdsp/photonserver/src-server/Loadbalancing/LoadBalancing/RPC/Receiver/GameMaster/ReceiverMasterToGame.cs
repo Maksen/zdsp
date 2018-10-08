@@ -1,3 +1,4 @@
+using Photon.LoadBalancing.GameServer.NPCStore;
 using Photon.LoadBalancing.ServerToServer;
 using System;
 using System.Threading.Tasks;
@@ -51,9 +52,16 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.MasterToGame, (byte)MasterToGameRPCMethods.EventDataUpdated)]
-        public void EventDataUpdated(byte eventtype, OutgoingGameToMasterPeer peer)
+        public void EventDataUpdated(byte eventtype, string message, OutgoingGameToMasterPeer peer)
         {
             GMEventType type = (GMEventType)eventtype;
+
+            switch (type)
+            {
+                case GMEventType.NPCShopDataUpdate:
+                    NPCStoreManager.reset = true;
+                    break;
+            }
         }
 
         [RPCMethod(RPCCategory.MasterToGame, (byte)MasterToGameRPCMethods.GMMessage)]
@@ -196,6 +204,6 @@ namespace Photon.LoadBalancing.GameServer
         {
             LadderRules.ResetPlayerRank(player);
             peer.ZRPC.GameToMasterRPC.GMResultBool(seesionid, true, peer);
-        }
+        }        
     }
 }

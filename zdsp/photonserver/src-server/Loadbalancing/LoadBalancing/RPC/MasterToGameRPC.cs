@@ -4,6 +4,7 @@ using Photon.LoadBalancing.GameServer;
 using Photon.LoadBalancing.GameServer.Mail;
 using Zealot.Common.RPC;
 using System;
+using Zealot.Common;
 
 namespace Zealot.RPC
 {
@@ -39,16 +40,16 @@ namespace Zealot.RPC
             ProxyMethod("Ret_TransferServer", userid, serverid, serverAddress, target);
         }
 
+        [RPCMethod(RPCCategory.MasterToGame, (byte)MasterToGameRPCMethods.EventDataUpdated)]
+        public void EventDataUpdated(byte eventtype, string msg, object target)
+        {
+            ProxyMethod("EventDataUpdated", eventtype, msg, target);
+        }
+
         //[RPCMethod(RPCCategory.MasterToGameRPC, (byte)MasterToGameRPCMethods.LogUIDShift)]
         //public void LogUIDShift(string userId, int oldLoginType, string oldLoginId, int newLoginType, string newLoginId, object target)
         //{
         //    ProxyMethod("LogUIDShift", userId, oldLoginType, oldLoginId, newLoginType, newLoginId, target);
-        //}
-
-        //[RPCMethod(RPCCategory.MasterToGameRPC, (byte)MasterToGameRPCMethods.EventDataUpdated)]
-        //public void EventDataUpdated(byte eventtype, object target)
-        //{
-        //    ProxyMethod("EventDataUpdated", eventtype, target);
         //}
 
         //[RPCMethod(RPCCategory.MasterToGameRPC, (byte)MasterToGameRPCMethods.GMMessage)]

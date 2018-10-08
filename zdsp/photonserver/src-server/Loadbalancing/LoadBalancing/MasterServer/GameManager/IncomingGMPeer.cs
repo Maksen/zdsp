@@ -18,6 +18,8 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
     using OperationCode = Photon.LoadBalancing.ServerToServer.Operations.OperationCode;
     using Zealot.RPC;
     using ErrorCode = Photon.Common.ErrorCode;
+    using Zealot.Common.RPC;
+    using Photon.LoadBalancing.MasterServer.GameServer;
     #endregion
 
     public class IncomingGMPeer : InboundS2SPeer
@@ -117,46 +119,54 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
         }
         #endregion
 
-        //#region MASTERTOGMRPC
+        #region MASTERTOGMRPC
         //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GetServerList)]
         //public void GetServerList(string session, PeerBase peer)
         //{
         //}
 
-        //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GetAllServerStatus)]
-        //public void GetAllServerStatus(string session, PeerBase peer)
-        //{
-        //    string status = application.mMasterCluster.GameServerStatus.GetSerializeString();
-        //    ZRPC.MasterToGMRPC.GMResultString(session, status, peer);
-        //}
+        [RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GetAllServerStatus)]
+        public void GetAllServerStatus(string session, PeerBase peer)
+        {
+            string status = application.mMasterCluster.ClusterServers.ToString();
+            ZRPC.MasterToGMRPC.GMResultString(session, status, peer);
+        }
 
-        //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.BroadcastToGameServers)]
-        //public void BroadcastToGameServers(string sessionid, byte eventtype, string serverlist, PeerBase peer)
-        //{
-        //    bool result = false;
-        //    if (serverlist == "All")
-        //    {
-        //        application.mMasterCluster.
-        //    }
-        //    int serverid = 0;
-        //    string[] servers = serverlist.Split(';');
-        //    if (servers.Length > 0)
-        //    {
-        //        for (int i = 0; i < servers.Length; i++)
-        //        {
-        //            if (!string.IsNullOrEmpty(servers[i]) && )
-        //            {
-        //                IncomingGameServerPeer targetpeer = this.application.GetServerPeerById(int.Parse(servers[i]));
-        //                if (targetpeer != null && targetpeer.Connected)
-        //                {
-        //                    targetpeer.ZRPC.MasterToGameRPC.EventDataUpdated(eventtype, targetpeer);
-        //                }
-        //            }
-        //        }
-        //        result = true;
-        //    }
-        //    ZRPC.MasterToGMRPC.GMResultBool(sessionid, result, peer);
-        //}
+        [RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.BroadcastToGameServers)]
+        public void BroadcastToGameServers(string sessionid, byte eventtype, string message, string serverlist, PeerBase peer)
+        {
+            bool result = false;
+            if (serverlist == "All")
+            {
+                foreach (var gameserver in application.mMasterGame.GameServersByServerId)
+                {
+                    if (gameserver.Value.Connected)
+                    {
+                        gameserver.Value.ZRPC.MasterToGameRPC.EventDataUpdated(eventtype, message, gameserver.Value);
+                    }
+                }
+
+                return;
+            }
+            int serverid = 0;
+            string[] servers = serverlist.Split(';');
+            if (servers.Length > 0)
+            {
+                for (int i = 0; i < servers.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(servers[i]) )
+                    {
+                        IncomingGamePeer targetpeer = application.GetServerPeerById(int.Parse(servers[i]));
+                        if (targetpeer != null && targetpeer.Connected)
+                        {
+                            targetpeer.ZRPC.MasterToGameRPC.EventDataUpdated(eventtype, message, targetpeer);
+                        }
+                    }
+                }
+                result = true;
+            }
+            ZRPC.MasterToGMRPC.GMResultBool(sessionid, result, peer);
+        }
 
         //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GMMessage)]
         //public void GMMessage(string sessionid, string player, string message, int mode, int serverid, PeerBase peer)
@@ -168,15 +178,15 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
         //        ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer);
         //}
 
-        //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.KickPlayer)]
-        //public void KickPlayer(string sessionid, string player, string reason, int serverid, PeerBase peer)
-        //{
-        //    IncomingGameServerPeer targetpeer = this.application.GetServerPeerById(serverid);
-        //    if (targetpeer != null && targetpeer.Connected)
-        //        targetpeer.ZRPC.MasterToGameRPC.KickPlayer(sessionid, player, reason, targetpeer);
-        //    else
-        //        ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer);
-        //}
+        [RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.KickPlayer)]
+        public void KickPlayer(string sessionid, string player, string reason, int serverid, PeerBase peer)
+        {
+            IncomingGamePeer targetpeer = this.application.GetServerPeerById(serverid);
+            if (targetpeer != null && targetpeer.Connected)
+                targetpeer.ZRPC.MasterToGameRPC.ForceKick(player, reason, targetpeer);
+            else
+                ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer);
+        }
 
         //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.MutePlayer)]
         //public void MutePlayer(string sessionid, string player, string reason, string DT, int serverid, PeerBase peer)
@@ -187,7 +197,7 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
         //    else
         //        ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer);
         //}
-        
+
         //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.KickFromGuild)]
         //public void KickFromGuild(string sessionid, string player, string reason, int serverid, PeerBase peer)
         //{
@@ -402,7 +412,7 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
         //    else
         //        ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer); //fail
         //}
-        
+
         //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GMNotifyTalentModifierChanged)]
         //public void GMNotifyTalentModifierChanged(string sessionid, PeerBase peer)
         //{
@@ -420,6 +430,7 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
 
         //    ZRPC.MasterToGMRPC.GMResultBool(sessionid, result, peer);
         //}
-        //#endregion
+
+        #endregion
     }
 }

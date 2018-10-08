@@ -947,51 +947,54 @@ namespace Kopio.JsonContracts
         public MainWeaponAttribute mainwepattrib { get; set; } 
         
         [JsonProperty("26")]
-        public string equipclass { get; set; } 
+        public string wepskill { get; set; } 
         
         [JsonProperty("27")]
-        public string basese { get; set; } 
+        public string equipclass { get; set; } 
         
         [JsonProperty("28")]
-        public string extrase { get; set; } 
+        public string basese { get; set; } 
         
         [JsonProperty("29")]
-        public int upgradelimit { get; set; } 
+        public string extrase { get; set; } 
         
         [JsonProperty("30")]
-        public bool enchant { get; set; } 
+        public int upgradelimit { get; set; } 
         
         [JsonProperty("31")]
-        public string socketspace { get; set; } 
+        public bool enchant { get; set; } 
         
         [JsonProperty("32")]
-        public string evolvegrp { get; set; } 
+        public string socketspace { get; set; } 
         
         [JsonProperty("33")]
+        public string evolvegrp { get; set; } 
+        
+        [JsonProperty("34")]
         public int evolvechange { get; set; } 
         
         [AssetData("prefab")]
-        [JsonProperty("34")]
+        [JsonProperty("35")]
         public string prefabpath { get; set; } 
         
         [AssetData("prefab")]
-        [JsonProperty("35")]
+        [JsonProperty("36")]
         public string femaleprefabpath { get; set; } 
         
         [AssetData("mesh")]
-        [JsonProperty("36")]
+        [JsonProperty("37")]
         public string malemeshpath { get; set; } 
         
         [AssetData("material")]
-        [JsonProperty("37")]
+        [JsonProperty("38")]
         public string malematerialpath { get; set; } 
         
         [AssetData("mesh")]
-        [JsonProperty("38")]
+        [JsonProperty("39")]
         public string femalemeshpath { get; set; } 
         
         [AssetData("material")]
-        [JsonProperty("39")]
+        [JsonProperty("40")]
         public string femalematerialpath { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -1022,6 +1025,7 @@ namespace Kopio.JsonContracts
             partstype = (PartsType)vals["partstype"];
             fashionsuit = (bool)vals["fashionsuit"];
             mainwepattrib = (MainWeaponAttribute)vals["mainwepattrib"];
+            wepskill = (string)vals["wepskill"];
             equipclass = (string)vals["equipclass"];
             basese = (string)vals["basese"];
             extrase = (string)vals["extrase"];
@@ -1247,9 +1251,12 @@ namespace Kopio.JsonContracts
         public string sockability { get; set; } 
         
         [JsonProperty("24")]
-        public string collectability { get; set; } 
+        public string sockskill { get; set; } 
         
         [JsonProperty("25")]
+        public string collectability { get; set; } 
+        
+        [JsonProperty("26")]
         public bool recycle { get; set; } 
         
         public void Load(Dictionary<string, object> vals)
@@ -1278,6 +1285,7 @@ namespace Kopio.JsonContracts
             generateuid = (bool)vals["generateuid"];
             relictype = (RelicType)vals["relictype"];
             sockability = (string)vals["sockability"];
+            sockskill = (string)vals["sockskill"];
             collectability = (string)vals["collectability"];
             recycle = (bool)vals["recycle"];
         }

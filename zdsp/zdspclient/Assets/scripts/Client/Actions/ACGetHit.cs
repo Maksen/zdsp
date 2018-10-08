@@ -13,13 +13,13 @@ namespace Zealot.Client.Actions {
 
         protected override void OnActiveEnter(string prevstate) {
             ActorGhost ghost = (ActorGhost)mEntity;
-            ghost.StartHitted(500);
+            ghost.StartHitted(200);
             ghost.PlayEffect("", mSkillData.skillJson.name + "_gethit");
             
             if(ghost.IsMonster())
                 ((MonsterGhost)ghost).Flash(); //flash on monster
             
-            SetTimer(500, OnActiveTimeUp, null);
+            SetTimer(200, OnActiveTimeUp, null);
         }
 
         protected virtual void OnActiveTimeUp(object arg) {

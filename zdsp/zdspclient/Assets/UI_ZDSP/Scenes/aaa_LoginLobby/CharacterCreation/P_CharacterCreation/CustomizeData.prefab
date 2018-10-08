@@ -76,6 +76,7 @@ GameObject:
   - component: {fileID: 114485417395991250}
   - component: {fileID: 95461617656958430}
   - component: {fileID: 225191250080346362}
+  - component: {fileID: 114645751625980404}
   m_Layer: 5
   m_Name: CustomizeData
   m_TagString: Untagged
@@ -168,7 +169,18 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114645751625980404}
+        m_MethodName: OnClickData
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
@@ -259,6 +271,18 @@ MonoBehaviour:
   offState: {fileID: 1570710580687912}
   onState: {fileID: 1616849689825088}
   parentToggle: {fileID: 0}
+--- !u!114 &114645751625980404
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1676206373162298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40258eb41fabd2e4ba96892b3c03a7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 114209905337764866}
 --- !u!222 &222024266310151552
 CanvasRenderer:
   m_ObjectHideFlags: 1

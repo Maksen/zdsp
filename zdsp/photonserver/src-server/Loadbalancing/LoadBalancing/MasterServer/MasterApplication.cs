@@ -18,6 +18,8 @@ namespace Photon.LoadBalancing.MasterServer
     using Photon.LoadBalancing.MasterServer.Cluster;
     using Photon.LoadBalancing.MasterServer.GameManager;
     using Photon.SocketServer;
+    using Photon.SocketServer.Rpc;
+    using Photon.SocketServer.ServerToServer;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -113,6 +115,18 @@ namespace Photon.LoadBalancing.MasterServer
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
         }*/
+
+        public IncomingGamePeer GetServerPeerById(int id)
+        {
+            if (mMasterGame.GameServersByServerId.ContainsKey(id))
+                return mMasterGame.GameServersByServerId[id] as IncomingGamePeer;
+            return null;
+        }
+
+        public Dictionary<int, IncomingGamePeer> GetAllServerPeers()
+        {
+            return mMasterGame.GameServersByServerId;
+        }
 
         protected async void InitFBToken()
         {

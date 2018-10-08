@@ -29,7 +29,7 @@ public class UI_WorldMap_PlaceInterest : MonoBehaviour
     {
         mName.text = wmcpi.name;
         mPlaceInterestName = LevelRepo.GetInfoById(wmcpi.levelID).unityscene;
-        //mAreaSprite = wmcpi.spritePath;
+        mAreaSprite = ClientUtils.LoadIcon(wmcpi.iconPath);
         selectCallback = _selectCallback;
         spriteCallback = _spriteCallback;
     }

@@ -23,5 +23,7 @@ namespace Zealot.RPC
         {
             ProxyMethod("GMResultString", session, results, target);
         }
+
+        
     }
 }

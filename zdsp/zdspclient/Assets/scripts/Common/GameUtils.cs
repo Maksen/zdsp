@@ -271,6 +271,7 @@ namespace Zealot.Common
         None,
         ItemMallUpdate,
         CompensateActivity,
+        NPCShopDataUpdate
     }
 
     public enum CountryReportType : byte

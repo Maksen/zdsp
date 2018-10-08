@@ -1195,7 +1195,11 @@ namespace Photon.LoadBalancing.GameServer
             if (buyresult == false)
             {
                 // money no enough, reject
-                peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Insufficient currency"), peer);
+                if (storeentry.Type == NPCStoreInfo.ItemStoreType.Normal)
+                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Insufficient currency"), peer);
+                else
+                    peer.ZRPC.NonCombatRPC.Ret_NPCStoreBuy(GUILocalizationRepo.GetLocalizedSysMsgByName("Insufficient barter item"), peer);
+
                 return;
             }
 

@@ -612,6 +612,11 @@
         {
             //list down all side effect which is able to be instantiated and is friendly
             bool res =
+                sej.effecttype == EffectType.Stats_Strength ||
+                sej.effecttype == EffectType.Stats_Agility ||
+                sej.effecttype == EffectType.Stats_Dexterity ||
+                sej.effecttype == EffectType.Stats_Constitution ||
+                sej.effecttype == EffectType.Stats_Intelligence ||
                 sej.effecttype == EffectType.Stats_AttackSpeed ||
                 sej.effecttype == EffectType.Stats_CastSpeed ||
                 sej.effecttype == EffectType.Stats_MoveSpeed ||

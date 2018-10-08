@@ -23,13 +23,16 @@ public class SingleRPGControl : MonoBehaviour
     public float nextWaypointDistance = 0.04f;
     //The waypoint we are currently moving towards
     private int currentWaypoint = 0;
+    private int PickableLayerMask;
 
     void Awake ()
 	{
         Time.timeScale = 1.0f;
         InitEventSystem();
-        InitMap();
-        mainCam = GetComponent<ZDSPCamera>();       
+        //InitMap();
+        mainCam = GetComponent<ZDSPCamera>();
+        PointerScreen.OnPointerClickEvent += OnPointerClick;
+        PickableLayerMask = LayerMask.GetMask("Nav_Walkable");
     }
 
     void Start()  // only spawn and init camera in Start to allow widget register to finish first
@@ -73,22 +76,39 @@ public class SingleRPGControl : MonoBehaviour
 			Time.timeScale = gamePaused ? 0.0f: 1.0f;
 		}
 
-        if (GUI.Button(new Rect(Screen.width - 50 - buttonWidth/2, Screen.height - 50 - buttonHeight/2, buttonWidth, buttonHeight), "Attack", buttonStyle))
-            mRPGCharacterScript.AttackButtonPressed();
+        //if (GUI.Button(new Rect(Screen.width - 50 - buttonWidth/2, Screen.height - 50 - buttonHeight/2, buttonWidth, buttonHeight), "Attack", buttonStyle))
+        //    mRPGCharacterScript.AttackButtonPressed();
 
 #if UNITY_EDITOR
-        if (GUI.Button(new Rect(Screen.width - 50 - 3 * buttonWidth / 2, Screen.height - 50 - buttonHeight / 2, buttonWidth, buttonHeight), "Map", buttonStyle))
-        {
-            _showMap = !_showMap;
-            _goLevelMap.SetActive(_showMap);
-        }
+        //if (GUI.Button(new Rect(Screen.width - 50 - 3 * buttonWidth / 2, Screen.height - 50 - buttonHeight / 2, buttonWidth, buttonHeight), "Map", buttonStyle))
+        //{
+        //    _showMap = !_showMap;
+        //    _goLevelMap.SetActive(_showMap);
+        //}
 #endif
 
         if (GUI.Button(new Rect(Screen.width - 50 - 2 * buttonWidth / 2, 20, buttonWidth, buttonHeight), mainCam.cameraMode.ToString(), buttonStyle))
             mainCam.ToggleCameraMode();
     }
-	
-	void Update ()
+
+    private void OnPointerClick(PointerEventData eventData)
+    {
+        if (mainCam == null || mainCam.cameraMode == ZDSPCamera.CameraMode.Orbit)
+            return;
+
+        if (!eventData.dragging)
+        {
+            Ray ray = mainCam.mainCamera.ScreenPointToRay(eventData.position);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100f, PickableLayerMask))
+            {
+                Vector3 targetPosition = hit.point;
+                PathfindToPosition(targetPosition);
+            }
+        }
+    }
+
+    void Update ()
 	{
 		bool isIdle = CalculatePlayer();
         if (isIdle) //allow pathfind only when idle
@@ -161,17 +181,17 @@ public class SingleRPGControl : MonoBehaviour
         }
         else
         {
-            if (Input.GetKeyDown("space"))
-            {
-                RaycastHit hit;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out hit, 100))
-                {
-                    mPlayer.transform.position = hit.point;
-                    StopPathfind();
-                    return false;
-                }
-            }
+            //if (Input.GetKeyDown("space"))
+            //{
+            //    RaycastHit hit;
+            //    Ray ray = mainCam.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+            //    if (Physics.Raycast(ray, out hit, 100))
+            //    {
+            //        mPlayer.transform.position = hit.point;
+            //        StopPathfind();
+            //        return false;
+            //    }
+            //}
             if(!_doingPathfind) mRPGCharacterScript.PlayEffect("standby");
             return true;
         }

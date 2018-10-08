@@ -22,19 +22,27 @@ namespace Photon.LoadBalancing.GameServer.NPCStore
         {
         }
 
+        public static bool reset = true;
         public static async Task<NPCStoreManager> InstanceAsync()
         {
-            if (_instance == null || _instance.initialised == false)
+            if (_instance == null || _instance.initialised == false || reset)
             {
-                _instance = new NPCStoreManager();
-
-                await _instance.UpdateNPCStoresAsync().ConfigureAwait(false);
+                return await init();
             }
 
             return _instance;
         }
 
-        bool inited = false;
+        static async Task<NPCStoreManager> init()
+        {
+            _instance = new NPCStoreManager();
+
+            await _instance.UpdateNPCStoresAsync().ConfigureAwait(false);
+
+            return _instance;
+        }
+
+        bool inited = false;        
         public bool initialised
         {
             get { return inited; }

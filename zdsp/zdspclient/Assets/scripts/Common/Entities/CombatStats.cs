@@ -1636,7 +1636,7 @@ namespace Zealot.Common.Entities
             public ArmorBonus()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Armor };
+                children = new FieldName[] { FieldName.ArmorBase };
             }
         }
 
@@ -1660,13 +1660,13 @@ namespace Zealot.Common.Entities
             {
                 float def = fields[(int)FieldName.ArmorBase].GetValue();
                 float def_mod = (int)fields[(int)FieldName.ArmorPercBonus].GetValue() * 0.01f;
-                fieldValue = (int)((def * (1 + def_mod)) * (1 - fields[(int)FieldName.IgnoreArmorBase].GetValue()));
+                fieldValue = (int)((def * (1 + def_mod)) * (1 - fields[(int)FieldName.IgnoreArmorBase].GetValue() * 0.01f));
 
                 if (localCombatStats != null)
                 {
                     def -= fields[(int)FieldName.ArmorBonus_NoScore].GetValue();
                     def_mod -= fields[(int)FieldName.ArmorPercBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.Armor = (int)((def * (1 + def_mod)) * (1 - fields[(int)FieldName.IgnoreArmorBase].GetValue()));
+                    localCombatStats.Armor = (int)((def * (1 + def_mod)));
                 }
             }
         }
@@ -4965,6 +4965,7 @@ namespace Zealot.Common.Entities
             mFields[(int)FieldName.MoveSpeed] = new Movespeed();
 
             mFields[(int)FieldName.Element] = new SimpleField();
+            mFields[(int)FieldName.IgnoreArmor] = new SimpleField();
 
             mTierFieldNames = new List<FieldName>[2]; //Number of tiers. Increase with deep dependencies.
 
@@ -5008,6 +5009,8 @@ namespace Zealot.Common.Entities
 
                 FieldName.MoveSpeedBuff,
                 FieldName.MoveSpeedDebuff,
+
+                
             };
 
             mTierFieldNames[1] = new List<FieldName>()
@@ -5028,7 +5031,8 @@ namespace Zealot.Common.Entities
                  FieldName.Accuracy,
 
                  FieldName.MoveSpeed,
-                 FieldName.Armor
+                 FieldName.Armor,
+                 FieldName.IgnoreArmor
             };
         }
 

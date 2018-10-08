@@ -241,7 +241,7 @@ namespace Zealot.Client.Actions
                                 {
                                     ghost.PerformAction(prev);
                                 });
-                                Debug.Log("Action GetHit");
+                                //Debug.Log("Action GetHit");
                                 ghost.PerformAction(action);
                             }
                             else

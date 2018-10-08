@@ -51,7 +51,7 @@
         WelfareRefreshTotalSpend,
         WelfareRefreshOpenServiceFund,
         WelfareRefreshGoldJackpot,
-        WelfareRefreshContLogin,
+        WelfareRefreshContLogin
     }
 
     public enum GameToMasterRPCMethods : byte
@@ -288,7 +288,8 @@
         WelfareRefreshOpenServiceFund,
         WelfareRefreshGoldJackpot,
         WelfareRefreshContLogin,
-        GetPushNotificationTopic
+        GetPushNotificationTopic,
+        EventDataUpdated
     }
 
     public enum MasterGMRPCMethods : byte

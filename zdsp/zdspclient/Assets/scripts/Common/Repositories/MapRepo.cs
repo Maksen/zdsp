@@ -18,14 +18,15 @@ namespace Zealot.Repository
 
     public struct WorldMapCountryPlaceInterest
     {
-        //public string iconPath;
+        public string iconPath;
         public string name;
         public int levelID;
 
-        public WorldMapCountryPlaceInterest(/*string _iconPath, */ string _name, int _levelID)
+        public WorldMapCountryPlaceInterest(string _iconPath, string _name, int _levelID)
         {
             name = _name;
             levelID = _levelID;
+            iconPath = _iconPath;
         }
     }
 
@@ -72,7 +73,7 @@ namespace Zealot.Repository
                 foreach (var x in gameData.WorldMapCountryPlace.Values)
                 {
                     if (e.id == x.country)
-                        wmr.placeLst.Add(new WorldMapCountryPlaceInterest(x.placename, x.level));
+                        wmr.placeLst.Add(new WorldMapCountryPlaceInterest(x.placeiconpath, x.placename, x.level));
                 }
 
                 foreach (var x in gameData.WorldMapCountryMonster.Values)

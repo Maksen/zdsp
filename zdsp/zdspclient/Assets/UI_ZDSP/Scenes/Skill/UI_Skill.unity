@@ -5126,6 +5126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 541163825}
   - component: {fileID: 541163826}
+  - component: {fileID: 541163827}
   m_Layer: 5
   m_Name: GameObject_SkillEquipExpander_DEFAULTOFF
   m_TagString: Untagged
@@ -5163,6 +5164,25 @@ MonoBehaviour:
   m_Script: {fileID: -146154839, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &541163827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 541163824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47fc40057d3455a4dab00cac75ab72a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ContentRect: {fileID: 1786456184}
+  m_TextContentRect: {fileID: 1019439531}
+  m_SkillIconPrefab: {fileID: 1613863567453750, guid: ba4c5ecc9e2471044bdd8d656e43e20f,
+    type: 2}
+  m_SkillIconTextPrefab: {fileID: 1253334225772892, guid: a0a04337f8edcea4fb8c456473923960,
+    type: 2}
+  m_PoolSize: 5
+  m_SelectedPanel: 0
 --- !u!1 &541715611
 GameObject:
   m_ObjectHideFlags: 0
@@ -18340,6 +18360,7 @@ MonoBehaviour:
   m_SelectSkillDDL: {fileID: 797654472}
   m_SpecialSkillPanel: {fileID: 1416833246}
   m_EquipSkillPanel: {fileID: 797654470}
+  m_EquipIconHelper: {fileID: 541163827}
   m_TweenFunction:
     serializedVersion: 2
     m_Curve:
@@ -22043,12 +22064,12 @@ Prefab:
     - target: {fileID: 224686362686592426, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: -25.099976
+      value: -25.100098
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 89.6129
+      value: 89.886734
       objectReference: {fileID: 0}
     - target: {fileID: 224035992614161320, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -22093,12 +22114,12 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 103.22581
+      value: 103.773476
       objectReference: {fileID: 0}
     - target: {fileID: 224507261482001066, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 141.2258
+      value: 141.77347
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: fcc1743901bb3a04b94d956467f047e3, type: 2}

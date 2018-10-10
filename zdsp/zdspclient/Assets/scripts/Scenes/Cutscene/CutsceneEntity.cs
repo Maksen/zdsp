@@ -15,13 +15,22 @@ public enum CutsceneTriggerType
     AutoStart 
 }
 
+public enum CanSkip
+{
+    True,
+    False,
+    First,
+    Only
+}
+
 public class CutsceneEntity : MonoBehaviour
 {
     #region Inspector
     public string CutsceneName;
     public CutsceneTriggerType cutsceneTriggerType;
     public TimelineAssist Cutscene; 
-    public string cutscenePath;   
+    public string cutscenePath;
+    public CanSkip canSkip;
 
     public UnityEvent OnCutsceneFinished;
     private bool skipped = false;
@@ -47,6 +56,14 @@ public class CutsceneEntity : MonoBehaviour
 
     public void PlayCutscene()
     {
+        if (canSkip == CanSkip.Only)
+        {
+            var key = "Cutscene " + CutsceneName;
+            var first = PlayerPrefs.HasKey(key);
+            if (first != false)
+                return;
+        }
+
         skipped = false;
         destroyed = false;
         if (Cutscene != null)
@@ -67,6 +84,21 @@ public class CutsceneEntity : MonoBehaviour
 
     public void SkipCutScene()
     {
+        if (canSkip == CanSkip.False)
+        {
+            return;
+        }
+
+        if (canSkip == CanSkip.First)
+        {
+            var key = "Cutscene " + CutsceneName;
+            var first = PlayerPrefs.HasKey(key);
+            if (first == false)
+            {                
+                return;
+            }
+        }
+
         if (Cutscene != null)
             Cutscene.Skip();
         else
@@ -74,7 +106,7 @@ public class CutsceneEntity : MonoBehaviour
     }
 
     public void CleanUp()
-    {
+    {        
         if (Cutscene != null)
             Cutscene.Skip();
         else
@@ -95,6 +127,9 @@ public class CutsceneEntity : MonoBehaviour
         if (GameInfo.gLocalPlayer != null)
             GameInfo.gCombat.CutsceneManager.OnCutsceneFinished(this);
         OnCutsceneFinished.Invoke();
+
+        var key = "Cutscene " + CutsceneName;
+        PlayerPrefs.SetString(key, "Played");
     }
 
     private void OnPrefabLoaded(GameObject cutscenePrefab)

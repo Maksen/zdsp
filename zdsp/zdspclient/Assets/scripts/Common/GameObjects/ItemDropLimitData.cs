@@ -11,13 +11,14 @@ namespace Zealot.Common
 {
     public class ItemLimit
     {
-        int mItemID;
+        int mItemID = -1;
         int mDailyLimit = -1;
         int mWeeklyLimit = -1;
 
         public int ItemID
         {
             get { return mItemID; }
+            set { mItemID = value; }
         }
         public int DailyLimit
         {

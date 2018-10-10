@@ -54,6 +54,7 @@ namespace Zealot.Repository
         public AchievementObjectiveJson json;
         public int id;
         public int slotIdx;
+        public int mainType;
         public int subType;
         public AchievementObjectiveType objType;
         public string target;
@@ -63,11 +64,12 @@ namespace Zealot.Repository
         public int rewardId;
         public int rewardCount;
 
-        public AchievementObjective(AchievementObjectiveJson json, int idx)
+        public AchievementObjective(AchievementObjectiveJson json, int maintype, int idx)
         {
             this.json = json;
             id = json.achid;
             slotIdx = idx;
+            mainType = maintype;
             subType = json.subtype;
             objType = json.objtype;
             target = json.target;
@@ -246,6 +248,9 @@ namespace Zealot.Repository
         public static Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>> achievementKeyToObjectives; // server use
         public static Dictionary<AchievementObjectiveType, List<string>> achievementObjTypeToTargets; // list of targets for each obj type
 
+        public static Dictionary<int, int> achieveMainTypeToIndexMap;
+
+
         public static Dictionary<int, AchievementLevel> achievementLevels;
         public static Dictionary<int, LISATransformTierJson> lisaTiers; // tier -> json
         public static List<LISARewardJson> lisaRewards;
@@ -270,6 +275,8 @@ namespace Zealot.Repository
             achievementKeyToObjectives = new Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>>();
             achievementObjTypeToTargets = new Dictionary<AchievementObjectiveType, List<string>>();
 
+            achieveMainTypeToIndexMap = new Dictionary<int, int>();
+
             achievementLevels = new Dictionary<int, AchievementLevel>();
             lisaTiers = new Dictionary<int, LISATransformTierJson>();
             lisaRewards = new List<LISARewardJson>();
@@ -292,6 +299,8 @@ namespace Zealot.Repository
             achievementSubTypeToObjectives.Clear();
             achievementKeyToObjectives.Clear();
             achievementObjTypeToTargets.Clear();
+
+            achieveMainTypeToIndexMap.Clear();
 
             achievementLevels.Clear();
             lisaTiers.Clear();
@@ -334,7 +343,6 @@ namespace Zealot.Repository
             achievementMainTypes = gameData.AchievementMainType;
 
             // for main type to collectionhandler index (in case type id deleted or not consecutive)
-            Dictionary<int, int> achieveMainTypeToIndexMap = new Dictionary<int, int>();
             int index = 0;
             foreach (var entry in achievementMainTypes)
                 achieveMainTypeToIndexMap[entry.Value.id] = index++;
@@ -357,7 +365,8 @@ namespace Zealot.Repository
             {
                 if (!achievementSubTypes.ContainsKey(entry.Value.subtype))
                     continue;
-                AchievementObjective obj = new AchievementObjective(entry.Value, achieveMainTypeToIndexMap[GetAchievementMainTypeBySubType(entry.Value.subtype)]);
+                int mainType = GetAchievementMainTypeBySubType(entry.Value.subtype);
+                AchievementObjective obj = new AchievementObjective(entry.Value, mainType, achieveMainTypeToIndexMap[mainType]);
                 achievementObjectives.Add(obj.id, obj);
 
                 if (achievementSubTypeToObjectives.ContainsKey(obj.subType))
@@ -449,6 +458,11 @@ namespace Zealot.Repository
             return objList;
         }
 
+        public static int GetAchievementObjectiveCountByMainType(int mainType)
+        {
+            return achievementObjectives.Values.Count(x => x.mainType == mainType);
+        }
+
         public static List<string> GetTargetsByAchievementObjType(AchievementObjectiveType objType)
         {
             List<string> list;
@@ -480,6 +494,24 @@ namespace Zealot.Repository
             AchievementLevel info;
             achievementLevels.TryGetValue(currentLevel, out info);
             return info;
+        }
+
+        public static LISATransformTierJson GetLISATierInfoByTier(int tier)
+        {
+            LISATransformTierJson json;
+            lisaTiers.TryGetValue(tier, out json);
+            return json;
+        }
+
+        public static LISATransformTierJson GetLISATierInfoByLevel(int level)
+        {
+            LISATransformTierJson json = null;
+            foreach (var entry in lisaTiers.Values)
+            {
+                if (json == null || (level >= entry.reqlvl && entry.reqlvl > json.reqlvl))
+                    json = entry;
+            }
+            return json;
         }
     }
 }

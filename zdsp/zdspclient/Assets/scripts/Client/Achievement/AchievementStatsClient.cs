@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Entities;
@@ -15,6 +16,26 @@ public class AchievementStatsClient : AchievementStats
     {
         //windowObj = UIManager.GetWindowGameObject(WindowType.Achievement);
         //uiAchieve = windowObj.GetComponent<UI_Achievement>();
+    }
+
+    public int GetTotalCompletedCollectionsCount()
+    {
+        return collectionsDict.Count;
+    }
+
+    public int GetCollectionCountByType(int index)
+    {
+        return collectionsDict.Values.Count(x => x.SlotIdx == index);
+    }
+
+    public int GetTotalCompletedAchievementsCount()
+    {
+        return achievementsDict.Values.Count(x => x.IsCompleted());
+    }
+
+    public int GetAchievementCountByType(int index)
+    {
+        return achievementsDict.Values.Count(x => x.IsCompleted() && x.SlotIdx == index);
     }
 
     public void UpdateCollections(byte idx, string value)

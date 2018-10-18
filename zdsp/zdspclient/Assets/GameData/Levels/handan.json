@@ -1,11 +1,11 @@
 {
   "mEntities": {
     "PortalEntryJson": {
-      "-675724": {
+      "-110950": {
         "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
         "myName": "handan_01",
         "exitName": "handan_field_exit_01",
-        "ObjectID": -675724,
+        "ObjectID": -110950,
         "position": {
           "x": 121.26,
           "y": -0.00586140156,
@@ -15,7 +15,7 @@
       }
     },
     "PortalExitJson": {
-      "-675726": {
+      "-110954": {
         "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
         "myName": "handan_exit_01",
         "forward": {
@@ -23,7 +23,7 @@
           "y": 0.0,
           "z": 0.7150247
         },
-        "ObjectID": -675726,
+        "ObjectID": -110954,
         "position": {
           "x": 124.76,
           "y": -0.00999999,
@@ -32,7 +32,7 @@
       }
     },
     "RealmControllerWorldJson": {
-      "-675672": {
+      "-110922": {
         "$type": "Zealot.Entities.RealmControllerWorldJson, Assembly-CSharp",
         "spawnPos": [],
         "spawnDir": [],
@@ -42,7 +42,7 @@
           "z": -0.714857936
         },
         "EntityLinks_Server": {},
-        "ObjectID": -675672,
+        "ObjectID": -110922,
         "position": {
           "x": 216.4,
           "y": 3.30700016,
@@ -50,8 +50,24 @@
         }
       }
     },
+    "PlayerSpawnerJson": {
+      "-110920": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.683324933,
+          "y": 0.0,
+          "z": -0.73011446
+        },
+        "ObjectID": -110920,
+        "position": {
+          "x": 273.75,
+          "y": 3.312,
+          "z": 120.06
+        }
+      }
+    },
     "MapInfoJson": {
-      "-675674": {
+      "-110924": {
         "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
         "centerPoint": {
           "x": 198.895721,
@@ -65,27 +81,11 @@
         },
         "width": 512.0,
         "height": 512.0,
-        "ObjectID": -675674,
+        "ObjectID": -110924,
         "position": {
           "x": 198.895721,
           "y": 100.67,
           "z": 194.93
-        }
-      }
-    },
-    "PlayerSpawnerJson": {
-      "-675670": {
-        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
-        "forward": {
-          "x": 0.683324933,
-          "y": 0.0,
-          "z": -0.73011446
-        },
-        "ObjectID": -675670,
-        "position": {
-          "x": 216.4,
-          "y": 3.312,
-          "z": 177.187
         }
       }
     }

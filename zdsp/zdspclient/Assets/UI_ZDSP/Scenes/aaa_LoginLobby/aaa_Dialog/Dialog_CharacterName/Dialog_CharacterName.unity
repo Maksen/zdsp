@@ -129,7 +129,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &16129777
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1611,6 +1611,9 @@ MonoBehaviour:
   Confirm: {fileID: 114139763}
   Name: {fileID: 2090074526}
   WarningMessage: {fileID: 508844979}
+  Valid: {fileID: 16129778}
+  Tick: {fileID: 21300000, guid: e2af5e36e437d2f4a9f946b8344c300b, type: 3}
+  Cross: {fileID: 21300000, guid: b56498f7fc70ed942886e97da85e4a17, type: 3}
 --- !u!1001 &1526433230
 Prefab:
   m_ObjectHideFlags: 0

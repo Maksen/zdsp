@@ -143,6 +143,7 @@ GameObject:
   - component: {fileID: 222771084244742548}
   - component: {fileID: 114064941025559708}
   - component: {fileID: 114907421616464112}
+  - component: {fileID: 114012995442963772}
   m_Layer: 5
   m_Name: GameObject_SoftMask
   m_TagString: Untagged
@@ -150,6 +151,17 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114012995442963772
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1821317874655830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8867a1e99dc157c4dbc8365cf8a70e0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114025983101393136
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -335,7 +347,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1821317874655830}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0bac33ade27cf4542bd53b1b13d90941, type: 3}
   m_Name: 

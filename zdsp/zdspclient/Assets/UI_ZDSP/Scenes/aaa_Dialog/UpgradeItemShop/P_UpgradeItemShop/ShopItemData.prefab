@@ -221,7 +221,6 @@ GameObject:
   - component: {fileID: 224509220631602592}
   - component: {fileID: 222184002649597540}
   - component: {fileID: 114857585200891940}
-  - component: {fileID: 114689178794043532}
   m_Layer: 5
   m_Name: _Text_Evolve
   m_TagString: Untagged
@@ -930,11 +929,11 @@ MonoBehaviour:
   itemRarity: {fileID: 114433306268889854}
   newDot: {fileID: 1093624345514860}
   iconStatusCannotuse: {fileID: 1242894353270282}
-  iconStatusBreak: {fileID: 1504025593773556}
   txtPowerUp: {fileID: 114992097699202870}
-  itemEvolve: {fileID: 114689178794043532}
+  txtEvolve: {fileID: 0}
   itemUpgrade: {fileID: 114211395977232632}
   itemSocket: {fileID: 114180420022757116}
+  toggleSelect: {fileID: 0}
 --- !u!114 &114237458066764854
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1249,18 +1248,6 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
---- !u!114 &114689178794043532
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1294328726711046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ba94d223c016984096c3fcd0e3a675b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  txtEvolve: {fileID: 114857585200891940}
 --- !u!114 &114732750051615874
 MonoBehaviour:
   m_ObjectHideFlags: 1

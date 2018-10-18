@@ -90,6 +90,7 @@ GameObject:
   - component: {fileID: 224857446002957258}
   - component: {fileID: 114979144345542488}
   - component: {fileID: 114342333350538796}
+  - component: {fileID: 114593733246401532}
   m_Layer: 5
   m_Name: AbilityData
   m_TagString: Untagged
@@ -327,6 +328,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &114593733246401532
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1449597651412552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 553de52b10eb5344c892b7ee0756d878, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftNameText: {fileID: 114045163204188676}
+  leftValueText: {fileID: 114315232625652936}
+  rightColumnObj: {fileID: 1181040313267144}
+  rightNameText: {fileID: 114305430777880354}
+  rightValueText: {fileID: 114311790791700470}
 --- !u!114 &114828562635058242
 MonoBehaviour:
   m_ObjectHideFlags: 1

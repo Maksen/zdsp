@@ -114,26 +114,10 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4549948919767954}
-  - component: {fileID: 114130801286186060}
+  - component: {fileID: 114944997547186786}
   m_Layer: 0
   m_Name: RealmController
   m_TagString: EditorOnly
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!1 &1157318002415752
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4822209133122542}
-  - component: {fileID: 114296103615602088}
-  m_Layer: 0
-  m_Name: SceneNPCContainer
-  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -374,6 +358,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1587037123641474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4365345252763390}
+  - component: {fileID: 114243752768072338}
+  m_Layer: 0
+  m_Name: SceneAssetContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1638571254884086
 GameObject:
   m_ObjectHideFlags: 1
@@ -386,22 +386,6 @@ GameObject:
   m_Layer: 0
   m_Name: counter_03
   m_TagString: EditorOnly
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!1 &1666836431381118
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4521841230882866}
-  - component: {fileID: 114545460744851162}
-  m_Layer: 0
-  m_Name: SceneAssetContainer
-  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -434,6 +418,22 @@ GameObject:
   m_Layer: 0
   m_Name: delay_02
   m_TagString: EditorOnly
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1760088864863600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4732637734409728}
+  - component: {fileID: 114809677067982012}
+  m_Layer: 0
+  m_Name: SceneNPCContainer
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -536,7 +536,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1166198974189090}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 78.11, y: 8.210251, z: 157.87}
+  m_LocalPosition: {x: 96, y: 8.210251, z: 148.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4814223573795880}
@@ -555,6 +555,19 @@ Transform:
   m_Father: {fileID: 4407943351305708}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 40.18, z: 0}
+--- !u!4 &4365345252763390
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1587037123641474}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4997097195041808}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4407943351305708
 Transform:
   m_ObjectHideFlags: 1
@@ -589,24 +602,11 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1468510831238990}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 117.56, y: 8.210251, z: 156.71002}
+  m_LocalPosition: {x: 112.799995, y: 8.210251, z: 160.80002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4871351991236296}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4521841230882866
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1666836431381118}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4997097195041808}
-  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4523442770449970
 Transform:
@@ -657,7 +657,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1855292752757704}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 115.1, y: 8.210251, z: 183.63}
+  m_LocalPosition: {x: 102.36, y: 8.851, z: 164.26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4997097195041808}
@@ -685,7 +685,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1062464188737946}
   m_LocalRotation: {x: 0, y: 0.30962276, z: 0, w: 0.9508595}
-  m_LocalPosition: {x: 90.36, y: 8.210251, z: 163.96}
+  m_LocalPosition: {x: 97.42, y: 8.210251, z: 161.62003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4789728909039508}
@@ -698,7 +698,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1237423169611310}
   m_LocalRotation: {x: 0, y: 0.30962276, z: 0, w: 0.9508595}
-  m_LocalPosition: {x: 92.54, y: 8.210251, z: 165.34}
+  m_LocalPosition: {x: 99.600006, y: 8.210251, z: 163}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4789728909039508}
@@ -711,7 +711,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1135040941160398}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 117.56, y: 8.210251, z: 156.71002}
+  m_LocalPosition: {x: 113.2, y: 8.210251, z: 161.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4814223573795880}
@@ -724,7 +724,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1014695047932948}
   m_LocalRotation: {x: 0, y: 0.30962276, z: 0, w: 0.9508595}
-  m_LocalPosition: {x: 93.3, y: 8.210251, z: 162.98}
+  m_LocalPosition: {x: 100.36, y: 8.210251, z: 160.64001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4789728909039508}
@@ -737,7 +737,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1332696326283490}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 84, y: 8.210251, z: 171.3}
+  m_LocalPosition: {x: 91.4, y: 8.210251, z: 164.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4814223573795880}
@@ -750,7 +750,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1270251260440942}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 84, y: 8.210251, z: 171.3}
+  m_LocalPosition: {x: 91.37, y: 8.210251, z: 165.19998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4871351991236296}
@@ -763,12 +763,25 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1399025741883352}
   m_LocalRotation: {x: 0, y: 0.30962276, z: 0, w: 0.9508595}
-  m_LocalPosition: {x: 94.28, y: 8.210251, z: 160.29}
+  m_LocalPosition: {x: 101.34, y: 8.210251, z: 157.95001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4789728909039508}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 36.073, z: 0}
+--- !u!4 &4732637734409728
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1760088864863600}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4997097195041808}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4760267412926164
 Transform:
   m_ObjectHideFlags: 1
@@ -776,7 +789,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1189800058879808}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 78.11, y: 8.210251, z: 157.87}
+  m_LocalPosition: {x: 96.6, y: 8.210251, z: 149.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4871351991236296}
@@ -842,19 +855,6 @@ Transform:
   m_Father: {fileID: 4854420312831482}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4822209133122542
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1157318002415752}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4997097195041808}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4854420312831482
 Transform:
   m_ObjectHideFlags: 1
@@ -894,7 +894,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1556856975363080}
   m_LocalRotation: {x: 0, y: 0.30962276, z: 0, w: 0.9508595}
-  m_LocalPosition: {x: 88.07, y: 8.210251, z: 162.27}
+  m_LocalPosition: {x: 95.13, y: 8.210251, z: 159.93002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4789728909039508}
@@ -931,8 +931,8 @@ Transform:
   - {fileID: 4854420312831482}
   - {fileID: 4407943351305708}
   - {fileID: 4791376164681630}
-  - {fileID: 4822209133122542}
-  - {fileID: 4521841230882866}
+  - {fileID: 4732637734409728}
+  - {fileID: 4365345252763390}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -959,7 +959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79820
+  entityId: -814890
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -968,8 +968,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m02
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 40
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 4
   population: 2
   respawnTime: 0
@@ -991,7 +991,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79832
+  entityId: -814902
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1000,8 +1000,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m02
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 1
   population: 1
   respawnTime: 0
@@ -1023,7 +1023,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79824
+  entityId: -814894
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1032,8 +1032,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m02
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 32
+  combatRadius: 35
   spawnRadius: 4
   population: 2
   respawnTime: 0
@@ -1055,22 +1055,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d26ffa51573e5947977883abe7fb523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79686
+  entityId: -814756
   ShowInMap: 0
---- !u!114 &114130801286186060
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1141670777258028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77e4092260224fd439b3624c3a28d375, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entityId: -79684
-  ShowInMap: 0
-  EntityLinks: []
 --- !u!114 &114151334568731014
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1082,7 +1068,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79816
+  entityId: -814886
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1091,8 +1077,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m01
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 1
   population: 1
   respawnTime: 0
@@ -1114,6 +1100,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd2aab46fd273e34b9bff02842f3d3c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114243752768072338
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1587037123641474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43b4b9ac5199ced4e94684749aae6e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapIcon: {fileID: 0}
+  spriteList: []
+  ExportedAssets: []
 --- !u!114 &114256285671116646
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1125,7 +1125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79822
+  entityId: -814892
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1134,8 +1134,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m01
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 1
   population: 1
   respawnTime: 0
@@ -1146,28 +1146,6 @@ MonoBehaviour:
   aggressive: 1
   groupattack: 0
   damageEvent: 0
---- !u!114 &114296103615602088
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1157318002415752}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91404214dd7a605458bec53a1953bd96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  assets:
-  - {fileID: 1164286852746026, guid: c2c043f1205ae3e4dbcb82672308e93e, type: 2}
-  - {fileID: 1337154610130648, guid: 6545e539b06e165439cd6d805eb9947a, type: 2}
-  - {fileID: 1805926671427226, guid: 1d799dae0b542eb4da70d112f7ac3197, type: 2}
-  ExportedAssets:
-  - assetPath: Models/Npcs/Prefabs/Mon/prefab_m_074_ma_zei_dun_bing.prefab
-    asset: {fileID: 1164286852746026, guid: c2c043f1205ae3e4dbcb82672308e93e, type: 2}
-  - assetPath: Models/Npcs/Prefabs/Mon/prefab_m_030_ma_zei_bu_bing.prefab
-    asset: {fileID: 1337154610130648, guid: 6545e539b06e165439cd6d805eb9947a, type: 2}
-  - assetPath: Models/Npcs/Prefabs/boss/prefab_b_013_hui_hu.prefab
-    asset: {fileID: 1805926671427226, guid: 1d799dae0b542eb4da70d112f7ac3197, type: 2}
 --- !u!114 &114325079784506298
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1179,7 +1157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79826
+  entityId: -814896
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1188,8 +1166,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m01
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 32
+  combatRadius: 35
   spawnRadius: 4
   population: 2
   respawnTime: 0
@@ -1211,7 +1189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 460d0658be3a0f14d81fee4eb19e1553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79756
+  entityId: -814826
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnCounter
@@ -1230,7 +1208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79814
+  entityId: -814884
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1239,8 +1217,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m01
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 40
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 4
   population: 2
   respawnTime: 0
@@ -1262,7 +1240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79812
+  entityId: -814882
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1271,7 +1249,7 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m02
   archetypeGroup: 
-  aggroRadius: 35
+  aggroRadius: 40
   combatRadius: 45
   spawnRadius: 4
   population: 3
@@ -1294,7 +1272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79828
+  entityId: -814898
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1303,8 +1281,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m02
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 1
   population: 1
   respawnTime: 0
@@ -1315,20 +1293,6 @@ MonoBehaviour:
   aggressive: 1
   groupattack: 0
   damageEvent: 0
---- !u!114 &114545460744851162
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1666836431381118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43b4b9ac5199ced4e94684749aae6e76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mapIcon: {fileID: 0}
-  spriteList: []
-  ExportedAssets: []
 --- !u!114 &114554383226136166
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1340,7 +1304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af5ba290c7b122b4ea6c88712f89b7f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79776
+  entityId: -814846
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnDelay
@@ -1375,7 +1339,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a62cca1403d61a4eab4e14dd9944bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79758
+  entityId: -814828
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnEnter
@@ -1392,6 +1356,28 @@ MonoBehaviour:
     mTrigger: SendMessage1
   activeOnStartup: 1
   triggerCount: 1
+--- !u!114 &114809677067982012
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1760088864863600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91404214dd7a605458bec53a1953bd96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assets:
+  - {fileID: 1164286852746026, guid: c2c043f1205ae3e4dbcb82672308e93e, type: 2}
+  - {fileID: 1337154610130648, guid: 6545e539b06e165439cd6d805eb9947a, type: 2}
+  - {fileID: 1805926671427226, guid: 1d799dae0b542eb4da70d112f7ac3197, type: 2}
+  ExportedAssets:
+  - assetPath: Models/Npcs/Prefabs/Mon/prefab_m_074_ma_zei_dun_bing.prefab
+    asset: {fileID: 1164286852746026, guid: c2c043f1205ae3e4dbcb82672308e93e, type: 2}
+  - assetPath: Models/Npcs/Prefabs/Mon/prefab_m_030_ma_zei_bu_bing.prefab
+    asset: {fileID: 1337154610130648, guid: 6545e539b06e165439cd6d805eb9947a, type: 2}
+  - assetPath: Models/Npcs/Prefabs/boss/prefab_b_013_hui_hu.prefab
+    asset: {fileID: 1805926671427226, guid: 1d799dae0b542eb4da70d112f7ac3197, type: 2}
 --- !u!114 &114818515322835216
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1403,7 +1389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 460d0658be3a0f14d81fee4eb19e1553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79760
+  entityId: -814830
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnCounter
@@ -1422,7 +1408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79818
+  entityId: -814888
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1431,8 +1417,8 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_b01
   archetypeGroup: 
-  aggroRadius: 30
-  combatRadius: 50
+  aggroRadius: 25
+  combatRadius: 30
   spawnRadius: 1
   population: 1
   respawnTime: 0
@@ -1454,7 +1440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 460d0658be3a0f14d81fee4eb19e1553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79794
+  entityId: -814864
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnCounter
@@ -1473,7 +1459,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af5ba290c7b122b4ea6c88712f89b7f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79762
+  entityId: -814832
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnDelay
@@ -1502,7 +1488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79830
+  entityId: -814900
   ShowInMap: 0
   EntityLinks:
   - mEvent: OnChildDead
@@ -1511,7 +1497,7 @@ MonoBehaviour:
   activeOnStartup: 0
   archetype: novice_teaching_m01
   archetypeGroup: 
-  aggroRadius: 35
+  aggroRadius: 40
   combatRadius: 45
   spawnRadius: 4
   population: 3
@@ -1534,7 +1520,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f82334c8389124c85bf80ec95421d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79696
+  entityId: -814766
   ShowInMap: 0
   messageType: 1
   emergency: 0
@@ -1542,6 +1528,20 @@ MonoBehaviour:
   - "\u60E1\u8CCA:\u5C0F\u5B50!\u7D0D\u547D\u4F86"
   - "\u60E1\u8CCA:\u5927\u5BB6\u5FEB\u4E0A!\u62FF\u4E0B\u90A3\u5C0F\u5B50!!"
   - "\u7070\u9B0D:\u5C0F\u5B50\uFF0C\u633A\u578B\u7684\u561B!\u770B\u6211\u600E\u9EBC\u6559\u8A13\u4F60!"
+--- !u!114 &114944997547186786
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1141670777258028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab20ae5aac32fcd49932e0cd3fe41321, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entityId: -814754
+  ShowInMap: 0
+  EntityLinks: []
 --- !u!114 &114961237198685918
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1553,7 +1553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae7fb4905bda03a46a0ade2133d9ea70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -79682
+  entityId: -814752
   ShowInMap: 0
 --- !u!224 &224179130812080862
 RectTransform:

@@ -265,6 +265,7 @@ GameObject:
   - component: {fileID: 114592200488740364}
   - component: {fileID: 114549962995141876}
   - component: {fileID: 225517677452164942}
+  - component: {fileID: 114566281821741566}
   m_Layer: 5
   m_Name: SkillIconData
   m_TagString: Untagged
@@ -469,7 +470,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0
+  m_Text: 1
 --- !u!114 &114098978080415866
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -743,6 +744,23 @@ MonoBehaviour:
   offState: {fileID: 1344333916577936}
   onState: {fileID: 1347506606331504}
   parentToggle: {fileID: 0}
+--- !u!114 &114566281821741566
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1548161362512168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6551c89b984e2404db9994b6df493f3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Toggle: {fileID: 114592200488740364}
+  m_skgID: 0
+  m_IconFrame: {fileID: 0}
+  m_Icon: {fileID: 0}
+  m_Skillid: 0
+  m_SkillLevel: 0
 --- !u!114 &114592200488740364
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -874,14 +892,14 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0, g: 0.8758622, b: 1, a: 1}
-  m_Text: 0
+  m_Text: 1
   m_CaretBlinkRate: 1.7
   m_CaretWidth: 1
   m_ReadOnly: 0
-  _min: 0
+  _min: 1
   _max: 99
   _step: 1
-  _value: 0
+  _value: 1
   _fasterStep: 0
   HoldStartDelay: 0.5
   HoldChangeDelay: 0.05
@@ -1032,6 +1050,9 @@ MonoBehaviour:
   m_SkillName: {fileID: 114817824068239594}
   m_Toggle: {fileID: 114592200488740364}
   m_Level: {fileID: 114690482666366532}
+  hlevel: {fileID: 1353637416714256}
+  hSpinner: {fileID: 1382000983925000}
+  m_Button: {fileID: 114566281821741566}
 --- !u!114 &114817824068239594
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -906,17 +906,17 @@ Prefab:
     - target: {fileID: 224035992614161320, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224035992614161320, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224035992614161320, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -61.67
       objectReference: {fileID: 0}
     - target: {fileID: 224035992614161320, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -931,32 +931,32 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 116.6129
+      value: 116.2
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -61.67
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 103.22581
+      value: 102.4
       objectReference: {fileID: 0}
     - target: {fileID: 224507261482001066, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 168.2258
+      value: 167.4
       objectReference: {fileID: 0}
     - target: {fileID: 114389983397216784, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -1133,7 +1133,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: f13997511537d5248a0d48da10d48afb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 96e2d92e4d22f774bb4aa6b29347ef6e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3826,6 +3826,7 @@ MonoBehaviour:
   materialPanel: {fileID: 1608249052}
   fusionButton: {fileID: 1720092560}
   costCurrencyText: {fileID: 1176544066}
+  playerCurrencyText: {fileID: 1505602795}
 --- !u!1001 &1336166760
 Prefab:
   m_ObjectHideFlags: 0
@@ -4213,7 +4214,7 @@ Prefab:
     - target: {fileID: 224895988121614356, guid: 44c58e1073c32a643b758c2f23109796,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.20000076
       objectReference: {fileID: 0}
     - target: {fileID: 224895988121614356, guid: 44c58e1073c32a643b758c2f23109796,
         type: 2}
@@ -4258,6 +4259,12 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 44c58e1073c32a643b758c2f23109796, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1505602795 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114705915062677696, guid: 44c58e1073c32a643b758c2f23109796,
+    type: 2}
+  m_PrefabInternal: {fileID: 1505602794}
+  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1 &1564658201
 GameObject:
   m_ObjectHideFlags: 0
@@ -6011,7 +6018,7 @@ Prefab:
     - target: {fileID: 224655446394336732, guid: b3933a0c79c42a34e9ecc26cf8fb0fac,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.20000076
       objectReference: {fileID: 0}
     - target: {fileID: 224655446394336732, guid: b3933a0c79c42a34e9ecc26cf8fb0fac,
         type: 2}

@@ -30,6 +30,17 @@ namespace Zealot.Common
         Body,
         Weapon,
         Back,
+        Bathrobe,
+
+        MAXSLOTS
+    }
+
+    public enum AppearanceSlot
+    {
+        HairStyle,
+        HairColor,
+        MakeUp,
+        SkinColor,
 
         MAXSLOTS
     }
@@ -159,12 +170,28 @@ namespace Zealot.Common
         public List<IInventoryItem> Slots = new List<IInventoryItem>();
 
         public int NumSlots { get { return Slots.Count; } }
-        protected int maxSlotsNum = (int)InventorySlot.MAXSLOTS;
+        protected int maxSlotsSize = (int)InventorySlot.MAXSLOTS;
 
         public void InitDefault()
         {
-            Slots = new List<IInventoryItem>(new IInventoryItem[maxSlotsNum]);
-            UnlockedSlotCount = 30;
+            Slots = new List<IInventoryItem>(new IInventoryItem[maxSlotsSize]);
+            if (UnlockedSlotCount == 0)
+                UnlockedSlotCount = 30;
+        }
+
+        public void ValidateDefault()
+        {
+            if (Slots.Count != maxSlotsSize)
+            {
+                List<IInventoryItem> OldSlots = Slots;
+                InitDefault();
+                for (int i = 0; i < maxSlotsSize; ++i)
+                {
+                    if (i == OldSlots.Count)
+                        break;
+                    Slots[i] = OldSlots[i];
+                }
+            }
         }
 
         public virtual void ClearItemInventory()
@@ -344,7 +371,7 @@ namespace Zealot.Common
             MergeItemStackCount(); //O(n2)
 
             int currentlistlen = Slots.Count;
-            if (currentlistlen < maxSlotsNum)
+            if (currentlistlen < maxSlotsSize)
             {
                 List<IInventoryItem> emptyslots = new List<IInventoryItem>(new IInventoryItem[(listlen - currentlistlen)]);
                 Slots.AddRange(emptyslots);
@@ -658,16 +685,58 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "fsslots")]
         public List<Equipment> FashionSlots = new List<Equipment>();
 
+        [JsonProperty(PropertyName = "appearance")]
+        public List<int> AppearanceSlots = new List<int>();
+
         [JsonProperty(PropertyName = "helm")]
         public bool HideHelm = false;
 
         private int mEquipmentSlotSize = (int)EquipmentSlot.MAXSLOTS;
         private int mFashionSlotSize = (int)FashionSlot.MAXSLOTS;
+        private int mAppearanceSlotSize = (int)AppearanceSlot.MAXSLOTS;
 
         public void InitDefault()
         {
             Slots = new List<Equipment>(new Equipment[mEquipmentSlotSize]);
             FashionSlots = new List<Equipment>(new Equipment[mFashionSlotSize]);
+            AppearanceSlots = new List<int>(new int[mAppearanceSlotSize]);
+        }
+
+        public void ValidateDefault()
+        {
+            if (Slots.Count != mEquipmentSlotSize)
+            {
+                List<Equipment> temp = Slots;
+                Slots = new List<Equipment>(new Equipment[mEquipmentSlotSize]);
+                for (int i = 0; i < mEquipmentSlotSize; ++i)
+                {
+                    if (i == temp.Count)
+                        break;
+                    Slots[i] = temp[i];
+                }
+            }
+            if (FashionSlots.Count != mFashionSlotSize)
+            {
+                List<Equipment> temp = FashionSlots;
+                FashionSlots = new List<Equipment>(new Equipment[mFashionSlotSize]);
+                for (int i = 0; i < mFashionSlotSize; ++i)
+                {
+                    if (i == temp.Count)
+                        break;
+                    FashionSlots[i] = temp[i];
+                }
+            }
+            if (AppearanceSlots.Count != mAppearanceSlotSize)
+            {
+                List<int> temp = AppearanceSlots;
+                AppearanceSlots = new List<int>(new int[mAppearanceSlotSize]);
+                for (int i = 0; i < mAppearanceSlotSize; ++i)
+                {
+                    if (i == temp.Count)
+                        break;
+                    AppearanceSlots[i] = temp[i];
+                }
+            }
         }
 
         public void ClearEquipmentInventory()
@@ -748,6 +817,18 @@ namespace Zealot.Common
                     return equipment;
 
             return null;
+        }
+
+        public void SetAppearanceToSlot(int slotIdx, int appearanceid)
+        {
+            AppearanceSlots[slotIdx] = appearanceid;
+        }
+
+        public int GetAppearanceSlot(int slotIdx)
+        {
+            if (slotIdx < mAppearanceSlotSize)
+                return AppearanceSlots[slotIdx];
+            return -1;
         }
     }
 

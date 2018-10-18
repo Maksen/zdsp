@@ -50,6 +50,12 @@ namespace Zealot.RPC
             ProxyMethod("DestroyEntity", pid, target);
         }
 
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveEntity)]
+        public void InteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota, object target)
+        {
+            ProxyMethod("InteractiveEntity", pid, prefab, parent, pos, rota, target);
+        }
+
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnPlayerDead)]
         public void OnPlayerDead(string killer, byte respawntype, object target)
         {

@@ -74,8 +74,9 @@ public class HUD_SkillBtn : MonoBehaviour
             PlayerSkillCDState cdstate = GameInfo.gSkillCDState;
             if (cdstate == null)
                 return;
+            if (!cdstate.mCDEnd.ContainsKey(skillid)) return;
 
-            float remainingTime = cdstate.mCDEnd[index] - Time.time;
+            float remainingTime = cdstate.mCDEnd[skillid] - Time.time;
             if (remainingTime > 0)
             {
                 cdTime = remainingTime; 
@@ -135,7 +136,7 @@ public class HUD_SkillBtn : MonoBehaviour
     {
         float changeamt = perct * 0.01f * totalCdDuration;
         PlayerSkillCDState cdstate = GameInfo.gSkillCDState;
-        cdstate.mCDEnd[index] += changeamt;
+        cdstate.mCDEnd[skillid] += changeamt;
         if (!gameObject.activeInHierarchy)
         {
             return;
@@ -174,7 +175,7 @@ public class HUD_SkillBtn : MonoBehaviour
         cdText.gameObject.SetActive(false);
         countdownTimer = null;
          
-        parent.PlaySkillCDFlare(index);
+        parent.PlaySkillCDFlare(skillid);
     }
 
     void OnDisable()

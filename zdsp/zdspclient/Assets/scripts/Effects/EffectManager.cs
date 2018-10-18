@@ -167,11 +167,20 @@ public class EfxSystem : MonoSingleton<EfxSystem>
 
     public void OnDestroyEfxSystem()
     {
-        mEffectPaths.Clear();
-        mEffectPaths = null;
-        mPreloadedEffects.Clear();
-        mPreloadedEffects = null;
-        mEfxPrefabList.Clear();
-        mEfxPrefabList = null;
+        if (mEffectPaths != null)
+        {
+            mEffectPaths.Clear();
+            mEffectPaths = null;
+        }
+        if (mPreloadedEffects != null)
+        {
+            mPreloadedEffects.Clear();
+            mPreloadedEffects = null;
+        }
+        if (mEfxPrefabList != null)
+        {
+            mEfxPrefabList.Clear();
+            mEfxPrefabList = null;
+        }    
     }
 }

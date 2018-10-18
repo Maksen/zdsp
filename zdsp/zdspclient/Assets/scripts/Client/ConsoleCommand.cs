@@ -2115,6 +2115,29 @@ public class CommandManager
             PrintToConsole("Format: \\SendMail <Mail ID>");
     }
 
+    [ConsoleCmd("ClearEquipSkill")]
+    public void ClearEquipSkill(string[] param)
+    {
+        RPCFactory.NonCombatRPC.ConsoleRemoveAllSkill();
+    }
+
+    [ConsoleCmd("StartCombatLogging")]
+    public void StartCombatLogging(string[] param)
+    {
+        RPCFactory.NonCombatRPC.CombatLogging(true);
+    }
+
+    [ConsoleCmd("StopCombatLogging")]
+    public void StopCombatLogging(string[] param)
+    {
+        RPCFactory.NonCombatRPC.CombatLogging(false);
+    }
+
+    [ConsoleCmd("ClearCombatLog")]
+    public void ClearCombatLog(string[] param)
+    {
+        RPCFactory.NonCombatRPC.CombatLogClear();
+    }
 #endif
     #endregion
 }

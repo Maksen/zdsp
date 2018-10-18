@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Zealot.Common;
 
 public static class UIManager
 {
@@ -310,8 +309,11 @@ public static class UIManager
 
     public static void DestroyLoadingScreen()
     {
-        LoadingScreen.DestroyLoadingScreen();
-        LoadingScreen = null;
+        if (LoadingScreen != null)
+        {
+            LoadingScreen.DestroyLoadingScreen();
+            LoadingScreen = null;
+        }
     }
 
     #region OpenedWindows

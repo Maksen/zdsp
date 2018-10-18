@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<magicalarea51>
+  <enum name="LISAPosition">
+    <item key="Left" value="0"/>
+    <item key="Right" value="1"/>
+  </enum>
+  <enum name="SystemName">
+    <item key="Destiny" value="0"/>
+  </enum>
+  <data>
+    <element name ="Guide" useexcel="true">
+      <property name="lv" type="int" uitext ="Level"/>
+      <property name="system" type="SystemName" uitext="System Name"/>
+    </element>
+
+    <element name="Description" useexcel="true">
+      <property name="system" type="SystemName" uitext="System"/>
+      <property name="tutorial_order" type="int" uitext="Order"/>
+      <property name="position" type="LISAPosition" uitext="Position" default="0"/>
+      <property name="text" type="string" uitext="Text"/>
+      <property name="path" type="asset" uitext="Kafra's path" assettype="sprite"/>
+    </element>
+  </data>
+</magicalarea51>

@@ -57,15 +57,10 @@ namespace Photon.LoadBalancing.GameServer
         {
             CharacterData characterData = mSlot.CharacterData;
             ItemInventoryData itemInvData = characterData.ItemInventory;
-            if (itemInvData.Slots.Capacity == 0)
-                itemInvData.InitDefault();
             mInvData = new ItemInventoryServerData();
             mInvData.Init(itemInvData);
 
             mEquipInvData = characterData.EquipmentInventory;
-            if (mEquipInvData.Slots.Capacity == 0)
-                mEquipInvData.InitDefault();
-
             mItemKindData = characterData.ItemKindInv;
         }
 
@@ -883,7 +878,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (item != null)
                 {
                     int amount = kvp.Value;
-                    if (!DeductItem(item.ItemID, slotId, amount, ref retval))
+                    if (!DeductItem(item.ItemID, slotId, amount, ref retval) || item.JsonObject.sellprice == -1)
                         RevertRemove(retval.invSlot);
                     else
                         totalSellAmount += item.JsonObject.sellprice * amount;

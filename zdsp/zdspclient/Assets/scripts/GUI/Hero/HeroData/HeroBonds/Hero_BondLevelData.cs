@@ -22,10 +22,15 @@ public class Hero_BondLevelData : MonoBehaviour
         seText[1].text = ""; // empty out the text first
 
         int index = 0;
-        foreach (SideEffectJson seJson in bondData.sideeffects.Values)
+        foreach (SideEffectJson se in bondData.sideeffects.Values)
         {
             if (index < seText.Length)
-                seText[index++].text = SDGRepo.GetSDGText(seJson);
+            {
+                if (se.isrelative)
+                    seText[index++].text = string.Format("{0} +{1}%", se.effecttype.ToString(), se.max);  // todo: jm localize
+                else
+                    seText[index++].text = string.Format("{0} +{1}", se.effecttype.ToString(), se.max);
+            }
         }
     }
 

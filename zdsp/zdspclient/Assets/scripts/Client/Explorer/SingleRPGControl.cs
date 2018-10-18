@@ -24,6 +24,7 @@ public class SingleRPGControl : MonoBehaviour
     //The waypoint we are currently moving towards
     private int currentWaypoint = 0;
     private int PickableLayerMask;
+    private EnvironmentController mEnvironmentController;
 
     void Awake ()
 	{
@@ -41,6 +42,8 @@ public class SingleRPGControl : MonoBehaviour
             SpawnPlayer();
         else
             Debug.LogError("Cannot find camera");
+
+        mEnvironmentController = new EnvironmentController();
     }
 
     void InitEventSystem()
@@ -91,8 +94,14 @@ public class SingleRPGControl : MonoBehaviour
             mainCam.ToggleCameraMode();
     }
 
+    public void EnableZoomInMode(bool enable)
+    {
+        mEnvironmentController.EnableZoomInMode(enable);
+    }
+
     private void OnPointerClick(PointerEventData eventData)
     {
+        return;
         if (mainCam == null || mainCam.cameraMode == ZDSPCamera.CameraMode.Orbit)
             return;
 

@@ -64,9 +64,7 @@ namespace Zealot.Repository
 
         public static Dictionary<int, List<int>> m_SkillGroupToSkill;
 
-        public static Dictionary<PartsType, Dictionary<int, int>> mWeaponTypeGetSkillID;
-
-        public static Dictionary<int, Dictionary<WeaponType, int>> mWeapontypeToSId;
+        public static Dictionary<PartsType, List<int>> mWeaponTypeGetSkillID;
 
         public static List<int> m_SpecialSkill;
 
@@ -75,9 +73,8 @@ namespace Zealot.Repository
             mSkills = new Dictionary<int, SkillData>();
             mSkillSideEffects = new Dictionary<int, SkillSideEffect>();
             //mPassiveSideEffects = new Dictionary<int, List<SideEffectJson>>();
-            mWeapontypeToSId = new Dictionary<int, Dictionary<WeaponType, int>>();
             //mSideEffectByLevel = new Dictionary<int, Dictionary<int, SideEffectJson>>();
-            mWeaponTypeGetSkillID = new Dictionary<PartsType, Dictionary<int, int>>();
+            mWeaponTypeGetSkillID = new Dictionary<PartsType, List<int>>();
             m_SkillGroupToSkill = new Dictionary<int, List<int>>();
             m_SpecialSkill = new List<int>();
         }
@@ -86,7 +83,6 @@ namespace Zealot.Repository
         {
             mSkills.Clear();
             mSkillSideEffects.Clear();
-            mWeapontypeToSId.Clear();
             mWeaponTypeGetSkillID.Clear();
             m_SkillGroupToSkill.Clear();
             m_SpecialSkill.Clear();
@@ -103,32 +99,21 @@ namespace Zealot.Repository
                 SkillData skillData = new SkillData(skillgroupJson, skillJson);
                 mSkills.Add(skillJson.id, skillData);
 
-                if (!mWeapontypeToSId.ContainsKey(skillJson.skillgroupid))
-                {
-                    mWeapontypeToSId.Add(skillJson.skillgroupid, new Dictionary<WeaponType, int>()); 
-                }
-
                 if (!m_SkillGroupToSkill.ContainsKey(skillgroupJson.id))
                 {
                     m_SkillGroupToSkill.Add(skillgroupJson.id, new List<int>());
                 }
                 m_SkillGroupToSkill[skillgroupJson.id].Add(skillJson.id);
 
-                List<WeaponType> temp = SplitWeaponType(skillgroupJson.weaponsrequired);
-                foreach (WeaponType type in temp) {
-
-                    if (!mWeapontypeToSId[skillJson.skillgroupid].ContainsKey(type))
-                        mWeapontypeToSId[skillJson.skillgroupid].Add(type, skillJson.id);
-                }
 
                 List<PartsType> tempp = SplitWeaponPartType(skillgroupJson.weaponsrequired);
                 foreach (PartsType type in tempp) {
                     if (!mWeaponTypeGetSkillID.ContainsKey(type)) {
-                        mWeaponTypeGetSkillID.Add(type, new Dictionary<int, int>());
+                        mWeaponTypeGetSkillID.Add(type, new List<int>());
                     }
 
-                    if (!mWeaponTypeGetSkillID[type].ContainsKey(skillJson.id)) {
-                        mWeaponTypeGetSkillID[type].Add(skillJson.id, skillJson.skillgroupid);
+                    if (!mWeaponTypeGetSkillID[type].Contains(skillJson.skillgroupid)) {
+                        mWeaponTypeGetSkillID[type].Add(skillJson.skillgroupid);
                     }
                 }
 
@@ -414,42 +399,11 @@ namespace Zealot.Repository
             return skillData;
         }
 
-        /// <summary>
-        /// the same skillgroup will have different action and effect for different weapon type
-        /// so use this with weapon type to get the skilldata needed to play 
-        /// </summary>
-        /// <param name="skillgroupId"></param>
-        /// <param name="weapon"></param>
-        /// <returns></returns>
-        public static SkillData GetSkillByWeapon(int skillgroupId, WeaponType weapon)
+        public static bool CheckSkillValidGivenWeapon(int skillgroupID, PartsType weapon)
         {
-            int sid = -1;
-            Dictionary<WeaponType, int> lvtoid = null;
-            mWeapontypeToSId.TryGetValue(skillgroupId, out lvtoid);
-            if (lvtoid != null)
-            {
-                if (!lvtoid.TryGetValue(weapon, out sid))
-                {
-                    lvtoid.TryGetValue(WeaponType.Any, out sid);
-                };
-            }
-             
-            return GetSkill(sid);
-        }
-
-        /// <summary>
-        /// This Won't work since assuming skill group id is not uq
-        /// </summary>
-        /// <param name="skillgroupId"></param>
-        /// <param name="weapon"></param>
-        /// <returns></returns>
-        public static SkillData GetSkillGivenWeapon(int skillgroupId, PartsType weapon) {
-            Dictionary<int, int> result = null;
+            List<int> result = null;
             mWeaponTypeGetSkillID.TryGetValue(weapon, out result);
-            if(result != null) {
-                return GetSkill(result[skillgroupId]);
-            }
-            return null;
+            return result.Contains(skillgroupID);
         }
 
         /// <summary>
@@ -501,15 +455,23 @@ namespace Zealot.Repository
 
         public static SkillData GetWeaponsBasicAttackData(PartsType weapon, int index)
         {
-            Dictionary<int, int> result = null;
+            List<int> result = null;
             if (mWeaponTypeGetSkillID.TryGetValue(weapon, out result))
             {
                 string skillName = string.Format("atk{0}_{1}", index, weapon.ToString().ToLower());
                 foreach (var iter in result)
                 {
-                    SkillData data = GetSkill(iter.Key);
-                    if (data.skillJson.name.Contains(skillName))
-                        return data;
+                    SkillGroupJson json = GetSkillGroupById(iter);
+                    if (json.name.Contains(skillName))
+                    {
+                        List<int> skills = GetSkillsFromSkillGroup(iter);
+                        foreach (var sid in skills)
+                        {
+                            SkillData data = GetSkill(sid);
+                            if (data.skillJson.name.Contains(skillName))
+                                return data;
+                        }
+                    }
                 }
             }
             return null;
@@ -517,15 +479,23 @@ namespace Zealot.Repository
 
         public static SkillData GetGenderWeaponBasicAttackData(PartsType weapon, int index, string gender)
         {
-            Dictionary<int, int> result = null;
+            List<int> result = null;
             if (mWeaponTypeGetSkillID.TryGetValue(weapon, out result))
             {
                 string skillName = string.Format("{0}_{1}_atk{2}", gender.ToLower(), weapon.ToString().ToLower(), index);
                 foreach (var iter in result)
                 {
-                    SkillData data = GetSkill(iter.Key);
-                    if (data.skillgroupJson.name.Contains(skillName))
-                        return data;
+                    SkillGroupJson json = GetSkillGroupById(iter);
+                    if (json.name.Contains(skillName))
+                    {
+                        List<int> skills = GetSkillsFromSkillGroup(iter);
+                        foreach (var sid in skills)
+                        {
+                            SkillData data = GetSkill(sid);
+                            if (data.skillJson.name.Contains(skillName))
+                                return data;
+                        }
+                    }
                 }
             }
             return null;
@@ -568,6 +538,15 @@ namespace Zealot.Repository
                 return -1;
             }
             return m_SkillGroupToSkill[skillgroupId][0];
+        }
+
+        public static List<int> GetSkillsFromSkillGroup(int skillgroupId)
+        {
+            if (!m_SkillGroupToSkill.ContainsKey(skillgroupId))
+            {
+                return null;
+            }
+            return m_SkillGroupToSkill[skillgroupId];
         }
 
         public static int GetSkillGroupID(int skillid)
@@ -674,47 +653,57 @@ namespace Zealot.Repository
     {
         public static Dictionary<int, SideEffectJson> mIdMap;
         public static Dictionary<int, SideEffectGroupJson> mSideEffectGroups;
-        public static Dictionary<int, int> mSideEffectGroupID;
-        public static Dictionary<int, List<int>> mSideEffectGroupIndex;
+        public static Dictionary<int, List<int>> mSideEffectGroupToSideEffectID;
         static SideEffectRepo()
         {
             mIdMap = new Dictionary<int, SideEffectJson>();
-            //mSeIDToGroupID = new Dictionary<int, SEGroupInfo>();           
-            mSideEffectGroupID = new Dictionary<int, int>();
-            mSideEffectGroupIndex = new Dictionary<int, List<int>>();
+            mSideEffectGroups = new Dictionary<int, SideEffectGroupJson>();
+            mSideEffectGroupToSideEffectID = new Dictionary<int, List<int>>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
             mIdMap = gameData.SideEffect;
-            mSideEffectGroups = gameData.SideEffectGroup;
-            mSideEffectGroupID.Clear();
-            foreach (SideEffectGroup__sideeffectsJson entry in gameData.SideEffectGroup__sideeffects)
-            {
-                if (mSideEffectGroupIndex.ContainsKey(entry.sideeffectgroupid))
-                    mSideEffectGroupIndex[entry.sideeffectgroupid].Add(entry.sideeffectsid);
-                else
-                    mSideEffectGroupIndex.Add(entry.sideeffectgroupid, new List<int>(){ entry.sideeffectsid });
+            //mSideEffectGroups = gameData.SideEffectGroup;
 
-                SideEffectGroupJson sideEffectGroup = GetSEGroup(entry.sideeffectgroupid);
-                SideEffectJson sideEffect = GetSideEffect(entry.sideeffectsid);
-                if (sideEffectGroup != null && sideEffect != null)
-                    sideEffectGroup.sideeffects.Add(entry.sideeffectsid, sideEffect);
-            }
-
-            foreach (KeyValuePair<int, SideEffectJson> entry in mIdMap)
+            foreach(var json in gameData.SideEffectGroup)
             {
-                int groupid = 0;
-                foreach (KeyValuePair<int, List<int>> innerentry in mSideEffectGroupIndex)
-                {
-                    if (innerentry.Value.Contains(entry.Key))
-                    {
-                        groupid = innerentry.Key;
-                        break;
-                    }
-                }
-                mSideEffectGroupID.Add(entry.Key, groupid);
+                mSideEffectGroups.Add(json.Value.sideeffect, json.Value);
+                if (!mSideEffectGroupToSideEffectID.ContainsKey(json.Value.groupid))
+                    mSideEffectGroupToSideEffectID.Add(json.Value.groupid, new List<int>());
+
+                mSideEffectGroupToSideEffectID[json.Value.groupid].Add(json.Value.sideeffect);
             }
+            foreach(var pair in mSideEffectGroupToSideEffectID)
+            {
+                pair.Value.Sort();
+            }
+            //foreach (SideEffectGroup__sideeffectsJson entry in gameData.SideEffectGroup__sideeffects)
+            //{
+            //    if (mSideEffectGroupIndex.ContainsKey(entry.sideeffectgroupid))
+            //        mSideEffectGroupIndex[entry.sideeffectgroupid].Add(entry.sideeffectsid);
+            //    else
+            //        mSideEffectGroupIndex.Add(entry.sideeffectgroupid, new List<int>(){ entry.sideeffectsid });
+
+            //    SideEffectGroupJson sideEffectGroup = GetSEGroup(entry.sideeffectgroupid);
+            //    SideEffectJson sideEffect = GetSideEffect(entry.sideeffectsid);
+            //    if (sideEffectGroup != null && sideEffect != null)
+            //        sideEffectGroup.sideeffects.Add(entry.sideeffectsid, sideEffect);
+            //}
+
+            //foreach (KeyValuePair<int, SideEffectJson> entry in mIdMap)
+            //{
+            //    int groupid = 0;
+            //    foreach (KeyValuePair<int, List<int>> innerentry in mSideEffectGroupIndex)
+            //    {
+            //        if (innerentry.Value.Contains(entry.Key))
+            //        {
+            //            groupid = innerentry.Key;
+            //            break;
+            //        }
+            //    }
+            //    mSideEffectGroupID.Add(entry.Key, groupid);
+            //}
 
             //test
             //bool can = CanOverride(14, 10);
@@ -729,22 +718,31 @@ namespace Zealot.Repository
         //overrite happends only if the two in the same sideeffect group.
         public static bool CanOverride(int newse, int oldse)
         {
-            if (mSideEffectGroupID[newse] == mSideEffectGroupID[oldse] && mSideEffectGroupID[newse] > 0)
-            {
-                int groupid = mSideEffectGroupID[newse];
-                return mSideEffectGroupIndex[groupid].IndexOf(newse) > mSideEffectGroupIndex[groupid].IndexOf(oldse);
-            }
-            return false;
+            //if (mSideEffectGroupID[newse] == mSideEffectGroupID[oldse] && mSideEffectGroupID[newse] > 0)
+            //{
+            //    int groupid = mSideEffectGroupID[newse];
+            //    return mSideEffectGroupIndex[groupid].IndexOf(newse) > mSideEffectGroupIndex[groupid].IndexOf(oldse);
+            //}
+            int result = mSideEffectGroups[newse].sideeffectlevel - mSideEffectGroups[oldse].sideeffectlevel;
+
+            return result <= 0 ? false : true;
         }
 
         public static bool InSameGroup(int newse, int oldse)
         {
-            if (newse == oldse)
-                return false;
-            if (mSideEffectGroupID.ContainsKey(newse) && mSideEffectGroups.ContainsKey(oldse))
-                return mSideEffectGroupID[newse] > 0 && mSideEffectGroupID[newse] == mSideEffectGroupID[oldse];
+            //if (newse == oldse)
+            //    return false;
+            //if (mSideEffectGroupID.ContainsKey(newse) && mSideEffectGroups.ContainsKey(oldse))
+            //    return mSideEffectGroupID[newse] > 0 && mSideEffectGroupID[newse] == mSideEffectGroupID[oldse];
+            //else
+            //    return false;
+
+            if (newse == oldse) return true;
+            if (mSideEffectGroups.ContainsKey(oldse) && mSideEffectGroups.ContainsKey(newse))
+                return mSideEffectGroups[newse].groupid == mSideEffectGroups[oldse].groupid;
             else
                 return false;
+
         }
 
         public static SideEffectJson GetSideEffect(int id)
@@ -754,12 +752,26 @@ namespace Zealot.Repository
             return sideeffect;
         }
 
-        public static SideEffectGroupJson GetSEGroup(int groupID)
+        public static List<int> GetSideEffectsOfGroup(int groupID)
         {
-            SideEffectGroupJson group;
-            mSideEffectGroups.TryGetValue(groupID, out group);
-            return group;
+            if (!mSideEffectGroupToSideEffectID.ContainsKey(groupID))
+                return null;
+            return mSideEffectGroupToSideEffectID[groupID];
         }
+
+        public static int GetSideEffectGroupID(int side_effect)
+        {
+            if (mSideEffectGroups.ContainsKey(side_effect))
+                return mSideEffectGroups[side_effect].groupid;
+            return -1;
+        }
+
+        //public static SideEffectGroupJson GetSEGroup(int groupID)
+        //{
+        //    SideEffectGroupJson group;
+        //    mSideEffectGroups.TryGetValue(groupID, out group);
+        //    return group;
+        //}
 
         public static string Tokenizer(string token, params object[] id)
         {

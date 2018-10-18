@@ -9,6 +9,7 @@
     using Zealot.Server.Actions;
     using Zealot.Server.SideEffects;
     using Photon.LoadBalancing.GameServer;
+    using Photon.LoadBalancing.GameServer.CombatFormula;
 
     public class PositionSlots
     {
@@ -325,7 +326,9 @@
         protected Dictionary<int, List<SideEffect>> m_EquipmentSE; // <equipment id , sideeffects>
         protected Dictionary<int, int> m_SideEffectList; // <sideeffect id , stack count>
 
-        protected Kopio.JsonContracts.SideEffectJson mElemental;
+        // Prototyping test stuff
+        protected Dictionary<byte, List<SideEffect>> m_SideEffects;
+        // proto
 
         //public ControlStats ControlStats;
 
@@ -347,6 +350,7 @@
             mSideEffectsNeg = new SideEffect[BuffTimeStats.MAX_EFFECTS];
             m_EquipmentSE = new Dictionary<int, List<SideEffect>>();
             m_SideEffectList = new Dictionary<int, int>();
+            m_SideEffects = new Dictionary<byte, List<SideEffect>>();
 
             //ControlStats = new ControlStats();
             finalcombatstats = new LocalSkillStats();
@@ -471,16 +475,6 @@
         //    }                        
         //}
 
-        public virtual bool AddElementalSE(Kopio.JsonContracts.SideEffectJson se) {
-            // check if the side effect belongs to current equiped weapon
-            // any other side effects that comes that are not will be applied instead
-
-            mElemental = se;
-
-            //return true if this side effect is to be applied for damage
-            return true;
-        }
-
         public virtual bool CheckImmuneStatus(ImmuneSEType bitstring) {
             return ((ImmuneSEType)PlayerStats.ImmuneStatus & bitstring) == bitstring;
         }
@@ -568,30 +562,47 @@
 
         public virtual int AddSideEffect(SideEffect se, bool positiveEffect)
         {   
-            SideEffect[] sideeffects;
+            //SideEffect[] sideeffects;
             int slotid = -1;
             if (se.IsDot())
                 SkillPassiveStats.OnDotStart();
             else if (se.IsDeBuff())
                 SkillPassiveStats.OnDebuffStart();
 
-            if (positiveEffect)            
-                sideeffects = mSideEffectsPos;            
-            else            
-                sideeffects = mSideEffectsNeg;
-
-            int length = sideeffects.Length;
-            for (int i = 0; i < length; ++i)
+            bool stack = AddSideEffectToList(se);
+            byte type = (byte)SideEffectsUtils.GetEffectHandleType(se.mSideeffectData.effecttype);
+            if (!m_SideEffects.ContainsKey(type)) m_SideEffects.Add(type, new List<SideEffect>());
+            // find for repeats to stack
+            SideEffect old = m_SideEffects[type].Find(x => x.mSideeffectData.id == se.mSideeffectData.id);
+            if(old == null) m_SideEffects[type].Add(se);
+            else
             {
-                if (sideeffects[i] == null && slotid == -1)
-                {
-                    sideeffects[i] = se;
-                    AddSideEffectVisual(se, positiveEffect);
-                    slotid = i;
-                    break;
-                } 
-            } 
-            return slotid; 
+                // stack the se
+                // increase se effect + time refresh
+                old.StackTiming(stack);
+                return -1;
+            }
+
+            AddSideEffectVisual(se, positiveEffect);
+            return type;
+
+
+            //if (positiveEffect)            
+            //    sideeffects = mSideEffectsPos;            
+            //else            
+            //    sideeffects = mSideEffectsNeg;
+
+            //int length = sideeffects.Length;
+            //for (int i = 0; i < length; ++i)
+            //{
+            //    if (sideeffects[i] == null && slotid == -1)
+            //    {
+            //        sideeffects[i] = se;
+            //        AddSideEffectVisual(se, positiveEffect);
+            //        slotid = i;
+            //        break;
+            //    } 
+            //} 
         }
 
         public virtual bool AddEquipmentSideEffect(SideEffect se, int equipid)
@@ -631,7 +642,7 @@
             }
             else
             {
-                if (se.mSideeffectData.stackable && se.mSideeffectData.stackcount > m_SideEffectList[se.mSideeffectData.id])
+                if (se.mSideeffectData.stackable && (se.mSideeffectData.stackcount >= m_SideEffectList[se.mSideeffectData.id]))
                 {
                     ++m_SideEffectList[se.mSideeffectData.id];
                     return true;
@@ -655,7 +666,7 @@
             else
             {
                 if (m_SideEffectList[se.mSideeffectData.id] > 0)
-                    --m_SideEffectList[se.mSideeffectData.id];
+                    m_SideEffectList[se.mSideeffectData.id] = 0;
             }
         }
          
@@ -766,19 +777,24 @@
 
         public virtual int RemoveSideEffect(SideEffect se, bool positiveEffect)
         {
-            SideEffect[] sideeffects = (positiveEffect) ? mSideEffectsPos : mSideEffectsNeg;
-            int slotid = -1;
-            int length = sideeffects.Length;
-            for (int i = 0; i < length; ++i)
-            {
-                if (sideeffects[i] == se)
-                {                    
-                    sideeffects[i] = null;
-                    StopSideEffectVisual(se, positiveEffect); 
-                    slotid = i;
-                    break;
-                } 
-            }
+            //SideEffect[] sideeffects = (positiveEffect) ? mSideEffectsPos : mSideEffectsNeg;
+            //int slotid = -1;
+            //int length = sideeffects.Length;
+            //for (int i = 0; i < length; ++i)
+            //{
+            //    if (sideeffects[i] == se)
+            //    {                    
+            //        sideeffects[i] = null;
+            //        StopSideEffectVisual(se, positiveEffect); 
+            //        slotid = i;
+            //        break;
+            //    } 
+            //}
+            byte type = (byte)SideEffectsUtils.GetEffectHandleType(se.mSideeffectData.effecttype);
+            m_SideEffects[type].Remove(se);
+            RemoveSideEffectFromList(se);
+            StopSideEffectVisual(se, positiveEffect);
+
             if (se.IsDot())
             {
                 SkillPassiveStats.OnDotEnd();
@@ -787,7 +803,7 @@
             {
                 SkillPassiveStats.OnDebuffEnd();
             }
-            return slotid;    
+            return type;    
         }
         
         public void StopAllControl(ControlSEType ctype)
@@ -827,20 +843,30 @@
 
         public virtual void StopAllSideEffects()
         {
-            int length = mSideEffectsPos.Length;
-            for (int i = 0; i < length; ++i)
-            {
-                SideEffect se = mSideEffectsPos[i];
-                if (se != null)
-                    se.Stop();
-            }
+            //int length = mSideEffectsPos.Length;
+            //for (int i = 0; i < length; ++i)
+            //{
+            //    SideEffect se = mSideEffectsPos[i];
+            //    if (se != null)
+            //        se.Stop();
+            //}
 
-            length = mSideEffectsNeg.Length;
-            for (int i = 0; i < length; ++i)
+            //length = mSideEffectsNeg.Length;
+            //for (int i = 0; i < length; ++i)
+            //{
+            //    SideEffect se = mSideEffectsNeg[i];
+            //    if (se != null)
+            //        se.Stop();
+            //}
+
+            foreach(var selist in m_SideEffects)
             {
-                SideEffect se = mSideEffectsNeg[i];
-                if (se != null)
+                foreach(SideEffect se in selist.Value)
+                {
                     se.Stop();
+                    RemoveSideEffectFromList(se);
+                }
+                selist.Value.Clear();
             }
         }
 
@@ -851,15 +877,20 @@
 
             if (IsAlive())
             {
-                foreach (SideEffect se in mSideEffectsPos)
-                {
-                    if (se != null)
-                        se.Update(dt);
-                }
+                //foreach (SideEffect se in mSideEffectsPos)
+                //{
+                //    if (se != null)
+                //        se.Update(dt);
+                //}
 
-                foreach (SideEffect se in mSideEffectsNeg)
+                //foreach (SideEffect se in mSideEffectsNeg)
+                //{
+                //    if (se != null)
+                //        se.Update(dt);
+                //}
+                foreach(var selist in m_SideEffects)
                 {
-                    if (se != null)
+                    foreach (SideEffect se in selist.Value)
                         se.Update(dt);
                 }
             }
@@ -897,28 +928,45 @@
 
         public SideEffect GetSideEffect(int sid)
         {
-            foreach (SideEffect se in mSideEffectsPos)
+            //foreach (SideEffect se in mSideEffectsPos)
+            //{
+            //    if (se != null && se.mSideeffectData.id == sid)
+            //    {
+            //        return se;
+            //    }
+            //}
+            //foreach (SideEffect se in mSideEffectsNeg)
+            //{
+            //    if (se != null && se.mSideeffectData.id == sid)
+            //    {
+            //        return se;
+            //    }
+            //}
+
+            foreach(var pair in m_SideEffects)
             {
-                if (se != null && se.mSideeffectData.id == sid)
+                foreach(SideEffect se in pair.Value)
                 {
-                    return se;
+                    if (se.mSideeffectData.id == sid) return se;
                 }
             }
-            foreach (SideEffect se in mSideEffectsNeg)
-            {
-                if (se != null && se.mSideeffectData.id == sid)
-                {
-                    return se;
-                }
-            }
+
             return null;
         }
 
         public bool HasDot()
         {
-            foreach (SideEffect se in mSideEffectsNeg)
+            //foreach (SideEffect se in mSideEffectsNeg)
+            //{
+            //    if (se != null && se.IsDot())
+            //    {
+            //        return true;
+            //    }
+            //}
+
+            foreach (SideEffect se in m_SideEffects[(byte)SideEffectsUtils.EffectHandleType.NonUpdates])
             {
-                if (se != null && se.IsDot())
+                if (se.IsDot())
                 {
                     return true;
                 }
@@ -940,21 +988,63 @@
 
         public bool HasSideEffectType(EffectType efftype)
         {
-            foreach (SideEffect se in mSideEffectsPos)
+            //foreach (SideEffect se in mSideEffectsPos)
+            //{
+            //    if (se != null && se.mSideeffectData.effecttype == efftype)
+            //    {
+            //        return true;
+            //    }
+            //}
+            //foreach (SideEffect se in mSideEffectsNeg)
+            //{
+            //    if (se != null && se.mSideeffectData.effecttype == efftype)
+            //    {
+            //        return true;
+            //    }
+            //}
+
+            foreach(var pair in m_SideEffects)
             {
-                if (se != null && se.mSideeffectData.effecttype == efftype)
+                foreach(SideEffect se in pair.Value)
                 {
-                    return true;
+                    if (se.mSideeffectData.effecttype == efftype)
+                        return true;
                 }
             }
-            foreach (SideEffect se in mSideEffectsNeg)
-            {
-                if (se != null && se.mSideeffectData.effecttype == efftype)
-                {
-                    return true;
-                }
-            }
+
             return false;
+        }
+
+        public List<int> GetAppliedSideEffectsOfGroup(int groupid)
+        {
+            List<int> result = new List<int>();
+            List<int> seids = Zealot.Repository.SideEffectRepo.GetSideEffectsOfGroup(groupid);
+            
+            foreach(var dic in m_SideEffects)
+            {
+                foreach(var se in dic.Value)
+                {
+                    // check for all related SE's
+                    if (se.mSideeffectData.id > seids[seids.Count - 1]) // not in the list
+                        continue;
+
+                    int start = 0, middle = 0;
+                    int end = seids.Count - 1;
+                    while (start <= end)
+                    {
+                        middle = start + ((end - start) >> 1);
+                        if (seids[middle] == se.mSideeffectData.id)
+                        {
+                            result.Add(seids[middle]);
+                            break;
+                        }
+                        if (seids[middle] < se.mSideeffectData.id) start = middle + 1;
+                        else end = middle - 1;
+ 
+                    }
+                }
+            }
+            return result;
         }
 
         public void RemoveRandomBuff(bool debuff = false)

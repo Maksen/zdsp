@@ -386,6 +386,15 @@ class SceneNPCTools
                     results[AssetDatabase.GetAssetPath(prefab)] = typeof(ObjectSpawner);
                 }
             }
+            else if(spawnerType == typeof(InteractiveTrigger))
+            {
+                string npcPath = ((InteractiveTrigger)spawner).archetype;
+                var npcinfo = StaticNPCRepo.GetNPCByArchetype(npcPath);
+                if (npcinfo != null)
+                {
+                    results[npcinfo.modelprefabpath] = typeof(InteractiveTrigger);
+                }
+            }
         }
         return results;
     }

@@ -130,6 +130,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
         currencyView.text = requireCurrency[1].ToString("N0");
 
         haveEnoughCurrency = (player.SecondaryStats.Money >= requireCurrency[1]) ? true : false;
+        currencyView.color = (haveEnoughCurrency) ? new Color(1, 1, 1, 1) : new Color(1, 0, 0, 1);
     }
 
     private void InitMaterial(int itemId)
@@ -171,20 +172,26 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
 
     public void EnoughObject()
     {
-        if (!haveEnoughCurrency && !haveEnoughMaterial)
+        // TODO - Change it with Achievement system
+        //if (!haveEnoughCurrency && !haveEnoughMaterial)
+        //{
+        //    cannotCraftObject.SetActive(true);
+        //    cannotCraftReason.text = "You have not enought material and currency.";
+        //}
+        //else if (!haveEnoughMaterial)
+        //{
+        //    cannotCraftObject.SetActive(true);
+        //    cannotCraftReason.text = "You have not enought material.";
+        //}
+        //else if (!haveEnoughCurrency)
+        //{
+        //    cannotCraftObject.SetActive(true);
+        //    cannotCraftReason.text = "You have not enought currency.";
+        //}
+
+        if (!haveEnoughCurrency)
         {
-            cannotCraftObject.SetActive(true);
-            cannotCraftReason.text = "You have not enought material and currency.";
-        }
-        else if (!haveEnoughMaterial)
-        {
-            cannotCraftObject.SetActive(true);
-            cannotCraftReason.text = "You have not enought material.";
-        }
-        else if (!haveEnoughCurrency)
-        {
-            cannotCraftObject.SetActive(true);
-            cannotCraftReason.text = "You have not enought currency.";
+            
         }
     }
 
@@ -233,7 +240,14 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
 
     public void CraftEquipment ()
     {
-        RPCFactory.NonCombatRPC.EquipmentCraft(nowItemId);
+        if(haveEnoughCurrency && haveEnoughMaterial)
+            RPCFactory.NonCombatRPC.EquipmentCraft(nowItemId);
+        else if (!haveEnoughMaterial && !haveEnoughCurrency)
+            UIManager.SystemMsgManager.ShowSystemMessage("材料與金錢不足", true);
+        else if(!haveEnoughMaterial)
+            UIManager.SystemMsgManager.ShowSystemMessage("材料不足", true);
+        else if (!haveEnoughCurrency)
+            UIManager.SystemMsgManager.ShowSystemMessage("金錢不足", true);
     }
 
     public void NotEnoughButton ()

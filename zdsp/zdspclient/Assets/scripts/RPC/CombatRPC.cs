@@ -199,10 +199,9 @@ public class CombatRPC : RPCBase
         {
             StringBuilder sb = new StringBuilder();
             foreach (KeyValuePair<int, int> kvp in sellAmtToSlotIdDict)
-            {
                 sb.AppendFormat("{0}`{1};", kvp.Key, kvp.Value);
-            }
-            sb.Remove(sb.Length - 1, 1);
+
+            sb.Remove(sb.Length-1, 1);
             ProxyMethod("MassSellItems", sb.ToString());
         }
     }
@@ -919,6 +918,19 @@ public class CombatRPC : RPCBase
     public void OnColliderTrigger(int objectId, bool enter)
     {
         ProxyMethod("OnColliderTrigger", objectId, enter);
+    }
+    #endregion
+
+    #region InteractiveTrigger
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
+    public void OnInteractiveUse(int objectId, bool enter)
+    {
+        ProxyMethod("OnInteractiveUse", objectId, enter);
+    }
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
+    public void OnInteractiveTrigger(int objectId, int keyId)
+    {
+        ProxyMethod("OnInteractiveTrigger", objectId, keyId);
     }
     #endregion
 

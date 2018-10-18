@@ -6,7 +6,7 @@ namespace Zealot.Common
 {
     public partial class EquipmentCraftInventoryData
     {
-        public void InitFormInventory(EquipmentCraftStats equipmentCraftStats)
+        public void InitFromInventory(EquipmentCraftStats equipmentCraftStats)
         {
             if (achievementRequireList.Count <= 0)
             {
@@ -28,7 +28,7 @@ namespace Zealot.Common
             }
         }
 
-        public void InitFormStats(EquipmentCraftStats equipmentCraftStats)
+        public void InitFromStats(EquipmentCraftStats equipmentCraftStats)
         {
             if (achievementRequireList.Count <= 0)
             {
@@ -53,7 +53,7 @@ namespace Zealot.Common
 
         public void SaveToInventoryData(EquipmentCraftStats equipmentCraftStats)
         {
-            InitFormStats(equipmentCraftStats);
+            InitFromStats(equipmentCraftStats);
         }
     }
 }

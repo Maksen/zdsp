@@ -6,7 +6,6 @@ using Kopio.JsonContracts;
 using Zealot.Common;
 using System;
 using System.Linq;
-using UnityEngine;
 
 public class QuestObjectiveTriggerData
 {
@@ -37,6 +36,9 @@ public class QuestTriggerController
     //npc list for refresh
     private List<int> mNpcList;
 
+    //list for empty objective list
+    private Dictionary<int, List<int>> mOngoingEmptyObjective;
+
     private QuestClientController mQuestController;
     private QuestRequirementController mRequirementController;
     private ClientEntitySystem mEntitySystem;
@@ -58,8 +60,11 @@ public class QuestTriggerController
 
         mNpcList = new List<int>();
 
+        mOngoingEmptyObjective = new Dictionary<int, List<int>>();
+
         InitAvailableList(entitySystem);
         InitOngoingQuest();
+        CheckEmptyObjectiveList();
         RefreshNPCForQuest();
     }
 
@@ -425,6 +430,49 @@ public class QuestTriggerController
         return questlist;
     }
 
+    private void AddEmptyObjectiveList(int questid, List<int> objectivelist)
+    {
+        if (objectivelist.Count <= 0)
+        {
+            return;
+        }
+
+        if (mOngoingEmptyObjective.ContainsKey(questid))
+        {
+            mOngoingEmptyObjective[questid] = objectivelist;
+        }
+        else
+        {
+            mOngoingEmptyObjective.Add(questid, objectivelist);
+        }
+    }
+
+    private void RemoveEmptyObjectiveList(int questid)
+    {
+        if (mOngoingEmptyObjective.ContainsKey(questid))
+        {
+            mOngoingEmptyObjective.Remove(questid);
+        }
+    }
+
+    private bool IsEmptyObjectiveType(int questid, int objectiveid)
+    {
+        if (mOngoingEmptyObjective.ContainsKey(questid))
+        {
+            return mOngoingEmptyObjective[questid].Contains(objectiveid);
+        }
+        return false;
+    }
+
+    private List<int> GetEmptyObjectiveList(int questid)
+    {
+        if (mOngoingEmptyObjective.ContainsKey(questid))
+        {
+            return mOngoingEmptyObjective[questid];
+        }
+        return new List<int>();
+    }
+
     //after accepted quest
     public void NewAcceptedQuest(int questid)
     {
@@ -566,6 +614,8 @@ public class QuestTriggerController
                     AddToObjectiveNpcTrackList(npcid, questid, objectiveid);
                     CheckObjectiveAvailable(questid, objectiveid, npcid);
                 }
+
+                GetEmptyObjectiveType(entry.Value);
             }
         }
     }
@@ -587,11 +637,15 @@ public class QuestTriggerController
                     CheckObjectiveAvailable(questData.QuestId, objectiveid, npcid);
                 }
             }
+
+            GetEmptyObjectiveType(questData);
         }
+        CheckEmptyObjectiveList(questData.QuestId);
     }
 
     private void DeleteOngoingQuest(int questid)
     {
+        RemoveEmptyObjectiveList(questid);
         mRequirementController.DeleteOngoingQuestData(questid);
         Dictionary<int, int> npclist = GetNpcTrackList(questid);
         foreach(KeyValuePair<int, int> entry in npclist)
@@ -677,6 +731,43 @@ public class QuestTriggerController
         }
     }
 
+    private void GetEmptyObjectiveType(CurrentQuestData questData)
+    {
+        List<int> objectivelist = new List<int>();
+        QuestStatus status = (QuestStatus)questData.Status;
+        if (status == QuestStatus.CompletedAllObjective || status == QuestStatus.CompletedWithEvent)
+        {
+            
+        }
+        else
+        {
+            GetEmptyObjectiveListFromObjectiveData(questData.MainObjective, ref objectivelist);
+            foreach (KeyValuePair<int, CurrentObjectiveData> entry in questData.SubObjective)
+            {
+                GetEmptyObjectiveListFromObjectiveData(entry.Value, ref objectivelist);
+            }
+        }
+
+        AddEmptyObjectiveList(questData.QuestId, objectivelist);
+    }
+
+    private void GetEmptyObjectiveListFromObjectiveData(CurrentObjectiveData objectiveData, ref List<int> objectivelist)
+    {
+        for (int i = 0; i < objectiveData.ObjectiveIds.Count; i++)
+        {
+            int objectiveid = objectiveData.ObjectiveIds[i];
+            int progress = objectiveData.ProgressCount[i];
+            QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
+            if (objectiveJson != null && objectiveJson.type == QuestObjectiveType.Empty && progress == 0)
+            {
+                if (!objectivelist.Contains(objectiveid))
+                {
+                    objectivelist.Add(objectiveid);
+                }
+            }
+        }
+    }
+
     //when new quest id added into completed quest list 
     public void AddedCompletedList(List<int> questlist)
     {
@@ -732,16 +823,80 @@ public class QuestTriggerController
 
     public void RecheckFromRequirementController(Dictionary<int, List<int>> questlist)
     {
-        foreach(KeyValuePair<int, List<int>> entry in questlist)
+        List<int> questtoproceed = new List<int>();
+        foreach (KeyValuePair<int, List<int>> entry in questlist)
         {
             int questid = entry.Key;
-            foreach(int objectiveid in entry.Value)
+            List<int> objectivetoproceed = new List<int>();
+            foreach (int objectiveid in entry.Value)
             {
                 int npcid = GetNpcIdFromNpcTrackList(questid, objectiveid);
-                CheckObjectiveAvailable(questid, objectiveid, npcid);
-                AddRefreshNPC(npcid);
+                if (npcid != -1)
+                {
+                    CheckObjectiveAvailable(questid, objectiveid, npcid);
+                    AddRefreshNPC(npcid);
+                }
+                else
+                {
+                    if (IsEmptyObjectiveType(questid, objectiveid))
+                    {
+                        objectivetoproceed.Add(objectiveid);
+                    }
+                }
+            }
+
+            if (objectivetoproceed.Count > 0)
+            {
+                questtoproceed.Add(questid);
             }
         }
         RefreshNPCForQuest();
+        SubmitQuestWithEmptyObjective(questtoproceed);
+    }
+
+    private void CheckEmptyObjectiveList()
+    {
+        List<int> questtoproceed = new List<int>();
+        foreach (KeyValuePair<int, List<int>> entry in mOngoingEmptyObjective)
+        {
+            if (CheckEmptyObjective(entry.Key))
+            {
+                questtoproceed.Add(entry.Key);
+            }
+        }
+
+        if (questtoproceed.Count > 0)
+        {
+            SubmitQuestWithEmptyObjective(questtoproceed);
+        }
+    }
+
+    private void CheckEmptyObjectiveList(int questid)
+    {
+        if (CheckEmptyObjective(questid))
+        {
+            SubmitQuestWithEmptyObjective(new List<int>() { questid });
+        }
+    }
+
+    private bool CheckEmptyObjective(int questid)
+    {
+        List<int> objectivelist = GetEmptyObjectiveList(questid);
+        List<int> result = new List<int>();
+        foreach (int objectiveid in objectivelist)
+        {
+            if (mQuestController.IsObjectiveAvailable(questid, objectiveid))
+            {
+                result.Add(objectiveid);
+            }
+        }
+
+        return result.Count > 0 ? true : false;
+    }
+
+    private void SubmitQuestWithEmptyObjective(List<int> questlist)
+    {
+        string questids = JsonConvertDefaultSetting.SerializeObject(questlist);
+        RPCFactory.NonCombatRPC.SubmitEmptyObjective(questids);
     }
 }

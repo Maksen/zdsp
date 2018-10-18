@@ -23,14 +23,14 @@ public class UI_SkillExpandUI : MonoBehaviour {
     public Button m_Upgrade;
 
 
-    private GameObjectPoolManager m_ReqStatsPool;
+    private UI_SkillTree.GameObjectPoolManager m_ReqStatsPool;
 
     private List<UI_SkillUIRequirementHelper> m_ReqStatsLabels;
 
     public void Initialise(Transform parent)
     {
         //create pool of required stats holder for use
-        m_ReqStatsPool = new GameObjectPoolManager(5, parent, m_ReqStatsPrefab);
+        m_ReqStatsPool = new UI_SkillTree.GameObjectPoolManager(5, parent, m_ReqStatsPrefab);
         m_ReqStatsLabels = new List<UI_SkillUIRequirementHelper>();
 
         m_SkillDesc.Initialise(parent);
@@ -48,7 +48,7 @@ public class UI_SkillExpandUI : MonoBehaviour {
 
         m_Icon.sprite = selected.m_Icon.sprite;
 
-        m_SkillName.text = skill.skillgroupJson.name;
+        m_SkillName.text = skill.skillgroupJson.localizedname;
         //m_ActivePassive = selected.m_SkillData.skillgroupJson.ac
 
         if (selected.IsUpgradable())
@@ -71,6 +71,7 @@ public class UI_SkillExpandUI : MonoBehaviour {
         int skillpoint = skill.skillJson.learningsp;
         int money = skill.skillJson.learningcost;
         int level = skill.skillJson.requiredlv;
+
         GameObject obj = m_ReqStatsPool.RequestObject();
         m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
         m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("技能點數 ", skillpoint.ToString() + "/"  + skp.ToString());
@@ -85,56 +86,63 @@ public class UI_SkillExpandUI : MonoBehaviour {
             color = Color.white;
         m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
 
-        obj = m_ReqStatsPool.RequestObject();
-        m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
-        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("Money (temp) ", money.ToString() + "/" + my.ToString());
-        obj.transform.parent = m_ReqStatsParent.transform;
-        obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
-        obj.transform.localScale = new Vector3(1, 1, 1);
 
-        if (my < money)
-            color = Color.red;
-        else
-            color = Color.white;
-        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
+        if (money > 0)
+        {
+            obj = m_ReqStatsPool.RequestObject();
+            m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
+            m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("Money (temp) ", money.ToString() + "/" + my.ToString());
+            obj.transform.parent = m_ReqStatsParent.transform;
+            obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
+            obj.transform.localScale = new Vector3(1, 1, 1);
 
-        obj = m_ReqStatsPool.RequestObject();
-        m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
-        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData("等級需 ", level.ToString());
-        obj.transform.parent = m_ReqStatsParent.transform;
-        obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
-        obj.transform.localScale = new Vector3(1, 1, 1);
+            if (my < money)
+                color = Color.red;
+            else
+                color = Color.white;
+            m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
+        }
 
-        if(lv < level)
-            color = Color.red;
-        else
-            color = Color.white;
-        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
+        if (level > 0)
+        {
+            obj = m_ReqStatsPool.RequestObject();
+            m_ReqStatsLabels.Add(obj.GetComponent<UI_SkillUIRequirementHelper>());
+            m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData(GUILocalizationRepo.GetLocalizedString("skl_skill_level"), level.ToString());
+            obj.transform.parent = m_ReqStatsParent.transform;
+            obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, obj.transform.localPosition.y, 0);
+            obj.transform.localScale = new Vector3(1, 1, 1);
+
+            if (lv < level)
+                color = Color.red;
+            else
+                color = Color.white;
+            m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetColor(color);
+        }
 
         switch (skill.skillgroupJson.skilltype)
         {
             case Zealot.Common.SkillType.Active:
-                m_ActivePassive.text = "主動";
+                m_ActivePassive.text = GUILocalizationRepo.GetLocalizedString("skl_active");
                 break;
             case Zealot.Common.SkillType.Passive:
-                m_ActivePassive.text = "被動";
+                m_ActivePassive.text = GUILocalizationRepo.GetLocalizedString("skl_passive");
                 break;
         }
 
-        if (req[0].CompareTo("#unnamed#") != 0 && req[0].CompareTo("") != 0)
-            foreach(string requirement in req)
-            {
-                // show required skill level
-                GameObject reqObj = m_ReqStatsPool.RequestObject();
-                m_ReqStatsLabels.Add(reqObj.GetComponent<UI_SkillUIRequirementHelper>());
-                int id = 0;
-                System.Int32.TryParse(requirement, out id);
-                string name = SkillRepo.GetSkill(id).skillJson.name;
-                m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData(name);
-                reqObj.transform.parent = m_ReqStatsParent.transform;
-                reqObj.transform.localPosition = new Vector3(0, 0, 1);
-                reqObj.transform.localScale = new Vector3(1, 1, 1);
-            }
+        //if (req[0].CompareTo("#unnamed#") != 0 && req[0].CompareTo("") != 0)
+        //    foreach(string requirement in req)
+        //    {
+        //        // show required skill level
+        //        GameObject reqObj = m_ReqStatsPool.RequestObject();
+        //        m_ReqStatsLabels.Add(reqObj.GetComponent<UI_SkillUIRequirementHelper>());
+        //        int id = 0;
+        //        System.Int32.TryParse(requirement, out id);
+        //        string name = SkillRepo.GetSkill(id).skillJson.;
+        //        m_ReqStatsLabels[m_ReqStatsLabels.Count - 1].SetData(name);
+        //        reqObj.transform.parent = m_ReqStatsParent.transform;
+        //        reqObj.transform.localPosition = new Vector3(0, 0, 1);
+        //        reqObj.transform.localScale = new Vector3(1, 1, 1);
+        //    }
 
         m_SkillDesc.GenerateChunk(selected);
     }

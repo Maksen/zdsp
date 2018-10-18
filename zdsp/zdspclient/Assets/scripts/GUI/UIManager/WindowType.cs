@@ -26,6 +26,7 @@
     EquipFusion = 21,
     CharacterCreation = 22,
     CharacterSelection = 23,
+    Achievement = 24,
 
     // Add persistent type window here
     //-----------------------------------
@@ -74,11 +75,15 @@
 
     DialogEquipFusion = 426,
 
+    DialogAchievementRewards = 427,
+    DialogAchievementAbility = 428,
+    DialogAchievementFunctions = 429,
+    DialogAchievementTier = 430,
+
     DialogClaimReward = 440,
     DialogCutscene = 441,
     DialogCharacterName = 442,
-
-
+   
     DialogEnd = 699,
 
     //-------------------------------------

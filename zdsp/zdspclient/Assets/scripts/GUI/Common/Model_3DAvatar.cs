@@ -42,11 +42,9 @@ public class Model_3DAvatar : MonoBehaviour
             afterLoad(model);
     }
 
-    private HeroJson heroJson;
-
-    public bool ChangeHero(int heroId, int tier)
+    public bool ChangeHero(int heroId, int tier, Action<GameObject> afterLoad = null)
     {
-        heroJson = HeroRepo.GetHeroById(heroId);
+        HeroJson heroJson = HeroRepo.GetHeroById(heroId);
         if (heroJson == null)
             return false;
 
@@ -75,7 +73,12 @@ public class Model_3DAvatar : MonoBehaviour
 
         if (model == null)
         {
-            AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, OnModelLoaded, true);
+            AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, (obj) =>
+            {
+                OnModelLoaded(obj);
+                if (model != null && afterLoad != null)
+                    afterLoad(model);
+            }, true);
             modelpath = prefabPath;
         }
         return true;
@@ -110,8 +113,6 @@ public class Model_3DAvatar : MonoBehaviour
             CharacterController charCtrl = model.GetComponent<CharacterController>();
             if (charCtrl != null)
                 Destroy(charCtrl);
-            if (heroJson != null)
-                model.transform.localScale = new Vector3(heroJson.modelscalex, heroJson.modelscaley, heroJson.modelscalez);
             model.transform.SetParent(modelParent, false);
             ClientUtils.SetLayerRecursively(model, LayerMask.NameToLayer("UI"));
         }
@@ -134,5 +135,31 @@ public class Model_3DAvatar : MonoBehaviour
     {
         if (model != null)
             model.GetComponent<Animator>().PlayFromStart(animation);
+    }
+
+    public void CreationChange(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, string layername)
+    {
+        string prefabPath = JobSectRepo.GetGenderInfo(gender).modelpath;
+        if (model != null && modelpath != prefabPath)
+        {
+            Destroy(model);
+            model = null;
+            modelpath = "";
+        }
+
+        if (model == null)
+        {
+            GameObject prefab = AssetLoader.Instance.Load<GameObject>(prefabPath);
+            model = GameObject.Instantiate(prefab);
+            CharacterController charCtrl = model.GetComponent<CharacterController>();
+            if (charCtrl != null)
+                Destroy(charCtrl);
+            modelpath = prefabPath;
+            model.transform.SetParent(modelParent, false);
+            ClientUtils.SetLayerRecursively(model, LayerMask.NameToLayer(layername));
+        }
+
+        model.GetComponent<AvatarController>().InitCreationAvatar(equipmentInvData, jobtype, gender, outfit);
+        model.GetComponent<Animator>().PlayFromStart("blade_nmstandby");
     }
 }

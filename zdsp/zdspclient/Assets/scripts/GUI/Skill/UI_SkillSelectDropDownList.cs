@@ -12,11 +12,11 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
     public Button m_Close;
     public Dictionary<int, HUD_ExpandDataHelper> m_ActiveSkills = new Dictionary<int, HUD_ExpandDataHelper>();
 
-    private GameObjectPoolManager m_DataPool;
+    private UI_SkillTree.GameObjectPoolManager m_DataPool;
     
     public void Initialise(Transform parent)
     {
-        m_DataPool = new GameObjectPoolManager(5, parent, m_ExpandData, m_ContentRect);
+        m_DataPool = new UI_SkillTree.GameObjectPoolManager(5, parent, m_ExpandData, m_ContentRect);
     }
 
     public void GenerateSkillList()
@@ -46,7 +46,7 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
                 SkillData skd = SkillRepo.GetSkill(temp[i].Value);
                 HUD_ExpandDataHelper data = m_DataPool.RequestObject().GetComponent<HUD_ExpandDataHelper>();
                 data.Init(skd);
-                data.m_Toggle.onValueChanged.AddListener(delegate { OnSelected(data.m_Skill.skillJson.id); });
+                data.AddListener(OnSelected);
                 m_ActiveSkills.Add(temp[i].Key, data);
                 data.transform.parent = m_ContentRect;
             }
@@ -61,10 +61,50 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
             }
         }
     }
-    
-    public void OnSelected(int id)
+
+    public void SortList(int top = -1)
     {
-        m_PanelPanel.OnEquipSkill(id);
+        // if top is null meaning the selected cell is empty
+        if (top >= 0)
+        {
+            // top is on the top followed by following group id
+            int childindex = 1;
+            SortedList<int, HUD_ExpandDataHelper> sortedlist = new SortedList<int, HUD_ExpandDataHelper>();
+            foreach(var item in m_ActiveSkills)
+            {
+                if(item.Value.m_Skill.skillJson.id == top)
+                {
+                    item.Value.transform.SetSiblingIndex(0);
+                    item.Value.m_Toggle.isOn = true;
+                    continue;
+                }
+                item.Value.m_Toggle.isOn = false;
+                sortedlist.Add(item.Value.m_Skill.skillgroupJson.id, item.Value);
+            }
+            foreach(HUD_ExpandDataHelper item in sortedlist.Values)
+            {
+                item.transform.SetSiblingIndex(childindex++);
+            }
+        }
+        else
+        {
+            int childindex = 0;
+            SortedList<int, HUD_ExpandDataHelper> sortedlist = new SortedList<int, HUD_ExpandDataHelper>();
+            foreach (var item in m_ActiveSkills)
+            {
+                sortedlist.Add(item.Value.m_Skill.skillgroupJson.id, item.Value);
+            }
+            foreach (HUD_ExpandDataHelper item in sortedlist.Values)
+            {
+                item.transform.SetSiblingIndex(childindex++);
+            }
+        }
+    }
+    
+    public void OnSelected(UI_SkillButtonBase selected)
+    {
+        selected.m_Toggle.isOn = false;
+        m_PanelPanel.OnEquipSkill(selected.m_Skillid);
     }
 
     public void OnEquipedSkill(int id)
@@ -77,6 +117,18 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
     public void OnDeselected()
     {
         m_PanelPanel.OnCloseSelectEquipSkill();
+
+        ClearActiveList();
+    }
+
+    public void ClearActiveList()
+    {
+        foreach (var item in m_ActiveSkills)
+        {
+            item.Value.transform.parent = null;
+            m_DataPool.ReturnObject(item.Value.gameObject);
+        }
+
         m_ActiveSkills.Clear();
     }
 
@@ -91,6 +143,7 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
 
     public void CloseUI()
     {
+        ClearActiveList();
         m_Close.onClick.Invoke();
     }
 }

@@ -17,7 +17,7 @@ public class UI_SkillSpecialExpandUI : MonoBehaviour {
     public UI_SkillButtonBase m_Selected;
     public Button m_Close;
 
-    private GameObjectPoolManager m_ReqStatsPool;
+    private UI_SkillTree.GameObjectPoolManager m_ReqStatsPool;
     private List<UI_SkillUIRequirementHelper> m_ReqStatsLabels;
 
     public void Initialise(Transform parent)

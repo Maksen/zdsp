@@ -11,6 +11,7 @@ namespace Zealot.Client.Entities
     public class StaticAreaGhost : StaticClientNPCAlwaysShow
     {
         private float mRadius;
+        private bool mTriggered;
 
         public string ArchetypeName { get; private set; }
 
@@ -26,6 +27,7 @@ namespace Zealot.Client.Entities
             mArchetypeId = mArchetype.id;
             Name = mArchetype.localizedname;
             mRadius = radius;
+            mTriggered = false;
 
             mActiveQuest = -1;
             mActiveStatus = mArchetype.activeonstartup;
@@ -69,7 +71,7 @@ namespace Zealot.Client.Entities
                 return;
 
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
-
+            
             if (mOngoingQuest.Count > 0)
             {
                 List<int> questlist = mOngoingQuest.Keys.ToList();
@@ -82,6 +84,11 @@ namespace Zealot.Client.Entities
             else
             {
                 mActiveQuest = -1;
+            }
+
+            if (mActiveQuest != -1 && mTriggered)
+            {
+                questController.OnEnterStaticArea(this);
             }
             questController.UpdateTriggerData(this);
         }
@@ -128,12 +135,14 @@ namespace Zealot.Client.Entities
 
         public void OnPlayerNear()
         {
+            mTriggered = true;
             if (GameInfo.gLocalPlayer != null && mActiveQuest != -1)
                 GameInfo.gLocalPlayer.QuestController.OnEnterStaticArea(this);
         }
 
         public void OnPlayerAway()
         {
+            mTriggered = false;
             if (GameInfo.gLocalPlayer != null)
                 GameInfo.gLocalPlayer.QuestController.OnExitStaticArea(this);
         }

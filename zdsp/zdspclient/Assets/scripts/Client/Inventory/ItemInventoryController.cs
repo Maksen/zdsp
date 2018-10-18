@@ -19,9 +19,9 @@ public class ItemInventoryController
         if (item != null && item.IsNew)
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
-            ItemBaseJson itemBaseJson = item.JsonObject;
-            string color = ItemUtils.GetStrColorByRarity(itemBaseJson.rarity);
-            parameters.Add("item", string.Format("<color={0}>{1}</color>", color, itemBaseJson.localizedname));
+            ItemBaseJson itemJson = item.JsonObject;
+            string color = ItemUtils.GetStrColorByRarity(itemJson.rarity);
+            parameters.Add("item", string.Format("<color={0}>{1}</color>", color, itemJson.localizedname));
             int incrementAmt = 1;
             IInventoryItem old_item = itemInvData.Slots[slotIdx];
             if (old_item != null && old_item.ItemID == item.ItemID)
@@ -32,38 +32,35 @@ public class ItemInventoryController
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ItemIncrement", parameters), true);
         }
 
-        int itemid = -1;
-        if (item == null && itemInvData.Slots[slotIdx] != null)
-        {
-            itemid = itemInvData.Slots[slotIdx].ItemID;
-        }
-        else if (item != null)
-        {
-            itemid = item.ItemID;
-        }
-
-        itemInvData.Slots[slotIdx] = item;
-
+        // Quest
         if (GameInfo.gLocalPlayer != null)
         {
+            int itemid = -1;
+            if (item == null && itemInvData.Slots[slotIdx] != null)
+                itemid = itemInvData.Slots[slotIdx].ItemID;
+            else if (item != null)
+                itemid = item.ItemID;
             GameInfo.gLocalPlayer.UpdateQuestRequirement(QuestRequirementType.Item, itemid);
         }
+
+        itemInvData.Slots[slotIdx] = item; // Update inventory data
     }
 
-    #region Tooltip action
+    #region Tooltip actions
     public bool OnClicked_UseItem(int slotId, IInventoryItem item)
     {
         IInventoryItem _item = itemInvData.Slots[slotId];
         if (_item.ItemID == item.ItemID)
         {
-            if (GameInfo.gLocalPlayer.GetAccumulatedLevel() < item.JsonObject.requirelvl)
+            ItemBaseJson itemJson = item.JsonObject;
+            if (GameInfo.gLocalPlayer.GetAccumulatedLevel() < itemJson.requirelvl)
                 UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_UseItemFail_ReqlvlNotMeet"));
             else
             {
-                switch(item.JsonObject.itemtype)
+                switch(itemJson.itemtype)
                 {
                     case ItemType.Material:
-                        var _materialJson = (MaterialJson)item.JsonObject;
+                        var _materialJson = (MaterialJson)itemJson;
                         if (_materialJson.mattype == MaterialType.Exchange)
                         {
                             int _itemCount = itemInvData.GetTotalStackCountByItemId(item.ItemID);
@@ -79,16 +76,8 @@ public class ItemInventoryController
                             }
                         }
                         break;
-                    case ItemType.Equipment:
-                        //var _equipmentJson = (EquipmentJson)item.JsonObject;
-                        if (itemInvData.GetEmptySlotCount() == 0)
-                        {
-                            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));
-                            return false;
-                        }
-                        break;
                     case ItemType.MercenaryItem:
-                        HeroItemJson heroItemJson = (HeroItemJson)item.JsonObject;
+                        HeroItemJson heroItemJson = (HeroItemJson)itemJson;
                         int heroId;
                         if (int.TryParse(heroItemJson.heroid, out heroId) && heroId > 0)
                         {
@@ -140,7 +129,6 @@ public class ItemInventoryController
                 UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_UseItemFail_ReqlvlNotMeet"));
             else
             {
-                //var _equipmentJson = (EquipmentJson)item.JsonObject;
                 if (itemInvData.GetEmptySlotCount() == 0)
                 {
                     UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));

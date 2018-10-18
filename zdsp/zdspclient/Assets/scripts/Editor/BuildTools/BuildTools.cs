@@ -94,6 +94,34 @@ public class BuildTools
             Debug.Log("Game DB not found");
     }
 
+    [MenuItem("Build/Update Asset Container", false, 1000)]
+    public static void UpdateAssetContainer()
+    {
+        if (AssetDatabase.IsValidFolder("Assets/AssetContainers"))
+        {
+            string[] guids = AssetDatabase.FindAssets("t:BaseAssetContainer", null);
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                BaseAssetContainer container = (BaseAssetContainer)AssetDatabase.LoadAssetAtPath(path, typeof(BaseAssetContainer));
+                string containerpath = "Assets/" + container.containerAssetsPath;
+                if (AssetDatabase.IsValidFolder(containerpath))
+                {
+                    container.UpdateAndRefreshContainer();
+                }
+                else
+                {
+                    Debug.LogError("Cannot found AssetContainers target folder");
+                }
+            }
+            AssetDatabase.SaveAssets();
+        }
+        else
+        {
+            Debug.LogError("Cannot found AssetContainers folder");
+        }
+    }
+
     [MenuItem("Build/Player Settings", false, 2000)]
     public static void OpenPlayerSettings()
     {

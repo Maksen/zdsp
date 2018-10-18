@@ -272,6 +272,12 @@ public class ZDSPCamera : MonoBehaviour
             FlyCameraToPlayer(flyTime, true);
             if (GameInfo.gCombat != null)
                 GameInfo.gCombat.EnableZoomInMode(true);
+            else
+            {
+                SingleRPGControl rpgCtrl = GetComponent<SingleRPGControl>();
+                if (rpgCtrl != null)
+                    rpgCtrl.EnableZoomInMode(true);
+            }
         }
         else
         {
@@ -279,6 +285,12 @@ public class ZDSPCamera : MonoBehaviour
             {
                 if (GameInfo.gCombat != null)
                     GameInfo.gCombat.EnableZoomInMode(false);
+                else
+                {
+                    SingleRPGControl rpgCtrl = GetComponent<SingleRPGControl>();
+                    if (rpgCtrl != null)
+                        rpgCtrl.EnableZoomInMode(false);
+                }
             });
         }
     }

@@ -95,7 +95,8 @@
         LoadLevel,
         DeleteCharacterResult,
         ShowSystemMessage,
-        CreateCharacterSuccess
+        CheckCharacterNameResult,
+        CancelDeleteCharacterResult,
     }
 
     public enum ClientLobbyRPCMethods : byte
@@ -105,6 +106,9 @@
         EnterGame,
         DeleteCharacter,
         GetLevelData,
+        CheckCharacterName,
+        CreateCharacter,
+        CancelDeleteCharacter,
     }
 
     public enum ServerCombatRPCMethods : byte
@@ -115,6 +119,7 @@
         SpawnMonsterEntity,
         SpawnHeroEntity,
         DestroyEntity,
+        InteractiveEntity,
         OnPlayerDead,
         RespawnPlayer,
         TeleportSetPos,
@@ -519,6 +524,11 @@
         OnColliderTrigger,
         #endregion
 
+        #region InteractiveTrigger
+        OnInteractiveTrigger,
+        OnInteractiveUse,
+        #endregion
+
         #region WorldBoss
         GetWorldBossList,
         GetWorldBossDmgList,
@@ -607,6 +617,9 @@
         ConsoleUpdateDonate,
         ConsoleRemoveAllSkills,
         ConsoleSendMail,
+        CombatLogging,
+        CombatLogClear,
+        ConsoleRemoveEquipSkills,
         #endregion
 
         #region LeaderBoard

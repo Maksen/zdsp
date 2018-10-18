@@ -10,12 +10,29 @@ using Zealot.Repository;
 public class AchievementStatsClient : AchievementStats
 {
     private GameObject windowObj;
-    //private UI_Achievement uiAchieve;
+    private UI_Achievement uiAchieve;
 
     public void Init()
     {
-        //windowObj = UIManager.GetWindowGameObject(WindowType.Achievement);
-        //uiAchieve = windowObj.GetComponent<UI_Achievement>();
+        windowObj = UIManager.GetWindowGameObject(WindowType.Achievement);
+        uiAchieve = windowObj.GetComponent<UI_Achievement>();
+    }
+
+    public void OnUpdateAchievementLevel()
+    {
+        if (windowObj.activeInHierarchy)
+        {
+            uiAchieve.UpdateLevelProgress();
+            uiAchieve.UpdateTierProgress();
+        }
+    }
+
+    public void OnUpdateAchievementExp()
+    {
+        if (windowObj.activeInHierarchy)
+        {
+            uiAchieve.UpdateLevelProgress();
+        }
     }
 
     public int GetTotalCompletedCollectionsCount()
@@ -50,28 +67,33 @@ public class AchievementStatsClient : AchievementStats
             string[] colData = colArray[i].Split(';');
             int id = int.Parse(colData[0]);
             DateTime date = DateTime.ParseExact(colData[1], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+            bool claimed = int.Parse(colData[2]) == 1;
             string photodesc = "";
             bool stored = false;
-            if (colData.Length > 2)
+            if (colData.Length > 3)
             {
                 int isStored;
-                if (int.TryParse(colData[2], out isStored) && isStored == 1)
+                if (int.TryParse(colData[3], out isStored) && isStored == 1)
                     stored = true;
                 else
-                    photodesc = colData[2];
+                    photodesc = colData[3];
             }
 
             CollectionElement elem = GetCollectionById(id);
-            if (elem != null) // existing, updated stored
+            if (elem != null) // existing, updated stored, claimed
             {
+                elem.Claimed = claimed;
                 elem.Stored = stored;
             }
             else
             {
-                elem = new CollectionElement(id, date, false, photodesc, stored, idx);
+                elem = new CollectionElement(id, date, claimed, photodesc, stored, idx);
                 collectionsDict.Add(id, elem);
             }
         }
+
+        if (windowObj != null && windowObj.activeInHierarchy)
+            uiAchieve.UpdateCollectionProgress();
     }
 
     public void UpdateAchievements(byte idx, string value)
@@ -86,23 +108,27 @@ public class AchievementStatsClient : AchievementStats
             string[] achData = achArray[i].Split(';');
             int id = int.Parse(achData[0]);
             int count = int.Parse(achData[1]);
-
+            bool claimed = int.Parse(achData[2]) == 1;
             AchievementElement elem = GetAchievementById(id);
             if (elem != null)  // existing, update count
             {
                 if (!elem.IsCompleted())
                     elem.Count = count;
+                elem.Claimed = claimed;
             }
             else // new, add to dict
             {
                 AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(id);
                 if (obj != null)
                 {
-                    elem = new AchievementElement(id, count, obj.completeCount, false, obj.slotIdx);
+                    elem = new AchievementElement(id, count, obj.completeCount, claimed, idx);
                     achievementsDict.Add(id, elem);
                 }
             }
         }
+
+        if (windowObj != null && windowObj.activeInHierarchy)
+            uiAchieve.UpdateAchievementProgress();
     }
 
     public void UpdateRewardClaims()
@@ -115,11 +141,20 @@ public class AchievementStatsClient : AchievementStats
             for (int i = 0; i < rcArray.Length; ++i)
             {
                 string[] rcData = rcArray[i].Split(';');
-                AchievementType type = (AchievementType)int.Parse(rcData[0]);
+                AchievementKind type = (AchievementKind)int.Parse(rcData[0]);
                 int id = int.Parse(rcData[1]);
                 AchievementRewardClaim claim = new AchievementRewardClaim(type, id);
                 claimsList.Add(claim);
             }
+        }
+
+        if (windowObj != null && windowObj.activeInHierarchy)
+            uiAchieve.SetClaimRewardButton(HasUnclaimedRewards());
+
+        GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
+        if (dialog != null && dialog.activeInHierarchy)
+        {
+            dialog.GetComponent<UI_Achievement_RewardsDialog>().RefreshRewardsList(claimsList);
         }
     }
 
@@ -131,12 +166,31 @@ public class AchievementStatsClient : AchievementStats
     public void OnClaimAllRewards(string claimedRewards)
     {
         //Debug.Log("claimed rewards: " + claimedRewards);
+        if (!string.IsNullOrEmpty(claimedRewards))
+        {
+            List<AchievementRewardClaim> claimedRewardsList = new List<AchievementRewardClaim>();
+            string[] rcArray = claimedRewards.Split('|');
+            for (int i = 0; i < rcArray.Length; ++i)
+            {
+                string[] rcData = rcArray[i].Split(';');
+                AchievementKind type = (AchievementKind)int.Parse(rcData[0]);
+                int id = int.Parse(rcData[1]);
+                AchievementRewardClaim claim = new AchievementRewardClaim(type, id);
+                claimedRewardsList.Add(claim);
+            }
+
+            GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
+            if (dialog != null && dialog.activeInHierarchy)
+            {
+                dialog.GetComponent<UI_Achievement_RewardsDialog>().InitClaimedRewards(claimedRewardsList);
+            }
+        }
     }
 
-    public void UpdateLatestRecords(AchievementType type, string value)
+    public void UpdateLatestRecords(AchievementKind type, string value)
     {
         //Debug.Log(type + " record: " + value);
-        List<AchievementRecord> list = type == AchievementType.Collection ? latestCollectionsList : latestAchievementList;
+        List<AchievementRecord> list = type == AchievementKind.Collection ? latestCollectionsList : latestAchievementList;
         list.Clear();
         if (!string.IsNullOrEmpty(value))
         {

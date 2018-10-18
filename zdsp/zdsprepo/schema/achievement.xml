@@ -39,6 +39,15 @@
       <item key="Gold" value ="2"/>
     </enum>
 
+    <enum name="AchievementType">
+      <item key="Course" value ="0"/>
+      <item key="Social" value ="1"/>
+      <item key="Battle" value ="2"/>
+      <item key="Player" value ="3"/>
+      <item key="Hero" value ="4"/>
+      <item key="Others" value ="5"/>
+    </enum>
+    
     <enum name="AchievementObjectiveType">
       <item key="MainQuest" value ="0"/>
       <item key="SubQuest" value ="1"/>
@@ -139,7 +148,7 @@
 
     <element name="AchievementMainType" useexcel="true">
       <property name="name" type="string" uitext="Name"/>
-      <property name="sequence" type="int" uitext="Sequence"/>
+      <property name="maintype" type="AchievementType" uitext="Achievement Type"/>
       <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
@@ -147,7 +156,7 @@
 
     <element name="AchievementSubType" useexcel="true">
       <property name="name" type="string" uitext="Name"/>
-      <property name="maintype" type="AchievementMainType" uitext="Main Type" display="name"/>
+      <property name="maintype" type="AchievementType" uitext="Main Type"/>
       <property name="sequence" type="int" uitext="Sequence"/>
       <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
     </element>
@@ -190,18 +199,27 @@
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
       <property name="reqlvl" type="int" uitext="Achievement Level Required"/>
       <property name="modelpath" type="asset" uitext="Avatar Path" default="" assettype="prefab"/>
+      <property name="imagepath" type="asset" uitext="Image Path" default="" assettype="sprite"/>
+      <property name="posinui" type="string" uitext="Position In UI" default="0;0;0;1" info="x;y;rotatey;scale"/>
     </element>
 
-    <enum name="LISARewardTriggerType">
+    <enum name="LISAFunctionTriggerType">
       <item key="AchievementLV" value ="0"/>
       <item key="AchievementID" value ="1"/>
     </enum>
-    
-    <element name="LISAReward" useexcel="true">
+
+    <!--TBC-->
+    <enum name="LISAFunction">
+      <item key="None" value ="0"/>
+      <item key="OpenBagSlot" value ="1"/>
+    </enum>
+
+    <element name="LISAExternalFunction" useexcel="true">
       <property name="sortorder" type ="int" uitext="Sort Order"/>
-      <property name="triggertype" type="LISARewardTriggerType" uitext="Type"/>
-      <property name="triggervalue" type="int" uitext="Value"/>
-      <property name="systemunlock" type="string" uitext="System Unlock"/>
+      <property name="triggertype" type="LISAFunctionTriggerType" uitext="Trigger Type"/>
+      <property name="triggervalue" type="int" uitext="Trigger Value"/>
+      <property name="functiontype" type="LISAFunction" uitext="Function Type"/>
+      <property name="functionvalue" type="int" uitext="Function Value"/>
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
     </element>

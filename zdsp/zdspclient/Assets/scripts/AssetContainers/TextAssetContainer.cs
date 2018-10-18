@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -160,6 +161,28 @@ public class TextAssetContainer : BaseAssetContainer
         }
 
         return removeList;
+    }
+
+    public override void UpdateAndRefreshContainer()
+    {
+        string[] extensionArray = ".json;.txt".Split(';');
+        string path = "Assets/" + containerAssetsPath;
+        var files = Directory.GetFiles(path, "*.*", AddSubFolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        foreach (var file in files)
+        {
+            foreach (string extension in extensionArray)
+            {
+                if (file.EndsWith(extension) && !file.Contains("@"))
+                {
+                    string assetPath = file.Replace(Application.dataPath, "").Replace('\\', '/');
+                    TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath);
+                    if (asset != null)
+                        AddAsset<TextAsset>(asset);
+                    break;
+                }
+            }
+        }
+        EditorUtility.SetDirty(this);
     }
 #endif
 }

@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEditor;
 #endif
 using System.Collections;
-using Zealot.Audio;
 using Xft;
+using Zealot.Audio;
 
 public class EffectRef : MonoBehaviour
 {
@@ -304,4 +304,3 @@ public class EffectRef : MonoBehaviour
     #endregion
 #endif
 }
-

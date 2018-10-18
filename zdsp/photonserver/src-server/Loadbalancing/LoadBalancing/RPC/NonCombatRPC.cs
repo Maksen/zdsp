@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Photon.LoadBalancing.Operations;
 using Photon.LoadBalancing.GameServer;
 using Zealot.Common.RPC;
-using Zealot.Repository;
 
 namespace Zealot.RPC
 {
@@ -1433,9 +1432,10 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SubmitEmptyObjective)]
-        public void SubmitEmptyObjective(int questid, GameClientPeer peer)
+        public void SubmitEmptyObjective(string questids, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.SubmiteEmptyObjective(questid);
+            List<int> questlist = JsonConvertDefaultSetting.DeserializeObject<List<int>>(questids);
+            peer.mPlayer.QuestController.SubmiteEmptyObjective(questlist);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]

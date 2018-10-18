@@ -1,17 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zealot.Repository;
 
 public class UI_SkillSelectButton : UI_SkillButtonBase{
-
-    public delegate void OnSelectedCallback(UI_SkillSelectButton param);
-
-    public void Init(OnSelectedCallback function)
-    {
-        m_Toggle.onValueChanged.AddListener(delegate { function(this); });
-    }
 
     public void EquipSkill(int skillid)
     {

@@ -446,6 +446,11 @@
             mTimers.StopTimer(t);
         }
 
+        public void QueueDestoryTimer(GameTimer t)
+        {
+            mTimers.QueueDestoryTimer(t);
+        }
+
         public long GetSynchronizedTime()
         {
             return mTimers.GetSynchronizedTime();
@@ -788,6 +793,9 @@
             /*********************   EquipFusionInventory   ***************************/
             player.InitEquipFusionStats(characterData.EquipFusionInventory);
 
+            /*********************   InteractiveTriggerInventory   ***************************/
+            player.InitInteractiveTriggerStats(characterData.InteractiveTriggerInventory);
+
             /*********************   SevenDaysInventory   ***************************/
             //player.InitSevenDaysStats(characterData.SevenDaysInventory);
 
@@ -909,6 +917,14 @@
 
             if (peer.mFirstLogin)  // put this last line
                 peer.mFirstLogin = false;
+
+            // Designer Combat testing
+            CombatFormula.Debug.CreateLog("Attacker_Stats");
+            CombatFormula.Debug.CreateLog("Defender_Stats");
+            CombatFormula.Debug.CreateLog("Player");
+            CombatFormula.Debug.CreateLog("Monster");
+            CombatFormula.Debug.CreateLog("Hero");
+            CombatFormula.Debug.CreateLog("Profile");
         }
 
         public void OnActionCommand(int pid, ActionCommand cmd, HivePeer peer)

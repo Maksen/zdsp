@@ -2,7 +2,8 @@
 using System;
 using Zealot.Common.Entities;
 
-namespace Zealot.Common {
+namespace Photon.LoadBalancing.GameServer.CombatFormula
+{
     public class ConditionalNode {
         public bool condition;
         public DecisionNode trueNode, falseNode;
@@ -39,9 +40,9 @@ namespace Zealot.Common {
     }
 
     public class LeafNode : DecisionNode {
-        protected Zealot.Common.CombatFormula.FIELDNAMEPACKET info;
+        protected CombatFormula.FIELDNAMEPACKET info;
 
-        public virtual void InitInfo(Zealot.Common.CombatFormula.FIELDNAMEPACKET info) {
+        public virtual void InitInfo(CombatFormula.FIELDNAMEPACKET info) {
             this.info = info;
         }
 

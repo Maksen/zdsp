@@ -411,7 +411,7 @@ public static class HUD_MapController
                 StaticNPCJson npcJson = StaticNPCRepo.GetNPCByArchetype(snpc.archetype);
                 StaticClientNPCAlwaysShow npc = GameInfo.gCombat.mEntitySystem.GetStaticClientNPC(snpc.archetype);
                 if (npc == null)
-                    Debug.LogError("HUD_MapController.LoadStaticIcon: Walaoeh, cannot find npc from archetype");
+                    Debug.LogError(string.Format("HUD_MapController.LoadStaticIcon: Walaoeh, cannot find npc from archetype [{0}]", snpc.archetype));
                 //Do not create icon if it doesnt have a quest nor a shop
                 if (npcJson.npcfunction.Length == 0 && !npc.HasQuest)
                     continue;

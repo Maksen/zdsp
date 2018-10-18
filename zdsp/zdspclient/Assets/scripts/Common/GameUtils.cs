@@ -1071,4 +1071,19 @@ namespace Zealot.Common
                    EqualityComparer<T2>.Default.GetHashCode(item2);
         }
     }
+
+    /// <summary>
+    /// Simple mutable class with pair of values. If need equality comparison, please use above Pair class
+    /// </summary>
+    public class ValuePair<T1, T2>
+    {
+        public T1 Item1 { get; set; }
+        public T2 Item2 { get; set; }
+
+        public ValuePair(T1 item1, T2 item2)
+        {
+            Item1 = item1;
+            Item2 = item2;
+        }
+    }
 }

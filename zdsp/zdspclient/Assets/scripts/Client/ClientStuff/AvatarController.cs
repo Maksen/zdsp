@@ -1,6 +1,7 @@
 ﻿using Kopio.JsonContracts;
 using UnityEngine;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Zealot.Common;
 using Zealot.Repository;
@@ -168,84 +169,177 @@ public class AvatarController : MonoBehaviour
     {
         List<Equipment> fashionSlots = equipmentInvData.FashionSlots;
         List<Equipment> equipmentSlots = equipmentInvData.Slots;
+        List<int> appearanceSlots = equipmentInvData.AppearanceSlots;
 
-        //weapon
-        Equipment fashion_weapon = fashionSlots[(int)FashionSlot.Weapon];
-        Equipment equip_weapon = equipmentSlots[(int)EquipmentSlot.Weapon];
-        if (equip_weapon == null)
+        List<Equipment> bathrobes = fashionSlots.Where(e => e != null && e.EquipmentJson.partstype == PartsType.Bathrobe).ToList();
+        if (bathrobes.Count > 0)
+        {
             Unequip("weapon_r");
-        else if (fashion_weapon != null && fashion_weapon.EquipmentJson.partstype == equip_weapon.EquipmentJson.partstype)
-            OnWeaponChanged(fashion_weapon.EquipmentJson.prefabpath);
-        else
-            OnWeaponChanged(equip_weapon.EquipmentJson.prefabpath);
+            Unequip("helm");
+            Unequip("body");
+            Unequip("back");
 
-        //Back
-        Equipment fashion_back = fashionSlots[(int)FashionSlot.Back];
-        Equipment equip_back = equipmentSlots[(int)EquipmentSlot.Back];
-        if (fashion_back != null)
-            OnBackChanged(fashion_back.EquipmentJson.prefabpath);
-        else if (equip_back != null)
-            OnBackChanged(equip_back.EquipmentJson.prefabpath);
+            Equipment bathrobe = bathrobes.First();
+            int skincolor = appearanceSlots[(int)AppearanceSlot.SkinColor];
+            int hairstyle = appearanceSlots[(int)AppearanceSlot.HairStyle];
+            int haircolor = appearanceSlots[(int)AppearanceSlot.HairColor];
+
+            OnSkinChanged("body", GetMeshPathByGender(bathrobe.EquipmentJson, gender), GetMaterialPathByGender(bathrobe.EquipmentJson, gender), GetColorCodeByPart("body", skincolor));
+            EquipDefaultHair(hairstyle, haircolor);
+        }
+        else
+        {
+            InitAvatarWeapon(fashionSlots[(int)FashionSlot.Weapon], equipmentSlots[(int)EquipmentSlot.Weapon], gender);
+            InitAvatarBack(fashionSlots[(int)FashionSlot.Back], equipmentSlots[(int)EquipmentSlot.Back], gender);
+            InitAvatarHelm(fashionSlots[(int)FashionSlot.Helm], equipmentSlots[(int)EquipmentSlot.Helm], appearanceSlots[(int)AppearanceSlot.HairStyle], appearanceSlots[(int)AppearanceSlot.HairColor], equipmentInvData.HideHelm, gender);
+            InitAvatarBody(fashionSlots[(int)FashionSlot.Body], equipmentSlots[(int)EquipmentSlot.Body], appearanceSlots[(int)AppearanceSlot.SkinColor], gender, jobtype);
+            InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], gender);
+        }
+    }
+
+    public void InitCreationAvatar(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit)
+    {
+        List<Equipment> fashionSlots = equipmentInvData.FashionSlots;
+        List<Equipment> equipmentSlots = equipmentInvData.Slots;
+        List<int> appearanceSlots = equipmentInvData.AppearanceSlots;
+
+        InitSpecialOutfit(outfit, appearanceSlots[(int)AppearanceSlot.SkinColor], gender);
+        InitAvatarHelm(fashionSlots[(int)FashionSlot.Helm], equipmentSlots[(int)EquipmentSlot.Helm], appearanceSlots[(int)AppearanceSlot.HairStyle], appearanceSlots[(int)AppearanceSlot.HairColor], equipmentInvData.HideHelm, gender);
+        InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], gender);
+    }
+
+    public void InitSpecialOutfit(int outfit, int skincolor, Gender gender)
+    {
+        string meshpath = GetOutfitMeshPath(outfit, gender);
+        string materialpath = GetOutfitMaterialPath(outfit, gender);
+        OnSkinChanged("body", meshpath, materialpath, GetColorCodeByPart("body", skincolor));
+    }
+
+    private string GetOutfitMeshPath(int outfit, Gender gender)
+    {
+        switch(outfit)
+        {
+            case 1:
+                return gender == Gender.Male ? "Models_Characters/Pc_job/t3_general_male_body.fbx" : "Models_Characters/Pc_job/t3_general_female_body.fbx";
+            case 2:
+                return gender == Gender.Male ? "Models_Characters/Pc_job/t3_executioner_male_body.fbx" : "Models_Characters/Pc_job/t3_executioner_female_body.fbx";
+            case 3:
+                return gender == Gender.Male ? "Models_Characters/Pc_fashion/fa_001_agent_male_body.fbx" : "Models_Characters/Pc_fashion/fa_001_agent_female_body.fbx";
+            default:
+                return gender == Gender.Male ? "Models_Characters/Pc_job/t3_bladeMaster_male_body.fbx" : "Models_Characters/Pc_job/t3_bladeMaster_female_body.fbx";
+        }
+    }
+
+    private string GetOutfitMaterialPath(int outfit, Gender gender)
+    {
+        switch (outfit)
+        {
+            case 1:
+                return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_general_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_general_female_body.mat";
+            case 2:
+                return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_executioner_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_executioner_female_body.mat";
+            case 3:
+                return gender == Gender.Male ? "Models_Characters/Pc_fashion/Materials/fa_001_agent_female_body.mat" : "Models_Characters/Pc_fashion/Materials/fa_001_agent_male_body.mat";
+            default:
+                return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_bladeMaster_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_bladeMaster_female_body.mat";
+        }
+    }
+
+    private void InitAvatarWeapon(Equipment fashionweapon, Equipment weapon, Gender gender)
+    {
+        if (weapon == null)
+            Unequip("weapon_r");
+        else if (fashionweapon != null && fashionweapon.EquipmentJson.partstype == weapon.EquipmentJson.partstype)
+            OnWeaponChanged(GetPrefabPathByGender(fashionweapon.EquipmentJson, gender));
+        else
+            OnWeaponChanged(GetPrefabPathByGender(weapon.EquipmentJson, gender));
+    }
+
+    private void InitAvatarBack(Equipment fashionback, Equipment back, Gender gender)
+    {
+        if (fashionback != null)
+            OnBackChanged(GetPrefabPathByGender(fashionback.EquipmentJson, gender));
+        else if (back != null)
+            OnBackChanged(GetPrefabPathByGender(back.EquipmentJson, gender));
         else
             Unequip("back");
-        
-        //Helm
-        Equipment fashion_helm = fashionSlots[(int)FashionSlot.Helm];
-        Equipment equip_helm = equipmentSlots[(int)EquipmentSlot.Helm];
-        if (equipmentInvData.HideHelm)
-            EquipDefaultHelm(0, gender);
-        else if (fashion_helm != null)
-            EquipHelm(fashion_helm.EquipmentJson, 0, gender);
-        else if (equip_helm != null)
-            EquipHelm(equip_helm.EquipmentJson, 0, gender);
-        else
-            EquipDefaultHelm(0, gender);
-
-        //Body
-        Equipment fashion_body = fashionSlots[(int)FashionSlot.Body];
-        if (fashion_body != null)
-            OnSkinChanged("body", fashion_body.EquipmentJson, gender);
-        else
-            EquipJobBody(jobtype, gender);
     }
 
-    public void EquipJobBody(JobType jobtype, Gender gender)
+    private void InitAvatarHelm(Equipment fashionhelm, Equipment helm, int hairstyle, int haircolor, bool hidehelm, Gender gender)
+    {
+        if (hidehelm)
+            EquipDefaultHair(hairstyle, haircolor);
+        else if (fashionhelm != null)
+            EquipHelm(fashionhelm.EquipmentJson, hairstyle, haircolor, gender);
+        else if (helm != null)
+            EquipHelm(helm.EquipmentJson, hairstyle, haircolor, gender);
+        else
+            EquipDefaultHair(hairstyle, haircolor);
+    }
+
+    private void InitAvatarBody(Equipment fashionbody, Equipment body, int skincolor, Gender gender, JobType jobtype)
+    {
+        if (fashionbody != null)
+            OnSkinChanged("body", GetMeshPathByGender(fashionbody.EquipmentJson, gender), GetMaterialPathByGender(fashionbody.EquipmentJson, gender), GetColorCodeByPart("body", skincolor));
+        else
+            EquipJobBody(jobtype, skincolor, gender);
+    }
+
+    private void InitAvatarFace(int makeup, Gender gender)
+    {
+        EquipMakeUp(makeup, gender);
+    }
+
+    private void EquipJobBody(JobType jobtype, int skincolor, Gender gender)
     {
         JobsectJson jobsectJson = JobSectRepo.GetJobByType(jobtype);
+        string colorcode = GetColorCodeByPart("body", skincolor);
         if (gender == Gender.Male)
-            OnSkinChanged("body", jobsectJson.malemeshpath, jobsectJson.malematerialpath);
+            OnSkinChanged("body", jobsectJson.malemeshpath, jobsectJson.malematerialpath, colorcode);
         else
-            OnSkinChanged("body", jobsectJson.femalemeshpath, jobsectJson.femalematerialpath);
+            OnSkinChanged("body", jobsectJson.femalemeshpath, jobsectJson.femalematerialpath, colorcode);
     }
 
-    public void EquipDefaultHelm(int hairStyle, Gender gender)
+    private void EquipDefaultHair(int hairStyle, int hairColor)
     {
+        string hair_meshpath = CharacterCreationRepo.GetMeshPathByPartId(hairStyle, ApperanceType.HairStyle);
+        string hair_materialpath = CharacterCreationRepo.GetMaterialPathByPartId(hairStyle, ApperanceType.HairStyle);
         Unequip("accessory");
-        EquipDefaultHair(hairStyle, gender);
+        OnSkinChanged("helm", hair_meshpath, hair_materialpath, GetColorCodeByPart("helm", hairColor));
     }
 
-    private void EquipDefaultHair(int hairStyle, Gender gender)
+    private void EquipHelm(EquipmentJson equipmentJson, int hairStyle, int hairColor, Gender gender)
     {
-        //todo: base on hairStyle selected in character creation, get path from kopio
-        if (gender == Gender.Male)
-            OnSkinChanged("helm", "Models_Characters/Pc_job/t3_bladeMaster_male_head.fbx", "Models_Characters/Pc_job/Materials/t3_bladeMaster_male_head.mat");
-        else
-            OnSkinChanged("helm", "Models_Characters/Pc_job/t3_bladeMaster_female_head.fbx", "Models_Characters/Pc_job/Materials/t3_bladeMaster_female_head.mat");
-    }
-
-    public void EquipHelm(EquipmentJson equipmentJson, int hairStyle, Gender gender)
-    {
-        string accessory_prefabpath = gender == Gender.Male ? equipmentJson.prefabpath : equipmentJson.femaleprefabpath;
-        if (string.IsNullOrEmpty(accessory_prefabpath))
+        string helm_prefab = (gender == Gender.Male) ? equipmentJson.prefabpath : equipmentJson.femaleprefabpath;
+        if (string.IsNullOrEmpty(helm_prefab))
+        {
             Unequip("accessory");
+            string meshpath = (gender == Gender.Male) ? equipmentJson.malemeshpath : equipmentJson.femalemeshpath;
+            if (string.IsNullOrEmpty(meshpath))
+                EquipDefaultHair(hairStyle, hairColor);
+            else
+                OnSkinChanged("helm", meshpath, GetMaterialPathByGender(equipmentJson, gender), "");
+        }
         else
-            OnAccessoryChanged(accessory_prefabpath);
+        {
+            string hair_meshpath = CharacterCreationRepo.GetMeshPathByPartId(hairStyle, ApperanceType.HairStyle);
+            string hair_materialpath = CharacterCreationRepo.GetMaterialPathByPartId(hairStyle, ApperanceType.HairStyle);
+            OnSkinChanged("helm", hair_meshpath, hair_materialpath, GetColorCodeByPart("helm", hairColor));
+            OnAccessoryChanged(helm_prefab);
+        }
+    }
 
-        string meshpath = (gender == Gender.Male) ? equipmentJson.malemeshpath : equipmentJson.femalemeshpath;
-        if (string.IsNullOrEmpty(meshpath))
-            EquipDefaultHair(hairStyle, gender);
+    private void EquipMakeUp(int makeup, Gender gender)
+    {
+        string makeup_materialpath = CharacterCreationRepo.GetMaterialPathByPartId(makeup, ApperanceType.MakeUp);
+        if (string.IsNullOrEmpty(makeup_materialpath))
+        {
+            OnSkinChanged("face", gender == Gender.Male ? "Models_Characters/Pc_face/Materials/face_000_base_male.mat" : "Models_Characters/Pc_face/Materials/face_000_base_female.mat");
+        }
         else
-            OnSkinChanged("helm", equipmentJson, gender);
+        {
+            OnSkinChanged("face", makeup_materialpath);
+        }
     }
 
     public void OnWeaponChanged(string prefabpath)
@@ -281,15 +375,34 @@ public class AvatarController : MonoBehaviour
         AssetLoader.Instance.LoadAsync<GameObject>(prefabpath, (prefab) => OnPrefabLoaded(prefab, prefabpath, attachedPart));
     }
 
-    public void OnSkinChanged(string partName, EquipmentJson equipmentJson, Gender gender)
+    public void OnSkinChanged(string partName, EquipmentJson equipmentJson, Gender gender, List<int> appearance)
     {
-        if (gender == Gender.Male)
-            OnSkinChanged(partName, equipmentJson.malemeshpath, equipmentJson.malematerialpath);
-        else
-            OnSkinChanged(partName, equipmentJson.femalemeshpath, equipmentJson.femalematerialpath);
+        if (partName == "helm")
+        {
+            int hairstyle = appearance[(int)AppearanceSlot.HairStyle];
+            int haircolor = appearance[(int)AppearanceSlot.HairColor];
+            EquipHelm(equipmentJson, hairstyle, haircolor, gender);
+        }
+        else if (partName == "body")
+        {
+            int skincolor = appearance[(int)AppearanceSlot.SkinColor];
+            OnSkinChanged("body", GetMeshPathByGender(equipmentJson, gender), GetMaterialPathByGender(equipmentJson, gender), GetColorCodeByPart("body", skincolor));
+        }
     }
 
-    public void OnSkinChanged(string partName, string meshpath, string materialpath)
+    private void OnSkinChanged(string partName, string materialpath)
+    {
+        AvatarSkinPart skinPart = GetSkinPart(partName);
+        if (skinPart == null)
+            return;
+        if (materialpath != skinPart.MaterialLoadingPath)
+        {
+            skinPart.MaterialLoadingPath = materialpath;
+            AssetLoader.Instance.LoadAsync<Material>(materialpath, (material) => OnMaterialLoaded(material, materialpath, skinPart, ""));
+        }
+    }
+
+    private void OnSkinChanged(string partName, string meshpath, string materialpath, string colorcode)
     {
         AvatarSkinPart skinPart = GetSkinPart(partName);
         if (skinPart == null)
@@ -302,11 +415,68 @@ public class AvatarController : MonoBehaviour
         if (materialpath != skinPart.MaterialLoadingPath)
         {
             skinPart.MaterialLoadingPath = materialpath;
-            AssetLoader.Instance.LoadAsync<Material>(materialpath, (material) => OnMaterialLoaded(material, materialpath, skinPart));
+            AssetLoader.Instance.LoadAsync<Material>(materialpath, (material) => OnMaterialLoaded(material, materialpath, skinPart, colorcode));
+        }
+        else
+        {
+            Color color = new Color();
+            if (ColorUtility.TryParseHtmlString(colorcode, out color))
+            {
+                skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
+            }
         }
     }
 
-    public void Unequip(string partName)
+    private string GetPrefabPathByGender(EquipmentJson equipmentJson, Gender gender)
+    {
+        if (gender == Gender.Male)
+        {
+            return equipmentJson.prefabpath;
+        }
+        else
+        {
+            return equipmentJson.femaleprefabpath;
+        }
+    }
+
+    private string GetMeshPathByGender(EquipmentJson equipmentJson, Gender gender)
+    {
+        if (gender == Gender.Male)
+        {
+            return equipmentJson.malemeshpath;
+        }
+        else
+        {
+            return equipmentJson.femalemeshpath;
+        }
+    }
+
+    private string GetMaterialPathByGender(EquipmentJson equipmentJson, Gender gender)
+    {
+        if (gender == Gender.Male)
+        {
+            return equipmentJson.malemeshpath;
+        }
+        else
+        {
+            return equipmentJson.femalemeshpath;
+        }
+    }
+
+    private string GetColorCodeByPart(string partName, int color)
+    {
+        switch(partName)
+        {
+            case "body":
+                return CharacterCreationRepo.GetColorCodeByPartId(color, ApperanceType.SkinColor);
+            case "helm":
+                return CharacterCreationRepo.GetColorCodeByPartId(color, ApperanceType.HairColor);
+            default:
+                return "";
+        }
+    }
+
+    private void Unequip(string partName)
     {
         switch(partName)
         {
@@ -402,11 +572,19 @@ public class AvatarController : MonoBehaviour
         }
     }
 
-    private void OnMaterialLoaded(Material material, string path, AvatarSkinPart skinPart)
+    private void OnMaterialLoaded(Material material, string path, AvatarSkinPart skinPart, string colorcode)
     {
         if (isDestroyed || skinPart.MaterialLoadingPath != path)
             return;
         skinPart.SkinMesh.sharedMaterial = material;
+        if (!string.IsNullOrEmpty(colorcode))
+        {
+            Color color = new Color();
+            if (ColorUtility.TryParseHtmlString(colorcode, out color))
+            {
+                skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
+            }
+        }        
         if (material == null)
         {
             Debug.LogErrorFormat("OnMaterialLoaded material path {0} not found!!!", path);
@@ -424,7 +602,7 @@ public class AvatarController : MonoBehaviour
             weapon_l.Show(!hide);
     }
 
-    public void DetachFromBodyPart(string partname)
+    private void DetachFromBodyPart(string partname)
     {
         AvatarAttachedPart attachedPart = Array.Find(AttachedParts, o => o.PartName == partname);
         if (attachedPart != null)
@@ -436,12 +614,12 @@ public class AvatarController : MonoBehaviour
         attachedPart.Detach();
     }
 
-    public AvatarAttachedPart GetAttachedPart(string partname)
+    private AvatarAttachedPart GetAttachedPart(string partname)
     {
         return Array.Find(AttachedParts, o => o.PartName == partname);
     }
 
-    public AvatarSkinPart GetSkinPart(string partname)
+    private AvatarSkinPart GetSkinPart(string partname)
     {
         return Array.Find(SkinParts, o => o.PartName == partname);
     }

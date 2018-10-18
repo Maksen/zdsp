@@ -1171,7 +1171,6 @@ public partial class ClientMain : MonoBehaviour
     public void CommonCastBasicAttack(int targetpid)
     {
         PlayerGhost localplayer = GameInfo.gLocalPlayer;
-        Debug.Log("common basic attack " + targetpid);
         if (localplayer.IsStun())
             return;
         ActorGhost ghost = null;
@@ -1398,57 +1397,70 @@ public partial class ClientMain : MonoBehaviour
         if (sdata.skillgroupJson.skilltype != SkillType.Active)
             return;
 
-        if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)
+        if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self) // this set cast skill on urself
         {
-            var skillTargetType = SkillRepo.GetSkillTargetType(skillid);
+            int pid = localplayer.GetPersistentID();
+            DirectCastSkill(skillid, pid);
+            //var skillTargetType = SkillRepo.GetSkillTargetType(skillid);
 
-            if (skillTargetType == TargetType.Enemy)
-            {
-                if (GameSettings.AutoBotEnabled)
-                {
-                    if (GameInfo.gSelectedEntity == null)
-                        AutoSelectNearestEnemy();
+            //if (skillTargetType == TargetType.Enemy)
+            //{
+            //    if (GameSettings.AutoBotEnabled)
+            //    {
+            //        if (GameInfo.gSelectedEntity == null)
+            //            AutoSelectNearestEnemy();
 
-                    BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
+            //        BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
 
-                    if (target == null)
-                        return;
+            //        if (target == null)
+            //            return;
 
-                    int pid = target.GetPersistentID();
+            //        int pid = target.GetPersistentID();
 
-                    Vector3 dir = target.Position - localplayer.Position;
-                    float dist = sdata.skillJson.radius;
+            //        Vector3 dir = target.Position - localplayer.Position;
+            //        float dist = sdata.skillJson.radius;
 
-                    if (dir.magnitude >= dist)
-                    {
-                        ApproachAndCastSkill(skillid, pid, target.Position);
-                        return;
-                    }
-                }
+            //        if (dir.magnitude >= dist)
+            //        {
+            //            ApproachAndCastSkill(skillid, pid, target.Position);
+            //            return;
+            //        }
+            //    }
 
-                DirectCastSkill(skillid);
-            }
-            else if (skillTargetType == TargetType.Friendly)
-            {
-                int pid = localplayer.GetPersistentID();
-                DirectCastSkill(skillid, pid);
-            }
-            else // TODO Might cast buff skill to party
-            {
-                int pid = 0;
-                ActorGhost ghost = GameInfo.gLocalPlayer.Bot.QueryForNonSpecificTarget(10, true, new int[] { });
-                if (ghost != null)
-                {
-                    pid = ghost.GetPersistentID();
-                }
-                mPlayerInput.SetMoveIndicator(Vector3.zero);
-                DirectCastSkill(skillid, pid);
-            }
+            //    DirectCastSkill(skillid);
+            //}
+            //else if (skillTargetType == TargetType.Friendly)
+            //{
+            //    int pid = localplayer.GetPersistentID();
+            //    DirectCastSkill(skillid, pid);
+            //}
+            //else // TODO Might cast buff skill to party
+            //{
+            //    int pid = 0;
+            //    ActorGhost ghost = GameInfo.gLocalPlayer.Bot.QueryForNonSpecificTarget(10, true, new int[] { });
+            //    if (ghost != null)
+            //    {
+            //        pid = ghost.GetPersistentID();
+            //    }
+            //    mPlayerInput.SetMoveIndicator(Vector3.zero);
+            //    DirectCastSkill(skillid, pid);
+            //}
         }
         else if(sdata.skillgroupJson.skillbehavior == SkillBehaviour.Target)
         {
-            if (GameInfo.gSelectedEntity == null)
-                AutoSelectNearestEnemy();
+            switch (sdata.skillgroupJson.targettype)
+            {
+                case TargetType.Enemy:
+                    if (GameInfo.gSelectedEntity == null)
+                        AutoSelectNearestEnemy();
+                    break;
+
+                case TargetType.Friendly:
+                case TargetType.Party:
+
+                    break;
+            }
+            
 
             BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
             if (target == null)

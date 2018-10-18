@@ -87,6 +87,8 @@ namespace Zealot.Repository
             DonateRepo.Init(GameData);
             MailRepo.Init(GameData);
             AchievementRepo.Init(GameData);
+            CharacterCreationRepo.Init(GameData);
+            WordFilterRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("Other Repos", ref heapsize);
             _loaded = true;
         }

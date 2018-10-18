@@ -12,9 +12,9 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
     // 3 --> cool down
     // 4 --> separator
 
-    private GameObjectPoolManager SKLPoolLv;
-    private GameObjectPoolManager SKLPoolDescriptor;
-    private GameObjectPoolManager SKLPoolCD;
+    private UI_SkillTree.GameObjectPoolManager SKLPoolLv;
+    private UI_SkillTree.GameObjectPoolManager SKLPoolDescriptor;
+    private UI_SkillTree.GameObjectPoolManager SKLPoolCD;
     public GameObject SKLLine;
 
     private List<SKLChunk> m_Chunks = new List<SKLChunk>();
@@ -28,9 +28,9 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
 
     public void Initialise(Transform parent)
     {
-        SKLPoolLv = new GameObjectPoolManager(3, parent, m_Prefabs[0]);
-        SKLPoolDescriptor = new GameObjectPoolManager(3, parent, m_Prefabs[1]);
-        SKLPoolCD = new GameObjectPoolManager(3, parent, m_Prefabs[2]);
+        SKLPoolLv = new UI_SkillTree.GameObjectPoolManager(3, parent, m_Prefabs[0]);
+        SKLPoolDescriptor = new UI_SkillTree.GameObjectPoolManager(3, parent, m_Prefabs[1]);
+        SKLPoolCD = new UI_SkillTree.GameObjectPoolManager(3, parent, m_Prefabs[2]);
         //SKLLine = Instantiate(m_Prefabs[3]);
     }
 
@@ -85,7 +85,7 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         // generate level text
         UI_DialogItemDetail_TextValue lv = SKLPoolLv.RequestObject().GetComponent<UI_DialogItemDetail_TextValue>();
         chunk.m_Level = lv;
-        chunk.m_Level.Identifier = "等級";
+        chunk.m_Level.Identifier = GUILocalizationRepo.GetLocalizedString("skl_skill_level");
         chunk.m_Level.Value = level.ToString() + "/" + SkillRepo.GetSkillGroupMaxUpgrade(skilldata.skillgroupJson.id).ToString();
         chunk.m_Level.transform.parent = this.transform;
         chunk.m_Level.transform.localPosition = new Vector3(chunk.m_Level.transform.localPosition.x, chunk.m_Level.transform.localPosition.y, 0);
@@ -101,11 +101,15 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         {
             foreach (Kopio.JsonContracts.SideEffectJson se in effects.mTarget)
             {
-                des.text += "\n" + ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
+                string destext = ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
+                if (destext == string.Empty) continue;
+                des.text += "\n" + destext;
             }
             foreach (Kopio.JsonContracts.SideEffectJson se in effects.mSelf)
             {
-                des.text += "\n" + ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
+                string destext = ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
+                if (destext == string.Empty) continue;
+                des.text += "\n" + destext;
             }
         }
 
@@ -117,9 +121,9 @@ public class UI_SkillUISKLHelper : MonoBehaviour {
         // generate cooldown
         HUD_SkillCoolDown cd = SKLPoolCD.RequestObject().GetComponent<HUD_SkillCoolDown>();
         chunk.m_CoolDown = cd;
-        chunk.m_CoolDown.m_CDName.text = "冷卻時間";
+        chunk.m_CoolDown.m_CDName.text = GUILocalizationRepo.GetLocalizedString("skl_cool_down_time");
         chunk.m_CoolDown.m_CDValue.text = skilldata.skillJson.cooldown.ToString();
-        chunk.m_CoolDown.m_UseName.text = "技能消耗";
+        chunk.m_CoolDown.m_UseName.text = GUILocalizationRepo.GetLocalizedString("skl_mana_cost");
         chunk.m_CoolDown.m_UseValue.text = skilldata.skillJson.cost.ToString();
         chunk.m_CoolDown.transform.parent = this.transform;
         chunk.m_CoolDown.transform.localPosition = new Vector3(chunk.m_CoolDown.transform.localPosition.x, chunk.m_CoolDown.transform.localPosition.y, 0);

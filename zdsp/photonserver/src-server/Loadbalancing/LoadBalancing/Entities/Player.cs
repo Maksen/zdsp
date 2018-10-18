@@ -1,27 +1,27 @@
 ﻿namespace Zealot.Server.Entities
 {
+    using ExitGames.Logging;
     using Kopio.JsonContracts;
+    using Newtonsoft.Json;
+    using Photon.LoadBalancing.Entities;
+    using Photon.LoadBalancing.GameServer;
+    using Photon.LoadBalancing.GameServer.Crafting;
+    using Photon.LoadBalancing.GameServer.Lottery;
+    using Photon.LoadBalancing.GameServer.CombatFormula;
     using System;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Linq;
-    using UnityEngine;   
+    using System.Text;
+    using System.Threading.Tasks;
+    using UnityEngine;
     using Zealot.Common;
+    using Zealot.Common.Datablock;
     using Zealot.Common.Entities;
     using Zealot.Common.RPC;
-    using Zealot.Common.Datablock;
-    using Zealot.Server.SideEffects;
-    using Zealot.Server.Rules;
     using Zealot.Entities;
     using Zealot.Repository;
-
-    using ExitGames.Logging;
-    using Newtonsoft.Json;
-    using Photon.LoadBalancing.GameServer;
-    using Photon.LoadBalancing.GameServer.Lottery;
-    using Photon.LoadBalancing.GameServer.Crafting;
-    using Photon.LoadBalancing.Entities;
+    using Zealot.Server.Rules;
+    using Zealot.Server.SideEffects;
 
     public class Player : ComboSkillCaster
     {
@@ -32,6 +32,7 @@
         private List<AttackResult> mDamageResults;
 
         #region Stats Local Objects
+
         public Dictionary<LOTYPE, LocalObject> LOStats { get; private set; }
 
         public PlayerSynStats PlayerSynStats { get; set; }
@@ -47,12 +48,14 @@
         public LocalCombatStats LocalCombatStats { get; private set; }
         public LocalSkillPassiveStats LocalSkillPassiveStats { get; private set; }
         public BuffTimeStats BuffTimeStats { get; private set; }
-        public SocialStats SocialStats { get; private set; } 
+        public SocialStats SocialStats { get; private set; }
         public WelfareStats WelfareStats { get; private set; }
         public SevenDaysStats SevenDaysStats { get; private set; }
         public QuestExtraRewardsStats QuestExtraRewardsStats { get; private set; }
+
         //public DNAStats DNAStats { get; private set; }
-        public LotteryInfoStats LotteryInfoStats { get; private set; } 
+        public LotteryInfoStats LotteryInfoStats { get; private set; }
+
         public ExchangeShopSynStats ExchangeShopSynStats { get; private set; }
         public PortraitDataStats PortraitDataStats { get; private set; }
         public PartyStatsServer PartyStats { get; set; }
@@ -65,8 +68,9 @@
 
         public PowerUpStats PowerUpStats { get; private set; }
         public MeridianStats MeridianStats { get; private set; }
+        public InteractiveTriggerStats InteractiveTriggerStats { get; private set; }
 
-        #endregion
+        #endregion Stats Local Objects
 
         public RespawnJson mRespawnInfo;
         private Dictionary<byte, Queue<ChatMessage>> mMessageQueues;
@@ -90,6 +94,7 @@
 
         // Friends
         private StringBuilder friendSB;
+
         private StringBuilder friendRemoveSB;
         private Dictionary<string, string> friendsRecDict;
         private DateTime friendRecommendedCD;
@@ -105,10 +110,11 @@
         public bool InspectMode = false;
 
         public WeaponType WeaponTypeUsed = WeaponType.Any;
+        public MainWeaponAttribute WeaponAttr;
         private bool mIsWorld = false;
 
         public Player() : base()
-        {            
+        {
             this.EntityType = EntityType.Player;
             mDamageResults = new List<AttackResult>();
 
@@ -118,7 +124,7 @@
             mMessageQueues.Add((byte)MessageType.World, new Queue<ChatMessage>());
             //mMessageQueues.Add((byte)MessageType.Faction, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.Guild, new Queue<ChatMessage>());
-            mMessageQueues.Add((byte)MessageType.Party, new Queue<ChatMessage>());      
+            mMessageQueues.Add((byte)MessageType.Party, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.Whisper, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.System, new Queue<ChatMessage>());
             mMessageQueues.Add((byte)MessageType.BroadcastMessage, new Queue<ChatMessage>());
@@ -134,7 +140,7 @@
 
             mMonsterExpBonus = 0.0f;
 
-            mSkillCDEnd = new long[5]; //5 skills        
+            mSkillCDEnd = new long[5]; //5 skills
 
             mTongbaoCostBuffPassiveSEs = new Dictionary<int, List<IPassiveSideEffect>>();
 
@@ -159,14 +165,15 @@
         {
             return LocalSkillPassiveStats.Accuracy;
         }
+
         public override int GetAttack()
         {
-            return LocalSkillPassiveStats.Attack; 
+            return LocalSkillPassiveStats.Attack;
         }
 
         public override int GetCritical()
         {
-            return LocalSkillPassiveStats.Critical; 
+            return LocalSkillPassiveStats.Critical;
         }
 
         public override int GetCriticalDamage()
@@ -209,7 +216,7 @@
                 LocalSkillPassiveStats.CriticalDamage = CombatFormula.GetFinalCriticalDamage(this);
                 LocalSkillPassiveStats.CoCriticalDamage = CombatFormula.GetFinalCoCriticalDamage(this);
 
-                if(Slot != null)
+                if (Slot != null)
                 {
                     //Slot.mSevenDaysController.UpdateTask(Zealot.Common.NewServerActivityType.Playerfighting, LocalCombatStats.CombatScore);
                 }
@@ -238,7 +245,7 @@
 
             SecondaryStats = new SecondaryStats();
             LOStats.Add(LOTYPE.SecondaryStats, SecondaryStats);
-            
+
             InitInvStats();
             EquipmentStats = new EquipmentStats();
 
@@ -253,7 +260,7 @@
 
             SkillStats = new SkillSynStats();
             LOStats.Add(LOTYPE.SkillStats, SkillStats);
-            
+
             RealmStats = new RealmStats();
             LOStats.Add(LOTYPE.RealmStats, RealmStats);
 
@@ -289,7 +296,7 @@
 
             ExchangeShopSynStats = new ExchangeShopSynStats();
             //LOStats.Add(LOTYPE.ExchangeShopStats, ExchangeShopSynStats);
-          
+
             PortraitDataStats = new PortraitDataStats();
             //LOStats.Add(LOTYPE.PortraitDataStats, PortraitDataStats);
             //BattleTimeStats = new BattleTimeStats();
@@ -311,9 +318,12 @@
 
             AchievementStats = new AchievementStatsServer();
             LOStats.Add(LOTYPE.AchievementStats, AchievementStats);
+
+            InteractiveTriggerStats = new InteractiveTriggerStats();
+            LOStats.Add(LOTYPE.InteractiveTriggerStats, InteractiveTriggerStats);
         }
 
-        void InitInvStats()
+        private void InitInvStats()
         {
             int maxcount = (int)InventorySlot.MAXSLOTS;
             int totalcount = maxcount / (int)InventorySlot.COLLECTION_SIZE;
@@ -340,13 +350,16 @@
                     case RealmPVPType.Peace:
                         PlayerSynStats.Team = -1;
                         break;
-                   case RealmPVPType.FreeForAll:
+
+                    case RealmPVPType.FreeForAll:
                         PlayerSynStats.Team = -2;
                         break;
-                   case RealmPVPType.Guild:
+
+                    case RealmPVPType.Guild:
                         PlayerSynStats.Team = (SecondaryStats.guildId == 0) ? -2 : SecondaryStats.guildId;
                         break;
-                   case RealmPVPType.Faction:
+
+                    case RealmPVPType.Faction:
                         PlayerSynStats.Team = PlayerSynStats.faction;
                         break;
                 }
@@ -383,13 +396,15 @@
         }
 
         #region Implement abstract methods
+
         public override void SpawnAtClient(GameClientPeer peer)
         {
             bool isLocal = peer == Slot;
             peer.ZRPC.CombatRPC.SpawnPlayerEntity(isLocal, mnOwnerID, PlayerSynStats.name, mnPersistentID,
                 PlayerSynStats.Gender, Position.ToRPCPosition(), Forward.ToRPCDirection(), peer);
         }
-        #endregion
+
+        #endregion Implement abstract methods
 
         public override void ResetSyncStats()
         {
@@ -487,8 +502,8 @@
                     if (messagetype == MessageType.BroadcastMessage)
                         peer.ZRPC.CombatRPC.BroadcastMessageToClient(msg.mBroadcastMsgType, msg.mMessage, peer);
                     else
-                        peer.ZRPC.CombatRPC.ServerSendChatMessage(kvp.Key, msg.mMessage, msg.mSender, msg.mWhisperTo, 
-                                                                  msg.mPortraitId, msg.mJobsect, msg.mVipLvl, 
+                        peer.ZRPC.CombatRPC.ServerSendChatMessage(kvp.Key, msg.mMessage, msg.mSender, msg.mWhisperTo,
+                                                                  msg.mPortraitId, msg.mJobsect, msg.mVipLvl,
                                                                   msg.mFaction, msg.mIsVoiceChat, peer);
                     ++channelmsgcount;
                     ++msgcount;
@@ -510,7 +525,7 @@
         {
             return PlayerSynStats;
         }
-        
+
         private void LogStr(string message, Player attacker)
         {
             GameClientPeer peer = Slot;
@@ -521,7 +536,7 @@
             log.player = peer.mChar;
             log.killer = attacker.Slot.mChar;
             log.realmID = mInstance.mRealmController.mRealmInfo.id;
-            
+
             log.realmName = mInstance.mRealmController.mRealmInfo.excelname;
             var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(log);
         }
@@ -529,7 +544,7 @@
         public override void OnKilled(IActor attacker)
         {
             StopAllSideEffects();
-            //TODO: save logstr              
+            //TODO: save logstr
             //string logstr = string.Format("[{0}][{1}][{2}][{3}][{4}]", DateTime.Now.ToString(), Name, "Was Killed by", ((Actor)attacker).IsPlayer() ? attacker.Name : ((Actor)attacker).GetPersistentID().ToString(), mInstance.mCurrentLevelID);
             Actor attackerActor = (Actor)attacker;
             if (attackerActor.IsPlayer())
@@ -547,16 +562,16 @@
 
             base.OnKilled(attacker);
             RealmController realmController = mInstance.mRealmController;
-            if(realmController != null)
+            if (realmController != null)
             {
                 int respawnId = realmController.mRealmInfo.respawn;
                 mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
                 string attackername = attacker.Name == null ? "" : attacker.Name;
                 Slot.ZRPC.CombatRPC.OnPlayerDead(attackername, (byte)respawnId, Slot);
 
-                if(mRespawnInfo.respawntype == RespawnType.City)
+                if (mRespawnInfo.respawntype == RespawnType.City)
                 {
-                    if(mRespawnInfo.countdown != -1)
+                    if (mRespawnInfo.countdown != -1)
                     {
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
@@ -568,9 +583,9 @@
                         }, null);
                     }
                 }
-                else if(mRespawnInfo.respawntype == RespawnType.SafeZone)
+                else if (mRespawnInfo.respawntype == RespawnType.SafeZone)
                 {
-                    if(mRespawnInfo.countdown != -1)
+                    if (mRespawnInfo.countdown != -1)
                     {
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
@@ -598,23 +613,25 @@
             UpdateAchievement(AchievementObjectiveType.DieNumber);
         }
 
-        private long lastComboTime = 0; 
+        private long lastComboTime = 0;
+
         public void HandleHitCombo()
         {
             long curr = EntitySystem.Timers.GetSynchronizedTime();
             if (curr - lastComboTime < CombatUtils.COMBOTHIT_TIMEOUT)
             {
-                if(LocalCombatStats.ComboHit < 999)
+                if (LocalCombatStats.ComboHit < 999)
                 {
                     LocalCombatStats.ComboHit++;
-                }else
+                }
+                else
                 {
                     LocalCombatStats.ComboHit = 999;
                 }
             }
             else
             {
-                LocalCombatStats.ComboHit = 1; 
+                LocalCombatStats.ComboHit = 1;
             }
             //Slot.ZRPC.CombatRPC.OnHitComboChange(hitComboCount, Slot);
             lastComboTime = curr;
@@ -683,8 +700,8 @@
 
         public override void QueueDmgResult(AttackResult res)
         {
-           //attacker res handled in client
-           if(mDamageResults.Count < 100)
+            //attacker res handled in client
+            if (mDamageResults.Count < 100)
                 mDamageResults.Add(res);
         }
 
@@ -791,14 +808,16 @@
         }
 
         private long InCombatTime = 0;
+
         public void CombatStarted()
         {
             InCombatTime = 6000;
             if (!LocalCombatStats.IsInCombat)
-                LocalCombatStats.IsInCombat = true;        
+                LocalCombatStats.IsInCombat = true;
         }
 
         private long mBattleTimeCountdown = 10000;
+
         public override void Update(long dt)
         {
             base.Update(dt);
@@ -841,12 +860,12 @@
 
             Slot.CharacterData.GuildQuests.ResetOnNewDay();
             UpdateGuildQuestDailyTimes();
-         
+
             //Slot.mWelfareCtrlr.ResetOnNewDay();
             //mLotteryInvController.ResetOnNewDay();
             //Slot.CharacterData.ExchangeShopInv.NewDayReset();
-            //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();                           
-			QuestController.ResetOnNewDay();
+            //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();
+            QuestController.ResetOnNewDay();
         }
 
         public void StartManaRegen()
@@ -856,19 +875,25 @@
 
             int amt = (int)CombatStats.GetField(FieldName.ManaRegen);
             if (amt > 0)  // ensure player can regen mana before starting timer
+            {
                 mManaRegenTimer = mInstance.SetTimer(10000, OnManaRegenTimerUp, null);
+                mManaRegenTimer.AutoReset = true;
+            }
         }
 
         private void OnManaRegenTimerUp(object arg)
         {
+            if (mManaRegenTimer == null) return;
+
             // get regen value here again in case value changed after starting timer
             int amt = (int)CombatStats.GetField(FieldName.ManaRegen);
             AddToMana(amt);
 
-            if (GetMana() < GetManaMax() && amt > 0)
-                mManaRegenTimer = mInstance.SetTimer(10000, OnManaRegenTimerUp, null);
-            else
+            if (GetMana() == GetManaMax())
+            {
+                mInstance.QueueDestoryTimer(mManaRegenTimer);
                 mManaRegenTimer = null;
+            }
         }
 
         public void SaveToCharacterData(bool exitroom)
@@ -886,7 +911,7 @@
             characterData.CharInfoData.Con = LocalCombatStats.Constitution;
             characterData.CharInfoData.Int = LocalCombatStats.Intelligence;
             characterData.CharInfoData.Dex = LocalCombatStats.Dexterity;
-            
+
             int lastlevelid = mInstance.mCurrentLevelID;
             string roomguid = mInstance.mRoom.Guid;
             if (exitroom)
@@ -958,7 +983,7 @@
 
             // Currency
             characterData.CurrencyInventory.SaveToInventoryData(SecondaryStats, PlayerSynStats);
-            
+
             SkillInventoryData skillInventory = characterData.SkillInventory;
             skillInventory.basicAttack1SId = SkillStats.basicAttack1SId;
             skillInventory.SkillInvCount = SkillStats.SkillInvCount;
@@ -994,7 +1019,7 @@
             //serialise the m_SideEffectList balyat
             //format -> seid, number of stacks
             sideeffectInv.SERecords.Clear();
-            foreach(var iter in m_SideEffectList)
+            foreach (var iter in m_SideEffectList)
             {
                 sideeffectInv.SERecords.Add(iter.Key);
                 sideeffectInv.SERecords.Add(iter.Value);
@@ -1073,6 +1098,9 @@
             //EquipFushion
             characterData.EquipFusionInventory.SaveToInventoryData(EquipFusionStats);
 
+            //InteractiveTrigger
+            characterData.InteractiveTriggerInventory.SaveToInventory(InteractiveTriggerStats);
+
             Slot.mCanSaveDB = true;
         }
 
@@ -1081,7 +1109,7 @@
             bool added = base.AddSpecialSideEffect(se);
             if (added)
             {
-                for (int i = 0; i <BuffTimeStats.MAX_EFFECTS; i++)
+                for (int i = 0; i < BuffTimeStats.MAX_EFFECTS; i++)
                 {
                     if ((int)BuffTimeStats.Persistents[i] == 0)
                     {
@@ -1089,9 +1117,9 @@
                         BuffTimeStats.PersistentsDur[i] = (int)(se.GetTimeRemaining() * 0.001);
                         break;
                     }
-                }               
+                }
             }
-            return added;  
+            return added;
         }
 
         public override void RemoveSpecialSideEffect(SpecialSE se)
@@ -1110,8 +1138,8 @@
         }
 
         public void OnNPCKilled(CombatNPCJson npc, float exp)
-        {        
-            if(exp > 0)
+        {
+            if (exp > 0)
             {
                 int monsterLvl = npc.level;
                 if (IsInParty())
@@ -1135,8 +1163,9 @@
 
             QuestController.KillCheck(npc.id, 1);
         }
-         
+
         #region PlayerStats Methods
+
         private int mExperienceNeeded;
         private int mJobExperienceNeeded;
         private int mMaxLevel;
@@ -1182,7 +1211,7 @@
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add("level", accumulatedlvl.ToString());
-            return GameUtils.FormatString(GUILocalizationRepo.GetLocalizedString("inst_LevelMinRank0"), parameters);            
+            return GameUtils.FormatString(GUILocalizationRepo.GetLocalizedString("inst_LevelMinRank0"), parameters);
         }
 
         public void AddMonsterExperience(float exp, int monsterLvl)
@@ -1238,22 +1267,22 @@
 
             //if (jobpara == null || levelUpJson == null)
             //{
-                combatstats.AddToField(FieldName.HealthBase, 1000);
-                combatstats.AddToField(FieldName.ManaBase, 10);
-                combatstats.AddToField(FieldName.AttackBase, 50);
-                combatstats.AddToField(FieldName.ArmorBase, 10);
-                combatstats.AddToField(FieldName.VSHumanDefenseBonus, 20);
-                combatstats.AddToField(FieldName.VSHumanDefensePercBonus, 10);
-                combatstats.AddToField(FieldName.StrengthBase, 50);
-                combatstats.AddToField(FieldName.WeaponAttackBase, 10);
-                combatstats.AddToField(FieldName.ConstitutionBase, 10);
-                combatstats.AddToField(FieldName.IntelligenceBase, 10);
-                combatstats.AddToField(FieldName.IgnoreArmorBase, 10);
-                combatstats.AddToField(FieldName.SliceDefenseBonus, 10);
-                combatstats.AddToField(FieldName.DecreaseFinalDamageBonus, 11);
-                combatstats.AddToField(FieldName.BlockRate, 50);
-                combatstats.AddToField(FieldName.BlockValueBonus, 40);
-                return;
+            combatstats.AddToField(FieldName.HealthBase, 1000);
+            combatstats.AddToField(FieldName.ManaBase, 10);
+            combatstats.AddToField(FieldName.AttackBase, 50);
+            combatstats.AddToField(FieldName.ArmorBase, 10);
+            combatstats.AddToField(FieldName.VSHumanDefenseBonus, 20);
+            combatstats.AddToField(FieldName.VSHumanDefensePercBonus, 10);
+            combatstats.AddToField(FieldName.StrengthBase, 50);
+            combatstats.AddToField(FieldName.WeaponAttackBase, 10);
+            combatstats.AddToField(FieldName.ConstitutionBase, 10);
+            combatstats.AddToField(FieldName.IntelligenceBase, 10);
+            combatstats.AddToField(FieldName.IgnoreArmorBase, 10);
+            combatstats.AddToField(FieldName.SliceDefenseBonus, 10);
+            combatstats.AddToField(FieldName.DecreaseFinalDamageBonus, 11);
+            combatstats.AddToField(FieldName.BlockRate, 50);
+            combatstats.AddToField(FieldName.BlockValueBonus, 40);
+            return;
             //}
             //combatstats.AddToField(FieldName.HealthBase, Mathf.FloorToInt(jobpara.hp * levelUpJson.hp));
             //combatstats.AddToField(FieldName.AttackBase, Mathf.FloorToInt(jobpara.attack * levelUpJson.attack));
@@ -1275,7 +1304,7 @@
             {
                 currentExp -= mExperienceNeeded;
                 currentlevel++;
-                
+
                 GetLevelUpCost(currentlevel);
             }
 
@@ -1300,11 +1329,11 @@
             //int gold = 0;
             //int crystal = 0;
 
-            //string message = string.Format("changetype: {0} | before: {1} | after: {2} | goldDeducted: {3}  | crystalDeducted: {4}", 
-            //    changetype, 
-            //    before, 
-            //    after, 
-            //    gold, 
+            //string message = string.Format("changetype: {0} | before: {1} | after: {2} | goldDeducted: {3}  | crystalDeducted: {4}",
+            //    changetype,
+            //    before,
+            //    after,
+            //    gold,
             //    crystal);
 
             //Logging.Client.LogClasses.XpLevelRank xpLevelRankLog = new Logging.Client.LogClasses.XpLevelRank();
@@ -1334,7 +1363,6 @@
 
             //SetHealth(GetHealthMax());
             //CombatStats.ComputeAll();
-
         }
 
         public void JobLevelUp()
@@ -1357,7 +1385,7 @@
             LocalCombatStats.SkillPoints += 1;
         }
 
-		public void UpdateJobSect(byte jobsect)
+        public void UpdateJobSect(byte jobsect)
         {
             PlayerSynStats.jobsect = jobsect;
 
@@ -1430,7 +1458,7 @@
         {
             int collectionSize = (int)InventorySlot.COLLECTION_SIZE;
             int containerIdx = idx / collectionSize;
-            int collectionIdx = idx % collectionSize; 
+            int collectionIdx = idx % collectionSize;
 
             if (item != null)
             {
@@ -1452,7 +1480,9 @@
         }
 
         // EquipmentStats
+
         #region EquipmentStats
+
         public void InitEquipmentStats(EquipmentInventoryData eqInvData)
         {
             WeaponTypeUsed = WeaponType.Any;
@@ -1479,6 +1509,10 @@
                     equipment.EncodeItem();
                     EquipmentStats.FashionInventory[i] = equipment.GetItemCodeForLocalObj();
                 }
+            }
+            for (int i = 0; i < (int)AppearanceSlot.MAXSLOTS; ++i)
+            {
+                EquipmentStats.AppearanceInventory[i] = eqInvData.AppearanceSlots[i];
             }
             EquipmentStats.HideHelm = eqInvData.HideHelm;
         }
@@ -1512,7 +1546,8 @@
         //    (CombatStats as PlayerCombatStats).ComputeEquippedCombatStats(item, EquipmentStats.selectedGemGroup, EquipmentStats.selectedGemGroup, added);
         //    CombatStats.ComputeAll();
         //}
-        #endregion
+
+        #endregion EquipmentStats
 
         public void InitItemHotbar(string str)
         {
@@ -1571,13 +1606,15 @@
         }
 
         // WelfareStats
+
         #region WelfareStats
+
         public void InitWelfareStats(WelfareInventoryData welfareInv)
         {
             int serverid = GameApplication.Instance.GetMyServerId();
 
             // Total Credit
-            if(WelfareRules.GetTotalCreditEventId() != welfareInv.TotalCreditCurrEventId)
+            if (WelfareRules.GetTotalCreditEventId() != welfareInv.TotalCreditCurrEventId)
             {
                 welfareInv.TotalCreditRewards = WelfareRules.GetTotalCreditRewardDataByEvent(welfareInv.TotalCreditCurrEventId);
 
@@ -1645,7 +1682,8 @@
             //    Slot.OnWelfareClaimSignInPrize(DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day);
             //}
         }
-        #endregion
+
+        #endregion WelfareStats
 
         public void InitPowerUpStats(PowerUpInventoryData powerupInv)
         {
@@ -1653,18 +1691,25 @@
             powerupInv.InitFromMeridianInventory(MeridianStats);
         }
 
-        public void InitEquipmentCraftStats (EquipmentCraftInventoryData equipmentCraftInv)
+        public void InitEquipmentCraftStats(EquipmentCraftInventoryData equipmentCraftInv)
         {
-            equipmentCraftInv.InitFormInventory(EquipmentCraftStats);
+            equipmentCraftInv.InitFromInventory(EquipmentCraftStats);
         }
 
-        public void InitEquipFusionStats (EquipFusionInventoryData equipFusionInv)
+        public void InitEquipFusionStats(EquipFusionInventoryData equipFusionInv)
         {
             equipFusionInv.InitFromInventory(EquipFusionStats);
         }
 
+        public void InitInteractiveTriggerStats(InteractiveTriggerInventoryData interactiveInv)
+        {
+            interactiveInv.InitFromInventory(InteractiveTriggerStats);
+        }
+
         // LotteryShopStats
+
         #region LotteryShopStats
+
         public void InitLotteryStats(LotteryInventoryData lotteryInv, GameClientPeer peer)
         {
             mLotteryInvController = new LotteryController(peer);
@@ -1690,6 +1735,7 @@
         {
             return mLotteryInvController.GetFreeTicketCount(lottery_id);
         }
+
         public int DeductLotteryFreeTicket(int lottery_id, int used_free_tickets)
         {
             return mLotteryInvController.DeductFreeTicket(lottery_id, used_free_tickets);
@@ -1699,6 +1745,7 @@
         {
             return mLotteryInvController.GetPoint(lottery_id);
         }
+
         public int AddLotteryPoint(int lottery_id, int point)
         {
             return mLotteryInvController.AddPoint(lottery_id, point);
@@ -1723,24 +1770,29 @@
         {
             return mLotteryInvController.AddRewarderPoint(lottery_id, point);
         }
-        #endregion
+
+        #endregion LotteryShopStats
 
         // SevenDaysStats
+
         #region SevenDaysStats
+
         public void InitSevenDaysStats(SevenDaysInvData sevenDaysInv)
         {
             Slot.mSevenDaysController.InitTaskProgress();
 
             sevenDaysInv.InitFromInventory(SevenDaysStats);
 
-            if(!Slot.mSevenDaysController.IsEventPeriod() && !Slot.mSevenDaysController.IsCollectionPeriod())
+            if (!Slot.mSevenDaysController.IsEventPeriod() && !Slot.mSevenDaysController.IsCollectionPeriod())
             {
                 Slot.mSevenDaysController.SendUncollectedRewardsToPlayer();
             }
         }
-        #endregion
+
+        #endregion SevenDaysStats
 
         #region QuestExtraRewardsStats
+
         public void InitQuestExtraRewardsStats(QuestExtraRewardsInvData questExtraRewardsInv)
         {
             Slot.mQuestExtraRewardsCtrler.InitTaskProgress();
@@ -1748,7 +1800,8 @@
 
             questExtraRewardsInv.InitFromInventory(QuestExtraRewardsStats);
         }
-        #endregion
+
+        #endregion QuestExtraRewardsStats
 
         //#region DNA
         //public void InitDNAStats(DNAInvData dnaInv)
@@ -1762,12 +1815,13 @@
         //    battleTimeInv.InitFromInventory(SecondaryStats.BattleTime);
         //}
 
-        #endregion
+        #endregion PlayerStats Methods
 
         #region Currency Methods
 
         public const int currencyMax = 2100000000;
         private DateTime currentTime;
+
         public void AddMoney(int amount, string from)
         {
             if (amount <= 0) //in case hacked
@@ -1820,7 +1874,7 @@
 
         public void OnGuildChange()
         {
-            if(SecondaryStats.guildId == 0)
+            if (SecondaryStats.guildId == 0)
                 Slot.CharacterData.GuildQuests.InitDefault();
             else
             {
@@ -1838,20 +1892,20 @@
             Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_GuildQuestAddTime", GameUtils.FormatString(dic), false, Slot);
         }
 
-        public bool OnGuildQuestOperation(GuildQuestOperation ope, int  id, out int error)
+        public bool OnGuildQuestOperation(GuildQuestOperation ope, int id, out int error)
         {
             bool resultOK = false;
             error = 0;
             Slot.CharacterData.GuildQuests.ComputeTime();
             if (ope == GuildQuestOperation.Accept)
             {
-                resultOK= Slot.CharacterData.GuildQuests.AcceptQuest(id);  
-                if(!resultOK)
+                resultOK = Slot.CharacterData.GuildQuests.AcceptQuest(id);
+                if (!resultOK)
                 {
                     error = (int)GuildQuestOperationError.QuestNotFound;
-                }             
+                }
             }
-            else if(ope == GuildQuestOperation.Cancel)
+            else if (ope == GuildQuestOperation.Cancel)
             {
                 resultOK = Slot.CharacterData.GuildQuests.CancelQuest(id);
                 if (!resultOK)
@@ -1874,10 +1928,10 @@
                     var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(syslog);
                 }
             }
-            else if(ope==GuildQuestOperation.Refresh)
+            else if (ope == GuildQuestOperation.Refresh)
             {
                 if (Slot.CharacterData.GuildQuests.refreshtimesfree > 0
-                    || Slot.CharacterData.GuildQuests.additionaltimes > 0 )
+                    || Slot.CharacterData.GuildQuests.additionaltimes > 0)
                     resultOK = Slot.CharacterData.GuildQuests.RefreshQuests(PlayerSynStats.Level, true);
                 else
                 {
@@ -1910,7 +1964,7 @@
                     var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(syslog);
                 }
             }
-            else if(ope == GuildQuestOperation.Finish)
+            else if (ope == GuildQuestOperation.Finish)
             {
                 Zealot.Logging.Client.LogClasses.GuildQuestFinish syslog = new Zealot.Logging.Client.LogClasses.GuildQuestFinish();
                 if (Slot != null)
@@ -1923,8 +1977,8 @@
                 syslog.questid1 = id;
                 syslog.dailytimesleft = 3 - Slot.CharacterData.GuildQuests.finishedtimestoday;
                 UpdateGuildQuestDailyTimes();
-                if (resultOK = Slot.CharacterData.GuildQuests.FinishQuest(id,  out error))
-                { 
+                if (resultOK = Slot.CharacterData.GuildQuests.FinishQuest(id, out error))
+                {
                     GuildQuestJson qdj = GuildRepo.GetQuestJson(id);
                     int rewardcontribution = qdj.rewardcontribution;
                     int rewardwealth = qdj.rewardwealth;
@@ -1959,10 +2013,11 @@
                         }
                     }
                     Slot.mQuestExtraRewardsCtrler.UpdateTask(QuestExtraType.GuildQuest);
-                     
+
                     var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(syslog);
                 }
-            }else if(ope == GuildQuestOperation.Fastforwad)
+            }
+            else if (ope == GuildQuestOperation.Fastforwad)
             {
                 Slot.CharacterData.GuildQuests.FastForwardQuest();
                 resultOK = true;
@@ -1982,7 +2037,7 @@
                     {
                         SecondaryStats.bindgold -= amount;
 
-                        if(spend)
+                        if (spend)
                         {
                             int before = SecondaryStats.Gold + SecondaryStats.bindgold;
                             TongbaoCostBuffAdd(amount);
@@ -2097,6 +2152,9 @@
 
         public void AddAchievementExp(int amt)
         {
+            if (amt <= 0)
+                return;
+
             if (PlayerSynStats.AchievementLevel < AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
             {
                 SecondaryStats.AchievementExp += amt;
@@ -2120,7 +2178,7 @@
 
                 // levelled up to this level, give this level's reward
                 info = AchievementRepo.GetAchievementLevelInfo(PlayerSynStats.AchievementLevel);
-                if (info != null && info.hasReward)
+                if (info != null)
                     AchievementStats.GiveLevelUpReward(info);
             }
 
@@ -2130,7 +2188,7 @@
             UpdateAchievement(AchievementObjectiveType.AchievementLevel, "-1", true, PlayerSynStats.AchievementLevel, false);
         }
 
-        public void AddGuildGold(int amount, Logging.Client.LogClasses.GuildQuestFinish log =null)
+        public void AddGuildGold(int amount, Logging.Client.LogClasses.GuildQuestFinish log = null)
         {
             int guildId = SecondaryStats.guildId;
             if (amount <= 0 && guildId == 0)
@@ -2144,13 +2202,12 @@
             currencyInventory.GuildFundToday += amount;
             currencyInventory.GuildFundTotal += amount;
             GuildRules.AddGuildGold(guildId, amount, Name);
-            if(log!=null)
+            if (log != null)
                 log.wealthAfter = Slot.CharacterData.CurrencyInventory.GuildFundToday;
-
         }
 
         public void AddGuildContribution(int amount, string from)
-        {           
+        {
             if (amount <= 0)
                 return;
             SecondaryStats.contribute += amount;
@@ -2316,7 +2373,7 @@
                     break;
                 case CurrencyType.GuildContribution:
                     curval = SecondaryStats.contribute;
-                    break;               
+                    break;
                 case CurrencyType.LotteryTicket:
                     break;
                 case CurrencyType.BattleCoin:
@@ -2351,10 +2408,10 @@
                     break;
                 case CurrencyType.GuildGold:
                     curval = 0;
-                    if(SecondaryStats.guildId > 0)
+                    if (SecondaryStats.guildId > 0)
                     {
                         GuildStatsServer guildStats = GuildRules.GetGuildById(SecondaryStats.guildId);
-                        if(guildStats != null)
+                        if (guildStats != null)
                         {
                             long max = long.MaxValue;
                             return guildStats.guildGold <= max - amount;
@@ -2392,7 +2449,7 @@
 
         public void LogCurrencyChange(string from, CurrencyType type, int count, int after)
         {
-            Byte currency_byte = (byte)type;
+            byte currency_byte = (byte)type;
             string message = string.Format("source:{0}|type:{1}|amt:{2}|aft:{3}", from, currency_byte, count, after);
             Zealot.Logging.Client.LogClasses.CurrencyChange currencyChangeLog = new Zealot.Logging.Client.LogClasses.CurrencyChange();
             currencyChangeLog.userId = Slot.mUserId;
@@ -2405,28 +2462,29 @@
             var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(currencyChangeLog);
         }
 
-        #endregion
+        #endregion Currency Methods
 
         #region BuffTimeStats Methods
+
         public override int AddSideEffect(SideEffect se, bool positiveEffect)
         {
             int slotid = base.AddSideEffect(se, positiveEffect);
             if (slotid < 0)
             {
                 //if (slotid == -2)
-                    //Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_CantOverrideBuff", "", false, Slot);
+                //Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_CantOverrideBuff", "", false, Slot);
                 return slotid;
             }
-            if (positiveEffect) //set buff to local player so that client know the sideeffect on iteslef
+            if (slotid == (byte)SideEffectsUtils.EffectHandleType.Buff) //set buff to local player so that client know the sideeffect on iteslef
             {
-                BuffTimeStats.Positives[slotid] = se.mSideeffectData.id; 
+                BuffTimeStats.Positives.Add(se.mSideeffectData.id);
                 //For persistent buffs, the starttime could be negative.
             }
-            else
+            else if(slotid == (byte)SideEffectsUtils.EffectHandleType.Debuff)
             {
-                BuffTimeStats.Negatives[slotid] = se.mSideeffectData.id; 
+                BuffTimeStats.Negatives.Add(se.mSideeffectData.id);
             }
- 
+
             return slotid;
         }
 
@@ -2435,14 +2493,14 @@
             int slotid = base.RemoveSideEffect(se, positiveEffect);
             if (slotid < 0)
                 return -1;
-            
-            if (positiveEffect)
-            {
-                BuffTimeStats.Positives[slotid] = (int) 0; 
-            }else
-            {
-                BuffTimeStats.Negatives[slotid] = (int)0;
 
+            if (slotid == (byte)SideEffectsUtils.EffectHandleType.Buff)
+            {
+                BuffTimeStats.Positives.Remove(se.mSideeffectData.id);
+            }
+            else if (slotid == (byte)SideEffectsUtils.EffectHandleType.Debuff)
+            {
+                BuffTimeStats.Negatives.Remove(se.mSideeffectData.id);
             }
             return slotid;
         }
@@ -2459,7 +2517,7 @@
                     se.mTotalElapsedTime = selist[index].Elapsed;
                     se.Apply(this);
                 }
-            } 
+            }
         }
 
         public void RemoveSideEffect(int seid)
@@ -2472,9 +2530,11 @@
                 RemoveSideEffect(se, positiveEffect);
             }
         }
-        #endregion
+
+        #endregion BuffTimeStats Methods
 
         #region SocialStats Methods
+
         public async Task SocialAcceptFriendRequest(string requestNameList)
         {
             if (string.IsNullOrEmpty(requestNameList))
@@ -2490,14 +2550,14 @@
             if (myFriendsDict != null)
             {
                 SocialInfo mySocialInfo = new SocialInfo(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, 0,
-                                                         PlayerSynStats.Level, 0, PlayerSynStats.faction, 
+                                                         PlayerSynStats.Level, 0, PlayerSynStats.faction,
                                                          PlayerSynStats.guildName, true, 0);
                 string mySocialInfoStr = mySocialInfo.ToString();
                 friendRemoveSB.Clear();
-                for (int i=0; i < requestNameListLen; ++i)
+                for (int i = 0; i < requestNameListLen; ++i)
                 {
                     string currRequestName = splitRequestNameList[i];
-                    if(myFriendsDict.Count < max && !myFriendsDict.ContainsKey(currRequestName))
+                    if (myFriendsDict.Count < max && !myFriendsDict.ContainsKey(currRequestName))
                     {
                         GameClientPeer requestPeer = GameApplication.Instance.GetCharPeer(currRequestName);
                         if (requestPeer != null && requestPeer.mPlayer != null) // Current player is online
@@ -2516,9 +2576,9 @@
                             // Add to my friendlist
                             int mySlotIdx = SocialStats.GetAvailableSlotFriends();
                             PlayerSynStats playerSynStats = requestPeer.mPlayer.PlayerSynStats;
-                            SocialInfo currSocialInfo = new SocialInfo(currRequestName, (byte)playerSynStats.PortraitID, playerSynStats.jobsect, 
+                            SocialInfo currSocialInfo = new SocialInfo(currRequestName, (byte)playerSynStats.PortraitID, playerSynStats.jobsect,
                                                                        0, playerSynStats.Level,
-                                                                       0, playerSynStats.faction, 
+                                                                       0, playerSynStats.faction,
                                                                        playerSynStats.guildName, true, mySlotIdx);
                             myFriendsDict[currRequestName] = currSocialInfo;
                             myFriendsList[mySlotIdx] = currSocialInfo.ToString();
@@ -2526,7 +2586,8 @@
                         else // Current player is offline
                         {
                             Dictionary<string, object> dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(currRequestName);
-                            GameApplication.Instance.executionFiber.Enqueue(() => {
+                            GameApplication.Instance.executionFiber.Enqueue(() =>
+                            {
                                 if (dbInfo.Count > 0)
                                 {
                                     string friendListStr = (string)dbInfo["friends"];
@@ -2539,7 +2600,7 @@
                                         sb.Append(mySocialInfoStr);
                                         Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(currRequestName, sb.ToString(), false);
 
-                                        // Add to my friendlist                              
+                                        // Add to my friendlist
                                         string guildName = GuildRules.GetGuildNameById((int)dbInfo["guildid"]);
                                         int mySlotIdx = SocialStats.GetAvailableSlotFriends();
                                         SocialInfo currSocialInfo = new SocialInfo(currRequestName, (int)dbInfo["portraitid"],
@@ -2557,7 +2618,7 @@
                         friendRemoveSB.Append(currRequestName);
                     }
                 }
-                SocialRemoveFriendRequest(friendRemoveSB.ToString()); // Remove accepted friend request               
+                SocialRemoveFriendRequest(friendRemoveSB.ToString()); // Remove accepted friend request
             }
         }
 
@@ -2575,7 +2636,7 @@
             if (myRequestsDict != null && myRequestsDict.Count > 0 && myRequestsList != null)
             {
                 int max = SocialInventoryData.MAX_FRIENDS;
-                for (int i=0; i < playerListLen; ++i)
+                for (int i = 0; i < playerListLen; ++i)
                 {
                     string currName = splitPlayerList[i];
                     if (myRequestsDict.ContainsKey(currName))
@@ -2590,13 +2651,13 @@
         private bool SocialStrContains(string[] socialStrList, string value)
         {
             int socialStrListLen = socialStrList.Length;
-            for(int i=0; i<socialStrListLen; ++i)
+            for (int i = 0; i < socialStrListLen; ++i)
             {
                 string currentStr = socialStrList[i];
-                if(string.IsNullOrEmpty(currentStr))
+                if (string.IsNullOrEmpty(currentStr))
                     continue;
                 int sepIdx = currentStr.IndexOf('`');
-                if(sepIdx != -1 && currentStr.IndexOf(value, 0, sepIdx) != -1)
+                if (sepIdx != -1 && currentStr.IndexOf(value, 0, sepIdx) != -1)
                     return true;
             }
             return false;
@@ -2614,12 +2675,12 @@
             if (myFriendsDict != null && myFriendsDict.Count < max)
             {
                 StringBuilder friendAddSB = new StringBuilder();
-                SocialInfoBase mySocialInfo = new SocialInfoBase(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, 
-                                                                 0, PlayerSynStats.Level, 
+                SocialInfoBase mySocialInfo = new SocialInfoBase(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect,
+                                                                 0, PlayerSynStats.Level,
                                                                  0, 0);
                 string mySocialInfoStr = mySocialInfo.ToString();
                 int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
-                for (int i=0; i < sendPlayerListLen; ++i)
+                for (int i = 0; i < sendPlayerListLen; ++i)
                 {
                     string currSendName = splitSendPlayerList[i];
                     if (currSendName == Name)  // Is yourself
@@ -2661,7 +2722,8 @@
                     else // Current player is offline
                     {
                         Dictionary<string, object> dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(currSendName);
-                        GameApplication.Instance.executionFiber.Enqueue(async () => {
+                        GameApplication.Instance.executionFiber.Enqueue(async () =>
+                        {
                             if (dbInfo.Count > 0)
                             {
                                 int currProgressLvl = (int)dbInfo["progresslevel"];
@@ -2693,7 +2755,7 @@
                             }
                             else
                                 Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_DoesNotExist, "", Slot);
-                        });   
+                        });
                     }
                 }
                 string friendList = friendAddSB.ToString();
@@ -2713,7 +2775,7 @@
                 {
                     myFriendsList[myFriendsDict[playerName].localObjIdx] = null;
                     myFriendsDict.Remove(playerName);
-                    
+
                     // Remove from friend's list
                     GameClientPeer peer = GameApplication.Instance.GetCharPeer(playerName);
                     if (peer != null && peer.mPlayer != null) // Current player is online
@@ -2730,7 +2792,8 @@
                     else // Current player is offline
                     {
                         var dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(playerName);
-                        GameApplication.Instance.executionFiber.Enqueue(() => {
+                        GameApplication.Instance.executionFiber.Enqueue(() =>
+                        {
                             if (dbInfo.Count > 0)
                             {
                                 string friendListStr = (string)dbInfo["friends"];
@@ -2792,7 +2855,7 @@
                 int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
                 for (int i = 0; i < sampleSize; ++i)
                 {
-                    int currIdx = GameUtils.RandomInt(0, sampleSize-1);
+                    int currIdx = GameUtils.RandomInt(0, sampleSize - 1);
                     GameClientPeer currPeer = charPeerDict.Values.ElementAt(currIdx);
                     string currCharName = currPeer.mChar;
                     if (myFriendsDict.ContainsKey(currCharName) || friendsRecDict.ContainsKey(currCharName))
@@ -2804,7 +2867,7 @@
 
                     if (foundCnt != 0) friendSB.Append('|');
                     friendSB.AppendFormat("{0}`{1}`{2}`{3}`{4}`{5}", currCharName, currPlayerSynStats.PortraitID, currPlayerSynStats.jobsect,
-                                          0, currPlayerSynStats.Level, 
+                                          0, currPlayerSynStats.Level,
                                           0);
                     friendRemoveSB.AppendFormat("{0}|", currCharName);
                     friendsRecDict[currCharName] = currCharName;
@@ -2816,7 +2879,8 @@
             if (foundCnt < 5) // If can't find more than 5 from peer list, search from db
             {
                 var dbInfo = await GameApplication.dbRepository.Character.GetSocialRandom(friendRemoveSB.ToString());
-                GameApplication.Instance.executionFiber.Enqueue(() => {
+                GameApplication.Instance.executionFiber.Enqueue(() =>
+                {
                     int dbInfoCnt = dbInfo.Count;
                     if (dbInfoCnt > 0)
                     {
@@ -2865,9 +2929,10 @@
             }
         }
 
-        #endregion
+        #endregion SocialStats Methods
 
         #region Guild Methods
+
         public void ApplyGuildPassiveSE(GuildStatsServer guildStats)
         {
             UpdateAllGuildTechBonus(guildStats.mGuildTechDict, true);
@@ -2876,12 +2941,12 @@
         public void OnCreateGuild(GuildStatsServer guildStats)
         {
             DeductGold(GuildRepo.GetValue("CreateGuildCost"), true, true, "Guild_Create");  // deduct gold here
-            SecondaryStats.guildId = guildStats.guildId;        
+            SecondaryStats.guildId = guildStats.guildId;
             SecondaryStats.guildRank = (byte)GuildRankType.Leader;
             PlayerSynStats.guildName = guildStats.name;
             Slot.ZRPC.CombatRPC.Ret_GuildAdd((byte)GuildReturnCode.Success, Slot);
             AddGuildLocalObject(Slot);
-            OnGuildChange();          
+            OnGuildChange();
         }
 
         public void OnJoinGuild(GuildStatsServer guildStats)
@@ -2903,10 +2968,10 @@
             OnGuildChange();
             SecondaryStats.guildRank = (byte)GuildRankType.Member;
             SecondaryStats.guildLeaveGuildCDEnd = DateTime.Now.AddSeconds(GuildRepo.GetValue("LeaveGuildCooldownTime")).Ticks;
-            Slot.ZRPC.CombatRPC.Ret_GuildLeave(kicked ? (byte)GuildReturnCode.BeKicked : (byte)GuildReturnCode.Success, Slot);          
+            Slot.ZRPC.CombatRPC.Ret_GuildLeave(kicked ? (byte)GuildReturnCode.BeKicked : (byte)GuildReturnCode.Success, Slot);
             UpdateAllGuildTechBonus(guildStats.mGuildTechDict, false);
         }
-      
+
         public void OnGuildTechLevelUp(GuildTechLevelJson techLevelJson)
         {
             float stats = techLevelJson.stats;
@@ -2951,21 +3016,27 @@
                 case GuildTechType.Health:
                     combatStats.AddToField(FieldName.HealthPercBonus, statsMultiple10);
                     break;
+
                 case GuildTechType.Attack:
                     combatStats.AddToField(FieldName.AttackPercBonus, statsMultiple10);
                     break;
+
                 case GuildTechType.Armor:
                     combatStats.AddToField(FieldName.ArmorPercBonus, statsMultiple10);
                     break;
+
                 case GuildTechType.Accuracy:
                     combatStats.AddToField(FieldName.AccuracyPercBonus, statsMultiple10);
                     break;
+
                 case GuildTechType.Evasion:
                     combatStats.AddToField(FieldName.EvasionPercBonus, statsMultiple10);
                     break;
+
                 case GuildTechType.Critical:
                     combatStats.AddToField(FieldName.CriticalPercBonus, statsMultiple10);
                     break;
+
                 case GuildTechType.CoCritical:
                     combatStats.AddToField(FieldName.CocriticalPercBonus, statsMultiple10);
                     break;
@@ -2989,9 +3060,11 @@
             charData.NewGuildWeekDt = GuildRules.bossPrevResetDT;
             charData.GuildBossRewardRealm = 0;
         }
-        #endregion
+
+        #endregion Guild Methods
 
         #region Party Methods
+
         public bool IsInParty()
         {
             return PlayerSynStats.Party > 0 && PartyStats != null;
@@ -3020,6 +3093,7 @@
                 case LeavePartyReason.Disband:
                     Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_LeavePartySuccess", "", false, Slot);
                     break;
+
                 case LeavePartyReason.Kick:
                     Slot.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_party_KickedFromParty", "", false, Slot);
                     break;
@@ -3030,12 +3104,14 @@
             if (HeroStats.SummonedHeroId > 0 && !HeroStats.IsHeroSummoned(HeroStats.SummonedHeroId))
                 HeroStats.SummonHero(HeroStats.SummonedHeroId);
         }
-        #endregion
+
+        #endregion Party Methods
 
         #region TongbaoCostBuff Methods
+
         public void ApplyTongbaoCostBuffPassiveSE()
         {
-            PlayerCombatStats combatStats = (PlayerCombatStats)CombatStats;  
+            PlayerCombatStats combatStats = (PlayerCombatStats)CombatStats;
             foreach (KeyValuePair<int, List<IPassiveSideEffect>> entry in mTongbaoCostBuffPassiveSEs)
             {
                 for (int i = 0; i < entry.Value.Count; i++)
@@ -3079,7 +3155,7 @@
             }
         }
 
-        #endregion
+        #endregion TongbaoCostBuff Methods
 
         public void SetPortraitID(int portraitID)
         {
@@ -3118,7 +3194,7 @@
         {
             return LocalCombatStats.IsInSafeZone || InspectMode; //inspect mode should not be targetd.
         }
-        
+
         /// <summary>
         /// this function is just for  setting localobject status, it is called after ControlStats is updated,
         /// </summary>
@@ -3133,7 +3209,7 @@
 
         public void SetArenaRecord(ArenaPlayerRecord record)
         {
-            //TODO: remove all sideeffects and passive sideeffects. 
+            //TODO: remove all sideeffects and passive sideeffects.
             StopAllSideEffects();
             ResetPassiveSkills();
             //SkillPassiveStats.ResetAll();
@@ -3180,11 +3256,11 @@
 
             ArenaTalentStats ArenaTalentStats = record.ArenaTalentStats;
         }
-        
+
         public void DebugSendCombatStats(GameClientPeer peer)
         {
             peer.ZRPC.CombatRPC.SendMessageToConsoleCmd("*** CombatStats of " + Name + " Start ***", peer);
-                        
+
             //for (int i = 0; i < (int) FieldName.LastField; i++)
             //{
             //    FieldName currFieldName = (FieldName)i;
@@ -3194,9 +3270,11 @@
             //}
 
             List<FieldName>[] field = CombatStats.GetAllFields();
-            for (int i = 0; i < field.Length; i++) {
+            for (int i = 0; i < field.Length; i++)
+            {
                 List<FieldName> currentTierNames = field[i];
-                foreach (FieldName name in currentTierNames) {
+                foreach (FieldName name in currentTierNames)
+                {
                     object val = CombatStats.GetField(name);
                     string desc = name.ToString() + " = " + val.ToString();
                     peer.ZRPC.CombatRPC.SendMessageToConsoleCmd(desc, peer);
@@ -3214,7 +3292,7 @@
             int count = 0;
             for (int i = 0; i < mSideEffectsPos.Length; i++)
             {
-                SideEffect se = mSideEffectsPos[i];                
+                SideEffect se = mSideEffectsPos[i];
                 if (se != null)
                 {
                     peer.ZRPC.CombatRPC.SendMessageToConsoleCmd((++count) + ") " + se.mSideeffectData.id + " : " + se.mSideeffectData.name + " " + (int)(se.GetTimeRemaining() / 1000) + "sec", peer);
@@ -3233,12 +3311,13 @@
                 }
             }
             peer.ZRPC.CombatRPC.SendMessageToConsoleCmd("*** Negative Sideeffects of " + Name + " End ***", peer);
-        }    
+        }
 
         public void SetSkillCDEnd(int skillindex, long endtime)
         {
             mSkillCDEnd[skillindex] = endtime;
         }
+
         public void RemoveMyBuff(int sideID)
         {
             for (int i = 0; i < this.mSideEffectsPos.Length; i++)
@@ -3254,15 +3333,15 @@
             }
         }
 
-        public override void onDragged(Vector3 pos,float dur, float speed)
-        { 
-            Slot.ZRPC.CombatRPC.OnPlayerDragged(pos.ToRPCPosition(),dur, speed, Slot);
+        public override void onDragged(Vector3 pos, float dur, float speed)
+        {
+            Slot.ZRPC.CombatRPC.OnPlayerDragged(pos.ToRPCPosition(), dur, speed, Slot);
         }
 
-        public void TestComboSkill(int mainskillid, SideEffectJson mainsej, SideEffectJson subsej, int lvl = 1, float dur=1.0f)
+        public void TestComboSkill(int mainskillid, SideEffectJson mainsej, SideEffectJson subsej, int lvl = 1, float dur = 1.0f)
         {
         }
-        
+
         public void TongbaoCostBuffAdd(int amount)
         {
             //SystemSwitch Check

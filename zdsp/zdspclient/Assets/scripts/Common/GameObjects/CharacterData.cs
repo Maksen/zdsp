@@ -64,6 +64,10 @@ namespace Zealot.Common
         public int lastlevelid { get; set; }
 
         [DefaultValue("")]
+        [JsonProperty(PropertyName = "removechardt")]
+        public string RemoveCharDT { get; set; }
+
+        [DefaultValue("")]
         [JsonProperty(PropertyName = "roomguid")]
         public string roomguid { get; set; }
 
@@ -209,6 +213,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "equipfusioninv")]
         public EquipFusionInventoryData EquipFusionInventory { get; set; }
 
+        [JsonProperty(PropertyName = "interactivetriggerinv")]
+        public InteractiveTriggerInventoryData InteractiveTriggerInventory { get; set; }
+
         [JsonProperty(PropertyName = "offlineexpinv2")]
         public OfflineExpInventory2 OfflineExpInv2 { get; set; }
 
@@ -297,6 +304,7 @@ namespace Zealot.Common
             PowerUpInventory = new PowerUpInventoryData();
             AchievementInventory = new AchievementInvData();
             ItemLimitData = new ItemUseDropLimitData();
+            InteractiveTriggerInventory = new InteractiveTriggerInventoryData();
         }
 
         /// <summary>
@@ -320,12 +328,13 @@ namespace Zealot.Common
             PowerUpInventory.InitDefault();
             EquipmentCraftInventory.InitDefault();
             EquipFusionInventory.InitDefault();
+            InteractiveTriggerInventory.InitDefault();
         }
 
         public void ValidateDefault()
         {
-            if (EquipmentInventory.FashionSlots.Count == 0)
-                EquipmentInventory.InitDefault();
+            ItemInventory.ValidateDefault();
+            EquipmentInventory.ValidateDefault();
         }
 
         public void RestoreDefaultSkill()
@@ -430,6 +439,18 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "job")]
         public byte JobSect { get; set; }
 
+        [DefaultValue(0)]
+        [JsonProperty(PropertyName = "gender")]
+        public byte Gender { get; set; }
+
+        [DefaultValue(0)]
+        [JsonProperty(PropertyName = "levelid")]
+        public int Levelid { get; set; }
+
+        [DefaultValue("")]
+        [JsonProperty(PropertyName = "removechardt")]
+        public string RemoveCharDT { get; set; }
+
         [JsonProperty(PropertyName = "eqinv")]
         public EquipmentInventoryData EquipmentInventory { get; set; }
 
@@ -443,7 +464,6 @@ namespace Zealot.Common
         /// </summary>
         public void InitDefault(JobType jobsect)
         {
-            EquipmentInventory.InitDefault();
         }
 
         public string SerializeForCharCreation(bool formatIndented = false)
@@ -466,15 +486,11 @@ namespace Zealot.Common
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "equipscore")]
         public int EquipScore { get; set; }
-
-        [DefaultValue(1)]
-        [JsonProperty(PropertyName = "talt")]
-        public byte TalentType { get; set; }
         #endregion
 
         public CharacterCreationData() : base()
         {
-            TalentType = 1;
+            
         }
 
         public static CharacterCreationData DeserializeForCharCreation(string charData)

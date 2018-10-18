@@ -60,4 +60,18 @@ namespace Zealot.Entities
 
         public override string GetServerClassName() { return "RandomTrigger"; }
     }
+
+    public class InteractiveTriggerJson : ServerEntityWithEventJson
+    {
+        public bool activeOnStartup = true;
+        public string archetype = "";
+        public string parentPath = "";
+        public Vector3 forward;
+        public int interactiveTime = 0;
+        public bool interrupt = false;
+        public int counter = 0;
+        public int keyId = 0;
+
+        public override string GetServerClassName() { return "InteractiveTrigger"; }
+    }
 }

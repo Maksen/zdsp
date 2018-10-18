@@ -6,6 +6,7 @@
     using Zealot.Common;
     using Zealot.Common.Entities;
     using Zealot.Server.Entities;
+    using Photon.LoadBalancing.GameServer.CombatFormula;
 
     public class DamageSE : SideEffect {
         protected AttackResult mAttackResult;
@@ -14,8 +15,6 @@
         protected bool mbBasicAttack;//use this value in combatformula
 
         //public SideEffectJson OnTalentHit;
-        private bool isElementalAffected;
-        protected SideEffectJson mElementalDamage;
         protected FieldName elementalName;
 
         public List<SideEffectJson> subskills;
@@ -62,6 +61,19 @@
 
         protected override bool OnApply(int equipid = -1) {
             if (base.OnApply(equipid)) {
+
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+
+                string target = string.Empty;
+                if (mCaster.IsPlayer())
+                    target = "Player";
+                else if (mCaster.IsMonster())
+                    target = "Monster";
+                else if (mCaster.IsHero())
+                    target = "Hero";
+                else
+                    target = "Player";
+
                 ApplyElemental();
                 ComputeDamage();
                 ApplyDamage();
@@ -82,8 +94,16 @@
                     Player theplayer = mCaster as Player;
                     theplayer.HandleHitCombo();
                 }
-
+                
                 ResetElemental();
+
+                watch.Stop();
+
+                Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log(target, "AAR : ");
+                Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log(target, "Attacker " + mCaster.Name + " HP : " + mCaster.GetHealth());
+                Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log(target, "Defender " + mTarget.Name + " HP : " + mTarget.GetHealth());
+                Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Profile", "System Time : " + watch.ElapsedMilliseconds + "ms");
+                Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log(target, "--------------------------------------------");
 
                 return true;
             }
@@ -105,13 +125,6 @@
         }
 
         protected void ApplyElemental() {
-            if (mCaster.AddElementalSE(mSideeffectData)) {
-                isElementalAffected = true;
-            }
-            else
-                return;
-
-
             if (mSideeffectData.effecttype == EffectType.Damage_NoElementDamage) {
                 elementalName = FieldName.NullDamageBonus;
             }
@@ -131,15 +144,14 @@
                 elementalName = FieldName.WaterDamageBonus;
             }
 
-            mCaster.CombatStats.AddToField(elementalName, (int)mSideeffectData.basicskilldamageperc);
+            mCaster.CombatStats.AddToField(elementalName, mSideeffectData.basicskilldamageperc);
             mCaster.CombatStats.ComputeAll();
         }
 
         protected void ResetElemental() {
-            if (!isElementalAffected) return;
-
-            mCaster.CombatStats.AddToField(elementalName, -(int)mSideeffectData.basicskilldamageperc);
+            mCaster.CombatStats.AddToField(elementalName, -mSideeffectData.basicskilldamageperc);
             elementalName = FieldName.NullDamageBonus;
+            mCaster.CombatStats.ComputeAll();
         }
 
         protected void ComputeDamage() {
@@ -161,58 +173,45 @@
             else {
                 package.basicsInfo.defender = AttackStyle.Slice; // this is hack only since not implemented...
                 package.basicsInfo.monsterType = MonsterType.Normal;
-                package.basicsInfo.elementInfo.attacker = (Element)mCaster.CombatStats.GetField(FieldName.Element); // this is a hack only
+                package.basicsInfo.elementInfo.attacker = (Element)mCaster.CombatStats.GetField(FieldName.Element);
                 package.basicsInfo.race.attacker = Race.Human;
                 package.basicsInfo.isDefenderNPC = false;
             }
             package.basicsInfo.weaponAttribute = MainWeaponAttribute.Str; // this is hack only 
 
-            //if (mbBasicAttack) {
-            //    CombatFormula.GeneratePackage(package);
-            //    mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-            //}
-            //else {
-                if (mSideeffectData.effecttype == EffectType.Damage_NoElementDamage) {
-                    //mAttackResult = CombatFormula.ComputeDamage(mCaster, mTarget, mSideeffectData, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    package.basicsInfo.elementInfo.attacker = Element.None;
-                    //CombatFormula.GeneratePackage(package);
-                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                }
-                else if (mSideeffectData.effecttype == EffectType.Damage_MetalDamage) {
-                    package.basicsInfo.elementInfo.attacker = Element.Metal;
-                    //CombatFormula.GeneratePackage(package);
-                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_MetalDamage;
-                }
-                else if (mSideeffectData.effecttype == EffectType.Damage_WoodDamage) {
-                    package.basicsInfo.elementInfo.attacker = Element.Wood;
-                    //CombatFormula.GeneratePackage(package);
-                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_WoodDamage;
-                }
-                else if (mSideeffectData.effecttype == EffectType.Damage_EarthDamage) {
-                    package.basicsInfo.elementInfo.attacker = Element.Earth;
-                    //CombatFormula.GeneratePackage(package);
-                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_EarthDamage;
-                }
-                else if (mSideeffectData.effecttype == EffectType.Damage_WaterDamage) {
-                    package.basicsInfo.elementInfo.attacker = Element.Water;
-                    //CombatFormula.GeneratePackage(package);
-                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_WaterDamage;
-                }
-                else if (mSideeffectData.effecttype == EffectType.Damage_FireDamage) {
-                    package.basicsInfo.elementInfo.attacker = Element.Fire;
-                    //CombatFormula.GeneratePackage(package);
-                    //mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                    //mTarget.PlayerStats.ElementalVisualSE |= (int)EffectType.Damage_FireDamage;
-                }
+            if (mSideeffectData.effecttype == EffectType.Damage_NoElementDamage) {
+                package.basicsInfo.elementInfo.attacker = Element.None;
+            }
+            else if (mSideeffectData.effecttype == EffectType.Damage_MetalDamage) {
+                package.basicsInfo.elementInfo.attacker = Element.Metal;
+            }
+            else if (mSideeffectData.effecttype == EffectType.Damage_WoodDamage) {
+                package.basicsInfo.elementInfo.attacker = Element.Wood;
+            }
+            else if (mSideeffectData.effecttype == EffectType.Damage_EarthDamage) {
+                package.basicsInfo.elementInfo.attacker = Element.Earth;
+            }
+            else if (mSideeffectData.effecttype == EffectType.Damage_WaterDamage) {
+                package.basicsInfo.elementInfo.attacker = Element.Water;
+            }
+            else if (mSideeffectData.effecttype == EffectType.Damage_FireDamage) {
+                package.basicsInfo.elementInfo.attacker = Element.Fire;
+            }
 
-                CombatFormula.GeneratePackage(package);
-                mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
-                mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
-            //}
+
+            string target = string.Empty;
+            if (mCaster.IsPlayer())
+                package.target = "Player";
+            else if (mCaster.IsMonster())
+                package.target = "Monster";
+            else if (mCaster.IsHero())
+                package.target = "Hero";
+            else
+                package.target = "Player";
+
+            CombatFormula.GeneratePackage(package);
+            mAttackResult = CombatFormula.ComputeDamage(package, mSkillDmgPercent, mExtraDamage, isDot, mbBasicAttack);
+            mTarget.PlayerStats.ElementalVisualSE = mSideeffectData.id;
             
             
             mAttackResult.TargetPID = mTarget.GetPersistentID();

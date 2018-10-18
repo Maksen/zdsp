@@ -6,26 +6,34 @@ using Zealot.Common;
 
 namespace Zealot.Repository
 {
-    public class CollectionObjective
+    public abstract class BaseAchievementObjective
     {
-        public CollectionObjectiveJson json;
         public int id;
-        public CollectionType type;
-        public int targetId;
+        public string localizedName;
         public int exp;
         public AchievementRewardType rewardType;
         public int rewardId;
         public int rewardCount;
+        public string rewardIconPath;
+    }
+
+    public class CollectionObjective : BaseAchievementObjective
+    {
+        public CollectionObjectiveJson json;
+        public CollectionType type;
+        public int targetId;
         public List<SideEffectJson> storeSEs = new List<SideEffectJson>();
 
         public CollectionObjective(CollectionObjectiveJson json)
         {
             this.json = json;
             id = json.cid;
+            localizedName = json.localizedname;
             type = json.ctype;
             targetId = json.targetid;
             exp = json.exp;
             rewardType = json.rewardtype;
+            rewardIconPath = json.rewardiconpath;
             if (rewardType != AchievementRewardType.None && !string.IsNullOrEmpty(json.reward))
             {
                 string[] reward = json.reward.Split(';');
@@ -49,26 +57,22 @@ namespace Zealot.Repository
         }
     }
 
-    public class AchievementObjective
+    public class AchievementObjective : BaseAchievementObjective
     {
         public AchievementObjectiveJson json;
-        public int id;
-        public int slotIdx;
-        public int mainType;
+        public AchievementType mainType;
         public int subType;
         public AchievementObjectiveType objType;
         public string target;
         public int completeCount;
-        public int exp;
-        public AchievementRewardType rewardType;
-        public int rewardId;
-        public int rewardCount;
+        public LISAFunction rewardFunction = LISAFunction.None;
+        public int rewardFunctionValue;
 
-        public AchievementObjective(AchievementObjectiveJson json, int maintype, int idx)
+        public AchievementObjective(AchievementObjectiveJson json, AchievementType maintype)
         {
             this.json = json;
             id = json.achid;
-            slotIdx = idx;
+            localizedName = json.localizedname;
             mainType = maintype;
             subType = json.subtype;
             objType = json.objtype;
@@ -76,12 +80,22 @@ namespace Zealot.Repository
             completeCount = json.count;
             exp = json.exp;
             rewardType = json.rewardtype;
+            rewardIconPath = json.rewardiconpath;
             if (rewardType != AchievementRewardType.None && !string.IsNullOrEmpty(json.reward))
             {
                 string[] reward = json.reward.Split(';');
                 rewardId = int.Parse(reward[0]);
                 if (reward.Length > 1)
                     rewardCount = int.Parse(reward[1]);
+            }
+        }
+
+        public void AddRewardFunction(LISAFunction function, int value)
+        {
+            if (function != LISAFunction.None)
+            {
+                rewardFunction = function;
+                rewardFunctionValue = value;
             }
         }
     }
@@ -96,6 +110,8 @@ namespace Zealot.Repository
         public List<ItemInfo> rewardItems = new List<ItemInfo>();
         public Dictionary<CurrencyType, int> currencies = new Dictionary<CurrencyType, int>();
         public List<SideEffectJson> sideEffects = new List<SideEffectJson>();
+        public LISAFunction rewardFunction = LISAFunction.None;
+        public int rewardFunctionValue;
 
         public AchievementLevel(AchievementLevelJson json)
         {
@@ -125,6 +141,15 @@ namespace Zealot.Repository
                     if (se != null)
                         sideEffects.Add(se);
                 }
+            }
+        }
+
+        public void AddRewardFunction(LISAFunction function, int value)
+        {
+            if (function != LISAFunction.None)
+            {
+                rewardFunction = function;
+                rewardFunctionValue = value;
             }
         }
     }
@@ -240,20 +265,17 @@ namespace Zealot.Repository
         public static Dictionary<int, PhotoDescGroup> collectionPhotoDescriptions; // party member count -> descriptions
 
         // Achievements
-        public static Dictionary<int, AchievementMainTypeJson> achievementMainTypes;
+        public static Dictionary<AchievementType, AchievementMainTypeJson> achievementMainTypes;
         public static Dictionary<int, AchievementSubTypeJson> achievementSubTypes;
-        public static Dictionary<int, List<AchievementSubTypeJson>> achievementMainToSubTypes; // main -> sorted sub
+        public static Dictionary<AchievementType, List<AchievementSubTypeJson>> achievementMainToSubTypes; // main -> sorted sub
         public static Dictionary<int, AchievementObjective> achievementObjectives; // key = id
         public static Dictionary<int, List<AchievementObjective>> achievementSubTypeToObjectives; // subtype -> sorted
         public static Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>> achievementKeyToObjectives; // server use
         public static Dictionary<AchievementObjectiveType, List<string>> achievementObjTypeToTargets; // list of targets for each obj type
 
-        public static Dictionary<int, int> achieveMainTypeToIndexMap;
-
-
         public static Dictionary<int, AchievementLevel> achievementLevels;
         public static Dictionary<int, LISATransformTierJson> lisaTiers; // tier -> json
-        public static List<LISARewardJson> lisaRewards;
+        public static Dictionary<LISAFunctionTriggerType, List<LISAExternalFunctionJson>> lisaExternalFunctions;
         public static Dictionary<LISAMsgBehaviourType, LISAMessageDirectionGroup> lisaMsgBehaviours;
         public static Dictionary<LISAMsgDirectionType, LISAMessageGroup> lisaMsgGroups;
 
@@ -267,19 +289,17 @@ namespace Zealot.Repository
             collectionKeyToObjective = new Dictionary<Pair<CollectionType, int>, CollectionObjective>();
             collectionPhotoDescriptions = new Dictionary<int, PhotoDescGroup>();
 
-            achievementMainTypes = new Dictionary<int, AchievementMainTypeJson>();
+            achievementMainTypes = new Dictionary<AchievementType, AchievementMainTypeJson>();
             achievementSubTypes = new Dictionary<int, AchievementSubTypeJson>();
-            achievementMainToSubTypes = new Dictionary<int, List<AchievementSubTypeJson>>();
+            achievementMainToSubTypes = new Dictionary<AchievementType, List<AchievementSubTypeJson>>();
             achievementObjectives = new Dictionary<int, AchievementObjective>();
             achievementSubTypeToObjectives = new Dictionary<int, List<AchievementObjective>>();
             achievementKeyToObjectives = new Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>>();
             achievementObjTypeToTargets = new Dictionary<AchievementObjectiveType, List<string>>();
 
-            achieveMainTypeToIndexMap = new Dictionary<int, int>();
-
             achievementLevels = new Dictionary<int, AchievementLevel>();
             lisaTiers = new Dictionary<int, LISATransformTierJson>();
-            lisaRewards = new List<LISARewardJson>();
+            lisaExternalFunctions = new Dictionary<LISAFunctionTriggerType, List<LISAExternalFunctionJson>>();
             lisaMsgBehaviours = new Dictionary<LISAMsgBehaviourType, LISAMessageDirectionGroup>();
             lisaMsgGroups = new Dictionary<LISAMsgDirectionType, LISAMessageGroup>();
         }
@@ -300,11 +320,9 @@ namespace Zealot.Repository
             achievementKeyToObjectives.Clear();
             achievementObjTypeToTargets.Clear();
 
-            achieveMainTypeToIndexMap.Clear();
-
             achievementLevels.Clear();
             lisaTiers.Clear();
-            lisaRewards.Clear();
+            lisaExternalFunctions.Clear();
             lisaMsgBehaviours.Clear();
             lisaMsgGroups.Clear();
         }
@@ -318,8 +336,6 @@ namespace Zealot.Repository
 
             foreach (var entry in gameData.CollectionObjective)
             {
-                if (!collectionCategories.ContainsKey(entry.Value.ctype))
-                    continue;
                 CollectionObjective obj = new CollectionObjective(entry.Value);
                 collectionObjectives.Add(obj.id, obj);
 
@@ -340,17 +356,11 @@ namespace Zealot.Repository
                 collectionPhotoDescriptions[entry.Value.membercount].AddToGroup(entry.Value);
             }
 
-            achievementMainTypes = gameData.AchievementMainType;
-
-            // for main type to collectionhandler index (in case type id deleted or not consecutive)
-            int index = 0;
-            foreach (var entry in achievementMainTypes)
-                achieveMainTypeToIndexMap[entry.Value.id] = index++;
+            foreach (var entry in gameData.AchievementMainType)
+                achievementMainTypes.Add(entry.Value.maintype, entry.Value);
 
             foreach (var entry in gameData.AchievementSubType)
             {
-                if (!achievementMainTypes.ContainsKey(entry.Value.maintype))
-                    continue;
                 achievementSubTypes.Add(entry.Key, entry.Value);
 
                 if (achievementMainToSubTypes.ContainsKey(entry.Value.maintype))
@@ -365,8 +375,8 @@ namespace Zealot.Repository
             {
                 if (!achievementSubTypes.ContainsKey(entry.Value.subtype))
                     continue;
-                int mainType = GetAchievementMainTypeBySubType(entry.Value.subtype);
-                AchievementObjective obj = new AchievementObjective(entry.Value, mainType, achieveMainTypeToIndexMap[mainType]);
+                AchievementType mainType = GetAchievementMainTypeBySubType(entry.Value.subtype);
+                AchievementObjective obj = new AchievementObjective(entry.Value, mainType);
                 achievementObjectives.Add(obj.id, obj);
 
                 if (achievementSubTypeToObjectives.ContainsKey(obj.subType))
@@ -403,7 +413,28 @@ namespace Zealot.Repository
             foreach (var entry in gameData.LISATransformTier)
                 lisaTiers.Add(entry.Value.tierid, entry.Value);
 
-            lisaRewards = gameData.LISAReward.Values.OrderBy(x => x.sortorder).ToList();
+            foreach (var entry in gameData.LISAExternalFunction)
+            {
+                if (lisaExternalFunctions.ContainsKey(entry.Value.triggertype))
+                    lisaExternalFunctions[entry.Value.triggertype].Add(entry.Value);
+                else
+                    lisaExternalFunctions.Add(entry.Value.triggertype, new List<LISAExternalFunctionJson>() { entry.Value });
+
+                if (entry.Value.triggertype == LISAFunctionTriggerType.AchievementLV)
+                {
+                    var levelinfo = GetAchievementLevelInfo(entry.Value.triggervalue);
+                    if (levelinfo != null)
+                        levelinfo.AddRewardFunction(entry.Value.functiontype, entry.Value.functionvalue);
+                }
+                else // AchievementID
+                {
+                    var achObj = GetAchievementObjectiveById(entry.Value.triggervalue);
+                    if (achObj != null)
+                        achObj.AddRewardFunction(entry.Value.functiontype, entry.Value.functionvalue);
+                }
+            }
+            foreach (var type in lisaExternalFunctions.Keys.ToList())
+                lisaExternalFunctions[type] = lisaExternalFunctions[type].OrderBy(x => x.sortorder).ToList(); // stable sort
 
             foreach (var entry in gameData.LISAMsgBehaviour)
             {
@@ -418,6 +449,14 @@ namespace Zealot.Repository
                     lisaMsgGroups.Add(entry.Value.directiontype, new LISAMessageGroup());
                 lisaMsgGroups[entry.Value.directiontype].AddToGroup(entry.Value);
             }
+        }
+
+        public static BaseAchievementObjective GetObjectiveByTypeAndId(AchievementKind type, int id)
+        {
+            if (type == AchievementKind.Collection)
+                return GetCollectionObjectiveById(id);
+            else
+                return GetAchievementObjectiveById(id);
         }
 
         public static CollectionObjective GetCollectionObjectiveById(int id)
@@ -458,7 +497,7 @@ namespace Zealot.Repository
             return objList;
         }
 
-        public static int GetAchievementObjectiveCountByMainType(int mainType)
+        public static int GetAchievementObjectiveCountByMainType(AchievementType mainType)
         {
             return achievementObjectives.Values.Count(x => x.mainType == mainType);
         }
@@ -479,14 +518,14 @@ namespace Zealot.Repository
             return "";
         }
 
-        public static int GetAchievementMainTypeBySubType(int subType)
+        public static AchievementType GetAchievementMainTypeBySubType(int subType)
         {
             foreach(var kvp in achievementMainToSubTypes)
             {
                 if (kvp.Value.Exists(x => x.id == subType))
                     return kvp.Key;
             }
-            return 0;
+            return AchievementType.Others;
         }
 
         public static AchievementLevel GetAchievementLevelInfo(int currentLevel)
@@ -512,6 +551,14 @@ namespace Zealot.Repository
                     json = entry;
             }
             return json;
+        }
+
+        public static List<LISAExternalFunctionJson> GetExternalFunctionsByTriggerType(LISAFunctionTriggerType triggerType)
+        {
+            List<LISAExternalFunctionJson> list;
+            if (lisaExternalFunctions.TryGetValue(triggerType, out list))
+                return list;
+            return new List<LISAExternalFunctionJson>();
         }
     }
 }

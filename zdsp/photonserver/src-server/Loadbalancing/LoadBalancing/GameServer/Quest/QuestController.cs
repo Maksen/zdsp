@@ -1528,9 +1528,12 @@ namespace Photon.LoadBalancing.GameServer
             return false;
         }
 
-        public void SubmiteEmptyObjective(int questid)
+        public void SubmiteEmptyObjective(List<int> questlist)
         {
-            UpdateObjectiveStatus(UpdateObjectiveType.Empty, 0, 1, 0, questid);
+            foreach(int questid in questlist)
+            {
+                UpdateObjectiveStatus(UpdateObjectiveType.Empty, 0, 1, 0, questid);
+            }
         }
 
         public void ApplyEventSE(int eventid, int questid)

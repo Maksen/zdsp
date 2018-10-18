@@ -113,6 +113,7 @@
         public int LabelNum { get; set; }
         public bool IsCritical { get; set; }
         public bool IsEvasion { get; set; }
+        public bool IsBlocked { get; set; }
 
         public bool IsDot { get; set; }
 
@@ -133,6 +134,8 @@
                     res |= 8;
                 if (IsHeal)
                     res |= 16;
+                if (IsBlocked)
+                    res |= 32;
                 return res;
                
             }
@@ -155,6 +158,8 @@
                 {
                     IsHeal = true;
                 }
+                if ((value & 32) > 0)
+                    IsBlocked = true;
             }
         }
 

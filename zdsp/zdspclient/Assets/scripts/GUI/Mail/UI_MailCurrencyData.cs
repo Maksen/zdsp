@@ -27,14 +27,14 @@ public class UI_MailCurrencyData : MonoBehaviour
     public void SetValue(CurrencyType type, int amt)
     {
         mCurType = type;
-        mCurrencyIcon.sprite = ClientUtils.GetCurrencyIcon(type);
+        mCurrencyIcon.sprite = ClientUtils.LoadCurrencyIcon(type);
         mCurrencyValue.text = amt.ToString();
     }
 
     public void SetValue(CurrencyType type, string amt)
     {
         mCurType = type;
-        mCurrencyIcon.sprite = ClientUtils.GetCurrencyIcon(type);
+        mCurrencyIcon.sprite = ClientUtils.LoadCurrencyIcon(type);
         mCurrencyValue.text = amt;
     }
 }

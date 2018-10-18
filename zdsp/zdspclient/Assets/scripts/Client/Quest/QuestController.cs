@@ -1891,7 +1891,6 @@ public class QuestClientController
                     }
                 }
             }
-            AutoProceedObjective(questData);
         }
         else if (status == QuestStatus.CompletedAllObjective)
         {
@@ -1908,37 +1907,6 @@ public class QuestClientController
             {
                 CloseNpcTalk();
             }
-        }
-    }
-
-    private void AutoProceedObjective(CurrentQuestData questData)
-    {
-        List<int> objectivelist = new List<int>();
-
-        foreach(int mainid in questData.MainObjective.ObjectiveIds)
-        {
-            QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(mainid);
-            if (objectiveJson != null && objectiveJson.type == QuestObjectiveType.Empty)
-            {
-                objectivelist.Add(mainid);
-            }
-        }
-
-        foreach (KeyValuePair<int, CurrentObjectiveData> entry in questData.SubObjective)
-        {
-            foreach (int subid in entry.Value.ObjectiveIds)
-            {
-                QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(subid);
-                if (objectiveJson != null && objectiveJson.type == QuestObjectiveType.Empty)
-                {
-                    objectivelist.Add(subid);
-                }
-            }
-        }
-        
-        if (objectivelist.Count > 0)
-        {
-            RPCFactory.NonCombatRPC.SubmitEmptyObjective(questData.QuestId);
         }
     }
 
@@ -2623,5 +2591,10 @@ public class QuestClientController
             }
         }
         return false;
+    }
+
+    public void CheckObjectiveForAutoProceed(CurrentQuestData questData)
+    {
+        
     }
 }

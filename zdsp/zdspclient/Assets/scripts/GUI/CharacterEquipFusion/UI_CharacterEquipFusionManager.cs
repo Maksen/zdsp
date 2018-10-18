@@ -43,6 +43,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
     [SerializeField] private GameObject materialPanel;
     [SerializeField] private Button fusionButton;
     [SerializeField] private Text costCurrencyText;
+    [SerializeField] private Text playerCurrencyText;
 
     PlayerGhost player;
 
@@ -427,12 +428,19 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
             mine.FinishedFusion();
             mine.InitVariable();
             mine.RefreshData();
+            mine.UpdateCurrency();
         }
     }
 
     public void NotEnoughMaterial ()
     {
         //Add buy material windows
+    }
+
+    public void UpdateCurrency()
+    {
+        int currency = player.SecondaryStats.Money;
+        playerCurrencyText.text = currency.ToString("N0");
     }
 
     string BuildMaterialItem ()

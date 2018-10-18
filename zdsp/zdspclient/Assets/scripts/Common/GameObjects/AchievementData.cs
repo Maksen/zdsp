@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using Zealot.Common.Entities;
 
 namespace Zealot.Common
 {
@@ -10,20 +8,34 @@ namespace Zealot.Common
         public static readonly int MAX_RECORDS = 3;
     }
 
-    public enum AchievementType
+    public enum AchievementKind
     {
         Collection,
         Achievement
     }
 
-    public class CollectionElement
+    public abstract class BaseAchievementElement
     {
         public int Id { get; set; }
+        public bool Claimed { get; set; }
+        public int SlotIdx { get; set; } // server use only
+
+        public virtual bool IsCompleted()
+        {
+            return true;
+        }
+
+        public virtual string ToClientString()
+        {
+            return "";
+        }
+    }
+
+    public class CollectionElement : BaseAchievementElement
+    {
         public DateTime CollectDate { get; set; }
-        public bool Claimed { get; set; }  // server use only
         public string PhotoDesc { get; set; }
         public bool Stored { get; set; }
-        public int SlotIdx { get; set; } // server use only
 
         public CollectionElement(int id, DateTime date, bool claim, string photodesc, bool store, int idx)
         {
@@ -35,24 +47,21 @@ namespace Zealot.Common
             SlotIdx = idx;
         }
 
-        public string ToClientString()
+        public override string ToClientString()
         {
             if (Stored)
-                return string.Format("{0};{1};1", Id, CollectDate.ToString("yyyy/MM/dd"));
+                return string.Format("{0};{1};{2};1", Id, CollectDate.ToString("yyyy/MM/dd"), Claimed ? 1 : 0);
             else if (!string.IsNullOrEmpty(PhotoDesc))
-                return string.Format("{0};{1};{2}", Id, CollectDate.ToString("yyyy/MM/dd"), PhotoDesc);
+                return string.Format("{0};{1};{2};{3}", Id, CollectDate.ToString("yyyy/MM/dd"), Claimed ? 1 : 0, PhotoDesc);
             else
-                return string.Format("{0};{1}", Id, CollectDate.ToString("yyyy/MM/dd"));
+                return string.Format("{0};{1};{2}", Id, CollectDate.ToString("yyyy/MM/dd"), Claimed ? 1 : 0);
         }
     }
 
-    public class AchievementElement
+    public class AchievementElement : BaseAchievementElement
     {
-        public int Id { get; set; }
         public int Count { get; set; }
         public int CompleteCount { get; set; }
-        public bool Claimed { get; set; } // server use only
-        public int SlotIdx { get; set; } // server use only
 
         public AchievementElement(int id, int count, int completecount, bool claim, int idx)
         {
@@ -87,28 +96,46 @@ namespace Zealot.Common
             Count = Math.Min(CompleteCount, Count);
         }
 
-        public bool IsCompleted()
+        public override bool IsCompleted()
         {
             return Count >= CompleteCount;
         }
 
-        public string ToClientString()
+        public override string ToClientString()
         {
-            return string.Format("{0};{1}", Id, Count);
+            return string.Format("{0};{1};{2}", Id, Count, Claimed ? 1 : 0);
         }
     }
 
     public class AchievementRewardClaim
     {
-        public AchievementType ClaimType { get; set; }
+        public AchievementKind ClaimType { get; set; }
         public int Id { get; set; }
 
-        public AchievementRewardClaim(AchievementType type, int id)
+        public AchievementRewardClaim(AchievementKind type, int id)
         {
             ClaimType = type;
             Id = id;
         }
     }
+
+    // client use
+    public struct AchievementReward
+    {
+        public AchievementRewardType rewardType;
+        public int rewardId;
+        public float rewardCount;
+        public string iconPath;
+
+        public AchievementReward(AchievementRewardType type, int id, float count, string path)
+        {
+            rewardType = type;
+            rewardId = id;
+            rewardCount = count;
+            iconPath = path;
+        }
+    }
+
 
     public class AchievementRecord
     {

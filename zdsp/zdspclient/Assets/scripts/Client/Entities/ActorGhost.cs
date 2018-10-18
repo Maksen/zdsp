@@ -75,7 +75,7 @@ namespace Zealot.Client.Entities
 
         protected virtual void PlayStunEffect(bool bplay)
         {
-
+            PlayEffect("", "stun");
         }
 
         private long gethittime = 0;
@@ -215,7 +215,7 @@ namespace Zealot.Client.Entities
                     case EffectVisualTypes.Stun:
                         {
                             //Debug.Log("stun start..");
-
+                            PlayStunEffect(true);
                         }
                         break;
 
@@ -260,6 +260,7 @@ namespace Zealot.Client.Entities
                     case EffectVisualTypes.Stun:
                         {
                             //Debug.Log("stun stop...");
+                            StopEffect("stun");
                         }
                         break;
 
@@ -382,6 +383,7 @@ namespace Zealot.Client.Entities
                     //Debug.Log("To Play elemental Effect: " + se.name);
                     if (value != null)
                     {
+                        mPrevPosVisualSEName = se.name;
                         PlaySEEffect(se.name);
                     }
                 }

@@ -20,7 +20,10 @@ namespace Zealot.Server.Entities
             if (!IsCorrectController())
                 return;
             //mRealmInfo = RealmRepo.TutorialRealmJson;
-            //mRealmTutorialInfo = (RealmTutorialJson)mRealmInfo;           
+            //mRealmTutorialInfo = (RealmTutorialJson)mRealmInfo; 
+
+            
+
         }
 
         public override bool IsCorrectController()
@@ -35,7 +38,12 @@ namespace Zealot.Server.Entities
 
             //JobsectJson jobsectJson = JobSectRepo.GetJobById(player.Slot.CharacterData.JobSect);
             //LevelJson lvlJson = LevelRepo.GetInfoById(jobsectJson.level); 
-            //player.Slot.SetDefaultLevelBeforeEnterRealm(lvlJson.unityscene, Vector3.zero);      
+            //player.Slot.SetDefaultLevelBeforeEnterRealm(lvlJson.unityscene, Vector3.zero); 
+
+            // Add skill to player
+            mPlayer.SkillStats.SkillGroupIndex[70] = mPlayer.SkillStats.SkillInvCount;
+            mPlayer.SkillStats.SkillInv[mPlayer.SkillStats.SkillInvCount++] = 70;
+            mPlayer.SkillStats.SkillInv[mPlayer.SkillStats.SkillInvCount++] = 128;
         }
 
         public override void OnMissionCompleted(bool success, bool broadcast)
@@ -51,8 +59,13 @@ namespace Zealot.Server.Entities
             {
                 peer.CharacterData.TrainingRealmDone = true;
 
+                // remove skill
+                mPlayer.SkillStats.SkillGroupIndex[70] = 0;
+                mPlayer.SkillStats.SkillInv[--mPlayer.SkillStats.SkillInvCount] = 0;
+                mPlayer.SkillStats.SkillInv[--mPlayer.SkillStats.SkillInvCount] = 0;
+
                 /*********************   Faction reward    ***************************/
-                
+
                 if (peer.CharacterData.GetRecommendedFactionReward)
                 {
                     string res = GameConstantRepo.GetConstant("RecommendedFactionRewardItemID");

@@ -31,6 +31,7 @@ namespace Zealot.Common.Entities
         Hero = 18 | EntityTypeAttribute.ETA_NET,
         HeroGhost = 19 | EntityTypeAttribute.ETA_NET | EntityTypeAttribute.ETA_GHOST,
         CompanionGhost = 20,
+        InteractiveTrigger = 21 | EntityTypeAttribute.ETA_NET,
     }
 
     public abstract class Entity
@@ -126,6 +127,11 @@ namespace Zealot.Common.Entities
         public bool IsHero()
         {
             return EntityType == EntityType.Hero || EntityType == EntityType.HeroGhost;
+        }
+
+        public bool IsInteractiveTrigger()
+        {
+            return EntityType == EntityType.InteractiveTrigger;
         }
 
         public virtual void OnRemove()

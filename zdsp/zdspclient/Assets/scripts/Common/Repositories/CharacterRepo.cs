@@ -41,14 +41,14 @@ namespace Zealot.Repository
             }
         }
 
-        public static Dictionary<int, AppearanceJson> GetCustomizeDatas(ApperanceType apperanceType, List<int> ownedlist)
+        public static Dictionary<int, AppearanceJson> GetCustomizeDatas(ApperanceType apperanceType, ApperanceGender gender, List<int> ownedlist)
         {
             Dictionary<int, AppearanceJson> result = new Dictionary<int, AppearanceJson>();
             if (mAppearanceIdMapByPartType.ContainsKey(apperanceType))
             {
                 foreach (KeyValuePair<int, AppearanceJson> entry in mAppearanceIdMapByPartType[apperanceType])
                 {
-                    if (entry.Value.currencytype == ApperanceCurrency.Free || ownedlist.Contains(entry.Key))
+                    if ((entry.Value.currencytype == ApperanceCurrency.Free || ownedlist.Contains(entry.Key)) && (entry.Value.gender == gender || entry.Value.gender == ApperanceGender.All))
                     {
                         result.Add(entry.Key, entry.Value);
                     }
@@ -70,6 +70,48 @@ namespace Zealot.Repository
             }
             
             return null;
+        }
+
+        public static string GetMeshPathByPartId(int partid, ApperanceType apperanceType)
+        {
+            if (mAppearanceIdMapByPartType.ContainsKey(apperanceType))
+            {
+                Dictionary<int, AppearanceJson> customizedatas = mAppearanceIdMapByPartType[apperanceType];
+                if (customizedatas.ContainsKey(partid))
+                {
+                    return customizedatas[partid].meshpath;
+                }
+            }
+
+            return "";
+        }
+
+        public static string GetMaterialPathByPartId(int partid, ApperanceType apperanceType)
+        {
+            if (mAppearanceIdMapByPartType.ContainsKey(apperanceType))
+            {
+                Dictionary<int, AppearanceJson> customizedatas = mAppearanceIdMapByPartType[apperanceType];
+                if (customizedatas.ContainsKey(partid))
+                {
+                    return customizedatas[partid].materialpath;
+                }
+            }
+
+            return "";
+        }
+
+        public static string GetColorCodeByPartId(int partid, ApperanceType apperanceType)
+        {
+            if (mAppearanceIdMapByPartType.ContainsKey(apperanceType))
+            {
+                Dictionary<int, AppearanceJson> customizedatas = mAppearanceIdMapByPartType[apperanceType];
+                if (customizedatas.ContainsKey(partid))
+                {
+                    return "#" + customizedatas[partid].color;
+                }
+            }
+
+            return "";
         }
 
         public static string GetRandomName()

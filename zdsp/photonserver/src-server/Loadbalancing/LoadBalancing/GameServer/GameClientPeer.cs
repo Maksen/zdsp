@@ -529,8 +529,6 @@ namespace Photon.LoadBalancing.GameServer
                         characterData = CharacterData.DeserializeFromDB(strCharData);
                         if (characterData != null)
                         {
-                            characterData.Gender = (byte)Gender.Female;
-                            //characterData.JobSect = (byte)JobType.Newbie;
                             mChar = charName;
                             application.AddCharPeer(charName, this);
                             mLastSaveCharacterDT = DateTime.Now;
@@ -634,6 +632,13 @@ namespace Photon.LoadBalancing.GameServer
             var saved = SaveUserAndCharacterData();
         }
 
+        public void SaveCharacterForRemoveCharacter(string charid, string charname, CharacterData characterData)
+        {
+            mLastSaveCharacterDT = DateTime.Now;
+            LogLogin(false);
+            var saved = SaveCharacterData(charid, charname, characterData);
+        }
+
         public bool IsTransferingRoom()
         {
             return mChar != "" && mPlayer == null;
@@ -659,6 +664,14 @@ namespace Photon.LoadBalancing.GameServer
             else if (characterData != null)
                 return characterData.ProgressLevel;
             return 1;
+        }
+
+        private async Task<bool> SaveCharacterData(string charid, string charname, CharacterData cd)
+        {
+            string serializedData = cd.SerializeForDB();
+            var saved = await GameApplication.dbRepository.Character.SaveCharacterData(charid, serializedData);
+            log.InfoFormat("save char data {0} {1}", charname, saved);
+            return saved;
         }
 
         private async Task<bool> SaveUserAndCharacterData()
@@ -844,8 +857,8 @@ namespace Photon.LoadBalancing.GameServer
         #region Item Inventory
         public void OpenNewInvSlot(int numSlotsToUnlock, ItemInventoryController.OpenNewSlotType type)
         {
-            //if (numSlotsToUnlock < 1)
-            //    return;
+            if (numSlotsToUnlock < 1)
+                return;
 
             int unlockedSlotCount = characterData.ItemInventory.UnlockedSlotCount;
             int maxInvSlots = (int)InventorySlot.MAXSLOTS;

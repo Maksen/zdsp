@@ -53,6 +53,31 @@
             }
         }
 
+        public override void StackTiming(bool fullstack = false)
+        {
+            base.StackTiming();
+            if (fullstack)
+            {
+                float newAmount = 0;
+                SideEffectsUtils.GetStatsFieldAndValue(mSideeffectData, mTarget.CombatStats, out mTargetedField, out newAmount, mIsPostiveBuff);
+                if (mAffactBonus > 0 || mAffactBonus > 0)
+                {
+                    if (mSideeffectData.isrelative)
+                        newAmount += (mAffactPerc * 10);//this mamount is base on 1000
+                    else
+                        newAmount += mAffactBonus;
+                }
+                if (mTargetedField != FieldName.LastField)//active skill need to update the noscoreField always.
+                {
+                    FieldName noscorefield = SideEffectsUtils.GetNoScroreField(mTargetedField);
+                    mTarget.CombatStats.AddToField(mTargetedField, newAmount);
+                    mTarget.CombatStats.ComputeAll();
+                }
+
+                mAmount += newAmount;
+            }
+        }
+
         private bool CheckImmunity()
         {
             //TODO: handle the immunity state of actor.
@@ -92,14 +117,14 @@
                     if(mAffactBonus > 0 || mAffactBonus > 0)
                     {
                         if (mSideeffectData.isrelative)
-                            mAmount += (int)(mAffactPerc * 10);//this mamount is base on 1000
+                            mAmount += (mAffactPerc * 10);//this mamount is base on 1000
                         else
-                            mAmount += (int)mAffactBonus;
+                            mAmount += mAffactBonus;
                     }
                     if (mTargetedField != FieldName.LastField)//active skill need to update the noscoreField always.
                     {
                         FieldName noscorefield = SideEffectsUtils.GetNoScroreField(mTargetedField);
-                        mTarget.CombatStats.AddToField(noscorefield, mAmount);
+                        mTarget.CombatStats.AddToField(mTargetedField, mAmount);
                         mTarget.CombatStats.ComputeAll();                   
                     }
                     return true;
@@ -130,7 +155,7 @@
             {
                 //mTarget.CombatStats.AddToField(mTargetedField, -mAmount);//all system and changes are in whole numbers.
                 FieldName noscorefield = SideEffectsUtils.GetNoScroreField(mTargetedField);
-                mTarget.CombatStats.AddToField(noscorefield, -mAmount);
+                mTarget.CombatStats.AddToField(mTargetedField, -mAmount);
                 mTarget.CombatStats.ComputeAll();
             } 
             base.OnRemove();

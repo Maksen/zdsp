@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -161,6 +162,28 @@ public class AudioClipContainer : BaseAssetContainer
         }
 
         return removeList;
+    }
+
+    public override void UpdateAndRefreshContainer()
+    {
+        string[] extensionArray = ".wav;.mp3;.ogg".Split(';');
+        string path = "Assets/" + containerAssetsPath;
+        var files = Directory.GetFiles(path, "*.*", AddSubFolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        foreach (var file in files)
+        {
+            foreach (string extension in extensionArray)
+            {
+                if (file.EndsWith(extension) && !file.Contains("@"))
+                {
+                    string assetPath = file.Replace(Application.dataPath, "").Replace('\\', '/');
+                    AudioClip asset = AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
+                    if (asset != null)
+                        AddAsset<AudioClip>(asset);
+                    break;
+                }
+            }
+        }
+        EditorUtility.SetDirty(this);
     }
 #endif
 }

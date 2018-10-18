@@ -1330,6 +1330,9 @@ namespace Zealot.Common.Entities
 
             EquipInventory = new CollectionHandler<object>((int)EquipmentSlot.MAXSLOTS);
             EquipInventory.SetParent(this, "EquipInventory");
+
+            AppearanceInventory = new CollectionHandler<object>((int)AppearanceSlot.MAXSLOTS);
+            AppearanceInventory.SetParent(this, "AppearanceInventory");
         }
 
         private bool _HideHelm;
@@ -1341,6 +1344,7 @@ namespace Zealot.Common.Entities
 
         public CollectionHandler<object> FashionInventory { get; set; }
         public CollectionHandler<object> EquipInventory { get; set; }
+        public CollectionHandler<object> AppearanceInventory { get; set; }
     }
 
     public class ItemHotbarStats : LocalObject
@@ -3054,6 +3058,32 @@ namespace Zealot.Common.Entities
         {
             get { return _FusionData; }
             set { OnSetAttribute("FusionData", value); _FusionData = value; }
+        }
+    }
+    #endregion
+
+    #region InteractiveTrigger
+    public class InteractiveTriggerStats : LocalObject
+    {
+        private bool _canTrigger;
+        private bool _waitResponse;
+
+        public InteractiveTriggerStats() : base(LOTYPE.InteractiveTriggerStats)
+        {
+            _canTrigger = false;
+            _waitResponse = false;
+        }
+
+        public bool canTrigger
+        {
+            get { return _canTrigger; }
+            set { OnSetAttribute("canTrigger", value); _canTrigger = value; }
+        }
+
+        public bool waitResponse
+        {
+            get { return _waitResponse; }
+            set { OnSetAttribute("waitResponse", value); _waitResponse = value; }
         }
     }
     #endregion

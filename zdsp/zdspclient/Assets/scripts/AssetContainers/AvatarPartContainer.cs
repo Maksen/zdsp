@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -224,6 +225,46 @@ public class AvatarPartContainer : BaseAssetContainer
         }
 
         return removeList;
+    }
+
+    public override void UpdateAndRefreshContainer()
+    {
+        string[] extensionArray = ".mat".Split(';');
+        string path = "Assets/" + containerAssetsPath;
+        var files = Directory.GetFiles(path, "*.*", AddSubFolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        foreach (var file in files)
+        {
+            foreach (string extension in extensionArray)
+            {
+                if (file.EndsWith(extension) && !file.Contains("@"))
+                {
+                    string assetPath = file.Replace(Application.dataPath, "").Replace('\\', '/');
+                    Material asset = AssetDatabase.LoadAssetAtPath<Material>(assetPath);
+                    if (asset != null)
+                        AddAsset<Material>(asset);
+                    break;
+                }
+            }
+        }
+
+        extensionArray = ".fbx".Split(';');
+        path = "Assets/" + containerAssetsPath;
+        files = Directory.GetFiles(path, "*.*", AddSubFolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        foreach (var file in files)
+        {
+            foreach (string extension in extensionArray)
+            {
+                if (file.EndsWith(extension) && !file.Contains("@"))
+                {
+                    string assetPath = file.Replace(Application.dataPath, "").Replace('\\', '/');
+                    Mesh asset = AssetDatabase.LoadAssetAtPath<Mesh>(assetPath);
+                    if (asset != null)
+                        AddAsset<Mesh>(asset);
+                    break;
+                }
+            }
+        }
+        EditorUtility.SetDirty(this);
     }
 #endif
 }

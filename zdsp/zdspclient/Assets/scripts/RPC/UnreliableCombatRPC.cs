@@ -88,7 +88,7 @@ public partial class ClientMain : MonoBehaviour
                     //local player on damage interrupt interact action.
                     if (defenderghost.GetAction().mdbCommand.GetActionType() == ACTIONTYPE.INTERACT)
                         defenderghost.PerformAction(new ClientAuthoACIdle(defenderghost, new IdleActionCommand()));
-                    g.ActionInterupted();
+                    g.ActionInterupted(true);
                 }
                 else                
                     g.SetHeadLabel();

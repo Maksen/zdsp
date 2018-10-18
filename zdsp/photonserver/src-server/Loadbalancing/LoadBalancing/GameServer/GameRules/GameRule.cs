@@ -592,7 +592,7 @@ namespace Zealot.Server.Rules
         /// Creates and instantiates default character data according to <paramref name="tutorialDone"/>
         /// </summary>
         /// <returns>Default Character Data</returns>
-        public static CharacterData NewCharacterData(bool tutorialDone, string charname, byte jobsect, byte faction, byte talent)
+        public static CharacterData NewCharacterData(bool tutorialDone, string charname, byte gender, int hairstyle, int haircolor, int makeup, int skincolor)
         {
             NewCharInfo newCharInfo = GameConstantRepo.mNewCharInfo;
             CharacterData newCharData = new CharacterData
@@ -600,8 +600,8 @@ namespace Zealot.Server.Rules
                 TrainingRealmDone = true,
                 ProgressLevel = 1,
                 Name = charname,
-                JobSect = jobsect,
-                Faction = faction,
+                JobSect = (byte)JobType.Newbie,
+                Gender = gender,
                 Health = -1,
                 Mana = -1,
                 portraitID = 1,
@@ -612,8 +612,9 @@ namespace Zealot.Server.Rules
                 CurrencyExchangeTime = 0,
                 GetRecommendedFactionReward = false,
             };
-            newCharData.InitDefault((JobType)jobsect);
+            newCharData.InitDefault(JobType.Newbie);
             SetCharacterFirstEquipments(newCharData.EquipmentInventory);
+            SetCharacterAppearance(newCharData.EquipmentInventory, hairstyle, haircolor, makeup, skincolor);
 
             return newCharData;
         }
@@ -621,7 +622,7 @@ namespace Zealot.Server.Rules
         public static void SetCharacterFirstEquipments(EquipmentInventoryData equipmentInvData)
         {
             Dictionary<EquipmentSlot, int> slotItem = new Dictionary<EquipmentSlot, int>();
-            slotItem.Add(EquipmentSlot.Weapon, 2);
+            slotItem.Add(EquipmentSlot.Weapon, 2); // TODO: Hardcoded need to change
 
             foreach(var kvp in slotItem)
             {
@@ -634,6 +635,14 @@ namespace Zealot.Server.Rules
                     equipmentInvData.SetEquipmentToSlot((int)kvp.Key, equipItem);
                 }
             }
+        }
+
+        private static void SetCharacterAppearance(EquipmentInventoryData equipmentInvData, int hairstyle, int haircolor, int makeup, int skincolor)
+        {
+            equipmentInvData.SetAppearanceToSlot((int)AppearanceSlot.HairStyle, hairstyle);
+            equipmentInvData.SetAppearanceToSlot((int)AppearanceSlot.HairColor, haircolor);
+            equipmentInvData.SetAppearanceToSlot((int)AppearanceSlot.MakeUp, makeup);
+            equipmentInvData.SetAppearanceToSlot((int)AppearanceSlot.SkinColor, skincolor);
         }
         #endregion
     }

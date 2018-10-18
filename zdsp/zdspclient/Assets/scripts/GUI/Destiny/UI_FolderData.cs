@@ -10,9 +10,6 @@ public class UI_FolderData : MonoBehaviour
     Image Icon;
 
     [SerializeField]
-    Image StatusIcon;
-
-    [SerializeField]
     Toggle DataToggle;
 
     [SerializeField]
@@ -69,9 +66,9 @@ public class UI_FolderData : MonoBehaviour
     {
         bool completed = GameInfo.gLocalPlayer == null ? false : GameInfo.gLocalPlayer.QuestController.IsQuestCompleted(mClueJson.questid);
         Icon.sprite = GetClueIcon(mClueJson.category);
-        StatusIcon.sprite = GetStatusIcon(completed);
         DataToggle.interactable = mClueData == null ? false : true;
         QuestJson questJson = QuestRepo.GetQuestByID(mClueJson.questid);
+        QuestName.color = completed ? new Color(223, 65, 71) : Color.white;
         QuestName.text = questJson == null ? "" : questJson.questname;
         NewClue.SetActive(mClueData == null ? false : mClueData.Status == (byte)ClueStatus.New);
     }

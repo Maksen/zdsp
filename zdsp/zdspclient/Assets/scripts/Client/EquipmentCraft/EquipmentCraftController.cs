@@ -12,6 +12,6 @@ public class EquipmentCraftController{
 
     public void InitFromStats (EquipmentCraftStats equipmentCraftStats)
     {
-        EquipmentCraftInventory.InitFormStats(equipmentCraftStats);
+        EquipmentCraftInventory.InitFromStats(equipmentCraftStats);
     }
 }

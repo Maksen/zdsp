@@ -141,6 +141,8 @@ public class PlayerInput : MonoBehaviour
                                     PartyFollowTarget.Pause();
                                 if (enemySelectCallback != null)
                                     enemySelectCallback((ActorGhost)entity);
+                                if (entity.IsInteractiveTrigger())
+                                    entityRef.gameObject.GetComponent<InteractiveEntities>().OnClickEntity();
                             }
                                 
                             //if (entity.IsActor())

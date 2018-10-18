@@ -124,33 +124,6 @@ public static class ClientUtils
         parent.DetachChildren();
     }
 
-	public static Sprite GetCurrencyIcon(CurrencyType currencytype)
-    {
-        switch (currencytype)
-        {
-            case CurrencyType.Money:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_Money.png");
-            case CurrencyType.GuildContribution:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_GuildContribution.png");
-            case CurrencyType.GuildGold:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_GuildGold.png");
-            case CurrencyType.Gold:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_gold.png");
-            case CurrencyType.LockGold:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_LockGold.png");
-            case CurrencyType.LotteryTicket:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_LotteryTicket.png");
-            case CurrencyType.HonorValue:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_HonorValue.png");
-            case CurrencyType.BattleCoin:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_BattleCoin.png");
-            case CurrencyType.Exp:
-                return LoadIcon("UI_PiLiQ_Icons/Item/Currency/currency_Exp.png");
-            default:
-                return null;
-        }
-    }
-
     public static bool CanTeleportToLevel(string sceneName)
     {
         LevelJson lvlJson = LevelRepo.GetInfoByName(sceneName);
@@ -357,14 +330,52 @@ public static class ClientUtils
         switch(currencyType)
         {
             case CurrencyType.Money:
-                path = "";
+                path = "UI_ZDSP_Icons/Currency/currency_coin.png";
                 break;
             case CurrencyType.Gold:
-                path = "";
+                path = "UI_ZDSP_Icons/Currency/currency_gold.png";
                 break;
         }
-
         return LoadIcon(path);
+    }
+
+    public static string GetCurrencyLocalizedName(CurrencyType currencyType)
+    {
+        string guiname = "";
+        switch (currencyType)
+        {
+            case CurrencyType.None:
+                break;
+            case CurrencyType.Money:
+                guiname = "com_money";
+                break;
+            case CurrencyType.GuildContribution:
+                break;
+            case CurrencyType.GuildGold:
+                break;
+            case CurrencyType.Gold:
+                break;
+            case CurrencyType.LockGold:
+                break;
+            case CurrencyType.LotteryTicket:
+                break;
+            case CurrencyType.HonorValue:
+                break;
+            case CurrencyType.BattleCoin:
+                break;
+            case CurrencyType.Exp:
+                break;
+            case CurrencyType.AExp:
+                break;
+            case CurrencyType.JExp:
+                break;
+            case CurrencyType.DonateContribution:
+                break;
+            default:
+                break;
+        }
+        //return GUILocalizationRepo.GetLocalizedString(guiname);
+        return currencyType.ToString();
     }
 
     public static VideoClip LoadVideo(string assetName)

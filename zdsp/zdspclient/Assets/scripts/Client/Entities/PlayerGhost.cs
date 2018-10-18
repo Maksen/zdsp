@@ -40,6 +40,7 @@ namespace Zealot.Client.Entities
         public DestinyClueStatsClient DestinyClueStats { get; set; }
         public DonateSynStatsClient DonateStats { get; set; }
         public AchievementStatsClient AchievementStats { get; set; }
+        public InteractiveTriggerStats InteractiveTriggerStats { get; set; }
 
         // Shared stats 
         public PartyStatsClient PartyStats { get; set; }
@@ -57,6 +58,7 @@ namespace Zealot.Client.Entities
         public DonateClientController DonateController { get; private set; }
         private BotController mBotController;
         public BotController Bot { get { return mBotController; } }
+        public InteractiveController InteractiveController { get; private set; }
 
         public GameTimer mArenaRewardCD = null;
         public DateTime mArenaLastRewardDT;
@@ -270,11 +272,9 @@ namespace Zealot.Client.Entities
                 case "bindgold":
                 case "Gold":
                     break;
-                case "AchievementLevel":
-                    //Debug.Log("AchievementLevel: " + value);
-                    break;
                 case "AchievementExp":
-                    //Debug.Log("AchievementExp: " + value);
+                    if (AchievementStats != null)
+                        AchievementStats.OnUpdateAchievementExp();
                     break;
                 case "guildId":
                     if ((int)value == 0 && (int)oldvalue > 0)
@@ -406,6 +406,10 @@ namespace Zealot.Client.Entities
                     if (HeadLabel != null && HeadLabel.IsControllerCreated())
                         HeadLabel.mPlayerLabel.Shield = (int)value;
                     break;
+                case "AchievementLevel":
+                    if (IsLocal && AchievementStats != null)
+                        AchievementStats.OnUpdateAchievementLevel();
+                    break;
                 default:
                     break;
             }
@@ -484,7 +488,7 @@ namespace Zealot.Client.Entities
             if (hudskill == null)
                 return;
 
-            hudskill.UpdateSkillButtons();
+            hudskill.UpdateSkillButtons(Bot.Enabled);
             //for(int i = 0; i < 9; ++i)
             //{
             //    SkillData data = SkillRepo.GetSkill((int)SkillStats.SkillInv[i]);
@@ -649,6 +653,17 @@ namespace Zealot.Client.Entities
                     mEquipmentInvData.SetFashionToSlot(idx, GameRepo.ItemFactory.GetItemFromCode(value) as Equipment);
                 else
                     mEquipmentInvData.SetFashionToSlot(idx, null);
+            }
+            else if (field == "AppearanceInventory")
+            {
+                if (value.GetType() == typeof(int))
+                {
+                    mEquipmentInvData.SetAppearanceToSlot(idx, (int)value);
+                }
+                else
+                {
+                    mEquipmentInvData.SetAppearanceToSlot(idx, -1);
+                }
             }
         }
 
@@ -966,16 +981,10 @@ namespace Zealot.Client.Entities
             }
         }
 
-        //public void OnEquipFusionStatsCollectionChanged(string field, byte idx, object value)
-        //{
-        //    clientEquipFusionCtrl.EquipFusionInventory.EndOfFusion = (bool)value;
-
-        //    if (EquipFusionStats.FinishedFusion)
-        //    {
-        //        UI_CharacterEquipFusionManager.RefreshFusion();
-        //        EquipFusionStats.FinishedFusion = false;
-        //    }
-        //}
+        public void OnInteractiveTriggerStatsChanged()
+        {
+            InteractiveController.InitFromStats(InteractiveTriggerStats);
+        }
 
         public void OnLotteryInfoStatsChanged(int stat_index)
         {
@@ -1106,10 +1115,10 @@ namespace Zealot.Client.Entities
                     AchievementStats.UpdateRewardClaims();
                     break;
                 case "LatestCollections":
-                    AchievementStats.UpdateLatestRecords(AchievementType.Collection, (string)value);
+                    AchievementStats.UpdateLatestRecords(AchievementKind.Collection, (string)value);
                     break;
                 case "LatestAchievements":
-                    AchievementStats.UpdateLatestRecords(AchievementType.Achievement, (string)value);
+                    AchievementStats.UpdateLatestRecords(AchievementKind.Achievement, (string)value);
                     break;
             }
         }
@@ -1304,6 +1313,7 @@ namespace Zealot.Client.Entities
                 InitItemInvCtrl();
                 InitPowerUpCtrl();
                 InitEquipmentCraftCtrl();
+                InitInteractiveCtrl();
                 QuestController = new QuestClientController(this);
                 DestinyClueController = new DestinyClueClientController();
                 DonateController = new DonateClientController();
@@ -1405,6 +1415,11 @@ namespace Zealot.Client.Entities
                     PowerUpStats.OnCollectionChanged = OnPowerUpStatsCollectionChanged;
                     PowerUpStats.OnLocalObjectChanged = OnPowerUpStatsChanged;
                     mylocalobj = PowerUpStats;
+                    break;
+                case LOTYPE.InteractiveTriggerStats:
+                    InteractiveTriggerStats = new InteractiveTriggerStats();
+                    InteractiveTriggerStats.OnLocalObjectChanged = OnInteractiveTriggerStatsChanged;
+                    mylocalobj = InteractiveTriggerStats;
                     break;
                 case LOTYPE.AchievementStats:
                     AchievementStats = new AchievementStatsClient();
@@ -1559,7 +1574,13 @@ namespace Zealot.Client.Entities
                 Debug.LogError("clientEquipFusionCtrl is null");
 
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
+        }
 
+        private void InitInteractiveCtrl()
+        {
+            InteractiveController = new InteractiveController();
+            if (InteractiveController == null)
+                Debug.LogError("clientInteractiveCtrl is null");
         }
 
         protected override void PlayStunEffect(bool bplay)
@@ -2198,17 +2219,20 @@ namespace Zealot.Client.Entities
             throw new NotImplementedException();
         }
 
-        public void ActionInterupted()
+        public void ActionInterupted(bool onDamage = false)
         {
+            if (onDamage)
+            {
+                if (!InteractiveController.GetInterrupt())
+                    return;
+            }
+
+            if (InteractiveController.IsProgressing())
+                InteractiveController.Interrupt();
+
             if (QuestController != null)
             {
                 QuestController.ActionInterupted();
-            }
-
-            if (Bot.Enabled)
-            {
-                // TODO - Bot can't be interrupted even user manually move the player.
-                //Bot.StopBot(); 
             }
         }
 

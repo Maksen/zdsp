@@ -14,12 +14,6 @@
         // Do not insert between existing properties.
         public string jobsect { get; set; }
 
-        public string selectedFaction { get; set; }
-
-        public string recommandedFaction { get; set; }
-
-        public bool isRecommanded { get; set; }
-
         public override RequestInsertRecord GetRequestInsertRecord()
         {
             // Reminder: Change the class type identical to this class.
@@ -32,17 +26,11 @@
             requestInsertRecord.logFieldTypes = new List<TypeCode>()
             {
                 jobsect.GetTypeCode(),
-                selectedFaction.GetTypeCode(),
-                recommandedFaction.GetTypeCode(),
-                isRecommanded.GetTypeCode()
             };
 
             requestInsertRecord.logFieldValues = new List<object>()
             {
                 jobsect,
-                selectedFaction,
-                recommandedFaction,
-                isRecommanded
             };
 
             return requestInsertRecord;

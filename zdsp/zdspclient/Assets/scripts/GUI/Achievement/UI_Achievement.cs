@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
@@ -9,17 +7,22 @@ using Zealot.Repository;
 
 public class UI_Achievement : BaseWindowBehaviour
 {
+    [Header("Left Side")]
     [SerializeField] UI_ProgressBarC expProgressBar;
     [SerializeField] Text levelText;
     [SerializeField] Model_3DAvatar modelAvatar;
+    [SerializeField] DragSpin3DAvatar dragSpinAvatar;
     [SerializeField] UI_DragEvent uiDragEvent;
+    [SerializeField] Toggle messageToggle;
     [SerializeField] Text messageText;
+
+    [Header("Right Side")]
     [SerializeField] UI_ProgressBarC tierProgressBar;
     [SerializeField] UI_ProgressBarC collectionProgressBar;
     [SerializeField] UI_ProgressBarC achievementProgressBar;
-    [SerializeField] GameObject claimRewardButton;
     [SerializeField] UI_ProgressBarC[] collectionTypesProgress;
     [SerializeField] UI_ProgressBarC[] achievementTypesProgress;
+    [SerializeField] Button claimRewardBtn;
 
     private AchievementStatsClient achStats;
     private PlayerGhost player;
@@ -27,14 +30,33 @@ public class UI_Achievement : BaseWindowBehaviour
     private void Awake()
     {
         uiDragEvent.onClicked = OnClickAvatar;
+    }
+
+    private void Start()
+    {
         collectionProgressBar.Max = AchievementRepo.collectionObjectives.Count;
         achievementProgressBar.Max = AchievementRepo.achievementObjectives.Count;
+
+        int length = Enum.GetNames(typeof(CollectionType)).Length;
+        for (int i = 0; i < length; ++i)
+            collectionTypesProgress[i].Max = AchievementRepo.GetCollectionObjectivesByType((CollectionType)i).Count;
+
+        length = Enum.GetNames(typeof(AchievementType)).Length;
+        for (int i = 0; i < length; ++i)
+            achievementTypesProgress[i].Max = AchievementRepo.GetAchievementObjectiveCountByMainType((AchievementType)i);
     }
 
     public override void OnOpenWindow()
     {
         base.OnOpenWindow();
-        Init();       
+        Init();
+    }
+
+    public override void OnCloseWindow()
+    {
+        base.OnCloseWindow();
+        messageText.text = "";
+        messageToggle.isOn = false;
     }
 
     private void Init()
@@ -47,18 +69,25 @@ public class UI_Achievement : BaseWindowBehaviour
         UpdateCollectionProgress();
         UpdateAchievementProgress();
 
-
-        claimRewardButton.SetActive(achStats.HasUnclaimedRewards());
+        claimRewardBtn.interactable = achStats.HasUnclaimedRewards();
     }
 
     public void UpdateLevelProgress()
     {
-        levelText.text = player.PlayerSynStats.AchievementLevel.ToString("F1");
         AchievementLevel levelInfo = AchievementRepo.GetAchievementLevelInfo(player.PlayerSynStats.AchievementLevel);
         if (levelInfo != null)
         {
-            expProgressBar.Max = levelInfo.expToNextLv;
-            expProgressBar.Value = player.SecondaryStats.AchievementExp;
+            levelText.text = levelInfo.name;
+            if (player.PlayerSynStats.AchievementLevel == AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
+            {
+                expProgressBar.Max = 100;
+                expProgressBar.Value = 100;
+            }
+            else
+            {
+                expProgressBar.Max = levelInfo.expToNextLv;
+                expProgressBar.Value = player.SecondaryStats.AchievementExp;
+            }
         }
     }
 
@@ -88,10 +117,7 @@ public class UI_Achievement : BaseWindowBehaviour
         int length = Enum.GetNames(typeof(CollectionType)).Length;
         for (int i = 0; i < length; ++i)
         {
-            int max = AchievementRepo.GetCollectionObjectivesByType((CollectionType)i).Count;
-            int current = achStats.GetCollectionCountByType(i);
-            collectionTypesProgress[i].Max = max;
-            collectionTypesProgress[i].Value = current;
+            collectionTypesProgress[i].Value = achStats.GetCollectionCountByType(i);
         }
     }
 
@@ -99,20 +125,41 @@ public class UI_Achievement : BaseWindowBehaviour
     {
         achievementProgressBar.Value = achStats.GetTotalCompletedAchievementsCount();
 
-        for (int i = 0; i < 6; ++i)
+        int length = Enum.GetNames(typeof(AchievementType)).Length;
+        for (int i = 0; i < length; ++i)
         {
-            int mainTypeId = i + 1;
-            int max = AchievementRepo.GetAchievementObjectiveCountByMainType(mainTypeId);
-            int slotidx = AchievementRepo.achieveMainTypeToIndexMap[mainTypeId];
-            int current = achStats.GetAchievementCountByType(slotidx);
-            achievementTypesProgress[i].Max = max;
-            achievementTypesProgress[i].Value = current;
+            achievementTypesProgress[i].Value = achStats.GetAchievementCountByType(i);
         }
+    }
+
+    public void SetClaimRewardButton(bool interactable)
+    {
+        claimRewardBtn.interactable = interactable;
     }
 
     private void OnClickAvatar()
     {
+        
+    }
+
+    public void OnClickTier()
+    {
 
     }
 
+    public void OnClickExternalFunctions()
+    {
+        UIManager.OpenDialog(WindowType.DialogAchievementFunctions);
+    }
+
+    public void OnClickAbility()
+    {
+        UIManager.OpenDialog(WindowType.DialogAchievementAbility);
+    }
+
+    public void OnClickClaimRewards()
+    {
+        UIManager.OpenDialog(WindowType.DialogAchievementRewards,
+            (window) => window.GetComponent<UI_Achievement_RewardsDialog>().InitRewardsList(achStats.claimsList));
+    }
 }

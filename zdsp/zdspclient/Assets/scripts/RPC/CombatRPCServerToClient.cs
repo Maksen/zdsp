@@ -65,6 +65,17 @@ public partial class ClientMain : MonoBehaviour
         }
     }
 
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveEntity)]
+    public void InteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota)
+    {
+        Vector3 position = pos.ToVector3();
+        Vector3 rotation = rota.ToVector3();
+        InteractiveGhost ghost = mEntitySystem.SpawnNetEntityGhost<InteractiveGhost>(pid);
+        ghost.IsLocal = false;
+        ghost.Init(prefab, parent, position, rotation);
+        ghost.SetOwnerID(0);
+    }
+
     IEnumerator ReturnToStandby(int pid, float duration)
     {
         yield return new WaitForSeconds(duration);
@@ -355,7 +366,7 @@ public partial class ClientMain : MonoBehaviour
         }
 
         GameObject skb = UIManager.GetWidget(HUDWidgetType.SkillButtons);
-        skb.GetComponent<HUD_Skills>().UpdateSkillButtons();
+        skb.GetComponent<HUD_Skills>().UpdateSkillButtons(player.Bot.Enabled);
         player.Bot.UpdateAutoSkillRow();
         //string[] auctionInfo = auctionStatus.Split(';');
         //player.CheckAuctionStatus(int.Parse(auctionInfo[0]));

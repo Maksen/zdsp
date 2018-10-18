@@ -1,5 +1,4 @@
 ﻿using Kopio.JsonContracts;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,6 +11,7 @@ public class UI_Hero_Info : MonoBehaviour
     [Header("Common")]
     [SerializeField] Text heroNameText;
     [SerializeField] Model_3DAvatar modelAvatar;
+    [SerializeField] DragSpin3DAvatar dragSpinAvatar;
     [SerializeField] Image modelImage;
     [SerializeField] HeroCircleScroll circleScroll;
     [SerializeField] Hero_SkillIconData[] skillIcons;
@@ -19,6 +19,7 @@ public class UI_Hero_Info : MonoBehaviour
 
     [Header("Locked")]
     [SerializeField] UI_Hero_LockedPanel lockedPanel;
+    [SerializeField] GameObject unlockBtn;
 
     [Header("Unlocked")]
     [SerializeField] GameObject unlockedHeroObj;
@@ -66,12 +67,6 @@ public class UI_Hero_Info : MonoBehaviour
             HeroCellDto cell = new HeroCellDto(heroid, "", GameInfo.gLocalPlayer.HeroStats.IsHeroUnlocked(heroid));
             cellList.Add(cell);
             index++;
-        }
-
-        for (int i = index; i < 13; i++)
-        {
-            HeroCellDto cell = new HeroCellDto(i + 1, "", false);
-            cellList.Add(cell);
         }
 
         return cellList;
@@ -142,11 +137,7 @@ public class UI_Hero_Info : MonoBehaviour
                 lockedPanel.Init(selectedHeroData.localizedname, selectedHeroData.unlockitemid, selectedHeroData.unlockitemcount, OnClickUnlockHero);
             }
 
-            if (!currentHeroTier.ContainsKey(heroId))
-                UpdateModelTier(selectedHero.ModelTier);
-            else
-                UpdateModelTier(currentHeroTier[heroId]);  // show the temp tier instead of the actual one
-
+            UpdateModelTier(selectedHero.ModelTier);
             SetSkillIcons(selectedHero);
         }
     }
@@ -154,7 +145,8 @@ public class UI_Hero_Info : MonoBehaviour
     private void SetLocked()
     {
         unlockedHeroObj.SetActive(false);
-        lockedPanel.Show(true);
+        lockedPanel.Show(false);
+        unlockBtn.SetActive(true);
         summonBtn.gameObject.SetActive(false);
         unsummonBtn.SetActive(false);
     }
@@ -163,6 +155,7 @@ public class UI_Hero_Info : MonoBehaviour
     {
         unlockedHeroObj.SetActive(true);
         lockedPanel.Show(false);
+        unlockBtn.SetActive(false);
         summonBtn.gameObject.SetActive(!showUnsummonBtn);
         unsummonBtn.SetActive(showUnsummonBtn);
     }
@@ -170,12 +163,15 @@ public class UI_Hero_Info : MonoBehaviour
     private void SetSkillIcons(Hero hero)
     {
         for (int i = 0; i < skillIcons.Length; i++)
-        {
             skillIcons[i].Init(hero, i + 1);
-        }
     }
 
-    public void OnClickUnlockHero()
+    public void OnClickTryUnlockHero()
+    {
+        lockedPanel.Show(true);
+    }
+
+    private void OnClickUnlockHero()
     {
         RPCFactory.CombatRPC.UnlockHero(selectedHeroId);
     }
@@ -255,7 +251,8 @@ public class UI_Hero_Info : MonoBehaviour
 
     private void UpdateModelTier(int tier)
     {
-        if (modelAvatar.ChangeHero(selectedHeroId, tier))  // true if have model path
+        dragSpinAvatar.Reset();
+        if (modelAvatar.ChangeHero(selectedHeroId, tier, OnModelLoaded))  // true if have model path
         {
             currentHeroTier[selectedHeroId] = tier;
             string imagePath = "";
@@ -273,6 +270,15 @@ public class UI_Hero_Info : MonoBehaviour
             modelImage.sprite = ClientUtils.LoadIcon(imagePath);
             CheckModelTierUnlocked(tier);
         }
+    }
+
+    private void OnModelLoaded(GameObject model)
+    {
+        float[] camera = StaticNPCRepo.ParseCameraPosInTalk(selectedHeroData.posinui);
+        Vector3 pos = model.transform.parent.localPosition;
+        model.transform.parent.localPosition = new Vector3(camera[0], camera[1], pos.z);
+        model.transform.localRotation = Quaternion.Euler(new Vector3(0, camera[2], 0));
+        model.transform.localScale = new Vector3(camera[3], camera[3], camera[3]);
     }
 
     private void CheckModelTierUnlocked(int currentTier)

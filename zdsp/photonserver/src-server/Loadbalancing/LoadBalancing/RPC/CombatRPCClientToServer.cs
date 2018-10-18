@@ -629,9 +629,9 @@ namespace Photon.LoadBalancing.GameServer
                         if (slotInfo.Length == 2)
                         {
                             int slotId = 0, amt = 0;
-                            int.TryParse(slotInfo[0], out slotId);
-                            int.TryParse(slotInfo[1], out amt);
-                            sellAmtToSlotIdDict[slotId] = amt;
+                            if (int.TryParse(slotInfo[0], out slotId))
+                                if (int.TryParse(slotInfo[1], out amt))
+                                    sellAmtToSlotIdDict[slotId] = amt;
                         }
                     }
                     InvRetval retval = peer.mInventory.MassSellItems(sellAmtToSlotIdDict);
@@ -1852,7 +1852,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             Player player = peer.mPlayer;
             if (player != null)
-                player.AchievementStats.ClaimReward((AchievementType)type, id);
+                player.AchievementStats.ClaimReward((AchievementKind)type, id);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ClaimAchievementReward)]
         public void ClaimAchievementRewardProxy(object[] args)
@@ -2228,6 +2228,46 @@ namespace Photon.LoadBalancing.GameServer
         public void OnColliderTriggerProxy(object[] args)
         {
             OnColliderTrigger((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
+        }
+        #endregion
+
+        #region InteractiveTrigger
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
+        public void OnInteractiveUse(int objectId, bool enter, GameClientPeer peer)
+        {
+            IServerEntity _serverEntity;
+            if (mObjectMap.TryGetValue(objectId, out _serverEntity))
+            {
+                InteractiveTrigger _trigger = _serverEntity as InteractiveTrigger;
+                if (_trigger != null)
+                {
+                    _trigger.OnInteractiveUse(enter, peer);
+                }
+            }
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
+        public void OnInteractiveUseProxy(object[] args)
+        {
+            OnInteractiveUse((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
+        }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
+        public void OnInteractiveTrigger(int objectId, int keyId, GameClientPeer peer)
+        {
+            IServerEntity _serverEntity;
+            if (mObjectMap.TryGetValue(objectId, out _serverEntity))
+            {
+                InteractiveTrigger _trigger = _serverEntity as InteractiveTrigger;
+                if (_trigger != null)
+                {
+                    _trigger.OnInteractive(peer, keyId);
+                }
+            }
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
+        public void OnInteractiveTriggerProxy(object[] args)
+        {
+            OnInteractiveTrigger((int)args[0], (int)args[1], (GameClientPeer)args[2]);
         }
         #endregion
 

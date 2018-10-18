@@ -414,6 +414,9 @@ namespace Zealot.Common.Entities
         DecreaseFinalDamage,
         DecreaseFinalDamageBonus,
 
+        AmplifyDamage,
+        AmplifyDamageBonus,
+
         VSBossDamage,
         VSBossDamageBonus,
         // Aditional Stuff
@@ -3572,11 +3575,11 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.VSNullPercDamage].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.VSNullPercDamage].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                 {
-                    localCombatStats.VSElemNoneDamage = (int)fieldValue;
+                    localCombatStats.VSElemNoneDamage = (int)fields[(int)FieldName.VSNullPercDamage].GetValue();
                 }
             }
         }
@@ -3600,11 +3603,11 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.VSMetalPercDamage].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.VSMetalPercDamage].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                 {
-                    localCombatStats.VSElemMetalDamage = (int)fieldValue;
+                    localCombatStats.VSElemMetalDamage = (int)fields[(int)FieldName.VSMetalPercDamage].GetValue();
                 }
             }
         }
@@ -3628,11 +3631,11 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.VSWoodPercDamage].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.VSWoodPercDamage].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                 {
-                    localCombatStats.VSElemWoodDamage = (int)fieldValue;
+                    localCombatStats.VSElemWoodDamage = (int)fields[(int)FieldName.VSWoodPercDamage].GetValue();
                 }
             }
         }
@@ -3656,11 +3659,11 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.VSEarthPercDamage].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.VSEarthPercDamage].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                 {
-                    localCombatStats.VSElemEarthDamage = (int)fieldValue;
+                    localCombatStats.VSElemEarthDamage = (int)fields[(int)FieldName.VSEarthPercDamage].GetValue();
                 }
             }
         }
@@ -3684,11 +3687,11 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.VSFirePercDamage].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.VSFirePercDamage].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                 {
-                    localCombatStats.VSElemFireDamage = (int)fieldValue;
+                    localCombatStats.VSElemFireDamage = (int)fields[(int)FieldName.VSFirePercDamage].GetValue();
                 }
             }
         }
@@ -3712,11 +3715,11 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.VSWaterPercDamage].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.VSWaterPercDamage].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                 {
-                    localCombatStats.VSElemWaterDamage = (int)fieldValue;
+                    localCombatStats.VSElemWaterDamage = (int)fields[(int)FieldName.VSWaterPercDamage].GetValue();
                 }
             }
         }
@@ -3736,6 +3739,34 @@ namespace Zealot.Common.Entities
             {
                 fieldValue = 0;
                 children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.VSBossDamageBonus].GetValue() * 0.01f;
+            }
+        }
+
+        private class AmplifyDamageBonus : CombatStatsField
+        {
+            public AmplifyDamageBonus()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { FieldName.AmplifyDamage };
+            }
+        }
+
+        private class AmplifyDamage : CombatStatsField
+        {
+            public AmplifyDamage()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats = null, ActorSynStats actorSynStats = null)
+            {
+                fieldValue = fields[(int)FieldName.AmplifyDamageBonus].GetValue() * 0.01f;
             }
         }
 
@@ -3758,7 +3789,7 @@ namespace Zealot.Common.Entities
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
             {
-                fieldValue = 1 + fields[(int)FieldName.IncreaseFinalDamageBonus].GetValue() * 0.01f;
+                fieldValue = fields[(int)FieldName.IncreaseFinalDamageBonus].GetValue() * 0.01f;
 
                 if (localCombatStats != null)
                     localCombatStats.IncFinalDamage = (int)(Math.Round(fieldValue));
@@ -4213,6 +4244,9 @@ namespace Zealot.Common.Entities
             mFields[(int)FieldName.IncreaseFinalDamage] = new IncreaseFinalDamage();
             mFields[(int)FieldName.IncreaseFinalDamageBonus] = new IncreaseFinalDamageBonus();
 
+            mFields[(int)FieldName.AmplifyDamage] = new AmplifyDamage();
+            mFields[(int)FieldName.AmplifyDamageBonus] = new AmplifyDamageBonus();
+
             mFields[(int)FieldName.DecreaseFinalDamage] = new DecreaseFinalDamage();
             mFields[(int)FieldName.DecreaseFinalDamageBonus] = new DecreaseFinalDamageBonus();
 
@@ -4358,6 +4392,8 @@ namespace Zealot.Common.Entities
                 FieldName.IncreaseFinalDamageBonus,
                 FieldName.DecreaseFinalDamageBonus,
 
+                FieldName.AmplifyDamageBonus,
+
                 FieldName.SkillAffect,
 
                 FieldName.BlockRate,
@@ -4430,6 +4466,7 @@ namespace Zealot.Common.Entities
                  FieldName.VSPlantDefense,
 
                  FieldName.IncreaseFinalDamage,
+                 FieldName.AmplifyDamage,
                  FieldName.DecreaseFinalDamage,
 
                  FieldName.BlockValue,

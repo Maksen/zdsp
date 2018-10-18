@@ -24,6 +24,7 @@ public interface IAssetContainer
     bool Build { get; set; }
     bool IndividualAssetBundle { get; set; }
     bool AllowAbsolutePath { get; set; }
+    bool AddSubFolder { get; set; }
 
     T GetAssetByPath<T>(string assetname) where T : UnityEngine.Object;
     List<ExportedAsset> GetExportedAssets();
@@ -80,6 +81,14 @@ public abstract class BaseAssetContainer : ScriptableObject, IAssetContainer
     {
         get { return allowAbsolutePath; }
         set { allowAbsolutePath = value; }
+    }
+
+    [SerializeField]
+    protected bool addSubFolder;
+    public bool AddSubFolder
+    {
+        get { return addSubFolder; }
+        set { addSubFolder = value; }
     }
 
     /// <summary>
@@ -168,6 +177,11 @@ public abstract class BaseAssetContainer : ScriptableObject, IAssetContainer
         {
             Debug.LogError("LogAssetDetail error: Try Save Assets");
         }
+    }
+
+    public virtual void UpdateAndRefreshContainer()
+    {
+
     }
 #endif
 }

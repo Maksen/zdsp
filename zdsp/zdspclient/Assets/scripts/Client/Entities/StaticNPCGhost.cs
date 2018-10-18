@@ -14,6 +14,7 @@ namespace Zealot.Client.Entities
     {
         private ActorNameTagController mHeadLabel;
         private QuestLabelType mQuestLabelType = QuestLabelType.None;
+        private List<int> mFunctionList;
 
         public string ArchetypeName { get; private set; }
 
@@ -22,7 +23,7 @@ namespace Zealot.Client.Entities
             this.EntityType = EntityType.StaticNPC;
         }
 
-        NPCFunctionType GetNPCFunction(out int param)
+        bool GetNPCFunction(out int param, out NPCFunctionType functionType)
         {
             param = 0;
             if (mArchetype!= null && mArchetype.npcfunction != null && mArchetype.npcfunction.Length > 0)
@@ -33,11 +34,13 @@ namespace Zealot.Client.Entities
                 {
                     param = int.Parse(args[1]);
 
-                    return (NPCFunctionType)int.Parse(args[0]);
+                    functionType = (NPCFunctionType)int.Parse(args[0]);
+                    return true;
                 }
             }
 
-            return (NPCFunctionType)(-1);
+            functionType = (NPCFunctionType)(-1);
+            return false;
         }
 
         public void Init(StaticNPCJson npcInfo, Vector3 pos, Vector3 forward)
@@ -55,6 +58,22 @@ namespace Zealot.Client.Entities
 
             base.Init();
             OnAnimObjLoaded(AssetManager.LoadSceneNPC(mArchetype.modelprefabpath));
+        }
+
+        private void GetFuctionList()
+        {
+            if (mArchetype != null && !GameUtils.IsEmptyString(mArchetype.npcfunction))
+            {
+                string[] functions = mArchetype.npcfunction.Split('/');
+
+                //if (args.Length >= 2)
+                //{
+                //    param = int.Parse(args[1]);
+
+                //    functionType = (NPCFunctionType)int.Parse(args[0]);
+                //    return true;
+                //}
+            }
         }
 
         public override void InitAnimObj()
@@ -132,17 +151,6 @@ namespace Zealot.Client.Entities
             return false;
         }
 
-        void onDialogueOver()
-        {
-            int param = 0;
-            var func = GetNPCFunction(out param);
-
-            if(func == NPCFunctionType.Shop)
-                UIManager.OpenWindow(WindowType.ShopSell, (window) => window.GetComponent<UIShop>().RequestShopInfo(param));
-
-            return;
-        }
-
         public void DoInteractAction()
         {
             if (GameInfo.gLocalPlayer == null)
@@ -152,48 +160,33 @@ namespace Zealot.Client.Entities
             QuestClientController questController = player.QuestController;
             player.PerformAction(new ClientAuthoACIdle(player, new IdleActionCommand()));
 
-            int talkid = -1;
-            bool completedall = false;
-            bool ongoingquest = false;
-            if (mActiveQuest != -1)
+            int shopinfo = -1;
+            NPCFunctionType functionType = NPCFunctionType.Shop; 
+            if (mActiveQuest != -1 && mOngoingQuest.ContainsKey(mActiveQuest))
             {
-                if (mOngoingQuest.ContainsKey(mActiveQuest))
-                {
-                    talkid = questController.GetTalkId(mActiveQuest, mArchetypeId);
-                    ongoingquest = true;
-                }
-                else if (mAvailableQuest.Count == 1 && mAvailableQuest.Contains(mActiveQuest))
-                {
-                    talkid = questController.GetTalkId(mActiveQuest, mArchetypeId);
-                    ongoingquest = false;
-                }
+                //questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, true);
             }
-            else
+            else if (mActiveQuest != -1 && mAvailableQuest.Count == 1 && mAvailableQuest.Contains(mActiveQuest))
             {
-                if (mQuestList.Count > 0 && mAvailableQuest.Count == 0)
-                {
-                    completedall = questController.CompletedAllQuest(mQuestList);
-                }
+                //questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, false);
             }
-
-            UIManager.CloseAllWindows();
-            if (talkid != -1)
+            else if (mActiveQuest == -1 && mAvailableQuest.Count > 0)
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, mActiveQuest, ongoingquest, null, false, onDialogueOver));
+                //questController.AddNewDialogue(this, mAvailableQuest);
             }
-            else if (talkid == -1 && mAvailableQuest.Count > 0)
+            else if (mQuestList.Count > 0 && mAvailableQuest.Count == 0 && questController.CompletedAllQuest(mQuestList))
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, mAvailableQuest, false, onDialogueOver));
+                //questController.AddNewDialogue(this, true);
             }
-            else if (completedall)
+            else if (GetNPCFunction(out shopinfo, out functionType))
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, null, completedall, onDialogueOver));
+                //questController.AddNewDialogue(this, shopinfo);
             }
-            else
+            else if (GameUtils.IsEmptyString(mArchetype.talktext))
             {
-                UIManager.OpenDialog(WindowType.DialogNpcTalk, (window) => window.GetComponent<UI_Dialogue>().Init(this, talkid, -1, ongoingquest, null, false, onDialogueOver));
+                //questController.AddNewDialogue(this, false);
             }
-
+            
             RPCFactory.CombatRPC.AchievementNPCInteract(mArchetypeId);
         }
 

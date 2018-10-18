@@ -1,4 +1,5 @@
 ﻿using ExitGames.Client.Photon;
+using System.Collections.Generic;
 using Zealot.Common.RPC;
 
 public partial class NonCombatRPC : RPCBase
@@ -415,6 +416,24 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("ConsoleSendMail", id);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CombatLogging)]
+    public void CombatLogging(bool islogging)
+    {
+        ProxyMethod("CombatLogging", islogging);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CombatLogClear)]
+    public void CombatLogClear()
+    {
+        ProxyMethod("CombatLogClear");
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleRemoveEquipSkills)]
+    public void ConsoleRemoveEquipSkills()
+    {
+        ProxyMethod("ConsoleRemoveEquipSkills");
+    }
     #endregion
 
     #region LeaderBoard
@@ -829,9 +848,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SubmitEmptyObjective)]
-    public void SubmitEmptyObjective(int questid)
+    public void SubmitEmptyObjective(string questids)
     {
-        ProxyMethod("SubmitEmptyObjective", questid);
+        ProxyMethod("SubmitEmptyObjective", questids);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]

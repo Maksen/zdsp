@@ -44,13 +44,6 @@ public class HUD_DamageLabel : MonoBehaviour
     [HideInInspector]
     public Vector3 mOffset_WorldSpace;
 
-    public Transform Position;
-    public float RandomMagnitude = 0.0f;
-    public void SetRandomMagnitude(float val)
-    {
-        RandomMagnitude = val;
-    }
-
     [Header("Animator State Names")]
     #region Animator State Names
     [SerializeField]
@@ -152,26 +145,16 @@ public class HUD_DamageLabel : MonoBehaviour
         Play();
     }
 
-    public void Play(string statename = "")
+    public void Play(float delay = 0f)
     {
         gameObject.SetActive(true);
-
-        if(statename == "")
-            mAnimator.Play(mStateName);
-        else
-            mAnimator.Play(statename);
-
-        float max = (float)Screen.height * RandomMagnitude;
-        var rand = new Vector3(UnityEngine.Random.Range(-max, max), UnityEngine.Random.Range(-max, max), 0.0f);
-        Position.localPosition = rand;
+        mAnimator.Play(mStateName);
     }
 
     public void EndPlay()
     {
         gameObject.SetActive(false);
         dlCallBack(this.gameObject);
-
-        Position.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
     }
 }
 

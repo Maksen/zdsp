@@ -226,6 +226,8 @@
         void RemovePassive(bool isSkill = false);
     }
 
+   
+
     public abstract class SideEffect
     {
         //public readonly static long MAX_DURATION = 604800000; //7 days, in msecs
@@ -238,7 +240,6 @@
         protected bool mPositiveEffect;
         protected long mDuration;
         protected bool mNeedCaster; //whether this sideeffect requires caster to work. Otherwise, when caster is gone, this sideeffect will be stopped too.
-        public int mSkillID;//use this value in combatformula
         protected int Rank;
 
         public SideEffect(SideEffectJson sideeffectData)
@@ -354,6 +355,11 @@
             return Math.Max(mDuration - mTotalElapsedTime, 0);
         }
 
+        public virtual void StackTiming(bool fullstack = false)
+        {
+            mElapsedTime = 0;
+        }
+
         public void Stop()
         {      
             if (IsDurationalSE())
@@ -397,31 +403,50 @@
         /// <returns></returns>
         protected virtual bool CheckApplyCondition()
         {
-           bool shouldApply = true; 
-            if (mTarget.HasSideEffectType(mSideeffectData.effecttype))
+            bool shouldApply = true;
+            // search for same group se
+            int grp = SideEffectRepo.GetSideEffectGroupID(mSideeffectData.id);
+            if (grp == -1) return true;
+            List<int> samegroup = mTarget.GetAppliedSideEffectsOfGroup(grp);
+            foreach(int id in samegroup)
             {
-                List<SideEffect> listse = mTarget.GetSideEffectOfType(mSideeffectData.effecttype);
-                for(int i = listse.Count-1; i >=0; i --)
+                if(SideEffectRepo.CanOverride(mSideeffectData.id, id))
                 {
-                    SideEffect se = listse[i];
-                    if (SideEffectRepo.InSameGroup(mSideeffectData.id, se.mSideeffectData.id))
-                    {
-                        if (SideEffectRepo.CanOverride(mSideeffectData.id, se.mSideeffectData.id))
-                        {
-                            //se.Prolong(se.GetTotalTimeElapsed());
-                            se.Stop();//lower priority one is stop.
-                            
-                            shouldApply = true;
-                        }
-                        else
-                        {
-                            shouldApply = false;//someone in the list have higher priority than me
-                            break;
-                        } 
-                    }
+                    SideEffect se = mTarget.GetSideEffect(id);
+                    se.Stop();
+                    shouldApply = true;
                 }
-               
+                else
+                {
+                    shouldApply = false;
+                    break;
+                }
             }
+
+            //if (mTarget.HasSideEffectType(mSideeffectData.effecttype))
+            //{
+            //    List<SideEffect> listse = mTarget.GetSideEffectOfType(mSideeffectData.effecttype);
+            //    for(int i = listse.Count-1; i >=0; i --)
+            //    {
+            //        SideEffect se = listse[i];
+            //        if (SideEffectRepo.InSameGroup(mSideeffectData.id, se.mSideeffectData.id))
+            //        {
+            //            if (SideEffectRepo.CanOverride(mSideeffectData.id, se.mSideeffectData.id))
+            //            {
+            //                //se.Prolong(se.GetTotalTimeElapsed());
+            //                se.Stop();//lower priority one is stop.
+                            
+            //                shouldApply = true;
+            //            }
+            //            else
+            //            {
+            //                shouldApply = false;//someone in the list have higher priority than me
+            //                break;
+            //            } 
+            //        }
+            //    }
+               
+            //}
             return shouldApply;
         }
                

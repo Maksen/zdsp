@@ -82,9 +82,7 @@
       <property name="t3imagepath" type="asset" uitext="T3 Image Path" default="" assettype="sprite"/>
       <property name="tierunlockpts" type="string" uitext="Skin Unlock Pts" default="" info="t1;t2;t3 (-1 for unapplicable tier)"/>
       <property name="skinitemid" type="string" uitext="Skin Item ID " default="" info="itemid;itemid"/>
-      <property name="modelscalex" type="float" uitext="Model Scale X" default="1.0"/>
-      <property name="modelscaley" type="float" uitext="Model Scale Y" default="1.0"/>
-      <property name="modelscalez" type="float" uitext="Model Scale Z" default="1.0"/>
+      <property name="posinui" type="string" uitext="Position In UI" default="0;0;0;1" info="x;y;rotatey;scale"/>
       <property name="summonaction" type="string" uitext="Summon Action Name" default=""/>
       <property name="summonduration" type="float" uitext="Summon Duration"/>
       <property name="summoneffect" type="asset" uitext="Summon Effect Path" default="" assettype="prefab"/>

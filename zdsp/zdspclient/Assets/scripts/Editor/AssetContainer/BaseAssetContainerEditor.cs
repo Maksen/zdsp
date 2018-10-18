@@ -74,11 +74,13 @@ public abstract class BaseAssetContainerEditor : Editor
         SerializedProperty allowAbsolutePath = serializedObject.FindProperty("allowAbsolutePath");
         EditorGUILayout.PropertyField(allowAbsolutePath, new GUIContent("Allow Absolute Path", "true to allow include asset from different folders"));
 
+        SerializedProperty addSubFolder = serializedObject.FindProperty("addSubFolder");
+        EditorGUILayout.PropertyField(addSubFolder, new GUIContent("Include Subfolders", addSubfolderTooltip));
     }
 
     protected void DrawAddSubfolder()
     {
-        addSubfolder = EditorGUILayout.Toggle(new GUIContent("Include Subfolders", addSubfolderTooltip), addSubfolder);
+       
     }
 
     protected void DrawCommonGUI()

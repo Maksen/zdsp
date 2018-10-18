@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Zealot.Common.Datablock;
-using Zealot.Repository;
 
 namespace Zealot.Common.Entities
 {
@@ -11,11 +10,15 @@ namespace Zealot.Common.Entities
         private string _latestCollections;
         private string _latestAchievements;
 
+        public Dictionary<int, CollectionElement> GetCollectionsDict() { return collectionsDict; }
         protected Dictionary<int, CollectionElement> collectionsDict; // key: id
+
+        public Dictionary<int, AchievementElement> GetAchievementsDict() { return achievementsDict; }
         protected Dictionary<int, AchievementElement> achievementsDict; // key: id
-        protected List<AchievementRewardClaim> claimsList;
-        protected List<AchievementRecord> latestCollectionsList;
-        protected List<AchievementRecord> latestAchievementList;
+
+        public List<AchievementRewardClaim> claimsList;
+        public List<AchievementRecord> latestCollectionsList;
+        public List<AchievementRecord> latestAchievementList;
 
         public AchievementStats() : base(LOTYPE.AchievementStats)
         {
@@ -32,7 +35,7 @@ namespace Zealot.Common.Entities
             Collections = new CollectionHandler<object>(Enum.GetNames(typeof(CollectionType)).Length);
             Collections.SetParent(this, "Collections");
 
-            Achievements = new CollectionHandler<object>(AchievementRepo.achievementMainTypes.Count);
+            Achievements = new CollectionHandler<object>(Enum.GetNames(typeof(AchievementType)).Length);
             Achievements.SetParent(this, "Achievements");
         }
 
@@ -57,6 +60,14 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("LatestAchievements", value); _latestAchievements = value; }
         }
 
+        public BaseAchievementElement GetElementByTypeAndId(AchievementKind type, int id)
+        {
+            if (type == AchievementKind.Collection)
+                return GetCollectionById(id);
+            else
+                return GetAchievementById(id);
+        }
+
         public CollectionElement GetCollectionById(int id)
         {
             CollectionElement elem;
@@ -69,6 +80,14 @@ namespace Zealot.Common.Entities
             AchievementElement elem;
             achievementsDict.TryGetValue(id, out elem);
             return elem;
+        }
+
+        public bool IsAchievementCompletedAndClaimed(int id)
+        {
+            AchievementElement elem = GetAchievementById(id);
+            if (elem != null)
+                return elem.IsCompleted() && elem.Claimed;
+            return false;
         }
     }
 }

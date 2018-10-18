@@ -120,9 +120,11 @@
     </element>
 
     <element name="SideEffectGroup" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Name" unique="true"/>
-      <property name="remarks" type="string" uitext="Remarks" noexport="true"/> 
-      <property name="sideeffects" type="SideEffect" collection="true" uitext="Side Effects" display="name" info="Sideeffects listed first has higher rank"/>
+      <property name="groupid" type="int" uitext="Group ID"/>
+      <property name="name" type="string" uitext="Name" noexport="true"/>
+      <property name="remarks" type="string" uitext="Remarks" noexport="true"/>
+      <property name="sideeffectlevel" type ="int" uitext="Side Effect Level"/>
+      <property name="sideeffect" type="SideEffect" uitext="Side Effect" display="name"/>
     </element>
    
     <element name="NPCToSkillsLink" useexcel="true">

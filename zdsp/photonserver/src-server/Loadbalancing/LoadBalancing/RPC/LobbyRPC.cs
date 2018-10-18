@@ -18,9 +18,9 @@ namespace Zealot.RPC
         //public void GetCharactersResult(int charcount, int jobsect1, int jobsect2, int jobsect3, string char1, string char2, string char3, object target) { }
 
         [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.GetCharactersResult)]
-        public void GetCharactersResult(string charlist, int latestLoginIndex, object target)
+        public void GetCharactersResult(string charlist, int latestLoginIndex, bool newcharacter, object target)
         {
-            ProxyMethod("GetCharactersResult", charlist, latestLoginIndex, target);
+            ProxyMethod("GetCharactersResult", charlist, latestLoginIndex, newcharacter, target);
         }
 
         [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.TransferRoom)]
@@ -36,9 +36,15 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.DeleteCharacterResult)]
-        public void DeleteCharacterResult(bool result, string charname, object target)
+        public void DeleteCharacterResult(int result, string charname, string endtime, object target)
         {
-            ProxyMethod("DeleteCharacterResult", result, charname, target);
+            ProxyMethod("DeleteCharacterResult", result, charname, endtime, target);
+        }
+
+        [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.CancelDeleteCharacterResult)]
+        public void CancelDeleteCharacterResult(bool result, string charname, object target)
+        {
+            ProxyMethod("CancelDeleteCharacterResult", result, charname, target);
         }
 
         [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.ShowSystemMessage)]
@@ -47,10 +53,10 @@ namespace Zealot.RPC
             ProxyMethod("ShowSystemMessage", ret, target);
         }
 
-        [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.CreateCharacterSuccess)]
-        public void CreateCharacterSuccess(string charname, object target)
+        [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.CheckCharacterNameResult)]
+        public void CheckCharacterNameResult(bool result, object target)
         {
-            ProxyMethod("CreateCharacterSuccess", charname, target);
+            ProxyMethod("CheckCharacterNameResult", result, target);
         }
     }
 }

@@ -71,10 +71,15 @@ public class Hero_BondSimpleData : MonoBehaviour
             SetBondRequirementText(1, bondData.bondtype2, bondData.bondvalue2);
 
             int index = 0;
-            foreach (SideEffectJson seJson in bondData.sideeffects.Values)
+            foreach (SideEffectJson se in bondData.sideeffects.Values)
             {
                 if (index < seText.Length)
-                    seText[index++].text = SDGRepo.GetSDGText(seJson);
+                {
+                    if (se.isrelative)
+                        seText[index++].text = string.Format("{0} +{1}%", se.effecttype.ToString(), se.max);  // todo: jm localize
+                    else
+                        seText[index++].text = string.Format("{0} +{1}", se.effecttype.ToString(), se.max);
+                }
             }
         }
         else // no bond data, this should not happen unless kopio is not filled

@@ -4,7 +4,7 @@ using Zealot.Common;
 
 namespace Zealot.Repository
 { 
-    class ElementalChartRepo
+    public class ElementalChartRepo
     {
         public static Dictionary<Element, Dictionary<Element, int>> elementChart = new Dictionary<Element, Dictionary<Element, int>>();
         public static Dictionary<AttackStyle, Dictionary<AttackStyle, int>> weaknessChart = new Dictionary<AttackStyle, Dictionary<AttackStyle, int>>();

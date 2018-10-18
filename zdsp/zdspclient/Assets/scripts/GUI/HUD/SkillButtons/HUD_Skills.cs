@@ -19,7 +19,6 @@ public class HUD_Skills : MonoBehaviour
     public Animator[] SkillCDEnd;
     public Toggle AutoCombatToggle;
     private List<GameObject> ButtonLocks;
-    private GameObject BasicAttackButtonLock;
 
     private PlayerGhost localplayer;
     //private float lastWeaponPromptTime = -99999;
@@ -62,11 +61,11 @@ public class HUD_Skills : MonoBehaviour
         }
     }
 
-    public void UpdateSkillButtons()
+    public void UpdateSkillButtons(bool isBot)
     {
         Zealot.Common.Datablock.CollectionHandler<object> skillequipped;
-
-        skillequipped = localplayer.SkillStats.EquippedSkill;
+        
+        skillequipped = isBot ? localplayer.SkillStats.AutoSkill : localplayer.SkillStats.EquippedSkill;
         int group = localplayer.SkillStats.EquipGroup;
         for (int i = 0; i < SkillButtons.Length; i++)
         {
@@ -84,10 +83,7 @@ public class HUD_Skills : MonoBehaviour
 
     public void UpdateLockStatus(int[] list, bool lockbasicattack)
     {
-        if (BasicAttackButtonLock != null)
-        {
-            BasicAttackButtonLock.SetActive(false);
-        }
+
         for (int i = 0; i < ButtonLocks.Count; i++)
         {
             ButtonLocks[i].SetActive(false);
@@ -98,10 +94,6 @@ public class HUD_Skills : MonoBehaviour
             {
                 ButtonLocks[idx].SetActive(true);
             }
-        }
-        if (lockbasicattack && BasicAttackButtonLock != null)
-        {
-            BasicAttackButtonLock.SetActive(true);
         }
     }
 
@@ -179,6 +171,8 @@ public class HUD_Skills : MonoBehaviour
             GameInfo.gLocalPlayer.Bot.StartBot();
         else
             GameInfo.gLocalPlayer.Bot.StopBot();
+
+        UpdateSkillButtons(AutoCombatToggle.isOn);
     }
 
     public void OnHudSkillToggle(bool toggle)

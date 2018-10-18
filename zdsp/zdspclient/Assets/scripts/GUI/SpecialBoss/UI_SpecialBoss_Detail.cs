@@ -125,8 +125,8 @@ public class UI_SpecialBoss_Detail : MonoBehaviour
     private void OnModelLoaded(GameObject model)
     {
         float[] camera = StaticNPCRepo.ParseCameraPosInTalk(mBossSelected.cameraposintalk);
-        Vector3 pos = model.transform.localPosition;
-        model.transform.localPosition = new Vector3(camera[0], camera[1], pos.z);
+        Vector3 pos = model.transform.parent.localPosition;
+        model.transform.parent.localPosition = new Vector3(camera[0], camera[1], pos.z);
         model.transform.localRotation = Quaternion.Euler(new Vector3(0, camera[2], 0));
         model.transform.localScale = new Vector3(camera[3], camera[3], camera[3]);
     }

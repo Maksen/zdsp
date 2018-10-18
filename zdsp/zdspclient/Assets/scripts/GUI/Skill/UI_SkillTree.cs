@@ -6,122 +6,127 @@ using UnityEngine.UI;
 using Zealot.Common;
 using Zealot.Repository;
 
-public class GameObjectPoolManager
-{
-    public class PoolObject
-    {
-        public bool isFree = true;
-        public GameObject obj;
-
-        public PoolObject(GameObject objtype)
-        {
-            obj = GameObject.Instantiate(objtype, new Vector3(0, 0, 0), Quaternion.identity);
-        }
-
-        public PoolObject(GameObject objtype, Transform parent)
-        {
-            obj = GameObject.Instantiate(objtype, parent);
-        }
-
-        public int GetInstanceID()
-        {
-            return obj.GetInstanceID();
-        }
-    }
-
-    private List<PoolObject> m_Pool;
-    private Dictionary<int, int> vtable;
-    private GameObject m_type;
-    private GameObject m_ParentContainer;
-    private Transform m_Master;
-    private int m_PoolSize;
-    private byte m_IsFilled;
-
-    public GameObjectPoolManager(int size, Transform master, GameObject type, Transform parent = null)
-    {
-        m_Pool = new List<PoolObject>(size);
-        vtable = new Dictionary<int, int>();
-        m_type = type;
-        m_PoolSize = size;
-        if (parent == null)
-            m_ParentContainer = new GameObject(m_type.name + "_SwimmingPool");
-        else
-            m_ParentContainer = parent.gameObject;
-
-        FillPool();
-
-        if (parent != null)
-            m_ParentContainer = new GameObject(m_type.name + "_SwimmingPool");
-
-        m_Master = master;
-        m_ParentContainer.transform.parent = m_Master;
-    }
-
-    private void FillPool()
-    {
-        for (int i = 0; i < m_PoolSize; ++i)
-        {
-            m_Pool.Add(new PoolObject(m_type, m_ParentContainer.transform));
-            vtable[m_Pool[i].GetInstanceID()] = i;
-            m_Pool[i].obj.SetActive(false);
-        }
-        m_IsFilled = 1;
-    }
-
-    public GameObject RequestObject()
-    {
-        if (m_Pool.Count == 0)
-        {
-        }
-        for (int i = 0; i < m_Pool.Count; ++i)
-        {
-            if (m_Pool[i].isFree)
-            {
-                m_Pool[i].isFree = false;
-                m_Pool[i].obj.SetActive(true);
-                return m_Pool[i].obj;
-            }
-        }
-
-        int idx = m_Pool.Count;
-        // not enough
-        for (int j = 0; j < idx; ++j)
-        {
-            m_Pool.Add(new PoolObject(m_type, m_ParentContainer.transform));
-            vtable[m_Pool[j + idx].GetInstanceID()] = j + idx;
-        }
-
-        m_Pool[idx].isFree = false;
-        return m_Pool[idx].obj;
-    }
-
-    public void ReturnObject(GameObject obj)
-    {
-        PoolObject pObj = m_Pool[vtable[obj.GetHashCode()]];
-        pObj.isFree = true;
-        pObj.obj.SetActive(false);
-        pObj.obj.transform.parent = m_ParentContainer.transform;
-    }
-
-    public void EmptyPool()
-    {
-        m_IsFilled = 0;
-        m_Pool.Clear();
-        vtable.Clear();
-    }
-
-    public void CheckContainerIntegrity()
-    {
-        if (m_IsFilled == 0)
-        {
-            // need to refill
-            FillPool();
-        }
-    }
-}
 
 public class UI_SkillTree : BaseWindowBehaviour
 {
+
+    public class GameObjectPoolManager
+    {
+        public class PoolObject
+        {
+            public bool isFree = true;
+            public GameObject obj;
+
+            public PoolObject(GameObject objtype)
+            {
+                obj = GameObject.Instantiate(objtype, new Vector3(0, 0, 0), Quaternion.identity);
+            }
+
+            public PoolObject(GameObject objtype, Transform parent)
+            {
+                obj = GameObject.Instantiate(objtype, parent);
+            }
+
+            public int GetInstanceID()
+            {
+                return obj.GetInstanceID();
+            }
+        }
+
+        private List<PoolObject> m_Pool;
+        private Dictionary<int, int> vtable;
+        private GameObject m_type;
+        private GameObject m_ParentContainer;
+        private Transform m_Master;
+        private int m_PoolSize;
+        private byte m_IsFilled;
+
+        public GameObjectPoolManager(int size, Transform master, GameObject type, Transform parent = null)
+        {
+            m_Pool = new List<PoolObject>(size);
+            vtable = new Dictionary<int, int>();
+            m_type = type;
+            m_PoolSize = size;
+            if (parent == null)
+                m_ParentContainer = new GameObject(m_type.name + "_SwimmingPool");
+            else
+                m_ParentContainer = parent.gameObject;
+
+            FillPool();
+
+            if (parent != null)
+                m_ParentContainer = new GameObject(m_type.name + "_SwimmingPool");
+
+            m_Master = master;
+            m_ParentContainer.transform.parent = m_Master;
+            m_ParentContainer.transform.localPosition = new Vector3(0, 0, 1);
+            m_ParentContainer.transform.localScale = new Vector3(1, 1, 1);
+        }
+
+        private void FillPool()
+        {
+            for (int i = 0; i < m_PoolSize; ++i)
+            {
+                m_Pool.Add(new PoolObject(m_type, m_ParentContainer.transform));
+                vtable[m_Pool[i].GetInstanceID()] = i;
+                m_Pool[i].obj.SetActive(false);
+            }
+            m_IsFilled = 1;
+        }
+
+        public GameObject RequestObject()
+        {
+            if (m_Pool.Count == 0)
+            {
+            }
+            for (int i = 0; i < m_Pool.Count; ++i)
+            {
+                if (m_Pool[i].isFree)
+                {
+                    m_Pool[i].isFree = false;
+                    m_Pool[i].obj.SetActive(true);
+                    return m_Pool[i].obj;
+                }
+            }
+
+            int idx = m_Pool.Count;
+            // not enough
+            for (int j = 0; j < idx; ++j)
+            {
+                m_Pool.Add(new PoolObject(m_type, m_ParentContainer.transform));
+                vtable[m_Pool[j + idx].GetInstanceID()] = j + idx;
+            }
+
+            m_Pool[idx].isFree = false;
+            return m_Pool[idx].obj;
+        }
+
+        public void ReturnObject(GameObject obj)
+        {
+            PoolObject pObj = m_Pool[vtable[obj.GetHashCode()]];
+            pObj.isFree = true;
+            pObj.obj.SetActive(false);
+            pObj.obj.transform.parent = m_ParentContainer.transform;
+        }
+
+        public void EmptyPool()
+        {
+            m_IsFilled = 0;
+            m_Pool.Clear();
+            vtable.Clear();
+        }
+
+        public void CheckContainerIntegrity()
+        {
+            if (m_IsFilled == 0)
+            {
+                // need to refill
+                FillPool();
+            }
+        }
+    }
+
+
     [Header("Required Gameobjects")]
     public GameObject m_ButtonPrefab;
 
@@ -151,6 +156,7 @@ public class UI_SkillTree : BaseWindowBehaviour
 
     [Header("Equip skill Panel")]
     public GameObject m_EquipSkillPanel;
+    public UI_SkillEquipIconHelper m_EquipIconHelper;
 
     public Dictionary<JobType, List<GameObject>> m_SkillTreeCache = new Dictionary<JobType, List<GameObject>>();
 
@@ -167,7 +173,7 @@ public class UI_SkillTree : BaseWindowBehaviour
         Clean = 0,
         JobChange = 1 << 0,
         ScrollPanel = 1 << 1,
-        PanelUpdated = 1 << 2
+        PanelUpdated = 1 << 2,
     }
 
     private m_Dirty m_DirtyBit;
@@ -175,7 +181,9 @@ public class UI_SkillTree : BaseWindowBehaviour
     private int m_NewJobSelected;
 
     private UI_SkillButton m_CurrentActive;
-    private List<UI_SkillSelectButton> m_EquipSkillInv;
+    //private List<UI_SkillSelectButton> m_EquipSkillInv;
+
+    private UI_SkillButton[] m_SkillButtonChanged;
 
     // scrolling panel
     private float m_StartPos;
@@ -220,12 +228,18 @@ public class UI_SkillTree : BaseWindowBehaviour
         // update server on slot groups
         RPCFactory.NonCombatRPC.UpdateEquipSlots(m_EquipSlotGroup, m_AutoSlotGroup);
 
+        m_SelectSkillDDL.OnDeselected();
+        m_SelectSkillDDL.CloseUI();
+
         CloseWindows();
         base.OnCloseWindow();
         //clean up
 
+        m_SkillDescriptor.OnClosed();
+        m_CurrentActive = null;
         m_SkillDescriptor.gameObject.SetActive(false);
         m_SpecialSkillPanel.gameObject.SetActive(false);
+        
         //m_CloseEquip.gameObject.SetActive(false);
         m_ScrollPanel.SetActive(false);
 
@@ -312,30 +326,38 @@ public class UI_SkillTree : BaseWindowBehaviour
         }
         m_JobTitle.text = JobSectRepo.GetJobLocalizedName(m_DisplayType);
         m_SkillDescriptor.Initialise(this.transform);
-        m_SkillDescriptor.gameObject.SetActive(false);
+        m_SkillDescriptor.CloseUI();
 
         m_EquippableSize = GameInfo.gLocalPlayer.SkillStats.EquipSize;
-        m_EquipSkillInv = new List<UI_SkillSelectButton>(m_EquippableSize + 1);
+        //m_EquipSkillInv = new List<UI_SkillSelectButton>(m_EquippableSize + 1);
         m_AutoSlotGroup = GameInfo.gLocalPlayer.SkillStats.AutoGroup;
         m_EquipSlotGroup = GameInfo.gLocalPlayer.SkillStats.EquipGroup;
         m_ScrollPanelGroup.Value = m_EquipSlotGroup;
 
-        for (int i = 0; i < m_EquippableSize; ++i)
-        {
-            GameObject label = Instantiate(m_EquipSkillIconPrefab, m_SelectSkillContentRect);
-            //UI_SkillSelectButton b = label.GetComponent<UI_SkillSelectButton>();
-            m_EquipSkillInv.Add(label.GetComponent<UI_SkillSelectButton>());
-            m_EquipSkillInv[i].m_parentPanel = this;
-            m_EquipSkillInv[i].m_skgID = i;
-            m_EquipSkillInv[i].Init(OnSelectEquipSkill);
-        }
+        m_EquipIconHelper.Init(this);
+        m_EquipIconHelper.CreateSkillEquipPanel(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill, m_EquippableSize);
+        m_EquipIconHelper.CreateSkillEquipPanel(UI_SkillEquipIconHelper.ePanelType.eAutoSkill, m_EquippableSize);
+        //m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill);
+        //for (int i = 0; i < m_EquippableSize; ++i)
+        //{
+        //    GameObject label = Instantiate(m_EquipSkillIconPrefab, m_SelectSkillContentRect);
+        //    //UI_SkillSelectButton b = label.GetComponent<UI_SkillSelectButton>();
+        //    m_EquipSkillInv.Add(label.GetComponent<UI_SkillSelectButton>());
+        //    m_EquipSkillInv[i].m_parentPanel = this;
+        //    m_EquipSkillInv[i].m_skgID = i;
+        //    m_EquipSkillInv[i].Init(OnSelectEquipSkill);
+        //}
 
-        m_EquipSkillInv.Add(m_EquipSkillInv[0]);
+        //m_EquipSkillInv.Add(m_EquipSkillInv[0]);
         m_SelectSkillDDL.m_PanelPanel = this;
         m_SelectSkillDDL.Initialise(this.transform);
         m_SpecialSkillPanel.m_Parent = this;
         m_SpecialSkillPanel.Initialise(this.transform);
         m_SpecialSkillPanel.GenerateList(m_DisplayType);
+
+        m_SkillButtonChanged = new UI_SkillButton[2];
+        m_SkillButtonChanged[0] = m_SkillButtonChanged[1] = null;
+
     }
 
     private void Update()
@@ -387,7 +409,7 @@ public class UI_SkillTree : BaseWindowBehaviour
                 //m_SkillPanel.transform.localPosition = new Vector3(m_FinalPos, m_SkillPanel.transform.localPosition.y);
             }
         }
-
+        
         if (m_SkillPanelContentRect.transform.localPosition.x >= 0)
         {
             m_Left.SetActive(false);
@@ -405,6 +427,8 @@ public class UI_SkillTree : BaseWindowBehaviour
         {
             m_Right.SetActive(true);
         }
+
+        
     }
 
     // press job -> send new type here
@@ -538,7 +562,8 @@ public class UI_SkillTree : BaseWindowBehaviour
                             // check for dependancy
                             ParseSkillDependency(m_DisplayType, button, dict[col]);
 
-                        button.Init(dict[col], delegate { button.OnSelected(); });
+                        button.Init(dict[col]);
+                        button.AddListener(OnSelectSkill);
                         button.transform.SetParent(m_SkillTreeCache[m_DisplayType][row].transform);
                         button.transform.localPosition = new Vector3(button.transform.localPosition.x, button.transform.localPosition.y, 0);
                         button.transform.localScale = new Vector3(1, 1, 1);
@@ -562,11 +587,13 @@ public class UI_SkillTree : BaseWindowBehaviour
     {
         m_SkillDescriptor.OnClosed();
         m_SkillDescriptor.CloseUI();
+        m_CurrentActive = null;
+        //m_SelectSkillDDL.CloseUI();
         m_SelectSkillDDL.gameObject.SetActive(false);
         m_SpecialSkillPanel.m_SkillDescriptor.gameObject.SetActive(false);
         m_SpecialSkillPanel.CloseUI();
         //m_SpecialSkillPanel.gameObject.SetActive(false);
-        m_EquipSkillPanel.SetActive(false);
+        //m_EquipSkillPanel.SetActive(false);
 
         if (!isBottom)
             m_CloseEquip.onClick.Invoke();
@@ -574,8 +601,9 @@ public class UI_SkillTree : BaseWindowBehaviour
 
     public void CloseWindowsOnSkillSelect()
     {
+        m_SelectSkillDDL.CloseUI();
         m_SelectSkillDDL.gameObject.SetActive(false);
-        m_SpecialSkillPanel.CloseUI();
+        //m_SpecialSkillPanel.CloseUI();
         //m_SpecialSkillPanel.gameObject.SetActive(false);
         m_EquipSkillPanel.SetActive(false);
         m_CloseEquip.onClick.Invoke();
@@ -607,20 +635,24 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_SkillDescriptor.CloseUI();
     }
 
-    public void OnSelectSkill(UI_SkillButton button)
+    public void OnSelectSkill(UI_SkillButtonBase button)
     {
-        if (button.m_Toggle.isOn && m_CurrentActive != button && m_CurrentActive != null)
-            //if(m_CurrentActive != button && m_CurrentActive != null)
-            m_CurrentActive.m_Toggle.isOn = false;
-
-        // this function is called twice as 2 buttons has state changes
-        if (button.m_Toggle.isOn)
+        if (m_CurrentActive == null)
         {
-            //CloseWindows();
+            // no selected button
+            m_CurrentActive = (UI_SkillButton)button;
             CloseWindowsOnSkillSelect();
-            m_CurrentActive = button;
+            // first select
             m_SkillDescriptor.gameObject.SetActive(true);
-            m_SkillDescriptor.Show(m_CurrentActive);
+            m_SkillDescriptor.Show((UI_SkillButton)button);
+        }
+
+        else if (m_CurrentActive != button)
+        {
+            m_SkillDescriptor.OnClosed();
+            m_CurrentActive.m_Toggle.isOn = false;
+            m_SkillDescriptor.Show((UI_SkillButton)button);
+            m_CurrentActive = (UI_SkillButton)button;
 
             m_StartPos = m_SkillPanelContentRect.transform.localPosition.x;
             m_FinalPos = -(button.transform.localPosition.x - 179);
@@ -628,17 +660,44 @@ public class UI_SkillTree : BaseWindowBehaviour
                 m_FinalPos = 0;
             m_DirtyBit |= m_Dirty.ScrollPanel;
         }
-        else if (!button.m_Toggle.isOn && button == m_CurrentActive)
+        else
         {
+            button.m_Toggle.isOn = false;
             m_SkillDescriptor.OnClosed();
-            //m_SkillDescriptor.CloseUI();
+            m_SkillDescriptor.CloseUI();
+            m_CurrentActive = null;
         }
+
+        //// this function is called twice as 2 buttons has state changes
+        //if (button.m_Toggle.isOn)
+        //{
+        //    //CloseWindows();
+        //    CloseWindowsOnSkillSelect();
+        //    m_CurrentActive = button;
+        //    m_SkillDescriptor.gameObject.SetActive(true);
+        //    m_SkillDescriptor.Show(m_CurrentActive);
+
+        //    m_StartPos = m_SkillPanelContentRect.transform.localPosition.x;
+        //    m_FinalPos = -(button.transform.localPosition.x - 179);
+        //    if (m_FinalPos > 0.1f)
+        //        m_FinalPos = 0;
+        //    m_DirtyBit |= m_Dirty.ScrollPanel;
+        //}
+        //else if (!button.m_Toggle.isOn && button == m_CurrentActive)
+        //{
+        //    m_SkillDescriptor.OnClosed();
+        //    //m_SkillDescriptor.CloseUI();
+        //}
     }
 
     public void CloseSkillDescriptor()
     {
         if (m_CurrentActive != null)
+        {
             m_CurrentActive.m_Toggle.isOn = false;
+            m_SkillDescriptor.OnClosed();
+            m_CurrentActive = null;
+        }
     }
 
     public void ReloadSkillDescriptor()
@@ -647,77 +706,19 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_SkillDescriptor.Show(m_CurrentActive);
     }
 
-    public void OnSelectEquipSkill(UI_SkillSelectButton button)
-    {
-        if (m_EquipSkillInv[button.m_skgID].m_Toggle.isOn == true)
-        {
-            // currently selected
-            if (button.m_skgID != m_EquipSkillInv[m_EquippableSize].m_skgID && m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn == true)
-            {
-                m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn = false;
-            }
-            m_EquipSkillInv[m_EquippableSize] = button;
-            m_SelectSkillDDL.GenerateSkillList();
-            CloseSkillDescriptor();
-            CloseWindows(true);
-            m_SelectSkillDDL.gameObject.SetActive(true);
-        }
-    }
 
     public void OnCloseSelectEquipSkill()
     {
-        m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn = false;
+        m_EquipIconHelper.ClosePanel();
     }
 
     public void OnEquipSkill(int id)
     {
-        // check for selected skill repeat status
-        for (int i = 0; i < m_EquippableSize; ++i)
-        {
-            if (m_EquipSkillInv[i].m_Skillid == id)
-            {
-                if (m_EquipSkillInv[m_EquippableSize].m_Skillid != 0)
-                {
-                    // swap with selected
-                    int _id = m_EquipSkillInv[m_EquippableSize].m_Skillid;
-                    m_EquipSkillInv[i].EquipSkill(_id);
 
-                    break;
-                }
-                else
-                {
-                    m_EquipSkillInv[i].m_Skillid = 0;
-                    m_EquipSkillInv[i].m_Icon.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Skill/00_ActiveEmpty.png");
-                    if (GameInfo.gLocalPlayer != null)
-                    {
-                        if (isPlayerEquip)
-                        {
-                            RPCFactory.NonCombatRPC.RemoveEquipSkill(i, m_EquipSlotGroup);
-                            //GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquipSkillInv[i].m_skgID * m_EquipSlotGroup] = 0;
-                        }
-                        else
-                        {
-                            RPCFactory.NonCombatRPC.RemoveAutoEquipSkill(i, m_AutoSlotGroup);
-                            //GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquipSkillInv[i].m_skgID * m_EquipSlotGroup] = 0;
-                        }
-                    }
-                }
-            }
-        }
-
-        // set the icon of selected to this skill's icon
-        m_EquipSkillInv[m_EquippableSize].EquipSkill(id);
+        m_EquipIconHelper.OnSelectEquip(id);
 
         // close the drop down and filter
         m_SelectSkillDDL.OnEquipedSkill(id);
-
-        if (GameInfo.gLocalPlayer != null)
-        {
-            if (isPlayerEquip)
-                RPCFactory.NonCombatRPC.EquipSkill(id, m_EquipSkillInv[m_EquippableSize].m_skgID, m_EquipSlotGroup);
-            else
-                RPCFactory.NonCombatRPC.AutoEquipSkill(id, m_EquipSkillInv[m_EquippableSize].m_skgID, m_AutoSlotGroup);
-        }
     }
 
     public void OnEventSkillLevelUp(byte result, int skillid, int skillpoint, int money)
@@ -830,6 +831,11 @@ public class UI_SkillTree : BaseWindowBehaviour
         return m_EquipSlotGroup;
     }
 
+    public int GetAutoGroup()
+    {
+        return m_AutoSlotGroup;
+    }
+
     public int GetMaxEquipSize()
     {
         return m_EquippableSize;
@@ -844,18 +850,22 @@ public class UI_SkillTree : BaseWindowBehaviour
         if (isPlayerEquip)
         {
             m_ScrollPanelGroup.Value = m_EquipSlotGroup;
-            for (int i = 0; i < m_EquippableSize; ++i)
-            {
-                m_EquipSkillInv[i].EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
-            }
+            //for (int i = 0; i < m_EquippableSize; ++i)
+            //{
+            //    m_EquipSkillInv[i].EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
+            //}
+            m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill);
+            m_EquipIconHelper.ShowPanel();
         }
         else
         {
             m_ScrollPanelGroup.Value = m_AutoSlotGroup;
-            for (int i = 0; i < m_EquippableSize; ++i)
-            {
-                m_EquipSkillInv[i].EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
-            }
+            //for (int i = 0; i < m_EquippableSize; ++i)
+            //{
+            //    m_EquipSkillInv[i].EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
+            //}
+            m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.eAutoSkill);
+            m_EquipIconHelper.ShowPanel();
         }
     }
 
@@ -867,13 +877,15 @@ public class UI_SkillTree : BaseWindowBehaviour
             else
             {
                 --m_EquipSlotGroup;
+                m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill);
+                m_EquipIconHelper.ShowPanel();
 
-                for (int i = 0; i < m_EquippableSize; ++i)
-                {
-                    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
-                }
+                //for (int i = 0; i < m_EquippableSize; ++i)
+                //{
+                //    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
+                //}
 
-                GameInfo.gLocalPlayer.SkillStats.EquipGroup = m_EquipSlotGroup;
+                //GameInfo.gLocalPlayer.SkillStats.EquipGroup = m_EquipSlotGroup;
             }
         }
         else
@@ -882,17 +894,19 @@ public class UI_SkillTree : BaseWindowBehaviour
             else
             {
                 --m_AutoSlotGroup;
+                m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.eAutoSkill);
+                m_EquipIconHelper.ShowPanel();
 
-                for (int i = 0; i < m_EquippableSize; ++i)
-                {
-                    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
-                }
+                //for (int i = 0; i < m_EquippableSize; ++i)
+                //{
+                //    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
+                //}
 
-                GameInfo.gLocalPlayer.SkillStats.AutoGroup = m_AutoSlotGroup;
+                //GameInfo.gLocalPlayer.SkillStats.AutoGroup = m_AutoSlotGroup;
             }
         }
 
-        m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn = false;
+        //m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn = false;
     }
 
     public void OnSelectGroupEquipUp()
@@ -903,11 +917,13 @@ public class UI_SkillTree : BaseWindowBehaviour
             else
             {
                 ++m_EquipSlotGroup;
+                m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill);
+                m_EquipIconHelper.ShowPanel();
 
-                for (int i = 0; i < m_EquippableSize; ++i)
-                {
-                    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
-                }
+                //for (int i = 0; i < m_EquippableSize; ++i)
+                //{
+                //    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.EquippedSkill[m_EquippableSize * (m_EquipSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
+                //}
 
                 //GameInfo.gLocalPlayer.SkillStats.EquipGroup = m_EquipSlotGroup;
             }
@@ -918,17 +934,19 @@ public class UI_SkillTree : BaseWindowBehaviour
             else
             {
                 ++m_AutoSlotGroup;
+                m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.eAutoSkill);
+                m_EquipIconHelper.ShowPanel();
 
-                for (int i = 0; i < m_EquippableSize; ++i)
-                {
-                    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
-                }
+                //for (int i = 0; i < m_EquippableSize; ++i)
+                //{
+                //    m_EquipSkillInv[i].GetComponent<UI_SkillSelectButton>().EquipSkill((int)GameInfo.gLocalPlayer.SkillStats.AutoSkill[m_EquippableSize * (m_AutoSlotGroup - 1) + m_EquipSkillInv[i].m_skgID]);
+                //}
 
                 //GameInfo.gLocalPlayer.SkillStats.AutoGroup = m_AutoSlotGroup;
             }
         }
 
-        m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn = false;
+        //m_EquipSkillInv[m_EquippableSize].m_Toggle.isOn = false;
         m_SelectSkillDDL.CloseUI();
     }
 

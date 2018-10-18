@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using Zealot.Common;
 using Zealot.Repository;
 
 class EnumUtils
@@ -146,8 +147,23 @@ public class JECharacterManager : MonoBehaviour
         }
     }
 
-    void GoToCharacterCreate(GameObject obj)
+    public void GoToCharacterCreate(GameObject obj)
     {
-        SceneLoader.Instance.LoadLevel("UI_CreateChar");
+        SceneLoader.Instance.LoadLevel("UI_LoginHierarchy_test", () => { GoToCharacterCreation(); });
+    }
+
+    public void GoToCharacterCreation()
+    {
+        UIManager.StopHourglass();
+        if (GameInfo.gLobby.mCharacterList != null && GameInfo.gLobby.mCharacterList.Count > 0)
+        {
+            UIManager.OpenWindow(WindowType.CharacterCreation, (window) => window.GetComponent<UI_CharacterCreation>().InitFromSelection(GameInfo.gLobby.mCharacterList));
+            UIManager.CloseWindow(WindowType.CharacterSelection);
+        }
+        else
+        {
+            UIManager.OpenWindow(WindowType.CharacterCreation, (window) => window.GetComponent<UI_CharacterCreation>().InitFromLogin());
+            UIManager.CloseWindow(WindowType.CharacterSelection);
+        }
     }
 }

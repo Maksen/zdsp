@@ -15,51 +15,8 @@
 
     public partial class GameLogic
     {
-        [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.InsertCharacter)]
-        public async Task<OperationResponse> InsertCharacter(byte jobsect, byte talent, byte faction, string charname, GameClientPeer peer)
-        {
-            string filteredTxt = "";
-            if (WordFilterRepo.FilterString(charname, '*', FilterType.Naming, out filteredTxt))
-            {
-                peer.ZRPC.LobbyRPC.ShowSystemMessage("sys_CharCreation_ForbiddenWord", peer);
-                return null;
-            }
-
-            if (peer.GetCharacterCount() >= 4)
-            {
-                peer.ZRPC.LobbyRPC.ShowSystemMessage("ret_CharCreation_CharactersMoreThan3", peer);
-                return null;
-            }
-            jobsect = 0;
-            var chardefault = GameRules.NewCharacterData(false, charname, jobsect, faction, talent);
-            string strChar = chardefault.SerializeForDB(false);            
-
-            int serverline = GameApplication.Instance.GetMyServerline();
-            string userId = peer.mUserId;
-
-            Tuple<Guid?, bool> result = 
-                await GameApplication.dbRepository.Character.InsertNewCharacter(userId, charname, serverline, chardefault.JobSect, chardefault.portraitID, chardefault.Faction, strChar);         
-            if (!result.Item1.HasValue)
-            {
-                bool nameExists = result.Item2;
-                peer.ZRPC.LobbyRPC.ShowSystemMessage("ret_CharCreation_NameExists", peer);
-            }
-            else
-            {
-                //may change
-                //byte recommend = (byte)GameApplication.Instance.Leaderboard.GetFactionRecommend();
-                byte recommend = 0;
-                string charId = result.Item1.ToString();
-                ZLogCreateChar(peer, charId, jobsect, faction, recommend);
-
-                await GetCharacters(peer);
-                //await EnterGame(charname, peer);
-            }
-            return null;
-        }
-
         [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.GetCharacters)]
-        public async Task GetCharacters(GameClientPeer peer)
+        public async Task GetCharacters(bool newcharacter, GameClientPeer peer)
         {
             // Get from database and return
             List<Dictionary<string, object>> chars = await GameApplication.dbRepository.Character.GetByUserID(peer.mUserId, GameApplication.Instance.GetMyServerline());
@@ -69,68 +26,94 @@
             GetCharactersList chardataList = new GetCharactersList();
             int latestLogoutIndex = 0;
             DateTime latestLogoutDatetime = DateTime.MinValue;
-            //try
-            //{
-                for (int index = 0; index < chars.Count; ++index)
+            for (int index = 0; index < chars.Count; ++index)
+            {
+                Dictionary<string, object> chardata = chars[index];
+                //Find closest logout date time, then pass argu to InitCharacterList
+                DateTime dtlogout = (DateTime)chardata["dtlogout"];
+                if (latestLogoutDatetime < dtlogout)
                 {
-                    Dictionary<string, object> chardata = chars[index];
-                    //Find closest logout date time, then pass argu to InitCharacterList
-                    DateTime dtlogout = (DateTime)chardata["dtlogout"];
-                    if (latestLogoutDatetime < dtlogout)
-                    {
-                        latestLogoutIndex = index;
-                        latestLogoutDatetime = dtlogout;
-                    }
-
-                    // Deserializefromdb, Serializeforclient
-                    CharacterData cd = CharacterData.DeserializeFromDB((string)chardata["characterdata"]);
-                    if (cd != null)
-                    {
-                        CharacterCreationData ccd = new CharacterCreationData();
-                        ccd.Name = cd.Name;
-                        ccd.JobSect = cd.JobSect;
-                        ccd.ProgressLevel = cd.ProgressLevel;
-                        ccd.EquipmentInventory = cd.EquipmentInventory;
-                        chardataList.CharList.Add(ccd);
-                    }
+                    latestLogoutIndex = index;
+                    latestLogoutDatetime = dtlogout;
                 }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.Error(ex.ToString());
-            //    GameApplication.Instance.RethrowAsyncException(ex);
-            //}
+
+                // Deserializefromdb, Serializeforclient
+                CharacterData cd = CharacterData.DeserializeFromDB((string)chardata["characterdata"]);
+                if (cd != null)
+                {
+                    CharacterCreationData ccd = new CharacterCreationData();
+                    ccd.Name = cd.Name;
+                    ccd.JobSect = cd.JobSect;
+                    ccd.Gender = cd.Gender;
+                    ccd.Levelid = cd.lastlevelid;
+                    ccd.RemoveCharDT = cd.RemoveCharDT;
+                    ccd.ProgressLevel = cd.ProgressLevel;
+                    ccd.EquipmentInventory = cd.EquipmentInventory;
+                    chardataList.CharList.Add(ccd);
+                }
+            }
             peer.CharacterList = chars;
-            peer.ZRPC.LobbyRPC.GetCharactersResult(chardataList.Serialize(), latestLogoutIndex, peer);
+            peer.ZRPC.LobbyRPC.GetCharactersResult(chardataList.Serialize(), latestLogoutIndex, newcharacter, peer);
         }
 
-        //[RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.DeleteCharacter)]
-        //public async Task DeleteCharacter(string charname, HivePeer peer)
-        //{
-        //    bool result = await GameApplication.dbRepository.Character.DeleteCharacterByName(charname);
-        //    GameClientPeer gp = (peer as GameClientPeer);
-        //    gp.ZRPC.LobbyRPC.DeleteCharacterResult(result, charname, peer);
-        //    if (result)
-        //    {
-        //        List<Dictionary<string, object>> charlist = gp.CharacterList;
-        //        bool found = false;
-        //        int i = 0, charlistCnt = charlist.Count;
-        //        for (; i<charlistCnt; ++i)
-        //        {
-        //            Dictionary<string, object> charinfo = charlist[i];
-        //            string name = charinfo["charname"] as string;
-        //            if (name == charname)
-        //            {
-        //                found = true;
-        //                break;
-        //            }
-        //        }
-        //        if (found)
-        //            charlist.RemoveAt(i);
+        [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.DeleteCharacter)]
+        public async Task DeleteCharacter(string charname, GameClientPeer peer)
+        {
+            CharacterData characterData = null;
+            string charid = "";
+            foreach (Dictionary<string, object> charinfo in peer.CharacterList)
+            {
+                if (charname.Equals((string)charinfo["charname"]))
+                {
+                    string strCharData = (string)charinfo["characterdata"];
+                    charid = charinfo["charid"].ToString();
+                    characterData = CharacterData.DeserializeFromDB(strCharData);
+                    break;
+                }
+            }
 
-        //        gp.CharacterList = charlist;
-        //    }
-        //}
+            if (characterData  != null)
+            {
+                if (string.IsNullOrEmpty(characterData.RemoveCharDT))
+                {
+                    DateTime endtime = DateTime.Now.AddHours(24);
+                    characterData.RemoveCharDT = string.Format("{0:yyyy}.{0:MM}.{0:dd}-{0:HH}:{0:mm}", endtime);
+                    peer.SaveCharacterForRemoveCharacter(charid, charname, characterData);
+                    peer.ZRPC.LobbyRPC.DeleteCharacterResult(0, charname, characterData.RemoveCharDT, peer);
+                }
+                else
+                {
+                    DateTime endDT = DateTime.ParseExact(characterData.RemoveCharDT, "yyyy.MM.dd-HH:mm", null);
+                    if (DateTime.Now > endDT)
+                    {
+                        peer.ZRPC.LobbyRPC.DeleteCharacterResult(1, charname, characterData.RemoveCharDT, peer);
+                    }
+                    else
+                    {
+                        bool result = await GameApplication.dbRepository.Character.DeleteCharacterByName(charname);
+                        peer.ZRPC.LobbyRPC.DeleteCharacterResult(result ? 2 : 3, charname, characterData.RemoveCharDT, peer);
+                        if (result)
+                        {
+                            List<Dictionary<string, object>> charlist = peer.CharacterList;
+                            for (int i = 0; i < charlist.Count; i++)
+                            {
+                                Dictionary<string, object> charinfo = peer.CharacterList[i];
+                                string name = charinfo["charname"] as string;
+                                if (name == charname)
+                                {
+                                    peer.CharacterList.RemoveAt(i);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }               
+            else
+            {
+                peer.ZRPC.LobbyRPC.DeleteCharacterResult(3, charname, "", peer);
+            }
+        }
 
         [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.EnterGame)]
         public void EnterGame(string charname, GameClientPeer peer)
@@ -213,21 +196,88 @@
             ZRPC.NonCombatRPC.SendString(LevelRepo.GetLevelDataString(), peer);
         }
 
-        //private void ZLogCreateChar(GameClientPeer playerPeer,string charName,byte job,byte factionSelect)
-        private void ZLogCreateChar(GameClientPeer playerPeer, string charId, byte job, byte factionSelect, byte recommend)
+        [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.CheckCharacterName)]
+        public async Task<OperationResponse> CheckCharacterName(string charname, GameClientPeer peer)
+        {
+            Tuple<bool, string> result = await GameApplication.dbRepository.Character.IsCharacterExists(charname);
+            peer.ZRPC.LobbyRPC.CheckCharacterNameResult(result.Item1, peer);
+            return null;
+        }
+
+        [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.CreateCharacter)]
+        public async Task<OperationResponse> CreateCharacter(string charname, byte gender, int hairstyle, int haircolor, int makeup, int skincolor, GameClientPeer peer)
+        {
+            if (peer.GetCharacterCount() >= 4)
+            {
+                peer.ZRPC.LobbyRPC.ShowSystemMessage("ret_CharCreation_CharactersMoreThan3", peer);
+                return null;
+            }
+
+            var chardefault = GameRules.NewCharacterData(false, charname, gender, hairstyle, haircolor, makeup, skincolor);
+            string strChar = chardefault.SerializeForDB(false);
+
+            int serverline = GameApplication.Instance.GetMyServerline();
+            string userId = peer.mUserId;
+
+            Tuple<Guid?, bool> result =
+                await GameApplication.dbRepository.Character.InsertNewCharacter(userId, charname, serverline, chardefault.JobSect, chardefault.portraitID, chardefault.Faction, strChar);
+            if (!result.Item1.HasValue)
+            {
+                peer.ZRPC.LobbyRPC.ShowSystemMessage("charactercreation_failed", peer);
+            }
+            else
+            {
+                string charId = result.Item1.ToString();
+                ZLogCreateChar(peer, charId, (byte)JobType.Newbie, gender, hairstyle, haircolor, makeup, skincolor);
+
+                await GetCharacters(true, peer);
+            }
+            return null;
+        }
+
+        [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.CancelDeleteCharacter)]
+        public void CancelDeleteCharacter(string charname, GameClientPeer peer)
+        {
+            CharacterData characterData = null;
+            string charid = "";
+            foreach (Dictionary<string, object> charinfo in peer.CharacterList)
+            {
+                if (charname.Equals((string)charinfo["charname"]))
+                {
+                    string strCharData = (string)charinfo["characterdata"];
+                    charid = charinfo["charid"].ToString();
+                    characterData = CharacterData.DeserializeFromDB(strCharData);
+                    break;
+                }
+            }
+
+            if (characterData != null)
+            {
+                characterData.RemoveCharDT = "";
+                peer.SaveCharacterForRemoveCharacter(charid, charname, characterData);
+                peer.ZRPC.LobbyRPC.CancelDeleteCharacterResult(true, charname, peer);
+            }
+            else
+            {
+                peer.ZRPC.LobbyRPC.CancelDeleteCharacterResult(false, charname, peer);
+            }
+        }
+
+        private void ZLogCreateChar(GameClientPeer playerPeer, string charId, byte job, byte gender, int hairstyle, int haircolor, int makeup, int skincolor)
         {
             
-            //玩家ID，職業ID，時間，選擇武林，我們推薦武林，選擇武林是否為推薦武
+            //玩家ID，職業ID，時間，外觀
 
             string jobString = Enum.GetName(typeof(JobType), job);
-            string selectedFactionString = Enum.GetName(typeof(FactionType), factionSelect);
-            string recommandedFactionString = Enum.GetName(typeof(FactionType), recommend);
+            string genderString = Enum.GetName(typeof(Gender), gender);
 
-            string message = string.Format(@"jobsect: {0} | selectedFaction: {1} | recommandedFaction: {2} | isRecommanded : {3} | charId : {4}",
+            string message = string.Format(@"jobsect: {0} | selectedGender: {1} | selectedHairStyle: {2} | selectedHairColor: {3} | selectedMakeUp: {4} | selectedSkinColor: {5} | charId : {6}",
                 jobString,
-                selectedFactionString,
-                recommandedFactionString,
-                (factionSelect == recommend),
+                genderString,
+                hairstyle,
+                haircolor,
+                makeup,
+                skincolor,
                 charId);
 
             Zealot.Logging.Client.LogClasses.CreateChar createCharLog = new Zealot.Logging.Client.LogClasses.CreateChar();
@@ -235,9 +285,6 @@
             createCharLog.charId = charId;
             createCharLog.message = message;
             createCharLog.jobsect = jobString;
-            createCharLog.selectedFaction = selectedFactionString;
-            createCharLog.recommandedFaction = recommandedFactionString;//temp
-            createCharLog.isRecommanded = (factionSelect == recommend);
             var ignoreAwait = Zealot.Logging.Client.LoggingAgent.Instance.LogAsync(createCharLog);
         }
     }

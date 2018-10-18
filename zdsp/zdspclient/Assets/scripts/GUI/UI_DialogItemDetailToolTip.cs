@@ -1164,6 +1164,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         PlayerGhost pg = GameInfo.gLocalPlayer;
         GameObject avaObj = m3DAvatar.GetOutfitModel();
         AvatarController ac = avaObj.GetComponent<AvatarController>();
+        EquipmentInventoryData equipmentInvData = pg.mEquipmentInvData.CloneJson();
+        List<int> appearance = pg.mEquipmentInvData.AppearanceSlots;
         Equipment eq = mItem as Equipment;
 
         switch (eq.EquipmentJson.partstype)
@@ -1176,41 +1178,25 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             case PartsType.Fan:
             case PartsType.Lance:
             case PartsType.Sanxian:
-                ac.OnWeaponChanged(eq.EquipmentJson.prefabpath);
+                equipmentInvData.SetEquipmentToSlot((int)EquipmentSlot.Weapon, eq);
                 break;
             case PartsType.Helm:
-                ac.OnSkinChanged("helm", eq.EquipmentJson, pg.mGender);
+                equipmentInvData.SetEquipmentToSlot((int)EquipmentSlot.Helm, eq);
                 break;
             case PartsType.Body:
-                ac.OnSkinChanged("body", eq.EquipmentJson, pg.mGender);
+                equipmentInvData.SetEquipmentToSlot((int)EquipmentSlot.Body, eq);
                 break;
             case PartsType.Wing:
-                ac.OnBackChanged(eq.EquipmentJson.prefabpath);
+                equipmentInvData.SetEquipmentToSlot((int)EquipmentSlot.Back, eq);
                 break;
             case PartsType.Bathrobe:
-                int len = eq.EquipmentJson.malemeshpath.Length + eq.EquipmentJson.femalemeshpath.Length +
-                          eq.EquipmentJson.malematerialpath.Length + eq.EquipmentJson.femalematerialpath.Length;
-                if (len == 0)
-                {
-                    Debug.LogError("HUD_ItemDetailTooltip.Toggle3DViewEquipment: Bathrobe has no mesh & material path");
-                    return;
-                }
-
-                string meshPath = (pg.mGender == Gender.Male) ? eq.EquipmentJson.malemeshpath : eq.EquipmentJson.femalemeshpath;
-                string matPath = (pg.mGender == Gender.Male) ? eq.EquipmentJson.malematerialpath : eq.EquipmentJson.femalematerialpath;
-
-                //Remove all appearance equipment
-                ac.Unequip("weapon_r");
-                ac.Unequip("helm");
-                ac.Unequip("body");
-                //Wear robe if there is robe, robe has mesh and skin
-                ac.OnSkinChanged("body", meshPath, matPath);
-                //Wear headtowel if there is path written in kopio, headtowel has mesh and skin
-                ac.OnSkinChanged("helm", meshPath, matPath);
+                equipmentInvData.SetFashionToSlot((int)FashionSlot.Bathrobe, eq);
                 break;
             default:
                 break;
         }
+
+        ac.InitAvatar(equipmentInvData, pg.GetJobSect(), pg.mGender);
     }
     private bool is3DViewable(IInventoryItem item)
     {

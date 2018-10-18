@@ -159,9 +159,12 @@
     <Compile Include="ClusterServers\GameServer\IncomingGameServerPeer.cs" />
     <Compile Include="Entities\HeroEntity.cs" />
     <Compile Include="Entities\PersonalMonsterSpawner.cs" />
+    <Compile Include="Entities\Triggers\InteractiveTrigger.cs" />
     <Compile Include="Entities\Triggers\RandomTrigger.cs" />
     <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
     <Compile Include="GameServer\Achievement\AchievementStatsServer.cs" />
+    <Compile Include="GameServer\Combat\CombatFormula.cs" />
+    <Compile Include="GameServer\Combat\CombatNode.cs" />
     <Compile Include="GameServer\DestinyClue\DestinyClueController.cs" />
     <Compile Include="GameServer\EquipFushion\EquipFushionController.cs" />
     <Compile Include="GameServer\EquipmentCraft\EquipmentCraftController.cs" />
@@ -491,7 +494,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GameServer\Combat\" />
     <Folder Include="RPC\Receiver\ClientGame\" />
     <Folder Include="RPC\Receiver\ClientMaster\" />
     <Folder Include="RPC\Receiver\ClusterMaster\" />

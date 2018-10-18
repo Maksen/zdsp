@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -186,6 +187,28 @@ public class PrefabContainer : BaseAssetContainer
     private static bool IsPrefab(GameObject go)
     {
         return (PrefabUtility.GetPrefabParent(go) == null && PrefabUtility.GetPrefabObject(go) != null);
+    }
+
+    public override void UpdateAndRefreshContainer()
+    {
+        string[] extensionArray = ".prefab".Split(';');
+        string path = "Assets/" + containerAssetsPath;
+        var files = Directory.GetFiles(path, "*.*", AddSubFolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+        foreach (var file in files)
+        {
+            foreach (string extension in extensionArray)
+            {
+                if (file.EndsWith(extension) && !file.Contains("@"))
+                {
+                    string assetPath = file.Replace(Application.dataPath, "").Replace('\\', '/');
+                    GameObject asset = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+                    if (asset != null)
+                        AddAsset<GameObject>(asset);
+                    break;
+                }
+            }
+        }
+        EditorUtility.SetDirty(this);
     }
 #endif
 }

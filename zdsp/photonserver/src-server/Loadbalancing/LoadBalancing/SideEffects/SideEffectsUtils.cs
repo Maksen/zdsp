@@ -190,6 +190,193 @@
             {EffectType.Control_Taunt, ControlSEType.Taunt }
         };
 
+        public enum EffectHandleType : byte
+        {
+            Buff,
+            Debuff,
+            Control,
+            Immune,
+            Trigger,
+            NonUpdates,
+            Updates
+        }
+
+        private static Dictionary<EffectType, EffectHandleType> m_EffectHandleTypes = new Dictionary<EffectType, EffectHandleType>()
+        {
+            {EffectType.Damage_NoElementDamage,             EffectHandleType.NonUpdates},
+            {EffectType.Damage_MetalDamage,                 EffectHandleType.NonUpdates },
+            {EffectType.Damage_WoodDamage,                  EffectHandleType.NonUpdates },
+            {EffectType.Damage_EarthDamage,                 EffectHandleType.NonUpdates },
+            {EffectType.Damage_WaterDamage,                 EffectHandleType.NonUpdates },
+            {EffectType.Damage_FireDamage,                  EffectHandleType.NonUpdates },
+            {EffectType.Damage_DamageBaseOnWeaponElement,   EffectHandleType.NonUpdates },
+            {EffectType.Damage_PureDamage,                  EffectHandleType.NonUpdates },
+
+            {EffectType.Stats_Strength,                     EffectHandleType.Buff },
+            {EffectType.Stats_Agility,                      EffectHandleType.Buff },
+            {EffectType.Stats_Dexterity,                    EffectHandleType.Buff },
+            {EffectType.Stats_Constitution,                 EffectHandleType.Buff },
+            {EffectType.Stats_Intelligence,                 EffectHandleType.Buff },
+            {EffectType.Stats_AttackSpeed,                  EffectHandleType.Buff },
+            {EffectType.Stats_AttackSpeed_Debuff,           EffectHandleType.Debuff },
+            {EffectType.Stats_CastSpeed,                    EffectHandleType.Buff },
+            {EffectType.Stats_CastSpeed_Debuff,             EffectHandleType.Debuff },
+            {EffectType.Stats_MoveSpeed,                    EffectHandleType.Buff },
+            {EffectType.Stats_MoveSpeed_Debuff,             EffectHandleType.Debuff },
+            {EffectType.Stats_ExpBonus,                     EffectHandleType.Buff },
+            {EffectType.Stats_MaxHealth,                    EffectHandleType.Buff },
+            {EffectType.Stats_HealthRegen,                  EffectHandleType.Buff },
+            {EffectType.Stats_MaxMana,                      EffectHandleType.Buff },
+            {EffectType.Stats_ManaRegen,                    EffectHandleType.Buff },
+            {EffectType.Stats_EnergyShield,                 EffectHandleType.NonUpdates },
+            {EffectType.Stats_IgnoreArmor,                  EffectHandleType.Buff },
+            {EffectType.Stats_ChangeEleToNone,              EffectHandleType.NonUpdates },
+            {EffectType.Stats_ChangeEleToMetal,             EffectHandleType.NonUpdates },
+            {EffectType.Stats_ChangeEleToWood,              EffectHandleType.NonUpdates },
+            {EffectType.Stats_ChangeEleToEarth,             EffectHandleType.NonUpdates },
+            {EffectType.Stats_ChangeEleToWater,             EffectHandleType.NonUpdates },
+            {EffectType.Stats_ChangeEleToFire,              EffectHandleType.NonUpdates },
+            {EffectType.Stats_HeavyStand,                   EffectHandleType.NonUpdates },
+            {EffectType.Stats_SkillCostReduce,              EffectHandleType.Buff },
+            {EffectType.Stats_SkillAffectEnhance,           EffectHandleType.Buff },
+            {EffectType.Stats_HealingPoint,                 EffectHandleType.Buff },
+            {EffectType.Stats_HealingPoint_Debuff,          EffectHandleType.Debuff },
+            {EffectType.Stats_HealingEffect,                EffectHandleType.Buff },
+            {EffectType.Stats_HealingEffect_Debuff,         EffectHandleType.Debuff },
+            {EffectType.Stats_HealingIncome,                EffectHandleType.Buff },
+            {EffectType.Stats_HealingIncome_Debuff,         EffectHandleType.Debuff },       
+
+            {EffectType.Rejuvenate_HealthPotion,            EffectHandleType.NonUpdates },
+            {EffectType.Rejuvenate_ManaPotion,              EffectHandleType.NonUpdates },
+            {EffectType.Rejuvenate_Healing,                 EffectHandleType.NonUpdates },
+
+            {EffectType.StatsAttack_WeaponAttack,               EffectHandleType.Buff },
+            {EffectType.StatsAttack_WeaponAttack_Debuff,        EffectHandleType.Debuff },
+            {EffectType.StatsAttack_AttackPower,                EffectHandleType.Buff },
+            {EffectType.StatsAttack_AttackPower_Debuff,         EffectHandleType.Debuff },
+            {EffectType.StatsAttack_Accuracy,                   EffectHandleType.Buff },
+            {EffectType.StatsAttack_Accuracy_Debuff,            EffectHandleType.Debuff },
+            {EffectType.StatsAttack_Critical,                   EffectHandleType.Buff },
+            {EffectType.StatsAttack_Critical_Debuff,            EffectHandleType.Debuff },
+            {EffectType.StatsAttack_CriticalDamage,             EffectHandleType.Buff },
+            {EffectType.StatsAttack_CriticalDamage_Debuff,      EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncSmashDamage,             EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncSmashDamage_Debuff,      EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncSliceDamage,             EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncSliceDamage_Debuff,      EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncPierceDamage,            EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncPierceDamage_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncEleNoneDamage,           EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncEleNoneDamage_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncEleMetalDamage,          EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncEleMetalDamage_Debuff,   EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncEleWoodDamage,           EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncEleWoodDamage_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncEleEarthDamage,          EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncEleEarthDamage_Debuff,   EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncEleWaterDamage,          EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncEleWaterDamage_Debuff,   EffectHandleType.Debuff },
+            {EffectType.StatsAttack_IncEleFireDamage,           EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncEleFireDamage_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSHumanDamage,              EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSHumanDamage_Debuff,       EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSZombieDamage,             EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSZombieDamage_Debuff,      EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSVampireDamage,            EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSVampireDamage_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSAnimalDamage,             EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSAnimalDamage_Debuff,      EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSPlantDamage,              EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSPlantDamage_Debuff,       EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSEleNoneDamage,            EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSEleNoneDamage_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSEleMetalDamage,           EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSEleMetalDamage_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSEleWoodDamage,            EffectHandleType.Buff },
+            {EffectType.StatsAttack_VsEleWoodDamage_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSEleEarthDamage,           EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSEleEarthDamage_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSEleWaterDamage,           EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSEleWaterDamage_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSEleFireDamage,            EffectHandleType.Buff },
+            {EffectType.StatsAttack_VSEleFireDamage_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsAttack_VSBossDamage,               EffectHandleType.Buff },
+            {EffectType.StatsAttack_IncFinalDamage,             EffectHandleType.Buff },
+
+            {EffectType.StatsDefence_Armor,                     EffectHandleType.Buff },
+            {EffectType.StatsDefence_Armor_Debuff,              EffectHandleType.Debuff },
+            {EffectType.StatsDefence_Block,                     EffectHandleType.Buff },
+            {EffectType.StatsDefence_Block_Debuff,              EffectHandleType.Debuff },
+            {EffectType.StatsDefence_BlockValue,                EffectHandleType.Buff },
+            {EffectType.StatsDefence_BlockValue_Debuff,         EffectHandleType.Debuff },
+            {EffectType.StatsDefence_Evasion,                   EffectHandleType.Buff },
+            {EffectType.StatsDefence_Evasion_Debuff,            EffectHandleType.Debuff },
+            {EffectType.StatsDefence_CoCritical,                EffectHandleType.Buff },
+            {EffectType.StatsDefence_CoCritical_Debuff,         EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncSmashDefence,           EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncSmashDefence_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncSliceDefence,           EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncSliceDefence_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncPierceDefence,          EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncPierceDefence_Debuff,   EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncEleNoneDefence,         EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncEleNoneDefence_Debuff,  EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncEleMetalDefence,        EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncEleMetalDefence_Debuff, EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncEleWoodDefence,         EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncEleWoodDefence_Debuff,  EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncEleEarthDefence,        EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncEleEarthDefence_Debuff, EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncEleWaterDefence,        EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncEleWaterDefence_Debuff, EffectHandleType.Debuff },
+            {EffectType.StatsDefence_IncEleFireDefence,         EffectHandleType.Buff },
+            {EffectType.StatsDefence_IncEleFireDefence_Debuff,  EffectHandleType.Debuff },
+            {EffectType.StatsDefence_VSHumanDefence,            EffectHandleType.Buff },
+            {EffectType.StatsDefence_VSHumanDefence_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsDefence_VSZombieDefence,           EffectHandleType.Buff },
+            {EffectType.StatsDefence_VSZombieDefence_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsDefence_VSVampireDefence,          EffectHandleType.Buff },
+            {EffectType.StatsDefence_VsVampireDefence_Debuff,   EffectHandleType.Debuff },
+            {EffectType.StatsDefence_VSAnimalDefence,           EffectHandleType.Buff },
+            {EffectType.StatsDefence_VSAnimalDefence_Debuff,    EffectHandleType.Debuff },
+            {EffectType.StatsDefence_VSPlantDefence,            EffectHandleType.Buff },
+            {EffectType.StatsDefence_VSPlantDefence_Debuff,     EffectHandleType.Debuff },
+            {EffectType.StatsDefence_DecreaseFinalDamage,       EffectHandleType.Buff },
+
+            {EffectType.Control_Stun,                           EffectHandleType.Control },
+            {EffectType.Control_Root,                           EffectHandleType.Control },
+            {EffectType.Control_Fear,                           EffectHandleType.Control },
+            {EffectType.Control_Silence,                        EffectHandleType.Control },
+            {EffectType.Control_Taunt,                          EffectHandleType.Control }, // needs a new SE
+            {EffectType.Control_BeakBack,                       EffectHandleType.Control },
+            {EffectType.SpecialControl_Freeze,                  EffectHandleType.Control },
+
+            {EffectType.Immune_AllDamage,                       EffectHandleType.Immune }, // temp only
+            {EffectType.Immune_AllDebuff,                       EffectHandleType.Immune },
+            {EffectType.Immune_AllImmune,                       EffectHandleType.Immune },
+            {EffectType.Immune_Stun,                            EffectHandleType.Immune },
+            {EffectType.Immune_Root,                            EffectHandleType.Immune },
+            {EffectType.Immune_Fear,                            EffectHandleType.Immune },
+            {EffectType.Immune_Silence,                         EffectHandleType.Immune },
+            {EffectType.Immune_Taunt,                           EffectHandleType.Immune },
+
+            {EffectType.Remove_AllControl,                      EffectHandleType.NonUpdates },
+            {EffectType.Remove_Stun,                            EffectHandleType.NonUpdates },
+            {EffectType.Remove_Root,                            EffectHandleType.NonUpdates },
+            {EffectType.Remove_Fear,                            EffectHandleType.NonUpdates },
+            {EffectType.Remove_Silence,                         EffectHandleType.NonUpdates },
+            {EffectType.Remove_RandomBuff,                      EffectHandleType.NonUpdates },
+            {EffectType.Remove_RandomDebuff,                    EffectHandleType.NonUpdates },
+
+            {EffectType.Stealth_Stealth,                        EffectHandleType.NonUpdates },
+            {EffectType.Stealth_DetectStealth,                  EffectHandleType.NonUpdates },
+
+            {EffectType.Trigger_OnNormalAttack,                 EffectHandleType.Trigger },
+
+            {EffectType.Enhance_IncRepeatSE,                    EffectHandleType.Buff },
+            {EffectType.Enhance_IncSkillAffect,                 EffectHandleType.Buff }
+        };
+
         public static ControlSEType EffectTypeToControlSEType(EffectType type) {
             if (m_ControlTypeDictionary.ContainsKey(type))
                 return m_ControlTypeDictionary[type];
@@ -694,6 +881,11 @@
                     break;
             }
             return res;
+        }
+
+        public static EffectHandleType GetEffectHandleType(EffectType type)
+        {
+            return m_EffectHandleTypes[type];
         }
 
         public static void ClientAddSideEffect(Actor target, Actor caster, SideEffectJson sideeffect)

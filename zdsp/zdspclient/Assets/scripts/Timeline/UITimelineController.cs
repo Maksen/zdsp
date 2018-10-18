@@ -34,6 +34,10 @@ public class UITimelineController : MonoBehaviour
                 uiTimeline.SetCloseCallback(OnEndCutscene);
             timelineObj.transform.SetParent(transform, false);
         }
+        else
+        {
+            OnEndCutscene();
+        }
     }
 
     public void OnEndCutscene()

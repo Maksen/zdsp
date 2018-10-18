@@ -260,6 +260,7 @@
         PortraitDataStats,
         PowerUpStats,
         MeridianStats,
+        InteractiveTriggerStats,
     }
 
     public static class LocalObjectAllowType

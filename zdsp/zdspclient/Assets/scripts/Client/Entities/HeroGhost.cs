@@ -90,7 +90,6 @@ namespace Zealot.Client.Entities
         {
             if (AnimObj != null)
             {
-                AnimObj.transform.localScale = new Vector3(mHeroJson.modelscalex, mHeroJson.modelscaley, mHeroJson.modelscalez);
                 GameInfo.gCombat.SetPlayerOwnedNPCParent(AnimObj);
 
                 base.Init();

@@ -11,11 +11,14 @@ public class PlayerInLobby : Photon.MonoBehaviour
     private string mCurrentroom = "lobby";
     private int charCount;
 
+    public List<CharacterCreationData> mCharacterList { get; private set; }
+    public int mLastLoginIndex { get; private set; }
     public static bool mFromLobby = false;
 
     void Awake()
     {
         GameInfo.gLobby = this;
+        mCharacterList = new List<CharacterCreationData>();
     }
 
     void OnDestroy()
@@ -42,12 +45,13 @@ public class PlayerInLobby : Photon.MonoBehaviour
     }
 
     [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.GetCharactersResult)]
-    public void GetCharactersResult(string charlist, int latestLoginIndex)
+    public void GetCharactersResult(string charlist, int latestLoginIndex, bool newcharacter)
     {
         GetCharactersList charListData = GetCharactersList.Deserialize(charlist);
         charCount = charListData.CharList.Count;
-        //todo: if more than one characters, show character list.
-        if (charCount > 0)
+        mCharacterList = charListData.CharList;
+        mLastLoginIndex = latestLoginIndex;
+        if (charCount == 1 && newcharacter)
         {
             var chardata = charListData.CharList[0];
             GameInfo.mChar = chardata.Name;
@@ -56,18 +60,50 @@ public class PlayerInLobby : Photon.MonoBehaviour
 #endif
             EnterGame();
         }
+        else if (charCount >= 1)
+        {
+            SceneLoader.Instance.LoadLevel("UI_LoginHierarchy_test", () => { GoToCharacterSelection(); });
+        }
         else
         {
-            // SceneLoader.Instance.LoadLevel("UI_CreateChar");
             SceneLoader.Instance.LoadLevel("JobExhibition");
         }
         Debug.Log("GetCharactersResult character count is " + charCount);   
 	}
 
-    [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.DeleteCharacterResult)]
-    public void DeleteCharacterResult(bool result, string charname)
+    public void GoToCharacterSelection()
     {
-        // May be needed
+        UIManager.StopHourglass();
+        UIManager.OpenWindow(WindowType.CharacterSelection, (window) => window.GetComponent<UI_CharacterSelection>().Init(mCharacterList));
+        UIManager.CloseWindow(WindowType.CharacterCreation);
+    }
+
+    [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.DeleteCharacterResult)]
+    public void DeleteCharacterResult(int result, string charname, string endtime)
+    {
+        if (!UIManager.IsWindowOpen(WindowType.CharacterSelection))
+        {
+            PhotonNetwork.networkingPeer.Disconnect();
+        }
+        else
+        {
+            UIManager.StopHourglass();
+            UIManager.GetWindowGameObject(WindowType.CharacterSelection).GetComponent<UI_CharacterSelection>().OnCharacterDeleted(result, charname, endtime);
+        }
+    }
+
+    [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.CancelDeleteCharacterResult)]
+    public void CancelDeleteCharacterResult(bool result, string charname)
+    {
+        if (!UIManager.IsWindowOpen(WindowType.CharacterSelection))
+        {
+            PhotonNetwork.networkingPeer.Disconnect();
+        }
+        else
+        {
+            UIManager.StopHourglass();
+            UIManager.GetWindowGameObject(WindowType.CharacterSelection).GetComponent<UI_CharacterSelection>().OnCancelDeleteResult(result, charname);
+        }
     }
 
     [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.TransferRoom)]
@@ -103,18 +139,16 @@ public class PlayerInLobby : Photon.MonoBehaviour
         } 
     }
 
-    [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.CreateCharacterSuccess)]
-    public void CreateCharacterSuccess(string charname)
-    {
-        // here play the movie before entergame
-        GameInfo.mChar = charname;
-        EnterGame();
-    }
-
     [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.ShowSystemMessage)]
     public void ShowSystemMessage(string ret)
     {
         UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName(ret, null));
+    }
+
+    [RPCMethod(RPCCategory.Lobby, (byte)ServerLobbyRPCMethods.CheckCharacterNameResult)]
+    public void CheckCharacterNameResult(bool result)
+    {
+        UIManager.GetWindowGameObject(WindowType.DialogCharacterName).GetComponent<UI_CharacterName>().OnCheckCharacterNameReturn(result);
     }
 
     private string GetCookie()
@@ -144,7 +178,7 @@ public class PlayerInLobby : Photon.MonoBehaviour
     private IEnumerator DelayGetCharOnTransferServer()
     {
         yield return new WaitForSeconds(3);
-        RPCFactory.LobbyRPC.GetCharacters();
+        RPCFactory.LobbyRPC.GetCharacters(false);
         if (ClientUtils.GetCurrentLevelName() == "lobby")
             StartCoroutine(DelayShowLoadingScreen(true, 0.1f));
     }
@@ -176,7 +210,7 @@ public class PlayerInLobby : Photon.MonoBehaviour
         if (GameInfo.TransferingServer)
             StartCoroutine(DelayGetCharOnTransferServer());
         else
-            RPCFactory.LobbyRPC.GetCharacters();
+            RPCFactory.LobbyRPC.GetCharacters(false);
     }
 
     public void InsertCharacter(string charname, byte jobsect, byte talent, byte faction, int initial_skill)
@@ -217,5 +251,20 @@ public class PlayerInLobby : Photon.MonoBehaviour
         Dictionary<string, string> parameters = new Dictionary<string, string>();        
         string message = GameUtils.FormatString(GUILocalizationRepo.GetLocalizedString("sys_ConfirmExitToLogin"), parameters);
         UIManager.OpenYesNoDialog(message, OnConfirmExitToLogin, OnCancelExitToLogin);
+    }
+
+    public List<CharacterCreationData> CharacterDeleted(string charname)
+    {
+        for (int i = 0; i < charCount; i++)
+        {
+            CharacterCreationData characterdata = mCharacterList[i];
+            if (characterdata != null && characterdata.Name == name)
+            {
+                mCharacterList.RemoveAt(i);
+                charCount -= 1;
+                break;
+            }
+        }
+        return mCharacterList;
     }
 }

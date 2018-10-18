@@ -69,7 +69,7 @@ public class Hero_ModelTierData : MonoBehaviour
         if (skinItem != null)
         {
             modelImage.sprite = ClientUtils.LoadIcon(skinItem.HeroItemJson.heroimagepath);
-            unlockText.text = GUILocalizationRepo.GetLocalizedString("id_useitem") + skinItem.HeroItemJson.localizedname;
+            unlockText.text = skinItem.HeroItemJson.localizedname;
         }
         modelImage.color = unlocked ? Color.white : lockedColor;
         unlockText.color = unlocked ? origTextColor : Color.red;

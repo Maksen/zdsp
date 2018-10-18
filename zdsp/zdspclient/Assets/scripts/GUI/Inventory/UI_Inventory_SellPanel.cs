@@ -155,18 +155,18 @@ public class UI_Inventory_SellPanel : MonoBehaviour
             for (int i = 0; i < itemListCnt; ++i)
             {
                 IInventoryItem invItem = invItemList[i];
-                if (invItem != null && invItem.JsonObject.rarity == rarity)
+                if (invItem == null || invItem.JsonObject.rarity != rarity || invItem.JsonObject.sellprice == -1)
+                    continue;
+
+                int amtLeftToAdd = invItem.StackCount, maxStackCnt = invItem.MaxStackCount;
+                int sellRefListCnt = SellRefList.Count;
+                for (int j = 0; j < sellRefListCnt; ++j)
                 {
-                    int amtLeftToAdd = invItem.StackCount, maxStackCnt = invItem.MaxStackCount;
-                    int sellRefListCnt = SellRefList.Count;
-                    for (int j = 0; j < sellRefListCnt; ++j)
-                    {
-                        Dictionary<int, int> refDict = SellRefList[j];
-                        if (refDict.ContainsKey(i))
-                            amtLeftToAdd -= refDict[i];
-                    }
-                    AddItemToSellList(invItem, i, amtLeftToAdd);
+                    Dictionary<int, int> refDict = SellRefList[j];
+                    if (refDict.ContainsKey(i))
+                        amtLeftToAdd -= refDict[i];
                 }
+                AddItemToSellList(invItem, i, amtLeftToAdd);
             }
 
             UIInventory.RefreshRight(player);
@@ -257,9 +257,15 @@ public class UI_Inventory_SellPanel : MonoBehaviour
 
     public void OnOpenDialogItemSellUse(int displayItemIdx)
     {
-        UIManager.OpenDialog(WindowType.DialogItemSellUse, (GameObject window) => {
-            window.GetComponent<UI_DialogItemSellUse>().Init(UIInventory.DisplayItemList[displayItemIdx],
-                (int amount) => { AddItemToSellPanel(displayItemIdx, amount); });
-        });
+        InvDisplayItem invDisplayItem = UIInventory.DisplayItemList[displayItemIdx];
+        if (invDisplayItem.InvItem.JsonObject.sellprice != -1)
+        {
+            UIManager.OpenDialog(WindowType.DialogItemSellUse, (GameObject window) => {
+                window.GetComponent<UI_DialogItemSellUse>().Init(invDisplayItem,
+                    (int amount) => { AddItemToSellPanel(displayItemIdx, amount); });
+            });
+        }
+        else
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Inv_CannotSell", null));
     }
 }

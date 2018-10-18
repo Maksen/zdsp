@@ -43,7 +43,7 @@ public class UI_SkillButton : UI_SkillButtonBase {
 
     public List<KeyValuePair<int, int>> m_RequiredSkills = new List<KeyValuePair<int, int>>();
 
-    public void Init(SkillTreeJson info, UnityEngine.Events.UnityAction<bool> function)
+    public void Init(SkillTreeJson info)
     {
         m_skgID = info.skillgroupid;
         //load icon
@@ -51,7 +51,7 @@ public class UI_SkillButton : UI_SkillButtonBase {
         string icon = m_SkillData.skillgroupJson.icon;
         m_Icon.sprite = ClientUtils.LoadIcon(icon);
         m_Toggle = GetComponent<Toggle>();
-        m_Toggle.onValueChanged.AddListener(function);
+        //m_Toggle.onValueChanged.AddListener(function);
 
         Sprite border = active;
         switch (m_SkillData.skillgroupJson.skilltype)
@@ -149,12 +149,6 @@ public class UI_SkillButton : UI_SkillButtonBase {
         {
             m_LevelUpIcon.SetActive(false);
         }
-    }
-
-    public void OnSelected()
-    {
-        //UpdateButton();
-        m_parentPanel.OnSelectSkill(this);
     }
 
     public void OnLevelUpSkill()

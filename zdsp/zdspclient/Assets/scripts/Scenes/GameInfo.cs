@@ -88,7 +88,7 @@ public static class GameInfo
         }
         gSelectedEntity = null;
         gBasicAttackState = null;
-        gSkillCDState = null;
+        //gSkillCDState = null;
 
         if (!PartyFollowTarget.IsPaused())
             PartyFollowTarget.Pause();

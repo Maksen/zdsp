@@ -10,6 +10,7 @@
     using Zealot.Server.Counters;
     using Zealot.Server.Entities;
     using Zealot.Server.SideEffects;
+    using Photon.LoadBalancing.GameServer.CombatFormula;
 
     public class BaseServerCastSkill : Action
     {
@@ -349,7 +350,7 @@
                                     delegate
                                     {
                                         se.Apply(target, caster, isPos);
-                                        mTimers.StopTimer(timer);
+                                        //mTimers.StopTimer(timer);
                                     }, timer);
         }
 

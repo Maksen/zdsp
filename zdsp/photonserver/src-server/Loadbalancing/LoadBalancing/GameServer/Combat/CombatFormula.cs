@@ -1,11 +1,152 @@
 ﻿using Kopio.JsonContracts;
 using System;
 using Zealot.Common.Entities;
+using Zealot.Common;
+using System.IO;
 
-namespace Zealot.Common
+
+namespace Photon.LoadBalancing.GameServer.CombatFormula
 {
-    public static class CombatFormula
+    public static class Debug
     {
+        public class LogObject
+        {
+            public string m_Log = string.Empty;
+            public bool m_IsLogging = true;
+        }
+
+        private static string m_exePath = string.Empty;
+        private static bool m_IsLogging = false;
+        private static System.Collections.Generic.Dictionary<string, LogObject> m_Logs = new System.Collections.Generic.Dictionary<string, LogObject>();
+
+        public static LogObject CreateLog(string name)
+        {
+            if (m_Logs.ContainsKey(name))
+                return null;
+
+            m_exePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            LogObject log = new LogObject();
+            string loc = m_exePath + "\\ZDSP_CustomLogs";
+
+            if (!System.IO.Directory.Exists(loc))
+                System.IO.Directory.CreateDirectory(loc);
+
+            log.m_Log = loc + "\\" + name + ".txt";
+
+            if (!File.Exists(log.m_Log))
+                File.Create(log.m_Log);
+
+            m_Logs.Add(name, log);
+
+            return log;
+        }
+
+        public static void StartLogging()
+        {
+            m_IsLogging = true;
+        }
+
+        public static void StopLogging()
+        {
+            m_IsLogging = false;
+        }
+
+        public static void Log(string key, string logMessage)
+        {
+            if (m_IsLogging && m_Logs[key].m_IsLogging)
+            {
+                try
+                {
+                    using (StreamWriter w = File.AppendText(m_Logs[key].m_Log))
+                    {
+                        w.Write("{0} {1}  ", DateTime.Now.ToLongTimeString(), DateTime.Now.ToShortDateString());
+                        w.WriteLine("Photon - " + key + " [INFO] : {0}", logMessage);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public static void ClearLog(string key)
+        {
+            try
+            {
+                File.WriteAllText(m_Logs[key].m_Log, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public static void ClearLog()
+        {
+            foreach(var log in m_Logs.Values)
+            {
+                try
+                {
+                    File.WriteAllText(log.m_Log, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public static void LogWarning(string key, string logMessage)
+        {
+            if (m_IsLogging && m_Logs[key].m_IsLogging)
+            {
+                try
+                {
+                    using (StreamWriter w = File.AppendText(m_Logs[key].m_Log))
+                    {
+                        w.Write("{0} {1}  ", DateTime.Now.ToLongTimeString(), DateTime.Now.ToShortDateString());
+                        w.WriteLine("Photon - " + key + " [WARNING] : {0}", logMessage);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public static void LogError(string key, string logMessage)
+        {
+            if (m_IsLogging && m_Logs[key].m_IsLogging)
+            {
+                try
+                {
+                    using (StreamWriter w = File.AppendText(m_Logs[key].m_Log))
+                    {
+                        w.Write("{0} {1}  ", DateTime.Now.ToLongTimeString(), DateTime.Now.ToShortDateString());
+                        w.WriteLine("Photon - " + key + " [ERROR] : {0}", logMessage);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        public static void LogOnly(string key)
+        {
+            foreach(var iter in m_Logs)
+            {
+                if (iter.Key == key) continue;
+                iter.Value.m_IsLogging = false;
+            }
+        }
+    }
+
+    public static class CombatFormula
+    {        
         // Hack //
         public static bool totalCrit = false;
 
@@ -374,6 +515,9 @@ namespace Zealot.Common
             public SideEffectJson sedata;
             public BasicInfo basicsInfo;
             public Fields fieldInfo;
+
+            // Debug Logger
+            public string target;
         }
 
         /// <summary>
@@ -414,24 +558,38 @@ namespace Zealot.Common
         /// <param name="attacker"></param>
         /// <param name="defender"></param>
         /// <returns></returns>
-        public static bool IsCritical(IActor attacker, IActor defender) {
+        public static bool IsCritical(FIELDNAMEPACKET packet) {
             float rate = 0;
 
             if (critRate > 0.0f)
                 rate = critRate;   
             else
-                rate = attacker.CombatStats.GetField(FieldName.Critical) - defender.CombatStats.GetField(FieldName.Cocritical) * 0.01f;
+                rate = packet.attacker.CombatStats.GetField(FieldName.Critical) - packet.defender.CombatStats.GetField(FieldName.Cocritical) * 0.01f;
 
             float roll = (float)GameUtils.GetRandomGenerator().NextDouble();
 
+
+            Debug.Log(packet.target, "Critical Roll : " + roll + " to rate of : " + rate);
             return roll < rate;
         }
 
         public static bool IsEvade(IActor attacker, IActor defender) {
-            float rate = attacker.CombatStats.GetField(FieldName.Accuracy) - defender.CombatStats.GetField(FieldName.Evasion) * 0.01f; 
-            rate = Math.Min(Math.Max(0.05f, rate), 1.0f);
+            float rate = attacker.CombatStats.GetField(FieldName.Accuracy) - defender.CombatStats.GetField(FieldName.Evasion); 
+            rate = Math.Min(Math.Max(5f, rate), 100f);
 
-            float roll = (float)GameUtils.GetRandomGenerator().NextDouble();
+            float roll = (float)GameUtils.GetRandomGenerator().NextDouble() * 100f;
+
+            return roll < rate;
+        }
+
+        public static bool IsEvade(IActor attacker, IActor defender, string debugKey)
+        {
+            float rate = attacker.CombatStats.GetField(FieldName.Accuracy) - defender.CombatStats.GetField(FieldName.Evasion);
+            rate = Math.Min(Math.Max(5f, rate), 100f);
+
+            float roll = (float)GameUtils.GetRandomGenerator().NextDouble() * 100f;
+
+            Debug.Log(debugKey, "Evade Roll : " + roll + " to rate of : " + rate);
 
             return roll < rate;
         }
@@ -450,19 +608,20 @@ namespace Zealot.Common
         }
 
         public static float FinalDefendMod(FIELDNAMEPACKET packet) {
-            // 防禦方最終防禦係數 = 防禦方攻擊類型減傷％ * 防禦方五行減傷％ * 防禦方種族減傷％ * 防禦方最終減傷％
+            // 防禦方最終防禦係數 = 防禦方攻擊類型減傷％ * 防禦方五行減傷％ * 防禦方種族減傷％ * 防禦方最終減傷％ * ( 1 + 防禦方傷害加深％ )
             float strikedef = packet.defender.CombatStats.GetField(packet.fieldInfo.defenderStrikeType);
             float elemdef = packet.defender.CombatStats.GetField(packet.fieldInfo.defenderElement);
             float racial = packet.defender.CombatStats.GetField(packet.fieldInfo.defenderVSRace);
             float def = packet.defender.CombatStats.GetField(FieldName.DecreaseFinalDamage);
+            float amp = 1.0f + packet.defender.CombatStats.GetField(FieldName.AmplifyDamage);
 
-            return 1.0f + (strikedef * elemdef * racial * def);
+            return 1.0f + (strikedef * elemdef * racial * def * amp);
         }
 
         public static float FinalDefendModBlock(FIELDNAMEPACKET packet) {
-            // 防禦方發動格擋時最終防禦係數 = 防禦方格擋減傷係數 * 防禦方攻擊類型減傷％ * 防禦方五行減傷％ * 防禦方種族減傷％ * 防禦方最終減傷％
+            // 防禦方發動格擋時最終防禦係數 = 防禦方格擋減傷係數 * 防禦方攻擊類型減傷％ * 防禦方五行減傷％ * 防禦方種族減傷％ * 防禦方最終減傷％ * ( 1 + 防禦方傷害加深％ )
             float block = packet.defender.CombatStats.GetField(FieldName.BlockValue) * 0.01f;
-
+            // FinalDefendMod -> 防禦方攻擊類型減傷％ * 防禦方五行減傷％ * 防禦方種族減傷％ * 防禦方最終減傷％ * ( 1 + 防禦方傷害加深％ )
             return block * FinalDefendMod(packet);
         }
 
@@ -470,14 +629,17 @@ namespace Zealot.Common
             //攻擊方最終技能倍率 = ( 攻擊方技能倍率 + 攻擊方技能倍率增加效果) * ( 1 + 攻擊方技能加成 )
             float skaff = packet.sedata.basicskilldamageperc * 0.01f;
             float enhance = packet.attacker.CombatStats.GetField(FieldName.SkillAffect) * 0.01f;
+            //float skaffmod = packet.attacker.CombatStats.GetField(FieldName.SkillAffec)
 
-            return (skaff + enhance) + (1);
+            return (skaff + enhance) * (1);
         }
 
-        public static bool IsBlock(IActor defender) {
+        public static bool IsBlock(FIELDNAMEPACKET packet) {
             //do some check that i have no idea is what now
             float roll = (float)GameUtils.GetRandomGenerator().NextDouble();
-            float prob = defender.CombatStats.GetField(FieldName.BlockRate) * 0.01f;
+            float prob = packet.defender.CombatStats.GetField(FieldName.BlockRate) * 0.01f;
+
+            Debug.Log(packet.target, "Block roll : " + roll + " of rate : " + prob);
 
             return roll < prob;
         }
@@ -639,7 +801,41 @@ namespace Zealot.Common
         /// <returns></returns>
         public static AttackResult ComputeDamage(FIELDNAMEPACKET package, float skillDmgPercentage = 100f, int extradamage = 0,
             bool isDotDamage = false, bool isBasicAttack = false, bool ignoreArmor = false) {
-            Random random = GameUtils.GetRandomGenerator();
+
+            Debug.Log(package.target, package.attacker.Name + " is currently engaged with " + package.defender.Name);
+
+            string stats = "\n";
+            System.Collections.Generic.List<FieldName>[] field = package.attacker.CombatStats.GetAllFields();
+            for (int i = 0; i < field.Length; i++)
+            {
+                System.Collections.Generic.List<FieldName> currentTierNames = field[i];
+                foreach (FieldName name in currentTierNames)
+                {
+                    object val = package.attacker.CombatStats.GetField(name);
+                    string desc = name.ToString() + " = " + val.ToString();
+                    stats += desc + "\n";
+                }
+            }
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.ClearLog("Attacker_Stats");
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Attacker_Stats", "Name : " + package.attacker.Name);
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Attacker_Stats", stats);
+
+            stats = "\n";
+            field = package.defender.CombatStats.GetAllFields();
+            for (int i = 0; i < field.Length; i++)
+            {
+                System.Collections.Generic.List<FieldName> currentTierNames = field[i];
+                foreach (FieldName name in currentTierNames)
+                {
+                    object val = package.defender.CombatStats.GetField(name);
+                    string desc = name.ToString() + " = " + val.ToString();
+                    stats += desc + "\n";
+                }
+            }
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.ClearLog("Defender_Stats");
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Defender_Stats", "Name : " + package.defender.Name);
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Defender_Stats", stats);
+
             AttackResult res = new AttackResult(0, 0, false, 0);
 
             ICombatStats A_CombatStats = package.attacker.CombatStats;
@@ -652,7 +848,7 @@ namespace Zealot.Common
                     res.IsCritical = false;
                 }
                 else {
-                    res.IsCritical = IsCritical(package.attacker, package.defender);
+                    res.IsCritical = IsCritical(package);
                 }
             }
             else {
@@ -660,18 +856,18 @@ namespace Zealot.Common
             }
             if (totalCrit) res.IsCritical = true;
 
-            CombatEvaluator(package.defender, isBasicAttack, res, package);
+            res.IsBlocked = IsBlock(package);
 
-            //攻擊方最終技能倍率 = ( 攻擊方技能倍率 + 攻擊方技能倍率增加效果) * ( 1 + 攻擊方技能加成 )
-            //int techbonus = sedata.basicskilldamageperc * ( 1 + ) 
+            CombatEvaluator(isBasicAttack, res, package);
 
             root.Update();
             res.RealDamage = (int)Math.Round(root.result);
-
+            
+            Debug.Log(package.target, "Damage total : " + res.RealDamage.ToString());
             return res;
         }
 
-        public static void CombatEvaluator(IActor defender, bool isBasicAttack, AttackResult res, FIELDNAMEPACKET info) {
+        public static void CombatEvaluator(bool isBasicAttack, AttackResult res, FIELDNAMEPACKET info) {
             //construct bottom up
             //this is for basic attacks
             if (isBasicAttack) {
@@ -707,7 +903,7 @@ namespace Zealot.Common
                 // set the conditions
                 root.SetConditionalStatement(() => { return res.IsCritical; });
                 DecisionNode node = root.condition.trueNode;
-                node.SetConditionalStatement(() => { return IsBlock(defender); });
+                node.SetConditionalStatement(() => { return res.IsBlocked; });
                 ((LeafNode)(node.condition.trueNode)).InitInfo(info);
                 ((LeafNode)(node.condition.falseNode)).InitInfo(info);
 
@@ -715,7 +911,7 @@ namespace Zealot.Common
                 node.SetConditionalStatement(() => { return !res.IsEvasion; });
 
                 node = node.condition.trueNode;
-                node.SetConditionalStatement(() => { return IsBlock(defender); });
+                node.SetConditionalStatement(() => { return res.IsBlocked; });
                 ((LeafNode)(node.condition.trueNode)).InitInfo(info);
                 ((LeafNode)(node.condition.falseNode)).InitInfo(info);
             }
@@ -742,7 +938,7 @@ namespace Zealot.Common
                 ((LeafNode)(root.condition.falseNode)).InitInfo(info);
 
                 DecisionNode node = root.condition.trueNode;
-                node.SetConditionalStatement(() => { return IsBlock(defender); });
+                node.SetConditionalStatement(() => { return res.IsBlocked; });
                 ((LeafNode)(node.condition.trueNode)).InitInfo(info);
                 ((LeafNode)(node.condition.falseNode)).InitInfo(info);
             }
@@ -756,8 +952,13 @@ namespace Zealot.Common
 
             public override void Update()
             {
+                Debug.Log(info.target, "Blocked Crit");
+
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
+
+                Debug.Log(info.target, "Basic Attack is : " + basicAtk.ToString());
+                Debug.Log(info.target, "Comformed Damage is : " + cfmDamage);
 
                 float dmg = 0, mod, defmod, critmod;
                 mod = FinalAttackMod(info);
@@ -780,7 +981,11 @@ namespace Zealot.Common
                         break;
 
                 }
-                result = dmg * (critmod * mod * defmod);
+                Debug.Log(info.target, "Damage is : " + dmg);
+                Debug.Log(info.target, "Crit Mod : " + critmod);
+                Debug.Log(info.target, "Final Attack Mod : " + mod);
+                Debug.Log(info.target, "Defence Mod : " + defmod);
+                result = Math.Max(1.0f, (dmg * critmod * mod * defmod));
             }
         }
 
@@ -791,8 +996,13 @@ namespace Zealot.Common
 
             public override void Update()
             {
+                Debug.Log(info.target, "Normal Crit Attack");
+
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
+
+                Debug.Log(info.target, "Basic Attack is : " + basicAtk.ToString());
+                Debug.Log(info.target, "Comformed Damage is : " + cfmDamage);
 
                 float dmg = 0, mod, defmod, critmod;
                 mod = FinalAttackMod(info);
@@ -816,6 +1026,11 @@ namespace Zealot.Common
 
                 }
 
+                Debug.Log(info.target, "Damage is : " + dmg);
+                Debug.Log(info.target, "Crit Mod : " + critmod);
+                Debug.Log(info.target, "Final Attack Mod : " + mod);
+                Debug.Log(info.target, "Defence Mod : " + defmod);
+
                 result = Math.Max(1.0f, dmg * critmod * mod * defmod);
             }
         }
@@ -827,8 +1042,13 @@ namespace Zealot.Common
 
             public override void Update()
             {
+                Debug.Log(info.target, "Attack Blocked");
+
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
+
+                Debug.Log(info.target, "Basic Attack is : " + basicAtk.ToString());
+                Debug.Log(info.target, "Comformed Damage is : " + cfmDamage);
 
                 float dmg = 0, mod, defmod;
                 mod = FinalAttackMod(info);
@@ -851,6 +1071,11 @@ namespace Zealot.Common
                         break;
 
                 }
+
+                Debug.Log(info.target, "Damage is : " + dmg);
+                Debug.Log(info.target, "Final Attack Mod : " + mod);
+                Debug.Log(info.target, "Defence Mod : " + defmod);
+
                 result = Math.Max(1.0f, dmg * mod * defmod);
             }
         }
@@ -862,8 +1087,13 @@ namespace Zealot.Common
 
             public override void Update()
             {
+                Debug.Log(info.target, "Normal Attack");
+
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
+
+                Debug.Log(info.target, "Basic Attack is : " + basicAtk);
+                Debug.Log(info.target, "Comformed Damage is : " + cfmDamage);
 
                 float dmg = 0, mod, defmod;
                 mod = FinalAttackMod(info);
@@ -890,6 +1120,11 @@ namespace Zealot.Common
                         break;
                         
                 }
+
+                Debug.Log(info.target, "Damage is : " + dmg);
+                Debug.Log(info.target, "Final Attack Mod : " + mod);
+                Debug.Log(info.target, "Defence Mod : " + defmod);
+
                 result = Math.Max(1.0f, dmg * mod * defmod);
             }
         }
@@ -897,8 +1132,13 @@ namespace Zealot.Common
         public class SkillHit : LeafNode {
             public override void Update()
             {
+                Debug.Log(info.target, "Skill Hit");
+
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
+
+                Debug.Log(info.target, "Basic Attack is : " + basicAtk);
+                Debug.Log(info.target, "Comformed Damage is : " + cfmDamage);
 
                 float dmg = 0, mod, atkmod, defmod;
                 mod = FinalSkillMod(info);
@@ -924,6 +1164,12 @@ namespace Zealot.Common
                                          + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2;
                         break;
                 }
+
+                Debug.Log(info.target, "Damage is : " + dmg);
+                Debug.Log(info.target, "Final Skill Mod : " + mod);
+                Debug.Log(info.target, "Final Attack Mod : " + atkmod);
+                Debug.Log(info.target, "Defence Mod : " + defmod);
+
                 result = Math.Max(1.0f, dmg * mod * atkmod * defmod);
             }
         }
@@ -931,8 +1177,14 @@ namespace Zealot.Common
         public class SkillBlock : LeafNode {
             public override void Update()
             {
+
+                Debug.Log(info.target, "Skill Blocked");
+
                 float basicAtk = BasicDamage(info.attacker, info.sedata);
                 float cfmDamage = CfmDamage(info.attacker, info.basicsInfo.weaponAttribute);
+
+                Debug.Log(info.target, "Basic Attack is : " + basicAtk);
+                Debug.Log(info.target, "Comformed Damage is : " + cfmDamage);
 
                 float dmg = 0, mod, atkmod, defmod;
                 mod = FinalAttackMod(info);
@@ -957,6 +1209,12 @@ namespace Zealot.Common
                                          + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2;
                         break;
                 }
+
+                Debug.Log(info.target, "Damage is : " + dmg);
+                Debug.Log(info.target, "Final Skill Mod : " + mod);
+                Debug.Log(info.target, "Final Attack Mod : " + atkmod);
+                Debug.Log(info.target, "Defence Mod : " + defmod);
+
                 result = Math.Max(1.0f, dmg * mod * atkmod * defmod);
             }
         }
@@ -965,6 +1223,7 @@ namespace Zealot.Common
 
             public override void Update()
             {
+                Debug.Log(info.target, "Missed");
             }
         }
     }

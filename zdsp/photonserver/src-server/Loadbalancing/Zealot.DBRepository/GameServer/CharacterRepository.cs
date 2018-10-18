@@ -457,6 +457,47 @@ namespace Zealot.DBRepository
         }
 
         /// <summary>
+        /// Save character data </summary>
+        /// <remarks>
+        /// only use at character selection scene
+        /// </remarks>
+        public async Task<bool> SaveCharacterData(string charid, string characterdata)
+        {
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    SqlTransaction trans = null;
+                    try
+                    {
+                        connection.Open();
+                        trans = connection.BeginTransaction();
+
+                        using (SqlCommand command = new SqlCommand("Character_SaveCharacterData", connection, trans))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+
+                            command.Parameters.AddWithValue("@charid", charid);
+                            command.Parameters.AddWithValue("@characterdata", characterdata);
+
+                            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+                        trans.Commit();
+                        return true;
+                    }
+                    catch (Exception e)
+                    {
+                        if (trans != null)
+                            trans.Rollback();
+
+                        HandleQueryException(e);
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Checks if character name exists in database
         /// </summary>
         /// <remarks>

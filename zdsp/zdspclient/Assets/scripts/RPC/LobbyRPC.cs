@@ -20,9 +20,9 @@ public class LobbyRPC : RPCBase
 	}
 
     [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.GetCharacters)]
-    public void GetCharacters()
+    public void GetCharacters(bool newcharacter)
     {
-        ProxyMethod("GetCharacters");
+        ProxyMethod("GetCharacters", newcharacter);
     }
 
     [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.InsertCharacter)]
@@ -37,9 +37,27 @@ public class LobbyRPC : RPCBase
         ProxyMethod("EnterGame", charname);
     }
 
-    //[RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.DeleteCharacter)]
-    //public void DeleteCharacter(string charname)
-    //{
-    //    ProxyMethod("DeleteCharacter", charname);
-    //}
+    [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.CheckCharacterName)]
+    public void CheckCharacterName(string charname)
+    {
+        ProxyMethod("CheckCharacterName", charname);
+    }
+
+    [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.CreateCharacter)]
+    public void CreateCharacter(string charname, byte gender, int hairstyle, int haircolor, int makeup, int skincolor)
+    {
+        ProxyMethod("CreateCharacter", charname, gender, hairstyle, haircolor, makeup, skincolor);
+    }
+
+    [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.DeleteCharacter)]
+    public void DeleteCharacter(string charname)
+    {
+        ProxyMethod("DeleteCharacter", charname);
+    }
+
+    [RPCMethod(RPCCategory.Lobby, (byte)ClientLobbyRPCMethods.CancelDeleteCharacter)]
+    public void CancelDeleteCharacter(string charname)
+    {
+        ProxyMethod("CancelDeleteCharacter", charname);
+    }
 }

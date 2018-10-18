@@ -824,13 +824,13 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.TotalCrit)]
         public void TotalCrit()
         {
-            CombatFormula.totalCrit = !CombatFormula.totalCrit;
+            CombatFormula.CombatFormula.totalCrit = !CombatFormula.CombatFormula.totalCrit;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CritRate)]
         public void CritRate(float crit, GameClientPeer peer)
         {
-            CombatFormula.critRate = crit;
+            CombatFormula.CombatFormula.critRate = crit;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddStatsPoint)]
@@ -873,9 +873,15 @@ namespace Photon.LoadBalancing.GameServer
             if(player != null)
             {
                 player.SkillStats.SkillGroupIndex.Clear();
-                player.SkillStats.SkillInv.Clear();
+                for(int i = 0; i < player.SkillStats.SkillInv.Count; ++i)
+                {
+                    player.SkillStats.SkillInv[i] = 0;
+                }
                 player.SkillStats.SkillInvCount = 0;
-                player.SkillStats.EquippedSkill.Clear();
+                for (int i = 0; i < player.SkillStats.EquippedSkill.Count; ++i)
+                {
+                    player.SkillStats.EquippedSkill[i] = 0;
+                }
             }
         }
 
@@ -890,6 +896,34 @@ namespace Photon.LoadBalancing.GameServer
             pf.LoadJson(GameRepo.ItemFactory.GetItemById(501));
             mo.lstAttachment.Add(pf);
             Photon.LoadBalancing.GameServer.Mail.MailManager.Instance.SendMail(mo);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CombatLogging)]
+        public void CombatLogging(bool isLogging, GameClientPeer peer)
+        {
+            if (isLogging)
+                CombatFormula.Debug.StartLogging();
+            else
+                CombatFormula.Debug.StopLogging();
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleRemoveEquipSkills)]
+        public void ConsoleRemoveEquipSkills(GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+            {
+                for(int i = 0; i < player.SkillStats.EquippedSkill.Count; ++i)
+                {
+                    player.SkillStats.EquippedSkill[i] = 0;
+                }
+            }
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CombatLogClear)]
+        public void CombatLogClear(GameClientPeer peer)
+        {
+            CombatFormula.Debug.ClearLog();
         }
         #endregion
     }

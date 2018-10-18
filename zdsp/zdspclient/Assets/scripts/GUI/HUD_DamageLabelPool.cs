@@ -3,6 +3,10 @@ using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Entities;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class HUD_DamageLabelPool : MonoBehaviour
 {
     public delegate Vector2 WorldToScreenSpaceFunc(Vector3 wpos);
@@ -18,21 +22,31 @@ public class HUD_DamageLabelPool : MonoBehaviour
         }
     }
 
+    #region GameObject DmgLabel
     Queue<GameObject> mPool = null;
-    Dictionary<int, Queue<DamageRecord>> mDRQ_Dic = null;
-    Vector3 mGlobalOffset_Worldspace = new Vector3();
-
-    Camera cam;
-    RectTransform GameCanvas;
 
     const float mConstLabelJumpCD = 0.1f;
     const int mConstPoolSize = 40;
     const float mConstMinOffset = 0.1f;
     const float mConstMaxOffset = 0.25f;
     const int mDrLimit = 10;                //damage label limit before system jump >1 label per update
+    #endregion
+    #region Particle DmgLabel
+    ParticleLabelManager mParticleMgr;
+    #endregion
+    #region Debugging
+    public bool mPrintDRQueue = false;
+    bool mUseDebugLabel = false;
+    #endregion
+
+    Dictionary<int, Queue<DamageRecord>> mDRQ_Dic = null;
+    Vector3 mGlobalOffset_Worldspace = new Vector3();
+    Camera cam;
+    RectTransform GameCanvas;
 
     public void Awake()
     {
+        //Grab the object where the labels will be parented to
         GameObject dmglabelParent = UIManager.GetWidget(HUDWidgetType.DamageLabel);
 
         //For transforming to screen space
@@ -62,9 +76,14 @@ public class HUD_DamageLabelPool : MonoBehaviour
             return;
         }
 
+        //Create dictionary for all jumping damage numbers
         mDRQ_Dic = new Dictionary<int, Queue<DamageRecord>>();
-        GameObject prefab = UIManager.UIHierarchy.DmgLabelPrefab;
-        mPool = ObjMgr.Instance.InitGameObjectPoolQueue(dmglabelParent.transform, prefab, prefab.transform.localPosition, prefab.transform.localScale, mConstPoolSize);
+
+        //Initialize system
+        if (!mUseDebugLabel)
+            TestChangeToGameObjectLabelType();
+        else
+            TestChangeToParticleLabelType();
     }
 
     void OnDestroy()
@@ -72,10 +91,17 @@ public class HUD_DamageLabelPool : MonoBehaviour
         Clear();
     }
 
-    public void Clear()
+    private void ClearType()
     {
         if (mPool != null)
             ObjMgr.Instance.DestroyContainerObject(mPool);
+        //Clear particle type
+        if (mParticleMgr != null)
+            Destroy(mParticleMgr.gameObject);
+    }
+    public void Clear()
+    {
+        ClearType();
         if (mDRQ_Dic != null)
             mDRQ_Dic.Clear();
     }
@@ -93,8 +119,16 @@ public class HUD_DamageLabelPool : MonoBehaviour
         _queue.Enqueue(dr);
     }
 
+    #region Update function
     float playedtime = 0;
     private void Update()
+    {
+        if (!mUseDebugLabel)
+            AnimationLabelUpdate();
+        else
+            ParticleLabelUpdate();
+    }
+    private void AnimationLabelUpdate()
     {
         //Play one every 100ms, provided there is one damage to play
         float now = Time.time;
@@ -128,8 +162,51 @@ public class HUD_DamageLabelPool : MonoBehaviour
         if (mPool.Count < _pool_Count) //indicate some lable played
             playedtime = now;
     }
+    private void ParticleLabelUpdate()
+    {
+        //Play one every 100ms, provided there is one damage to play
+        float now = Time.time;
+        if (now - playedtime < mConstLabelJumpCD || mDRQ_Dic.Count <= 0 || !mParticleMgr.HasFreeParticles())
+            return;
 
+        int _pool_Count = mParticleMgr.GetNumFreeParticles();
+        List<int> removeLst = new List<int>();
+        foreach (KeyValuePair<int, Queue<DamageRecord>> eRecord in mDRQ_Dic)
+        {
+            Entity e = GameInfo.gCombat.mEntitySystem.GetEntityByPID(eRecord.Key);
+
+            //Check if actorghost is omae wa mou shindeiru
+            //Record those who shindeiru
+            if (e == null)
+            {
+                removeLst.Add(eRecord.Key);
+                continue;
+            }
+
+            //Take 1 damage record and play
+            Play(eRecord.Value);
+        }
+
+        //omae wa mou shindeiru
+        for (int i = 0; i < removeLst.Count; ++i)
+        {
+            mDRQ_Dic.Remove(removeLst[i]);
+        }
+
+        if (mParticleMgr.GetNumFreeParticles() < _pool_Count) //indicate some lable played
+            playedtime = now;
+    }
+    #endregion
+
+    #region Play function
     private void Play(Queue<DamageRecord> qDR)
+    {
+        if (!mUseDebugLabel)
+            AnimationLabelPlay(qDR);
+        else
+            ParticleLabelPlay(qDR);
+    }
+    private void AnimationLabelPlay(Queue<DamageRecord> qDR)
     {
         //Do nothing if no dmgRecord or no dmglabel instances
         int _qDR_Count = qDR.Count;
@@ -141,6 +218,9 @@ public class HUD_DamageLabelPool : MonoBehaviour
         int labelsPerInterval = _qDR_Count / mDrLimit + 1;
         if (labelsPerInterval > _pool_Count)
             labelsPerInterval = _pool_Count;
+
+        //Debug
+        TestPrintQueueContent(qDR);
 
         for (int i = 0; i < labelsPerInterval; ++i)
         {
@@ -162,27 +242,37 @@ public class HUD_DamageLabelPool : MonoBehaviour
             //Setup and play the animation
             l.Setup(dr.ar, getCanvasPosition(tVec), OnEndPlay);
         }
-
-        //DamageRecord dr = qDR.Dequeue();
-        //GameObject ol = mPool.Dequeue();
-        //HUD_DamageLabel l = ol.GetComponent<HUD_DamageLabel>();
-        //Vector3 tVec = mGlobalOffset_Worldspace + dr.worldpos;
-
-        //int randSign = GameUtils.RandomInt(0, 1);
-        //randSign = (randSign == 0) ? -1 : 1;
-        //float randVal = (float)GameUtils.Random(0.1, 0.25) * randSign;
-
-        //Vector3 off = new Vector3(randVal, 0f, 0f);
-        //tVec += off;
-
-        ////Setup and play the animation
-        //l.Setup(dr.ar, getCanvasPosition(tVec), OnEndPlay);
     }
+    private void ParticleLabelPlay(Queue<DamageRecord> qDR)
+    {
+        //Do nothing if no dmgRecord or no dmglabel instances
+        int _qDR_Count = qDR.Count;
+        int _pool_Count = mParticleMgr.GetNumFreeParticles();
+        if (_qDR_Count == 0 || _pool_Count == 0)
+            return;
 
+        //Retrieve more than 1 if dmg record queue is long
+        int labelsPerInterval = _qDR_Count / mDrLimit + 1;
+        if (labelsPerInterval > _pool_Count)
+            labelsPerInterval = _pool_Count;
+
+        //Debug
+        TestPrintQueueContent(qDR);
+
+        for (int i = 0; i < labelsPerInterval; ++i)
+        {
+            DamageRecord dr = qDR.Dequeue();
+            Vector3 tVec = mGlobalOffset_Worldspace + dr.worldpos;
+
+            //Setup and play the animation
+            mParticleMgr.Emit(dr.ar, getCanvasPosition(tVec));
+        }
+    }
     private void OnEndPlay(GameObject damageLabel)
     {
         mPool.Enqueue(damageLabel);//requeue it.
     }
+    #endregion
 
     public void Show(bool flag)
     {
@@ -194,7 +284,6 @@ public class HUD_DamageLabelPool : MonoBehaviour
     {
         mGlobalOffset_Worldspace = offset;
     }
-
     private Vector2 getCanvasPosition(Vector2 UIOffset)
     {
         Vector2 ViewportPosition = cam.WorldToViewportPoint(this.transform.position);
@@ -203,7 +292,6 @@ public class HUD_DamageLabelPool : MonoBehaviour
             ((ViewportPosition.y * GameCanvas.sizeDelta.y) - (GameCanvas.sizeDelta.y * 0.5f)) + UIOffset.y);
         return WorldObject_ScreenPosition;
     }
-
     private Vector2 getCanvasPosition(Vector3 WorldSpacePos)
     {
         //float height = GameInfo.gLocalPlayer.CharController.height;
@@ -227,4 +315,62 @@ public class HUD_DamageLabelPool : MonoBehaviour
             Setup(res, GameInfo.gLocalPlayer.Position);
         }
     }
+
+    private void TestPrintQueueContent(Queue<DamageRecord> qDR)
+    {
+        if (mPrintDRQueue)
+        {
+            DamageRecord[] arr = new DamageRecord[mPool.Count];
+            qDR.CopyTo(arr, 0);
+            string s = string.Empty;
+            for (int i = 0; i < qDR.Count; ++i)
+                s += arr[i].ar.RealDamage + ", ";
+            Debug.Log(string.Format("Damage: {0}", s));
+        }
+    }
+
+    public void TestChangeToGameObjectLabelType()
+    {
+        ClearType();
+
+        GameObject dmglabelParent = UIManager.GetWidget(HUDWidgetType.DamageLabel);
+        GameObject prefab = UIManager.UIHierarchy.DmgLabelPrefab;
+        mPool = ObjMgr.Instance.InitGameObjectPoolQueue(dmglabelParent.transform, prefab, prefab.transform.localPosition, prefab.transform.localScale, mConstPoolSize);
+
+        mUseDebugLabel = false;
+    }
+
+    public void TestChangeToParticleLabelType()
+    {
+        ClearType();
+
+        GameObject dmglabelParent = UIManager.GetWidget(HUDWidgetType.DamageLabel);
+        GameObject prefab = UIManager.UIHierarchy.DmgLabelPrefab;//UIManager.UIHierarchy.DmgParticleLabelPrefab;
+        GameObject obj = Instantiate(prefab, dmglabelParent.transform);
+        mParticleMgr = obj.GetComponent<ParticleLabelManager>();
+        mParticleMgr.Init(mConstPoolSize);
+
+        mUseDebugLabel = true;
+    }
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(HUD_DamageLabelPool))]
+public class HUD_DamageLabelPoolEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        HUD_DamageLabelPool dlp = (HUD_DamageLabelPool)target;
+        if (GUILayout.Button("Game Object Damage Label"))
+        {
+            dlp.TestChangeToGameObjectLabelType();
+        }
+        if (GUILayout.Button("Particle Damage Label"))
+        {
+            dlp.TestChangeToParticleLabelType();
+        }
+
+        base.OnInspectorGUI();
+    }
+}
+#endif

@@ -55,7 +55,7 @@ public partial class ClientMain : MonoBehaviour
                 BroadcastArenaRankUp(parameters_array[0], parameters_array[1], parameters_array[2]);
                 break;
             case BroadcastMessageType.TickerTapeMessage:
-                //UIManager.GetWidget(HUDWidgetType.TickerTape).GetComponent<HUD_TickerTape>().SetAnnoucementText(parameters);
+                UIManager.ShowTickerTapeMessage(parameters);
                 break;
             case BroadcastMessageType.AuctionBegin:
                 BroadcastAuctionBegin(int.Parse(parameters_array[0]), parameters_array[1]);
@@ -120,9 +120,6 @@ public partial class ClientMain : MonoBehaviour
                    // UIManager.GetWidget(HUDWidgetType.ExpGain).GetComponent<HUD_ShowGetXP>().AddXPGain(parameters);
                     //UIManager.ShowSystemMessage("*** Gained " + parameters + " experience ***", false);
                 }
-                break;
-            case BroadcastMessageType.GMMessageChanged:
-                GMMessageChanged(parameters);
                 break;
             case BroadcastMessageType.MessageBroadcaster:
                 MessageBroadcaster(int.Parse(parameters_array[0]) == 1, parameters_array[1]);
@@ -385,12 +382,6 @@ public partial class ClientMain : MonoBehaviour
             DateTime beginDt = DateTime.ParseExact(parameters, "yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture);
             int seconds = (int)(beginDt.Subtract(DateTime.Now).TotalSeconds);
         }
-    }
-
-    private void GMMessageChanged(string message)
-    {
-        List<GMMessageData> messageList = JsonConvertDefaultSetting.DeserializeObject<List<GMMessageData>> (message);
-        TickerTapeSystem.Instance.RefreshGMMessage(messageList);
     }
 
     private void MessageBroadcaster(bool emergency, string message)

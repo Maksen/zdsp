@@ -320,6 +320,7 @@
         private PositionSlots mPositionSlots;
         public PositionSlots PositionSlots { get { return mPositionSlots; } }
         private Dictionary<int, Actor> mNPCAttackers; //table of npcs having this actor as the current target
+        private Dictionary<int, Actor> mPlayerAttackers; //table of players having this actor as the current target
         protected List<SpecialSE> mPersistentSideEffects;
         protected SideEffect[] mSideEffectsPos;
         protected SideEffect[] mSideEffectsNeg;
@@ -328,6 +329,7 @@
 
         // Prototyping test stuff
         protected Dictionary<byte, List<SideEffect>> m_SideEffects;
+        protected Dictionary<byte, HashSet<int>> m_RemovedSE;
         // proto
 
         //public ControlStats ControlStats;
@@ -343,6 +345,7 @@
         {
             mPositionSlots = new PositionSlots(this);
             mNPCAttackers = new Dictionary<int, Actor>();
+            mPlayerAttackers = new Dictionary<int, Actor>();
             Radius = CombatUtils.DEFAULT_ACTOR_RADIUS;
 
             mPersistentSideEffects = new List<SpecialSE>();
@@ -351,6 +354,7 @@
             m_EquipmentSE = new Dictionary<int, List<SideEffect>>();
             m_SideEffectList = new Dictionary<int, int>();
             m_SideEffects = new Dictionary<byte, List<SideEffect>>();
+            m_RemovedSE = new Dictionary<byte, HashSet<int>>();
 
             //ControlStats = new ControlStats();
             finalcombatstats = new LocalSkillStats();
@@ -362,6 +366,7 @@
             base.OnRemove();
             mPositionSlots.Reset();
             ClearNPCAttackers();
+            ClearPlayerAttackers();
         }
 
         public virtual void StartInvincible(float seconds)
@@ -380,24 +385,48 @@
 		    int pid = npc.GetPersistentID();
 		    if (!mNPCAttackers.ContainsKey(pid))
 		    {
-			    mNPCAttackers.Add(pid, npc);                    
+			    mNPCAttackers.Add(pid, npc);
 		    }
 	    }
-	
+
 	    public void RemoveNPCAttacker(Actor npc)
-	    {		    
+	    {
             mNPCAttackers.Remove(npc.GetPersistentID());
 	    }
-	
+
 	    public Dictionary<int, Actor> GetNPCAttackers()
-	    {		
+	    {
 		    return mNPCAttackers;
 	    }
-	
+
 	    public void ClearNPCAttackers()
 	    {
 		    mNPCAttackers.Clear();
 	    }
+
+        public void AddPlayerAttacker(Actor player)
+        {
+            int pid = player.GetPersistentID();
+            if (!mPlayerAttackers.ContainsKey(pid))
+            {
+                mPlayerAttackers.Add(pid, player);
+            }
+        }
+
+        public void RemovePlayerAttacker(Actor player)
+        {
+            mPlayerAttackers.Remove(player.GetPersistentID());
+        }
+
+        public Dictionary<int, Actor> GetPlayerAttackers()
+        {
+            return mPlayerAttackers;
+        }
+
+        public void ClearPlayerAttackers()
+        {
+            mPlayerAttackers.Clear();
+        }
         #endregion
 
         public virtual void RTStarted()
@@ -409,6 +438,24 @@
         {
             long now = EntitySystem.Timers.GetSynchronizedTime();
             return now < RecoverTime + CombatUtils.RECOVER_FROM_HIT_TIME;
+        }
+
+        private long getHitTime = 0;
+
+        public virtual void OnGetHit(long cooldown)
+        {
+            if (PlayerStats.HeavyStand)
+                return;
+
+            if (getHitTime <= 0)
+            {
+                getHitTime = cooldown;
+            }
+        }
+
+        public virtual bool IsGettingHit()
+        {
+            return getHitTime > 0;
         }
 
         public virtual void OnDamage(IActor attacker, AttackResult res, bool pbasicattack)
@@ -423,7 +470,8 @@
                 ? shieldSE.OnAttacked(res.RealDamage) : SkillPassiveStats.OnDamage(res.RealDamage, this);        
             QueueDmgResult(res); // For defender to see this result at client
             OnAttacked(attacker, res.RealDamage); //currently 1:1  
-            
+            OnGetHit(200);
+
             int hpAfterDmg = GetHealth() - res.RealDamage;
             if (hpAfterDmg <= 0)
             {                                
@@ -501,6 +549,7 @@
             PlayerStats.Alive = false;
             mPositionSlots.Reset();
             ClearNPCAttackers();
+            ClearPlayerAttackers();
         }
 
         public override void UpdateEntitySyncStats(GameClientPeer peer)
@@ -791,7 +840,10 @@
             //    } 
             //}
             byte type = (byte)SideEffectsUtils.GetEffectHandleType(se.mSideeffectData.effecttype);
-            m_SideEffects[type].Remove(se);
+            int index = m_SideEffects[type].FindIndex(x => x == se);
+            if (!m_RemovedSE.ContainsKey(type)) m_RemovedSE.Add(type, new HashSet<int>());
+            m_RemovedSE[type].Add(index);
+
             RemoveSideEffectFromList(se);
             StopSideEffectVisual(se, positiveEffect);
 
@@ -892,6 +944,20 @@
                 {
                     foreach (SideEffect se in selist.Value)
                         se.Update(dt);
+                }
+
+                foreach(var set in m_RemovedSE)
+                {
+                    foreach(int index in set.Value)
+                    {
+                        m_SideEffects[set.Key].RemoveAt(index);
+                    }
+                }
+                m_RemovedSE.Clear();
+
+                if (getHitTime > 0)
+                {
+                    getHitTime -= dt;
                 }
             }
             lastUpdatePersistentSE += dt;

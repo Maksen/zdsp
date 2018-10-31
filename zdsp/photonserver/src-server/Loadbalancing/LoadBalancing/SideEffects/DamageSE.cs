@@ -14,6 +14,7 @@
         protected int mExtraDamage;
         protected bool mbBasicAttack;//use this value in combatformula
 
+        public int mSkillid;
         //public SideEffectJson OnTalentHit;
         protected FieldName elementalName;
 
@@ -243,6 +244,7 @@
                 }
             }
             mAttackResult.LabelNum = labelCount;
+            mAttackResult.Skillid = mSkillid;
         }
 
         private void ApplyCritcalSE(ActorStatsType statstype, int val, long dur, bool buff) {
@@ -296,6 +298,7 @@
 
             mTarget.OnDamage(mCaster.GetOwner(), mAttackResult, mbBasicAttack);
             totalDamageApplied += mAttackResult.RealDamage;
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("DamageSE", "Damage of " + mAttackResult.RealDamage + " is applied");
             //if(mSideeffectData.effecttype == EffectType.Damage_DamageWithRejuvenate)
             //{
             //    ApplyRejuvenate(mAttackResult.RealDamage);
@@ -309,6 +312,15 @@
 
                     ((Monster)mTarget).OnKnockedBack(pos);
                 }
+            }
+        }
+
+
+        private void ApplyGetHit()
+        {
+            if (mTarget.IsMonster())
+            {
+                
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
@@ -13,8 +14,10 @@ public class UI_Achievement : BaseWindowBehaviour
     [SerializeField] Model_3DAvatar modelAvatar;
     [SerializeField] DragSpin3DAvatar dragSpinAvatar;
     [SerializeField] UI_DragEvent uiDragEvent;
+    [SerializeField] Animator zoomAnimator;
     [SerializeField] Toggle messageToggle;
     [SerializeField] Text messageText;
+    [SerializeField] GameObject messageObj;
 
     [Header("Right Side")]
     [SerializeField] UI_ProgressBarC tierProgressBar;
@@ -23,9 +26,11 @@ public class UI_Achievement : BaseWindowBehaviour
     [SerializeField] UI_ProgressBarC[] collectionTypesProgress;
     [SerializeField] UI_ProgressBarC[] achievementTypesProgress;
     [SerializeField] Button claimRewardBtn;
+    [SerializeField] UI_Achievement_AchievementDetails uiAchDetails;
 
     private AchievementStatsClient achStats;
     private PlayerGhost player;
+    private LISATransformTierJson currentTierData;
 
     private void Awake()
     {
@@ -57,6 +62,7 @@ public class UI_Achievement : BaseWindowBehaviour
         base.OnCloseWindow();
         messageText.text = "";
         messageToggle.isOn = false;
+        dragSpinAvatar.Reset();
     }
 
     private void Init()
@@ -89,6 +95,12 @@ public class UI_Achievement : BaseWindowBehaviour
                 expProgressBar.Value = player.SecondaryStats.AchievementExp;
             }
         }
+        else
+        {
+            expProgressBar.Max = 100;
+            expProgressBar.Value = 0;
+        }
+        expProgressBar.Refresh();
     }
 
     public void UpdateTierProgress()
@@ -96,7 +108,8 @@ public class UI_Achievement : BaseWindowBehaviour
         var currentTierInfo = AchievementRepo.GetLISATierInfoByLevel(player.PlayerSynStats.AchievementLevel);
         if (currentTierInfo != null)
         {
-            var nextTierInfo = AchievementRepo.GetLISATierInfoByTier(currentTierInfo.tierid);
+            UpdateTier(currentTierInfo.tierid);
+            var nextTierInfo = AchievementRepo.GetLISATierInfoByTier(currentTierInfo.tierid + 1);
             if (nextTierInfo != null) // still have next tier
             {
                 tierProgressBar.Max = nextTierInfo.reqlvl - currentTierInfo.reqlvl;
@@ -108,6 +121,12 @@ public class UI_Achievement : BaseWindowBehaviour
                 tierProgressBar.Value = currentTierInfo.reqlvl;
             }
         }
+        else
+        {
+            tierProgressBar.Max = 100;
+            tierProgressBar.Value = 0;
+        }
+        tierProgressBar.Refresh();
     }
 
     public void UpdateCollectionProgress()
@@ -139,12 +158,89 @@ public class UI_Achievement : BaseWindowBehaviour
 
     private void OnClickAvatar()
     {
-        
+    }
+
+    public void ZoomInAvatar()
+    {
+        if (currentTierData != null)
+        {
+            switch (currentTierData.modeltype)
+            {
+                case LISAModelType.Energy:
+                    zoomAnimator.Play("ZoomScaler_Energy_ZoomIn");
+                    break;
+                case LISAModelType.Bird:
+                    zoomAnimator.Play("ZoomScaler_Bird_ZoomIn");
+                    break;
+                case LISAModelType.LISA:
+                    zoomAnimator.Play("ZoomScaler_Lisa_ZoomIn");
+                    break;
+            }
+        }
+
+        messageObj.SetActive(false);
+        claimRewardBtn.gameObject.SetActive(false);
+    }
+
+    public void ZoomOutAvatar()
+    {
+        if (currentTierData != null)
+        {
+            switch (currentTierData.modeltype)
+            {
+                case LISAModelType.Energy:
+                    zoomAnimator.Play("ZoomScaler_Energy_ZoomOut");
+                    break;
+                case LISAModelType.Bird:
+                    zoomAnimator.Play("ZoomScaler_Bird_ZoomOut");
+                    break;
+                case LISAModelType.LISA:
+                    zoomAnimator.Play("ZoomScaler_Lisa_ZoomOut");
+                    break;
+            }
+        }
+
+        messageObj.SetActive(true);
+        claimRewardBtn.gameObject.SetActive(true);
+    }
+
+    public void OnCloseAchievementDetails()
+    {
+        uiAchDetails.CleanUp();
     }
 
     public void OnClickTier()
     {
+        if (currentTierData == null)
+            return;
 
+        float currentProgress = tierProgressBar.Value / tierProgressBar.Max;
+        UIManager.OpenDialog(WindowType.DialogAchievementTier,
+            (window) => window.GetComponent<UI_Achievement_TierDialog>().Init(currentTierData.tierid, currentProgress, UpdateTier));
+    }
+
+    private void UpdateTier(int tier)
+    {
+        dragSpinAvatar.Reset();
+
+        LISATransformTierJson tierData = AchievementRepo.GetLISATierInfoByTier(tier);
+        if (tierData != null)
+        {
+            modelAvatar.transform.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(false);  //to be removed
+            currentTierData = tierData;
+            modelAvatar.Change(tierData.modelpath, OnModelLoaded);
+        }
+        else
+            modelAvatar.transform.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(true); //to be removed
+    }
+
+    private void OnModelLoaded(GameObject model)
+    {
+        float[] camera = StaticNPCRepo.ParseCameraPosInTalk(currentTierData.posinui);
+        Vector3 pos = model.transform.parent.localPosition;
+        model.transform.parent.localPosition = new Vector3(camera[0], camera[1], pos.z);
+        model.transform.localRotation = Quaternion.Euler(new Vector3(0, camera[2], 0));
+        model.transform.localScale = new Vector3(camera[3], camera[3], camera[3]);
     }
 
     public void OnClickExternalFunctions()

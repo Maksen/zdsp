@@ -1,14 +1,14 @@
 using Kopio.JsonContracts;
 using UnityEngine;
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using Zealot.Bot;
 using Zealot.Common;
-using Zealot.Common.Entities;
 using Zealot.Common.Actions;
 using Zealot.Common.Datablock;
+using Zealot.Common.Entities;
 using Zealot.Client.Actions;
-using Zealot.Bot;
 using Zealot.Repository;
 
 namespace Zealot.Client.Entities
@@ -33,6 +33,7 @@ namespace Zealot.Client.Entities
         public WelfareStats WelfareStats { get; set; }
         public SevenDaysStats SevenDaysStats { get; set; }
         public QuestExtraRewardsStats QuestExtraRewardsStats { get; set; }
+        public DNAStats DNAStats { get; set; }
         public LotteryInfoStats LotteryInfoStats { get; set; }
         public HeroStatsClient HeroStats { get; private set; }
         public PowerUpStats PowerUpStats { get; set; }
@@ -40,7 +41,6 @@ namespace Zealot.Client.Entities
         public DestinyClueStatsClient DestinyClueStats { get; set; }
         public DonateSynStatsClient DonateStats { get; set; }
         public AchievementStatsClient AchievementStats { get; set; }
-        public InteractiveTriggerStats InteractiveTriggerStats { get; set; }
 
         // Shared stats 
         public PartyStatsClient PartyStats { get; set; }
@@ -59,6 +59,8 @@ namespace Zealot.Client.Entities
         private BotController mBotController;
         public BotController Bot { get { return mBotController; } }
         public InteractiveController InteractiveController { get; private set; }
+
+        public TutorialController m_TutorialController { get; private set; }
 
         public GameTimer mArenaRewardCD = null;
         public DateTime mArenaLastRewardDT;
@@ -176,6 +178,12 @@ namespace Zealot.Client.Entities
 
         public bool IsFeatureUnlocked(WindowType windowType)
         {
+            if (GameInfo.IsDoingTutorialRealm() && windowType != WindowType.ConsoleCommand)
+            {
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_UnableToUseFeature", null));
+                return false;
+            }
+
             int minLvl = 1;
             switch (windowType)
             {
@@ -368,6 +376,7 @@ namespace Zealot.Client.Entities
                             PlayEffect("", "levelup", null, 4f, Position, this);
                         }
                         UpdateQuestRequirement(QuestRequirementType.Level, -1);
+                        UpdateTutorialStatus((int)value);
                     }
                     break;
                 case "guildName":
@@ -462,12 +471,9 @@ namespace Zealot.Client.Entities
 
         public void OnDead()
         {
-            if (Bot.Enabled)
+            if (GameSettings.AutoBotEnabled)
             {
-                HUD_Skills hudskill = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
-                //hudskill.botToggle.;
                 Bot.StopBot();
-                hudskill.AutoCombatToggle.isOn = false;
             }
             if (IsLocal)
             {
@@ -488,7 +494,8 @@ namespace Zealot.Client.Entities
             if (hudskill == null)
                 return;
 
-            hudskill.UpdateSkillButtons(Bot.Enabled);
+            hudskill.UpdateSkillButtons(GameSettings.AutoBotEnabled);
+            Bot.UpdateAutoSkillRow();
             //for(int i = 0; i < 9; ++i)
             //{
             //    SkillData data = SkillRepo.GetSkill((int)SkillStats.SkillInv[i]);
@@ -533,20 +540,6 @@ namespace Zealot.Client.Entities
                 {
                     st.UpdateBasicAttack(skillId);
                 }
-
-                if (field == "basicAttack1SId")
-                {
-                    //Debug.Log("basicAttack1SId changed: " + value);                   
-                    GameInfo.gBasicAttackState.mBasicAttackIDs[0] = skillId;
-                }
-                else if (field == "basicAttack2SId")
-                {
-                    GameInfo.gBasicAttackState.mBasicAttackIDs[1] = skillId;
-                }
-                else if (field == "basicAttack3SId")
-                {
-                    GameInfo.gBasicAttackState.mBasicAttackIDs[2] = skillId;
-                }
             }
         }
 
@@ -587,6 +580,29 @@ namespace Zealot.Client.Entities
             IInventoryItem item = GameRepo.ItemFactory.GetItemFromCode(value);
             int slotid = (lotype - LOTYPE.InventoryStats) * (int)InventorySlot.COLLECTION_SIZE + idx;
             clientItemInvCtrl.UpdateItemInv(slotid, item);
+
+            GameObject uiEquipUpgradeObj = UIManager.GetWindowGameObject(WindowType.EquipUpgrade);
+            if(uiEquipUpgradeObj.activeInHierarchy)
+            {
+                UI_EquipmentUpgrade uiEquipUpgrade = uiEquipUpgradeObj.GetComponent<UI_EquipmentUpgrade>();
+                if(uiEquipUpgrade != null)
+                {
+                    uiEquipUpgrade.Refresh();
+                }
+            }
+
+            GameObject uiEquipReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
+            if(uiEquipReformObj.activeInHierarchy)
+            {
+                UI_EquipmentReform uiEquipReform = uiEquipReformObj.GetComponent<UI_EquipmentReform>();
+                if(uiEquipReform != null)
+                {
+                    if(uiEquipReform.reformTab.isOn)
+                        uiEquipReform.RefreshReform();
+                    else
+                        uiEquipReform.RefreshRecycle();
+                }
+            }
         }
 
         public void OnInventoryStatsLocalObjectChanged()
@@ -612,15 +628,15 @@ namespace Zealot.Client.Entities
                     {
                         switch (mAction.mdbCommand.GetActionType())
                         {
-                            case ACTIONTYPE.APPROACH:
-                            case ACTIONTYPE.APPROACH_PATHFIND:
-                            case ACTIONTYPE.WALK:
-                                PlayEffect(GetRunningAnimation());
-                                break;
                             case ACTIONTYPE.IDLE:
                                 string anim = GetStandbyAnimation();
                                 if (anim != "")
                                     PlayEffect(anim);
+                                break;
+                            case ACTIONTYPE.WALK:
+                            case ACTIONTYPE.APPROACH:
+                            case ACTIONTYPE.APPROACH_PATHFIND:  
+                                PlayEffect(GetRunningAnimation());
                                 break;
                         }
                     }
@@ -656,14 +672,7 @@ namespace Zealot.Client.Entities
             }
             else if (field == "AppearanceInventory")
             {
-                if (value.GetType() == typeof(int))
-                {
-                    mEquipmentInvData.SetAppearanceToSlot(idx, (int)value);
-                }
-                else
-                {
-                    mEquipmentInvData.SetAppearanceToSlot(idx, -1);
-                }
+                mEquipmentInvData.SetAppearanceToSlot(idx, (value != null) ? (int)value : -1);
             }
         }
 
@@ -736,8 +745,8 @@ namespace Zealot.Client.Entities
                 case "IsInCombat":
                     if(IsLocal)
                     {
-                        if(!IsMoving())
-                        PlayEffect(GetStandbyAnimation());
+                        if(!IsMoving() && IsIdling())
+                            PlayEffect(GetStandbyAnimation());
                     }
                     break;
             }
@@ -981,9 +990,18 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void OnInteractiveTriggerStatsChanged()
+        public void OnDNAStatsChanged()
         {
-            InteractiveController.InitFromStats(InteractiveTriggerStats);
+
+        }
+
+        public void OnDNAStatsValueChanged(string field, object value, object oldvalue)
+        {
+        }
+
+        public void OnDNAStatsCollectionChanged(string field, byte idx, object value)
+        {
+
         }
 
         public void OnLotteryInfoStatsChanged(int stat_index)
@@ -1040,6 +1058,7 @@ namespace Zealot.Client.Entities
                     break;
             }
         }
+
         private void OnPartyStatsChanged(string field, object value, object oldvalue)
         {
             if (PartyStats.IsNewlyAdded)
@@ -1301,11 +1320,11 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void Init(string playername, byte gender, Vector3 pos, Vector3 dir)
+        public void Init(string playerName, byte gender, Vector3 pos, Vector3 dir)
         {
             Position = pos;
             Forward = dir;
-            Name = playername;
+            Name = playerName;
             mGender = (Gender)gender;
 
             if (IsLocal)
@@ -1313,10 +1332,11 @@ namespace Zealot.Client.Entities
                 InitItemInvCtrl();
                 InitPowerUpCtrl();
                 InitEquipmentCraftCtrl();
-                InitInteractiveCtrl();
+                InteractiveController = new InteractiveController();
                 QuestController = new QuestClientController(this);
                 DestinyClueController = new DestinyClueClientController();
                 DonateController = new DonateClientController();
+                m_TutorialController = new TutorialController(this);
             }
             mEquipmentInvData = new EquipmentInventoryData();
             mEquipmentInvData.InitDefault();
@@ -1416,11 +1436,6 @@ namespace Zealot.Client.Entities
                     PowerUpStats.OnLocalObjectChanged = OnPowerUpStatsChanged;
                     mylocalobj = PowerUpStats;
                     break;
-                case LOTYPE.InteractiveTriggerStats:
-                    InteractiveTriggerStats = new InteractiveTriggerStats();
-                    InteractiveTriggerStats.OnLocalObjectChanged = OnInteractiveTriggerStatsChanged;
-                    mylocalobj = InteractiveTriggerStats;
-                    break;
                 case LOTYPE.AchievementStats:
                     AchievementStats = new AchievementStatsClient();
                     AchievementStats.OnCollectionChanged = OnAchievementStatsCollectionChanged;
@@ -1434,6 +1449,14 @@ namespace Zealot.Client.Entities
                     MeridianStats.meridianExpSlots.SetNotifyParent(false);
                     MeridianStats.OnLocalObjectChanged = OnMeridianStatsChanged;
                     mylocalobj = MeridianStats;
+                    break;
+                case LOTYPE.DNAStats:
+                    DNAStats = new DNAStats();
+                    DNAStats.dnaSlots.SetNotifyParent(false);
+                    DNAStats.OnCollectionChanged = OnDNAStatsCollectionChanged;
+                    DNAStats.OnValueChanged = OnDNAStatsValueChanged;
+                    DNAStats.OnLocalObjectChanged = OnDNAStatsChanged;
+                    mylocalobj = DNAStats;
                     break;
                 // Shared Objects
                 case LOTYPE.PartyStats:
@@ -1576,13 +1599,6 @@ namespace Zealot.Client.Entities
             InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
 
-        private void InitInteractiveCtrl()
-        {
-            InteractiveController = new InteractiveController();
-            if (InteractiveController == null)
-                Debug.LogError("clientInteractiveCtrl is null");
-        }
-
         protected override void PlayStunEffect(bool bplay)
         {
         }
@@ -1635,6 +1651,15 @@ namespace Zealot.Client.Entities
             mmMap.InitMap();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="targetpid">Target's persistent ID</param>
+        /// <param name="range"></param>
+        /// <param name="targetsafe">Position is assumed to be 100% reachable</param>
+        /// <param name="movedirectonpathfound">Whether to move straight to target pos after path is found</param>
+        /// <param name="callback"></param>
         public void PathFindToTarget(Vector3 position, int targetpid, float range, bool targetsafe, bool movedirectonpathfound, Common.Actions.Action.CompleteCallBackDelegate callback)
         {
             if (!CanMove())
@@ -1665,6 +1690,8 @@ namespace Zealot.Client.Entities
                 {
                     action = delegate {
                         staticnpc.Interact();
+                        if (staticnpc is StaticAreaGhost)
+                            Bot.PauseBot();
                     };
                     range = 2f;
                     targetid = -1;
@@ -1754,14 +1781,14 @@ namespace Zealot.Client.Entities
         public bool IsFrozen()
         {
             if (ControlSE_Status != null)
-                return ControlSE_Status[EffectVisualTypes.Frozen.ToString()] == true;
+                return ControlSE_Status[EffectVisualTypes.Frozen.ToString()];
             else
                 return false;
         }
 
         public bool CanMove()
         {
-            return !IsStun() && !IsRooted() && !IsFrozen();
+            return !IsStun() && !IsRooted() && !IsFrozen() && !IsGettingHit();
         }
 
         public bool HasPositiveSE(int otherSEID)
@@ -1905,12 +1932,10 @@ namespace Zealot.Client.Entities
                 UIManager.AlertManager2.SetAlert(AlertType.ArenaFreeCount, true);
         }
 
-
         private GameTimer guildquestTimer = null;
         public void SetGuildQuestAlert()
         {
             StopTimer(guildquestTimer);
-
         }
 
         public override void Update(long dt)
@@ -1925,7 +1950,8 @@ namespace Zealot.Client.Entities
 
                 if (PartyStats != null)
                     PartyStats.Update(dt);
-                Bot.Update(dt);
+                if(Bot != null)
+                    Bot.Update(dt);
                 long temp = comboTimer;
                 comboTimer += dt;
                 if (temp < CombatUtils.COMBOTHIT_TIMEOUT && comboTimer >= CombatUtils.COMBOTHIT_TIMEOUT && ui_combohit != null)
@@ -2219,20 +2245,30 @@ namespace Zealot.Client.Entities
             throw new NotImplementedException();
         }
 
-        public void ActionInterupted(bool onDamage = false)
+        public void ActionInterupted(bool isDamage = false)
         {
-            if (onDamage)
+            if(InteractiveController != null)
             {
-                if (!InteractiveController.GetInterrupt())
+                if (isDamage && InteractiveController.isInterruptible)
+                {
                     return;
-            }
+                }
 
-            if (InteractiveController.IsProgressing())
-                InteractiveController.Interrupt();
+                if (InteractiveController.IsUsing())
+                {
+                    InteractiveController.ActionInterupted();
+                }
+            }
 
             if (QuestController != null)
             {
                 QuestController.ActionInterupted();
+            }
+
+            if (Bot != null)
+            {
+                if (isDamage)
+                    Bot.Interrupt();
             }
         }
 
@@ -2241,13 +2277,25 @@ namespace Zealot.Client.Entities
             if (GameInfo.gCombat.CutsceneManager.IsCutsceneReady(name))
             {
                 ForceIdle();
-                Bot.StopBot();
+                UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
                 UIManager.OpenCutsceneDialog();
 
                 yield return new WaitForSecondsRealtime(delay);
-
+                Bot.PauseBot(false);
+                RPCFactory.NonCombatRPC.ActivateInvincible(true);
                 GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));
             }
+        }
+
+        public IEnumerator FinishCutscene(float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+
+            if (!UIManager.IsWindowOpen(WindowType.DialogNpcTalk))
+            {
+                Bot.ResumeBot();
+            }
+            RPCFactory.NonCombatRPC.ActivateInvincible(false);
         }
 
         public void StartNextQuestEvent(int questid)
@@ -2301,6 +2349,12 @@ namespace Zealot.Client.Entities
             {
                 QuestController.UpdateRequirementProgress(requirementType, triggerid, this);
             }
+        }
+
+        public void UpdateTutorialStatus(int level)
+        {
+            if (m_TutorialController != null)
+                m_TutorialController.UpdateTutorialStatus(level);
         }
     }
 }

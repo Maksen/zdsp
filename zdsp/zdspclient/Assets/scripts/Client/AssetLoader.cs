@@ -1,7 +1,10 @@
-﻿using UnityEngine;
-using System.Collections;
-using AssetBundles;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+
+#if !UNITY_EDITOR || USE_ASSETBUNDLE
+using AssetBundles;
+#endif
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -88,8 +91,6 @@ public class AssetLoader : MonoSingleton<AssetLoader>
         }, removeCBOnLevelChanged));
 
     }
-
-
 
     /// <summary>
     ///  Async loads asset. For Method that requires control over the coroutine. 
@@ -208,7 +209,7 @@ public class AssetLoader : MonoSingleton<AssetLoader>
         return string.Format("{0}/{1}", containerName, assetName);
     }
 
-    #region Cache handling
+#region Cache handling
     void Update()
     {
         float elapsed = Time.deltaTime;
@@ -309,7 +310,7 @@ public class AssetLoader : MonoSingleton<AssetLoader>
         foreach (var loadop in assetMap.Values)
             loadop.OnLevelChanged();
     }
-    #endregion
+#endregion
 
     bool mapDirty = false;
 

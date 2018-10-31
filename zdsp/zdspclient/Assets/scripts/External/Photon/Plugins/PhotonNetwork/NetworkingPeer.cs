@@ -917,7 +917,7 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
                         string serverList = "";
                         if (opParams.ContainsKey(ParameterCode.ServerList))
                             serverList = opParams[ParameterCode.ServerList] as string;
-                        GameInfo.gLogin.OnGetServerList(serverList);
+                        GameInfo.gLogin.OnGetServerListResult(serverList);
                     }
                     break;
                 }
@@ -1343,14 +1343,10 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
     public static void SendZealotMessage(PhotonNetworkingMessage msgType, params object[] parameters)
     {
         object callParameter = (parameters != null && parameters.Length == 1) ? parameters[0] : parameters;
-        if (GameInfo.gClientState == PiliClientState.Combat)
-        {
+        if (GameInfo.gClientState == GameClientState.Combat)
             GameInfo.gCombat.OnZealotRPCEvent(msgType, callParameter as EventData);
-        }
-        else if (GameInfo.gClientState == PiliClientState.Lobby)
-        {
+        else if (GameInfo.gClientState == GameClientState.Lobby)
             GameInfo.gLobby.OnZealotRPCEvent(msgType, callParameter as EventData);
-        }
     }
 
     public static void SendMonoMessage(PhotonNetworkingMessage methodString, params object[] parameters)

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.ComponentModel;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Zealot.Common
@@ -115,6 +115,11 @@ namespace Zealot.Common
             this.LoginType = (short)Zealot.Common.LoginType.Username;
         }
 
+        public bool IsDataValid
+        {
+            get { return !string.IsNullOrEmpty(Instance.DeviceId) && !string.IsNullOrEmpty(Instance.LoginId); }
+        }
+
         public void SerializeLoginData()
         {
             string dataFile = (Application.platform == RuntimePlatform.WindowsEditor) ? editorDataFile
@@ -127,21 +132,20 @@ namespace Zealot.Common
             string dataFileJson = (Application.platform == RuntimePlatform.WindowsEditor) ? editorDataFile
                                                                                           : clientDataFile;
             string dataFileJsonPath = string.Format("{0}/{1}", Application.persistentDataPath, dataFileJson);
-            if (File.Exists(dataFileJsonPath))
-            {
-                LoginData loginData = DeserializeFromFile(dataFileJsonPath);
-                Instance.LoginType = loginData.LoginType;
-                Instance.LoginId = loginData.LoginId;
-                Instance.DeviceId = loginData.DeviceId;
-                Instance.EncryptedPass = loginData.EncryptedPass;
-                Instance.IV = loginData.IV;
-                Instance.ServerId = loginData.ServerId;
-                Instance.FirstLoginTick = loginData.FirstLoginTick;
-                Instance.ShowAnnounce = loginData.ShowAnnounce;
-                Instance.HasReadLicense = loginData.HasReadLicense;
-                return true;
-            }
-            return false;
+            if (!File.Exists(dataFileJsonPath))
+                return false;
+
+            LoginData loginData = DeserializeFromFile(dataFileJsonPath);
+            Instance.LoginType = loginData.LoginType;
+            Instance.LoginId = loginData.LoginId;
+            Instance.DeviceId = loginData.DeviceId;
+            Instance.EncryptedPass = loginData.EncryptedPass;
+            Instance.IV = loginData.IV;
+            Instance.ServerId = loginData.ServerId;
+            Instance.FirstLoginTick = loginData.FirstLoginTick;
+            Instance.ShowAnnounce = loginData.ShowAnnounce;
+            Instance.HasReadLicense = loginData.HasReadLicense;
+            return true;
         }
 
         #region Json Serialization Methods

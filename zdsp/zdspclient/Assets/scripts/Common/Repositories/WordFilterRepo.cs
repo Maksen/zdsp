@@ -128,7 +128,8 @@ namespace Zealot.Repository
                 return false;
             }
 
-            List<string> wordFilterList = mWordFilterList[type];
+            List<string> wordFilterList = mWordFilterList[FilterType.All];
+            wordFilterList.AddRange(mWordFilterList[type]);
             if (wordFilterList.Count <= 0)
             {
                 return false;

@@ -176,7 +176,7 @@ namespace Zealot.Common
         {
             Slots = new List<IInventoryItem>(new IInventoryItem[maxSlotsSize]);
             if (UnlockedSlotCount == 0)
-                UnlockedSlotCount = 30;
+                UnlockedSlotCount = GameConstantRepo.ItemInvStartingSlotCount;
         }
 
         public void ValidateDefault()

@@ -50,6 +50,7 @@ public class EfxSystem : MonoSingleton<EfxSystem>
         }
 
         AddEffect("levelup", "Effects_ZDSP_characters/buff/prefab/level_up.prefab", true);
+        AddEffect("Frozen_Death", "Effects_ZDSP_characters/buff/prefab/frozen_death.prefab", true);
     }
 
     /// <summary>
@@ -147,6 +148,13 @@ public class EfxSystem : MonoSingleton<EfxSystem>
         }
     }
 
+    public string GetEffectPathByName(string efxName)
+    {
+        string effectPath = "";
+        mEffectPaths.TryGetValue(efxName, out effectPath);
+        return effectPath;
+    }
+
     public GameObject GetEffectByPath(string effectpath)
     {
         GameObject effectPrefab;
@@ -181,6 +189,6 @@ public class EfxSystem : MonoSingleton<EfxSystem>
         {
             mEfxPrefabList.Clear();
             mEfxPrefabList = null;
-        }    
+        }
     }
 }

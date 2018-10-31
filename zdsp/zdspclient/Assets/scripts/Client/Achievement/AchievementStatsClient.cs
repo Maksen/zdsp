@@ -182,7 +182,7 @@ public class AchievementStatsClient : AchievementStats
             GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
             if (dialog != null && dialog.activeInHierarchy)
             {
-                dialog.GetComponent<UI_Achievement_RewardsDialog>().InitClaimedRewards(claimedRewardsList);
+                dialog.GetComponent<UI_Achievement_RewardsDialog>().InitCollatedRewardsList(claimedRewardsList);
             }
         }
     }

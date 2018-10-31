@@ -403,7 +403,7 @@ namespace Zealot.Server.AI
                 canCast = /*!mMonster.HasControlStatus(ControlSEType.Disarmed) &&*/ !mMonster.HasControlStatus(ControlSEType.Stun);
                 if (canCast)
                 {
-                    mMonster.CastSkill(mSkillToExecute.skillgroupJson.id, mTarget.GetPersistentID()); 
+                    mMonster.CastSkill(mSkillToExecute.skillgroupJson.id, mTarget.GetPersistentID(), mTarget.Position); 
                 }
                 return;
             }
@@ -420,7 +420,7 @@ namespace Zealot.Server.AI
             }
             if (canCast && !IsSkillInCooldown(mSkillToExecute.skillJson.id, now))
             {
-                mMonster.CastSkill(mSkillToExecute.skillgroupJson.id, mTarget.GetPersistentID());
+                mMonster.CastSkill(mSkillToExecute.skillgroupJson.id, mTarget.GetPersistentID(), mTarget.Position);
                 mSkillCDEndbyID[mSkillToExecute.skillJson.id] = now + (long)(mSkillToExecute.skillJson.cooldown * 1000);
                 mSkillGCDEnd = now + (long)(mSkillToExecute.skillJson.globalcd * 1000);
 

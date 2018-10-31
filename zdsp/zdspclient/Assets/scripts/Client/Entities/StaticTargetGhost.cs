@@ -133,30 +133,6 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public override void UpdateAvailableQuestList()
-        {
-            PlayerGhost player = GameInfo.gLocalPlayer;
-            if (player == null)
-            {
-                return;
-            }
-
-            List<int> availablequest = new List<int>();
-            foreach (int questid in mQuestList)
-            {
-                if (player.QuestController.IsQuestAvailable(questid))
-                {
-                    availablequest.Add(questid);
-                }
-            }
-
-            if (availablequest != mAvailableQuest)
-            {
-                mAvailableQuest = availablequest;
-                UpdateQuestMarker();
-            }
-        }
-
         private void UpdateQuestMarker()
         {
             if (GameInfo.gLocalPlayer == null)

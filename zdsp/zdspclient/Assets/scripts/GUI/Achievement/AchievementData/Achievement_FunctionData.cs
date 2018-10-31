@@ -1,5 +1,4 @@
 ﻿using Kopio.JsonContracts;
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
@@ -7,58 +6,55 @@ using Zealot.Repository;
 
 public class Achievement_FunctionData : MonoBehaviour
 {
-    [SerializeField] Text nameText;
+    [SerializeField] protected Text nameText;
     [SerializeField] Text descriptionText;
     [SerializeField] Image iconImage;
     [SerializeField] string grayColorHex;
 
+    private Color origNameColor;
+    private Color origDescColor;
     private Color grayColor;
     private Toggle toggle;
-    private LISAExternalFunctionJson json;
-    private Action<int> SelectedCallback;
+    protected int triggerValue;
 
     private void Awake()
     {
+        origNameColor = nameText.color;
+        origDescColor = descriptionText.color;
         ColorUtility.TryParseHtmlString(grayColorHex, out grayColor);
         toggle = GetComponent<Toggle>();
     }
 
-    public void Init(LISAExternalFunctionJson data, ToggleGroup toggleGroup, bool unlocked, Action<int> callback)
+    public virtual void Init(LISAExternalFunctionJson data, ToggleGroup toggleGroup, bool unlocked)
     {
-        json = data;
         toggle.group = toggleGroup;
-        SelectedCallback = callback;
+        triggerValue = data.triggervalue;
+
         if (data.triggertype == LISAFunctionTriggerType.AchievementLV)
         {
             AchievementLevel levelInfo = AchievementRepo.GetAchievementLevelInfo(data.triggervalue);
-            if (levelInfo != null)
-                nameText.text = levelInfo.name;
-            else
-                nameText.text = "???";
+            nameText.text = levelInfo != null ? levelInfo.name : "???";
         }
-        else
-        {
-            AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(data.triggervalue);
-            if (obj != null)
-                nameText.text = obj.localizedName;
-            else
-                nameText.text = "???";
-        }
+
         descriptionText.text = data.localizeddescription.Replace("{value}", data.functionvalue.ToString());
         iconImage.sprite = ClientUtils.LoadIcon(data.iconpath);
-        if (!unlocked)
-        {
-            nameText.color = grayColor;
-            descriptionText.color = grayColor;
-        }
+        SetUnlocked(unlocked);
     }
 
-    public void OnToggle(bool isOn)
+    public virtual void Refresh()
     {
-        if (isOn)
-        {
-            if (SelectedCallback != null)
-                SelectedCallback(json.triggervalue);
-        }
+        SetUnlocked(GameInfo.gLocalPlayer.PlayerSynStats.AchievementLevel >= triggerValue);
+    }
+
+    public void SetUnlocked(bool unlocked)
+    {
+        nameText.color = unlocked ? origNameColor: grayColor;
+        descriptionText.color = unlocked ? origDescColor : grayColor;
+    }
+
+    public void SetToggleOn(bool value)
+    {
+        if (toggle.isOn != value)
+            toggle.isOn = value;
     }
 }

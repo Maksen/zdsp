@@ -65,8 +65,8 @@ public partial class ClientMain : MonoBehaviour
         }
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveEntity)]
-    public void InteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota)
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnInteractiveEntity)]
+    public void SpawnInteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota)
     {
         Vector3 position = pos.ToVector3();
         Vector3 rotation = rota.ToVector3();
@@ -74,6 +74,14 @@ public partial class ClientMain : MonoBehaviour
         ghost.IsLocal = false;
         ghost.Init(prefab, parent, position, rotation);
         ghost.SetOwnerID(0);
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveTrigger)]
+    public void InteractiveTrigger(int pid, int counter)
+    {
+        InteractiveGhost ghost = mEntitySystem.GetEntityByPID(pid) as InteractiveGhost;
+        InteractiveEntities mEntity = ghost.entityObj.GetComponent<InteractiveEntities>();
+        mEntity.RefreshInteractiveStats(counter);
     }
 
     IEnumerator ReturnToStandby(int pid, float duration)

@@ -394,6 +394,13 @@ class SceneNPCTools
                 {
                     results[npcinfo.modelprefabpath] = typeof(InteractiveTrigger);
                 }
+                else
+                {
+                    npcPath = ((InteractiveTrigger)spawner).sceneModel.name;
+                    var modelinfo = ScenesModelRepo.GetScenesModelJson(npcPath);
+                    if (modelinfo != null)
+                        results[modelinfo.modelprefabpath] = typeof(InteractiveTrigger);
+                }
             }
         }
         return results;

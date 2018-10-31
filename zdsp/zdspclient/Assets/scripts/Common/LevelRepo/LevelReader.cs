@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
 using Zealot.Repository;
 using Zealot.Common;
 
@@ -12,6 +12,7 @@ namespace Zealot.Entities
         public static Dictionary<string, LevelInfo> levels;
         public static Dictionary<int, BossLocationData> mSpecialBossLocationDataMap;
         public static Dictionary<BossType, Dictionary<int, int>> mSpecialBossByType;
+        public static bool IsClientInitialized = false;
 
         static LevelReader()
         {
@@ -34,49 +35,49 @@ namespace Zealot.Entities
                 entry.Value.Clear();
             foreach (KeyValuePair<string, string> kvp in levelAssets)
             {
-                string levelname = kvp.Key;
-                JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+                string levelName = kvp.Key;
+                JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
                 jsonSetting.Converters.Add(new Vector3Converter());
                 try
                 {
-                    LevelInfo linfo = JsonConvert.DeserializeObject<LevelInfo>(kvp.Value, jsonSetting);
-                    PortalInfos.AddPortal(levelname, linfo);
-                    SafeZoneInfo.AddSafeZone(levelname, linfo);
-                    NPCPosMap.AddNPCInfo(levelname, linfo);
-                    AddSpecialBossLocationData(levelname, linfo);
-                    levels[levelname] = linfo;
+                    LevelInfo lvlInfo = JsonConvert.DeserializeObject<LevelInfo>(kvp.Value, jsonSetting);
+                    PortalInfos.AddPortal(levelName, lvlInfo);
+                    SafeZoneInfo.AddSafeZone(levelName, lvlInfo);
+                    NPCPosMap.AddNPCInfo(levelName, lvlInfo);
+                    AddSpecialBossLocationData(levelName, lvlInfo);
+                    levels[levelName] = lvlInfo;
                 }
                 catch (Exception e)
                 {
-                    UnityEngine.Debug.Log("Level json out of data, please remove unused stuff. " + levelname);
+                    UnityEngine.Debug.LogErrorFormat("Level json [{0}] out of data, please remove unused stuff", levelName);
                 }
             }
-            IsClientInited = true;
+            IsClientInitialized = true;
         }
 
-        public static bool IsClientInited = false;
+        
         public static void InitServer(string assemblypath)
         {
             string prefix = "../levels/";
-            string curdir = System.IO.Path.Combine(assemblypath, prefix);
+            string curdir = Path.Combine(assemblypath, prefix);
             string[] files = Directory.GetFiles(curdir, "*.json");
             foreach (string path in files)
             {
-                string levelname = Path.GetFileNameWithoutExtension(path);
+                string levelName = Path.GetFileNameWithoutExtension(path);
                 using (StreamReader file = File.OpenText(path))
                 {
                     string content = file.ReadToEnd();
                     content = content.Replace("Assembly-CSharp", "Common");
-                    JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+                    JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
                     jsonSetting.Converters.Add(new Vector3Converter());
 
                     try
                     {
-                        LevelInfo linfo = JsonConvert.DeserializeObject<LevelInfo>(content, jsonSetting);
-                        PortalInfos.AddPortal(levelname, linfo);
-                        SafeZoneInfo.AddSafeZone(levelname, linfo);
-                        AddSpecialBossLocationData(levelname, linfo);
-                        levels[levelname] = linfo;
+                        LevelInfo lvlInfo = JsonConvert.DeserializeObject<LevelInfo>(content, jsonSetting);
+                        PortalInfos.AddPortal(levelName, lvlInfo);
+                        SafeZoneInfo.AddSafeZone(levelName, lvlInfo);
+                        AddSpecialBossLocationData(levelName, lvlInfo);
+                        levels[levelName] = lvlInfo;
                     }
                     catch (Exception e)
                     {

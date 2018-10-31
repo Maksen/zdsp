@@ -32,26 +32,26 @@ public class ZDSPCamera : MonoBehaviour
 
     public GameObject targetObject;
 
-    [Header(("Initial Parameters"))]
+    [Header("Initial Parameters")]
     public CameraParams overheadParameters = new CameraParams(11.8f, 35f, 0f, 1.6f, 30f);
     public CameraParams orbitParameters = new CameraParams(11f, 1.5f, 0f, 1.68f, 50f);
 
-    [Header(("Control Speeds"))]
-    public float zoomSpeed = 1f;
-    public float rotationSpeed = 3.5f;
-    public float touchZoomSensitivity = 0.4f;
-    public float touchRotationSensitivity = 0.55f;
-    public float flyTime = 1f;
+    [Header("Control Speeds")]
+    [SerializeField] protected float zoomSpeed = 1f;
+    [SerializeField] protected float rotationSpeed = 3.5f;
+    [SerializeField] protected float touchZoomSensitivity = 0.4f;
+    [SerializeField] protected float touchRotationSensitivity = 0.55f;
+    [SerializeField] protected float flyTime = 1f;
 
-    [Header(("Limits"))]
-    public float minDistance = 7f;
-    public float maxDistance = 15f;
-    public float minTiltAngle = -7.5f;
-    public float maxTiltAngle = 80.0f;
-    public float minHeight = 1f;
-    public float maxHeight = 2f;
-    public float minFocalLength = 30f;
-    public float maxFocalLength = 135f;
+    [Header("Limits")]
+    [SerializeField] protected float minDistance = 7f;
+    [SerializeField] protected float maxDistance = 15f;
+    [SerializeField] protected float minTiltAngle = -7.5f;
+    [SerializeField] protected float maxTiltAngle = 80.0f;
+    [SerializeField] protected float minHeight = 1f;
+    [SerializeField] protected float maxHeight = 2f;
+    [SerializeField] protected float minFocalLength = 30f;
+    [SerializeField] protected float maxFocalLength = 135f;
 
     private float currentFocalLength;
     private float currentDistance;
@@ -427,7 +427,7 @@ public class ZDSPCamera : MonoBehaviour
     {
         if (GameInfo.gCombat != null && UIManager.LoadingScreen != null && !UIManager.LoadingScreen.gameObject.activeInHierarchy)
         {
-            if (!UIManager.UIHud.IsVisible())
+            if (UIManager.UIHud == null || !UIManager.UIHud.IsVisible())
                 return;
 
             GUIStyle style = new GUIStyle();

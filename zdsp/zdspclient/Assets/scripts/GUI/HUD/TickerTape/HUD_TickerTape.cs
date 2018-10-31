@@ -1,119 +1,78 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using SoftMasking;
+using UnityEngine;
+using UnityEngine.UI;
 
-public class HUD_TickerTape : MonoBehaviour {
+public class HUD_TickerTape : MonoBehaviour
+{
+    [SerializeField] Text messageText;
+    [SerializeField] float translateSpeed = 1;
 
-    public Text mAnnoucementText;
-    public RectTransform mAnnoucementTrans;
-    public float mMoveSpeed;
+    private Transform messageTransform;
+    private RectTransform messageRectTransform;
+    private Vector3 originalPosition;
+    private float parentWidth;
+    private Queue<string> buffer = new Queue<string>();
+    private Coroutine coroutine;
+    private Color textColor;
 
-    Vector2 mStartingPos;
-    Vector2 mParentAnnoucementTextPos;
-    bool mIsShowing;
-
-    static Vector2 mEndingPos;
-    static bool mIsAnoucementExist = false;
-    static Queue<string> mAnnoucementQueue = new Queue<string>();
-    static string mCurrentText = "";
-    static Vector3 mCurrentPos = Vector3.zero;
-    // Use this for initialization
-    void Awake () {
-        mIsShowing = false;
-        StartCoroutine(DelayInit());
+    private void Awake()
+    {
+        messageRectTransform = messageText.GetComponent<RectTransform>();
+        messageTransform = messageText.transform;
+        originalPosition = messageTransform.localPosition;
+        parentWidth = messageText.transform.parent.GetComponent<RectTransform>().sizeDelta.x;
+        textColor = messageText.color;
     }
 
-    IEnumerator DelayInit()
+    public void AddTickerTapeMessage(string message)
     {
-        yield return new WaitForSeconds(0.5f);
-        mStartingPos = mAnnoucementText.GetComponent<RectTransform>().anchoredPosition;
-        mParentAnnoucementTextPos = mAnnoucementTrans.parent.GetComponent<RectTransform>().sizeDelta;
-        if (string.IsNullOrEmpty(mCurrentText) == false)
+        buffer.Enqueue(message);
+
+        if (coroutine == null)
+            ShowMessage();
+    }
+
+    public void ShowMessage()
+    {
+        messageText.color = Color.clear;
+        messageText.text = buffer.Dequeue();
+        UIManager.SetWidgetActive(HUDWidgetType.TickerTape, true);
+        StartCoroutine(WaitForGUIUpdate());
+    }
+
+    private IEnumerator WaitForGUIUpdate()
+    {
+        yield return null;
+        yield return null;
+        float endPosX = -parentWidth - messageRectTransform.sizeDelta.x - originalPosition.x;
+        messageText.color = textColor;
+        coroutine = StartCoroutine(Translate(endPosX));
+    }
+
+    private IEnumerator Translate(float endPosX)
+    {
+        while (messageTransform.localPosition.x > endPosX)
         {
-            mAnnoucementText.text = mCurrentText;
-            mAnnoucementText.transform.localPosition = mCurrentPos;
-            mIsShowing = true;
+            messageTransform.Translate(Vector3.left * translateSpeed * Time.deltaTime);
+            yield return null;
         }
+
+        messageTransform.localPosition = originalPosition;
+
+        if (buffer.Count > 0)
+            ShowMessage();
         else
-        {
-            gameObject.SetActive(false);
-            mIsShowing = false;
-        }
-           
+            UIManager.SetWidgetActive(HUDWidgetType.TickerTape, false);
     }
 
-    void OnDestroy()
+    private void OnDisable()
     {
-        if (gameObject != null)
+        if (coroutine != null)
         {
-            SoftMask softmask = gameObject.GetComponent<SoftMask>();
-            //if (softmask != null)
-            //    softmask.Clear();
+            StopCoroutine(coroutine);
+            coroutine = null;
         }
+        buffer.Clear();
     }
-
-	// Update is called once per frame
-	void Update () {
-
-        if (mIsShowing == true)
-        {
-            if (mAnnoucementTrans.anchoredPosition.x < -mEndingPos.x)//ended
-            {
-
-                if (mAnnoucementQueue.Count > 0)
-                {
-                    mAnnoucementText.text = mAnnoucementQueue.Dequeue();
-                    mCurrentText = mAnnoucementText.text;
-                    mIsShowing = false;
-                    mAnnoucementText.gameObject.SetActive(false);
-                    StartCoroutine(Delay());
-                }
-                else
-                {
-                    mCurrentText = "";
-                    mCurrentPos = Vector3.zero;
-                    mIsShowing = false;
-                    mIsAnoucementExist = false;
-                    gameObject.SetActive(false);
-                }
-            }
-            else
-            {
-                mAnnoucementText.transform.Translate(Vector3.left * Time.deltaTime * mMoveSpeed);
-                mCurrentPos = mAnnoucementText.transform.localPosition;
-            }
-        }
-
-    }
-
-    public void SetAnnoucementText(string text)
-    {
-        if (mIsShowing == false && mIsAnoucementExist == false)
-        {
-            gameObject.SetActive(true);
-            mAnnoucementText.gameObject.SetActive(false);
-            mAnnoucementText.text = text;
-            mCurrentText = text;
-            mIsAnoucementExist = true;
-            StartCoroutine(Delay());
-        }
-        else//ongoing annoucement
-        {
-            mAnnoucementQueue.Enqueue(text);
-        }
-    }
-
-    IEnumerator Delay()
-    {
-        yield return new WaitForSeconds(0.5f);
-        Vector2 offset = mAnnoucementTrans.sizeDelta / 2;
-        mAnnoucementTrans.anchoredPosition = new Vector2(mStartingPos.x + offset.x, mAnnoucementTrans.anchoredPosition.y);
-        mEndingPos = mParentAnnoucementTextPos + offset;
-        mAnnoucementText.gameObject.SetActive(true);
-        mIsShowing = true;
-    }
-
-    
 }

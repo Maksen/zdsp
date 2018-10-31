@@ -491,12 +491,12 @@ public class UI_OngoingQuest : MonoBehaviour
 
     public void OnClickedReset()
     {
-        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedSysMsgByName("quest_reset"), delegate { OnConfirmResetQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_reset"), delegate { OnConfirmResetQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
     }
 
     public void OnClickedDelete()
     {
-        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedSysMsgByName("quest_delete"), delegate { OnDeleteDeleteQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_delete"), delegate { OnDeleteDeleteQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
     }
 
     private void OnConfirmResetQuest(int questid)
@@ -544,6 +544,10 @@ public class UI_OngoingQuest : MonoBehaviour
             if (mQuestList[questType].ContainsKey(questid))
             {
                 mQuestList[questType].Remove(questid);
+            }
+            if (mTrackingList.Contains(questid))
+            {
+                mTrackingList.Remove(questid);
             }
             mQuestController.RemoveQuest(questid);
             mQuestController.RollBackQuestEvent(questid);

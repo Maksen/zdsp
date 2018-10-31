@@ -1,7 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
 public class UI_CutsceneData : MonoBehaviour
 {

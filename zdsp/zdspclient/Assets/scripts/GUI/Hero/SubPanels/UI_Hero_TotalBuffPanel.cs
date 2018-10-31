@@ -72,14 +72,14 @@ public class UI_Hero_TotalBuffPanel : MonoBehaviour
                     if (pair.Item1 > 0)
                     {
                         GameObject obj = ClientUtils.CreateChild(dataParent, dataPrefab);
-                        string text = string.Format("{0} +{1}", effectType.ToString(), pair.Item1); // todo: jm localize
+                        string text = string.Format("{0} +{1}", SideEffectUtils.GetEffectTypeLocalizedName(effectType), pair.Item1);
                         obj.GetComponent<Hero_Text>().SetText(text);
                     }
 
                     if (pair.Item2 > 0)
                     {
                         GameObject obj = ClientUtils.CreateChild(dataParent, dataPrefab);
-                        string text = string.Format("{0} +{1}%", effectType.ToString(), pair.Item2);
+                        string text = string.Format("{0} +{1}%", SideEffectUtils.GetEffectTypeLocalizedName(effectType), pair.Item2);
                         obj.GetComponent<Hero_Text>().SetText(text);
                     }
                 }

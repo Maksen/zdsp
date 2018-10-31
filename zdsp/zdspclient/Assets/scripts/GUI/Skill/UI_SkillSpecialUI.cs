@@ -87,22 +87,42 @@ public class UI_SkillSpecialUI : MonoBehaviour {
 
     public void OnSelectSkill(UI_SkillButtonBase button)
     {
-        if (button.m_Toggle.isOn && m_CurrentActive != button && m_CurrentActive != null)
-            //if(m_CurrentActive != button && m_CurrentActive != null)
-            m_CurrentActive.m_Toggle.isOn = false;
-
-        if (button.m_Toggle.isOn)
+        if(m_CurrentActive == null)
         {
             m_CurrentActive = button;
             m_SkillDescriptor.gameObject.SetActive(true);
             m_SkillDescriptor.Show(m_CurrentActive);
-
         }
-        else if (!button.m_Toggle.isOn && button == m_CurrentActive)
+        else if(m_CurrentActive == button)
         {
+            m_CurrentActive = null;
             m_SkillDescriptor.OnClosed();
-            //m_SkillDescriptor.CloseUI();
+            m_SkillDescriptor.CloseUI();
         }
+        else
+        {
+            m_CurrentActive.m_Toggle.isOn = false;
+            m_CurrentActive = button;
+            m_SkillDescriptor.gameObject.SetActive(true);
+            m_SkillDescriptor.Show(m_CurrentActive);
+        }
+
+        //if (button.m_Toggle.isOn && m_CurrentActive != button && m_CurrentActive != null)
+        //    //if(m_CurrentActive != button && m_CurrentActive != null)
+        //    m_CurrentActive.m_Toggle.isOn = false;
+
+        //if (button.m_Toggle.isOn)
+        //{
+        //    m_CurrentActive = button;
+        //    m_SkillDescriptor.gameObject.SetActive(true);
+        //    m_SkillDescriptor.Show(m_CurrentActive);
+
+        //}
+        //else if (!button.m_Toggle.isOn && button == m_CurrentActive)
+        //{
+        //    m_SkillDescriptor.OnClosed();
+        //    //m_SkillDescriptor.CloseUI();
+        //}
     }
 
     public void OnClose()

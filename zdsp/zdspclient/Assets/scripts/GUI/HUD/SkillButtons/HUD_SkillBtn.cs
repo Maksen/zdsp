@@ -37,6 +37,11 @@ public class HUD_SkillBtn : MonoBehaviour
         parent = myParent;
     }
 
+    public void AddListener(UnityEngine.Events.UnityAction call)
+    {
+        button.onClick.AddListener(call);
+    }
+
     public void OnSkillUpdated(int idx)
     {
         skillid = idx;

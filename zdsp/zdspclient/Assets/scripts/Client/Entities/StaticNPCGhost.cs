@@ -14,33 +14,14 @@ namespace Zealot.Client.Entities
     {
         private ActorNameTagController mHeadLabel;
         private QuestLabelType mQuestLabelType = QuestLabelType.None;
-        private List<int> mFunctionList;
+        private Dictionary<int, int> mFunction;
+        private List<int> mLockedList = new List<int>();
 
         public string ArchetypeName { get; private set; }
 
         public StaticNPCGhost()
         {
             this.EntityType = EntityType.StaticNPC;
-        }
-
-        bool GetNPCFunction(out int param, out NPCFunctionType functionType)
-        {
-            param = 0;
-            if (mArchetype!= null && mArchetype.npcfunction != null && mArchetype.npcfunction.Length > 0)
-            {
-                var args = mArchetype.npcfunction.Split('/');
-
-                if (args.Length >= 2)
-                {
-                    param = int.Parse(args[1]);
-
-                    functionType = (NPCFunctionType)int.Parse(args[0]);
-                    return true;
-                }
-            }
-
-            functionType = (NPCFunctionType)(-1);
-            return false;
         }
 
         public void Init(StaticNPCJson npcInfo, Vector3 pos, Vector3 forward)
@@ -56,23 +37,55 @@ namespace Zealot.Client.Entities
             Position = pos;
             Forward = forward;
 
+            GetFunctionList();
+            GetQuestList();
+
             base.Init();
             OnAnimObjLoaded(AssetManager.LoadSceneNPC(mArchetype.modelprefabpath));
         }
 
-        private void GetFuctionList()
+        private void GetFunctionList()
         {
+            mFunction = new Dictionary<int, int>();
             if (mArchetype != null && !GameUtils.IsEmptyString(mArchetype.npcfunction))
             {
-                string[] functions = mArchetype.npcfunction.Split('/');
+                string[] functions = mArchetype.npcfunction.Split(';');
+                foreach(string data in functions)
+                {
+                    string[] values = mArchetype.npcfunction.Split('/');
+                    if (values.Length >= 2)
+                    {
+                        int type = -1;
+                        int param = -1;
+                        int.TryParse(values[0], out type);
+                        int.TryParse(values[1], out param);
 
-                //if (args.Length >= 2)
-                //{
-                //    param = int.Parse(args[1]);
+                        if (type != -1 && param != -1)
+                        {
+                            if (mFunction.ContainsKey(type))
+                            {
+                                mFunction[type] = param;
+                            }
+                            else
+                            {
+                                mFunction.Add(type, param);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-                //    functionType = (NPCFunctionType)int.Parse(args[0]);
-                //    return true;
-                //}
+        private void GetQuestList()
+        {
+            mQuestList = new List<int>();
+            string[] ids = mArchetype.questid.Split(';');
+            foreach (string id in ids)
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+                    mQuestList.Add(int.Parse(id));
+                }
             }
         }
 
@@ -160,31 +173,33 @@ namespace Zealot.Client.Entities
             QuestClientController questController = player.QuestController;
             player.PerformAction(new ClientAuthoACIdle(player, new IdleActionCommand()));
 
-            int shopinfo = -1;
-            NPCFunctionType functionType = NPCFunctionType.Shop; 
             if (mActiveQuest != -1 && mOngoingQuest.ContainsKey(mActiveQuest))
             {
-                //questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, true);
+                questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, true);
+            }
+            else if (mAvailableQuest.Count > 0 && mFunction.Count > 0)
+            {
+                questController.AddNewDialogue(this, mAvailableQuest, mFunction, mLockedList);
             }
             else if (mActiveQuest != -1 && mAvailableQuest.Count == 1 && mAvailableQuest.Contains(mActiveQuest))
             {
-                //questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, false);
+                questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, false);
             }
             else if (mActiveQuest == -1 && mAvailableQuest.Count > 0)
             {
-                //questController.AddNewDialogue(this, mAvailableQuest);
+                questController.AddNewDialogue(this, mAvailableQuest, mLockedList);
+            }
+            else if (mFunction.Count > 0)
+            {
+                questController.AddNewDialogue(this, mFunction);
             }
             else if (mQuestList.Count > 0 && mAvailableQuest.Count == 0 && questController.CompletedAllQuest(mQuestList))
             {
-                //questController.AddNewDialogue(this, true);
-            }
-            else if (GetNPCFunction(out shopinfo, out functionType))
-            {
-                //questController.AddNewDialogue(this, shopinfo);
+                questController.AddNewDialogue(this, true);
             }
             else if (GameUtils.IsEmptyString(mArchetype.talktext))
             {
-                //questController.AddNewDialogue(this, false);
+                questController.AddNewDialogue(this, false);
             }
             
             RPCFactory.CombatRPC.AchievementNPCInteract(mArchetypeId);
@@ -226,16 +241,16 @@ namespace Zealot.Client.Entities
             {
                 //play idle again
                 _idleRepeated = true;
-                if (EffectController.Anim.GetClip("idle") != null)
-                {
-                    //stop the standby effect. 
-                    EffectController.StopEffect(mArchetype + "_standby");
-                    EffectController.Anim.Rewind("idle");
-                    EffectController.PlayEffect("idle",  mArchetype + "_idle"); 
-                    float len = EffectController.Anim.clip.length;
-                    GameInfo.gCombat.mTimers.SetTimer((long)(len * 1000), OnIdleTimeUp, null);
-                    _lastNearTime = Time.realtimeSinceStartup;
-                }
+                //if (EffectController.Anim.GetClip("idle") != null)
+                //{
+                //    //stop the standby effect. 
+                //    EffectController.StopEffect(mArchetype + "_standby");
+                //    EffectController.Anim.Rewind("idle");
+                //    EffectController.PlayEffect("idle",  mArchetype + "_idle"); 
+                //    float len = EffectController.Anim.clip.length;
+                //    GameInfo.gCombat.mTimers.SetTimer((long)(len * 1000), OnIdleTimeUp, null);
+                //    _lastNearTime = Time.realtimeSinceStartup;
+                //}
             }
             else
             {
@@ -385,6 +400,17 @@ namespace Zealot.Client.Entities
         public override void UpdateQuestList(List<int> availablelist, Dictionary<int, int> ongoinglist)
         {
             base.UpdateQuestList(availablelist, ongoinglist);
+            mLockedList = new List<int>();
+            if (GameInfo.gLocalPlayer.QuestController != null)
+            {
+                foreach (int questid in mQuestList)
+                {
+                    if (!availablelist.Contains(questid) && GameInfo.gLocalPlayer.QuestController.IsQuestShowable(questid))
+                    {
+                        mLockedList.Add(questid);
+                    }
+                }
+            }
             UpdateQuestMarker();
         }
 

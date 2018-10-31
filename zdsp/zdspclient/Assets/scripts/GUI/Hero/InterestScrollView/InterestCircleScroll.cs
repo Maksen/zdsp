@@ -25,10 +25,10 @@ public class InterestCircleScroll : MonoBehaviour
                 cellData.Add(cell);
             }
 
-            context = new InterestScrollViewContext();
-            context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
+            //context = new InterestScrollViewContext();
+            //context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
 
-            scrollView.UpdateData(cellData, context);  // set contents and context
+            scrollView.UpdateData(cellData);  // set contents and context
             scrollView.UpdateSelection(0);
         }
     }
@@ -43,11 +43,11 @@ public class InterestCircleScroll : MonoBehaviour
             cellData.Add(cell);
         }
 
-        context = new InterestScrollViewContext();
-        context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
+        //context = new InterestScrollViewContext();
+        scrollView.OnSelectedIndexChanged(HandleSelectedIndexChanged);
         OnSelectedIndexChanged = onSelectCallback;
 
-        scrollView.UpdateData(cellData, context);  // set contents and context
+        scrollView.UpdateData(cellData);  // set contents and context
     }
 
     public void SetCellsApplicable(int interestGroup)
@@ -57,7 +57,7 @@ public class InterestCircleScroll : MonoBehaviour
             InterestCellDto cell = cellData[i];
             cell.Applicable = cell.Type == 0 || HeroRepo.IsInterestInGroup(interestGroup, (HeroInterestType)cell.Type);
         }
-        scrollView.UpdateData(cellData, context);
+        scrollView.UpdateSrollCellContents();
     }
 
     public void SelectCell(int index, float scrollDuration)
@@ -71,9 +71,12 @@ public class InterestCircleScroll : MonoBehaviour
     private void HandleSelectedIndexChanged(int index)
     {
         //print("selectedindex: " + index);
-        if (OnSelectedIndexChanged != null)
+        if (index >= 0 && index < cellData.Count)
         {
-            OnSelectedIndexChanged(cellData[index].Type);
+            if (OnSelectedIndexChanged != null)
+            {
+                OnSelectedIndexChanged(cellData[index].Type);
+            }
         }
     }
 

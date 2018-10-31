@@ -111,6 +111,8 @@
         public int TargetPID { get; set; }
         public int RealDamage { get; set; }
         public int LabelNum { get; set; }
+
+        public int Skillid { get; set; }
         public bool IsCritical { get; set; }
         public bool IsEvasion { get; set; }
         public bool IsBlocked { get; set; }

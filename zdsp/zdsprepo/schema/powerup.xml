@@ -2,41 +2,39 @@
 <magicalarea51>
   <data>
     
-    <element name="PowerUp" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Excel Name"/>
+    <element name="PowerUp" useexcel="true">
+      <property name="powerupid" type="int" uitext="PowerupID"/>
       <property name="part" type="PowerUpPartsType" uitext="Part"/>
       <property name="power" type="int" uitext="Power"/>
       <property name="effect" type="SideEffect"  uitext="Effect" display="name"/>
       <property name="value" type="int" uitext="Value"/>
-      <property name="currency" type="CurrencyType" uitext="CurrencyType"/>
+      <property name="currency" type="CurrencyType" uitext="Currency Type"/>
       <property name="cost" type="int" uitext="Cost"/>
       <property name="material" type="string" uitext="Material" info="Format: ItemID|Count;ItemID|Count;ItemID|Count;ItemID|Count;ItemID|Count"/>
     </element>
 
-    <element name="PowerUpPartsList" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Excel Name"/>
+    <element name="PowerUpPartsList" useexcel="true">
+      <property name="typename" type="string" uitext="Type Name"/>
       <property name="poweruppart" type="int" uitext="PowerUpPart"/>
       <property name="part" type="int" uitext="Part"/>
     </element>
     
-    <element name="MeridianUnlockList" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Excel Name"/>
-      <property name="mlid" type="int" uitext="Mlid"/>
-      <property name="mlname" type="string" uitext="MlName"/>
-      <property name="mltype" type="int" uitext="MlType"/>
-      <property name="mlrank" type="int" uitext="Mlrank" info="0 mean unlock"/>
+    <element name="MeridianUnlockList" useexcel="true">
+      <property name="mlid" type="int" uitext="Ml Id"/>
+      <property name="mlname" type="string" uitext="Ml Name"/>
+      <property name="mltype" type="int" uitext="Ml Type"/>
+      <property name="mlrank" type="int" uitext="Ml Rank" info="0 mean unlock"/>
       <property name="item" type="string" uitext="Item" info="itemid|count;itemid|count;itemid|count;itemid|count;itemid|count"/>
       <property name="currency" type="int" uitext="Currency" info="count"/>
       <property name="effect" type="int" uitext="SideEffect" info="effectid;effectid;effectid"/>
       <property name="value" type="int" uitext="Value"/>
     </element>
     
-    <element name="MeridianExpList" useexcel="true" collectionkey="name">
-      <property name="name" type="string" uitext="Excel Name"/>
-      <property name="mlid" type="int" uitext="Mlid"/>
-      <property name="mlname" type="string" uitext="MlName"/>
-      <property name="mltype" type="int" uitext="MlType"/>
-      <property name="mlrank" type="int"  uitext="Mlrank" info="start form 0"/>
+    <element name="MeridianExpList" useexcel="true">
+      <property name="mlid" type="int" uitext="Ml Id"/>
+      <property name="mlname" type="string" uitext="Ml Name"/>
+      <property name="mltype" type="int" uitext="Ml Type"/>
+      <property name="mlrank" type="int"  uitext="Ml Rank" info="start form 0"/>
       <property name="exp" type="int"  uitext="Exp"/>
       <property name="item" type="string"  uitext="Item" info="itemid|count"/>
       <property name="currency" type="int" uitext="Currency" info="count"/>
@@ -46,6 +44,12 @@
       <property name="crt2" type="int" uitext="Crt2"/>
       <property name="multiple3" type="int" uitext="Multiple3"/>
       <property name="crt3" type="int" uitext="Crt3"/>
+    </element>
+
+    <element name="MeridianItemExp" useexcel="true">
+      <property name="mlid" type="int" uitext="Ml Id"/>
+      <property name="itemid" type="string" uitext="Item Id"/>
+      <property name="mlitemexp" type="int" uitext="Ml Item Exp"/>
     </element>
     
   </data>

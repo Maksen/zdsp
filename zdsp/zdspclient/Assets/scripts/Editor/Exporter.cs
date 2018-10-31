@@ -1,13 +1,13 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using System.IO;
-using Newtonsoft.Json;
+using UnityEngine;
 using Zealot.Entities;
 using Zealot.Spawners;
-using System.Xml;
-using System;
 
 public class Exporter : EditorWindow
 {
@@ -34,7 +34,7 @@ public class Exporter : EditorWindow
                 pathList.Add(node.Attributes["path"].Value);
         }
      
-        string scenepath = EditorApplication.currentScene;
+        string scenepath = EditorSceneManager.GetActiveScene().name;
         //Debug.Log("sp" + scenepath);
         //Debug.Log("sp2 : " + EditorSceneManager.GetActiveScene().GetHashCode());  
         if (scenepath.Length == 0)
@@ -57,8 +57,7 @@ public class Exporter : EditorWindow
                 {
                     string output = JsonConvert.SerializeObject(linfo, Newtonsoft.Json.Formatting.Indented, jsonSetting);
                     sw.Write(output);
-
-                    Debug.Log("Level: " + path + " exported successfully!");
+                    Debug.LogFormat("Level: {0} exported successfully!", path);
                 }
                 else
                 {
@@ -78,12 +77,11 @@ public class Exporter : EditorWindow
         foreach(string dirpath in pathList)
         {
             if (!Directory.Exists(dirpath))
-            {
                 Directory.CreateDirectory(dirpath);
-            }
+
             string targetpath = Path.Combine(dirpath, filename);
             File.Copy(path, targetpath, true);
-            Debug.Log("copied level data to [" + targetpath + "]");
+            Debug.LogFormat("Copied level data to [{0}]", targetpath);
         }   
     }
 
@@ -94,7 +92,8 @@ public class Exporter : EditorWindow
         Collider[] mycol;
         int mask = 0; 
         mask |= (1 << LayerMask.NameToLayer("SafeZoneLayer"));
-        for (int i=0;i<safezone.Length;i++)
+        int length = safezone.Length;
+        for (int i = 0; i < length; ++i)
         {
             if(safezone[i].myAreaType == SafeZoneTrigger.SafeZoneAreaType.Sphere)
             {
@@ -123,7 +122,7 @@ public class Exporter : EditorWindow
             }
         }
 
-        for (int i = 0; i < safezone.Length; i++)
+        for (int i = 0; i < length; ++i)
         {
             DestroyImmediate(safezone[i].GetComponent<Collider>());
             EditorUtility.SetDirty(safezone[i]);
@@ -139,7 +138,7 @@ public class Exporter : EditorWindow
         foreach (ServerEntity o in points)
         {
             ServerEntityJson jsonclass = o.GetJson();
-            System.Type t = jsonclass.GetType();
+            Type t = jsonclass.GetType();
             if (!spawners.ContainsKey(t.Name))
                 spawners.Add(t.Name, new Dictionary<int, ServerEntityJson>());
 
@@ -151,18 +150,15 @@ public class Exporter : EditorWindow
             }
             catch(Exception e)
             {
-                EditorUtility.DisplayDialog("Error",
-                       e.Message, "Ok");
-               
-               return false;
+                EditorUtility.DisplayDialog("Error", e.Message, "Ok");
+                return false;
             }
             
         }
         linfo.mEntities = spawners;
 
         EditorSceneManager.MarkAllScenesDirty();
-        Debug.Log("Success writing spawners..");
-        
+        Debug.Log("Success writing spawners..");        
         return true;
     }
 
@@ -234,14 +230,15 @@ public class Exporter : EditorWindow
 
             if (showDialog)
                 EditorUtility.DisplayDialog("Done Saving", "Done saving nav graph data.", "Ok");
-            Debug.Log("Navdata: " + path + " exported successfully!");
+            Debug.LogFormat("Navdata: {0} exported successfully!", path);
         }
     }
 
     static void exportCurrentLevelSafeZoneID()
     {
-        SafeZoneTrigger[] safezone = GameObject.FindObjectsOfType(typeof(SafeZoneTrigger)) as SafeZoneTrigger[];     
-        for (int i = 0; i < safezone.Length; i++)
+        SafeZoneTrigger[] safezone = GameObject.FindObjectsOfType(typeof(SafeZoneTrigger)) as SafeZoneTrigger[];
+        int length = safezone.Length;
+        for (int i = 0; i < length; ++i)
             safezone[i].SetMySafeZoneFlag(true);
     }
 
@@ -253,7 +250,7 @@ public class Exporter : EditorWindow
 
         if (canexport)
         {
-            string levelname = Path.GetFileNameWithoutExtension(EditorApplication.currentScene);
+            string levelname = Path.GetFileNameWithoutExtension(EditorSceneManager.GetActiveScene().name);
             string navpath = @"..\piliclient\Assets\GameData\Navdata\" + levelname + ".bytes";
             List<string> copyPaths = new List<string>();
 
@@ -275,14 +272,13 @@ public class Exporter : EditorWindow
             try
             {
                 ExportNavData(navpath, showDialog);
-
                 foreach (string copypath in copyPaths)
                 {
                     File.Copy(navpath, copypath, true);
                     Debug.Log("Navdata copy to: " + copypath);
                 }
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 //will not copy if there are errors exporting navdata
                 throw ex;
@@ -295,4 +291,3 @@ public class Exporter : EditorWindow
         }
     }
 }
-

@@ -64,7 +64,7 @@ namespace Zealot.Audio
                     FadeInMusic(audioClip);
                 else
                     PlayMusicLoop(audioClip);
-            };
+            }
         }
 
 #if UNITY_EDITOR

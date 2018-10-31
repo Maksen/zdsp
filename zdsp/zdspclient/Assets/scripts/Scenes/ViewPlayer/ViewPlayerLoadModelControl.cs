@@ -157,9 +157,9 @@ namespace ViewPlayer
                 loadedCharModel.transform.Rotate(startRotate);
 
                 EffectController effectController = loadedCharModel.AddComponent<EffectController>();
-                Animation anim = loadedCharModel.GetComponent<Animation>();
+                Animator anim = loadedCharModel.GetComponent<Animator>();
                 anim.tag = modelTag;
-                effectController.Anim = anim;
+                effectController.Animator = anim;
                 effectController.ShowAnim(true);
                 effectController.ShowEfx(true);
                  

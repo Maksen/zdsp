@@ -1,34 +1,31 @@
-﻿using Zealot.Entities;
+﻿using Kopio.JsonContracts;
 using Photon.LoadBalancing.GameServer;
-using Kopio.JsonContracts;
+using Zealot.Common;
+using Zealot.Entities;
 using Zealot.Repository;
 using Zealot.Server.Rules;
-using Zealot.Common;
 
 namespace Zealot.Server.Entities
 {
     /// <summary>
-    /// this is the first training realm controller. 
+    /// Tutorial Realm Controller
     /// </summary>
     public class RealmControllerTutorial : RealmController
     {
-        //public RealmTutorialJson mRealmTutorialInfo;
+        public TutorialJson mTutorialInfo;
         protected Player mPlayer;
+
         public RealmControllerTutorial(RealmControllerJson info, GameLogic instance)
             : base(info, instance)
         {
             if (!IsCorrectController())
                 return;
-            //mRealmInfo = RealmRepo.TutorialRealmJson;
-            //mRealmTutorialInfo = (RealmTutorialJson)mRealmInfo; 
-
-            
-
+            mTutorialInfo = (TutorialJson)mRealmInfo;
         }
 
         public override bool IsCorrectController()
         {
-            return true;
+            return mRealmInfo.type == RealmType.Tutorial;
         }
 
         public override void OnPlayerEnter(Player player)
@@ -36,18 +33,32 @@ namespace Zealot.Server.Entities
             base.OnPlayerEnter(player);
             mPlayer = player;
 
-            //JobsectJson jobsectJson = JobSectRepo.GetJobById(player.Slot.CharacterData.JobSect);
-            //LevelJson lvlJson = LevelRepo.GetInfoById(jobsectJson.level); 
-            //player.Slot.SetDefaultLevelBeforeEnterRealm(lvlJson.unityscene, Vector3.zero); 
+            // Hardcoded equipments and skills
+            // Equipment
+            int itemId = GameConstantRepo.GetConstantInt("TutorialChar_Items", 1009);
+            Equipment equipment = GameRules.GenerateItem(itemId, null) as Equipment;
+            if (equipment != null)
+                player.UpdateEquipmentStats((int)EquipmentSlot.Weapon, equipment);
 
             // Add skill to player
-            mPlayer.SkillStats.SkillGroupIndex[70] = mPlayer.SkillStats.SkillInvCount;
-            mPlayer.SkillStats.SkillInv[mPlayer.SkillStats.SkillInvCount++] = 70;
-            mPlayer.SkillStats.SkillInv[mPlayer.SkillStats.SkillInvCount++] = 128;
+            mPlayer.SkillStats.EquippedSkill[2] = 128;
+            mPlayer.SkillStats.AutoSkill[1] = 0;
+        }
+
+        public override void OnPlayerExit(Player player)
+        {
+            base.OnPlayerExit(player);
+
+            // Remove skill
+            mPlayer.SkillStats.EquippedSkill[2] = 0;
         }
 
         public override void OnMissionCompleted(bool success, bool broadcast)
         {
+            if (mMissionCompleted)
+                return;
+
+            mMissionCompleted = true;
             mCountDownOnMissionCompleted = 1;
             if (timer != null)
                 mInstance.StopTimer(timer);
@@ -57,36 +68,10 @@ namespace Zealot.Server.Entities
             GameClientPeer peer = mPlayer.Slot;
             if (peer != null)
             {
-                peer.CharacterData.TrainingRealmDone = true;
-
-                // remove skill
-                mPlayer.SkillStats.SkillGroupIndex[70] = 0;
-                mPlayer.SkillStats.SkillInv[--mPlayer.SkillStats.SkillInvCount] = 0;
-                mPlayer.SkillStats.SkillInv[--mPlayer.SkillStats.SkillInvCount] = 0;
-
-                /*********************   Faction reward    ***************************/
-
-                if (peer.CharacterData.GetRecommendedFactionReward)
-                {
-                    string res = GameConstantRepo.GetConstant("RecommendedFactionRewardItemID");
-                    int factionItemID;
-                    if (string.IsNullOrEmpty(res) || int.TryParse(res, out factionItemID) == false)
-                    {
-                        factionItemID = 1045;
-                    }
-                    //else factionItemID = the parse id
-
-                    IInventoryItem factionReward = GameRules.GenerateItem(factionItemID, peer);
-                    if (factionReward != null)
-                        peer.mInventory.AddItemsToInventory(factionReward, true, "NewCharFaction");
-                }
-
-                //var jobItem = JobSectRepo.GetJobByType((JobType)mPlayer.PlayerSynStats.jobsect).itemid;
-                //IInventoryItem jobReward = GameRules.GenerateItem(jobItem, peer);
-                //if (jobReward != null)
-                //    peer.mInventory.AddItemsIntoInventory(jobReward, true, "NewChar");
+                peer.CharacterData.IsTutorialRealmDone = true;
                 peer.mCanSaveDB = true;
             }
+
             RealmEnd();
         }
 

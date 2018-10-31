@@ -84,6 +84,7 @@ namespace Zealot.Client.Entities
             else
             {
                 mActiveQuest = -1;
+                UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
             }
 
             if (mActiveQuest != -1 && mTriggered)

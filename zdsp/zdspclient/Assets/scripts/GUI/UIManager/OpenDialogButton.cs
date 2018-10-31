@@ -1,9 +1,7 @@
-﻿using Zealot.Common;
-
-using UnityEngine;
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 public class OpenDialogButton : OpenWindowButton
 {
     public override void OnOpenClick()

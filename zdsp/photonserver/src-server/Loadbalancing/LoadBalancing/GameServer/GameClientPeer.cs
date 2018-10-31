@@ -147,8 +147,14 @@ namespace Photon.LoadBalancing.GameServer
         {
             if (mPlayer == null || !IsJoinedRoom)
                 return;
+            else if (mPlayer.mInstance.IsDoingTutorialRealm())
+            {
+                TransferToRealmWorld("handan_field");
+                return;
+            }
 
             TransferToCity(mPlayer.PlayerSynStats.Level);
+            mPlayer.SetQuestRealmId(-1);
         }
 
         public void TransferToDefaultLevel(string levelName)
@@ -503,7 +509,7 @@ namespace Photon.LoadBalancing.GameServer
 
         public ServerSettingsData GameSetting { get; set; }
         public int ArenaRankToChallenge { get; set; }
-        public bool IsPartyInvitePending { get; set; }
+        public AchievementInvData AchievementInvData { get; set; }
 
         public ItemInventoryController mInventory;
         public WelfareController mWelfareCtrlr;
@@ -513,6 +519,8 @@ namespace Photon.LoadBalancing.GameServer
         public PowerUpController mPowerUpController;
         public EquipmentCraftController mEquipmentCraftController;
         public EquipFusionController mEquipFusionController;
+        public QuestController QuestController { get; private set; }
+        public DestinyClueController DestinyClueController { get; private set; }
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -540,13 +548,15 @@ namespace Photon.LoadBalancing.GameServer
                             mPowerUpController = new PowerUpController(this);
                             mEquipmentCraftController = new EquipmentCraftController(this);
                             mEquipFusionController = new EquipFusionController(this);
+                            QuestController = new QuestController(this);
+                            DestinyClueController = new DestinyClueController(this);
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
                             string gameSettingStr = (string)charinfo["gamesetting"];
                             GameSetting = string.IsNullOrEmpty(gameSettingStr)
                                 ? new ServerSettingsData() : ServerSettingsData.Deserialize(gameSettingStr);
-
+                            Task task = InitAchievementInventory();
                             var ignoreAwait = InitSocialInventory((string)charinfo["friends"], (string)charinfo["friendrequests"]);
 
                             lastLogLogin = logoutDT;
@@ -614,6 +624,7 @@ namespace Photon.LoadBalancing.GameServer
                 charID = "";
                 characterData = null;
                 mCanSaveDB = false;
+                DestinyClueController.Dispose();
             }
         }
 
@@ -676,7 +687,6 @@ namespace Photon.LoadBalancing.GameServer
 
         private async Task<bool> SaveUserAndCharacterData()
         {
-            string charname = mChar;
             string serializedData = characterData.SerializeForDB();
             // Clear the flag before await
             var saved = await GameApplication.dbRepository.Character.SaveCharacterAndUserAsync(charID, characterData.Experience, characterData.ProgressLevel,
@@ -695,8 +705,27 @@ namespace Photon.LoadBalancing.GameServer
                                                                         characterData.FirstBuyFlag, characterData.FirstBuyCollected,
                                                                         GameSetting.Serialize(),
                                                                         serializedData, loginDT, logoutDT);
-            log.InfoFormat("save char {0} {1}", charname, saved);
+            log.InfoFormat("save char {0} {1}", mChar, saved);
+
+            string serializedAchInvData = AchievementInvData.SerializeForDB();
+            var success = await GameApplication.dbGM.PlayerAccount.SaveAchievement(mUserId, serializedAchInvData);
+
             return saved;
+        }
+        #endregion
+
+        #region Achievement
+        private async Task InitAchievementInventory()
+        {
+            List<Dictionary<string, object>> achInfo = await GameApplication.dbGM.PlayerAccount.GetAchievementByUserIdAsync(mUserId);
+            application.executionFiber.Enqueue(() =>
+            {
+                if (achInfo.Count == 1)
+                {
+                    string dbString = (string)achInfo[0]["achievement"];
+                    AchievementInvData = string.IsNullOrEmpty(dbString) ? new AchievementInvData() : AchievementInvData.DeserializeFromDB(dbString);
+                }
+            });
         }
         #endregion
 
@@ -1309,256 +1338,6 @@ namespace Photon.LoadBalancing.GameServer
             mInventory.UpdateEquipmentProperties((ushort)prevStep, EquipPropertyType.Recycle, isEquipped, slotID);
         }
 
-        public void OnEquipGemSlotItem(int equipSlotID, int gemGrp, int gemSlot, int gemID)
-        {
-            // Invalid equipment slot!
-            if (equipSlotID <= -1)
-            {
-                return;
-            }
-
-            // Invalid gem slot!
-            if (gemSlot < 0 || gemSlot > 1)
-            {
-                return;
-            }
-
-            //EquipItem equipItem = characterData.EquippedInventory.Slots[equipSlotID] as EquipItem;
-
-            //if (equipItem == null)
-            //{
-            //    // Equipment is missing from the equipment slot!
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Missing_Item_In_Slot"), "", false, mPlayer.Slot);
-            //    return;
-            //}
-
-            //const int gemGrpSize = 2;
-            //List<ItemInfo> gemsList = new List<ItemInfo>();
-            //SocketGemItem socketGem = null;
-            //GemSlotData gemSlotData = new GemSlotData();
-            //if (gemID > -1)
-            //{
-            //    socketGem = mInventory.mInvData.GetItemByItemId((ushort)gemID) as SocketGemItem;
-            //    if (socketGem != null)
-            //    {
-            //        List<ushort> gemIDs = equipItem.DecodeGemIDs();
-            //        int pos = (gemGrp * gemGrpSize) + gemSlot;
-            //        // Stop equipping gem if equipment already has the same itemid gem
-            //        if (gemIDs[pos] == socketGem.ItemID)
-            //        {
-            //            return;
-            //        }
-
-            //        gemSlotData.Set(gemSlot, gemIDs[pos], socketGem.ItemID);
-            //        ItemInfo socketGemInfo = new ItemInfo();
-            //        socketGemInfo.itemid = socketGem.ItemID;
-            //        socketGemInfo.stackcount = 1;
-            //        gemsList.Add(socketGemInfo);
-            //        string systemName = Enum.GetName(typeof(EquipmentSystem), EquipmentSystem.GemSlot);
-            //        EquipmentRules.LogEquipItemUse(socketGem.ItemID, 1, systemName, this);
-            //    }
-            //    else
-            //    {
-            //        ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipGemSlot_Failure"), "", false, this);
-
-            //        return;
-            //    }
-            //}
-
-            //UpdateRetval res = mInventory.UpdateEquipmentProperties(0, EquipPropertyType.Slotting, equipSlotID, "", gemGrp, gemSlot, socketGem.ItemID, socketGem.Attribute);
-
-            //// Remove socket gems as they are added to the equipment
-            //if (res == UpdateRetval.Success)
-            //{
-            //    mInventory.UseToolItems(gemsList, "Equip");
-
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipGemSlot_Success"), "", false, this);
-            //    EquipmentRules.LogEquipGemSlot("Equipment Upgrade", equipItem.LocalizedName, socketGem.ItemID, this);
-
-            //}
-            //else
-            //{
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipGemSlot_Failure"), "", false, this);
-            //}
-        }
-
-        public void OnUnequipGemSlotItem(int equipSlotID, int gemGrp, int gemSlot)
-        {
-            // Invalid equipment slot!
-            if (equipSlotID <= -1)
-            {
-                return;
-            }
-
-            // gem slot out of bounds!
-            if (gemSlot < 0 || gemSlot > 1)
-            {
-                return;
-            }
-
-            //const int gemGrpSize = 2;
-            //EquipItem equipItem = characterData.EquippedInventory.Slots[equipSlotID] as EquipItem;
-
-            //List<ushort> gemIDs = equipItem.DecodeGemIDs();
-            //int pos = (gemGrp * gemGrpSize) + gemSlot;
-            //if (gemIDs[pos] == 0)
-            //{
-            //    return;
-            //}
-
-            //if (equipItem == null)
-            //{
-            //    // Item is missing from the slot!
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Missing_Item_In_Slot"), "", false, mPlayer.Slot);
-            //    return;
-            //}
-
-            //if (gemSlot > -1 && gemSlot < 2)
-            //{
-            //    UpdateRetval res = mInventory.UpdateEquipmentProperties(0, EquipPropertyType.Unslotting, equipSlotID, "", gemGrp, gemSlot);
-
-            //    if (res == UpdateRetval.Success)
-            //    {
-            //        ZRPC.NonCombatRPC.EquipUnslotGemSuccess(gemSlot, mPlayer.Slot);
-
-            //        ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_UnequipGemSlot_Success"), "", false, mPlayer.Slot);
-
-            //        GemSlotData gemSlotData = new GemSlotData();
-            //        gemSlotData.Set(gemSlot, gemIDs[pos], 0);
-            //        EquipmentRules.LogEquipGemSlot("Equipment Upgrade", equipItem.LocalizedName, gemIDs[pos], this);
-            //        string systemName = Enum.GetName(typeof(EquipmentSystem), EquipmentSystem.GemSlot);
-            //        EquipmentRules.LogEquipItemGet(gemIDs[pos], 1, systemName, this);
-            //    }
-            //}
-            //else
-            //{
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_UnequipGemSlot_Failure"), "", false, this);
-            //}
-        }
-
-        public void OnEquipAutoUpgradeGem()
-        {
-            //List<AutoGemCraftCode> results = new List<AutoGemCraftCode>();
-            //int gemGrp = characterData.EquippedInventory.SelectedGemGroup;
-            //const int gemGrpSize = 2;
-            //int equipSlotCount = characterData.EquippedInventory.Slots.Count;
-
-            //for (int e = 0; e < equipSlotCount; ++e)
-            //{
-            //    EquipItem equipItem = characterData.EquippedInventory.Slots[e] as EquipItem;
-
-            //    if (equipItem == null)
-            //    {
-            //        // Item is missing from the slot!
-            //        ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_Missing_Item_In_Slot"), "", false, mPlayer.Slot);
-            //        return;
-            //    }
-
-            //    List<ushort> gemIDs = equipItem.DecodeGemIDs();
-            //    GemSlotData gemSlotData = new GemSlotData();
-            //    for (int i = 0; i < gemIDs.Count; ++i)
-            //    {
-            //        //int pos = (gemGrp * gemGrpSize) + i;
-            //        //if (pos >= gemIDs.Count)
-            //        //{
-            //        //    return;
-            //        //}
-
-            //        if (gemIDs[i] <= 0)
-            //        {
-            //            //ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_NoGemSlotted"), "", false, mPlayer.Slot);
-            //            results.Add(AutoGemCraftCode.Failed_NoGem);
-            //            continue;
-            //        }
-
-            //        int gemGrp = i / gemGrpSize;
-            //        int gemSlot = i % gemGrpSize;
-            //        int gemId = gemIDs[i];
-            //        int maxGemRank = GameConstantRepo.GetConstantInt("Equip_MaxGemRank", 1);
-            //        SocketGemItem gemItem = GameRepo.ItemFactory.GetInventoryItem(gemId) as SocketGemItem;
-            //        if (gemItem == null)
-            //        {
-            //            //ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_NoGemSlotted"), "", false, mPlayer.Slot);
-            //            results.Add(AutoGemCraftCode.Failed_NoGem);
-            //            continue;
-            //        }
-
-            //        if (gemItem.Rank >= maxGemRank)
-            //        {
-            //            //ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_MaxGemRankReached"), "", false, mPlayer.Slot);
-            //            results.Add(AutoGemCraftCode.Failed_MaxRank);
-            //            continue;
-            //        }
-
-            //        int newGemId = -1;
-            //        Crafting.Crafting.CraftReturnCode code = mPlayer.mCrafting.AutoCraftAndLevelItem(gemId, out newGemId);
-
-            //        if (code == Crafting.Crafting.CraftReturnCode.FAIL_MONEY)
-            //        {
-            //            //ZRPC.NonCombatRPC.EquipAutoUpgradeFailedMoney(mPlayer.Slot);
-            //            results.Add(AutoGemCraftCode.Failed_Money);
-            //        }
-            //        else if (code == Crafting.Crafting.CraftReturnCode.FAIL_ITEM)
-            //        {
-            //            //ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_Failed"), "", false, mPlayer.Slot);
-            //            results.Add(AutoGemCraftCode.Failed_Materials);
-            //        }
-            //        else if (code == Crafting.Crafting.CraftReturnCode.FAIL)
-            //        {
-            //            //ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_Failed"), "", false, mPlayer.Slot);
-            //            results.Add(AutoGemCraftCode.Failed);
-            //        }
-            //        else
-            //        {
-            //            if (newGemId > 0)
-            //            {
-            //                gemSlotData.Set(gemSlot, gemIDs[i], newGemId);
-
-            //                SocketGemItem socketGem = GameRepo.ItemFactory.GetInventoryItem(newGemId) as SocketGemItem;
-            //                UpdateRetval res = mInventory.UpdateEquipmentProperties(0, EquipPropertyType.ChangeGem, e, "", gemGrp, gemSlot, socketGem.ItemID, socketGem.Attribute);
-            //                //ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_Success"), "", false, mPlayer.Slot);
-            //                results.Add(AutoGemCraftCode.Success);
-            //                string systemName = Enum.GetName(typeof(EquipmentSystem), EquipmentSystem.GemSlot);
-            //                EquipmentRules.LogEquipItemGet(newGemId, 1, systemName, this);
-            //            }
-            //        }
-
-            //        EquipmentRules.LogEquipGemSlot("Equipment Upgrade", equipItem.LocalizedName, newGemId, this);
-            //    }
-            //}
-
-            //// Handle error messages here to prevent flooding of messages back to client
-            //if (results.Contains(AutoGemCraftCode.Success))
-            //{
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_Success"), "", false, mPlayer.Slot);
-            //}
-
-            //if ((results.Contains(AutoGemCraftCode.Failed) ||
-            //    results.Contains(AutoGemCraftCode.Failed_NoGem) ||
-            //    results.Contains(AutoGemCraftCode.Failed_Materials)) &&
-            //    !results.Contains(AutoGemCraftCode.Failed_MaxRank))
-            //{
-            //    ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_Failed"), "", false, mPlayer.Slot);
-            //}
-            //else
-            //{
-            //    List<AutoGemCraftCode> maxedRankCheck = results.FindAll(o => o == AutoGemCraftCode.Failed_MaxRank);
-            //    if (maxedRankCheck.Count == (equipSlotCount * gemGrpSize))
-            //    {
-            //        ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_MaxGemRankReached"), "", false, mPlayer.Slot);
-            //    }
-            //    else
-            //    {
-            //        ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_EquipAutoUpgradeGem_Failed"), "", false, mPlayer.Slot);
-            //    }
-            //}
-
-            //if (results.Contains(AutoGemCraftCode.Failed_Money))
-            //{
-            //    ZRPC.NonCombatRPC.EquipAutoUpgradeFailedMoney(mPlayer.Slot);
-            //}
-        }
-
         public void OnEquipmentSetUpgradeLevel(int slotID, int level)
         {
             // Invalid slot!
@@ -1605,6 +1384,74 @@ namespace Photon.LoadBalancing.GameServer
 
             //mInventory.UpdateEquipmentProperties((ushort)upgradeLevel, EquipPropertyType.Upgrade, slotID, upgradeData.attributevalue);
             //mInventory.UpdateEquipmentProperties((ushort)surmountLevel, EquipPropertyType.Surmount, slotID, upgradeData.attributevalue);
+        }
+        #endregion
+
+        #region DNA
+        public void OnDNASlotDNA(int slotID)
+        {
+            // Invalid slot!
+            if(slotID <= -1)
+            {
+                return;
+            }
+
+            DNA dna = characterData.ItemInventory.Slots[slotID] as DNA;
+
+            // Unable to get dna item!
+            if(dna == null)
+            {
+                return;
+            }
+
+            DNAType dnaType = dna.DNAJson.dnatype;
+            int dnaSlot = (int)dnaType - 1;
+
+
+        }
+
+        public void OnDNAUnslotDNA(int slotID)
+        {
+            // Invalid slot!
+            if(slotID <= -1)
+            {
+                return;
+            }
+        }
+
+        private void SwapDNA(int dnaSlot)
+        {
+
+        }
+
+        public void OnDNAUpgradeDNA(int dnaType)
+        {
+
+        }
+
+        public void OnDNAEvolveDNA(int dnaType)
+        {
+
+        }
+        #endregion
+
+        #region Relic
+        public void OnEquipSlotRelic(int equipSlotID)
+        {
+            // Invalid equipment slot!
+            if(equipSlotID <= -1)
+            {
+                return;
+            }
+        }
+
+        public void OnEquipUnslotRelic(int equipSlotID)
+        {
+            // Invalid equipment slot!
+            if(equipSlotID <= -1)
+            {
+                return;
+            }
         }
         #endregion
 

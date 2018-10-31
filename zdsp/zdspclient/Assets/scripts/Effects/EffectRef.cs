@@ -35,14 +35,17 @@ public class EffectRef : MonoBehaviour
     private void Awake()
     {
 #if UNITY_EDITOR
-        if (SpawnAvatar)
-            SpawnRefModel();
+        if (GameInfo.gCombat == null)
+        {
+            if (SpawnAvatar)
+                SpawnRefModel();
 
-        if (Attached)
-            Detach_Editor();
+            if (Attached)
+                Detach_Editor();
 
-        Attach_Editor();
-        Restart();
+            Attach_Editor();
+            Restart();
+        }
 #endif
     }
 
@@ -62,7 +65,7 @@ public class EffectRef : MonoBehaviour
             anim.Play(RefAnimation);
         else if (avatar != null)
         {
-            if (GameInfo.gClientState != PiliClientState.Combat) //fix for gameplay in UnityEditor 
+            if (GameInfo.gClientState != GameClientState.Combat) //fix for gameplay in UnityEditor 
             {
                 Animation oAnim = avatar.GetComponent<Animation>();
                 if (oAnim != null)
@@ -163,8 +166,11 @@ public class EffectRef : MonoBehaviour
 
     public void DetachEmitters()
     {
-        for (int i = 0; i < Emitters.Length; i++)
-            Emitters[i].Detach(gameObject);
+        if (Emitters != null)
+        {
+            for (int i = 0; i < Emitters.Length; i++)
+                Emitters[i].Detach(gameObject);
+        }
     }
 
     private void CacheEmitters()

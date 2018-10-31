@@ -33,7 +33,7 @@ namespace Photon.LoadBalancing.GameServer
 
     public class DestinyClueController
     {
-        private Player mPlayer;
+        private GameClientPeer mSlot;
 
         private Dictionary<ClueCondition, Dictionary<int, List<int>>> mClueListByConditionType;
         private int mDialogueClueMinTime;
@@ -55,12 +55,15 @@ namespace Photon.LoadBalancing.GameServer
         private Dictionary<int, Timer> mTimeClueExpiredTimer;
         private int mMaxDestinyClueCount;
 
+        private bool bFeatureUnlock = false;
         private bool bLocked = false;
         private List<int> mClueForDelete = new List<int>();
+        private List<ActivatedClueData> mClueForAdd = new List<ActivatedClueData>();
+        private bool bInit = false;
 
-        public DestinyClueController(Player player)
+        public DestinyClueController(GameClientPeer slot)
         {
-            mPlayer = player;
+            mSlot = slot;
             mMaxDestinyClueCount = 30;
 
             mDialogueClueMinTime = GameConstantRepo.GetConstantInt("DestinyDialogueClue_Min");
@@ -100,6 +103,11 @@ namespace Photon.LoadBalancing.GameServer
 
         private void StartDialogueTimer()
         {
+            if (!bFeatureUnlock)
+            {
+                return;
+            }
+
             long duration = GameUtils.RandomInt(mDialogueClueMinTime, mDialogueClueMaxTime) * 60 * 1000;
             mDialogueClueTimer = new Timer();
             mDialogueClueTimer.Elapsed += new  ElapsedEventHandler(OnDialogueTimeEnd);
@@ -147,7 +155,7 @@ namespace Photon.LoadBalancing.GameServer
             Dictionary<int, HeroDialogueClueJson> dialogueclues = DestinyClueRepo.GetHeroDialogueClues();
             foreach(KeyValuePair<int, HeroDialogueClueJson> entry in dialogueclues)
             {
-                if (mPlayer.PlayerSynStats.Level >= entry.Value.lvl && entry.Value.isuse)
+                if (mSlot.mPlayer.PlayerSynStats.Level >= entry.Value.lvl && entry.Value.isuse)
                 {
                     result.Add(entry.Value);
                 }
@@ -180,18 +188,32 @@ namespace Photon.LoadBalancing.GameServer
 
         private void ActivateDialogueClue(HeroDialogueClueJson clueJson)
         {
-            bLocked = true;
             DateTime dateTime = DateTime.Now;
             string date = string.Format("{0:yyyy}.{0:MM}.{0:dd}", dateTime);
             string time = string.Format("{0:HH}:{0:mm}", dateTime);
             ActivatedClueData clueData = new ActivatedClueData(clueJson.dialogueid, ClueType.Dialogue, date, time, ClueStatus.New);
-            mDestinyClues.Add(clueData);
+            if (bLocked)
+            {
+                mClueForAdd.Add(clueData);
+            }
+            else
+            {
+                bLocked = true;
+                mDestinyClues.Add(clueData);
+                SyncDestinyClueStats();
+            }
+            
 
-            SyncDestinyClueStats();
+            
         }
 
         private void StartTimeClueTimer()
         {
+            if (!bFeatureUnlock)
+            {
+                return;
+            }
+
             long duration = GameUtils.RandomInt(mTimeClueMinTime, mTimeClueMaxTime) * 60 * 1000;
             mTimeClueTimer = new Timer();
             mTimeClueTimer.Elapsed += new ElapsedEventHandler(OnTimeClueTimeEnd);
@@ -272,17 +294,25 @@ namespace Photon.LoadBalancing.GameServer
 
         private void ActivateTimeClue(TimeClueJson clueJson)
         {
-            bLocked = true;
             DateTime dateTime = DateTime.Now;
             string date = string.Format("{0:yyyy}.{0:MM}.{0:dd}", dateTime);
             string time = string.Format("{0:HH}:{0:mm}", dateTime);
             ActivatedClueData clueData = new ActivatedClueData(clueJson.dialogueid, ClueType.Time, date, time, ClueStatus.New);
-            mDestinyClues.Add(clueData);
             AddTimeClueExpiredTimer(clueData);
             if (!mUnlockTimeClues.Contains(clueData.ClueId))
             {
                 mUnlockTimeClues.Add(clueData.ClueId);
                 SyncUnlockTimeCluesStats();
+            }
+            if (bLocked)
+            {
+                mClueForAdd.Add(clueData);
+            }
+            else
+            {
+                bLocked = true;
+                mDestinyClues.Add(clueData);
+                SyncDestinyClueStats();
             }
 
             SyncDestinyClueStats();
@@ -306,8 +336,13 @@ namespace Photon.LoadBalancing.GameServer
             return GameUtils.RandomInt(0, max);
         }
 
-        public void InitFromData(DestinyClueInventory clueinv)
+        public void InitFromData(DestinyClueInventory clueinv, int level)
         {
+            if (bInit)
+            {
+                return;
+            }
+
             mDestinyClues = clueinv == null ? new List<ActivatedClueData>() : clueinv.DeserializedActivatedClues();
             mUnlockMemory = clueinv == null ? new List<int>() : clueinv.DeserializedUnlockMemory();
             mLockedClues = clueinv == null ? new List<LockedClueData>() : clueinv.DeserializedLockedClues();
@@ -318,6 +353,13 @@ namespace Photon.LoadBalancing.GameServer
             StartTimeClueTimer();
 
             InitTimeClueExpiredTimer();
+
+            if (level >= 2)
+            {
+                bFeatureUnlock = true;
+            }
+
+            bInit = true;
         }
 
         public void InitDestinyClueStats(ref DestinyClueSynStats destinyClueStats)
@@ -343,8 +385,18 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
 
-            mClueForDelete = idlist;
-            DeleteClue();
+            foreach (int clueid in idlist)
+            {
+                ActivatedClueData clueData = GetClue(clueid, ClueType.Time);
+                if (clueData != null)
+                {
+                    mDestinyClues.Remove(clueData);
+                    if (mUnlockTimeClues.Contains(clueData.ClueId))
+                    {
+                        mUnlockTimeClues.Remove(clueData.ClueId);
+                    }
+                }
+            }
         }
 
         private void OnClueExpired(int clueid)
@@ -355,7 +407,13 @@ namespace Photon.LoadBalancing.GameServer
                 timer.Stop();
                 mTimeClueExpiredTimer.Remove(clueid);
                 mClueForDelete.Add(clueid);
-                DeleteClue();
+                if (!bLocked)
+                {
+                    bLocked = true;
+                    DeleteClue();
+                    SyncDestinyClueStats();
+                    SyncUnlockTimeCluesStats();
+                }
             }
         }
 
@@ -389,13 +447,21 @@ namespace Photon.LoadBalancing.GameServer
             return false;
         }
 
-        private void DeleteClueAfterUpdate()
+        private void DeleteAddClueAfterUpdate()
         {
-            DeleteOldClue();
-            if (mClueForDelete.Count > 0)
+            bLocked = true;
+            foreach (ActivatedClueData cluedata in mClueForAdd)
             {
-                DeleteClue();
+                mDestinyClues.Add(cluedata);
             }
+
+            DeleteOldClue();
+            DeleteClue();
+
+            mClueForAdd = new List<ActivatedClueData>();
+            mClueForDelete = new List<int>();
+            SyncDestinyClueStats();
+            SyncUnlockTimeCluesStats();
         }
 
         private void DeleteOldClue()
@@ -408,27 +474,19 @@ namespace Photon.LoadBalancing.GameServer
 
         private void DeleteClue()
         {
-            if (!bLocked)
-            {
-                bLocked = true;
-                mDestinyClues = mDestinyClues.Where(o => o != null).ToList();
+            mDestinyClues = mDestinyClues.Where(o => o != null).ToList();
 
-                foreach (int clueid in mClueForDelete)
+            foreach (int clueid in mClueForDelete)
+            {
+                ActivatedClueData clueData = GetClue(clueid, ClueType.Time);
+                if (clueData != null)
                 {
-                    ActivatedClueData clueData = GetClue(clueid, ClueType.Time);
-                    if (clueData != null)
+                    mDestinyClues.Remove(clueData);
+                    if (mUnlockTimeClues.Contains(clueData.ClueId))
                     {
-                        mDestinyClues.Remove(clueData);
-                        if (mUnlockTimeClues.Contains(clueData.ClueId))
-                        {
-                            mUnlockTimeClues.Remove(clueData.ClueId);
-                        }
+                        mUnlockTimeClues.Remove(clueData.ClueId);
                     }
                 }
-
-                mClueForDelete = new List<int>();
-                SyncDestinyClueStats();
-                SyncUnlockTimeCluesStats();
             }
         }
 
@@ -524,7 +582,7 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         if (clueJson.condition1 == ClueCondition.Item)
                         {
-                            if (mPlayer.Slot.mInventory.HasItem((ushort)clueJson.condition1id, 1))
+                            if (mSlot.mPlayer.Slot.mInventory.HasItem((ushort)clueJson.condition1id, 1))
                             {
                                 clueData.Condition1Status = true;
                             }
@@ -542,7 +600,7 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         if (clueJson.condition2 == ClueCondition.Item)
                         {
-                            if (mPlayer.Slot.mInventory.HasItem((ushort)clueJson.condition2id, 1))
+                            if (mSlot.mPlayer.Slot.mInventory.HasItem((ushort)clueJson.condition2id, 1))
                             {
                                 clueData.Condition2Status = true;
                             }
@@ -560,7 +618,7 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         if (clueJson.condition3 == ClueCondition.Item)
                         {
-                            if (mPlayer.Slot.mInventory.HasItem((ushort)clueJson.condition3id, 1))
+                            if (mSlot.mPlayer.Slot.mInventory.HasItem((ushort)clueJson.condition3id, 1))
                             {
                                 clueData.Condition3Status = true;
                             }
@@ -614,8 +672,11 @@ namespace Photon.LoadBalancing.GameServer
                     }
                 }
                 SyncUnlockMemoryStats();
-                SyncDestinyClueStats();
                 SyncUnlockCluesStats();
+                if (bLocked)
+                {
+                    SyncDestinyClueStats();
+                }
             }
         }
 
@@ -623,7 +684,6 @@ namespace Photon.LoadBalancing.GameServer
         {
             if (!IsClueAlreadyUnlock(clueid))
             {
-                bLocked = true;
                 DestinyClueJson clueJson = DestinyClueRepo.GetDestinyClueById(clueid);
                 if (clueJson != null)
                 {
@@ -631,7 +691,14 @@ namespace Photon.LoadBalancing.GameServer
                     string date = string.Format("{0:yyyy}.{0:MM}.{0:dd}", dateTime);
                     string time = string.Format("{0:HH}:{0:mm}", dateTime);
                     ActivatedClueData clueData = new ActivatedClueData(clueJson.clueid, ClueType.Normal, date, time, ClueStatus.New);
-                    mDestinyClues.Add(clueData);
+                    if (bLocked)
+                    {
+                        mClueForAdd.Add(clueData);
+                    }
+                    else
+                    {
+                        mDestinyClues.Add(clueData);
+                    }
                     mUnlockClues.Add(clueid);
                     return clueJson.heroid;
                 }
@@ -673,23 +740,23 @@ namespace Photon.LoadBalancing.GameServer
 
         private void SyncDestinyClueStats()
         {
-            mPlayer.DestinyClueStats.destinyClues = SyncDestinyClues();
-            DeleteClueAfterUpdate();
+            mSlot.mPlayer.DestinyClueStats.destinyClues = SyncDestinyClues();
+            DeleteAddClueAfterUpdate();
         }
 
         private void SyncUnlockMemoryStats()
         {
-            mPlayer.DestinyClueStats.unlockMemory = SyncUnlockMemory();
+            mSlot.mPlayer.DestinyClueStats.unlockMemory = SyncUnlockMemory();
         }
 
         private void SyncUnlockCluesStats()
         {
-            mPlayer.DestinyClueStats.unlockClues = SyncUnlockClues();
+            mSlot.mPlayer.DestinyClueStats.unlockClues = SyncUnlockClues();
         }
 
         private void SyncUnlockTimeCluesStats()
         {
-            mPlayer.DestinyClueStats.unlockTimeClues = SyncUnlockTimeClues();
+            mSlot.mPlayer.DestinyClueStats.unlockTimeClues = SyncUnlockTimeClues();
         }
 
         public void ReadClue(int clueid, byte type)
@@ -712,7 +779,7 @@ namespace Photon.LoadBalancing.GameServer
                 if (clueJson != null)
                 {
                     bool isfull = false;
-                    GameRules.GiveReward_CheckBagSlot(mPlayer, new List<int>() { clueJson.reward }, out isfull, true, true, "DestinyClue_Reward");
+                    GameRules.GiveReward_CheckBagSlot(mSlot.mPlayer, new List<int>() { clueJson.reward }, out isfull, true, true, "DestinyClue_Reward");
                     if (!isfull)
                     {
                         bLocked = true;
@@ -736,11 +803,17 @@ namespace Photon.LoadBalancing.GameServer
 
         public void Dispose()
         {
-            mDialogueClueTimer.Stop();
-            mDialogueClueTimer = null;
+            if (mDialogueClueTimer != null)
+            {
+                mDialogueClueTimer.Stop();
+                mDialogueClueTimer = null;
+            }
 
-            mTimeClueTimer.Stop();
-            mTimeClueTimer = null;
+            if (mTimeClueTimer != null)
+            {
+                mTimeClueTimer.Stop();
+                mTimeClueTimer = null;
+            }
 
             if (mTimeClueExpiredTimer != null)
             {
@@ -750,6 +823,21 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
             mTimeClueExpiredTimer = new Dictionary<int, Timer>();
+        }
+
+        public void Unlock(int level)
+        {
+            if (level >= 2 && !bFeatureUnlock)
+            {
+                bFeatureUnlock = true;
+                HeroDialogueClueJson clueJson = DestinyClueRepo.GetHeroDialogueClueById(GameConstantRepo.GetConstantInt("DestinyTutorialId"));
+                if (clueJson != null)
+                {
+                    ActivateDialogueClue(clueJson);
+                }
+                StartDialogueTimer();
+                StartTimeClueTimer();
+            }
         }
     }
 }

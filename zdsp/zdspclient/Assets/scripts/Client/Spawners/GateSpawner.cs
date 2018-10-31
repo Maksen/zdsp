@@ -4,7 +4,8 @@ using Zealot.Entities;
 namespace Zealot.Spawners
 {
     [AddComponentMenu("Spawners at Server/GateSpawner")]
-    public class GateSpawner : ServerEntity {
+    public class GateSpawner : ServerEntity
+    {
         public bool activeOnStartup = true;
         public float widthRatio = 1f;
         public float heightRatio = 1f;
@@ -22,7 +23,7 @@ namespace Zealot.Spawners
 		public override ServerEntityJson GetJson()
 		{
             GateSpawnerJson jsonclass = new GateSpawnerJson();
-			GetJson (jsonclass);
+			GetJson(jsonclass);
 			return jsonclass;
 		}
 

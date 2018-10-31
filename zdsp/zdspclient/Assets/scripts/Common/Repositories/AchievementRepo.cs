@@ -276,6 +276,7 @@ namespace Zealot.Repository
         public static Dictionary<int, AchievementLevel> achievementLevels;
         public static Dictionary<int, LISATransformTierJson> lisaTiers; // tier -> json
         public static Dictionary<LISAFunctionTriggerType, List<LISAExternalFunctionJson>> lisaExternalFunctions;
+        public static Dictionary<LISAFunction, List<LISAExternalFunctionJson>> lisaFunctionTypeToDataList;
         public static Dictionary<LISAMsgBehaviourType, LISAMessageDirectionGroup> lisaMsgBehaviours;
         public static Dictionary<LISAMsgDirectionType, LISAMessageGroup> lisaMsgGroups;
 
@@ -300,6 +301,7 @@ namespace Zealot.Repository
             achievementLevels = new Dictionary<int, AchievementLevel>();
             lisaTiers = new Dictionary<int, LISATransformTierJson>();
             lisaExternalFunctions = new Dictionary<LISAFunctionTriggerType, List<LISAExternalFunctionJson>>();
+            lisaFunctionTypeToDataList = new Dictionary<LISAFunction, List<LISAExternalFunctionJson>>();
             lisaMsgBehaviours = new Dictionary<LISAMsgBehaviourType, LISAMessageDirectionGroup>();
             lisaMsgGroups = new Dictionary<LISAMsgDirectionType, LISAMessageGroup>();
         }
@@ -323,6 +325,7 @@ namespace Zealot.Repository
             achievementLevels.Clear();
             lisaTiers.Clear();
             lisaExternalFunctions.Clear();
+            lisaFunctionTypeToDataList.Clear();
             lisaMsgBehaviours.Clear();
             lisaMsgGroups.Clear();
         }
@@ -432,9 +435,16 @@ namespace Zealot.Repository
                     if (achObj != null)
                         achObj.AddRewardFunction(entry.Value.functiontype, entry.Value.functionvalue);
                 }
+
+                if (lisaFunctionTypeToDataList.ContainsKey(entry.Value.functiontype))
+                    lisaFunctionTypeToDataList[entry.Value.functiontype].Add(entry.Value);
+                else
+                    lisaFunctionTypeToDataList.Add(entry.Value.functiontype, new List<LISAExternalFunctionJson>() { entry.Value });
             }
             foreach (var type in lisaExternalFunctions.Keys.ToList())
                 lisaExternalFunctions[type] = lisaExternalFunctions[type].OrderBy(x => x.sortorder).ToList(); // stable sort
+            foreach (var type in lisaFunctionTypeToDataList.Keys.ToList())
+                lisaFunctionTypeToDataList[type] = lisaFunctionTypeToDataList[type].OrderBy(x => x.sortorder).ToList(); // stable sort
 
             foreach (var entry in gameData.LISAMsgBehaviour)
             {
@@ -482,6 +492,14 @@ namespace Zealot.Repository
             return new List<CollectionObjective>();
         }
 
+        public static string GetRandomPhotoDescription(int memberCount)
+        {
+            PhotoDescGroup pdg;
+            if (collectionPhotoDescriptions.TryGetValue(memberCount, out pdg))
+                return pdg.GetRandomDescription();
+            return "";
+        }
+
         public static AchievementObjective GetAchievementObjectiveById(int id)
         {
             AchievementObjective obj;
@@ -497,6 +515,14 @@ namespace Zealot.Repository
             return objList;
         }
 
+        public static List<AchievementObjective> GetAchievementObjectivesBySubType(int subTypeId)
+        {
+            List<AchievementObjective> list;
+            if (achievementSubTypeToObjectives.TryGetValue(subTypeId, out list))
+                return list;
+            return new List<AchievementObjective>();
+        }
+
         public static int GetAchievementObjectiveCountByMainType(AchievementType mainType)
         {
             return achievementObjectives.Values.Count(x => x.mainType == mainType);
@@ -510,13 +536,30 @@ namespace Zealot.Repository
             return new List<string>();
         }
 
-        public static string GetRandomPhotoDescription(int memberCount)
+        public static AchievementSubTypeJson GetAchievementSubTypeByID(int subTypeId)
         {
-            PhotoDescGroup pdg;
-            if (collectionPhotoDescriptions.TryGetValue(memberCount, out pdg))
-                return pdg.GetRandomDescription();
+            AchievementSubTypeJson json;
+            achievementSubTypes.TryGetValue(subTypeId, out json);
+            return json;
+        }
+
+        public static string GetAchievementSubTypeLocalizedName(int subTypeId)
+        {
+            AchievementSubTypeJson json;
+            if (achievementSubTypes.TryGetValue(subTypeId, out json))
+                return json.localizedname;
             return "";
         }
+
+        public static List<AchievementSubTypeJson> GetAchievementSubTypesByMainType(AchievementType mainType)
+        {
+            List<AchievementSubTypeJson> list;
+            if (achievementMainToSubTypes.TryGetValue(mainType, out list))
+                return list;
+            return new List<AchievementSubTypeJson>();
+        }
+
+
 
         public static AchievementType GetAchievementMainTypeBySubType(int subType)
         {
@@ -544,13 +587,13 @@ namespace Zealot.Repository
 
         public static LISATransformTierJson GetLISATierInfoByLevel(int level)
         {
-            LISATransformTierJson json = null;
+            LISATransformTierJson highest = null;
             foreach (var entry in lisaTiers.Values)
             {
-                if (json == null || (level >= entry.reqlvl && entry.reqlvl > json.reqlvl))
-                    json = entry;
+                if (highest == null || (level >= entry.reqlvl && entry.reqlvl > highest.reqlvl))
+                    highest = entry;
             }
-            return json;
+            return highest;
         }
 
         public static List<LISAExternalFunctionJson> GetExternalFunctionsByTriggerType(LISAFunctionTriggerType triggerType)
@@ -559,6 +602,13 @@ namespace Zealot.Repository
             if (lisaExternalFunctions.TryGetValue(triggerType, out list))
                 return list;
             return new List<LISAExternalFunctionJson>();
+        }
+
+        public static List<LISAExternalFunctionJson> GetExternalFunctionsByFunctionType(LISAFunction functionType)
+        {
+            List<LISAExternalFunctionJson> list;
+            lisaFunctionTypeToDataList.TryGetValue(functionType, out list);
+            return list;
         }
     }
 }

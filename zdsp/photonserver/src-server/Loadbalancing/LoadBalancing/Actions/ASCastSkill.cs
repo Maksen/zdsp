@@ -1,6 +1,7 @@
 ﻿namespace Zealot.Server.Actions
 {
     using Kopio.JsonContracts;
+    using Photon.LoadBalancing.GameServer.CombatFormula;
     using System.Collections.Generic;
     using UnityEngine;
     using Zealot.Common;
@@ -10,7 +11,6 @@
     using Zealot.Server.Counters;
     using Zealot.Server.Entities;
     using Zealot.Server.SideEffects;
-    using Photon.LoadBalancing.GameServer.CombatFormula;
 
     public class BaseServerCastSkill : Action
     {
@@ -26,7 +26,7 @@
         protected long mLastQueriedTime = -1;
         protected int mTargetPID;
         protected Actor mTarget;
-        protected Vector3? mTargetPos;
+        protected Vector3 mTargetPos;
         protected bool mFriendlySkill;
         //protected bool mIsMonsterBasicAttack;
         protected float mSkillAffact = 0;//affact skill damage
@@ -40,7 +40,7 @@
         protected int mCasterPID = 0;
         protected bool bDashed = false;
         protected bool isPlayerBasicAttack = false;
-        protected int playerBasicAttackIndex = 2;
+        protected int playerBasicAttackIndex = 1;
         private int feedbackIndex = -2;
         private int mskillLevel = 1;
 
@@ -94,7 +94,6 @@
                 else if (mSkillData.skillgroupJson.costtype == CostType.HP)
                 {
                 }
-
             }
 
             return true;
@@ -129,21 +128,21 @@
         public void FaceTarget()
         {
             Vector3 direction = mEntity.Forward;
-            if (mTarget != null)
-            {
-                direction = mTarget.Position - mEntity.Position;
+            //if (mTarget != null)
+            //{
+            //    direction = mTarget.Position - mEntity.Position;
 
-                direction.y = 0f;
-                direction.Normalize();
-            }
-            if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
-            {
+            //    direction.y = 0f;
+            //    direction.Normalize();
+            //}
+            //if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
+            //{
                 CastSkillCommand castcmd = (CastSkillCommand)mdbCommand;
                 mTargetPos = castcmd.targetPos;
                 direction = castcmd.targetPos - mEntity.Position;
                 direction.y = 0;
                 direction.Normalize();
-            }
+            //}
 
             mEntity.Forward = direction;
         }
@@ -186,6 +185,8 @@
             procTime = (long)(mSkillData.skillgroupJson.proctime * 1000);
             mProcTimeLeft = procTime;
             mLastQueriedTime = -1;
+            //if(entity.IsPlayer())
+            //    Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("SideEffect Logs", "Proc time " + procTime.ToString());
             if (mProcTimeLeft == 0)
                 OnProc();
             SetTimer(_skill_duration - 20, OnActiveTimeUp, null);
@@ -193,6 +194,7 @@
 
         protected virtual void OnActiveTimeUp(object arg)
         {
+            //Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Action", "Active Times up ASCastSkill");
             GotoState("Completed");
         }
 
@@ -235,9 +237,10 @@
                         if (selfse.delay != 0)
                         {
                             GameTimer timer = null;
-                            timer = mTimers.SetTimer((long)(selfse.delay * 1000), delegate {
+                            timer = mTimers.SetTimer((long)(selfse.delay * 1000), delegate
+                            {
                                 se.Apply(actor, actor, isbuff);
-                                mTimers.StopTimer(timer);
+                                //mTimers.StopTimer(timer);
                             }, timer);
                         }
                         else
@@ -302,6 +305,7 @@
                                 //dmgse.OnTalentHit = OnTalentHit;
                                 //dmgse.subskills = mSkillData.subskills;
                                 dmgse.SetSkillDmgCount(mSkillAffact, mSkillAffactPerc, isBasicAttack, feedbackIndex);
+                                dmgse.mSkillid = mSkillData.skillJson.id;
                             }
 
                             if (se is RejuvenateSE)
@@ -346,9 +350,11 @@
         private void OnTimesUpCastSkill(long delay, SideEffect se, Actor target, Actor caster, bool isPos)
         {
             GameTimer timer = null;
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("DamageSE", "Start counting " + System.DateTime.Now.Ticks);
             timer = mTimers.SetTimer(delay,
                                     delegate
                                     {
+                                        Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("DamageSE", "stopped counting " + System.DateTime.Now.Ticks);
                                         se.Apply(target, caster, isPos);
                                         //mTimers.StopTimer(timer);
                                     }, timer);
@@ -376,7 +382,7 @@
             if (myPlayer != null)
                 results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mSkillData, mTargetPos, myPlayer.mInstance.GetSpawnedObjectsByPeer(myPlayer.Slot));
             else
-                results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mSkillData);
+                results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mSkillData, mTargetPos);
             //handle for player basic attack dash to target. as the client dash distance is far enough to reach any target in view
             if ((bDashed && mEntity.IsPlayer() && mTarget != null && !results.Contains((IActor)mTarget)))
             {
@@ -425,20 +431,6 @@
         public bool IsBasicAttack()
         {
             return mSkillData.skillgroupJson.skilltype == SkillType.BasicAttack;
-        }
-
-        protected override void OnActiveTimeUp(object arg)
-        {
-            if (mSkillData.skillgroupJson.skilltype == SkillType.BasicAttack)
-            {
-                Vector3 pos = ((Actor)mEntity).Position;
-                if (mTarget.IsAlive() && GameUtils.InRange(mTarget.Position, pos, 0.5f))
-                {
-                    GotoState("Active");
-                    return;
-                }
-            }
-            GotoState("Completed");
         }
     }
 
@@ -510,10 +502,14 @@
                     //piliq basic attack dash .
                 }
             }
-            Player p = mEntity as Player;
-            if (p != null)
+
+            if (mEntity.IsPlayer())
             {
-                p.CombatStarted();
+                Player player = (Player)mEntity;
+                player.CombatStarted();
+
+                if (mTarget != null)
+                    mTarget.AddPlayerAttacker(player);
             }
         }
 
@@ -522,6 +518,16 @@
             base.OnCompleteEnter(prevstate);
             //has to be done in complete state.
             ((NetEntity)mEntity).ClearAction(); //so that this action won't be updated anymore in entitysystem when it completes or terminated
+
+            if (mEntity.IsPlayer() && mTarget != null)
+                mTarget.RemovePlayerAttacker((Player)mEntity);
+        }
+
+        protected override void OnTerminatedEnter(string prevstate)
+        {
+            base.OnTerminatedEnter(prevstate);
+            if (mEntity.IsPlayer() && mTarget != null)
+                mTarget.RemovePlayerAttacker((Player)mEntity);
         }
     }
 }

@@ -777,10 +777,134 @@ namespace Zealot.Common
         public DNAJson DNAJson { get; set; }
         #endregion
 
+        public struct DNAAttribute
+        {
+            public uint dnaStage;
+            public uint dnaLevel;
+            public uint dnaExp;
+        }
+        public DNAAttribute dnaAttr;
+        string dnaItemCode;
+
+        [JsonProperty(PropertyName = "0")]
+        public uint DNAStage { get; set; }
+
+        [JsonProperty(PropertyName = "1")]
+        public uint DNALevel { get; set; }
+
+        [JsonProperty(PropertyName = "2")]
+        public uint DNAExp { get; set; }
+
+        public DNA()
+        {
+
+        }
+
         public override void LoadJson(ItemBaseJson jsonobject)
         {
             base.LoadJson(jsonobject);
             DNAJson = jsonobject as DNAJson;
+        }
+
+        public override void EncodeItem()
+        {
+            dnaItemCode = EncodeDNAItem();
+        }
+
+        public override void InitFromCode(int itemCode)
+        {
+            throw new Exception("should not init equipment from integer code");
+        }
+
+        public override void InitFromCode(string itemCode, bool base64encode = false)
+        {
+            DecodeDNAItem(itemCode, base64encode);
+        }
+
+        public override string GetStrEncodedItemCode(bool base64encode = false)
+        {
+            return EncodeDNAItem(base64encode);
+        }
+
+        public override object GetItemCodeForLocalObj()
+        {
+            return dnaItemCode;
+        }
+
+        string EncodeDNAItem(bool base64encode = false)
+        {
+            dnaAttr.dnaStage = DNAStage;
+            dnaAttr.dnaLevel = DNALevel;
+            dnaAttr.dnaExp = DNAExp;
+
+            var arrProperties = getBytes(ref dnaAttr);
+            if (base64encode)
+                dnaItemCode = Convert.ToBase64String(arrProperties);
+            else
+                dnaItemCode = Encoding.Unicode.GetString(arrProperties);
+
+            return dnaItemCode;
+        }
+
+        void DecodeDNAItem(string propertystr, bool base64encode = false)
+        {
+            byte[] attributes = null;
+            if (base64encode)
+                attributes = Convert.FromBase64String(propertystr);
+            else
+                attributes = Encoding.Unicode.GetBytes(propertystr);
+
+            if (attributes.Length > 0)
+            {
+                DNAStage = getUInt32FromBytes(attributes[0], attributes[1], attributes[2], attributes[3]);
+                DNALevel = getUInt32FromBytes(attributes[4], attributes[5], attributes[6], attributes[7]);
+                DNAExp = getUInt32FromBytes(attributes[8], attributes[9], attributes[10], attributes[11]);
+            }
+        }
+
+        uint getUInt32FromBytes(byte byte1, byte byte2, byte byte3, byte byte4)
+        {
+            uint result;
+            byte[] barr = new byte[4] { byte1, byte2, byte3, byte4 };
+            result = BitConverter.ToUInt32(barr, 0);
+
+            return result;
+        }
+
+        ushort getUInt16FromBytes(byte byte1, byte byte2)
+        {
+            ushort result;
+            byte[] barr = new byte[2] { byte1, byte2 };
+            result = BitConverter.ToUInt16(barr, 0);
+
+            return result;
+        }
+
+        byte[] getBytes(ref DNAAttribute ea)
+        {
+            int size = Marshal.SizeOf(ea);
+            byte[] arr = new byte[size];
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(ea, ptr, true);
+            Marshal.Copy(ptr, arr, 0, size);
+            Marshal.FreeHGlobal(ptr);
+
+            return arr;
+        }
+
+        DNAAttribute fromBytes(byte[] arr)
+        {
+            DNAAttribute str = new DNAAttribute();
+
+            int size = Marshal.SizeOf(str);
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+
+            Marshal.Copy(arr, 0, ptr, size);
+
+            str = (DNAAttribute)Marshal.PtrToStructure(ptr, str.GetType());
+            Marshal.FreeHGlobal(ptr);
+
+            return str;
         }
     }
 

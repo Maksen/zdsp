@@ -251,6 +251,7 @@
         WelfareStats,
         SevenDaysStats,
         QuestExtraRewardsStats,
+        DNAStats,
         StoreStats,
         ExchangeShopStats,
         AchievementStats,
@@ -260,7 +261,6 @@
         PortraitDataStats,
         PowerUpStats,
         MeridianStats,
-        InteractiveTriggerStats,
     }
 
     public static class LocalObjectAllowType

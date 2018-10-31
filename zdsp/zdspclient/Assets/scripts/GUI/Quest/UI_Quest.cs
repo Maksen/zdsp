@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using Kopio.JsonContracts;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
 using Zealot.Common;
 
 public class UI_Quest : MonoBehaviour
@@ -14,6 +17,9 @@ public class UI_Quest : MonoBehaviour
 
     [SerializeField]
     UI_CutScene CutScene;
+
+    [SerializeField]
+    Toggle DestinyToggle;
 
     private bool mIsActived = false;
 
@@ -64,5 +70,20 @@ public class UI_Quest : MonoBehaviour
         {
             OngoingQuest.UpdateUnlockQuestList();
         }
+    }
+
+    public void OpenDestinyTab(QuestJson mQuestJson)
+    {
+        StartCoroutine(ChangeToDestinyTab());
+    }
+
+    private IEnumerator ChangeToDestinyTab()
+    {
+        UIManager.StartHourglass();
+
+        yield return new WaitForSecondsRealtime(0.5f);
+        DestinyToggle.isOn = true;
+
+        UIManager.StopHourglass();
     }
 }

@@ -221,6 +221,11 @@ public class ActorNameTagController : MonoBehaviour
         mPlayerLabel.Name = hg.Name;
     }
 
+    public void SetCompanionLabel(string name)
+    {
+        mPlayerLabel.Name = name;
+    }
+
     public void Show(bool val)
     {
         if (mPlayerLabelObj != null && mPlayerLabelExtObj != null)

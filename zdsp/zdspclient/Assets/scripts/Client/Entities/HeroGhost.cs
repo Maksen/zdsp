@@ -91,9 +91,7 @@ namespace Zealot.Client.Entities
             if (AnimObj != null)
             {
                 GameInfo.gCombat.SetPlayerOwnedNPCParent(AnimObj);
-
-                base.Init();
-
+                Init();
                 ClientUtils.SetLayerRecursively(AnimObj, LayerMask.NameToLayer("Entities"));
 
                 mAnimObj.transform.position = Position;
@@ -102,6 +100,7 @@ namespace Zealot.Client.Entities
                 SetHeadLabel();
 
                 Show(false);
+                ShowHeadLabelAndShadow(false);
                 Idle();
 
                 isModelLoaded = true;
@@ -115,7 +114,6 @@ namespace Zealot.Client.Entities
             {
                 PlayerStats = new HeroSynStats();
                 HeroSynStats = (HeroSynStats)PlayerStats;
-                PlayerStats.OnNewlyAdded = OnNewlyAdded;
                 PlayerStats.OnValueChanged = OnValueChanged;
                 mylocalobj = PlayerStats;
             }
@@ -123,10 +121,6 @@ namespace Zealot.Client.Entities
                 return;
 
             base.AddLocalObject(objtype, mylocalobj);
-        }
-
-        public void OnNewlyAdded()
-        {
         }
 
         public void OnValueChanged(string field, object value, object oldvalue)
@@ -140,7 +134,7 @@ namespace Zealot.Client.Entities
                     ChangeModel(HeroSynStats.HeroId, HeroSynStats.ModelTier);
                     break;
                 case "Summoning":
-                    GameInfo.gCombat.WaitForHero(() => { return isModelLoaded; }, OnModelReady);
+                    GameInfo.gCombat.WaitForHero(() => isModelLoaded, OnModelReady);
                     break;
             }
         }
@@ -148,25 +142,20 @@ namespace Zealot.Client.Entities
         private void Idle()
         {
             IdleActionCommand cmd = new IdleActionCommand();
-            PerformAction(new ClientAuthoACIdle(this, cmd));
+            PerformAction(new NonClientAuthoACIdle(this, cmd));
         }
 
         private void Summon()
         {
             SummonCommand cmd = new SummonCommand();
             ClientAuthoACSummon action = new ClientAuthoACSummon(this, cmd);
-            action.SetCompleteCallback(() => { ShowHeadLabelAndShadow(true); });
+            action.SetCompleteCallback(() => ShowHeadLabelAndShadow(true));
             PerformAction(action);
         }
 
         private bool IsPlayingSummonAnimation()
         {
-            if (EffectController.Animator != null)
-                return EffectController.Animator.GetCurrentAnimatorStateInfo(0).IsName(mHeroJson.summonaction);
-            else if (EffectController.Anim != null)
-                return EffectController.Anim.IsPlaying(mHeroJson.summonaction);
-            else
-                return false;
+            return EffectController.Animator.GetCurrentAnimatorStateInfo(0).IsName(mHeroJson.summonaction);
         }
 
         private void OnModelReady()
@@ -174,24 +163,16 @@ namespace Zealot.Client.Entities
             if (HeroSynStats.Summoning)
             {
                 Summon();
-                GameInfo.gCombat.WaitForHero(IsPlayingSummonAnimation, () =>
-                {
-                    Show(true);
-                    ShowHeadLabelAndShadow(false);
-                });
+                GameInfo.gCombat.WaitForHero(IsPlayingSummonAnimation, () => Show(true));
             }
             else
             {
                 if (!IsVisible())
+                {
                     Show(true);
+                    ShowHeadLabelAndShadow(true);
+                }
             }
-        }
-
-        public override void Show(bool val)
-        {
-            base.Show(val);
-            if (HeadLabel != null)
-                HeadLabel.Show(val);
         }
 
         private void ShowHeadLabelAndShadow(bool value)

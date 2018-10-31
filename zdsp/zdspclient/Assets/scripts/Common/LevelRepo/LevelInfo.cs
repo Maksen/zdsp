@@ -4,62 +4,63 @@ using Zealot.Common;
 
 namespace Zealot.Entities
 {
-	public class LevelInfo
-	{
-		public Dictionary<string, Dictionary<int, ServerEntityJson>> mEntities { get; set; }
-	}
-
-	public class PortalEntryData
-	{
-        public string mLevel;
-		public Vector3 mPosition;
-		public string mExitName;
-        public string myname;
-
-		public PortalEntryData(Vector3 pos, string level, string exit, string pname)
-		{
-            mLevel = level;
-			mPosition = pos;
-			mExitName = exit;
-            myname = pname;
-		}
-	}
-
-	public class LocationData
+    public class LevelInfo
     {
-		public string mLevel;
-		public string myname;
-        public Vector3 mPosition;
-        public Vector3 mForward;        
+        public Dictionary<string, Dictionary<int, ServerEntityJson>> mEntities { get; set; }
+    }
 
-		public LocationData(Vector3 pos, Vector3 forward, string level,string name)
-		{
-			mPosition = pos;
-            mForward = forward;
+    public class LocationData
+    {
+        public string mName;
+        public string mLevel;     
+        public Vector3 mPosition;
+        public Vector3 mForward;
+
+        public LocationData(string name, string level, Vector3 pos, Vector3 forward)
+        {
+            mName = name;
             mLevel = level;
-            myname = name;
+            mPosition = pos;
+            mForward = forward;
         }
-	}
+    }
+
     public class BossLocationData : LocationData
     {
         public int mArchetypeID;
 
-        public BossLocationData(Vector3 pos, string level, int archetypeid) : base(pos, Vector3.forward, level, "")
+        public BossLocationData(Vector3 pos, string level, int archetypeid) : base("", level, pos, Vector3.forward)
         {
             mArchetypeID = archetypeid;
         }
     }
 
+    public class PortalEntryData
+    {
+        public string mName;
+        public string mExitName;
+        public string mLevel;    
+        public Vector3 mPosition;
+        
+        public PortalEntryData(string name, string exitName, string level, Vector3 pos)
+        {
+            mName = name;
+            mExitName = exitName;
+            mLevel = level;
+            mPosition = pos;
+        }
+    }
+
     public static class PortalInfos
     {
-		public static Dictionary<string, PortalEntryData> mEntries;
-		public static Dictionary<string, LocationData> mExits;
+        public static Dictionary<string, PortalEntryData> mEntries;
+        public static Dictionary<string, LocationData> mExits;
         
-		static PortalInfos()
-		{
+        static PortalInfos()
+        {
             mEntries = new Dictionary<string, PortalEntryData>();
-			mExits = new Dictionary<string, LocationData> ();
-		}
+            mExits = new Dictionary<string, LocationData> ();
+        }
 
         public static void Clear()
         {
@@ -94,33 +95,33 @@ namespace Zealot.Entities
         }
 
         public static void AddPortal(string level, LevelInfo info)
-		{
+        {
             Dictionary<int, ServerEntityJson> portalEntries;
-			if (info.mEntities.TryGetValue("PortalEntryJson", out portalEntries))
+            if (info.mEntities.TryGetValue("PortalEntryJson", out portalEntries))
             {
                 string entryName;
-				foreach(PortalEntryJson entry in portalEntries.Values)
-				{
+                foreach(PortalEntryJson entry in portalEntries.Values)
+                {
                     entryName = entry.myName;
                     if (string.IsNullOrEmpty(entryName))
                         continue;
-                    mEntries.Add(entryName, new PortalEntryData(entry.position, level, entry.exitName, entryName));
-				}
-			}
+                    mEntries.Add(entryName, new PortalEntryData(entryName, entry.exitName, level, entry.position));
+                }
+            }
 
             Dictionary<int, ServerEntityJson> portalExits;
-			if (info.mEntities.TryGetValue ("PortalExitJson", out portalExits))
+            if (info.mEntities.TryGetValue("PortalExitJson", out portalExits))
             {
-				string exitName;
-				foreach(PortalExitJson entry in portalExits.Values)
-				{
-					exitName = entry.myName;
-					if(string.IsNullOrEmpty(exitName))
-						continue;
-					mExits.Add(exitName, new LocationData(entry.position, entry.forward, level, exitName));
-				}
-			}
-		}
+                string exitName;
+                foreach(PortalExitJson entry in portalExits.Values)
+                {
+                    exitName = entry.myName;
+                    if(string.IsNullOrEmpty(exitName))
+                        continue;
+                    mExits.Add(exitName, new LocationData(exitName, level, entry.position, entry.forward));
+                }
+            }
+        }
     }
 
     public class SafeZoneData
@@ -278,7 +279,8 @@ namespace Zealot.Entities
             float closestDistSq = float.MaxValue;
             Vector3 closestPos = myPos;
 
-            for (int i = 0; i < positions.Count; i++)
+            int count = positions.Count;
+            for (int i = 0; i < count; ++i)
             {
                 Vector3 pos = positions[i];
                 float distSq = (pos - myPos).sqrMagnitude;

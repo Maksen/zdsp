@@ -75,7 +75,7 @@ public class UI_SkillButton : UI_SkillButtonBase {
             //    m_SkillData = SkillRepo.GetSkill(skills[m_ID]);
             //    m_SkillLevel = m_SkillData.skillJson.level;
             //}
-            for(int i = 0; i < skills.Count >> 1; i += 2)
+            for(int i = 0; i < skills.Count; i += 2)
             {
                 if((int)skills[i] == 0)
                 {
@@ -94,7 +94,17 @@ public class UI_SkillButton : UI_SkillButtonBase {
 
     public void UpdateButton()
     {
-        //m_LevelUpIcon.SetActive(false);
+        int level = 0;
+        int skillpoint = 0, money = 0;
+        if (GameInfo.gLocalPlayer != null)
+        {
+            level = GameInfo.gLocalPlayer.PlayerSynStats.Level;
+            skillpoint = GameInfo.gLocalPlayer.LocalCombatStats.SkillPoints;
+            money = GameInfo.gLocalPlayer.SecondaryStats.Money;
+        }
+
+        m_Status = STATUS.eLOCKED;
+
         if (m_SkillLevel != 0)
         {
             // is unlocked
@@ -108,33 +118,20 @@ public class UI_SkillButton : UI_SkillButtonBase {
             // get the unlockable skill first
             SkillData fskill = SkillRepo.GetSkillByGroupIDOfNextLevel(m_skgID, 0);
 
-            int level = 0;
-            // not unlocked previously so check for unlock
-            if (GameInfo.gLocalPlayer != null)
-                level = (int)GameInfo.gLocalPlayer.PlayerSynStats.Level;
-            else
-                level = 1;
-            if (m_parentPanel.IsRequiredJobUnlocked(this) &&
+            if (m_parentPanel.IsRequiredJobUnlocked(this) && skillpoint >= fskill.skillJson.cost &&
                 level >= fskill.skillJson.requiredlv && m_parentPanel.IsRequiredSkillsUnlocked(this))
-                m_Status ^= STATUS.eUNLOCKED;
+                m_Status |= STATUS.eUNLOCKED;
             else
-                m_Status ^= STATUS.eLOCKED;
+                m_Status |= STATUS.eLOCKED;
 
             m_SkillLevelText.text = m_SkillLevel.ToString() + " / " + SkillRepo.GetSkillGroupMaxUpgrade(fskill.skillgroupJson.id).ToString();
-        }
-
-        // find the amount of skill points avaliable
-        int skillpoint = 1000, money = 1000;
-        if (GameInfo.gLocalPlayer != null)
-        {
-            skillpoint = GameInfo.gLocalPlayer.LocalCombatStats.SkillPoints;
-            money = GameInfo.gLocalPlayer.SecondaryStats.Money;
         }
 
         SkillData skill = SkillRepo.GetSkillByGroupIDOfNextLevel(m_skgID, m_SkillLevel);
         if (skill == null)
         {
             m_Status = STATUS.eMAX | STATUS.eACQUIRED;
+            m_LevelUpIcon.SetActive(false);
             return;
         }
         if ((m_Status & STATUS.eUNLOCKED) == STATUS.eUNLOCKED)
@@ -144,6 +141,8 @@ public class UI_SkillButton : UI_SkillButtonBase {
                 m_Status |= STATUS.eLEVELUP;
                 m_LevelUpIcon.SetActive(true);
             }
+            else
+                m_LevelUpIcon.SetActive(false);
         }
         else if((m_Status & STATUS.eLOCKED) == STATUS.eLOCKED)
         {
@@ -167,15 +166,11 @@ public class UI_SkillButton : UI_SkillButtonBase {
 
                 // try to add skill, wait for server to comfirm action
                 RPCFactory.NonCombatRPC.AddToSkillInventory(data.skillJson.id, data.skillgroupJson.id);
-
             }
-
-            // inform parent of level up
-            //m_parentPanel.OnLevelUpSkillWithID(m_ID, level);
         }
     }
 
-    public void OnServerVerifiedLevelUp(int skillid)
+    public void OnServerVerifiedLevelUp(int skillid, int newmoney, int newskillpoint)
     {
         SkillData data = SkillRepo.GetSkill(skillid);
         m_SkillData = data;
@@ -183,7 +178,7 @@ public class UI_SkillButton : UI_SkillButtonBase {
         m_SkillLevel = m_SkillData.skillJson.level;
 
         m_Status |= STATUS.eACQUIRED;
-        m_parentPanel.ReloadSkillDescriptor();
+        m_parentPanel.ReloadSkillDescriptor(newskillpoint, newmoney);
 
         //check if level is maxed
         if (SkillRepo.IsSkillMaxLevel(m_SkillData.skillgroupJson.id, m_SkillLevel)){

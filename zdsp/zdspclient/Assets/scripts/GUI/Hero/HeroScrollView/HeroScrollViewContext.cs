@@ -9,14 +9,16 @@ public class HeroScrollViewContext
         get { return selectedIndex; }
         set
         {
-            var prevSelectedIndex = selectedIndex;
-            selectedIndex = value;
-            if (prevSelectedIndex != selectedIndex)
+            if (value == selectedIndex)
             {
-                if (OnSelectedIndexChanged != null)
-                {
-                    OnSelectedIndexChanged(selectedIndex);
-                }
+                return;
+            }
+
+            selectedIndex = value;
+
+            if (OnSelectedIndexChanged != null)
+            {
+                OnSelectedIndexChanged(selectedIndex);
             }
         }
     }
@@ -24,4 +26,3 @@ public class HeroScrollViewContext
     public Action<HeroScrollViewCell> OnPressedCell;
     public Action<int> OnSelectedIndexChanged;
 }
-

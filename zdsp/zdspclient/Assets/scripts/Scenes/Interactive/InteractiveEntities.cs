@@ -11,7 +11,9 @@ public class InteractiveEntities : MonoBehaviour {
 	void Start () {
         parentTrigger = transform.parent.GetComponent<InteractiveTrigger>();
         if (parentTrigger.interactiveType == InteractiveType.Target)
+        {
             canClick = true;
+        }
     }
 
     public void OnClickEntity()
@@ -19,21 +21,30 @@ public class InteractiveEntities : MonoBehaviour {
         PlayerGhost player = GameInfo.gLocalPlayer;
         Vector3 distance = new Vector3(player.Position.x - transform.position.x, 0, player.Position.z - transform.position.z);
         if (distance.sqrMagnitude > 2 * 2)
+        {
             player.PathFindToTarget(transform.position, -1, 2, true, false, Interactive);
+        }
         else
+        {
             Interactive();
+        }
     }
 
     void Interactive()
     {
-        if (parentTrigger.GetPlayer() == null && canClick)
+        if (canClick && parentTrigger.SetPlayer(GameInfo.gLocalPlayer))
         {
-            parentTrigger.InitController(GameInfo.gLocalPlayer);
-            parentTrigger.OnInteractiveTrigger();
+            parentTrigger.TriggerEvent();
         }
-        else
-        {
-            UIManager.SystemMsgManager.ShowSystemMessage("Event is be using！", true);
-        }
+    }
+
+    public void OnInteractiveTriggerEvent()
+    {
+        
+    }
+
+    public void RefreshInteractiveStats(int counter)
+    {
+        parentTrigger.Init(counter);
     }
 }

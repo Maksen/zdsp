@@ -93,10 +93,11 @@ namespace Zealot.Common.Entities
         SkillAffect,
 
         // Healing doob
-        Healing,
         HealingRejuvenation,
         HealingPoint,
+        HealingPointDebuff,
         HealingEffect,
+        HealingEffectDebuff,
         HealingBuff,
         HealingDebuff,
 
@@ -991,7 +992,7 @@ namespace Zealot.Common.Entities
 
                 if (actorSynStats != null)
                 {
-                    actorSynStats.rtReduction = fieldValue * 0.01f;
+                    actorSynStats.baSpeed = fieldValue * 0.01f;
                 }
             }
         }
@@ -1138,7 +1139,7 @@ namespace Zealot.Common.Entities
             public HealingRejuvenation()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Healing };
+                children = new FieldName[] { };
             }
         }
 
@@ -1147,7 +1148,16 @@ namespace Zealot.Common.Entities
             public HealingPoint()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Healing };
+                children = new FieldName[] { };
+            }
+        }
+
+        private class HealingPointDebuff : CombatStatsField
+        {
+            public HealingPointDebuff()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
             }
         }
 
@@ -1156,7 +1166,16 @@ namespace Zealot.Common.Entities
             public HealingEffect()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Healing };
+                children = new FieldName[] { };
+            }
+        }
+
+        private class HealingEffectDebuff : CombatStatsField
+        {
+            public HealingEffectDebuff()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
             }
         }
 
@@ -1165,7 +1184,7 @@ namespace Zealot.Common.Entities
             public HealingBuff()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Healing };
+                children = new FieldName[] { };
             }
         }
 
@@ -1174,20 +1193,7 @@ namespace Zealot.Common.Entities
             public HealingDebuff()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Healing };
-            }
-        }
-
-        private class Healing : CombatStatsField
-        {
-            public Healing()
-            {
-                fieldValue = 0;
                 children = new FieldName[] { };
-            }
-
-            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
-            {
             }
         }
 
@@ -3954,10 +3960,11 @@ namespace Zealot.Common.Entities
 
             mFields[(int)FieldName.SkillAffect] = new SimpleField();
 
-            mFields[(int)FieldName.Healing] = new Healing();
             mFields[(int)FieldName.HealingRejuvenation] = new HealingRejuvenation();
             mFields[(int)FieldName.HealingPoint] = new HealingPoint();
+            mFields[(int)FieldName.HealingPointDebuff] = new HealingPointDebuff();
             mFields[(int)FieldName.HealingEffect] = new HealingEffect();
+            mFields[(int)FieldName.HealingEffectDebuff] = new HealingEffectDebuff();
             mFields[(int)FieldName.HealingBuff] = new HealingBuff();
             mFields[(int)FieldName.HealingDebuff] = new HealingDebuff();
 
@@ -4307,6 +4314,9 @@ namespace Zealot.Common.Entities
                 FieldName.WeaponAttackPercBonus,
                 FieldName.AttackBonus,
                 FieldName.AttackPercBonus,
+                FieldName.AttackSpeedBase,
+                FieldName.AttackSpeedBuff,
+                FieldName.AttackSpeedDebuff,
                 FieldName.ArmorBonus,
                 FieldName.ArmorPercBonus,
                 FieldName.IgnoreArmorBonus,
@@ -4403,7 +4413,15 @@ namespace Zealot.Common.Entities
                 FieldName.MoveSpeedBuff,
                 FieldName.MoveSpeedDebuff,
                 FieldName.ManaReduceBonus,
-                FieldName.ManaReducePercBonus
+                FieldName.ManaReducePercBonus,
+
+                FieldName.HealingBuff,
+                FieldName.HealingDebuff,
+                FieldName.HealingEffect,
+                FieldName.HealingEffectDebuff,
+                FieldName.HealingPoint,
+                FieldName.HealingPointDebuff,
+                FieldName.HealingRejuvenation,
             };
 
             mTierFieldNames[1] = new List<FieldName>()
@@ -4415,6 +4433,7 @@ namespace Zealot.Common.Entities
                  FieldName.Intelligence,
                  FieldName.WeaponAttackBase,
                  FieldName.AttackBase,
+                 FieldName.AttackSpeed,
                  FieldName.ArmorBase,
                  FieldName.IgnoreArmorBase,
 

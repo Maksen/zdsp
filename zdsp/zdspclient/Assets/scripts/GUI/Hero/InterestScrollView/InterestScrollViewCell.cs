@@ -23,36 +23,25 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
     Sprite[] sprites;
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
-    InterestScrollViewContext context;
 
     void Start()
     {
-        UpdatePosition(0);
         button.onClick.AddListener(OnPressedCell);
     }
 
     /// <summary>
-    /// コンテキストを設定します
-    /// </summary>
-    /// <param name="context"></param>
-    public override void SetContext(InterestScrollViewContext context)
-    {
-        this.context = context;
-    }
-
-    /// <summary>
-    /// セルの内容を更新します
+    /// Updates the content.
     /// </summary>
     /// <param name="itemData"></param>
     public override void UpdateContent(InterestCellDto itemData)
     {
         message.text = itemData.Message;
 
-        if (context != null)
+        if (Context != null)
         {
-            if (context.HighlightSelected)
+            if (Context.HighlightSelected)
             {
-                var isSelected = context.SelectedIndex == DataIndex;
+                var isSelected = Context.SelectedIndex == DataIndex;
                 highlight.SetActive(isSelected);
             }
             else
@@ -76,7 +65,7 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
     }
 
     /// <summary>
-    /// セルの位置を更新します
+    /// Updates the position.
     /// </summary>
     /// <param name="position"></param>
     public override void UpdatePosition(float position)
@@ -96,9 +85,9 @@ public class InterestScrollViewCell : FancyScrollViewCell<InterestCellDto, Inter
 
     void OnPressedCell()
     {
-        if (context != null)
+        if (Context != null)
         {
-            context.OnPressedCell(this);
+            Context.OnPressedCell(this);
         }
     }
 }

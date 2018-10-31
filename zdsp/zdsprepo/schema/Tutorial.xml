@@ -6,19 +6,20 @@
   </enum>
   <enum name="SystemName">
     <item key="Destiny" value="0"/>
+    <item key ="Newbie_Realm" value="1"/>
   </enum>
   <data>
-    <element name ="Guide" useexcel="true">
+    <element name ="TutorialGuide" useexcel="true">
       <property name="lv" type="int" uitext ="Level"/>
       <property name="system" type="SystemName" uitext="System Name"/>
     </element>
 
-    <element name="Description" useexcel="true">
+    <element name="TutorialDescription" useexcel="true">
       <property name="system" type="SystemName" uitext="System"/>
       <property name="tutorial_order" type="int" uitext="Order"/>
       <property name="position" type="LISAPosition" uitext="Position" default="0"/>
-      <property name="text" type="string" uitext="Text"/>
-      <property name="path" type="asset" uitext="Kafra's path" assettype="sprite"/>
+      <property name="text" type="localizedstring" uitext="Text"/>
+      <property name="path" type="asset" uitext="LISA's path" assettype="sprite"/>
     </element>
   </data>
 </magicalarea51>

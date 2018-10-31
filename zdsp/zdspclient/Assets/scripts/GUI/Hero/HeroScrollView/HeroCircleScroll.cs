@@ -9,7 +9,7 @@ public class HeroCircleScroll : MonoBehaviour
     [SerializeField] int cellCount = 20;
 
     private List<HeroCellDto> cellData;
-    private HeroScrollViewContext context;
+    //private HeroScrollViewContext context;
     private Action<int> OnSelectedIndexChanged;
 
     private void Start()  // to be removed
@@ -20,31 +20,39 @@ public class HeroCircleScroll : MonoBehaviour
                 .Select(i => new HeroCellDto(i, "Cell " + i, true))
                 .ToList();
 
-            context = new HeroScrollViewContext();
+            //context = new HeroScrollViewContext();
             //context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
-            context.SelectedIndex = 0;
+            //context.SelectedIndex = 0;
 
-            scrollView.UpdateData(cellData, context);  // set contents and context
-            scrollView.UpdateSelection(context.SelectedIndex, 0);  // set selection
+            scrollView.UpdateData(cellData);  // set contents and context
+            scrollView.UpdateSelection(0, 0);  // set selection
         }
     }
 
     public void SetUp(List<HeroCellDto> dataList, Action<int> onSelectCallback)
     {
-        context = new HeroScrollViewContext();
-        context.OnSelectedIndexChanged = HandleSelectedIndexChanged;
+        //context = new HeroScrollViewContext();
+        scrollView.OnSelectedIndexChanged(HandleSelectedIndexChanged);
         OnSelectedIndexChanged = onSelectCallback;
 
         cellData = dataList;
-        scrollView.UpdateData(cellData, context);  // set contents and context
+        scrollView.UpdateData(cellData);  // set contents and context
     }
+
+    public void InitCells(HeroStatsClient hStats)
+    {
+        for (int i = 0; i < cellData.Count; ++i)
+            cellData[i].Unlocked = hStats.IsHeroUnlocked(cellData[i].HeroId);
+        //scrollView.UpdateSrollCellContents();
+    }
+
 
     public void UpdateCell(int id, bool unlocked)
     {
         HeroCellDto cell = cellData.Find(x => x.HeroId == id);
         if (cell != null)
             cell.Unlocked = unlocked;
-        scrollView.UpdateData(cellData, context);
+        scrollView.UpdateSrollCellContents();
     }
 
     public void SelectHero(int heroId)
@@ -56,11 +64,11 @@ public class HeroCircleScroll : MonoBehaviour
             scrollView.UpdateSelection(0, 0f);
     }
 
-    public void SelectCell(int index)
+    public void SelectCell(int index, float duration)
     {
         if (index >= 0 && index < cellData.Count)
         {
-            scrollView.UpdateSelection(index, 0.4f);
+            scrollView.UpdateSelection(index, duration);
         }
     }
 
@@ -75,6 +83,6 @@ public class HeroCircleScroll : MonoBehaviour
 
     public void ResetSelectedIndex()
     {
-        context.SelectedIndex = -1;
+        scrollView.ResetSelectedIndex();
     }
 }

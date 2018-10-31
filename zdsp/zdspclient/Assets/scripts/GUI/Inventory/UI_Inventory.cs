@@ -357,12 +357,12 @@ public class UI_Inventory : BaseWindowBehaviour
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
 
         var _equipmentJson = (EquipmentJson)item.JsonObject;
-        if (!string.IsNullOrEmpty(_equipmentJson.socketspace) && _equipmentJson.socketspace != "-1")
-            AddSocket(_buttons, item);
+        //if (!string.IsNullOrEmpty(_equipmentJson.socketspace) && _equipmentJson.socketspace != "-1")
+        //    AddSocket(_buttons, item);
         if (!string.IsNullOrEmpty(_equipmentJson.evolvegrp) && _equipmentJson.evolvegrp != "-1")
-            AddEvolve(_buttons, item);
+            AddEvolve(_buttons, slotId);
         if (_equipmentJson.upgradelimit > 0)
-            AddUpgrade(_buttons, item);
+            AddUpgrade(_buttons, slotId);
         AddUnEquip(_buttons, slotId, item, fashionslot);
 
         component.SetButtonCallback(_buttons);
@@ -384,7 +384,7 @@ public class UI_Inventory : BaseWindowBehaviour
                 if (_materialJson.mattype == MaterialType.Exchange)
                     AddExchange(_buttons, slotId, item);
                 else if (_materialJson.mattype == MaterialType.UpgradeItem)
-                    AddUpgrade(_buttons, item);
+                    AddUpgrade(_buttons, slotId);
                 else if (_materialJson.mattype == MaterialType.Special)
                     AddUse(_buttons, slotId, item);
                 else if (_materialJson.mattype == MaterialType.Token)
@@ -398,9 +398,9 @@ public class UI_Inventory : BaseWindowBehaviour
                 if (!string.IsNullOrEmpty(_equipmentJson.socketspace) && _equipmentJson.socketspace != "-1")
                     AddSocket(_buttons, item);
                 if (!string.IsNullOrEmpty(_equipmentJson.evolvegrp) && _equipmentJson.evolvegrp != "-1")
-                    AddEvolve(_buttons, item);
+                    AddEvolve(_buttons, slotId);
                 if (_equipmentJson.upgradelimit > 0)
-                    AddUpgrade(_buttons, item);
+                    AddUpgrade(_buttons, slotId);
                 AddEquip(_buttons, slotId, item);
                 break;
             case ItemType.DNA:
@@ -439,16 +439,16 @@ public class UI_Inventory : BaseWindowBehaviour
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_Exchange");
         _button.icon = "ButtonB_UseItem"; //no exchange icon
-        _button.callback = () => GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_UseItem(slotId, item);
+        _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Equipment_Craft);
         buttons.Add(_button);
     }
 
-    private void AddUpgrade(List<ItemDetailsButton> buttons, IInventoryItem item)
+    private void AddUpgrade(List<ItemDetailsButton> buttons, int slotId)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_OpenUpgradeUI");
         _button.icon = "ButtonB_Upgrade";
-        _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Equipment_Upgrade);
+        _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Equipment_Upgrade, slotId.ToString());
         buttons.Add(_button);
     }
 
@@ -461,12 +461,12 @@ public class UI_Inventory : BaseWindowBehaviour
         buttons.Add(_button);
     }
 
-    private void AddEvolve(List<ItemDetailsButton> buttons, IInventoryItem item)
+    private void AddEvolve(List<ItemDetailsButton> buttons, int slotId)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_OpenEvolveUI");
         _button.icon = "ButtonB_Evolve";
-        _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Equipment_Reform);
+        _button.callback = () => ClientUtils.OpenUIWindowByLinkUI(LinkUIType.Equipment_Reform, slotId.ToString());
         buttons.Add(_button);
     }
 

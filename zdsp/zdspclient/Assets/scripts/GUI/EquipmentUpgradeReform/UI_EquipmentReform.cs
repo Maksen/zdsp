@@ -115,18 +115,20 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         equipmentLvlTextObj.SetActive(false);
 
         _slotID = slotId;
+        _isEquipped = false;
         _selectedEquipment = equipment;
 
         rightSideAnimator.Play(_defaultRightSideState);
 
         ClearSelectEquipStatsList();
 
-        confirmReformAttributesBtn.gameObject.SetActive(true);
-        confirmReformAttributesBtn.interactable = false;
-        confirmReformBtn.gameObject.SetActive(false);
-        confirmReformBtn.interactable = false;
+        //confirmReformAttributesBtn.gameObject.SetActive(true);
+        //confirmReformAttributesBtn.interactable = true;
+        //confirmReformBtn.gameObject.SetActive(false);
+        //confirmReformBtn.interactable = false;
 
-        LoadEquipmentData(equipment);
+        rightSideAnimator.Play(_rightSideSlideInReform);
+        OnClickConfirmSelectReformEquipment();
     }
 
     public void InitEquipmentRecycle()
@@ -549,7 +551,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         InitEquipmentRecycleRefresh(equipment);
     }
 
-    void OnDisable()
+    public override void OnCloseWindow()
     {
         rightSideAnimator.Play(_rightSideSlideOut);
 

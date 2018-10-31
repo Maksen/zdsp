@@ -56,6 +56,9 @@
                 return;
             }
 
+            if (entity.IsGettingHit())
+                return;
+
             forward.Normalize();
             entity.Forward = forward;
             float moveSpeed = entity.PlayerStats.MoveSpeed;

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 public class UI_OngoingQuestData : MonoBehaviour
 {
     [SerializeField]
-    Image Type;
+    Text Type;
 
     [SerializeField]
     Toggle QuestListToggle;
@@ -45,6 +45,9 @@ public class UI_OngoingQuestData : MonoBehaviour
     [SerializeField]
     GameObject RewardList;
 
+    [SerializeField]
+    Button Complete;
+
     private UI_OngoingQuest mParent;
     private QuestClientController mController;
     private int mQuestId;
@@ -66,6 +69,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         mQuestType = questJson.type;
         mQuestMap = questJson.subname;
         QuestName.text = questJson.questname;
+        Type.text = GetTypeName(mQuestType);
         QuestListToggle.isOn = tracked;
         if (!tracked && maxtrack)
         {
@@ -90,6 +94,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         MapName.text = questJson.subname;
         Experience.text = "0";
         JobExperience.text = "0";
+        Complete.gameObject.SetActive(questData.Status == (byte)QuestStatus.CompletedAllObjective ? true : false);
 
         int rewardgroup = QuestRepo.GetQuestReward(questData.QuestId, questData.GroupdId);
         int jobsect = GameInfo.gLocalPlayer == null ? -1 : GameInfo.gLocalPlayer.PlayerSynStats.jobsect;
@@ -116,6 +121,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         GetComponent<Image>().color = new Color(250f / 255.0f, 191f / 255.0f, 143f / 255.0f, 100f / 255.0f);
         bIsUnlockQuest = true;
         QuestName.text = questJson.questname;
+        Type.text = GetTypeName(mQuestType);
         QuestListToggle.isOn = tracked;
         if (!tracked && maxtrack)
         {
@@ -131,6 +137,7 @@ public class UI_OngoingQuestData : MonoBehaviour
         MapName.text = questJson.subname;
         Experience.text = "0";
         JobExperience.text = "0";
+        Complete.gameObject.SetActive(false);
 
         if (QuestRepo.MultiQuestRewardGroup(questJson.questid))
         {
@@ -251,5 +258,31 @@ public class UI_OngoingQuestData : MonoBehaviour
         {
             return mQuestMap == map ? true : false;
         }
+    }
+
+    public void OnClickComplete()
+    {
+        UIManager.StartHourglass();
+        RPCFactory.NonCombatRPC.CompleteQuest(mQuestId, true);
+    }
+
+    private string GetTypeName(QuestType type)
+    {
+        switch (type)
+        {
+            case QuestType.Main:
+                return GUILocalizationRepo.GetLocalizedString("quest_main");
+            case QuestType.Destiny:
+                return GUILocalizationRepo.GetLocalizedString("quest_adventure");
+            case QuestType.Sub:
+                return GUILocalizationRepo.GetLocalizedString("quest_sub");
+            case QuestType.Guild:
+                return GUILocalizationRepo.GetLocalizedString("quest_guild");
+            case QuestType.Event:
+                return GUILocalizationRepo.GetLocalizedString("quest_event");
+            case QuestType.Signboard:
+                return GUILocalizationRepo.GetLocalizedString("quest_signboard");
+        }
+        return "";
     }
 }

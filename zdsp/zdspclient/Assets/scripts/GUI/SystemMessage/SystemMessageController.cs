@@ -1,16 +1,16 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using Zealot.Common;
 
 public class SystemMessageController : MonoBehaviour
 {
-    public GameObject SystemMessagePrefab;
+    [SerializeField] GameObject SystemMessagePrefab;
+    [SerializeField] float sysMsgInterval = 0.5f;
 
     private List<GameObject> mListSystemMsg;
     private const int mMaxMsg = 10;
     private Queue<string> buffer = new Queue<string>();
-    private const float sysMsgInterval = 0.25f;
     private Coroutine countdownTimer = null;
 
     void Awake()
@@ -34,10 +34,16 @@ public class SystemMessageController : MonoBehaviour
     {
         GameObject inst = ObjMgr.Instance.GetContainerObject(mListSystemMsg);
         if (inst != null)
+        {
+            List<GameObject> activeMsgObjects = ObjMgr.Instance.GetActiveContainerObjects(mListSystemMsg);
+            for (int i = 0; i < activeMsgObjects.Count; ++i)
+                activeMsgObjects[i].GetComponent<UI_SystemMessage>().AddTranslateQueue();
+
             inst.GetComponent<UI_SystemMessage>().ShowMessage(buffer.Dequeue());
+        }
 
         yield return new WaitForSeconds(sysMsgInterval);
-  
+
         if (buffer.Count > 0)
             countdownTimer = StartCoroutine(ShowMessage());
         else
@@ -53,6 +59,6 @@ public class SystemMessageController : MonoBehaviour
             ObjMgr.Instance.DestroyContainerObject(mListSystemMsg);
             mListSystemMsg.Clear();
             mListSystemMsg = null;
-        }     
+        }
     }
 }

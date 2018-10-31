@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using Zealot.Common;
 
@@ -6,20 +7,22 @@ namespace Zealot.Entities
 {
     public abstract class MonsterSpawnerBaseJson : ServerEntityWithEventJson
     {
+        [DefaultValue(true)]
+        public bool activeOnStartup { get; set; }
+        [DefaultValue("")]
+        public string archetype { get; set; }
         public Vector3 forward = Vector3.forward;
-        public string archetype;
-        public bool activeOnStartup;
     }
 
     public class MonsterSpawnerJson : MonsterSpawnerBaseJson
-    {	
+    {
         public string archetypeGroup;
         public float aggroRadius;
-		public float combatRadius;
+        public float combatRadius;
         public float spawnRadius;
         public int population;
-		public long respawnTime;
-		public int respawnCount;//this is the nubmer of monsters respawned. each time respawn one only.
+        public long respawnTime;
+        public int respawnCount;//this is the nubmer of monsters respawned. each time respawn one only.
         public bool respawnAll;
         public bool canroam;
         public bool canpathfind;
@@ -28,7 +31,7 @@ namespace Zealot.Entities
         public bool damageEvent;                      
 
         public override string GetServerClassName(){return "MonsterSpawner";}
-	}
+    }
 
     public class GoblinSpawnerJson : MonsterSpawnerBaseJson
     {
@@ -82,6 +85,7 @@ namespace Zealot.Entities
         public bool canpathfind;
         public bool groupattack;
         public bool aggressive;
+        public bool damageEvent;
 
         public override string GetServerClassName() { return "PersonalMonsterSpawner"; }
     }

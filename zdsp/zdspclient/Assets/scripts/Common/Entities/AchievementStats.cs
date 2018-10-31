@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using Zealot.Common.Datablock;
+using Zealot.Repository;
 
 namespace Zealot.Common.Entities
 {
@@ -88,6 +90,31 @@ namespace Zealot.Common.Entities
             if (elem != null)
                 return elem.IsCompleted() && elem.Claimed;
             return false;
+        }
+
+        public int GetLISAFunctionValue(LISAFunction function, int achievementLevel)
+        {
+            List<LISAExternalFunctionJson> list = AchievementRepo.GetExternalFunctionsByFunctionType(function);
+            if (list != null)
+            {
+                int value = 0;
+                for (int i = 0; i < list.Count; ++i)
+                {
+                    LISAExternalFunctionJson data = list[i];
+                    if (data.triggertype == LISAFunctionTriggerType.AchievementLV)
+                    {
+                        if (achievementLevel >= data.triggervalue && data.functionvalue > value)
+                            value = data.functionvalue;
+                    }
+                    else
+                    {
+                        if (IsAchievementCompletedAndClaimed(data.triggervalue) && data.functionvalue > value)
+                            value = data.functionvalue;
+                    }
+                }
+                return value;
+            }
+            return 0;
         }
     }
 }

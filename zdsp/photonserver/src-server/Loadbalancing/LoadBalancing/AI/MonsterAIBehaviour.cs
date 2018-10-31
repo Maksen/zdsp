@@ -732,7 +732,7 @@ namespace Zealot.Server.AI
                     mSkillGCDEnd = now + (long)(mSkillToExecute.skillJson.globalcd * 1000);
                 }
             }
-            mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID());
+            mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position);
 #if LOG_BOSS_AI
             if (LogAI) log.Info("cast skill" + mSkillToExecute.skillJson.id);
 #endif

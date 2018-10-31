@@ -256,9 +256,6 @@
                     return;
             }
 
-            if (ghost.IsHitted()) //if it is playing the hit animation.  stop updating position.
-                return;
-
             forward.Normalize();
             mRotateElapsed += dt;
             mDesiredForward = forward;
@@ -301,6 +298,12 @@
             ghost.Forward = mDesiredForward;
         }
 
+        protected override void OnTerminatedEnter(string prevstate)
+        {
+            mNewStart = true;
+            base.OnTerminatedEnter(prevstate);
+        }
+
         public List<Vector3> GetWaypoints()
         {
             return mWaypoints;
@@ -317,7 +320,7 @@
         }
     }
 
-    public class NonClientAuthoWalkWaypoint : Zealot.Common.Actions.Action
+    public class NonClientAuthoWalkWaypoint : Action
     {
         private const float Epsilon = 0.04f;
         private const float EpsilonSqrt = 0.2f;
@@ -402,8 +405,6 @@
                     return;
                 }
             }
-            if (ghost.IsHitted())
-                return;
 
             forward.Normalize();
             mDesiredForward = forward;
@@ -445,6 +446,12 @@
                 return true;
             }
             return false;
+        }
+
+        protected override void OnTerminatedEnter(string prevstate)
+        {
+            mNewStart = true;
+            base.OnTerminatedEnter(prevstate);
         }
     }
 }

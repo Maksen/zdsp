@@ -13,12 +13,12 @@ public class EnvironmentController
         mFogSettingZoomInMode = GameObject.FindObjectOfType<FogSettingZoomInMode>();
     }
 
-    public void SetUIAmbientLight(bool enable)
+    public void SetUIAmbientLight(bool enable, Color lightColor, float lightIntensity)
     {
         if (enable)
         {
-            RenderSettings.ambientLight = new Color(0.314f, 0.314f, 0.314f);
-            RenderSettings.ambientIntensity = 1f;
+            RenderSettings.ambientLight = lightColor;
+            RenderSettings.ambientIntensity = lightIntensity;
         }
         else
         {

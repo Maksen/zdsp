@@ -76,9 +76,9 @@ public class Hero_BondSimpleData : MonoBehaviour
                 if (index < seText.Length)
                 {
                     if (se.isrelative)
-                        seText[index++].text = string.Format("{0} +{1}%", se.effecttype.ToString(), se.max);  // todo: jm localize
+                        seText[index++].text = string.Format("{0} +{1}%", SideEffectUtils.GetEffectTypeLocalizedName(se.effecttype), se.max);
                     else
-                        seText[index++].text = string.Format("{0} +{1}", se.effecttype.ToString(), se.max);
+                        seText[index++].text = string.Format("{0} +{1}", SideEffectUtils.GetEffectTypeLocalizedName(se.effecttype), se.max);
                 }
             }
         }
@@ -101,8 +101,9 @@ public class Hero_BondSimpleData : MonoBehaviour
             GameObject obj = ClientUtils.CreateChild(heroDataParent, heroDataPrefab);
             Hero_BondHeroData heroData = obj.GetComponent<Hero_BondHeroData>();
             heroData.Init(heroBond.heroIds[i], OnHeroSelected);
-            bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i]);
-            heroData.SetFulfilled(fulfilled);
+            bool isHeroLocked;
+            bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i], out isHeroLocked);
+            heroData.SetFulfilled(fulfilled, isHeroLocked);
             heroList.Add(heroData);
             if (fulfilled)
                 fulfulledHeroCount++;
@@ -120,8 +121,9 @@ public class Hero_BondSimpleData : MonoBehaviour
             int totalCount = heroBond.heroIds.Count;
             for (int i = 0; i < totalCount; i++)
             {
-                bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i]);
-                heroList[i].SetFulfilled(fulfilled);
+                bool isHeroLocked;
+                bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i], out isHeroLocked);
+                heroList[i].SetFulfilled(fulfilled, isHeroLocked);
                 if (fulfilled)
                     fulfulledHeroCount++;
             }
@@ -170,11 +172,9 @@ public class Hero_BondSimpleData : MonoBehaviour
         return toggle.isOn;
     }
 
-    public void ToggleOff()
+    public void SetToggleOn(bool value)
     {
-        if (toggle.isOn)
-        {
-            toggle.isOn = false;
-        }
+        if (toggle.isOn != value)
+            toggle.isOn = value;
     }
 }

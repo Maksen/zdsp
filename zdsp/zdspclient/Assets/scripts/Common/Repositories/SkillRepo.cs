@@ -529,8 +529,7 @@ namespace Zealot.Repository
         /// </summary>
         /// <param name="skillgroupid"></param>
         /// <param name="lvl"></param>
-        /// <returns></returns>
-      
+        /// <returns></returns>     
         public static int GetSkillIdFromGroupId(int skillgroupId)
         {
             if (!m_SkillGroupToSkill.ContainsKey(skillgroupId))

@@ -143,10 +143,6 @@ namespace Zealot.Client.Entities
             return 1.0f;
         }
 
-        public virtual bool IsHitted()
-        {
-            return false;
-        }
         public virtual bool PerformAction(Action action, bool force = false, bool queue = false)
         { 
             bool canStart = true;

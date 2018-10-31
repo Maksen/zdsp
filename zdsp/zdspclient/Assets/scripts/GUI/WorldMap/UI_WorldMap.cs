@@ -14,6 +14,10 @@ public class UI_WorldMap : MonoBehaviour
     [SerializeField]
     Image mMapAreaViewImg;
     [SerializeField]
+    GameObject mPlaceInterestMarkerPrefab;
+    [SerializeField]
+    GameObject mPlaceInterestMarkerParent;
+    [SerializeField]
     ToggleGroup mCountryHighlightToggleGrp;
 
     [Header("Country Selected GameObject")]
@@ -24,6 +28,7 @@ public class UI_WorldMap : MonoBehaviour
     UI_MoveToObj mMoveToObjClass;
     [SerializeField]
     List<GameObject> mCamPosList = new List<GameObject>();
+    List<GameObject> mInterestMarkerList = new List<GameObject>();
     #endregion
 
     public void Awake()
@@ -45,10 +50,31 @@ public class UI_WorldMap : MonoBehaviour
             (sprite)=>
             {
                 SetAreaPreview(sprite);
+            },
+            (lst)=>
+            {
+                ShowInterestMarker(lst);
+            },
+            (index)=>
+            {
+                HighlightInterestMarker(index);
             });
 
             Toggle tg = obj.GetComponent<Toggle>();
             tg.group = mCountryHighlightToggleGrp;
+        }
+
+        //Create all interest map marker
+        List<WorldMapInterestMarkerPos> markerPostLst = MapRepo.mWorldMapInterestMarkLst;
+        for (int i = 0; i < markerPostLst.Count; ++i)
+        {
+            Vector3 pos = new Vector3(markerPostLst[i].x, markerPostLst[i].y, markerPostLst[i].z);
+            GameObject obj = Instantiate(mPlaceInterestMarkerPrefab, Vector3.zero, Quaternion.identity);
+            obj.transform.SetParent(mPlaceInterestMarkerParent.transform, false);
+            obj.transform.localPosition = pos;
+            obj.SetActive(false);
+
+            mInterestMarkerList.Add(obj);
         }
     }
 
@@ -64,10 +90,57 @@ public class UI_WorldMap : MonoBehaviour
 
         selectedCountry.SetActive(true);
         mMoveToObjClass.MoveTo(camPos.transform);
+
+        //Turn on visibility of country's map marker
+
     }
 
     private void SetAreaPreview(Sprite areaSprite)
     {
         mMapAreaViewImg.sprite = areaSprite;
+    }
+
+    private void ShowInterestMarker(List<int> interestIDLst)
+    {
+        //Hide all place interest map markers
+        mInterestMarkerList.ForEach((obj)=>
+        {
+            obj.SetActive(false);
+        });
+
+        //Show that country's place interest map markers
+        for (int i = 0; i < interestIDLst.Count; ++i)
+        {
+            mInterestMarkerList[interestIDLst[i]-1].SetActive(true);
+        }
+    }
+
+    private void HighlightInterestMarker(int index)
+    {
+        //Index out of bounds
+        ///Kopio index start from 1
+        if (index <= 0 || index > mInterestMarkerList.Count)
+            return;
+
+        //Toggle off particle system
+        mInterestMarkerList.ForEach((obj) =>
+        {
+            ParticleSystem ps1 = obj.GetComponentInChildren<ParticleSystem>(true);
+            if (ps1 == null)
+            {
+                Debug.LogError("UI_WorldMap.ShowInterestMarker: Walaoeh!! Cannot find particle system in prefab");
+                return;
+            }
+            ps1.gameObject.SetActive(false);
+        });
+
+        //Toggle particle system
+        ParticleSystem ps = mInterestMarkerList[index-1].GetComponentInChildren<ParticleSystem>(true);
+        if (ps == null)
+        {
+            Debug.LogError("UI_WorldMap.ShowInterestMarker: Walaoeh!! Cannot find particle system in prefab");
+            return;
+        }
+        ps.gameObject.SetActive(true);
     }
 }

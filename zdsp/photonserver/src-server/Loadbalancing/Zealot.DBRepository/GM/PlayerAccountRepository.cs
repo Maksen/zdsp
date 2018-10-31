@@ -192,6 +192,74 @@ namespace Zealot.DBRepository.GM
             }
             return false;
         }
+
+        public async Task<List<Dictionary<string, object>>> GetAchievementByUserIdAsync(string userid)
+        {
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    try
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("PlayerAccount_GetAchievementByUserId", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@userid", userid);
+
+                            using (SqlDataReader reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                            {
+                                while (await reader.ReadAsync().ConfigureAwait(false))
+                                {
+                                    Dictionary<string, object> userrow = new Dictionary<string, object>();
+                                    for (int index = 0; index < reader.FieldCount; ++index)
+                                    {
+                                        string colname = reader.GetName(index);
+                                        userrow.Add(colname, reader[colname]);
+                                    }
+                                    result.Add(userrow);
+                                }
+                            }
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        HandleQueryException(e);
+                    }
+                }
+            }
+            return result;
+        }
+
+        public async Task<bool> SaveAchievement(string userid, string achInvData)
+        {
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    try
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("PlayerAccount_SaveAchievement", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+                            command.Parameters.AddWithValue("@userid", userid);
+                            command.Parameters.AddWithValue("@achievement", achInvData);
+                            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            return true;
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        HandleQueryException(e);
+                    }
+                }
+            }
+            return false;
+        }
+
         #endregion
     }
 }

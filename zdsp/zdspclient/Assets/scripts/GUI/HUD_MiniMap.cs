@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Zealot.Entities;
 using Zealot.Repository;
+using Zealot.Common;
 
 public class HUD_MiniMap : MonoBehaviour
 {
@@ -18,13 +19,31 @@ public class HUD_MiniMap : MonoBehaviour
 
     [Header("Icon Sprite")]
     [SerializeField]
-    Sprite mSprTeleport;
+    Sprite mSprDailyQuest;
+    [SerializeField]
+    Sprite mSprDestinyQuest;
+    [SerializeField]
+    Sprite mSprMainQuest;
+    [SerializeField]
+    Sprite mSprSideQuest;
+    [SerializeField]
+    Sprite mSprReturnDailyQuest;
+    [SerializeField]
+    Sprite mSprReturnDestinyQuest;
+    [SerializeField]
+    Sprite mSprReturnMainQuest;
+    [SerializeField]
+    Sprite mSprReturnSideQuest;
+    [SerializeField]
+    Sprite mSprFinishDailyQuest;
+    [SerializeField]
+    Sprite mSprFinishDestinyQuest;
+    [SerializeField]
+    Sprite mSprFinishMainQuest;
+    [SerializeField]
+    Sprite mSprFinishSideQuest;
     [SerializeField]
     Sprite mSprMonster;
-    [SerializeField]
-    Sprite mSprHasQuest;
-    [SerializeField]
-    Sprite mSprCompleteQuest;
     [SerializeField]
     Sprite mSprBoss;
     [SerializeField]
@@ -37,6 +56,8 @@ public class HUD_MiniMap : MonoBehaviour
     Sprite mSprShop;
     [SerializeField]
     Sprite mSprRevive;
+    [SerializeField]
+    Sprite mSprTeleport;
 
     [Header("Parent GameObjects")]
     [SerializeField]
@@ -125,19 +146,63 @@ public class HUD_MiniMap : MonoBehaviour
                 img.sprite = mSprTeleport;
                 img.gameObject.transform.SetParent(mMMIconParent_Teleport.transform, false);
                 break;
-            case IconType.HAS_QUEST:
-                img.sprite = mSprHasQuest;
+            case IconType.DAILYQUEST:
+                img.sprite = mSprDailyQuest;
                 img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
-            case IconType.QUEST_COMPLETED:
-                img.sprite = mSprCompleteQuest;
+            case IconType.DESTINYQUEST:
+                img.sprite = mSprDestinyQuest;
                 img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
-            case IconType.LOCKED_QUEST:
-                img.sprite = null;
+            case IconType.MAINQUEST:
+                img.sprite = mSprMainQuest;
                 img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
-                img.gameObject.SetActive(false);
                 break;
+            case IconType.SIDEQUEST:
+                img.sprite = mSprSideQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.RETURN_DAILYQUEST:
+                img.sprite = mSprReturnDailyQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.RETURN_DESTINYQUEST:
+                img.sprite = mSprReturnDestinyQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.RETURN_MAINQUEST:
+                img.sprite = mSprReturnMainQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.RETURN_SIDEQUEST:
+                img.sprite = mSprReturnSideQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.FINISH_DAILYQUEST:
+                img.sprite = mSprFinishDailyQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.FINISH_DESTINYQUEST:
+                img.sprite = mSprFinishDestinyQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.FINISH_MAINQUEST:
+                img.sprite = mSprFinishMainQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            case IconType.FINISH_SIDEQUEST:
+                img.sprite = mSprFinishSideQuest;
+                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                break;
+            //case IconType.QUEST_COMPLETED:
+            //    //img.sprite = mSprCompleteQuest;
+            //    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+            //    break;
+            //case IconType.LOCKED_QUEST:
+            //    img.sprite = null;
+            //    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+            //    img.gameObject.SetActive(false);
+            //    break;
             case IconType.SHOP:
                 img.sprite = mSprShop;
                 img.gameObject.transform.SetParent(mMMIconParent_ShopNPC.transform, false);
@@ -353,21 +418,61 @@ public class HUD_MiniMap : MonoBehaviour
                 //QuestNPC may become ShopNPC after quest complete
                 for (int i = 0; i < HUD_MapController.mQuestNPCPosLst.Count; ++i)
                 {
+                    StaticMapIconGameObjectPair npcIconPair = HUD_MapController.mQuestNPCPosLst[i];
+                    //Do nothing if no quest
+                    //Do nothing if no need to show quest marker
+                    if (npcIconPair.hasQuest() == false ||
+                        !npcIconPair.hasQuestAvailable() &&
+                        !npcIconPair.hasQuestToSubmit() &&
+                        !npcIconPair.hasQuestCompleted())
+                        continue;
+
                     //if there are more quest NPCs now than when created initially
                     if (i >= mMMIconParent_QuestNPC.transform.childCount)
                     {
                         Image newicon = CreateIcon();
-                        if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
+                        QuestType qt = QuestType.Destiny;
+                        
+                        if (npcIconPair.GetNPCQuestType(ref qt) == false)
                         {
-                            SetIcon(IconType.HAS_QUEST, newicon);
+                            Debug.LogError("HUD_MiniMap.MiniMapUpdateIconCoroutine: Walaoeh!! quest id is invalid");
+                            continue;
                         }
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
+
+                        switch (qt)
                         {
-                            SetIcon(IconType.QUEST_COMPLETED, newicon);
-                        }
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuest())
-                        {
-                            SetIcon(IconType.LOCKED_QUEST, newicon);
+                            case QuestType.Destiny:
+                                if (npcIconPair.hasQuestAvailable())
+                                    SetIcon(IconType.DESTINYQUEST, newicon);
+                                else if (npcIconPair.hasQuestToSubmit())
+                                    SetIcon(IconType.RETURN_DESTINYQUEST, newicon);
+                                else if (npcIconPair.hasQuestCompleted())
+                                    SetIcon(IconType.FINISH_DESTINYQUEST, newicon);
+                                break;
+                            case QuestType.Main:
+                                if (npcIconPair.hasQuestAvailable())
+                                    SetIcon(IconType.MAINQUEST, newicon);
+                                else if (npcIconPair.hasQuestToSubmit())
+                                    SetIcon(IconType.RETURN_MAINQUEST, newicon);
+                                else if (npcIconPair.hasQuestCompleted())
+                                    SetIcon(IconType.FINISH_MAINQUEST, newicon);
+                                break;
+                            case QuestType.Sub:
+                                if (npcIconPair.hasQuestAvailable())
+                                    SetIcon(IconType.DAILYQUEST, newicon);
+                                else if (npcIconPair.hasQuestToSubmit())
+                                    SetIcon(IconType.RETURN_DAILYQUEST, newicon);
+                                else if (npcIconPair.hasQuestCompleted())
+                                    SetIcon(IconType.FINISH_DAILYQUEST, newicon);
+                                break;
+                            case QuestType.Event:
+                                if (npcIconPair.hasQuestAvailable())
+                                    SetIcon(IconType.SIDEQUEST, newicon);
+                                else if (npcIconPair.hasQuestToSubmit())
+                                    SetIcon(IconType.RETURN_SIDEQUEST, newicon);
+                                else if (npcIconPair.hasQuestCompleted())
+                                    SetIcon(IconType.FINISH_SIDEQUEST, newicon);
+                                break;
                         }
                     }
 
@@ -420,9 +525,14 @@ public class HUD_MiniMap : MonoBehaviour
     /// </summary>
     public void OnClick_MiniMap()
     {
+        if (GameInfo.IsDoingTutorialRealm())
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_UnableToUseFeature", null));
+            return;
+        }
+
         GameObject bigmapobj = UIManager.GetWidget(HUDWidgetType.Map);
         HUD_Map bigmap = bigmapobj.GetComponent<HUD_Map>();
-
         bigmap.OnMiniMapClick();
     }
 
@@ -434,12 +544,22 @@ public class HUD_MiniMap : MonoBehaviour
         BOSS,
         MINIBOSS,
 
-        TELEPORT,
-        HAS_QUEST,
-        QUEST_COMPLETED,
-        LOCKED_QUEST,
+        DAILYQUEST,
+        DESTINYQUEST,
+        MAINQUEST,
+        SIDEQUEST,
+        RETURN_DAILYQUEST,
+        RETURN_DESTINYQUEST,
+        RETURN_MAINQUEST,
+        RETURN_SIDEQUEST,
+        FINISH_DAILYQUEST,
+        FINISH_DESTINYQUEST,
+        FINISH_MAINQUEST,
+        FINISH_SIDEQUEST,
+        
         SHOP,
         REVIVE,
+        TELEPORT,
 
         EMPTY,
     }

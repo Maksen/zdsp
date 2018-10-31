@@ -60,6 +60,18 @@ public class StaticMapIconGameObjectPair
     {
         return (hasQuest() && GameInfo.gLocalPlayer.QuestController.IsQuestCanSubmit(npc.ActiveQuest));
     }
+    public bool hasQuestCompleted()
+    {
+        return (hasQuest() && GameInfo.gLocalPlayer.QuestController.IsQuestCompleted(npc.ActiveQuest));
+    }
+    public bool GetNPCQuestType(ref QuestType type)
+    {
+        if (!hasQuest())
+            return false;
+
+        type = QuestRepo.GetQuestTypeByQuestId(npc.ActiveQuest);
+        return true;
+    }
 
     private void CheckNpcIsShop()
     {
@@ -71,19 +83,23 @@ public class StaticMapIconGameObjectPair
         string[] allfuncStr = npc.mArchetype.npcfunction.Split(';');
         foreach (string funcStr in allfuncStr)
         {
+            int npcfuncID = -1;
+            if (int.TryParse(funcStr, out npcfuncID) == false)
+                continue;
+
             //Until NPC function has an enum
-            switch (funcStr[0])
+            switch (npcfuncID)
             {
                 //Shop
-                case '1':
+                case 1:
                 //Teleport
-                case '2':
+                case 2:
                 //Job change
-                case '3':
+                case 3:
                 //Storage
-                case '4':
+                case 4:
                 //Special item service
-                case '5':
+                case 5:
                     isShop = true;
                     return;
             }
@@ -413,12 +429,12 @@ public static class HUD_MapController
                 if (npc == null)
                     Debug.LogError(string.Format("HUD_MapController.LoadStaticIcon: Walaoeh, cannot find npc from archetype [{0}]", snpc.archetype));
                 //Do not create icon if it doesnt have a quest nor a shop
-                if (npcJson.npcfunction.Length == 0 && !npc.HasQuest)
+                if (npcJson.npcfunction.Length == 0 && npc.ActiveQuest < 0)
                     continue;
 
                 Vector3 mappos = ScalePos_WorldToMap(snpc.position);
                 StaticMapIconGameObjectPair newnpc = new StaticMapIconGameObjectPair(mappos, npc);
-                if (npc.HasQuest)
+                if (npc.ActiveQuest >= 0)
                 {
                     mQuestNPCPosLst.Add(newnpc);
                 }
@@ -535,7 +551,7 @@ public static class HUD_MapController
             //Compare and record matching portal name as waypoints
             for (int i = 0; i < portalLst.Count; ++i)
             {
-                if (portalLst[i].myname == portal.Value)
+                if (portalLst[i].mName == portal.Value)
                     mInterMapPathFindDic.Add(portalLst[i].mLevel, portalLst[i].mPosition);
             }
         }

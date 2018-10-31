@@ -1,5 +1,9 @@
 ﻿namespace Photon.LoadBalancing.GameServer
 {
+    using ExitGames.Logging;
+    using ExitGames.Concurrency.Fibers;
+    using Hive;
+
     using Kopio.JsonContracts;
     using System;
     using System.Collections.Generic;
@@ -18,20 +22,16 @@
     using Zealot.Entities;
     using Zealot.Repository;
 
-    using ExitGames.Logging;
-    using ExitGames.Concurrency.Fibers;
-    using Hive;
-
     public static class GameLogicIDPool
     {
         private static IDPool idpool;
 
         public static int AllocID()
         {
-            if (idpool == null)            
+            if (idpool == null)
                 idpool = new IDPool();
 
-            return idpool.AllocID(0, false);            
+            return idpool.AllocID(0, false);
         }
 
         public static void FreeID(int id)
@@ -45,7 +45,7 @@
         public const int MAX_ROAMS_PER_FRAME = 10; //Control the maximum monster roams allowable per frame
         public const int MAX_GOBACKSAFE_PER_FRAME = 20; //Control the maximum monster goback allowable per frame
 
-        private static readonly ILogger log = LogManager.GetCurrentClassLogger();                
+        private static readonly ILogger log = LogManager.GetCurrentClassLogger();
         private Dictionary<HivePeer, NetServerSlot> Connections;
         private PoolFiber executionFiber;
         public ServerEntitySystem mEntitySystem;
@@ -86,11 +86,7 @@
             }
         }
 
-        public int ID
-        {
-            private set;
-            get;
-        }
+        public int ID { private set; get; }
 
         public GameLogic(Game roomReference)
         {
@@ -187,29 +183,34 @@
         public void RemovePlayer(GameClientPeer peer)
         {
             Player myPlayer = peer.mPlayer;
-            int playerpid = myPlayer == null ? - 1 : myPlayer.GetPersistentID();
-            log.InfoFormat("[{0}]: rmplayer {1} ({2}) {3}", ID, peer.ConnectionId, playerpid, currentlevelname);
+            int playerPID = myPlayer == null ? - 1 : myPlayer.GetPersistentID();
+            log.InfoFormat("[{0}]: RemovePlayer {1} ({2}) {3}", ID, peer.ConnectionId, playerPID, currentlevelname);
 
-            //because now player doesn't control any entity, so we use this.
+            // Schedule peer to be removed from PeerList on the main thread
+            // because now player doesn't control any entity, so we use this
             if (myPlayer != null)
             {
                 if (mRealmController != null)
+                {
                     mRealmController.OnPlayerExit(myPlayer);
+                }
+
                 myPlayer.SaveToCharacterData(true);
                 GameCounters.TotalPlayers.Decrement();
-                mEntitySystem.RemoveEntityByPID(playerpid, true);
+                mEntitySystem.RemoveEntityByPID(playerPID, true);
 
-                List<IBaseNetEntity> list = mEntitySystem.GetNetEntitiesByOwner(playerpid);
+                List<IBaseNetEntity> list = mEntitySystem.GetNetEntitiesByOwner(playerPID);
                 foreach (IBaseNetEntity ne in list)
                 {
                     int pid = ne.GetPersistentID();
                     mEntitySystem.RemoveEntityByPID(pid);
                 }
             }
-            // Schedule peer to be removed from PeerList on the main thread
-            //if (playerpid != -1)
+
+            // Old Code
+            //if (playerPID != -1)
             //{
-            //    List<IBaseNetEntity> list = mEntitySystem.GetNetEntitiesByOwner(playerpid);
+            //    List<IBaseNetEntity> list = mEntitySystem.GetNetEntitiesByOwner(playerPID);
             //    foreach (IBaseNetEntity ne in list)
             //    {
             //        int pid = ne.GetPersistentID();
@@ -218,14 +219,12 @@
             //            Player player = (Player)ne;
             //            if (mRealmController != null)
             //                mRealmController.OnPlayerExit(player);
-
             //            player.SaveToCharacterData(true);
-
             //            GameCounters.TotalPlayers.Decrement();
             //        }
             //        mEntitySystem.RemoveEntityByPID(pid, true);
             //    }
-            //}          
+            //}
 
             if (Connections.ContainsKey(peer))
             {
@@ -237,10 +236,10 @@
             if (peer.mPlayer != null)
                 peer.mPlayer = null;
 
+            peer.OnPlayerRemovedFromRoom();
+
             //if (log.IsDebugEnabled)
             //    log.DebugFormat("Leave Room {0}", currentlevelname);
-            
-            peer.OnPlayerRemovedFromRoom();
         }
 
         public List<Entity> GetSpawnedObjectsByPeer(GameClientPeer peer)
@@ -434,8 +433,7 @@
             if (mRealmController != null)
                 mRealmPVPType = mRealmController.mRealmInfo.pvptype;
         }        
-        
-        
+               
         public GameTimer SetTimer(long duration, TimerDelegate del, object arg)
         {            
             return mTimers.SetTimer(duration, del, arg);
@@ -488,19 +486,15 @@
             else
             {
                 int count = mPlayerSpawnPt.Count;
-                int index = 0;
-                if (count > 1)
-                    index = GameUtils.RandomInt(0, count - 1);
+                int index = (count > 1) ? GameUtils.RandomInt(0, count-1) : 0;
                 player.Position = mPlayerSpawnPt[index];
                 player.Forward = mPlayerSpawnDir[index];
             }
         }
 
-        public bool IsDoingFirstGuideRealm()
+        public bool IsDoingTutorialRealm()
         {
-            //if (mRealmController != null && mRealmController.mRealmInfo.type == RealmType.RealmTutorial)
-            //    return true;
-            return false;
+            return mRealmController != null && mRealmController.mRealmInfo.type == RealmType.Tutorial;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -536,11 +530,12 @@
             playerStats.PortraitID = characterData.portraitID;
             playerStats.faction = characterData.Faction;
             playerStats.Gender = characterData.Gender;
-
+            playerStats.TutorialStatus = characterData.TutorialStatus;
+         
             player.PlayerStats = playerStats;
             player.PlayerSynStats = playerStats;
-            player.InitLevelUpCost();
             player.Name = playerStats.name;
+            player.InitLevelUpCost();
 
             /*********************   LocalCombatStats   ***************************/
             LocalCombatStats lcs = player.LocalCombatStats;
@@ -612,25 +607,6 @@
             //lcs.VSPlantDefence;
             //lcs.DncFinalDamage;
 
-            //-------------------- Destiny Clue Stats --------------------//
-            DestinyClueInventory clueInventory = characterData.ClueInventory;
-            player.DestinyClueController.InitFromData(clueInventory);
-            DestinyClueSynStats destinyClueStats = player.DestinyClueStats;
-            player.DestinyClueController.InitDestinyClueStats(ref destinyClueStats);
-
-            //-------------------- Quest Stats --------------------//
-            QuestInventoryData questInventory = characterData.QuestInventory;
-            player.QuestController.InitFromData(characterData);
-            QuestSynStats queststats = player.QuestStats;
-            player.QuestController.InitQuestStats(ref queststats);
-            player.PlayerSynStats.QuestCompanionId = player.QuestController.GetQuestCompanionId();
-
-            //-------------------- Donate Stats --------------------//
-            DonateInventoryData donateInventory = characterData.DonateInventory;
-            player.DonateController.InitFromData(characterData);
-            DonateSynStats donateStats = player.DonateStats;
-            player.DonateController.InitDonateStats(ref donateStats);
-
             /*********************   GuildStats   ***************************/
             int myGuildId = characterData.GuildId;
             if (!GuildRules.GuildList.ContainsKey(myGuildId))
@@ -688,14 +664,42 @@
 
             //secStats.guildDonateDot = DonateRules.CheckDonateNewDot(characterData.Name, characterData.GuildId);
 
-            /*********************   Items/Equipments   ***************************/
-            player.InitInventoryStats(peer.mInventory.mInvData);
-            EquipmentInventoryData eqInvData = characterData.EquipmentInventory;
-            player.InitEquipmentStats(eqInvData);
-            player.InitItemHotbar(characterData.ItemHotBarData);
+            //-------------------- Destiny Clue Stats --------------------//
+            DestinyClueInventory clueInventory = characterData.ClueInventory;
+            peer.DestinyClueController.InitFromData(clueInventory, player.PlayerSynStats.Level);
+            DestinyClueSynStats destinyClueStats = player.DestinyClueStats;
+            peer.DestinyClueController.InitDestinyClueStats(ref destinyClueStats);
+
+            //-------------------- Quest Stats --------------------//
+            QuestInventoryData questInventory = characterData.QuestInventory;
+            peer.QuestController.InitFromData(characterData, player);
+            QuestSynStats questStats = player.QuestStats;
+            peer.QuestController.InitQuestStats(ref questStats);
+            player.PlayerSynStats.QuestCompanionId = peer.QuestController.GetQuestCompanionId();
+
+            //-------------------- Donate Stats --------------------//
+            DonateInventoryData donateInventory = characterData.DonateInventory;
+            player.DonateController.InitFromData(characterData);
+            DonateSynStats donateStats = player.DonateStats;
+            player.DonateController.InitDonateStats(ref donateStats);
 
             /*********************   Realm Stats   ***************************/
             player.RealmStats.Init(characterData.RealmInventory);
+
+            /*********************   Items/Equipments   ***************************/
+            player.InitInventoryStats(peer.mInventory.mInvData);
+            player.InitItemHotbar(characterData.ItemHotBarData);
+            EquipmentInventoryData eqInvData = characterData.EquipmentInventory;
+            if (!IsDoingTutorialRealm())
+            {
+                player.InitEquipmentStats(eqInvData);
+            }
+            else // Modify for tutorial realm
+            {
+                playerStats.jobsect = (byte)JobType.Tutorial;
+                questStats.mainQuest = "";
+                questStats.trackingList = "";
+            }
 
             /*********************   SynCombatStats   ***************************/
             LocalCombatStats localCombatStats = player.LocalCombatStats;
@@ -752,7 +756,7 @@
             //    socialInfo.localObjIdx = i;
             //    socialStats.GetFriendRequestListDict()[socialInfo.charName] = socialInfo;
             //    socialStats.friendRequestList[i] = info;
-            //}         
+            //}
 
             /*********************   Store Stats   ***************************/
             //StoreSynStats storeStats = player.StoreSynStats;
@@ -775,7 +779,7 @@
             }
 
             /*********************   AchievementStats   ***************************/
-            player.AchievementStats.Init(player, peer, characterData.AchievementInventory);
+            player.AchievementStats.Init(player, peer);
 
             /************************   BattleTime Stats   *****************/
             //player.InitFromInventory(characterData.BattleTimeInventoryData);
@@ -793,9 +797,6 @@
             /*********************   EquipFusionInventory   ***************************/
             player.InitEquipFusionStats(characterData.EquipFusionInventory);
 
-            /*********************   InteractiveTriggerInventory   ***************************/
-            player.InitInteractiveTriggerStats(characterData.InteractiveTriggerInventory);
-
             /*********************   SevenDaysInventory   ***************************/
             //player.InitSevenDaysStats(characterData.SevenDaysInventory);
 
@@ -807,6 +808,9 @@
 
             /*********************   QuestExtraRewardsInventory   ***************************/
             //player.InitQuestExtraRewardsStats(characterData.QuestExtraRewardsInventory);
+
+            /*********************   DNAInventory   ***************************/
+            player.InitDNAStats(characterData.DNAInventory);
 
             /*********************   ExchangeShopInventory   ***************************/
             //player.InitExchangeShopStats(characterData.ExchangeShopInv);
@@ -824,8 +828,10 @@
             peer.mPlayer = player;
             player.SetInstance(this);
             player.SetOwnerID(player.GetPersistentID());
-            if (!IsDoingFirstGuideRealm())
+
+            if (!IsDoingTutorialRealm())
                 player.InitSaveCharacterTimer();
+
             Vector3 spawnPos = peer.mSpawnPos;
             if (spawnPos.Equals(Vector3.zero))
                 SetSpawnPos(player);
@@ -837,11 +843,10 @@
             peer.mSpawnPos = Vector3.zero;
             peer.mSpawnForward = Vector3.forward;
             player.PlayerStats.MoveSpeed = 6;
-            mEntitySystem.RegisterPlayerName(player.Name, player);           
-            slot.SetLocalEntity(player);
+            mEntitySystem.RegisterPlayerName(player.Name, player);
+            slot.SetLocalEntity(player); // Set player local objects
             player.ResetSyncStats();
 
-            //player.InitLevelUpCost();
             if (characterData.NewDayDts < DateTime.Today)
                 player.NewDay();
 
@@ -913,8 +918,6 @@
 
             player.AchievementStats.PostSpawnCheckAchievements();
 
-            TickerTapeSystem.OnLogin(peer);
-
             if (peer.mFirstLogin)  // put this last line
                 peer.mFirstLogin = false;
 
@@ -935,11 +938,11 @@
             int peerOwnerID = myPlayer.GetPersistentID();
             Entity entity = mEntitySystem.GetEntityByPID (pid);
             NetEntity ne = (NetEntity)entity;
-		    if (entity == null) 
-		    {
+            if (entity == null) 
+            {
                 log.DebugFormat("OnActionCommand: NetEntity pid [{0}] does not exist from non-owner playerid [{1}]", pid, peerOwnerID);
-			    return;
-		    }
+                return;
+            }
 
             ACTIONTYPE actionType = cmd.GetActionType();
             if (actionType == ACTIONTYPE.SNAPSHOTUPDATE)
@@ -986,7 +989,7 @@
                     //We stop any previous nonauthoserver action still being executed by the netentity
                     ne.StopAction();
                 }
-            }            
+            }
         }
 
         public void ProfileTestFunctionCall()
@@ -1068,5 +1071,5 @@
             return false;
         }
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    }    
+    }
 }

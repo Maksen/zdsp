@@ -79,7 +79,8 @@ public class UI_MainQuest : MonoBehaviour
         if (mQuestJson != null)
         {
             QuestList.SelectedQuestId = mQuestJson.questid;
-            QuestList.SelectedChapterId = QuestRepo.GetChapterByQuestId(mQuestJson.questid).groupid;
+            ChapterJson chapterJson = QuestRepo.GetChapterByQuestId(mQuestJson.questid);
+            QuestList.SelectedChapterId = chapterJson == null ? 0 : chapterJson.groupid;
             UpdateMainQuest();
         }
     }

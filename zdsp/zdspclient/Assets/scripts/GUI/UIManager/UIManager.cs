@@ -284,13 +284,13 @@ public static class UIManager
     {
         GameObject widget = GetWidget(HUDWidgetType.TickerTape);
         if (widget != null)
-            widget.GetComponent<HUD_TickerTape>().SetAnnoucementText(msg);
+            widget.GetComponent<HUD_TickerTape>().AddTickerTapeMessage(msg);
     }
 
     /// <summary>
     /// To be called when destroying UIHierarchy
     /// </summary>
-    public static void DestroyAllWindows()
+    public static void ClearUIHierarchy()
     {
         UIHierarchy = null;
         UIHud = null;
@@ -534,7 +534,6 @@ public static class UIManager
         if (hudChat)
             hudChat.AddToChatLog(msgType, message, "", "");
     }
-
 }
 
 internal class WindowStack<T> : System.Collections.IEnumerable

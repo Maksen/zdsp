@@ -191,4 +191,9 @@ public class UI_ClueMessageData : MonoBehaviour
             UIManager.OpenDialog(WindowType.DialogMessageFilter, (window) => window.GetComponent<UI_MessageFilter>().Init(mClueData));
         }
     }
+
+    public ActivatedClueData GetClueData()
+    {
+        return mClueData;
+    }
 }

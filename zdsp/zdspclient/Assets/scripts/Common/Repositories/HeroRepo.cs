@@ -77,6 +77,8 @@ namespace Zealot.Repository
 
             foreach (var entry in gameData.HeroGrowth.Values)
             {
+                if (entry.herolevel <= 0)
+                    continue;
                 if (growthGroupToLevels.ContainsKey(entry.growthgroup))
                     growthGroupToLevels[entry.growthgroup].Add(entry.herolevel, entry);
                 else

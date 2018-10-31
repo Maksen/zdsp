@@ -136,5 +136,21 @@
       <property name="icon" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="cameraposintalk" type="string" uitext="CameraPos In Talk" default="0;0;0;1" info="x;y;rotatey;scale"/>
     </element>
+
+    <element name="ScenesModel" useexcel="true">
+      <property name="archetype" type="string" uitext="Archetype"/>
+      <property name="name" type="localizedstring" uitext="Name(localized)"/>
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
+      <property name="containerprefabpath" type="asset" uitext="Container Prefab Path" default="" assettype="prefab" />
+      <property name="modelprefabpath" type="asset" uitext="Model Prefab Path" default="" assettype="prefab"/>
+      <property name="modelmaterialpath" type="string" uitext="Model Material Path" default="" assettype="material"/>
+      <property name="modelscalex" type="float" uitext="Model Scale X" default="1.0"/>
+      <property name="modelscaley" type="float" uitext="Model Scale Y" default="1.0"/>
+      <property name="modelscalez" type="float" uitext="Model Scale Z" default="1.0"/>
+      <property name="activeonstartup" type="bool" uitext="Active On Startup" default="true"/>
+      <property name="npccycletime" type="string" uitext="NPC Cycle Time"/>
+      <property name="npcopentime" type="string" uitext="NPC Open Time"/>
+      <property name="npcclosetime" type="string" uitext="NPC Close Time"/>
+    </element>
   </data>
 </magicalarea51>

@@ -41,12 +41,13 @@ namespace Photon.LoadBalancing.GameServer
                 achievementElementsByIdx.Add(i, new List<AchievementElement>());
         }
 
-        public void Init(Player _player, GameClientPeer _peer, AchievementInvData invData)
+        public void Init(Player _player, GameClientPeer _peer)
         {
             player = _player;
             peer = _peer;
+            AchievementInvData invData = peer.AchievementInvData;
 
-            player.PlayerSynStats.AchievementLevel = invData.AchievementLevel <= 0 ? 1 : invData.AchievementLevel;
+            player.PlayerSynStats.AchievementLevel = invData.AchievementLevel;
             player.SecondaryStats.AchievementExp = invData.AchievementExp;
 
             ParseCollections(invData.Collections);
@@ -163,8 +164,12 @@ namespace Photon.LoadBalancing.GameServer
                     string[] rcData = rcArray[i].Split(';');
                     AchievementKind type = (AchievementKind)int.Parse(rcData[0]);
                     int id = int.Parse(rcData[1]);
-                    AchievementRewardClaim claim = new AchievementRewardClaim(type, id);
-                    claimsList.Add(claim);
+                    BaseAchievementObjective obj = AchievementRepo.GetObjectiveByTypeAndId(type, id);
+                    if (obj != null)
+                    {
+                        AchievementRewardClaim claim = new AchievementRewardClaim(type, id);
+                        claimsList.Add(claim);
+                    }
                 }
             }
         }
@@ -720,8 +725,20 @@ namespace Photon.LoadBalancing.GameServer
             {
                 case LISAFunction.None:
                     break;
-                case LISAFunction.OpenBagSlot:
+                case LISAFunction.Inventory_OpenBagSlot:
                     peer.OpenNewInvSlot(value, ItemInventoryController.OpenNewSlotType.FREE);
+                    break;
+                case LISAFunction.Craft_EquipRecipe:
+                    break;
+                case LISAFunction.Hero_Skin:
+                    List<ItemInfo> items = new List<ItemInfo> { new ItemInfo { itemId = (ushort)value, stackCount = 1 } };
+                    peer.mInventory.AddItemsToInventoryMailIfFail(items, null, "Achievement");
+                    break;
+                case LISAFunction.Hero_ExplorationMap:
+                    break;
+                case LISAFunction.Guild_Skill:
+                    break;
+                case LISAFunction.Appearance:
                     break;
             }
         }
@@ -887,8 +904,8 @@ namespace Photon.LoadBalancing.GameServer
                 AddToRewardClaims(AchievementKind.Achievement, obj.id);
             }
             UpdateRewardClaimsString();
-            foreach (var elem in collectionElementsByIdx)
-                SyncCollectionByIndex(elem.Key);
+            foreach (var elem in achievementElementsByIdx)
+                SyncAchievementByIndex(elem.Key);
         }
 
         public void ConsoleSetAchievementLevel(int newLevel)

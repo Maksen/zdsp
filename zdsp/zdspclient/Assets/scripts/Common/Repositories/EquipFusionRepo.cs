@@ -66,7 +66,7 @@ namespace Zealot.Repository
                 int typeId = entry.Value.type_id;
                 if (!typesNameMap.ContainsKey(typeId))
                 {
-                    typesNameMap.Add(typeId, entry.Value.type_name);
+                    typesNameMap.Add(typeId, entry.Value.typename);
                 }
             }
 

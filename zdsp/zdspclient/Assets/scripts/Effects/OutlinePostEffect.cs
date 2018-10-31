@@ -8,11 +8,12 @@ public class OutlinePostEffect : MonoBehaviour
     RenderTexture TempRT = null;
 
     Material Post_Mat;
-    public Shader Simple, PostOutline;
+    Shader Simple, PostOutline;
 
     public int outline_thickness = 20;
     public int blur_iterations = 20;
     public Color32 outline_colour = new Color32(0, 255, 255, 255);
+    public LayerMask Layers;
 
     void Start()
     {
@@ -44,7 +45,7 @@ public class OutlinePostEffect : MonoBehaviour
         TempCam.backgroundColor = Color.black;
 
         //cull any layer that isn't the outline
-        TempCam.cullingMask = 1 << LayerMask.NameToLayer("Outline");
+        TempCam.cullingMask = Layers;
 
         //make the temporary rendertexture
         if (TempRT == null)

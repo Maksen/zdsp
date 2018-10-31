@@ -80,6 +80,8 @@ public class HUD_Chatroom : MonoBehaviour
 
     void OnDisable()
     {
+        GameObject chatroomMini = UIManager.GetWidget(HUDWidgetType.Minichat);
+        chatroomMini.GetComponent<Animator>().Play("ChatroomMini_Right");
     }
 
     void OnDestroy()

@@ -33,11 +33,12 @@ public class UI_SkillSpecialExpandUI : MonoBehaviour {
 
         SkillData skill = SkillRepo.GetSkill(selected.m_Skillid);
         m_Icon.sprite = selected.m_Icon.sprite;
-        m_SkillName.text = skill.skillgroupJson.name;
+        m_SkillName.text = skill.skillgroupJson.localizedname;
 
         switch (skill.skillgroupJson.skilltype)
         {
             case Zealot.Common.SkillType.Active:
+            case Zealot.Common.SkillType.BasicAttack:
                 m_ActivePassive.text = "主動";
                 break;
             case Zealot.Common.SkillType.Passive:

@@ -11,10 +11,8 @@ public class HUD_ChatroomMini : MonoBehaviour
     // Editor Linked Gameobjects
     [SerializeField]
     CarouselToggler carouselToggler = null;
-
     [SerializeField]
     GameObject[] openChatroomButtons = null;
-
     [SerializeField]
     HyperText[] hyperTxtChannels = null;
 
@@ -609,6 +607,13 @@ public class HUD_ChatroomMini : MonoBehaviour
 
     public void OnClickOpenChatroom()
     {
+        if (GameInfo.IsDoingTutorialRealm())
+        {
+            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_UnableToUseFeature", null));
+            return;
+        }
+
         UIManager.SetWidgetActive(HUDWidgetType.Chatroom, true);
+        GetComponent<Animator>().Play("ChatroomMini_Left");
     }
 }

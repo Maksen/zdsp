@@ -23,9 +23,9 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.UnreliableCombat, (byte)ServerUnreliableCombatRPCMethods.EntityOnDamage)]
-        public void EntityOnDamage(int targetpid, int attackerpid, int info, int attackdamage, int labels, object target)
+        public void EntityOnDamage(int targetpid, int attackerpid, int info, int attackdamage, int labels, int skillid, object target)
         {
-            ProxyMethod("EntityOnDamage", targetpid, attackerpid, info, attackdamage, labels, target);
+            ProxyMethod("EntityOnDamage", targetpid, attackerpid, info, attackdamage, labels, skillid, target);
         }
     }
 }

@@ -84,7 +84,7 @@ public class ShaderPropertyInterpolate : MonoBehaviour {
 
     public void AddMaterial(Material loadedmat)
     {
-        var renderers = gameObject.GetComponentsInChildren<Renderer>();
+        var renderers = gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
         
         foreach (var renderer in renderers)
         {

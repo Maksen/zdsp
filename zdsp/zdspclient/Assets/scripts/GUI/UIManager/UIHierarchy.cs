@@ -64,9 +64,9 @@ public class UIHierarchy : MonoBehaviour
             Destroy(fpsObj);
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
-        UIManager.DestroyAllWindows();
+        UIManager.ClearUIHierarchy();
     }
 
     public void SetVisibilityLowSettingObject(bool isvisible)

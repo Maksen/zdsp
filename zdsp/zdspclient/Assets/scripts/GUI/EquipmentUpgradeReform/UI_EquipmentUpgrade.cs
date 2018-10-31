@@ -64,13 +64,13 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
     public GameObject upgradeFailureFxObj;
 
     // Private variables
-    private int                 _slotID;
-    private bool                _isEquipped;
-    private Equipment           _selectedEquipment;
-    private int                 _genMatSel;
-    private int                 _safeMatSel;
-    private bool                _isEquippedSafe;
-    private Equipment           _selectedSafeEquipment;
+    private int                 _slotID                     = -1;
+    private bool                _isEquipped                 = false;
+    private Equipment           _selectedEquipment          = null;
+    private int                 _genMatSel                  = -1;
+    private int                 _safeMatSel                 = -1;
+    private bool                _isEquippedSafe             = false;
+    private Equipment           _selectedSafeEquipment      = null;
     private string              _defaultRightSideState      = "UPG_RightSlideIn_DefaultOffScreen";
     private string              _rightSideSlideOut          = "UPG_RightSlideOut";
     private string              _rightSideSlideIn           = "UPG_RightSlideIn_Normal";
@@ -139,6 +139,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
         ClearSelectEquipStatsList();
 
+        GenerateSelectedEquipIcon(equipment);
         LoadEquipmentData(equipment);
     }
 
@@ -264,7 +265,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
         List<Equipment> equippedItemList = player.mEquipmentInvData.Slots;
         List<IInventoryItem> bagItemList = player.clientItemInvCtrl.itemInvData.Slots;
-        FillInventory(equippedItemList, bagItemList, false);
+        FillInventory(equippedItemList, bagItemList, true);
 
         selectedEquipText.text = "";
     }
@@ -660,16 +661,42 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             return;
         }
 
+        if(_slotID == -1)
+        {
+            InitEquipmentUpgrade();
+
+            return;
+        }
+
         Equipment equipment = _isEquipped ? player.mEquipmentInvData.Slots[_slotID] as Equipment : player.clientItemInvCtrl.itemInvData.Slots[_slotID] as Equipment;
 
-        InitEquipmentUpgradeRefresh(equipment);
+        if(equipment != null)
+        {
+            InitEquipmentUpgradeRefresh(equipment);
+        }
+        else
+        {
+            InitEquipmentUpgrade();
+        }
     }
 
-    void OnDisable()
+    public override void OnCloseWindow()
     {
+        _slotID                 = -1;
+        _isEquipped             = false;
+        _selectedEquipment      = null;
+        _genMatSel              = -1;
+        _safeMatSel             = -1;
+        _isEquippedSafe         = false;
+        _selectedSafeEquipment  = null;
+
         rightSideAnimator.Play(_rightSideSlideOut);
 
         ClearSelectedEquipment();
+        ClearSafeEquipMatIcon();
+        ClearMaterialIcons();
+        ClearSelectEquipStatsList();
+        ClearInvEquipmentIcons();
     }
 
     private void OpenUpgradeItemStoreDialog(bool isEnoughGenMat, bool isEnoughSafeMat)
@@ -690,7 +717,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         int upgradeLevel = _selectedEquipment.UpgradeLevel + 1;
         int maxLevel = _selectedEquipment.EquipmentJson.upgradelimit;
 
-        if (upgradeLevel >= maxLevel)
+        if (upgradeLevel > maxLevel)
         {
             // Exceeded max upgrade level
             if (showMessage)
@@ -735,7 +762,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         return true;
     }
 
-    private bool CheckValidMat(int genMatSel, bool showMessage = false, int safeMatSel = -1)
+    private bool CheckValidMat(int genMatSel, int safeMatSel = -1)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         if(player == null)
@@ -902,18 +929,11 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
     private void FillInventory(List<Equipment> equippedEquipList, List<IInventoryItem> invEquipList, bool isSafeUpgrade)
     {
-        int rowSize = 3;
         int equippedCount = equippedEquipList.Count;
-        int equippedRemainder = equippedCount % rowSize;
-        int equippedToFill = rowSize - equippedRemainder;
 
-        int bagCount = invEquipList.Count;
-        int actualBagCount = bagCount - equippedToFill;
-        int bagRealStart = equippedToFill;
-
-        List<ModdingEquipment> fullEquipmentList = uiEquipModding.GetModdingEquipmentList(equippedEquipList, invEquipList);
-        int fullCount = equippedCount + bagCount;
-        int maxRow = Mathf.CeilToInt(fullCount * 1.0f / rowSize);
+        List<ModdingEquipment> fullEquipmentList = !isSafeUpgrade ?
+            uiEquipModding.GetModdingEquipmentList(equippedEquipList, invEquipList) :
+            uiEquipModding.GetModdingEquipmentList(equippedEquipList, invEquipList, new ModdingEquipment(_slotID, _selectedEquipment, _isEquipped));
 
         if(!isSafeUpgrade)
         {

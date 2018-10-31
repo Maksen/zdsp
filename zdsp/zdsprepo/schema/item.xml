@@ -141,7 +141,6 @@
       <property name="delquesttype" type="int" uitext="Delete Quest Type" default="-1"/>
       <property name="delquestval" type="int" uitext="Delete Quest Value" default="-1"/>
       <property name="addquesttype" type="int" uitext="Add Quest Type" default="-1"/>
-      <property name="addquestval" type="int" uitext="Add Quest Value" default="-1"/>
       <property name="addquestid" type="int" uitext="Add Quest ID" default="-1"/>
       <property name="addobjid" type="int" uitext="Add Objective ID" default="-1"/>
     </element>
@@ -171,14 +170,6 @@
       <property name="reqskill" type="string" uitext="Require Skill" default="-1" info="Format: 技能ID|技能等級;技能ID|技能等級…"/>
       <property name="reqattribute" type="string" uitext="Require Attribute" default="-1" info="Format: 屬性ID|需求數值;屬性ID|需求數值…"/>
       <property name="requiregearset" type="string" uitext="Require Gear Set" default="-1" info="Format: 道具ID|改造階段|精鍊階段;道具ID|改造階段|精鍊階段…"/>
-    </element>
-
-    <element name="EvolveGroup">
-      <property name="name" type="string" uitext="Name"/>
-      <property name="groupid" type="string" uitext="Group ID" default="-1"/>
-      <property name="evolvestep" type="int" uitext="Evolve Step" default="1"/>
-      <property name="sideeffect" type="string" uitext="Side Effect" default=""/>
-      <property name="requirement" type="string" uitext="Requirement" default=""/>
     </element>
 
     <element name="ElementalStone" inherit="ItemBase" localizeexport="itemid">

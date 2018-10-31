@@ -847,11 +847,13 @@ namespace Zealot.Server.Entities
             PerformAction(walkAction);
         }
 
-        public void CastSkill(int skillid, int targetPID)
-        {            
+        public void CastSkill(int skillid, int targetPID, Vector3 targetpos)
+        {
+            //Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("Monster Issue", "Cast Skill Action");
             CastSkillCommand cmd = new CastSkillCommand();
             cmd.skillid = skillid;
             cmd.targetpid = targetPID;
+            cmd.targetPos = targetpos;
             ServerAuthoCastSkill action = new ServerAuthoCastSkill(this, cmd);            
             action.SetCompleteCallback(Idle);
             PerformAction(action);

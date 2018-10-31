@@ -46,7 +46,7 @@ public class HUD_PlayerPortrait : MonoBehaviour
 
         PlayerSynStats pss = GameInfo.gLocalPlayer.PlayerSynStats;
         SecondaryStats ss = GameInfo.gLocalPlayer.SecondaryStats;
-        float xpFloatVal = (float)ss.experience / CharacterLevelRepo.GetExpByLevel(pss.Level);
+        float xpFloatVal = (float)ss.experience / CharacterLevelRepo.GetExpByLevel(pss.Level + 1);
         int xpIntVal = Mathf.FloorToInt(xpFloatVal * 100);
 
         mEXPPercent.text = xpIntVal.ToString() + "%";

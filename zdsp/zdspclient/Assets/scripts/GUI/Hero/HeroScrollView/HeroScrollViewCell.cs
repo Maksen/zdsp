@@ -14,37 +14,31 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
     [SerializeField] string lockedColorHex;
 
     static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
-    HeroScrollViewContext context;
+ 
     string imagePath = "";
     Color lockedColor;
 
-    void Start()
+    private void Awake()
     {
-        UpdatePosition(0);
-        button.onClick.AddListener(OnPressedCell);
         ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
     }
 
-    /// <summary>
-    /// コンテキストを設定します
-    /// </summary>
-    /// <param name="context"></param>
-    public override void SetContext(HeroScrollViewContext context)
+    void Start()
     {
-        this.context = context;
+        button.onClick.AddListener(OnPressedCell);
     }
 
     /// <summary>
-    /// セルの内容を更新します
+    /// Updates the content.
     /// </summary>
     /// <param name="itemData"></param>
     public override void UpdateContent(HeroCellDto itemData)
     {
         message.text = itemData.Message;
 
-        if (context != null)
+        if (Context != null)
         {
-            var isSelected = context.SelectedIndex == DataIndex;
+            var isSelected = Context.SelectedIndex == DataIndex;
             highlight.SetActive(isSelected);
 
             HeroJson heroJson = HeroRepo.GetHeroById(itemData.HeroId);
@@ -57,25 +51,30 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
                         image.sprite = sprite;
                 }
             }
-            else  // temp to be removed
-            {
-                image.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/HeroCell/zzz_herocell_test.png");
-            }
+ 
             image.color = itemData.Unlocked ? Color.white : lockedColor;
         }
     }
 
     /// <summary>
-    /// セルの位置を更新します
+    /// Updates the position.
     /// </summary>
     /// <param name="position"></param>
     public override void UpdatePosition(float position)
     {
         currentPosition = position;
-        if (gameObject.activeInHierarchy)
-        {
+        //if (gameObject.activeInHierarchy)
+        //{
             animator.Play(scrollTriggerHash, -1, position);
             animator.speed = 0;
+        //}
+    }
+
+    void OnPressedCell()
+    {
+        if (Context != null)
+        {
+            Context.OnPressedCell(this);
         }
     }
 
@@ -85,14 +84,6 @@ public class HeroScrollViewCell : FancyScrollViewCell<HeroCellDto, HeroScrollVie
     void OnEnable()
     {
         UpdatePosition(currentPosition);
-    }
-
-    void OnPressedCell()
-    {
-        if (context != null)
-        {
-            context.OnPressedCell(this);
-        }
     }
 }
 

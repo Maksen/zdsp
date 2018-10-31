@@ -20,6 +20,13 @@ namespace Zealot.Client.Actions
                 ghost.OnGhostDie();
              
 			ghost.PlayEffect(ghost.GetWeaponExtension() + "dying", ghost.GetDyingEffect());
+
+            if (((ActorGhost)ghost).HasControlStatus(EffectVisualTypes.Frozen))
+            {
+                ((ActorGhost)ghost).HandleSideEffectVisuals("VisualEffectTypes", 0);
+                ghost.PlayEffect("", "Frozen_Death");
+            }
+
             long duration = ghost.GetDyingDuration(); //1 sec for dying animation  
             SetTimer(duration, OnDyingFinished, null); 
         }

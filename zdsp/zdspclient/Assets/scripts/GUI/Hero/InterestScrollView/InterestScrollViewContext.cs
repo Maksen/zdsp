@@ -9,14 +9,16 @@ public class InterestScrollViewContext
         get { return selectedIndex; }
         set
         {
-            var prevSelectedIndex = selectedIndex;
-            selectedIndex = value;
-            if (prevSelectedIndex != selectedIndex)
+            if (value == selectedIndex)
             {
-                if (OnSelectedIndexChanged != null)
-                {
-                    OnSelectedIndexChanged(selectedIndex);
-                }
+                return;
+            }
+
+            selectedIndex = value;
+
+            if (OnSelectedIndexChanged != null)
+            {
+                OnSelectedIndexChanged(selectedIndex);
             }
         }
     }
@@ -25,10 +27,10 @@ public class InterestScrollViewContext
     public Action<int> OnSelectedIndexChanged;
 
     private bool highlightSelected = true;
+
     public bool HighlightSelected
     {
         get { return highlightSelected; }
         set { highlightSelected = value; }
     }
 }
-

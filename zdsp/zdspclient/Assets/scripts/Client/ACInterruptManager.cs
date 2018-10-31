@@ -1,36 +1,35 @@
+using Kopio.JsonContracts;
 using System;
 using System.Collections.Generic;
-using Zealot.Repository;
-using Kopio.JsonContracts;
-using Zealot.Common.Entities;
-using Zealot.Client.Entities;
 using UnityEngine;
+using Zealot.Common.Entities;
+using Zealot.Repository;
 
 namespace Zealot.Client.Actions
 {
+    using Zealot.Common;
     using Zealot.Common.Actions;
 
     public static class InterruptFn
-	{
-		public static bool AlwaysInterrupt(Action current, Action newAction)
-		{
-			return true;
-		}
+    {
+        public static bool AlwaysInterrupt(Action current, Action newAction)
+        {
+            return true;
+        }
 
-		public static bool NoInterrupt(Action current, Action newAction)
-		{
-			return false;
-		}
+        public static bool NoInterrupt(Action current, Action newAction)
+        {
+            return false;
+        }
 
-		public static bool AfterComplete(Action current, Action newAction)
-		{
-			return current.IsCompleted ();
-		}
+        public static bool AfterComplete(Action current, Action newAction)
+        {
+            return current.IsCompleted();
+        }
 
         public static bool SkillInterruptSkill(Action current, Action newAction)
         {
-            
-            //if basicattack, may be able to interrupt early            
+            //if basicattack, may be able to interrupt early
             ISkillCastCommandCommon currSkillCmd = (ISkillCastCommandCommon)current.mdbCommand;
             ISkillCastCommandCommon newSkillCmd = (ISkillCastCommandCommon)newAction.mdbCommand;
             int currskillid = currSkillCmd.GetSkillID();
@@ -39,14 +38,16 @@ namespace Zealot.Client.Actions
             SkillData newskill = SkillRepo.GetSkill(newskillid);
             if (currskill == null || newskill == null)
                 return false;
-            if(currskill.skillgroupJson.skilltype == Common.SkillType.BasicAttack && 
-                newskill.skillgroupJson.skilltype == Common.SkillType.Active)
+
+            SkillGroupJson currSkillgroup = currskill.skillgroupJson;
+            SkillGroupJson newSkillgroup = newskill.skillgroupJson;
+
+            if (currSkillgroup.skilltype == SkillType.BasicAttack && newSkillgroup.skilltype == SkillType.Active)
                 return true; //skill will interrrupt basic atttack
-             else if (currskill.skillgroupJson.skilltype == Common.SkillType.Active &&
-                newskill.skillgroupJson.skilltype == Common.SkillType.BasicAttack)
-            {
+            else if (currSkillgroup.skilltype == SkillType.Active && newSkillgroup.skilltype == SkillType.BasicAttack)
                 return current.IsCompleted();//basic attack afte skill complete
-            }
+            else if (currSkillgroup.skilltype == SkillType.BasicAttack && newSkillgroup.skilltype == SkillType.BasicAttack)
+                return currSkillCmd.GetTargetID() != newSkillCmd.GetTargetID(); //basic attack can interrupt basic attack if different target
             //SkillGroupJson skillgroup = currskill.skillgroupJson;
             //if (skillgroup.interruptable)
             //{
@@ -54,7 +55,7 @@ namespace Zealot.Client.Actions
             //}
 
             return false;
-        }       
+        }
 
         public static bool MoveInterruptSkill(Action current, Action newAction)
         {
@@ -77,7 +78,7 @@ namespace Zealot.Client.Actions
             else if (skillgroup.canturn)
             {
                 //Change facing and return false
-                WalkActionCommand walkCmd = (WalkActionCommand) newAction.mdbCommand;
+                WalkActionCommand walkCmd = (WalkActionCommand)newAction.mdbCommand;
                 Entity entity = current.GetEntity();
                 Vector3 currPos = entity.Position;
                 Vector3 newFacing = (walkCmd.targetPos - currPos).normalized;
@@ -88,15 +89,14 @@ namespace Zealot.Client.Actions
             return current.IsCompleted();
         }
 
-
         public static bool Update(Action current, Action newAction)
-		{
-			return !current.Update (newAction);
-		}
-	}
+        {
+            return !current.Update(newAction);
+        }
+    }
 
-	public static class AuthoACInterruptManager
-	{
+    public static class AuthoACInterruptManager
+    {
         public static Dictionary<ACTIONTYPE, Func<Action, Action, bool>> AllAfterComplete = new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>(){
                     {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
                     {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
@@ -113,12 +113,12 @@ namespace Zealot.Client.Actions
                     {ACTIONTYPE.GETHIT, InterruptFn.AfterComplete},
                 };
 
-        public static Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action,Action, bool>>> manager = new Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>>()
-		{
-			{ACTIONTYPE.WALK, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
-					{ACTIONTYPE.WALK, InterruptFn.Update} 	
-				}
-			},
+        public static Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>> manager = new Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>>()
+        {
+            {ACTIONTYPE.WALK, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
+                    {ACTIONTYPE.WALK, InterruptFn.Update}
+                }
+            },
             {ACTIONTYPE.APPROACH, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
                     {ACTIONTYPE.APPROACH, InterruptFn.Update}
                 }
@@ -128,14 +128,14 @@ namespace Zealot.Client.Actions
                 }
             },
             {ACTIONTYPE.CASTSKILL, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
-					{ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
-					{ACTIONTYPE.WALK, InterruptFn.MoveInterruptSkill},
+                    {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.WALK, InterruptFn.MoveInterruptSkill},
                     {ACTIONTYPE.CASTSKILL, InterruptFn.SkillInterruptSkill},
                     {ACTIONTYPE.Flash, InterruptFn.NoInterrupt},
                     {ACTIONTYPE.APPROACH, InterruptFn.MoveInterruptSkill},
                     {ACTIONTYPE.APPROACH_PATHFIND, InterruptFn.MoveInterruptSkill},
                     {ACTIONTYPE.INTERACT, InterruptFn.AfterComplete },
-                    {ACTIONTYPE.WALKANDCAST, InterruptFn.SkillInterruptSkill},                    
+                    {ACTIONTYPE.WALKANDCAST, InterruptFn.SkillInterruptSkill},
                     {ACTIONTYPE.DASHATTACK, InterruptFn.AfterComplete},
                     {ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
                     {ACTIONTYPE.KNOCKEDUP, InterruptFn.AfterComplete},
@@ -159,7 +159,7 @@ namespace Zealot.Client.Actions
                     {ACTIONTYPE.DRAGGED, InterruptFn.AfterComplete},
                     {ACTIONTYPE.GETHIT, InterruptFn.AfterComplete},
                 }
-            },            
+            },
             {ACTIONTYPE.DEAD, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
                     {ACTIONTYPE.IDLE, InterruptFn.NoInterrupt},
                     {ACTIONTYPE.WALK, InterruptFn.NoInterrupt},
@@ -196,13 +196,13 @@ namespace Zealot.Client.Actions
                     {ACTIONTYPE.GETHIT, InterruptFn.Update},
                 }
             },
-        };	
+        };
     }
 
-	public static class NonAuthoACInterruptManager
-	{
-		public static Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action,Action, bool>>> manager = new Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>>()
-		{
+    public static class NonAuthoACInterruptManager
+    {
+        public static Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>> manager = new Dictionary<ACTIONTYPE, Dictionary<ACTIONTYPE, Func<Action, Action, bool>>>()
+        {
             {ACTIONTYPE.WALK, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
                     {ACTIONTYPE.WALK, InterruptFn.Update}
                 }
@@ -212,7 +212,8 @@ namespace Zealot.Client.Actions
                 }
             },
             {ACTIONTYPE.DEAD, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
-                    {ACTIONTYPE.DEAD, InterruptFn.NoInterrupt} //possible trying to perform multiply dying action
+                    {ACTIONTYPE.DEAD, InterruptFn.NoInterrupt}, //possible trying to perform multiply dying action
+                    {ACTIONTYPE.GETHIT, InterruptFn.NoInterrupt}
                 }
             },
             {ACTIONTYPE.KNOCKEDBACK,  new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>(){
@@ -241,6 +242,5 @@ namespace Zealot.Client.Actions
             }
             }
         };
-	}
+    }
 }
-

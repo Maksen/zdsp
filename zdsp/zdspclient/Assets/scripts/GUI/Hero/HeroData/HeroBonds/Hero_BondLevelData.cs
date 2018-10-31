@@ -27,9 +27,9 @@ public class Hero_BondLevelData : MonoBehaviour
             if (index < seText.Length)
             {
                 if (se.isrelative)
-                    seText[index++].text = string.Format("{0} +{1}%", se.effecttype.ToString(), se.max);  // todo: jm localize
+                    seText[index++].text = string.Format("{0} +{1}%", SideEffectUtils.GetEffectTypeLocalizedName(se.effecttype), se.max);
                 else
-                    seText[index++].text = string.Format("{0} +{1}", se.effecttype.ToString(), se.max);
+                    seText[index++].text = string.Format("{0} +{1}", SideEffectUtils.GetEffectTypeLocalizedName(se.effecttype), se.max);
             }
         }
     }

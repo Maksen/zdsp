@@ -16,5 +16,6 @@ public class HUD_Chatbox : MonoBehaviour
             txtPlayername.text = playerName;
 
         hypertxtMessage.text = chatMessage;
+        hypertxtMessage.ClickedLink.AddListener((a, b) => { GameInfo.gCombat.OnClickHyperText(a, b); });
     }
 }

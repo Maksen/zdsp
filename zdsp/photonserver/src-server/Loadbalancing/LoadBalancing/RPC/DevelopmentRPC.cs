@@ -8,19 +8,19 @@ using Zealot.Common.RPC;
 
 namespace Photon.LoadBalancing.GameServer
 {
+    using Hive;
+    using Hive.Caching;
     using Kopio.JsonContracts;
     using System;
+    using Zealot.Common;
+    using Zealot.Common.Entities;
     using System.Threading.Tasks;
     using System.Linq;
-    using Zealot.Common.Entities;
-    using Zealot.Server.Entities;
     using Zealot.Repository;
     using Zealot.RPC;
+    using Zealot.Server.Entities;
     using Zealot.Server.Rules;
     using Zealot.Server.SideEffects;
-    using Zealot.Common;
-    using Hive.Caching;
-    using Hive;
 
     public partial class GameLogic
     {
@@ -76,18 +76,6 @@ namespace Photon.LoadBalancing.GameServer
         public void BroadcastSysMsgToServerProxy(object[] args)
         {
             BroadcastSysMsgToServer((int)args[0], (string)args[1], (GameClientPeer)args[2]);
-        }
-
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ActiveRandomBox)]
-        public void ActiveRandomBox(bool active, GameClientPeer peer)
-        {
-            //RandomBoxReward.RandomBoxRewardManager.Instance.SetActive(active);
-        }
-
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ActiveRandomBox)]
-        public void ActiveRandomBoxProxy(object[] args)
-        {
-            ActiveRandomBox((bool)args[0], (GameClientPeer)args[1]);
         }
 
         #endregion
@@ -327,6 +315,9 @@ namespace Photon.LoadBalancing.GameServer
                     case RealmType.Dungeon:
                         ((RealmControllerDungeon)mRealmController).OnMissionCompleted(true, true);
                         break;
+                    case RealmType.Tutorial:
+                        ((RealmControllerTutorial)mRealmController).OnMissionCompleted(true, true);
+                        break;
                 }
             }
         }
@@ -336,9 +327,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             Player player = peer.mPlayer;
             if (player != null)
-            {
                 player.SetHealth(player.GetHealthMax());
-            }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleFullRecoverMana)]
@@ -346,9 +335,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             Player player = peer.mPlayer;
             if (player != null)
-            {
                 player.SetMana(player.GetManaMax());
-            }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAllRealmInfo)]
@@ -385,52 +372,6 @@ namespace Photon.LoadBalancing.GameServer
             {
                 if (maMonsterSpawners[index] is SpecialBossSpawner && ((SpecialBossSpawner)maMonsterSpawners[index]).mSpecialBossSpawnerJson.archetype == name)
                     maMonsterSpawners[index].SpawnAllMonster();
-            }
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildList)]
-        public void ConsoleGuildList(GameClientPeer peer)
-        {
-            foreach (var guild in GuildRules.GuildList)
-            {
-                string guildinfo = string.Format("{0} : {1}", guild.Key, guild.Value.name);
-                peer.ZRPC.CombatRPC.SendMessageToConsoleCmd(guildinfo, peer);
-            }
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildAddFavour)]
-        public void ConsoleGuildAddFavour(int amt, GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            if(player != null && !player.Destroyed)
-            {
-                int guildId = player.SecondaryStats.guildId;
-                GuildStatsServer guildStats = GuildRules.GetGuildById(guildId);
-                if (guildStats != null)
-                {
-                    if (guildStats.DreamHouseFavourability + amt > GuildRepo.DreamHouseTotalFavourability)
-                        guildStats.DreamHouseFavourability = GuildRepo.DreamHouseTotalFavourability;
-                    else
-                        guildStats.DreamHouseFavourability += amt;
-                    guildStats.saveToDB = true;
-                }
-            }
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildSMLevel)]
-        public void ConsoleGuildSMBossLevel(int level, GameClientPeer peer)
-        {
-            Player player = peer.mPlayer;
-            if (player != null && !player.Destroyed)
-            {
-                int guildId = player.SecondaryStats.guildId;
-                GuildStatsServer guildStats = GuildRules.GetGuildById(guildId);
-                if (guildStats != null && GuildRepo.GetGuildSMBossByLvl(level) != null)
-                {
-                    guildStats.SMBossLevel = level;
-                    guildStats.SMBossDmgDone = 0;
-                    guildStats.saveToDB = true;
-                }
             }
         }
 
@@ -563,15 +504,6 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-		[RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleItemMallTopUp)]
-        public void ConsoleItemMallTopUp(int amount, GameClientPeer peer)
-        {
-            if (peer != null)
-            {
-                ItemMall.ItemMallManager.Instance.UpdateTiming_Charged(peer, amount);
-            }
-        }
-
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleTestCombatFormula)]
         public void ConsoleTestCombatFormula(int amount, GameClientPeer peer)
         {
@@ -581,43 +513,11 @@ namespace Photon.LoadBalancing.GameServer
             //player.SkillStats.RedHeroCardSubskillId = amount;
             //SkillRepo.UpdateCompoundSkill(0, amount, amount);//test
         }
-         
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddLotteryFreeTickets)]
-        public void ConsoleAddLotteryFreeTickets(int lottery_id, int count, GameClientPeer peer)
-        {
-            
-            LotteryMainData data = LotteryMainRepo.GetLottery(lottery_id);
-            if (data != null) {
-                Player player = peer.mPlayer;
-                player.AddLotteryFreeTicket(data.main.id, count);
-                player.UpdateLotteryStat(data.main.id);
-            }
-            
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddLotteryPoint)]
-        public void ConsoleAddLotteryPoint(int lottery_id, int point, GameClientPeer peer)
-        {
-            LotteryMainData data = LotteryMainRepo.GetLottery(lottery_id);
-            if (data != null)
-            {
-                Player player = peer.mPlayer;
-                player.AddLotteryPoint(data.main.id, point);
-                player.UpdateLotteryStat(data.main.id);
-            }
-        }
-
+        
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleRefreshLeaderBoard)]
         public void ConsoleRefreshLeaderBoard(GameClientPeer peer)
         {
             GameApplication.Instance.Leaderboard.ForceRefreshLeaderBoard();
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetPrizeGuarantee)]
-        public void ConsoleResetPrizeGuarantee(GameClientPeer peer)
-        {
-            //PrizeGuaranteeRules.ResetPrizeGuarantee(peer);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleDonateReset)]
@@ -630,18 +530,6 @@ namespace Photon.LoadBalancing.GameServer
         public void ConsoleResetDonateRemainingCount(GameClientPeer peer)
         {
             DonateRules.ConsoleResetDonateRemainingCount();
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddActivePoints)]
-        public void ConsoleAddActivePoints(int amount, GameClientPeer peer)
-        {
-            peer.mQuestExtraRewardsCtrler.AddActivePoints(amount);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleFinishQERTask)]
-        public void ConsoleFinishQERTask(int taskId, GameClientPeer peer)
-        {
-            peer.mQuestExtraRewardsCtrler.CompleteTaskByTaskID(taskId);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSocialAddFriend)]
@@ -811,14 +699,14 @@ namespace Photon.LoadBalancing.GameServer
 
             if (questid != -1)
             {
-                peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
+                peer.QuestController.UpdateQuestEventStatus(questid);
             }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleUpdateQuestProgress)]
         public void ConsoleUpdateQuestProgress(byte type, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.UpdateQuestProgress((QuestType)type);
+            peer.QuestController.UpdateQuestProgress((QuestType)type);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.TotalCrit)]
@@ -848,10 +736,9 @@ namespace Photon.LoadBalancing.GameServer
         {
             Player player = peer.mPlayer;
             if(player != null)
-            {
                 player.UpdateJobSect(job);
-            }
         }
+
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddSkillPoint)]
         public void ConsoleAddSkillPoint(int amt, GameClientPeer peer)
         {
@@ -895,7 +782,7 @@ namespace Photon.LoadBalancing.GameServer
             PotionFood pf = new PotionFood();
             pf.LoadJson(GameRepo.ItemFactory.GetItemById(501));
             mo.lstAttachment.Add(pf);
-            Photon.LoadBalancing.GameServer.Mail.MailManager.Instance.SendMail(mo);
+            Mail.MailManager.Instance.SendMail(mo);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CombatLogging)]
@@ -924,6 +811,16 @@ namespace Photon.LoadBalancing.GameServer
         public void CombatLogClear(GameClientPeer peer)
         {
             CombatFormula.Debug.ClearLog();
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetLevel)]
+        public void ConsoleResetLevel(int level, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if(player != null)
+            {
+                player.SetLevelTo(level);
+            }
         }
         #endregion
     }

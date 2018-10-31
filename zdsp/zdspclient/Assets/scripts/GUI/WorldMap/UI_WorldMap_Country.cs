@@ -21,8 +21,10 @@ public class UI_WorldMap_Country : MonoBehaviour
     [SerializeField]
     Text mCountryName;
     UnityAction toggleOnAction;
+    UnityAction<List<int>> markerShowAction;
 
     string mDestinationLvStr = string.Empty;
+    List<int> interestIdxLst = new List<int>();
 
     public void Awake()
     {
@@ -34,11 +36,14 @@ public class UI_WorldMap_Country : MonoBehaviour
         mDestinationLvStr = string.Empty;
     }
 
-    public void Init(WorldMapCountry wmr, UnityAction action, UnityAction<Sprite> areaSpriteAction)
+    public void Init(WorldMapCountry wmr, UnityAction action, UnityAction<Sprite> areaSpriteAction, UnityAction<List<int>> markerShowActionX, UnityAction<int> markerHighlightAction)
     {
+        interestIdxLst.Clear();
+
         mCountryName.text = wmr.name;
         mLvReq.text = wmr.lvRange;
         toggleOnAction = action;
+        markerShowAction = markerShowActionX;
 
         for (int i = 0; i < wmr.placeLst.Count; ++i)
         {
@@ -46,7 +51,9 @@ public class UI_WorldMap_Country : MonoBehaviour
             obj.transform.SetParent(mPlaceParent.transform, false);
 
             UI_WorldMap_PlaceInterest wmpi = obj.GetComponent<UI_WorldMap_PlaceInterest>();
-            wmpi.Init(wmr.placeLst[i], OnSelectPlaceInterest, areaSpriteAction);
+            wmpi.Init(wmr.placeLst[i], OnSelectPlaceInterest, areaSpriteAction, markerHighlightAction);
+
+            interestIdxLst.Add(wmr.placeLst[i].interestID);
         }
         for (int i = 0; i < wmr.monLst.Count; ++i)
         {
@@ -79,5 +86,6 @@ public class UI_WorldMap_Country : MonoBehaviour
 
         //Zoom in camera to territory
         toggleOnAction.Invoke();
+        markerShowAction.Invoke(interestIdxLst);
     }
 }

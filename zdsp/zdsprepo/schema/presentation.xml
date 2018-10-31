@@ -19,7 +19,6 @@
         <option uitext="Hero Item" datasource="HeroItem"/>
         <option uitext="Instance Item" datasource="InstanceItem"/>
         <option uitext="Extra Side Effect" datasource="ExtraSideEffect"/>
-        <option uitext="Evolve Group" datasource="EvolveGroup"/>
         <option uitext="Elemental Stone" datasource="ElementalStone"/>
       </category>
       
@@ -61,11 +60,7 @@
         <option uitext="Power Up Parts List" datasource="PowerUpPartsList"/>
         <option uitext="Meridian Unlock List" datasource="MeridianUnlockList"/>
         <option uitext="Meridian Exp List" datasource="MeridianExpList"/>
-      </category>
-
-      <category uitext="Crafting">
-        <option uitext="Crafting" datasource="Crafting"/>
-        <option uitext="Crafting Category" datasource="CraftingCategory"/>
+        <option uitext="Meridian Item Exp" datasource="MeridianItemExp"/>
       </category>
 
       <category uitext="Exchange Shop">
@@ -93,11 +88,6 @@
         <option uitext="Stats" datasource="Stats"/>
         <option uitext="SkillPoint" datasource="SkillPoint"/>
         <option uitext="ExpMonsterLvDifference" datasource="ExpMonsterLvDifference"/>
-      </category>
-      
-      <category uitext="Experience">
-        <option uitext="Job CombatStats" datasource="JobCombatStats"/>        
-        <option uitext="Experience Reward" datasource="ExpReward"/>
       </category>
 
       <category uitext="Level">
@@ -145,6 +135,7 @@
         <option uitext="RealmNPCGroup" datasource="RealmNPCGroup"/>
         <option uitext="BossAI" datasource="BossAI"/>
         <option uitext="SpecialBoss" datasource="SpecialBoss"/>
+        <option uitext="ScenesModel" datasource="ScenesModel"/>
       </category>
 
       <category uitext="Loot">
@@ -296,7 +287,8 @@
       </category>
 
       <category uitext="Tutorial">
-        
+        <option uitext="Guide" datasource="TutorialGuide"/>
+        <option uitext="Description" datasource="TutorialDescription"/>
       </category>
 
     </menu>

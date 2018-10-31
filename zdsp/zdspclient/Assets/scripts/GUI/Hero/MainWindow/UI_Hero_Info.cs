@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -78,13 +79,17 @@ public class UI_Hero_Info : MonoBehaviour
         circleScroll.SetUp(heroList, OnHeroSelected);
     }
 
-    // called after Awake and OnEnable
     public void Init(int selectHeroId)
     {
         heroStats = GameInfo.gLocalPlayer.HeroStats;
+        StartCoroutine(LateInit(selectHeroId));
+    }
 
-        if (selectHeroId > 0)
-            circleScroll.SelectHero(selectHeroId);
+    private IEnumerator LateInit(int heroId)
+    {
+        yield return null;
+        if (heroId > 0)
+            circleScroll.SelectHero(heroId);
         else
             circleScroll.SelectHero(GetFirstHeroToSelect());
     }
@@ -380,5 +385,6 @@ public class UI_Hero_Info : MonoBehaviour
     {
         currentHeroTier.Clear();
         circleScroll.ResetSelectedIndex();
+        modelAvatar.Cleanup();
     }
 }

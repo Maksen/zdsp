@@ -39,6 +39,9 @@ public class UI_PartyMessage : MonoBehaviour
 
     public void ShowPartyMessage(string content, Action okCallback, Action timeOutCallback = null, float duration = 5f)
     {
+        if (UIManager.IsWindowOpen(WindowType.DialogTutorial))  // do not show message if player is having tutorial
+            return;
+
         PartyMessageContent newContent = new PartyMessageContent(content, okCallback, timeOutCallback, duration);
         buffer.Enqueue(newContent);
         if (!gameObject.activeInHierarchy)

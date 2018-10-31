@@ -6,14 +6,14 @@ using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Common.Datablock;
 using Zealot.Common.Actions;
-using Zealot.Repository;
 using Zealot.Client.Actions;
+using Zealot.Repository;
 
 namespace Zealot.Client.Entities
 {
-	public class MonsterGhost : ActorGhost
-	{
-		public CombatNPCJson mArchetype;
+    public class MonsterGhost : ActorGhost
+    {
+        public CombatNPCJson mArchetype;
         
         private SkinnedMeshRenderer mRenderer;
         private Flash mFlashEffect;
@@ -21,8 +21,8 @@ namespace Zealot.Client.Entities
         public override bool CanSelect { get { return !IsInvalidTarget(); } }
 
         public MonsterGhost() : base()
-		{
-			this.EntityType = EntityType.MonsterGhost;
+        {
+            this.EntityType = EntityType.MonsterGhost;
             mSkillIndicator120 = null;
             mSkillIndicator360 = null;
             mSkillIndicatorLong = null;
@@ -36,7 +36,6 @@ namespace Zealot.Client.Entities
                 return;
 
             bool isEnemy = CombatUtils.IsEnemy(GameInfo.gLocalPlayer, this);
-
             switch (GameInfo.mRealmInfo.type)
             {
                 //case RealmType.Arena:
@@ -115,7 +114,6 @@ namespace Zealot.Client.Entities
                         }
                     }
                 }
-                //Debug.Log("MG: " + field + " " + value + " " + oldvalue);
             }
             else if (field == "positiveVisualSE" || field == "negativeVisualSE" || field == "VisualEffectTypes" || field == "ElementalVisualSE")
             {
@@ -126,7 +124,6 @@ namespace Zealot.Client.Entities
                 PlayerStats.DisplayHp = (float)value; 
                 if (HeadLabel != null)
                     HeadLabel.mPlayerLabel.HPf = PlayerStats.DisplayHp;
-                //Debug.Log("Monster ID " + GetPersistentID() + " has hp " + value);
                 //if (PlayerStats.DisplayHp == 0)
                 //{
                 //    EnsureDyingAction();
@@ -137,7 +134,6 @@ namespace Zealot.Client.Entities
             }
             else
                 HandleBuffStatus(field, value);
-            //Debug.Log("MG: " + field + " " + value + " " + oldvalue);
         }
 
         private void EnsureDyingAction()
@@ -151,7 +147,7 @@ namespace Zealot.Client.Entities
         }
 
         public void Init(int archetypeId, Vector3 pos, Vector3 dir, int health)
-		{                    
+        {                    
             Position = pos;
             Forward = dir;
             mArchetype = CombatNPCRepo.GetNPCById(archetypeId);
@@ -295,7 +291,9 @@ namespace Zealot.Client.Entities
                 //Animation anim = AnimObj.GetComponent<Animation>();
                 Animator anim = AnimObj.GetComponent<Animator>();
                 RuntimeAnimatorController ac = anim.runtimeAnimatorController;
-                for(int i = 0; i < ac.animationClips.Length; ++i) {
+                int length = ac.animationClips.Length;
+                for (int i = 0; i < length; ++i)
+                {
                     if(ac.animationClips[i].name == "dying") {
                         dyingduration = (long)ac.animationClips[i].length * 1000;
                         break;
@@ -380,7 +378,7 @@ namespace Zealot.Client.Entities
 
         public override string GetStandbyAnimation()
         {
-            if (lastKnockupIndex>=0 && lastKnockupIndex <= 5)
+            if (lastKnockupIndex >= 0 && lastKnockupIndex <= 5)
             {
                 return "";//can not play
             }
@@ -401,7 +399,6 @@ namespace Zealot.Client.Entities
                 }
 
                 return animname;
-               
             }
         }
 
@@ -417,8 +414,7 @@ namespace Zealot.Client.Entities
 
         public override string GetHitAnimation()
         {
-            string hit = "gethit" + GameUtils.RandomInt(1, 2);
-            return hit;
+            return "gethit" + GameUtils.RandomInt(1, 2);
         }
 
         public bool Canbeknockedback()
@@ -472,8 +468,7 @@ namespace Zealot.Client.Entities
         {
             base.Show(val);
             ShowEffect(val);             
-            HideSkillIndicator();//always hide , for it to hide when cutscene finished ,
-            
+            HideSkillIndicator(); //always hide, for it to hide when cutscene finished        
         }
 
         public int GetHealthMax()
@@ -484,7 +479,7 @@ namespace Zealot.Client.Entities
         public override void SetHeadLabel(bool init=false)
         {
             HeadLabel.SetMonsterLabelByRealm(this, init);
-        } // end function
+        }
 
         public override ICombatStats CombatStats
         {

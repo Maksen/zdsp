@@ -15,7 +15,6 @@ namespace Zealot.Common
         public static long KNOCKBY_BASICATTACK_TIME = 700;
         public static long RECOVER_FROM_HIT_TIME = 1000;
         private static readonly float QUERYRADIUS_ERRORMARGIN = 0.5f;
-        public static float SHAKE_INTENSITY = 0.005f;
 
         //Checks if enemy but enemy may not be valid e.g. enemy is in safezone
         public static bool IsEnemy(Entity entity1, Entity entity2)
@@ -59,7 +58,7 @@ namespace Zealot.Common
         /// <param name="targetpos"></param>
         /// <param name="skillgroupJson"></param>
         /// <returns></returns>
-        public static List<IActor> QueryTargetsForClientAndServer(IActor origin, IActor mTarget, SkillData skill, Vector3? targetpos = null, List<Entity> filterGroup = null)
+        public static List<IActor> QueryTargetsForClientAndServer(IActor origin, IActor mTarget, SkillData skill, Vector3 targetpos, List<Entity> filterGroup = null)
         {
             List<IActor> resultList = new List<IActor>();
             if (skill == null) Debug.LogError("Skill Data is missing");
@@ -67,6 +66,7 @@ namespace Zealot.Common
             //Threatzone
             Threatzone threatzone = skill.skillgroupJson.threatzone;
             TargetType targetType = skill.skillgroupJson.targettype;
+            SkillBehaviour behaviour = skill.skillgroupJson.skillbehavior;
             int maxTargets = skill.skillJson.maxtargets;
             Entity orginEnt = origin as Entity;
             if (skill.skillgroupJson.skilltype == SkillType.BasicAttack)
@@ -86,7 +86,7 @@ namespace Zealot.Common
                     bool eligibleTarget = IsCorrectTargetType(origin, mTarget, skill.skillgroupJson.targettype);
                     if (eligibleTarget)
                     {
-                        if (GameUtils.InRange(((Entity)origin).Position,
+                        if (GameUtils.InRange(targetpos,
                             ((Entity)mTarget).Position, queryradius + QUERYRADIUS_ERRORMARGIN))
                         {
                             resultList.Add(mTarget);
@@ -126,7 +126,7 @@ namespace Zealot.Common
                     if (filterGroup != null && !filterGroup.Contains(target))
                         return false;
                     //check if caster is inside target, then any angle will hit
-                    if (GameUtils.InRange(originEntity.Position, target.Position, DEFAULT_ACTOR_RADIUS))
+                    if (GameUtils.InRange(targetpos, target.Position, DEFAULT_ACTOR_RADIUS))
                     {
                         return IsCorrectTargetType(origin, (IActor)target, skill.skillgroupJson.targettype);
                     }
@@ -153,7 +153,7 @@ namespace Zealot.Common
                     }
                     else
                     {
-                        Entity target = originEntity.EntitySystem.QueryForClosestEntityInSphere(originEntity.Position, queryradius + QUERYRADIUS_ERRORMARGIN, filter);
+                        Entity target = originEntity.EntitySystem.QueryForClosestEntityInSphere(targetpos, queryradius + QUERYRADIUS_ERRORMARGIN, filter);
                         if (target != null)
                             resultList.Add((IActor)target);
                     }
@@ -168,7 +168,7 @@ namespace Zealot.Common
                     }
                     if (SkillBehaviour.Ground == skill.skillgroupJson.skillbehavior)
                     {
-                        List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(targetpos.Value,
+                        List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(targetpos,
                            queryradius + QUERYRADIUS_ERRORMARGIN, filter);
                         int count = targets.Count > maxTargets ? maxTargets : targets.Count;
                         for (int i = 0; i < count; i++)
@@ -196,7 +196,7 @@ namespace Zealot.Common
                     }
                     else
                     {
-                        Entity target = originEntity.EntitySystem.QueryForClosestEntityInRectangleF(originEntity.Position, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
+                        Entity target = originEntity.EntitySystem.QueryForClosestEntityInRectangleF(targetpos, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
                         if (target != null)
                             resultList.Add((IActor)target);
                     }
@@ -209,7 +209,7 @@ namespace Zealot.Common
                         resultList.Add(origin); //add self as the filter not return self
                     }
 
-                    List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInRectangleF(originEntity.Position, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
+                    List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInRectangleF(targetpos, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
                     int count = targets.Count > maxTargets ? maxTargets : targets.Count;
                     for (int i = 0; i < count; i++)
                         resultList.Add((IActor)targets[i]);

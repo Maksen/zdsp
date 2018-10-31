@@ -1,15 +1,15 @@
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
+using Zealot.Audio;
 using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Repository;
-using Zealot.Audio;
 
 public static class ClientUtils
 {
@@ -347,35 +347,43 @@ public static class ClientUtils
             case CurrencyType.None:
                 break;
             case CurrencyType.Money:
-                guiname = "com_money";
+                guiname = "currency_Money";
                 break;
             case CurrencyType.GuildContribution:
+                guiname = "currency_GuildContribution";
                 break;
             case CurrencyType.GuildGold:
+                guiname = "currency_GuildGold";
                 break;
             case CurrencyType.Gold:
+                guiname = "currency_Gold";
                 break;
             case CurrencyType.LockGold:
+                guiname = "currency_LockGold";
                 break;
             case CurrencyType.LotteryTicket:
+                guiname = "currency_LotteryTicket";
                 break;
             case CurrencyType.HonorValue:
+                guiname = "currency_Honor";
                 break;
             case CurrencyType.BattleCoin:
+                guiname = "currency_BattleCoin";
                 break;
             case CurrencyType.Exp:
+                guiname = "currency_Exp";
                 break;
             case CurrencyType.AExp:
+                guiname = "com_aexp";
                 break;
             case CurrencyType.JExp:
+                guiname = "currency_JExp";
                 break;
             case CurrencyType.DonateContribution:
-                break;
-            default:
+                guiname = "currency_DonateContribution";
                 break;
         }
-        //return GUILocalizationRepo.GetLocalizedString(guiname);
-        return currencyType.ToString();
+        return GUILocalizationRepo.GetLocalizedString(guiname);
     }
 
     public static VideoClip LoadVideo(string assetName)
@@ -412,8 +420,46 @@ public static class ClientUtils
         switch (linkUI)
         {
             case LinkUIType.Equipment_Upgrade:
+                GameObject uiUpgradeObj = UIManager.GetWindowGameObject(WindowType.EquipUpgrade);
+                if(uiUpgradeObj != null)
+                {
+                    UI_EquipmentUpgrade uiUpgrade = uiUpgradeObj.GetComponent<UI_EquipmentUpgrade>();
+                    if(uiUpgrade != null)
+                    {
+                        int slotId = 0;
+                        if(int.TryParse(param, out slotId))
+                        {
+                            PlayerGhost player = GameInfo.gLocalPlayer;
+                            if(player != null)
+                            {
+                                Equipment invItem = player.clientItemInvCtrl.itemInvData.Slots[slotId] as Equipment;
+                                UIManager.OpenWindow(WindowType.EquipUpgrade);
+                                uiUpgrade.InitEquipmentUpgradeWithEquipment(slotId, invItem);
+                            }
+                        }
+                    }
+                }
                 break;
             case LinkUIType.Equipment_Reform:
+                GameObject uiReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
+                if (uiReformObj != null)
+                {
+                    UI_EquipmentReform uiReform = uiReformObj.GetComponent<UI_EquipmentReform>();
+                    if (uiReform != null)
+                    {
+                        int slotId = 0;
+                        if (int.TryParse(param, out slotId))
+                        {
+                            PlayerGhost player = GameInfo.gLocalPlayer;
+                            if (player != null)
+                            {
+                                Equipment invItem = player.clientItemInvCtrl.itemInvData.Slots[slotId] as Equipment;
+                                UIManager.OpenWindow(WindowType.EquipReform);
+                                uiReform.InitEquipmentReformWithEquipment(slotId, invItem);
+                            }
+                        }
+                    }
+                }
                 break;
             case LinkUIType.Equipment_Socket:
                 break;
@@ -441,6 +487,9 @@ public static class ClientUtils
             case LinkUIType.Hero_Explore:
                 canOpen = UIManager.OpenWindow(WindowType.Hero, (window) => window.GetComponent<UI_Hero>().GoToTab(2));
                 break;
+            case LinkUIType.Equipment_Craft:
+                canOpen = UIManager.OpenWindow(WindowType.EquipCraft);
+                break;
         }
         return canOpen;
     }
@@ -464,19 +513,16 @@ public static class ClientUtils
         return GameObject.Instantiate(prefab);
     }
 
-    public static string GetServerStatusColor(ServerLoad serverload)
+    public static string GetServerNameWithColor(ServerLoad serverload, string serverLine, string gameServer)
     {
+        string color = "red";
         switch (serverload)
         {
-            case ServerLoad.Normal:
-                return "lime";
-            case ServerLoad.Busy:
-                return "yellow";
-            case ServerLoad.Full:
-                return "red";
-            default:
-                return "red";
+            case ServerLoad.Normal: color = "lime"; break;
+            case ServerLoad.Busy: color = "yellow"; break;
+            case ServerLoad.Full: color = "red"; break;
         }
+        return string.Format("<color={0}>{1}：{2}</color>", color, serverLine, gameServer);
     }
 
     public static List<string> weaponPrefix = new List<string>() { "sword", "blade", "lance", "hammer", "fan", "xbow", "dagger", "sanxian" };
@@ -710,11 +756,6 @@ public static class ClientUtils
             case 10: return "C";
             default: return "";
         }
-    }
-
-    public static string ColorizedText(string text, string colorStr)
-    {
-        return string.Format("<color={0}>{1}</color>", colorStr, text);
     }
 
     public delegate string Tokenizer(string token, params object[] param);

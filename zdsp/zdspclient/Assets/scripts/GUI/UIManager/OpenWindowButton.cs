@@ -26,9 +26,7 @@ public class OpenWindowButton : MonoBehaviour
 #endif
         button = this.gameObject.GetComponent<Button>();
         if (button != null)
-        {
             button.onClick.AddListener(OnOpenClick);
-        }
     }
 
     public virtual void OnOpenClick()

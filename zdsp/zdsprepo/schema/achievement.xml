@@ -192,14 +192,21 @@
       <property name="sereward" type="string" uitext="SideEffect Reward" default="" info="id|id"/>
     </element>
 
+    <enum name="LISAModelType">
+      <item key="Energy" value ="0"/>
+      <item key="Bird" value ="1"/>
+      <item key="LISA" value ="2"/>
+    </enum>
+
     <element name="LISATransformTier" useexcel="true">
       <property name="tierid" type ="int" uitext="Tier ID"/>
       <property name="name" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
       <property name="reqlvl" type="int" uitext="Achievement Level Required"/>
+      <property name="modeltype" type="LISAModelType" uitext="Model Type"/>
       <property name="modelpath" type="asset" uitext="Avatar Path" default="" assettype="prefab"/>
-      <property name="imagepath" type="asset" uitext="Image Path" default="" assettype="sprite"/>
+      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="posinui" type="string" uitext="Position In UI" default="0;0;0;1" info="x;y;rotatey;scale"/>
     </element>
 
@@ -208,10 +215,41 @@
       <item key="AchievementID" value ="1"/>
     </enum>
 
-    <!--TBC-->
     <enum name="LISAFunction">
       <item key="None" value ="0"/>
-      <item key="OpenBagSlot" value ="1"/>
+      <item key="Inventory_OpenBagSlot" value ="1"/>
+      <item key="Inventory_QuickSell" value ="2"/>
+      <item key="DestinyClue_Material" value ="3"/>
+      <item key="Craft_EquipRecipe" value ="4"/>
+      <item key="Craft_QuickMake" value ="5"/>
+      <item key="Hero_Skin" value ="6"/>
+      <item key="Hero_ExplorationMap" value ="7"/>
+      <item key="Hero_ExplorationTime" value ="8"/>
+      <item key="Hero_ExplorationRewardToMail" value ="9"/>
+      <item key="EquipFusion_QuickSell" value ="10"/>
+      <item key="Skill_UseLv" value ="11"/>
+      <item key="Skill_HotKeySlot" value ="12"/>
+      <item key="DNA_AutoUpgrade" value ="13"/>
+      <item key="DNA_QuickMake" value ="14"/>
+      <item key="CombatTime_Add" value ="15"/>
+      <item key="Bot_SkillSlot" value ="16"/>
+      <item key="Bot_SkillSlotSet" value ="17"/>
+      <item key="Bot_Turbo" value ="18"/>
+      <item key="Upgrade_Auto" value ="19"/>
+      <item key="Upgrade_Discount" value ="20"/>
+      <item key="Party_AutoFollow" value ="21"/>
+      <item key="Social_FriendLimit" value ="22"/>
+      <item key="Social_HideFriend" value ="23"/>
+      <item key="Guild_BoxReward" value ="24"/>
+      <item key="Guild_Skill" value ="25"/>
+      <item key="Guild_Contribution" value ="26"/>
+      <item key="Guild_BossChallenge" value ="27"/>
+      <item key="Shop_Discount" value ="28"/>
+      <item key="Powerup_QuickMake" value ="29"/>
+      <item key="Meridian_QuickMake" value ="30"/>
+      <item key="Telport_Discount" value ="31"/>
+      <item key="Sweeping_Time" value ="32"/>
+      <item key="Appearance" value ="33"/>
     </enum>
 
     <element name="LISAExternalFunction" useexcel="true">

@@ -1,23 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Zealot.Entities;
 
 namespace Zealot.Bot
 {
     public class WorldMapGraphWithDijkstra
     {
-        public WorldMapGraphWithDijkstra()
-        {
-                
-        }
-
         private List<MapNode> GraphNodes = null;
         private bool bSetupDone = false;
+
+        public WorldMapGraphWithDijkstra()
+        {              
+        }
+
         public void Setup()
         {
-            if (LevelReader.IsClientInited && !bSetupDone)
+            if (LevelReader.IsClientInitialized && !bSetupDone)
             {
                 GraphNodes = new List<MapNode>();
                 ///TODO: only need levels with portal entities. e.g. WorldMap levels.
@@ -28,7 +26,7 @@ namespace Zealot.Bot
                     MapNode node = new MapNode();
                     var portals = PortalInfos.GetLevelPortals(levelName);
                     var portalExits = PortalInfos.GetLevelPortalExits(levelName);
-                    node.Init(levelName, portals.ToList<PortalEntryData>(), portalExits.ToList<LocationData>());
+                    node.Init(levelName, portals.ToList(), portalExits.ToList());
                     GraphNodes.Add(node);
                 }
                 bSetupDone = true;
@@ -118,8 +116,7 @@ namespace Zealot.Bot
             
             UnityEngine.Debug.Log("path is :" + str);
         }
-
-      
+    
         private class MapNode
         {
             public string level;
@@ -158,7 +155,7 @@ namespace Zealot.Bot
                         string[] exitportals = entry.mExitName.Split(';');
                         for(int i =0; i < exitportals.Length; i++)
                         {
-                            if (exitportals[i] == ldata.myname)
+                            if (exitportals[i] == ldata.mName)
                             {
                                 return 1;
                             }
@@ -175,14 +172,13 @@ namespace Zealot.Bot
                 foreach (LocationData ldata in portal2Exits)
                     foreach (PortalEntryData entry in portals1)
                     {
-                        if (entry.mExitName == ldata.myname)
+                        if (entry.mExitName == ldata.mName)
                         {
-                            return entry.myname;
+                            return entry.mName;
                         }
                     }
                 return ""; 
             }
         }
-
     }
 }

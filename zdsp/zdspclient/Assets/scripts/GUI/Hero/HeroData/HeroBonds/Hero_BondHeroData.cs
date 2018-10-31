@@ -39,22 +39,22 @@ public class Hero_BondHeroData : MonoBehaviour
             heroImage.sprite = ClientUtils.LoadIcon(data.portraitpath);
     }
 
-    public void SetFulfilled(bool fulfilled)
+    public void SetFulfilled(bool fulfilled, bool heroLocked)
     {
-        if (lockedColor == Color.clear)
-            ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
+        //if (lockedColor == Color.clear)
+        //    ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
 
         if (fulfilled)
         {
             statusText.text = GUILocalizationRepo.GetLocalizedString("hro_bond_fulfilled");
             statusText.color = Color.white;
-            heroImage.color = Color.white;
+            //heroImage.color = Color.white;
         }
         else
         {
-            statusText.text = GUILocalizationRepo.GetLocalizedString("hro_bond_unfulfilled");
+            statusText.text = heroLocked ? GUILocalizationRepo.GetLocalizedString("hro_bond_herolocked") : GUILocalizationRepo.GetLocalizedString("hro_bond_unfulfilled");
             statusText.color = Color.red;
-            heroImage.color = lockedColor;
+            //heroImage.color = lockedColor;
         }
     }
 

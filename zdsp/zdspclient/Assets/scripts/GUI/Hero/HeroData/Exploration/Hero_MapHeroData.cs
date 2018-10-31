@@ -6,7 +6,6 @@ using Zealot.Repository;
 
 public class Hero_MapHeroData : MonoBehaviour
 {
-    [SerializeField] GameObject plusIconObj;
     [SerializeField] Image portraitIconImage;
     [SerializeField] Button button;
 
@@ -26,18 +25,16 @@ public class Hero_MapHeroData : MonoBehaviour
     public void Init(int heroId, bool interactable)
     {
         this.heroId = heroId;
-        plusIconObj.SetActive(heroId == 0);
         portraitIconImage.gameObject.SetActive(heroId > 0);
         raycastImage.raycastTarget = interactable;
         HeroJson heroData = HeroRepo.GetHeroById(heroId);
-        if (heroData != null && !string.IsNullOrEmpty(heroData.smallportraitpath))
-            portraitIconImage.sprite = ClientUtils.LoadIcon(heroData.smallportraitpath);
+        if (heroData != null && !string.IsNullOrEmpty(heroData.portraitpath))
+            portraitIconImage.sprite = ClientUtils.LoadIcon(heroData.portraitpath);
     }
 
     public void Clear()
     {
         heroId = 0;
-        plusIconObj.SetActive(true);
         portraitIconImage.gameObject.SetActive(false);
         raycastImage.raycastTarget = true;
     }

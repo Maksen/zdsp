@@ -110,7 +110,6 @@ public class CutsceneManager : MonoBehaviour
         return currentPlaying != null;
     }
 
-    private bool isBotEnabled;
     private bool isHudVisible;
     private bool isPartyFollowEnabled;
 
@@ -123,9 +122,8 @@ public class CutsceneManager : MonoBehaviour
         currentPlaying = cutsceneEntity;
         CutsceneLoading = false;
          
-        isBotEnabled = GameInfo.gLocalPlayer.Bot.Enabled;
-        GameInfo.gLocalPlayer.Bot.StopBot();
         GameInfo.gLocalPlayer.ForceIdle();
+
         if (PartyFollowTarget.Enabled)
         {
             isPartyFollowEnabled = true;
@@ -166,9 +164,6 @@ public class CutsceneManager : MonoBehaviour
         UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(true);
         UIManager.CloseDialog(WindowType.DialogCutscene);
 
-        if (isBotEnabled)
-            GameInfo.gLocalPlayer.Bot.StartBot();
-
         if (isHudVisible)
             UIManager.UIHud.ShowHUD();
         else
@@ -176,6 +171,9 @@ public class CutsceneManager : MonoBehaviour
 
         if (isPartyFollowEnabled)
             PartyFollowTarget.Resume();
+        
+        GameInfo.gLocalPlayer.QuestController.CloseNpcTalk();
+        GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.FinishCutscene(3));
     }   
 
     public void RegisterCutsceneBroadcaster(CutSceneBroadcaster entity)
@@ -186,7 +184,10 @@ public class CutsceneManager : MonoBehaviour
     public void SkipCutscene()
     {
         if (currentPlaying != null)
+        {
             currentPlaying.SkipCutScene();
+            GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.FinishCutscene(3));
+        }
     }
 
     #region Play Cutscene Triggers

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
-using Kopio.JsonContracts;
-using Zealot.Client.Entities;
-using Zealot.Common;
 using Zealot.Audio;
+using Zealot.Common;
+using Zealot.Client.Entities;
 
 public static class GameInfo
 {
@@ -22,19 +22,18 @@ public static class GameInfo
     public static DateTime mServerStartUpDT;
     public static bool mIsPlayerReady = false;
     public static bool mInspectMode = false;
-    public static bool mIsHighSetting = true;//this is for hiding of ui during low setting, temp put until setting ui is out
-    public static PiliClientState gClientState;
+    public static bool mIsHighSetting = true; //this is for hiding of ui during low setting, temp put until setting ui is out
 
-    public static ClientMain gCombat;
-    public static PlayerInLobby gLobby;
+    public static GameClientState gClientState;
     public static Login gLogin;
     public static UI_Login gUILogin;
+    public static PlayerInLobby gLobby;
+    public static ClientMain gCombat;
+    public static CharacterCreationManager gCharacterCreationManager;
 
     public static UIShop gUIShop = null;
 
     public static BaseClientEntity gSelectedEntity;
-
-    public static PlayerBasicAttackState gBasicAttackState;
 
     public static PlayerSkillCDState gSkillCDState;
     public static bool mRecycleConfirmation = true;
@@ -87,7 +86,6 @@ public static class GameInfo
             gCombat.OnLevelChanged();
         }
         gSelectedEntity = null;
-        gBasicAttackState = null;
         //gSkillCDState = null;
 
         if (!PartyFollowTarget.IsPaused())
@@ -125,7 +123,7 @@ public static class GameInfo
     {
         if (!DCReconnectingGameServer)
         {
-            if (gClientState == PiliClientState.Combat && mIsPlayerReady)
+            if (gClientState == GameClientState.Combat && mIsPlayerReady)
             {
                 if (gLocalPlayer != null)
                     gLocalPlayer.ForceIdle();
@@ -141,7 +139,7 @@ public static class GameInfo
     public static void OnReconnected()
     {
         UIManager.StopHourglass();
-        gClientState = PiliClientState.Combat;
+        gClientState = GameClientState.Combat;
         DCReconnectingGameServer = false;
         TransferingServer = false;
 
@@ -152,7 +150,6 @@ public static class GameInfo
         if (gCombat != null)
             gCombat.OnReconnected();
         gSelectedEntity = null;
-        gBasicAttackState = null;
         gSkillCDState = null;
 
         if (playerSpawnEvent != null)
@@ -195,11 +192,6 @@ public static class GameInfo
     public static long GetSynchronizedTime()
     {
         return gCombat.mTimers.GetSynchronizedTime();
-    }
-
-    public static bool IsRealmEnd()
-    {
-        return mRealmState == RealmState.Ended;
     }
 
     public static void AddPlayerSpawnListener(UnityAction call)
@@ -248,9 +240,19 @@ public static class GameInfo
             gCombat.mPlayerInput.ResetJoystick();
     }
 
+    public static bool HasRealmEnd()
+    {
+        return mRealmState == RealmState.Ended;
+    }
+
+    public static bool IsDoingTutorialRealm()
+    {
+        return mRealmInfo != null && mRealmInfo.type == RealmType.Tutorial;
+    }
+
     public static bool CanLevelUsePotion()
     {
-        //if (mRealmInfo != null && (mRealmInfo.type == RealmType.Arena || mRealmInfo.type == RealmType.RealmTutorial))
+        //if (mRealmInfo != null && (mRealmInfo.type == RealmType.Arena || mRealmInfo.type == RealmType.Tutorial))
         //    return false;
         return true;
     }

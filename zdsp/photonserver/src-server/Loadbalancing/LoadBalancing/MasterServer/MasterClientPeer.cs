@@ -544,28 +544,28 @@ namespace Photon.LoadBalancing.MasterServer
                         }
                         returnCode = ErrorCode.Ok;
                         break;
-                    //#if ACCOUNT_REGISTER
-                    //                    case LoginType.Device:
-                    //                        loginId = token_str;
-                    //                        loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginType.Device, loginId);
-                    //                        if (loginIdList.Count <= 0) // Account does not exist
-                    //                        {
-                    //                            string deviceID = extra_param_str;
-                    //                            AccountInsertResult? result = 
-                    //                                await MasterApplication.dbGMRepository.PlayerAccount.InsertAccountAsync((int)LoginType.Device, loginId, "", deviceID);
-                    //                            if (result.HasValue)
-                    //                            {
-                    //                                userId = result.Value.UserId;
-                    //                                log.DebugFormat("new user {0}", userId);
-                    //                            }
-                    //                        }
-                    //                        else // Account exist
-                    //                        {
-                    //                            userId = new Guid(loginIdList[0]["userid"].ToString());
-                    //                        }
-                    //                        returnCode = ErrorCode.Ok;
-                    //                        break;
-                    //#endif
+//#if ACCOUNT_REGISTER
+//                    case LoginType.Device:
+//                        loginId = token_str;
+//                        loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginType.Device, loginId);
+//                        if (loginIdList.Count <= 0) // Account does not exist
+//                        {
+//                            string deviceID = extra_param_str;
+//                            AccountInsertResult? result =
+//                                await MasterApplication.dbGMRepository.PlayerAccount.InsertAccountAsync((int)LoginType.Device, loginId, "", deviceID);
+//                            if (result.HasValue)
+//                            {
+//                                userId = result.Value.UserId;
+//                                log.DebugFormat("new user {0}", userId);
+//                            }
+//                        }
+//                        else // Account exist
+//                        {
+//                            userId = new Guid(loginIdList[0]["userid"].ToString());
+//                        }
+//                        returnCode = ErrorCode.Ok;
+//                        break;
+//#endif
                     case LoginType.Username:
                         loginId = token_str;
                         loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginType.Username, loginId);

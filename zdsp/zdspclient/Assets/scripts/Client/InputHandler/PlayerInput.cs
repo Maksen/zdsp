@@ -29,12 +29,34 @@ public class PlayerInput : MonoBehaviour
 
     void Awake()
     {
-        PointerScreen.OnPointerDownEvent += OnPointerDown;
-        PointerScreen.OnPointerClickEvent += OnPointerClick;
+        BindPointerEvent();
         rayHitComparer = new RayHitComparer();
     }
 
     private void OnDestroy()
+    {
+        UnbindPointerEvent();
+    }
+
+    public void EnableInput()
+    {
+        BindPointerEvent();
+        enabled = true;
+    }
+
+    public void DisableInput()
+    {
+        UnbindPointerEvent();
+        enabled = false;
+    }
+
+    private void BindPointerEvent()
+    {
+        PointerScreen.OnPointerDownEvent += OnPointerDown;
+        PointerScreen.OnPointerClickEvent += OnPointerClick;
+    }
+
+    private void UnbindPointerEvent()
     {
         PointerScreen.OnPointerDownEvent -= OnPointerDown;
         PointerScreen.OnPointerClickEvent -= OnPointerClick;
@@ -63,17 +85,7 @@ public class PlayerInput : MonoBehaviour
 
     public bool IsControlling()
     {
-        return CnInputManager.GetAxis("Horizontal") != 0 || CnInputManager.GetAxis("Vertical") != 0
-            || GameInfo.gBasicAttackState.mBasicAttackButtonDown;  // last one still need?
-    }
-
-    private bool CanKeyboardMove()
-    {
-        var chatWindow = UIManager.GetWidget(HUDWidgetType.Chatroom);
-        if ((chatWindow != null && chatWindow.activeInHierarchy) || UIManager.IsAnyWindowOpened() || UIManager.IsAnyDialogOpened())
-            return false;
-        else
-            return true;
+        return CnInputManager.GetAxis("Horizontal") != 0 || CnInputManager.GetAxis("Vertical") != 0;
     }
 
     public void SetMoveIndicator(Vector3 position)
@@ -139,7 +151,7 @@ public class PlayerInput : MonoBehaviour
                             {
                                 if (entity.Interact())
                                     PartyFollowTarget.Pause();
-                                if (enemySelectCallback != null)
+                                if (enemySelectCallback != null && entity.IsMonster())
                                     enemySelectCallback((ActorGhost)entity);
                                 if (entity.IsInteractiveTrigger())
                                     entityRef.gameObject.GetComponent<InteractiveEntities>().OnClickEntity();
@@ -167,6 +179,7 @@ public class PlayerInput : MonoBehaviour
                             {
                                 SetMoveIndicator(Vector3.zero);
                                 PartyFollowTarget.Resume();
+                                mPlayerGhost.Bot.ResumeBot(true);
                             });
                         }
                         break;
@@ -219,6 +232,7 @@ public class PlayerInput : MonoBehaviour
                     moveDirection = dir;
                     moveStartPos = mPlayerGhost.Position;
                     mPlayerGhost.ActionInterupted();
+                    mPlayerGhost.Bot.ResumeBot(true);
                 }
             }
         }
@@ -242,7 +256,7 @@ public class PlayerInput : MonoBehaviour
         Entity entity = GameInfo.gSelectedEntity;
         if (entity == null || !entity.IsNPC())  // only check for StaticNPCs as others will be removed by server when not relevent
             return;
-
+        
         if ((entity.Position - mPlayerGhost.Position).sqrMagnitude > relevanceBoundaryRadiusSq)
             GameInfo.gCombat.OnSelectEntity(null);
     }

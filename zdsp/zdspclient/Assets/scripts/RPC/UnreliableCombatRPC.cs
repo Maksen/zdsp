@@ -1,11 +1,11 @@
-﻿using ExitGames.Client.Photon;
-using UnityEngine;
+﻿using UnityEngine;
+using Zealot.Client.Actions;
+using Zealot.Client.Entities;
 using Zealot.Common;
+using Zealot.Common.Actions;
 using Zealot.Common.Entities;
 using Zealot.Common.RPC;
-using Zealot.Client.Entities;
-using Zealot.Common.Actions;
-using Zealot.Client.Actions;
+using Zealot.Repository;
 
 public class UnreliableCombatRPC : RPCBase
 {
@@ -32,7 +32,7 @@ public partial class ClientMain : MonoBehaviour
     }
 
     [RPCMethod(RPCCategory.UnreliableCombat, (byte)ServerUnreliableCombatRPCMethods.EntityOnDamage)]
-    public void EntityOnDamage(int targetpid, int attackerpid, int resultinfo, int damage, int labels)
+    public void EntityOnDamage(int targetpid, int attackerpid, int resultinfo, int damage, int labels, int skillid)
     {
         Entity defender = mEntitySystem.GetEntityByPID(targetpid);
         if (defender == null)
@@ -47,10 +47,10 @@ public partial class ClientMain : MonoBehaviour
             AttackResult res = new AttackResult(targetpid, damage, false, attackerpid);
             res.LabelNum = labels;
             res.AttackInfo = resultinfo;//res is initied with this byte
-            Zealot.Client.Actions.BaseClientCastSkill.isCrtical = res.IsCritical;
+            BaseClientCastSkill.isCrtical = res.IsCritical;
             if (res.RealDamage > 0 || res.IsEvasion)
             {
-                //Debug.LogWarningFormat("queue dmg {0}, dt={1}", res.RealDamage, System.DateTime.Now.ToString("HH:mm:ss fff"));
+                //Debug.LogWarningFormat("queue dmg {0}, dt={1}", res.RealDamage, System.DateTime.Now.ToLongTimeString());
                 if (labels > 1)
                 {
                     int damagedivided = damage / labels;
@@ -71,27 +71,78 @@ public partial class ClientMain : MonoBehaviour
                 }
                 else
                     GameInfo.gDmgLabelPool.Setup(res, defenderghost.Position);
-            }                     
+            }
+
+            GetHitCommand ghcmd = new GetHitCommand();
+            ghcmd.skillid = skillid;
+            SkillData skill = SkillRepo.GetSkill(skillid);
 
             if (defenderghost.IsMonster())//monster get hit
             {
-                MonsterGhost monsterGhost = (MonsterGhost)defenderghost; 
+                MonsterGhost monsterGhost = (MonsterGhost)defenderghost;
                 monsterGhost.SetHeadLabel();
-                if(res.IsCritical)
+                if (res.IsCritical)
                     defenderghost.PlayEffect("", GameInfo.gLocalPlayer.GetHitCritEffect());
+
+                if (skill != null)
+                {
+                    if (!defenderghost.IsDying())
+                    {
+                        NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(defenderghost, ghcmd);
+                        Action prev = defenderghost.GetAction();
+                        if (prev == null || prev.mdbCommand.GetActionType() == ACTIONTYPE.CASTSKILL)
+                            prev = new NonClientAuthoACIdle(defenderghost, new IdleActionCommand());
+                        getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
+                        defenderghost.PerformAction(getHitAction);
+                    }
+                    else
+                    {
+                        monsterGhost.PlayEffect("", skill.skillJson.name + "_gethit");
+                        monsterGhost.Flash();
+                    }
+                }
             }
             else if (defenderghost.IsPlayer())//player get hit
             {
-                PlayerGhost g = (PlayerGhost)defenderghost;
+                PlayerGhost player = (PlayerGhost)defenderghost;
                 if (defenderghost.IsLocal)
                 {
                     //local player on damage interrupt interact action.
                     if (defenderghost.GetAction().mdbCommand.GetActionType() == ACTIONTYPE.INTERACT)
                         defenderghost.PerformAction(new ClientAuthoACIdle(defenderghost, new IdleActionCommand()));
-                    g.ActionInterupted(true);
+
+                    if (skill != null)
+                    {
+                        player.ActionInterupted(true);
+
+                        if (!defenderghost.IsDying())
+                        {
+                            ClientAuthoACGetHit getHitAction = new ClientAuthoACGetHit(defenderghost, ghcmd);
+                            Action prev = defenderghost.GetAction();
+                            getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
+                            defenderghost.PerformAction(getHitAction);
+                        }
+                        else
+                            defenderghost.PlayEffect("", skill.skillJson.name + "_gethit");
+                    }
                 }
-                else                
-                    g.SetHeadLabel();
+                else
+                {
+                    player.SetHeadLabel();
+
+                    if (skill != null)
+                    {
+                        if ((player.IsRecovering || player.IsMoving() || player.IsIdling()) && !defenderghost.IsDying())
+                        {
+                            NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(defenderghost, ghcmd);
+                            Action prev = defenderghost.GetAction();
+                            getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
+                            defenderghost.PerformAction(getHitAction);
+                        }
+                        else
+                            player.PlayEffect("", skill.skillJson.name + "_gethit");
+                    }
+                }
             }
             //Debug.Log("damage: " + ghost.Name + " " + attacktype);
         }
@@ -105,8 +156,6 @@ public partial class ClientMain : MonoBehaviour
 
         ActorGhost attackerGhost = (ActorGhost)attacker;
 
-        
-
         if (attackerGhost.HasAnimObj)
         {
             //Turn on label for monster
@@ -118,23 +167,22 @@ public partial class ClientMain : MonoBehaviour
             }
             //else if (attackerGhost.IsPlayer() && attackerGhost.IsLocal == false)
             //{
-                //Make sure attacker is not party member or ally or self
-                //PlayerGhost hostilePlayer = (PlayerGhost)attackerGhost;
-                //bool isEnemyToSelf = CombatUtils.IsEnemy(hostilePlayer, GameInfo.gLocalPlayer);
+            //Make sure attacker is not party member or ally or self
+            //PlayerGhost hostilePlayer = (PlayerGhost)attackerGhost;
+            //bool isEnemyToSelf = CombatUtils.IsEnemy(hostilePlayer, GameInfo.gLocalPlayer);
 
-                //if (isEnemyToSelf && hostilePlayer.HeadLabel.mPlayerLabel.LabelType != LabelTypeEnum.Battleground_Enemy)
-                //{
-                //    hostilePlayer.HeadLabel.mPlayerLabel.SetBattleGroundEnemy();
-                //}
-                //else if (!isEnemyToSelf &&
-                //         hostilePlayer.HeadLabel.mPlayerLabel.LabelType != LabelTypeEnum.PartyMember &&
-                //         hostilePlayer.HeadLabel.mPlayerLabel.LabelType != LabelTypeEnum.Battleground_Ally)
-                //{
-                //    hostilePlayer.HeadLabel.mPlayerLabel.SetBattleGroundAlly();
-                //}
+            //if (isEnemyToSelf && hostilePlayer.HeadLabel.mPlayerLabel.LabelType != LabelTypeEnum.Battleground_Enemy)
+            //{
+            //    hostilePlayer.HeadLabel.mPlayerLabel.SetBattleGroundEnemy();
+            //}
+            //else if (!isEnemyToSelf &&
+            //         hostilePlayer.HeadLabel.mPlayerLabel.LabelType != LabelTypeEnum.PartyMember &&
+            //         hostilePlayer.HeadLabel.mPlayerLabel.LabelType != LabelTypeEnum.Battleground_Ally)
+            //{
+            //    hostilePlayer.HeadLabel.mPlayerLabel.SetBattleGroundAlly();
+            //}
 
             //}
         }
     }
-
 }

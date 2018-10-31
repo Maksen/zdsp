@@ -241,6 +241,7 @@
         protected long mDuration;
         protected bool mNeedCaster; //whether this sideeffect requires caster to work. Otherwise, when caster is gone, this sideeffect will be stopped too.
         protected int Rank;
+        protected bool mIsActive;
 
         public SideEffect(SideEffectJson sideeffectData)
         {
@@ -250,7 +251,12 @@
             Rank = mSideeffectData.rank;
             mDuration = (long)(mSideeffectData.duration * 1000);
             mNeedCaster = true;
+            mIsActive = true;
             InitKopioData();
+
+            // Debug log
+            //Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("SideEffect Logs", "Side Effect " + GetHashCode() + " created of type : " + sideeffectData.effecttype.ToString());
+            // Debug log
         }
 
         //values to change 
@@ -299,6 +305,11 @@
 
         public void Apply(Actor target, Actor caster, bool positiveEffect)
         {
+            // Debug Log
+            if(target.IsMonster())
+            Photon.LoadBalancing.GameServer.CombatFormula.Debug.Log("SideEffect Logs", "SideEffect " + GetHashCode() + " is applied on " + target.Name + " castered by " + caster.Name);
+            // Debug Log
+
             mTarget = target;
             mCaster = caster;
             mPositiveEffect = positiveEffect;
@@ -383,6 +394,7 @@
             }
             OnRemove();
             OnFinalized();
+            mIsActive = false;
         }
 
         public virtual void OnPlayerStop()
@@ -495,6 +507,7 @@
 
         public virtual void Update(long dt)
         {
+            if (!mIsActive) return;
             /*if (mTarget.Destroyed)
             {
                 Stop();

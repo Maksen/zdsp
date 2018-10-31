@@ -102,7 +102,6 @@ public class PrefabContainer : BaseAssetContainer
         if (PrefabList.Count > 0)
         {
             List<GameObject> tempList = PrefabList.ToList();
-            List<UnityEngine.Object> tempobjlist = new List<UnityEngine.Object>();
             PrefabList.Clear();
 
             foreach (GameObject gameobj in tempList)
@@ -110,11 +109,9 @@ public class PrefabContainer : BaseAssetContainer
                 if (gameobj != null && IsPrefab(gameobj) && !PrefabList.Contains(gameobj))
                 {
                     PrefabList.Add(gameobj);
-                    tempobjlist.Add(gameobj);
                 }
             }
-
-            SortAsset(tempobjlist);
+            PrefabList = SortAsset(PrefabList);
         }
     }
 

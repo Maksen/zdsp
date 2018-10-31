@@ -121,8 +121,8 @@ namespace Photon.LoadBalancing.GameServer
                     List<int> quests = hero.GetAllTriggeredQuests();
                     for (int i = 0; i < quests.Count; i++)
                     {
-                        if (!player.QuestController.HasQuestBeenTriggered(quests[i]))
-                            player.QuestController.TriggerNewQuest(quests[i], hero.HeroId);
+                        if (!player.Slot.QuestController.HasQuestBeenTriggered(quests[i]))
+                            player.Slot.QuestController.TriggerNewQuest(quests[i], hero.HeroId);
                     }
                 }
             }
@@ -455,7 +455,7 @@ namespace Photon.LoadBalancing.GameServer
                                 hero.TrustLevel++;
                                 int triggeredQuest = hero.GetTriggeredQuest();
                                 if (triggeredQuest > 0)
-                                    player.QuestController.TriggerNewQuest(triggeredQuest, heroId);
+                                    player.Slot.QuestController.TriggerNewQuest(triggeredQuest, heroId);
 
                                 trustLevelData = HeroRepo.GetTrustLevelData(hero.TrustLevel);
                                 nextLevelExp = trustLevelData == null ? 0 : trustLevelData.reqtrustexp;

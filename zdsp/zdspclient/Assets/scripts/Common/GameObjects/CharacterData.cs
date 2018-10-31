@@ -2,8 +2,8 @@
 using System.ComponentModel;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Zealot.Repository;
 using Zealot.Common.Entities;
+using Zealot.Repository;
 
 namespace Zealot.Common
 {
@@ -36,8 +36,8 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "fndie")]
         public int FactionDeath { get; set; }
 
-        [JsonProperty(PropertyName = "training")]
-        public bool TrainingRealmDone { get; set; }
+        [JsonProperty(PropertyName = "tutorialdone")]
+        public bool IsTutorialRealmDone { get; set; }
 
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "lvl")]
@@ -145,16 +145,16 @@ namespace Zealot.Common
         public int MountID { get; set; }
 
         [DefaultValue(0)]
-        [JsonProperty(PropertyName = "recFacReward")]
-        public bool GetRecommendedFactionReward { get; set; }
-
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "firstbuyflag")]
         public int FirstBuyFlag { get; set; }
 
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "firstbuycollected")]
         public int FirstBuyCollected { get; set; }
+
+        [DefaultValue(0)]
+        [JsonProperty(PropertyName = "TutorialStatus")]
+        public int TutorialStatus { get; set; }
         #endregion
 
         [JsonProperty(PropertyName = "currency")]
@@ -180,6 +180,7 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "sideeffectinv")]
         public SideEffectInventoryData SideEffectInventory { get; set; }
+
         [JsonProperty(PropertyName = "skillInv")]
         public SkillInventoryData SkillInventory { get; set; }
 
@@ -204,6 +205,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "questextrarewardsinv")]
         public QuestExtraRewardsInvData QuestExtraRewardsInventory { get; set; }
 
+        [JsonProperty(PropertyName = "dnainv")]
+        public DNAInvData DNAInventory { get; set; }
+
         [JsonProperty(PropertyName = "powerupinv")]
         public PowerUpInventoryData PowerUpInventory { get; set; }
 
@@ -212,9 +216,6 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "equipfusioninv")]
         public EquipFusionInventoryData EquipFusionInventory { get; set; }
-
-        [JsonProperty(PropertyName = "interactivetriggerinv")]
-        public InteractiveTriggerInventoryData InteractiveTriggerInventory { get; set; }
 
         [JsonProperty(PropertyName = "offlineexpinv2")]
         public OfflineExpInventory2 OfflineExpInv2 { get; set; }
@@ -245,9 +246,6 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "PrizeGuaranteeData")]
         public PrizeGuaranteeData PrizeGuaranteeData { get; set; }
-
-        [JsonProperty(PropertyName = "achievement")]
-        public AchievementInvData AchievementInventory { get; set; }
 
         [JsonProperty(PropertyName = "CombatStats")]
         public InspectCombatStats InspectCombatStats;
@@ -291,6 +289,7 @@ namespace Zealot.Common
             WelfareInventory = new WelfareInventoryData();
             SevenDaysInventory = new SevenDaysInvData();
             QuestExtraRewardsInventory = new QuestExtraRewardsInvData();
+            DNAInventory = new DNAInvData();
             OfflineExpInv2 = new OfflineExpInventory2();
             LotteryInventory = new LotteryInventoryData();
             StoreInventory = new StoreInventoryData();
@@ -302,9 +301,7 @@ namespace Zealot.Common
             CharInfoData = new CharacterInfoData();
             HeroInventory = new HeroInvData();
             PowerUpInventory = new PowerUpInventoryData();
-            AchievementInventory = new AchievementInvData();
             ItemLimitData = new ItemUseDropLimitData();
-            InteractiveTriggerInventory = new InteractiveTriggerInventoryData();
         }
 
         /// <summary>
@@ -319,6 +316,7 @@ namespace Zealot.Common
             //WelfareInventory.InitDefault();
             //SevenDaysInventory.InitDefault();
             //QuestExtraRewardsInventory.InitDefault();
+            DNAInventory.InitDefault();
             //LotteryInventory.InitDefault();
             //PrizeGuaranteeData.InitDefault();
             //GuildQuests.InitDefault();
@@ -328,7 +326,6 @@ namespace Zealot.Common
             PowerUpInventory.InitDefault();
             EquipmentCraftInventory.InitDefault();
             EquipFusionInventory.InitDefault();
-            InteractiveTriggerInventory.InitDefault();
         }
 
         public void ValidateDefault()

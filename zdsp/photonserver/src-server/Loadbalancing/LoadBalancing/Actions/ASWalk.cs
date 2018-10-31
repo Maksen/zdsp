@@ -41,6 +41,9 @@
                 return;
             }
 
+            if (entity.IsGettingHit())
+                return;
+
             float moveSpeed = ((WalkActionCommand)mdbCommand).speed;
             if (moveSpeed == 0)
                 moveSpeed = entity.PlayerStats.MoveSpeed;

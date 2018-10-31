@@ -75,11 +75,12 @@ namespace Zealot.Common.Entities
             return mHeroesDict.ContainsKey(heroId);
         }
 
-        public bool HasHeroFulfilledBond(HeroBondJson bond, int heroId)
+        public bool HasHeroFulfilledBond(HeroBondJson bond, int heroId, out bool heroLocked)
         {
             Hero hero = GetHero(heroId);
             if (hero != null)
             {
+                heroLocked = false;
                 if (bond == null)
                     return true;
                 else
@@ -89,7 +90,10 @@ namespace Zealot.Common.Entities
                 }
             }
             else
+            {
+                heroLocked = true;
                 return false;
+            }
         }
 
         public ExploreMapData GetExploringMap(int mapId)
@@ -155,7 +159,8 @@ namespace Zealot.Common.Entities
                 HeroBondJson currentBond = heroBondJsonList[i];
                 for (int index = 0; index < heroIds.Count; index++)
                 {
-                    if (!heroStats.HasHeroFulfilledBond(currentBond, heroIds[index]))
+                    bool isHeroLocked;
+                    if (!heroStats.HasHeroFulfilledBond(currentBond, heroIds[index], out isHeroLocked))
                     {
                         fulfilled = false;
                         break;

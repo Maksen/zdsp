@@ -28,6 +28,7 @@
     DestinyNews = 22,
     DestinyStart = 23,
     RealmExit = 24,
+    QuestStart = 25,
 
     //----------------------------
 

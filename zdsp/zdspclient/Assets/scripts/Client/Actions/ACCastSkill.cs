@@ -15,7 +15,7 @@ namespace Zealot.Client.Actions
         protected SkillData mSkillData;
         protected string mSkillName;
         public ActorGhost mTarget = null;
-        public Vector3? mTargetPos = null;
+        public Vector3 mTargetPos;
         public ActorGhost mCaster = null;
         protected bool islocal = false;
         public bool PlayerBasicAttack { get; set; }
@@ -24,7 +24,6 @@ namespace Zealot.Client.Actions
         protected string hitEffect = "";
         protected int feedbackindex = -2;
         protected float _attackspeed = 1;
-        //private ZDSPCamera mainCam;
 
         private int skillid;
 
@@ -44,21 +43,10 @@ namespace Zealot.Client.Actions
             mCaster = mEntity as ActorGhost;
 
             mSkillName = mSkillData.skillgroupJson.name;
-
-            //if (entity.IsPlayer())
-            //    ((PlayerGhost)entity).mountController.ForceUnMount();
         }
 
         protected void ShakeCamera()
         {
-            //if (mainCam == null)
-            //{
-            //    mainCam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
-            //}
-            //if (mainCam == null)
-            //    return;
-            //mainCam.DoShake(CombatUtils.SHAKE_INTENSITY, 0.02f);
-
             if (CameraShaker.Instance != null)
                 CameraShaker.Instance.ShakeOnce(1.5f, 3f, 0, 0.15f, 0);
         }
@@ -170,6 +158,7 @@ namespace Zealot.Client.Actions
             long firstproc = (long)(mSkillData.skillgroupJson.proctime * 1000);
             mEffectProcs.Add(firstproc);
             NextProcTime = firstproc;
+
             //if (mSkillData.skillgroupJson.repeatproc)
             //{
             //    for (int i = 0; i < 100; i++)
@@ -231,27 +220,33 @@ namespace Zealot.Client.Actions
                 {
                     if (ghost.IsPlayer())
                     {
-                        if ((ghost.IsRecovering || ghost.IsMoving() || ghost.IsIdling()))
+                        if (ghost.IsRecovering || ghost.IsMoving() || ghost.IsIdling())
                         {
-                            if (((PlayerGhost)ghost).IsLocal)
+                            if (ghost.IsLocal)
                             {
-                                ClientAuthoACGetHit action = new ClientAuthoACGetHit(ghost, ghcmd);
+                                ClientAuthoACGetHit getHitAction = new ClientAuthoACGetHit(ghost, ghcmd);
                                 Action prev = ghost.GetAction();
-                                action.SetCompleteCallback(() =>
-                                {
-                                    ghost.PerformAction(prev);
-                                });
-                                //Debug.Log("Action GetHit");
-                                ghost.PerformAction(action);
+                                getHitAction.SetCompleteCallback(() => ghost.PerformAction(prev));
+                                ghost.PerformAction(getHitAction);
                             }
                             else
-                                ghost.PerformAction(new NonClientAuthoACGetHit(ghost, ghcmd));
+                            {
+                                NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(ghost, ghcmd);
+                                Action prev = ghost.GetAction();
+                                getHitAction.SetCompleteCallback(() => ghost.PerformAction(prev));
+                                ghost.PerformAction(getHitAction);
+                            }
                         }
                         else
                             ghost.PlayEffect("", hitEffect);
                     }
                     else
-                        ghost.PerformAction(new NonClientAuthoACGetHit(ghost, ghcmd));
+                    {
+                        NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(ghost, ghcmd);
+                        Action prev = ghost.GetAction();
+                        getHitAction.SetCompleteCallback(() => ghost.PerformAction(prev));
+                        ghost.PerformAction(getHitAction);
+                    }
                 }
             }
             //player hit or  boss hit player will shake camera;
@@ -274,16 +269,16 @@ namespace Zealot.Client.Actions
         private void FaceTarget()
         {
             Vector3 direction = mEntity.Forward;
-            if (mTarget != null)
-            {
-                direction = mTarget.Position - mEntity.Position;
-            }
-            else if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
-            {
+            //if (mTarget != null)
+            //{
+            //    direction = mTarget.Position - mEntity.Position;
+            //}
+            //else if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
+            //{
                 Vector3 pos = ((CastSkillCommand)mdbCommand).targetPos;
                 direction = pos - mEntity.Position;
                 mTargetPos = pos;
-            }
+            //}
             direction.y = 0f;
             if (direction.sqrMagnitude <= 0.000001f) //if too close, simply use current forward
                 return;
@@ -294,15 +289,7 @@ namespace Zealot.Client.Actions
 
         private bool IsPlayerBasicAttack()
         {
-            if (mEntity.IsPlayer() && mSkillData.skillgroupJson.skilltype == SkillType.BasicAttack)
-            {
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return mEntity.IsPlayer() && mSkillData.skillgroupJson.skilltype == SkillType.BasicAttack;
         }
 
         protected virtual void PlaySkillEffect()
@@ -310,37 +297,28 @@ namespace Zealot.Client.Actions
             NetEntityGhost ghost = (NetEntityGhost)mEntity;//the 1 that cast the skill                       
             SkillGroupJson skillgroupJson = mSkillData.skillgroupJson;
             string animationName = mSkillData.skillgroupJson.action;
-            string effectName = "";
-
-            if (ghost.IsMonster())
-            {
-                effectName = mSkillData.skillJson.name;
-            }
-            else if (ghost.IsPlayer())
-            {
-                effectName = mSkillData.skillJson.name;
-                if (PlayerBasicAttack)
-                {
-
-                }
-                else
-                {
-                    JobType job = (JobType)((PlayerGhost)mEntity).PlayerSynStats.jobsect;
-                    //effectName = ClientUtils.GetJobHeroCardEffectName(job, effectName);
-                }
-            }
-            else
-            {
-                effectName = mSkillData.skillJson.name;
-            }
+            string effectName = mSkillData.skillJson.name;
             float effectdur = mSkillData.skillJson.effect_dur;
-            ghost.PlayEffect(animationName, effectName, null, effectdur + effectdurmod, mTargetPos, mTarget);
-        }
-
-        protected void PlayskillCutIn(int skillgrpid)
-        {
-            //GameObject go = UIManager.GetWidget(HUDWidgetType.SkillCutIn);
-            //go.GetComponent<SkillCutIn>().PlaySkill(skillgrpid);                        
+            ghost.PlayEffect(animationName, effectName, null, effectdur + effectdurmod, mTargetPos, mTarget, false);
+            
+            if(skillgroupJson.weapon_ot > 0)
+            {
+                GameTimer timer = null;
+                timer = mTimers.SetTimer((long)skillgroupJson.weapon_ot * 1000,
+                    delegate
+                    {
+                        if (ghost.IsPlayer())
+                        {
+                            ((PlayerGhost)ghost).AnimObj.GetComponent<AvatarController>().TransformWeapon(true);
+                            GameTimer closeTimer = null;
+                            closeTimer = mTimers.SetTimer((long)skillgroupJson.weapon_ct * 1000,
+                                delegate
+                                {
+                                    ((PlayerGhost)ghost).AnimObj.GetComponent<AvatarController>().TransformWeapon(false);
+                                }, closeTimer);
+                        }
+                    }, timer);
+            }
         }
 
         protected override void OnActiveEnter(string prevstate)
@@ -362,14 +340,14 @@ namespace Zealot.Client.Actions
             }
 
             SetupSkillCastTimer();
-            OnStartCastSkill();
+            //OnStartCastSkill();
             PlaySkillEffect();
         }
 
         protected override void OnActiveUpdate(long dt)
         {
             base.OnActiveUpdate(dt);
-            CheckEffectProcs(dt);
+            //CheckEffectProcs(dt);
         }
 
         /// <summary>
@@ -380,13 +358,8 @@ namespace Zealot.Client.Actions
         {
             if (mEntity.IsPlayer())
                 GotoState("Recover");
-        }
-
-        protected void ForceIdle()
-        {
-            NetEntityGhost ghost = (NetEntityGhost)mEntity;
-            IdleActionCommand cmd = new IdleActionCommand();
-            ghost.PerformAction(new ClientAuthoACIdle(ghost, cmd), true);
+            else
+                GotoState("Completed");
         }
     }
 
@@ -408,21 +381,8 @@ namespace Zealot.Client.Actions
             base.Start();
             ActorGhost ghost = (ActorGhost)mEntity;
             ghost.SetAction(mdbCommand);
-            //PlayskillCutIn(mSkillData.skillgroupJson.id); 
-            CastSkillCommand cmd = (CastSkillCommand)mdbCommand;
-            //if (mSkillData.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
-            //{
-            //    ghost.DisplaySkillIndicator(mSkillData, cmd.targetPos);
-            //}
         }
 
-        protected override void OnActiveLeave()
-        {
-            base.OnActiveLeave();
-            ActorGhost ghost = (ActorGhost)mEntity;
-            ghost.HideSkillIndicator();
-
-        }
         /// <summary>
         /// the state change determined in the authoritive client
         /// </summary>
@@ -463,27 +423,23 @@ namespace Zealot.Client.Actions
 
             GotoState("Completed");
         }
-
-        protected override void OnCompleteEnter(string prevstate)
-        {
-            //if (mCaster.IsPlayer() && PlayerBasicAttack)
-            //    ((PlayerGhost)mCaster).mSelectTargetID = -1;
-            base.OnCompleteEnter(prevstate);
-            
-        }
     }
 
     public class NonClientAuthoCastSkill : BaseClientCastSkill
     {
+        private bool mSkillIndicatorDisplayed;
+
         public NonClientAuthoCastSkill(Entity entity, ISkillCastCommandCommon cmd) : base(entity, cmd)
         {
+            mSkillIndicatorDisplayed = false;
         }
 
         protected override void OnActiveEnter(string prevstate)
         {
-            if (mTarget == null)
+            CastSkillCommand cmd = (CastSkillCommand)mdbCommand;
+            if (cmd.targetpid > 0 && mTarget == null)
             {
-                ForceIdle();
+                Idle();
                 GotoState("Completed");
                 return;
             }
@@ -496,12 +452,10 @@ namespace Zealot.Client.Actions
                 MonsterGhost monster = (MonsterGhost)mEntity;
                 if (monster.mArchetype.monstertype == MonsterType.Boss)
                 {
-                    if (mSkillData.skillgroupJson.skilltype == SkillType.Active) //boss casts skill, we show the warning indicator
+                    if (mSkillData.skillgroupJson.skilltype == SkillType.Active && !GameInfo.gCombat.CutsceneManager.IsPlaying()) //boss casts skill, we show the warning indicator
                     {
-                        if (!GameInfo.gCombat.CutsceneManager.IsPlaying())
-                        {
-                            monster.DisplaySkillIndicator(mSkillData, null);
-                        }
+                        monster.DisplaySkillIndicator(mSkillData, null);
+                        mSkillIndicatorDisplayed = true;
                     }
                 }
             }
@@ -510,7 +464,9 @@ namespace Zealot.Client.Actions
         protected override void OnActiveLeave()
         {
             base.OnActiveLeave();
-            mCaster.HideSkillIndicator();
+
+            if (mSkillIndicatorDisplayed)
+                mCaster.HideSkillIndicator();
         }
 
         /// <summary>
@@ -521,8 +477,7 @@ namespace Zealot.Client.Actions
         {
             if (PlayerBasicAttack)
             {
-                if (mTarget.IsAlive() && GameUtils.InRange(mCaster.Position,
-                            mTarget.Position, mSkillData.skillJson.radius))
+                if (mTarget.IsAlive() && GameUtils.InRange(mCaster.Position, mTarget.Position, mSkillData.skillJson.radius))
                 {
                     GotoState("Active");
                     return;
@@ -530,6 +485,13 @@ namespace Zealot.Client.Actions
             }
 
             GotoState("Completed");
+        }
+
+        protected void Idle()
+        {
+            NetEntityGhost ghost = (NetEntityGhost)mEntity;
+            IdleActionCommand cmd = new IdleActionCommand();
+            ghost.PerformAction(new NonClientAuthoACIdle(ghost, cmd));
         }
     }
 }

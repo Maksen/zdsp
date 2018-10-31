@@ -4,7 +4,7 @@ using Zealot.Entities;
 namespace Zealot.Spawners
 {
     [AddComponentMenu("Spawners at Server/PersonalMonsterSpawner")]
-    public class PersonalMonsterSpawner : ServerEntity
+    public class PersonalMonsterSpawner : ServerEntityWithEvent
     {
 		[Tooltip("Archetype Link to gamedb NPC table.")]
 		public string archetype;
@@ -24,13 +24,30 @@ namespace Zealot.Spawners
         public bool aggressive;
         [Tooltip("when one monster is attacked, the other monster belong to the same spawner will also help attack if in aggro radius. should set to non-aggressive")]
         public bool groupattack;
+        [Tooltip("If the monster damage event is broadcast")]
+        public bool damageEvent;
 
         void Awake()
         {
             gameObject.tag = "EditorOnly";
         }
-		
-		public override ServerEntityJson GetJson()
+
+        public override string[] Triggers
+        {
+            get
+            {
+                return new string[] { "TriggerSpawn", "DestoryAll", "HelpAttack", "SetArchetype", "SetArchetypeAndTriggerSpawn" };
+            }
+        }
+        public override string[] Events
+        {
+            get
+            {
+                return new string[] { "OnChildDead", "OnChildDamaged" };
+            }
+        }
+
+        public override ServerEntityJson GetJson()
 		{
             PersonalMonsterSpawnerJson jsonclass = new PersonalMonsterSpawnerJson();
 			GetJson(jsonclass);
@@ -49,6 +66,7 @@ namespace Zealot.Spawners
             jsonclass.canpathfind = canpathfind;
             jsonclass.groupattack = groupattack;
             jsonclass.aggressive = aggressive;
+            jsonclass.damageEvent = damageEvent;
             base.GetJson(jsonclass);
 		}
 

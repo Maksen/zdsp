@@ -7,6 +7,7 @@ using Zealot.Entities;
 
 namespace Photon.LoadBalancing.GameServer
 {
+    using Kopio.JsonContracts;
     using Zealot.Common;
     using Zealot.Common.Entities;
     using Zealot.Server.Entities;
@@ -23,12 +24,12 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if (player != null && !player.Destroyed)
             {
-                PortalEntryData entrydata;
-                if (PortalInfos.mEntries.TryGetValue(entryName, out entrydata))
+                PortalEntryData entryData;
+                if (PortalInfos.mEntries.TryGetValue(entryName, out entryData))
                 {
-                    if (entrydata.mLevel != currentlevelname || (entrydata.mPosition - player.Position).magnitude > 30)
+                    if (entryData.mLevel != currentlevelname || (entryData.mPosition - player.Position).magnitude > 30)
                         return;
-                    GameRules.TeleportToPortalExit(peer.mPlayer, entrydata.mExitName);
+                    GameRules.TeleportToPortalExit(peer.mPlayer, entryData.mExitName);
                 }
             }
         }
@@ -99,7 +100,7 @@ namespace Photon.LoadBalancing.GameServer
 
             if (questid != -1)
             {
-                peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
+                peer.QuestController.UpdateQuestEventStatus(questid);
             }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevelAndPos)]
@@ -147,7 +148,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            Kopio.JsonContracts.RespawnJson mRespawnInfo;
+            RespawnJson mRespawnInfo;
             RealmController realmController = player.mInstance.mRealmController;
 
             int respawnId = realmController.mRealmInfo.respawn;
@@ -465,9 +466,10 @@ namespace Photon.LoadBalancing.GameServer
         public void CreateRealmByID(int realmId, bool logAI, bool checkAllReq, int questid, GameClientPeer peer)
         {
             RealmRules.CreateRealmById(realmId, logAI, checkAllReq, peer);
+            peer.mPlayer.SetQuestRealmId(questid);
             if (questid != -1)
             {
-                peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
+                peer.QuestController.UpdateQuestEventStatus(questid);
             }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CreateRealmByID)]
@@ -585,13 +587,13 @@ namespace Photon.LoadBalancing.GameServer
         {
             InvRetval retval = peer.mInventory.UseItemInInventory(slotId, amount);
             if (retval.retCode == InvReturnCode.UseFailed)
-                ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_UseItemFailed", "", false, peer);
+                ZRPC.CombatRPC.Ret_SendSystemMessage("sys_UseItemFailed", "", false, peer);
             else if (retval.retCode == InvReturnCode.MaxCurrency)
                 ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_CurrencyMax", "", false, peer);
             else if (retval.retCode == InvReturnCode.OverLevel)
                 ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_OverLevel", "", false, peer);
             else if (retval.retCode == InvReturnCode.BelowLevel)
-                ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_BelowLevel", "", false, peer);
+                ZRPC.CombatRPC.Ret_SendSystemMessage("ret_UseItemFail_ReqlvlNotMeet", "", false, peer);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItem)]
         public void UseItemProxy(object[] args)
@@ -795,7 +797,15 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if (player == null)
                 return;
-            peer.mInventory.UseItemInHotbar(idx);
+            InvRetval retval = peer.mInventory.UseItemInHotbar(idx);
+            if (retval.retCode == InvReturnCode.UseFailed)
+                ZRPC.CombatRPC.Ret_SendSystemMessage("sys_UseItemFailed", "", false, peer);
+            else if (retval.retCode == InvReturnCode.MaxCurrency)
+                ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_CurrencyMax", "", false, peer);
+            else if (retval.retCode == InvReturnCode.OverLevel)
+                ZRPC.CombatRPC.Ret_SendSystemMessage("sys_Inv_OverLevel", "", false, peer);
+            else if (retval.retCode == InvReturnCode.BelowLevel)
+                ZRPC.CombatRPC.Ret_SendSystemMessage("ret_UseItemFail_ReqlvlNotMeet", "", false, peer);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItemHotbar)]
         public void UseItemHotbarProxy(object[] args)
@@ -1903,31 +1913,7 @@ namespace Photon.LoadBalancing.GameServer
             StoreCollectionItem((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
         }
         #endregion
-
-        #region Crafting
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CraftItem)]
-        public void CraftItem(int craftid, bool autocraft, GameClientPeer peer)
-        {
-            if (peer.mPlayer != null && peer.mPlayer.mCrafting != null)
-            {
-                if (autocraft == true)
-                {
-                    peer.mPlayer.mCrafting.AutoCraft(craftid);
-                }
-                else
-                {
-                    peer.mPlayer.mCrafting.SingleCraft(craftid);
-                }
-
-            }
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CraftItem)]
-        public void CraftItemProxy(object[] args)
-        {
-            CraftItem((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
-        }
-        #endregion
-
+        
         #region Donate
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetGuildDonateData)]
         public void GetGuildDonateData(string lastUpdateTime, GameClientPeer peer)
@@ -2241,7 +2227,7 @@ namespace Photon.LoadBalancing.GameServer
                 InteractiveTrigger _trigger = _serverEntity as InteractiveTrigger;
                 if (_trigger != null)
                 {
-                    _trigger.OnInteractiveUse(enter, peer);
+                    _trigger.OnInteractiveUse(objectId, enter, peer);
                 }
             }
         }
@@ -2252,7 +2238,7 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
-        public void OnInteractiveTrigger(int objectId, int keyId, GameClientPeer peer)
+        public void OnInteractiveTrigger(int objectId, GameClientPeer peer)
         {
             IServerEntity _serverEntity;
             if (mObjectMap.TryGetValue(objectId, out _serverEntity))
@@ -2260,14 +2246,14 @@ namespace Photon.LoadBalancing.GameServer
                 InteractiveTrigger _trigger = _serverEntity as InteractiveTrigger;
                 if (_trigger != null)
                 {
-                    _trigger.OnInteractive(peer, keyId);
+                    _trigger.OnInteractive(objectId, peer);
                 }
             }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
         public void OnInteractiveTriggerProxy(object[] args)
         {
-            OnInteractiveTrigger((int)args[0], (int)args[1], (GameClientPeer)args[2]);
+            OnInteractiveTrigger((int)args[0], (GameClientPeer)args[1]);
         }
         #endregion
 

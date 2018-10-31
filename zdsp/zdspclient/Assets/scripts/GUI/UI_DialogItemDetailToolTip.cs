@@ -657,7 +657,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         //Unique - Refine effect
         if (eq.UpgradeLevel > 0)
         {
-            float upgIncrease = EquipmentModdingRepo.GetEquipmentUpgradeData(eq.EquipmentJson.equiptype, eq.EquipmentJson.rarity, eq.UpgradeLevel+7).increase;
+            float upgIncrease = EquipmentModdingRepo.GetEquipmentUpgradeData(eq.EquipmentJson.equiptype, eq.EquipmentJson.rarity, eq.UpgradeLevel).increase;
 
             CreateText(out txtStats);
             txtStats.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineEffect");
@@ -673,13 +673,16 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             txtStats.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv");
             mNormalStatsLst.Add(txtStats.gameObject);
             List<int> upgSeLst = EquipmentModdingRepo.GetEquipmentUpgradeBuff(eq.EquipmentJson.equiptype, eq.EquipmentJson.rarity, eq.UpgradeLevel+7);
-            for (int i = 0; i < upgSeLst.Count; ++i)
+            if (upgSeLst != null)
             {
-                //Loop through all refinement effects that this weapon has unlocked based on its refine lvl +8 / +9 / +10
-                CreateTextColonValue(out txtValStats);
-                txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv2"), i); //refine level
-                txtValStats.Value = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv3"), SideEffectRepo.GetSideEffect(upgSeLst[i])); //equipmentUpgrade's buff
-                mNormalStatsLst.Add(txtValStats.gameObject);
+                for (int i = 0; i < upgSeLst.Count; ++i)
+                {
+                    //Loop through all refinement effects that this weapon has unlocked based on its refine lvl +8 / +9 / +10
+                    CreateTextColonValue(out txtValStats);
+                    txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv2"), i); //refine level
+                    txtValStats.Value = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineLv3"), SideEffectRepo.GetSideEffect(upgSeLst[i])); //equipmentUpgrade's buff
+                    mNormalStatsLst.Add(txtValStats.gameObject);
+                }
             }
             mNormalStatsLst.Add(CreateLineNoParent());
         }
@@ -1228,7 +1231,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 #if ZEALOT_DEVELOPMENT
         if (ConsoleVariables.ShowItemID)
         {
-            mItemTypeName.text += ClientUtils.ColorizedText(string.Format(" (#ID: {0})", mItem.JsonObject.itemid), "#ff00ffff");
+            mItemTypeName.text += ClientUtils.FormatStringColor(string.Format(" (#ID: {0})", mItem.JsonObject.itemid), "#ff00ffff");
         }
 #endif
     }

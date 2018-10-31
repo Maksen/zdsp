@@ -9,17 +9,11 @@ public class Achievement_RewardData : MonoBehaviour
     [SerializeField] Transform iconSlot;
     [SerializeField] Image iconImage;
     [SerializeField] Text achievementNameText;
-    [SerializeField] Text aexpNameText;
     [SerializeField] Text aexpAmtText;
     [SerializeField] Text rewardNameText;
     [SerializeField] Text rewardAmtText;
 
     private AchievementRewardClaim achReward;
-
-    private void Awake()
-    {
-        aexpNameText.text = ClientUtils.GetCurrencyLocalizedName(CurrencyType.AExp);
-    }
 
     public void Init(AchievementRewardClaim reward)
     {
@@ -71,7 +65,7 @@ public class Achievement_RewardData : MonoBehaviour
                 {
                     iconImage.gameObject.SetActive(true);
                     iconImage.sprite = ClientUtils.LoadIcon(obj.rewardIconPath);
-                    rewardNameText.text = se.effecttype.ToString(); // todo: jm to change to localize
+                    rewardNameText.text = SideEffectUtils.GetEffectTypeLocalizedName(se.effecttype);
                     rewardAmtText.text = "+" + (se.isrelative ? string.Format("{0}%", se.max) : se.max.ToString());
                     rewardNameText.transform.parent.gameObject.SetActive(true);
                 }

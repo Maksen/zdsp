@@ -49,6 +49,42 @@ public class UI_EquipmentModding : MonoBehaviour
         return equipUpgList;
     }
 
+    public List<ModdingEquipment> GetModdingEquipmentList(List<Equipment> equippedEquipList, List<IInventoryItem> invEquipList, ModdingEquipment equipToExclude)
+    {
+        List<ModdingEquipment> equipUpgList = new List<ModdingEquipment>();
+        for (int i = 0; i < equippedEquipList.Count; ++i)
+        {
+            // Don't add equipment if is in the same slots list
+            if (equipToExclude.mIsEquipped == true && i == equipToExclude.mSlotID)
+            {
+                continue;
+            }
+
+            Equipment equipment = equippedEquipList[i];
+            if (equipment != null && equipment.EquipmentJson.localizedname == equipToExclude.mEquip.EquipmentJson.localizedname)
+            {
+                equipUpgList.Add(new ModdingEquipment(i, equipment, true));
+            }
+        }
+
+        for (int i = 0; i < invEquipList.Count; ++i)
+        {
+            // Don't add equipment if is in the same slots list
+            if (equipToExclude.mIsEquipped == false && i == equipToExclude.mSlotID)
+            {
+                continue;
+            }
+
+            Equipment invEquip = invEquipList[i] as Equipment;
+            if (invEquip != null && invEquip.EquipmentJson.localizedname == equipToExclude.mEquip.EquipmentJson.localizedname)
+            {
+                equipUpgList.Add(new ModdingEquipment(i, invEquip, false));
+            }
+        }
+
+        return equipUpgList;
+    }
+
     public List<int> GetSEIDListFromString(string seIDGrp)
     {
         List<int> seIDList = new List<int>();

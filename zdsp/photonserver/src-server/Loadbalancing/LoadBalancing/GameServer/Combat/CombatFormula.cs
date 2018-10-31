@@ -861,7 +861,7 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
             CombatEvaluator(isBasicAttack, res, package);
 
             root.Update();
-            res.RealDamage = (int)Math.Round(root.result);
+            res.RealDamage = (int)Math.Round(root.result) + extradamage;
             
             Debug.Log(package.target, "Damage total : " + res.RealDamage.ToString());
             return res;

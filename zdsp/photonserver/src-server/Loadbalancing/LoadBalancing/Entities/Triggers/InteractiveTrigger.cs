@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Zealot.Entities;
 using Photon.LoadBalancing.GameServer;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Common.RPC;
+using Zealot.Server.Rules;
 
 namespace Zealot.Server.Entities
 {
@@ -14,13 +14,17 @@ namespace Zealot.Server.Entities
         public GameLogic mInstance;
         private bool mActive = false;
         private int mCounter = 0;
-        private bool interactiveArea = false;
+        private int min = 0;
+        private int max = 0;
         public InteractiveGate mEntity = null;
+        public NetEntity netEntity = null;
 
         public InteractiveTrigger(InteractiveTriggerJson info, GameLogic instance)
         {
             mPropertyInfos = info;
             mInstance = instance;
+            min = info.min;
+            max = info.max;
         }
 
         public ServerEntityJson GetPropertyInfos()
@@ -44,83 +48,91 @@ namespace Zealot.Server.Entities
             entity.Position = mPropertyInfos.position;
             entity.Forward = mPropertyInfos.forward;
             entity.Init(this);
+
             mEntity = entity;
+            netEntity = mInstance.mEntitySystem.GetEntityByPID(mEntity.GetPersistentID()) as NetEntity;
         }
 
-        public void OnInteractiveUse(bool enter, GameClientPeer player)
+        public void OnInteractiveUse(int pid, bool enter, GameClientPeer player)
         {
-            if (mActive)
+            if (enter)
             {
-                if (mCounter > 0)
-                {
-                    interactiveArea = enter;
-                    player.mPlayer.InteractiveTriggerStats.waitResponse = interactiveArea;
-                    object[] _paramters = { player.mPlayer };
-                    mInstance.BroadcastEvent(this, "OnInteractiveUse", _paramters);
-                }
-                else
-                {
-                    interactiveArea = false;
-                }
+                InteractiveTriggerRule.UseInteractiveTrigger(pid, player.mPlayer.Name, min, max,
+                    netEntity, mPropertyInfos.interactiveTime, mCounter, mPropertyInfos.isArea);
             }
             else
             {
-                interactiveArea = false;
+                InteractiveTriggerRule.InterruptedEvent(pid, player.mPlayer.Name);
+                netEntity.StopAction();
             }
-            player.mPlayer.InteractiveTriggerStats.canTrigger = interactiveArea;
+            object[] _paramters = { player };
+            mInstance.BroadcastEvent(this, "OnInteractiveUse", _paramters);
         }
 
-        public void OnInteractive(GameClientPeer player, int keyId)
+        public void OnInteractive(int pid, GameClientPeer player)
         {
-            if (interactiveArea && mCounter > 0)
+            netEntity.StopAction();
+
+            if (mCounter > 0 || mCounter == -1)
             {
-                if (keyId == 0)
+                if (mPropertyInfos.keyId == 0)
                 {
-                    mCounter--;
-                    object[] _paramters = { player.mPlayer };
-                    mInstance.BroadcastEvent(this, "OnInteractive", _paramters);
+                    mCounter = (mCounter == -1) ? -1 : mCounter - 1;
                 }
                 else
                 {
-                    List<ItemInfo> consumeItem = new List<ItemInfo>() {new ItemInfo { itemId = (ushort)keyId, stackCount = 1 }};
+                    List<ItemInfo> consumeItem = new List<ItemInfo>() { new ItemInfo { itemId = (ushort)mPropertyInfos.keyId, stackCount = 1 } };
                     InvRetval result = player.mPlayer.Slot.mInventory.DeductItems(consumeItem, "OnInteractive");
                     if (result.retCode == InvReturnCode.UseSuccess)
                     {
-                        mCounter--;
-                        object[] _paramters = { player.mPlayer };
-                        mInstance.BroadcastEvent(this, "OnInteractive", _paramters);
+                        mCounter = (mCounter == -1) ? -1 : mCounter - 1;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Write("Player not has item.");
+                        return;
                     }
                 }
+                object[] _paramters = { player };
+                mInstance.BroadcastEvent(this, "OnInteractive", _paramters);
+                InteractiveTriggerRule.CompeletedEvent(pid);
+                mEntity.ConsumeTrigger(mCounter, player);
+                if (mPropertyInfos.isArea && (mCounter > 0 || mCounter == -1))
+                {
+                    OnInteractiveUse(pid, true, player);
+                }
             }
-            player.mPlayer.InteractiveTriggerStats.waitResponse = false;
-            player.mPlayer.InteractiveTriggerStats.canTrigger = false;
         }
 
         #region Triggers
         public void TurnOn(IServerEntity sender, object[] parameters = null)
         {
             mActive = true;
-            mCounter = mPropertyInfos.counter;
+            object[] paramters = { mActive };
+            mInstance.BroadcastEvent(this, "TurnOn", paramters);
         }
 
         public void TurnOff(IServerEntity sender, object[] parameters = null)
         {
             mActive = false;
+            object[] paramters = { mActive };
+            mInstance.BroadcastEvent(this, "TurnOff", paramters);
         }
 
         public void Reset (IServerEntity sender, object[] parameters = null)
         {
+            mActive = true;
             mCounter = mPropertyInfos.counter;
+            GameClientPeer mPlayer = parameters[0] as GameClientPeer;
+            mEntity.ConsumeTrigger(mCounter, mPlayer);
+
+            object[] paramters = { mActive, mCounter };
+            mInstance.BroadcastEvent(this, "Reset", paramters);
         }
         #endregion
-
-        public bool GetInteractive()
-        {
-            return interactiveArea;
-        }
     }
 
-    public class InteractiveGate : BaseNetEntity
+    public class InteractiveGate : NetEntity
     {
         public InteractiveTriggerJson mPropertyInfos;
 
@@ -139,8 +151,18 @@ namespace Zealot.Server.Entities
         public override void SpawnAtClient(GameClientPeer peer)
         {
             string path = Repository.StaticNPCRepo.GetModelPrefabPathByArchetype(mPropertyInfos.archetype);
-            peer.ZRPC.CombatRPC.InteractiveEntity(mnPersistentID, path, mPropertyInfos.parentPath,
+            if(path == null || path == "")
+            {
+                path = Repository.ScenesModelRepo.GetScenesModelJson(mPropertyInfos.archetype).modelprefabpath;
+            }
+
+            peer.ZRPC.CombatRPC.SpawnInteractiveEntity(mnPersistentID, path, mPropertyInfos.parentPath,
                 Position.ToRPCPosition(), Forward.ToRPCDirection(), peer);
+        }
+
+        public void ConsumeTrigger (int count, GameClientPeer peer)
+        {
+            peer.ZRPC.CombatRPC.InteractiveTrigger(mnPersistentID, count, peer);
         }
         #endregion
     }

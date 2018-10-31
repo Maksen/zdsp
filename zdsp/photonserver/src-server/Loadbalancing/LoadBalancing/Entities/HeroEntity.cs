@@ -65,12 +65,9 @@
             HeroSynStats.ModelTier = hero.ModelTier;
 
             // Set CombatStats
-            //PlayerCombatStats heroCombatStats = new PlayerCombatStats();
-
             PlayerCombatStats heroCombatStats = (PlayerCombatStats)hero.CombatStats;
             heroCombatStats.SetPlayerLocalAndSyncStats(null, HeroSynStats, null);
             CombatStats = heroCombatStats;
-            //SetCombatStats(hero.Level);
         }
 
         public void SetSpawnPosition(Player player)
@@ -185,11 +182,12 @@
                 mAIController.ApproachTarget();
         }
 
-        public void CastSkill(int skillid, int targetPID)
+        public void CastSkill(int skillid, int targetPID, Vector3 targetpos)
         {
             CastSkillCommand cmd = new CastSkillCommand();
             cmd.skillid = skillid;
             cmd.targetpid = targetPID;
+            cmd.targetPos = targetpos;
             ServerAuthoCastSkill action = new ServerAuthoCastSkill(this, cmd);
             action.SetCompleteCallback(Idle);
             PerformAction(action);

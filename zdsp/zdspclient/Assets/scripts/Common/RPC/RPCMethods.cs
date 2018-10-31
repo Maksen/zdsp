@@ -119,7 +119,8 @@
         SpawnMonsterEntity,
         SpawnHeroEntity,
         DestroyEntity,
-        InteractiveEntity,
+        SpawnInteractiveEntity,
+        InteractiveTrigger,
         OnPlayerDead,
         RespawnPlayer,
         TeleportSetPos,
@@ -460,11 +461,7 @@
         AchievementNPCInteract,
         StoreCollectionItem,
         #endregion
-
-        #region Crafting
-        CraftItem,
-        #endregion
-
+        
         #region Donate
         GetGuildDonateData,
         RequestGuildDonate,
@@ -488,8 +485,7 @@
         GetCompensate,
 
         CharInfoSetPortrait,
-
-        ActiveRandomBox,
+     
         GetRandomBoxReward,
 
         #region Wardrobe
@@ -525,8 +521,8 @@
         #endregion
 
         #region InteractiveTrigger
-        OnInteractiveTrigger,
         OnInteractiveUse,
+        OnInteractiveTrigger,
         #endregion
 
         #region WorldBoss
@@ -572,9 +568,6 @@
         ConsoleFullRecoverMana,
         ConsoleGetAllRealmInfo,
         ConsoleSpawnSpecialBoss,
-        ConsoleGuildList,
-        ConsoleGuildAddFavour,
-        ConsoleGuildSMLevel,
         ConsoleAddRewardGroupMail,
         ConsoleAddRewardGroupBag,
         ConsoleAddRewardGroupCheckBagSlot,
@@ -587,17 +580,11 @@
         ConsoleRemoveHero,
         ConsoleResetExplorations,
         ConsoleKillPlayer,
-        ConsoleItemMallTopUp,
         ConsoleTestCombatFormula,
-        ConsoleAddLotteryFreeTickets,
-        ConsoleAddLotteryPoint,
         ConsoleRefreshLeaderBoard,
-        ConsoleResetPrizeGuarantee,
         ConsoleDonateReset,
         ConsoleResetDonateRemainingCount,
         ConsoleNotifyNewGMItem,
-        ConsoleAddActivePoints,
-        ConsoleFinishQERTask,
         ConsoleSocialAddFriend,
         ConsoleSetStoreRefreshTime,
         ConsoleResetGoldJackpotRoll,
@@ -620,6 +607,7 @@
         CombatLogging,
         CombatLogClear,
         ConsoleRemoveEquipSkills,
+        ConsoleResetLevel,
         #endregion
 
         #region LeaderBoard
@@ -637,6 +625,7 @@
 
         #region Tutorial
         TriggerTutorial,
+        EndTutorial,
         #endregion
 
         #region SevenDays
@@ -704,6 +693,15 @@
 
         #region Equipment
         HideHelm,
+        #endregion
+
+        #region DNARelic
+        DNASlotDNA,
+        DNAUnslotDNA,
+        DNAUpgradeDNA,
+        DNAEvolveDNA,
+        EquipmentSlotRelic,
+        EquipmentUnslotRelic,
         #endregion
 
         ConsoleTestComboSkill,
@@ -784,6 +782,10 @@
 
         #region Tooltip
         Tooltip_DailyWeeklyLimit,
+        #endregion
+
+        #region Invincible
+        Invincible
         #endregion
     }
 

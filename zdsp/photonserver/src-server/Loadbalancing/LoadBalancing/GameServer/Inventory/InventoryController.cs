@@ -388,7 +388,7 @@ namespace Photon.LoadBalancing.GameServer
                 int itemId = mInvData.OnAddItem(slot.Key, slot.Value);
 
                 // Update Destiny Clue
-                mSlot.mPlayer.DestinyClueController.TriggerClueCondition(ClueCondition.Item, itemId);
+                mSlot.DestinyClueController.TriggerClueCondition(ClueCondition.Item, itemId);
             }
         }
 
@@ -1415,15 +1415,17 @@ namespace Photon.LoadBalancing.GameServer
                 mSlot.mPlayer.UpdateItemHotbar(idx, 0);
         }
 
-        public void UseItemInHotbar(byte index)
-        {
+        public InvRetval UseItemInHotbar(byte index)
+        {       
             int itemId = (int)mSlot.mPlayer.ItemHotbarStats.ItemHotbar[index];
-            if (itemId != 0)
-            {
-                int slotId = mInvData.GetLeastStackCountSlotIdxByItemId((ushort)itemId);
-                if (slotId != -1)
-                    UseItemInInventory(slotId, 1);
-            }
+            if (itemId == 0)
+                return new InvRetval() { retCode = InvReturnCode.UseFailed };
+
+            int slotId = mInvData.GetLeastStackCountSlotIdxByItemId((ushort)itemId);
+            if (slotId == -1)
+                return new InvRetval() { retCode = InvReturnCode.UseFailed };
+
+            return UseItemInInventory(slotId, 1);
         }
 
         public void UpdateEquipFusion(int slotID, string value)

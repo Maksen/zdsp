@@ -109,7 +109,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
 
     void InitVariable ()
     {
-        SetFusionEquipStats(string.Empty, string.Empty, string.Empty, string.Empty);
+        SetFusionEquipStats(string.Empty, string.Empty, string.Empty);
         costCurrencyText.text = "0";
         for (int i = 0; i < 6; ++i)
         {
@@ -320,7 +320,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
             Equipment equip = equipSlots[EquipListIndex].Item as Equipment;
             List<string> equipEffect = EquipFusionRepo.DecodeEffect(equip.FusionEffect);
             List<string> equipStats = EquipFusionRepo.BuildEquipStats(equip);
-            SetFusionEquipStats(equipStats[0], equipStats[1], equipStats[2], equipStats[3]);
+            SetFusionEquipStats(equipStats[0], equipStats[1], equipStats[2], true);
             for (int i = 0; i < 6; ++i)
             {
                 equipmentEffect[i].text = equipEffect[i];
@@ -495,7 +495,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
                 break;
             case 1:
                 ClearBtn(0);
-                SetFusionEquipStats(string.Empty, string.Empty, string.Empty, string.Empty);
+                SetFusionEquipStats(string.Empty, string.Empty, string.Empty);
                 for (int i = 0; i < 6; ++i)
                 {
                     equipmentEffect[i].text = string.Empty;
@@ -538,12 +538,12 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
         compeletStep[order] = false;
     }
 
-    void SetFusionEquipStats (string name, string upgrade, string evolve, string rank)
+    void SetFusionEquipStats (string name, string upgrade, string evolve, bool invisible = false)
     {
         equipmentName.text = name;
         equipmentUpgradeValue.text = upgrade;
         equipmentEvolveValue.text = evolve;
-        equipmentRank.text = rank;
+        equipmentRank.enabled = invisible;
     }
     #endregion
 }

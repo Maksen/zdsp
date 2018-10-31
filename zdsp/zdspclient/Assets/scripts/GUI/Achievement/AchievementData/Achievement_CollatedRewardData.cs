@@ -36,7 +36,7 @@ public class Achievement_CollatedRewardData : MonoBehaviour
             case AchievementRewardType.SideEffect:
                 iconImage.gameObject.SetActive(true);
                 iconImage.sprite = ClientUtils.LoadIcon(reward.iconPath);
-                rewardNameText.text = ((EffectType)reward.rewardId).ToString(); // todo: jm to change to localized
+                rewardNameText.text = SideEffectUtils.GetEffectTypeLocalizedName((EffectType)reward.rewardId);
                 rewardAmtText.text = "+" + reward.rewardCount;
                 break;
         }

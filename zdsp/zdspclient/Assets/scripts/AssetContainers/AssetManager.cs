@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
-using System.Linq;
-using System.Collections.Generic;
 using System;
-using AssetBundles;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
 #if UNITY_EDITOR
 using UnityEditor;

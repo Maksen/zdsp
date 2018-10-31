@@ -50,7 +50,7 @@ public class HUD_Skills : MonoBehaviour
         //int group = localplayer.SkillStats.EquipGroup;
 
 
-        for (int i = 0; i < SkillButtons.Length - 1; i++)
+        for (int i = 0; i < SkillButtons.Length; i++)
         {
             SkillButtons[i].Init(CastSkill, i, this);
             //Transform imgtrans = SkillButtons[i].gameObject.transform.Find("Image_Lock");
@@ -61,8 +61,14 @@ public class HUD_Skills : MonoBehaviour
         }
     }
 
+    public void TutorialMode(UnityEngine.Events.UnityAction call)
+    {
+        SkillButtons[2].AddListener(call);
+    }
+
     public void UpdateSkillButtons(bool isBot)
     {
+        isBot = false;
         Zealot.Common.Datablock.CollectionHandler<object> skillequipped;
         
         skillequipped = isBot ? localplayer.SkillStats.AutoSkill : localplayer.SkillStats.EquippedSkill;
@@ -129,7 +135,7 @@ public class HUD_Skills : MonoBehaviour
         finalcd = CombatUtils.GetFinalSkillCooldown(GameInfo.gLocalPlayer.SkillPassiveStats, cooldownIndex, finalcd);
         cdstate.mCDEnd[cooldownIndex] = now + finalcd;
 
-        for(int i = 0; i < SkillButtons.Length - 1; ++i)
+        for(int i = 0; i < SkillButtons.Length; ++i)
         {
             if (SkillButtons[i].skillid == cooldownIndex)
             {
@@ -172,7 +178,7 @@ public class HUD_Skills : MonoBehaviour
         else
             GameInfo.gLocalPlayer.Bot.StopBot();
 
-        UpdateSkillButtons(AutoCombatToggle.isOn);
+        //UpdateSkillButtons(AutoCombatToggle.isOn);
     }
 
     public void OnHudSkillToggle(bool toggle)

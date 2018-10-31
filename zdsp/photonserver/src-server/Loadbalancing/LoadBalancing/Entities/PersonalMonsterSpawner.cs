@@ -15,6 +15,7 @@ namespace Zealot.Server.Entities
         private readonly static long mLiveDuration = 600000; //personal monster live for 10 minutes.
         private int mPopulation;
         private Dictionary<string, List<Monster>> mSummonerMonsters;
+        private long mLastDamagedEvent = 0;
 
         public PersonalMonsterSpawner(PersonalMonsterSpawnerJson info, GameLogic instance) : base(info, instance)
         {
@@ -115,6 +116,23 @@ namespace Zealot.Server.Entities
                 monsters.Remove(child);
                 if (monsters.Count == 0)
                     mSummonerMonsters.Remove(summoner);
+                object[] paramters = { attacker, child };
+                mInstance.BroadcastEvent(this, "OnChildDead", paramters);
+            }
+        }
+
+        public override void OnChildDamaged(IActor attacker)
+        {
+            //base.OnChildDamage(attacker);
+            if (mPersonalMonsterSpawnerJson.damageEvent)
+            {
+                long now = mInstance.GetSynchronizedTime();
+                if (now - mLastDamagedEvent > 5000)
+                {
+                    mLastDamagedEvent = now;
+                    object[] paramters = { attacker };
+                    mInstance.BroadcastEvent(this, "OnChildDamaged", paramters);
+                }
             }
         }
 

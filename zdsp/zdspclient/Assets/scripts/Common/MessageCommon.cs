@@ -26,7 +26,7 @@ namespace Zealot.Common
         StatusActivityEnd,
         NewServerEventConfigChanged,
         ArenaRankUp,
-        TickerTapeMessage,     
+        TickerTapeMessage,
         AuctionBegin,
         AuctionEnd,
         AuctionChanged,
@@ -36,9 +36,9 @@ namespace Zealot.Common
         NewDay,
         SystemSwitchChange,
         GainExperience,
-        GMMessageChanged,
         MessageBroadcaster,
         DonationRefresh,
+        InteractiveTrigger,
     }
 
     public class ChatMessage

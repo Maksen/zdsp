@@ -88,6 +88,7 @@ public class UI_QuestList : MonoBehaviour
     {
         SelectedQuestId = questid;
         UpdateObjectiveList();
+        UpdateQuestReward();
     }
 
     private void UpdateObjectiveList()
@@ -115,7 +116,7 @@ public class UI_QuestList : MonoBehaviour
                     if (objectiveJson.type != QuestObjectiveType.MultipleObj)
                     {
                         bool completed = mQuestController.IsMainQuestObjectiveCompleted(SelectedQuestId, group, seq);
-                        bool ongoing = mQuestData == null ? false : mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq ? true : false;
+                        bool ongoing = mQuestData == null ? false : mQuestData.QuestId == SelectedQuestId &&  mQuestData.GroupdId == group && mQuestData.MainObjective.SequenceNum == seq ? true : false;
                         string description = mQuestController.DeserializedDescription(QuestType.Main, SelectedQuestId, objectiveid, completed, ongoing);
                         GameObject objectivedetail = Instantiate(ObjectiveDetail);
                         objectivedetail.GetComponent<UI_ObjectiveListData>().Init(description, ongoing, completed, mQuestController, SelectedQuestId);

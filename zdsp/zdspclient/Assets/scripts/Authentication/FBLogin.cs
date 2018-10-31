@@ -1,8 +1,7 @@
-using UnityEngine;
-using System;
-using System.Collections.Generic;
-using Zealot.Common;
 using Facebook.Unity;
+using System.Collections.Generic;
+using UnityEngine;
+using Zealot.Common;
 
 public class FBLogin : Photon.MonoBehaviour 
 {

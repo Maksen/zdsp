@@ -6,7 +6,7 @@ namespace Zealot.Client.Actions
 {
     using Zealot.Common.Actions;
 
-    public class BaseClientWalk : Zealot.Common.Actions.Action //: AWalk
+    public class BaseClientWalk : Action //: AWalk
     {
         private const float Epsilon = 0.04f;
         private const float EpsilonSqrt = 0.2f;
@@ -56,9 +56,6 @@ namespace Zealot.Client.Actions
             }
             mDesiredForward = forward;
 
-            if (ghost.IsHitted())
-                return;
-
             float moveSpeed = ((WalkActionCommand)mdbCommand).speed;
             if (moveSpeed == 0)
                 moveSpeed = ghost.PlayerStats.MoveSpeed;
@@ -78,9 +75,10 @@ namespace Zealot.Client.Actions
             return false;
         }
 
-        protected override void OnActiveLeave()
+        protected override void OnTerminatedEnter(string prevstate)
         {
-            base.OnActiveLeave();
+            mNewStart = true;
+            base.OnTerminatedEnter(prevstate);
         }
     }
 
@@ -157,5 +155,4 @@ namespace Zealot.Client.Actions
             ghost.Forward = mDesiredForward;
         }
     }
-
 }

@@ -87,6 +87,7 @@ namespace Photon.LoadBalancing.GameServer
             ActionManager.RegisterAction(ACTIONTYPE.KNOCKEDUP, typeof(KnockedUpCommand), null);//KnockBackup only for monsters.
             ActionManager.RegisterAction(ACTIONTYPE.DRAGGED, typeof(DraggedActionCommand), null);
             ActionManager.RegisterAction(ACTIONTYPE.GETHIT, typeof(GetHitCommand), null);
+            ActionManager.RegisterAction(ACTIONTYPE.INTERACTIVE_TRIGGER, typeof(InteractiveTriggerCommand), null);
         }
         #endregion
 
@@ -248,7 +249,6 @@ namespace Photon.LoadBalancing.GameServer
             GuildRules.Init();
             //SevenDaysRules.Init();
             WelfareRules.Init();
-            TickerTapeSystem.Init();
             CurrencyExchangeRules.Init();
             PartyRules.Init();
             QuestRules.Init();
@@ -410,7 +410,8 @@ namespace Photon.LoadBalancing.GameServer
 
                 var roomInstances = GameApplication.Instance.GameCache.RoomInstances;
                 List<string> roomKeys = roomInstances.Keys.ToList();
-                for (int index = 0; index < roomKeys.Count; index++)
+                int count = roomKeys.Count;
+                for (int index = 0; index < count; ++index)
                 {
                     string roomKey = roomKeys[index];
                     RoomCacheBase.RoomInstance roominstance;
@@ -449,13 +450,14 @@ namespace Photon.LoadBalancing.GameServer
                 //GameCounters.TotalTimerUpdates.RawValue /= 1000; //in microsec
                 //GameCounters.TotalResetSyncStats.RawValue /= 1000; //in microsec                
 
-                for (int index = 0; index < mRoomsToBeRemoved.Count; index++)
+                count = mRoomsToBeRemoved.Count;
+                for (int index = 0; index < count; ++index)
                     mRoomsToBeRemoved[index].TryRemoveRoomFromCache();
                 mRoomsToBeRemoved.Clear();
 
                 ReviveItemController.Update();
 
-                int profiledTime = (int)(checkGamesProfiler.StopAndGetElapsed() * 1000); //mili seconds
+                int profiledTime = (int)(checkGamesProfiler.StopAndGetElapsed() * 1000); // milliseconds
 
                 mServerStatus.roomupdatedur = profiledTime;
                 GameCounters.CheckGamesDuration.RawValue = profiledTime; //dashboard counter, this should take less than 50msec, more than that and the server will feel lag

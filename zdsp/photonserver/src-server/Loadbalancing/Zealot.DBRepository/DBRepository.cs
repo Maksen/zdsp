@@ -99,12 +99,6 @@ namespace Zealot.DBRepository
         private CurrencyExchangeGMRepository _currencyExchangeGMRepo;
         public CurrencyExchangeGMRepository CurrencyExchangeGM { get { return _currencyExchangeGMRepo; } }
 
-        private TalentGMRepository _talentGMRepo;
-        public TalentGMRepository TalentGM { get { return _talentGMRepo; } }
-
-        private TickerTapeRepository _tickertapeRepo;
-        public TickerTapeRepository TickerTape { get { return _tickertapeRepo; } }
-
         private NPCStoreRepository _NPCStoreGMRepo;
         public NPCStoreRepository NPCStoreGMRepo { get { return _NPCStoreGMRepo; } }
 
@@ -124,9 +118,7 @@ namespace Zealot.DBRepository
             topUpActivityRepository = new TopUpActivityRepository(this);
             _tongbaocostbuffRepo = new TongbaoCostBuffRepository(this);
             _systemSwitchRepo = new SystemSwitchRepository(this);
-            _tickertapeRepo = new TickerTapeRepository(this);
             _currencyExchangeGMRepo = new CurrencyExchangeGMRepository(this);
-            _talentGMRepo = new TalentGMRepository(this);
             _NPCStoreGMRepo = new NPCStoreRepository(this);
         }
     }

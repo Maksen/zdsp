@@ -50,10 +50,16 @@ namespace Zealot.RPC
             ProxyMethod("DestroyEntity", pid, target);
         }
 
-        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveEntity)]
-        public void InteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota, object target)
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnInteractiveEntity)]
+        public void SpawnInteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota, object target)
         {
-            ProxyMethod("InteractiveEntity", pid, prefab, parent, pos, rota, target);
+            ProxyMethod("SpawnInteractiveEntity", pid, prefab, parent, pos, rota, target);
+        }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveTrigger)]
+        public void InteractiveTrigger(int pid, int count, object target)
+        {
+            ProxyMethod("InteractiveTrigger", pid, count, target);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnPlayerDead)]

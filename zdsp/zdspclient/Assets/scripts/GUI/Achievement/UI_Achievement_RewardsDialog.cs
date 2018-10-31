@@ -29,7 +29,7 @@ public class UI_Achievement_RewardsDialog : BaseWindowBehaviour
             rewardsListScrollView.Clear();
     }
 
-    public void InitClaimedRewards(List<AchievementRewardClaim> rewardList)
+    public void InitCollatedRewardsList(List<AchievementRewardClaim> rewardList)
     {
         rewardsListScrollView.gameObject.SetActive(false);
         claimedRewardsScrollView.gameObject.SetActive(true);
@@ -88,12 +88,12 @@ public class UI_Achievement_RewardsDialog : BaseWindowBehaviour
             seIconPaths.TryGetValue(item.Key, out iconpath);
             if (item.Value.Item1 > 0) // abs
             {
-                int key = (int)item.Key; // todo: jm to change to localized string id
+                int key = (int)item.Key;
                 collatedList.Add(new AchievementReward(AchievementRewardType.SideEffect, key, item.Value.Item1, iconpath));
             }
             if (item.Value.Item2 > 0)  // relative
             {
-                int key = (int)item.Key; // todo: jm to change to localized string id
+                int key = (int)item.Key;
                 collatedList.Add(new AchievementReward(AchievementRewardType.SideEffect, key, item.Value.Item2, iconpath));
             }
         }

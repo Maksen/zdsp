@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 using System.Collections;
 using Zealot.Common;
+using Zealot.Repository;
 
 public class UI_CharacterInfoLeftSide : MonoBehaviour
 {
@@ -38,7 +39,7 @@ public class UI_CharacterInfoLeftSide : MonoBehaviour
         {
             //Load class icon depending on assigned job index
             //mJobImg.sprite = ;
-            mJobTitle.text = ((JobType)value).ToString();
+            mJobTitle.text = JobSectRepo.GetJobLocalizedName((JobType)value);
         }
     }
 

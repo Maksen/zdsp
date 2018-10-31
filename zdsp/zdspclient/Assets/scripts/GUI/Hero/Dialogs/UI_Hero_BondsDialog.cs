@@ -1,6 +1,8 @@
 ﻿using Kopio.JsonContracts;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UIWidgets;
 using UnityEngine;
 using UnityEngine.UI.Extensions;
 using Zealot.Common;
@@ -13,8 +15,7 @@ public class UI_Hero_BondsDialog : BaseWindowBehaviour
     [SerializeField] GameObject bondDataPrefab;
     [SerializeField] HorizontalScrollSnap horizontalScroll;
     [SerializeField] UI_ScrollRectOcclusion scrollRectOcclusion;
-    [SerializeField] PaginationManager pageManager;
-    [SerializeField] Scroll_TxtCurrentPage currentPage;
+    [SerializeField] Spinner pageSpinner;
 
     [Header("Right Side")]
     [SerializeField] UI_Hero_TotalBuffPanel totalBuffPanel;
@@ -28,6 +29,9 @@ public class UI_Hero_BondsDialog : BaseWindowBehaviour
     private void Start()
     {
         horizontalScroll.OnSelectionChangeStartEvent.AddListener(ToggleHeroSelectionOff);
+        horizontalScroll.OnSelectionPageChangedEvent.AddListener(SetPageNumber);
+        pageSpinner.onPlusClick.AddListener(horizontalScroll.NextScreen);
+        pageSpinner.onMinusClick.AddListener(horizontalScroll.PreviousScreen);
     }
 
     public void Init(int heroId, int jumpToBondGrpId = 0)
@@ -41,20 +45,28 @@ public class UI_Hero_BondsDialog : BaseWindowBehaviour
             bondData.Init(involvedBonds[i], this);
             horizontalScroll.AddChild(obj);
             bondList.Add(bondData);
-            pageManager.transform.GetChild(i).gameObject.SetActive(true);
             if (involvedBonds[i].heroBondGroupJson.id == jumpToBondGrpId)
                 startingPageIndex = i;
         }
 
         scrollRectOcclusion.Init();
-        if (involvedBonds.Count > 0)
-            currentPage.Init();
-        else
-            currentPage.gameObject.SetActive(false); // disable in case no data
+        InitPageSpinner(involvedBonds.Count);
         totalBuffPanel.Init();
 
         if (startingPageIndex > 0)
             StartCoroutine(GoToPage(startingPageIndex));
+    }
+
+    private void InitPageSpinner(int numOfPages)
+    {
+        pageSpinner.Min = 1;
+        pageSpinner.Max = Math.Max(1, numOfPages);
+        pageSpinner.Value = 1;
+    }
+
+    void SetPageNumber(int pageIndex)
+    {
+        pageSpinner.Value = pageIndex + 1;
     }
 
     private IEnumerator GoToPage(int index)
@@ -125,7 +137,6 @@ public class UI_Hero_BondsDialog : BaseWindowBehaviour
 
     public void CleanUp()
     {
-        pageManager.OffAllToggles();
         scrollRectOcclusion.CleanUp();
         bondList.Clear();
         GameObject[] children;

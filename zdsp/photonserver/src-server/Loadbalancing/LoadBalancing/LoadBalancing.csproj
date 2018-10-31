@@ -42,7 +42,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -169,6 +169,7 @@
     <Compile Include="GameServer\EquipFushion\EquipFushionController.cs" />
     <Compile Include="GameServer\EquipmentCraft\EquipmentCraftController.cs" />
     <Compile Include="GameServer\GameRules\DonationRules.cs" />
+    <Compile Include="GameServer\GameRules\InteractiveTriggerRule.cs" />
     <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
@@ -224,7 +225,6 @@
     <Compile Include="Entities\Triggers\MessageBroadcaster.cs" />
     <Compile Include="GameServer\ApplicationStatsPublisher.cs" />
     <Compile Include="GameServer\Chest\Chest.cs" />
-    <Compile Include="GameServer\Crafting\Crafting.cs" />
     <Compile Include="GameServer\EventMessage\RoomBroadcastMessage.cs" />
     <Compile Include="GameServer\EventMessage\RPCBroadcastData.cs" />
     <Compile Include="GameServer\GameApplicationLogic.cs" />
@@ -303,7 +303,6 @@
     <Compile Include="GameServer\QAClientPeer.cs" />
     <Compile Include="GameServer\QuestExtraRewards\QuestExtraRewardsController.cs" />
     <Compile Include="GameServer\SystemSwitch\SystemSwitch.cs" />
-    <Compile Include="GameServer\TickerTape\TickerTapeSystem.cs" />
     <Compile Include="GameServer\TongbaoCostBuff.cs" />
     <Compile Include="GameServer\TopUp\TopUpManager.cs" />
     <Compile Include="GameServer\Wardrobe\WardrobeController.cs" />

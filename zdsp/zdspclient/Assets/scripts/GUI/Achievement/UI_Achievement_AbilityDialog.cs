@@ -83,11 +83,13 @@ public class UI_Achievement_AbilityDialog : BaseWindowBehaviour
 
     private void Populate()
     {
+        Achievement_AbilityData lastDataWithLineSeparator = null;
+
         int length = SideEffectUtils.buffTypeGroups.Length;
         for (int i = 0; i < length; ++i)
         {
             int child = 0;
-            GameObject lastChild = null;
+            Achievement_AbilityData lastData = null;
             List<EffectType> currentGrp = SideEffectUtils.buffTypeGroups[i];
             for (int j = 0; j < currentGrp.Count; ++j)
             {
@@ -99,13 +101,13 @@ public class UI_Achievement_AbilityDialog : BaseWindowBehaviour
                     {
                         if (child % 2 == 0)
                         {
-                            lastChild = ClientUtils.CreateChild(dataParent, dataPrefab);
-                            lastChild.GetComponent<Achievement_AbilityData>().SetLeftData(effectType.ToString(), pair.Item1, false);
+                            lastData = ClientUtils.CreateChild(dataParent, dataPrefab).GetComponent<Achievement_AbilityData>();
+                            lastData.SetLeftData(effectType, pair.Item1, false);
                             child++;
                         }
                         else
                         {
-                            lastChild.GetComponent<Achievement_AbilityData>().SetRightData(effectType.ToString(), pair.Item1, false);
+                            lastData.SetRightData(effectType, pair.Item1, false);
                             child++;
                         }
                     }
@@ -114,19 +116,28 @@ public class UI_Achievement_AbilityDialog : BaseWindowBehaviour
                     {
                         if (child % 2 == 0)
                         {
-                            lastChild = ClientUtils.CreateChild(dataParent, dataPrefab);
-                            lastChild.GetComponent<Achievement_AbilityData>().SetLeftData(effectType.ToString(), pair.Item2, true);
+                            lastData = ClientUtils.CreateChild(dataParent, dataPrefab).GetComponent<Achievement_AbilityData>();
+                            lastData.SetLeftData(effectType, pair.Item2, true);
                             child++;
                         }
                         else
                         {
-                            lastChild.GetComponent<Achievement_AbilityData>().SetRightData(effectType.ToString(), pair.Item2, true);
+                            lastData.SetRightData(effectType, pair.Item2, true);
                             child++;
                         }
                     }
                 }
             }
+
+            if (lastData != null)
+            {
+                lastData.SetLineSeparator(true);
+                lastDataWithLineSeparator = lastData;
+            }
         }
+
+        if (lastDataWithLineSeparator != null)
+            lastDataWithLineSeparator.SetLineSeparator(false);
     }
 
     public override void OnCloseWindow()

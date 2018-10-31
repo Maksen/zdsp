@@ -440,6 +440,18 @@ namespace Photon.LoadBalancing.GameServer
         {
             OnTriggerTutorial((int)args[0], (GameClientPeer)args[1]);
         }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EndTutorial)]
+        public void OnEndTutorial(int system, GameClientPeer peer)
+        {
+            int bit = 1 << system;
+            peer.mPlayer.PlayerSynStats.TutorialStatus |= bit;
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EndTutorial)]
+        public void OnEndTutorialProxy(object[] args)
+        {
+            OnEndTutorial((int)args[0], (GameClientPeer)args[1]);
+        }
         #endregion
 
         #region Welfare
@@ -663,6 +675,74 @@ namespace Photon.LoadBalancing.GameServer
         public void QERClaimBoxRewardProxy(object[] args)
         {
             QERClaimBoxReward((int)args[0], (GameClientPeer)args[1]);
+        }
+        #endregion
+
+        #region DNARelic
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNASlotDNA)]
+        public void DNASlotDNA(int slotID, GameClientPeer peer)
+        {
+            peer.OnDNASlotDNA(slotID);
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNASlotDNA)]
+        public void DNASlotDNAProxy(object[] args)
+        {
+            DNASlotDNA((int)args[0], (GameClientPeer)args[1]);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNAUnslotDNA)]
+        public void DNAUnslotDNA(int slotID, GameClientPeer peer)
+        {
+            peer.OnDNAUnslotDNA(slotID);
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNAUnslotDNA)]
+        public void DNAUnslotDNAProxy(object[] args)
+        {
+            DNAUnslotDNA((int)args[0], (GameClientPeer)args[1]);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNAUpgradeDNA)]
+        public void DNAUpgradeDNA(int dnaType, GameClientPeer peer)
+        {
+            peer.OnDNAUpgradeDNA(dnaType);
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNAUpgradeDNA)]
+        public void DNAUpgradeDNAProxy(object[] args)
+        {
+            DNAUpgradeDNA((int)args[0], (GameClientPeer)args[1]);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNAEvolveDNA)]
+        public void DNAEvolveDNA(int dnaType, GameClientPeer peer)
+        {
+            peer.OnDNAEvolveDNA(dnaType);
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DNAEvolveDNA)]
+        public void DNAEvolveDNAProxy(object[] args)
+        {
+            DNAEvolveDNA((int)args[0], (GameClientPeer)args[1]);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentSlotRelic)]
+        public void EquipmentSlotRelic(int dataid, GameClientPeer peer)
+        {
+            //peer.OnEquipmentSlotRelic(dataid);
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentSlotRelic)]
+        public void EquipmentSlotRelicProxy(object[] args)
+        {
+            EquipmentSlotRelic((int)args[0], (GameClientPeer)args[1]);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentUnslotRelic)]
+        public void EquipmentUnslotRelic(int dataid, GameClientPeer peer)
+        {
+            //peer.OnEquipmentUnslotRelic(dataid);
+        }
+        [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipmentUnslotRelic)]
+        public void EquipmentUnslotRelicProxy(object[] args)
+        {
+            EquipmentUnslotRelic((int)args[0], (GameClientPeer)args[1]);
         }
         #endregion
 
@@ -1297,7 +1377,27 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EquipSkill)]
         public void EquipSkill(int skillid, int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))] = skillid;
+            // Sanity check for skill repeats
+            Player player = peer.mPlayer;
+            if(player != null)
+            {
+                int index = -1;
+                for (int i = 0; i < 5; ++i)
+                {
+                    if (i == slot) continue;
+                    if ((int)player.SkillStats.EquippedSkill[i + (5 * (slotGroup - 1))] == skillid)
+                        index = i;
+                }
+
+                // a repeat is found
+                if(index != -1)
+                {
+                    // set index to slot
+                    player.SkillStats.EquippedSkill[index + (5 * (slotGroup - 1))] = player.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))];
+                }
+
+                peer.mPlayer.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))] = skillid;
+            }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveEquipSkill)]
@@ -1309,7 +1409,27 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.AutoEquipSkill)]
         public void AutoEquipSkill(int skillid, int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))] = skillid;
+            // Sanity check for skill repeats
+            Player player = peer.mPlayer;
+            if (player != null)
+            {
+                int index = -1;
+                for (int i = 0; i < 5; ++i)
+                {
+                    if (i == slot) continue;
+                    if ((int)player.SkillStats.AutoSkill[i + (5 * (slotGroup - 1))] == skillid)
+                        index = i;
+                }
+
+                // a repeat is found
+                if (index != -1)
+                {
+                    // set index to slot
+                    player.SkillStats.AutoSkill[index + (5 * (slotGroup - 1))] = player.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))];
+                }
+
+                peer.mPlayer.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))] = skillid;
+            }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveAutoEquipSkill)]
@@ -1372,7 +1492,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateTrakingList)]
         public void UpdateTrakingList(string data, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.UpdateTrackingList(data);
+            peer.QuestController.UpdateTrackingList(data);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DeleteQuest)]
@@ -1380,80 +1500,80 @@ namespace Photon.LoadBalancing.GameServer
         {
             if (data != "null")
             {
-                peer.mPlayer.QuestController.UpdateTrackingList(data);
+                peer.QuestController.UpdateTrackingList(data);
             }
-            bool result = peer.mPlayer.QuestController.DeleteQuest(questid);
+            bool result = peer.QuestController.DeleteQuest(questid);
             peer.ZRPC.NonCombatRPC.Ret_DeleteQuest(result, questid, peer);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuest)]
         public void ResetQuest(int questid, GameClientPeer peer)
         {
-            bool result = peer.mPlayer.QuestController.ResetQuest(questid);
+            bool result = peer.QuestController.ResetQuest(questid);
             peer.ZRPC.NonCombatRPC.Ret_ResetQuest(result, questid, peer);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateQuestStatus)]
         public void UpdateQuestStatus(int questid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.UpdateQuestEventStatus(questid);
+            peer.QuestController.UpdateQuestEventStatus(questid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.StartQuest)]
         public void StartQuest(int questid, int callerid, int groupid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.TriggerNewQuest(questid, callerid, groupid);
+            peer.QuestController.TriggerNewQuest(questid, callerid, groupid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCInteract)]
         public void NPCInteract(int questid, int npcid, int choice, int talkid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.NpcCheck(questid, npcid, choice, talkid);
+            peer.QuestController.NpcCheck(questid, npcid, choice, talkid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CompleteQuest)]
         public void CompleteQuest(int questid, bool replyid, GameClientPeer peer)
         {
-            bool result = peer.mPlayer.QuestController.CompleteQuest(questid, replyid);
+            bool result = peer.QuestController.CompleteQuest(questid, replyid);
             peer.ZRPC.NonCombatRPC.Ret_CompleteQuest(result, questid, peer);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.InteractAction)]
         public void InteractAction(int questid, int interactid, GameClientPeer peer)
         {
-            bool result = peer.mPlayer.QuestController.InteractCheck(interactid, questid);
+            bool result = peer.QuestController.InteractCheck(interactid, questid);
             peer.ZRPC.NonCombatRPC.Ret_InteractAction(peer);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.FailQuest)]
         public void FailQuest(int questid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.FailQuest(questid);
+            peer.QuestController.FailQuest(questid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SubmitEmptyObjective)]
         public void SubmitEmptyObjective(string questids, GameClientPeer peer)
         {
             List<int> questlist = JsonConvertDefaultSetting.DeserializeObject<List<int>>(questids);
-            peer.mPlayer.QuestController.SubmiteEmptyObjective(questlist);
+            peer.QuestController.SubmiteEmptyObjective(questlist);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]
         public void ApplyQuestEventBuff(int eventid, int questid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.ApplyEventSE(eventid, questid);
+            peer.QuestController.ApplyEventSE(eventid, questid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventCompanion)]
         public void ApplyQuestEventCompanion(int eventid, int questid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.UpdateCompanion(eventid, questid);
+            peer.QuestController.UpdateCompanion(eventid, questid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]
         public void ResetQuestEventCompanion(int companionid, GameClientPeer peer)
         {
-            peer.mPlayer.QuestController.RemoveCompanionId(companionid);
+            peer.QuestController.RemoveCompanionId(companionid);
         }
         #endregion
 
@@ -1461,13 +1581,13 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ReadClue)]
         public void ReadClue(int clueid, byte type, GameClientPeer peer)
         {
-            peer.mPlayer.DestinyClueController.ReadClue(clueid, type);
+            peer.DestinyClueController.ReadClue(clueid, type);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CollectClueReward)]
         public void CollectClueReward(int clueid, GameClientPeer peer)
         {
-            bool result = peer.mPlayer.DestinyClueController.CollectDestinyClueReward(clueid);
+            bool result = peer.DestinyClueController.CollectDestinyClueReward(clueid);
             peer.ZRPC.NonCombatRPC.Ret_CollectClueReward(clueid, result, peer);
         }
         #endregion
@@ -1493,6 +1613,18 @@ namespace Photon.LoadBalancing.GameServer
             int wGet = (dil != null) ? dil.WeeklyLimit : -1;
             int wUse = (uil != null) ? uil.WeeklyLimit : -1;
             peer.ZRPC.NonCombatRPC.Ret_Tooltip_DailyWeeklyLimit(itemID, dGet, dUse, wGet, wUse, peer);
+        }
+        #endregion
+
+        #region Invincible
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.Invincible)]
+        public void ActivateInvincible(bool active, GameClientPeer peer)
+        {
+            peer.mPlayer.PlayerStats.InvincibleCtl = active;
+            peer.mPlayer.PlayerStats.InvincibleStatsAtk = active;
+            peer.mPlayer.PlayerStats.InvincibleStatsDef = active;
+            peer.mPlayer.PlayerStats.InvincibleDmg = active;
+            peer.mPlayer.PlayerStats.InvincibleDot = active;
         }
         #endregion
     }

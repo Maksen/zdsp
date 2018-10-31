@@ -57,11 +57,11 @@ public class UI_ChartToggleData : MonoBehaviour
         }
         else if (direction == ChartDirection.Top)
         {
-            return new Vector2(transform.localPosition.x, (transform.localPosition.y - (parentRect.rect.height / 2)) + TopPoint.localPosition.y);
+            return new Vector2(0, (transform.localPosition.y - (parentRect.rect.height / 2)) + TopPoint.localPosition.y);
         }
         else
         {
-            return new Vector2(transform.localPosition.x, (transform.localPosition.y - (parentRect.rect.height / 2)) + BottomPoint.localPosition.y);
+            return new Vector2(0, (transform.localPosition.y - (parentRect.rect.height / 2)) + BottomPoint.localPosition.y);
         }
     }
 

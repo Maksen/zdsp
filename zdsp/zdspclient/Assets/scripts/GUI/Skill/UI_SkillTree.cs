@@ -58,7 +58,7 @@ public class UI_SkillTree : BaseWindowBehaviour
                 m_ParentContainer = new GameObject(m_type.name + "_SwimmingPool");
 
             m_Master = master;
-            m_ParentContainer.transform.parent = m_Master;
+            m_ParentContainer.transform.SetParent(m_Master, false);
             m_ParentContainer.transform.localPosition = new Vector3(0, 0, 1);
             m_ParentContainer.transform.localScale = new Vector3(1, 1, 1);
         }
@@ -103,10 +103,10 @@ public class UI_SkillTree : BaseWindowBehaviour
 
         public void ReturnObject(GameObject obj)
         {
-            PoolObject pObj = m_Pool[vtable[obj.GetHashCode()]];
+            PoolObject pObj = m_Pool[vtable[obj.GetInstanceID()]];
             pObj.isFree = true;
             pObj.obj.SetActive(false);
-            pObj.obj.transform.parent = m_ParentContainer.transform;
+            pObj.obj.transform.SetParent(m_ParentContainer.transform, false);
         }
 
         public void EmptyPool()
@@ -242,8 +242,6 @@ public class UI_SkillTree : BaseWindowBehaviour
         
         //m_CloseEquip.gameObject.SetActive(false);
         m_ScrollPanel.SetActive(false);
-
-        GameInfo.gLocalPlayer.Bot.UpdateAutoSkillRow();
     }
 
     public override void OnOpenWindow()
@@ -524,9 +522,9 @@ public class UI_SkillTree : BaseWindowBehaviour
             {
                 m_SkillTreeCache[m_DisplayType].Add(m_RowPool.RequestObject());
                 m_SkillTreeCache[m_DisplayType][i].transform.position = new Vector3(5, 0, 0);
-                m_SkillTreeCache[m_DisplayType][i].transform.parent = m_SkillPanelContentRect.transform;
-                m_SkillTreeCache[m_DisplayType][i].transform.localPosition = new Vector3(m_SkillTreeCache[m_DisplayType][i].transform.localPosition.x, m_SkillTreeCache[m_DisplayType][i].transform.localPosition.y, 0);
-                m_SkillTreeCache[m_DisplayType][i].transform.localScale = new Vector3(1, 1, 1);
+                m_SkillTreeCache[m_DisplayType][i].transform.SetParent(m_SkillPanelContentRect.transform, false);
+                //m_SkillTreeCache[m_DisplayType][i].transform.localPosition = new Vector3(m_SkillTreeCache[m_DisplayType][i].transform.localPosition.x, m_SkillTreeCache[m_DisplayType][i].transform.localPosition.y, 0);
+                //m_SkillTreeCache[m_DisplayType][i].transform.localScale = new Vector3(1, 1, 1);
             }
 
             if (layout == null)
@@ -700,10 +698,10 @@ public class UI_SkillTree : BaseWindowBehaviour
         }
     }
 
-    public void ReloadSkillDescriptor()
+    public void ReloadSkillDescriptor(int newskillpoint, int newmoney)
     {
         m_SkillDescriptor.OnClosed();
-        m_SkillDescriptor.Show(m_CurrentActive);
+        m_SkillDescriptor.Reload(newskillpoint, newmoney, m_CurrentActive);
     }
 
 
@@ -742,7 +740,7 @@ public class UI_SkillTree : BaseWindowBehaviour
                     {
                         if (button.m_skgID == skill.skillgroupJson.id)
                         {
-                            button.OnServerVerifiedLevelUp(skillid);
+                            button.OnServerVerifiedLevelUp(skillid, money, skillpoint);
                             isDone = true;
                             break;
                         }

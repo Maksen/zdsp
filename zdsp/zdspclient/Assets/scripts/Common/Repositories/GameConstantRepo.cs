@@ -21,6 +21,7 @@ namespace Zealot.Repository
         public static Dictionary<string, string> mNameMap;
         public static NewCharInfo mNewCharInfo;
         public static int ItemMaxStackCount = 0;
+        public static int ItemInvStartingSlotCount = 0;
 
         static GameConstantRepo()
         {
@@ -31,6 +32,7 @@ namespace Zealot.Repository
         public static void Init(GameDBRepo gameData)
         {
             mNameMap.Clear();
+
             foreach (KeyValuePair<int, GameConstantJson> entry in gameData.GameConstant)
             {
                 if(mNameMap.ContainsKey(entry.Value.name) == false)
@@ -49,20 +51,21 @@ namespace Zealot.Repository
             }
 
             ItemMaxStackCount = GetConstantInt("Item_MaxStackCount");
+            ItemInvStartingSlotCount = GetConstantInt("NewChar_InventorySlotCount", 30);
         }
 
         public static string GetConstant(string key)
         {
-            if (mNameMap.ContainsKey(key))
-                return mNameMap[key];
-            return "";
+            string value = "";
+            mNameMap.TryGetValue(key, out value);
+            return value;
         }
 
         public static int GetConstantInt(string key, int defaultValue = 0)
         {
-            if (mNameMap.ContainsKey(key))
+            string value = "";
+            if (mNameMap.TryGetValue(key, out value))
             {
-                string value = mNameMap[key];
                 int valueInt;
                 if (int.TryParse(value, out valueInt))
                     return valueInt;

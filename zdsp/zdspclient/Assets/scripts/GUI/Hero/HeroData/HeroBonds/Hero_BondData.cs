@@ -66,8 +66,9 @@ public class Hero_BondData : MonoBehaviour
             GameObject obj = ClientUtils.CreateChild(heroDataParent, heroDataPrefab);
             Hero_BondHeroData heroData = obj.GetComponent<Hero_BondHeroData>();
             heroData.Init(heroBond.heroIds[i], toggleGroup, OnHeroSelected);
-            bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i]);
-            heroData.SetFulfilled(fulfilled);
+            bool isHeroLocked;
+            bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i], out isHeroLocked);
+            heroData.SetFulfilled(fulfilled, isHeroLocked);
             heroList.Add(heroData);
             if (fulfilled)
                 fulfulledHeroCount++;
@@ -101,8 +102,9 @@ public class Hero_BondData : MonoBehaviour
         totalCount = heroBond.heroIds.Count;
         for (int i = 0; i < totalCount; i++)
         {
-            bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i]);
-            heroList[i].SetFulfilled(fulfilled);
+            bool isHeroLocked;
+            bool fulfilled = heroStats.HasHeroFulfilledBond(nextLevelBond, heroBond.heroIds[i], out isHeroLocked);
+            heroList[i].SetFulfilled(fulfilled, isHeroLocked);
             if (fulfilled)
                 fulfulledHeroCount++;
         }

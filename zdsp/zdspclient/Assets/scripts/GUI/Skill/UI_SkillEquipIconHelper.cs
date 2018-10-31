@@ -166,23 +166,23 @@ public class UI_SkillEquipIconHelper : MonoBehaviour {
                     int _id = m_CurrentSelected.m_Skillid;
                     button.EquipSkill(_id);
 
-                    if (m_SelectedPanel == ePanelType.ePlayerSkill)
-                        RPCFactory.NonCombatRPC.EquipSkill(_id, button.m_skgID, m_Parent.m_EquipSlotGroup);
-                    else
-                        RPCFactory.NonCombatRPC.AutoEquipSkill(_id, button.m_skgID, m_Parent.m_AutoSlotGroup);
+                    //if (m_SelectedPanel == ePanelType.ePlayerSkill)
+                    //    RPCFactory.NonCombatRPC.EquipSkill(_id, button.m_skgID, m_Parent.m_EquipSlotGroup);
+                    //else
+                    //    RPCFactory.NonCombatRPC.AutoEquipSkill(_id, button.m_skgID, m_Parent.m_AutoSlotGroup);
                     break;
                 }
                 else
                 {
                     button.EquipSkill(0);
                     
-                    if(GameInfo.gLocalPlayer != null)
-                    {
-                        if (m_SelectedPanel == ePanelType.ePlayerSkill)
-                            RPCFactory.NonCombatRPC.RemoveEquipSkill(index, m_Parent.m_EquipSlotGroup);
-                        else
-                            RPCFactory.NonCombatRPC.RemoveAutoEquipSkill(index, m_Parent.m_AutoSlotGroup);
-                    }
+                    //if(GameInfo.gLocalPlayer != null)
+                    //{
+                    //    if (m_SelectedPanel == ePanelType.ePlayerSkill)
+                    //        RPCFactory.NonCombatRPC.RemoveEquipSkill(index, m_Parent.m_EquipSlotGroup);
+                    //    else
+                    //        RPCFactory.NonCombatRPC.RemoveAutoEquipSkill(index, m_Parent.m_AutoSlotGroup);
+                    //}
                 }
 
             }

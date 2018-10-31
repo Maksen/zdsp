@@ -1,4 +1,5 @@
 ﻿using FancyScrollView;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,31 +11,57 @@ public class InterestScrollView : FancyScrollView<InterestCellDto, InterestScrol
     float scrollToDuration = 0.4f;
 
     private bool isActive = true;
+    private Action<int> onSelectedIndexChanged;
 
     private void Awake()
     {
-        scrollPositionController.OnUpdatePosition(UpdatePosition);
+        scrollPositionController.OnUpdatePosition(p => UpdatePosition(p));
         scrollPositionController.OnItemSelected(HandleItemSelected);
+
+        SetContext(new InterestScrollViewContext
+        {
+            OnPressedCell = OnPressedCell,
+            OnSelectedIndexChanged = index =>
+            {
+                if (onSelectedIndexChanged != null)
+                {
+                    onSelectedIndexChanged(index);
+                }
+            }
+        });
     }
 
-    public void UpdateData(List<InterestCellDto> data, InterestScrollViewContext context)
+    public void UpdateSrollCellContents()
     {
-        context.OnPressedCell = OnPressedCell;
-        SetContext(context);
+        UpdateContents();
+    }
+
+    public void UpdateData(List<InterestCellDto> data)
+    {
+        //context.OnPressedCell = OnPressedCell;
+        //SetContext(context);
 
         cellData = data;
         scrollPositionController.SetDataCount(cellData.Count);
         UpdateContents();
     }
 
-    public void UpdateSelection(int selectedCellIndex, float duration = 0)
+    public void UpdateSelection(int index, float duration = 0)
     {
-        scrollPositionController.ScrollTo(selectedCellIndex, duration);
+        if (index < 0 || index >= cellData.Count)
+            return;
+
+        scrollPositionController.ScrollTo(index, duration);
+    }
+
+    public void OnSelectedIndexChanged(Action<int> onSelectedIndexChanged)
+    {
+        this.onSelectedIndexChanged = onSelectedIndexChanged;
     }
 
     private void HandleItemSelected(int selectedItemIndex)
     {
-        context.SelectedIndex = selectedItemIndex;
+        Context.SelectedIndex = selectedItemIndex;
         UpdateContents();
     }
 

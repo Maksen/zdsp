@@ -121,9 +121,9 @@ namespace Photon.LoadBalancing.MasterServer
             DCGameServers[serverid] = DateTime.Now;
         }
 
-        private void CheckNewServerLine(int serverline)
+        private void CheckNewServerLine(int serverLine)
         {
-            if (!ServerLineList.list.Exists(x => x.serverline == serverline))
+            if (!ServerLineList.list.Exists(x => x.serverLineId == serverLine))
             {
                 var task = MasterApplication.Instance.ServerLineSelectAllAsync();
             }
@@ -146,9 +146,8 @@ namespace Photon.LoadBalancing.MasterServer
         public IncomingGamePeer GetPeerByServerId(int serverid)
         {
             IncomingGamePeer peer;
-            if (GameServersByServerId.TryGetValue(serverid, out peer))
-                return peer;
-            return null;
+            GameServersByServerId.TryGetValue(serverid, out peer);
+            return peer;
         }
 
         public bool KickPlayer(string userid, string reason)

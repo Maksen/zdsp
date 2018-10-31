@@ -65,6 +65,7 @@ namespace Zealot.Repository
             StaticNPCRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("StaticNPCRepo", ref heapsize);
             SpecialBossRepo.Init(GameData);
+            ScenesModelRepo.Init(GameData);
             RealmNPCGroupRepo.Init(GameData);
             NPCSkillsRepo.Init(GameData);
             PortraitPathRepo.Init(GameData);
@@ -89,6 +90,7 @@ namespace Zealot.Repository
             AchievementRepo.Init(GameData);
             CharacterCreationRepo.Init(GameData);
             WordFilterRepo.Init(GameData);
+            TutorialRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("Other Repos", ref heapsize);
             _loaded = true;
         }
@@ -134,7 +136,8 @@ namespace Zealot.Repository
         public static void InitCommonEditor(string strGameDB)
         {
             GameDBRepo GameData = Parse(strGameDB);
-            InitCommon(GameData);
+            //InitCommon(GameData);
+            TutorialRepo.Init(GameData);
         }
 
         public static void Validate()

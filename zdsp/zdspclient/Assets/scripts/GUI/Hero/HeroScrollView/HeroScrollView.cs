@@ -1,4 +1,5 @@
 ﻿using FancyScrollView;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,30 +10,69 @@ public class HeroScrollView : FancyScrollView<HeroCellDto, HeroScrollViewContext
     [SerializeField]
     float scrollToDuration = 0.4f;
 
+    Action<int> onSelectedIndexChanged;
+
     private void Awake()
     {
-        scrollPositionController.OnUpdatePosition(UpdatePosition);
+        scrollPositionController.OnUpdatePosition(p => UpdatePosition(p));
         scrollPositionController.OnItemSelected(HandleItemSelected);
+
+        SetContext(new HeroScrollViewContext
+        {
+            OnPressedCell = OnPressedCell,
+            OnSelectedIndexChanged = index =>
+            {
+                if (onSelectedIndexChanged != null)
+                {
+                    onSelectedIndexChanged(index);
+                }
+            }
+        });
     }
 
-    public void UpdateData(List<HeroCellDto> data, HeroScrollViewContext context)
+    public void UpdateSrollCellContents()
     {
-        context.OnPressedCell = OnPressedCell;
-        SetContext(context);
+        UpdateContents();
+    }
+
+    public void UpdateData(List<HeroCellDto> data)
+    {
+        //context.OnPressedCell = OnPressedCell;
+        //SetContext(context);
 
         cellData = data;
         scrollPositionController.SetDataCount(cellData.Count);
         UpdateContents();
     }
 
-    public void UpdateSelection(int selectedCellIndex, float duration)
+    public void UpdateSelection(int index, float duration)
     {
-        scrollPositionController.ScrollTo(selectedCellIndex, duration);
+        if (index < 0 || index >= cellData.Count)
+            return;
+
+        scrollPositionController.ScrollTo(index, duration);
+        //Context.SelectedIndex = index;
+        //UpdateContents();
+    }
+
+    public void JumpToSelection(int index)
+    {
+        if (index < 0 || index >= cellData.Count)
+            return;
+
+        scrollPositionController.JumpTo(index);
+        Context.SelectedIndex = index;
+        UpdateContents();
+    }
+
+    public void OnSelectedIndexChanged(Action<int> onSelectedIndexChanged)
+    {
+        this.onSelectedIndexChanged = onSelectedIndexChanged;
     }
 
     private void HandleItemSelected(int selectedItemIndex)
     {
-        context.SelectedIndex = selectedItemIndex;
+        Context.SelectedIndex = selectedItemIndex;
         UpdateContents();
     }
 
@@ -43,6 +83,6 @@ public class HeroScrollView : FancyScrollView<HeroCellDto, HeroScrollViewContext
 
     public void ResetSelectedIndex()
     {
-        context.SelectedIndex = -1;
+        Context.SelectedIndex = -1;
     }
 }

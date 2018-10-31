@@ -21,7 +21,7 @@ namespace Zealot.ClientSpawners
 
         private void Awake()
         {
-            gameObject.tag = "EditorOnly";
+            gameObject.tag = "Untagged"; //TODO: remove later
         }
 
         public override void Spawn(ClientEntitySystem ces)

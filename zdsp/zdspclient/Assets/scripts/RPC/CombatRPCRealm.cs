@@ -11,20 +11,24 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.EnterRealm)]
     public void EnterRealm(int realmId, byte realmState, int elapsed, long serverNowTick)
     {
-        RealmJson mRealmInfo = RealmRepo.GetInfoById(realmId);       
-        //LevelJson LevelInfo = LevelRepo.GetInfoById(mRealmInfo.level);
+        RealmJson mRealmInfo = RealmRepo.GetInfoById(realmId);
         GameInfo.mRealmInfo = mRealmInfo;
         GameInfo.mRealmState = (RealmState)realmState;
         if (mRealmInfo == null)
             return;
-        IsRealmInfoReady = true;       
-        RealmType realmType = mRealmInfo.type;  
+
+        IsRealmInfoReady = true;
+        RealmType realmType = mRealmInfo.type;
         switch (realmType)
         {
             case RealmType.Dungeon:
                 DateTime dtServerNow = new DateTime(serverNowTick);
                 int actualElapsed = elapsed + (int)(DateTime.Now - dtServerNow).TotalSeconds;
                 UIManager.GetWidget(HUDWidgetType.RealmExit).GetComponent<HUD_RealmExit>().Init(actualElapsed);
+                break;
+            case RealmType.Tutorial:
+                GameInfo.gCombat.CutsceneManager.OnFinishedCutsceneAction = 
+                    () => GameInfo.gLocalPlayer.m_TutorialController.ActivateTutorial(SystemName.Newbie_Realm);
                 break;
         }
     }

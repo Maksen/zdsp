@@ -13,8 +13,7 @@
 	</element>
 	
 	<element name="SkillPoint" useexcel="true">
-		<property name="minlvl" type="int" uitext="from lvl" info="Minimum lvl range"/>
-		<property name="maxlvl" type="int" uitext="to lvl" info="Maximum lvl range"/>
+		<property name="lvid" type="int" uitext="Level ID"/>
 		<property name="expreq" type="int" uitext="Exp Required"/>
 	</element>
 	

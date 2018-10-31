@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using Zealot.Common;
 
 public class UI_Hero : BaseWindowBehaviour
@@ -24,6 +25,12 @@ public class UI_Hero : BaseWindowBehaviour
     public override void OnOpenWindow()
     {
         base.OnOpenWindow();
+        StartCoroutine(LateInit());
+    }
+
+    private IEnumerator LateInit()
+    {
+        yield return null;
         uiHeroInfo.Init(SelectHero);
         SelectHero = 0; // reset for next window open
     }

@@ -18,6 +18,7 @@ public class UI_Hero_HeroBonds : MonoBehaviour
     private int startingIndex;
     private List<Hero_BondSimpleData> bondList = new List<Hero_BondSimpleData>();
     private List<HeroBond> allBondsList;
+    private bool initialized = false;
 
     private void Awake()
     {
@@ -64,6 +65,13 @@ public class UI_Hero_HeroBonds : MonoBehaviour
                 bondList[i].gameObject.SetActive(false);
         }
 
+        if (!initialized)
+        {
+            if (bondList[0].gameObject.activeSelf)
+                bondList[0].SetToggleOn(true);
+            initialized = true;
+        }
+
         scrollRect.verticalNormalizedPosition = 1f;
     }
 
@@ -97,6 +105,7 @@ public class UI_Hero_HeroBonds : MonoBehaviour
         ToggleSelectionOff();
         startingIndex = 0;
         pageSpinner.Value = 1;
+        initialized = false;
     }
 
     private void ToggleSelectionOff()
@@ -105,7 +114,7 @@ public class UI_Hero_HeroBonds : MonoBehaviour
         {
             if (bondList[i].IsToggleOn())
             {
-                bondList[i].ToggleOff();
+                bondList[i].SetToggleOn(false);
                 break;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -80,7 +81,7 @@ public class UI_DestinyQuest : MonoBehaviour
         UpdateHeroesList();
         UpdateDestinyData();
         UpdateDestinyList();
-        UpdateMapCountry();
+        StartCoroutine(WaitUpdateMapCountry());
     }
 
     private void OnDisable()
@@ -120,6 +121,7 @@ public class UI_DestinyQuest : MonoBehaviour
 
     private void UpdateDestinyList()
     {
+        Debug.Log(mSelectedHero);
         if (mSelectedHero != -1)
         {
             List<QuestDestinyJson> destinyJsons = QuestRepo.GetDestinyListByGroupId(mSelectedHero);
@@ -204,7 +206,6 @@ public class UI_DestinyQuest : MonoBehaviour
     {
         startpoint = Vector2.zero;
         endpoint = Vector2.zero;
-        Debug.Log(startcolumn + ":" + startrow);
         if (mDestinies.ContainsKey(startcolumn))
         {
             UI_ChartData chartData = mDestinies[startcolumn].GetComponent<UI_ChartData>();
@@ -326,6 +327,12 @@ public class UI_DestinyQuest : MonoBehaviour
                 return MapCameraPos[6];
         }
         return null;
+    }
+
+    private IEnumerator WaitUpdateMapCountry()
+    {
+        yield return new WaitForSecondsRealtime(0.5f);
+        UpdateMapCountry();
     }
 
     private void UpdateMapCountry()

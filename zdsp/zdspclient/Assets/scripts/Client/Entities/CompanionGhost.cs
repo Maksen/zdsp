@@ -16,6 +16,7 @@ namespace Zealot.Client.Entities
         private int mCurrentWaypointIndex = -1;
         private Vector3 mNextWaypointPosition;
         private bool bIsIdle = true;
+        private ActorNameTagController mHeadLabel;
 
         public CompanionGhost()
         {
@@ -50,6 +51,13 @@ namespace Zealot.Client.Entities
             AnimObj.transform.forward = Forward;
             AnimObj.tag = "NPC";
             AnimObj.name = mNPCJson.archetype;
+
+            mHeadLabel = AnimObj.AddComponent<ActorNameTagController>();
+            mHeadLabel.CreatePlayerLabel();
+            if (mHeadLabel.mPlayerLabel != null)
+            {
+                mHeadLabel.SetCompanionLabel(mNPCJson.localizedname);
+            }
 
             ClientUtils.SetLayerRecursively(AnimObj, LayerMask.NameToLayer("Entities"));
 

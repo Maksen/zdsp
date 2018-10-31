@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Kopio.JsonContracts;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -219,11 +219,11 @@ namespace Zealot.Repository
             return mChaptherGroupMap;
         }
 
-        public static QuestJson GetQuestByID(int questid)
+        public static QuestJson GetQuestByID(int questId)
         {
-            if (mQuestIdMap.ContainsKey(questid))
-                return mQuestIdMap[questid];
-            return null;
+            QuestJson questJson;
+            mQuestIdMap.TryGetValue(questId, out questJson);
+            return questJson;
         }
 
         public static void GetQuestByType(QuestType questType, out Dictionary<int, QuestJson> questlist)
@@ -380,32 +380,32 @@ namespace Zealot.Repository
             return idlist;
         }
 
-        public static QuestObjectiveJson GetQuestObjectiveByID(int objectiveid)
+        public static QuestObjectiveJson GetQuestObjectiveByID(int objectiveId)
         {
-            if (mQuestObjectiveIdMap.ContainsKey(objectiveid))
-                return mQuestObjectiveIdMap[objectiveid];
-            return null;
+            QuestObjectiveJson questObjectiveJson;
+            mQuestObjectiveIdMap.TryGetValue(objectiveId, out questObjectiveJson);
+            return questObjectiveJson;
         }
 
-        public static QuestTalkDetailJson GetQuestTalkByID(int talkid)
+        public static QuestTalkDetailJson GetQuestTalkByID(int talkId)
         {
-            if (mQuestTalkDetailIdMap.ContainsKey(talkid))
-                return mQuestTalkDetailIdMap[talkid];
-            return null;
+            QuestTalkDetailJson questTalkDetailJson;
+            mQuestTalkDetailIdMap.TryGetValue(talkId, out questTalkDetailJson);
+            return questTalkDetailJson;
         }
 
-        public static List<QuestSelectDetailJson> GetSelectionByGroupId(int groupid)
+        public static List<QuestSelectDetailJson> GetSelectionByGroupId(int groupId)
         {
-            if (mQuestSelectDetailMap.ContainsKey(groupid))
-                return mQuestSelectDetailMap[groupid];
-            return null;
+            List<QuestSelectDetailJson> questSelectDetailJsonList;
+            mQuestSelectDetailMap.TryGetValue(groupId, out questSelectDetailJsonList);
+            return questSelectDetailJsonList;
         }
 
         public static QuestSelectDetailJson GetSelectionById(int id)
         {
-            if (mQuestSelectDetailIdMap.ContainsKey(id))
-                return mQuestSelectDetailIdMap[id];
-            return null;
+            QuestSelectDetailJson questSelectDetailJson;
+            mQuestSelectDetailIdMap.TryGetValue(id, out questSelectDetailJson);
+            return questSelectDetailJson;
         }
 
         public static bool CheckCorrectAnswer(int talkid, int answerid)
@@ -451,18 +451,18 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static QuestInteractiveDetailJson GetQuestInteractiveByID(int interactiveid)
+        public static QuestInteractiveDetailJson GetQuestInteractiveByID(int interactiveId)
         {
-            if (mQuestInteractiveDetailIdMap.ContainsKey(interactiveid))
-                return mQuestInteractiveDetailIdMap[interactiveid];
-            return null;
+            QuestInteractiveDetailJson questInteractiveDetailJson;
+            mQuestInteractiveDetailIdMap.TryGetValue(interactiveId, out questInteractiveDetailJson);
+            return questInteractiveDetailJson;
         }
 
-        public static List<QuestRequirementDetailJson> GetRequirementByGroupId(int groupid)
+        public static List<QuestRequirementDetailJson> GetRequirementByGroupId(int groupId)
         {
-            if (mQuestRequirementDetailMap.ContainsKey(groupid))
-                return mQuestRequirementDetailMap[groupid];
-            return null;
+            List<QuestRequirementDetailJson> questRequirementDetailJsonList;
+            mQuestRequirementDetailMap.TryGetValue(groupId, out questRequirementDetailJsonList);
+            return questRequirementDetailJsonList;
         }
 
         public static List<int> GetPreviousObjectiveId(int questid, int group, int seqnum)
@@ -714,11 +714,9 @@ namespace Zealot.Repository
 
         public static QuestRequirementDetailJson GetQuestRequirementyById(int id)
         {
-            if (mQuestRequirementIdMap.ContainsKey(id))
-            {
-                return mQuestRequirementIdMap[id];
-            }
-            return null;
+            QuestRequirementDetailJson questRequirementDetailJson;
+            mQuestRequirementIdMap.TryGetValue(id, out questRequirementDetailJson);
+            return questRequirementDetailJson;
         }
 
         public static Dictionary<int, WonderfulJson>  GetWonderful()
@@ -731,13 +729,11 @@ namespace Zealot.Repository
             return mWonderfulMap.Count;
         }
 
-        public static List<int> GetWonderfulByQuestId(int questid)
+        public static List<int> GetWonderfulByQuestId(int questId)
         {
-            if (mWonderfulByQuestIdMap.ContainsKey(questid))
-            {
-                return mWonderfulByQuestIdMap[questid];
-            }
-            return null;
+            List<int> idList;
+            mWonderfulByQuestIdMap.TryGetValue(questId, out idList);
+            return idList;
         }
 
         public static List<int> GetUnlockWonderfulQuestList(int id)
@@ -767,13 +763,11 @@ namespace Zealot.Repository
             return result;
         }
 
-        public static List<QuestEventDetailJson> GetQuestEventListById(int groupid)
+        public static List<QuestEventDetailJson> GetQuestEventListById(int groupId)
         {
-            if (mQuestEventDetailMap.ContainsKey(groupid))
-            {
-                return mQuestEventDetailMap[groupid];
-            }
-            return null;
+            List<QuestEventDetailJson> questEventDetailJsonList;
+            mQuestEventDetailMap.TryGetValue(groupId, out questEventDetailJsonList);
+            return questEventDetailJsonList;
         }
 
         public static QuestEventDetailJson GetQuestEvent(int groupid, EventTimingType timingType, int objectiveid)

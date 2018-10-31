@@ -1,11 +1,22 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using Zealot.Entities;
 using Zealot.Client.Entities;
-using Kopio.JsonContracts;
-using Zealot.Repository;
 using System.Text;
 using System.Collections.Generic;
+using Zealot.Common;
+
+namespace Zealot.Common
+{
+    public enum InteractiveTriggerStep
+    {
+        None,
+        OnTrigger,
+        OnProgress
+    }
+}
 
 namespace Zealot.Spawners
 {
@@ -20,14 +31,19 @@ namespace Zealot.Spawners
     {
         public bool activeOnStartup = true;
         public string archetype = string.Empty;
+        public GameObject sceneModel = null;
         public int interactiveTime = 1;
         public bool interrupt = false;
         public int counter = 1;
         public int keyId = 0;
-        public InteractiveType interactiveType;
+        public InteractiveType interactiveType = InteractiveType.Area;
+        public int min = 1;
+        public int max = 1;
 
-        PlayerGhost player;
-        InteractiveController controller;
+        List<PlayerGhost> player = new List<PlayerGhost>();
+        int playerCount = 0;
+        PlayerGhost progressPlayer = null;
+        private InteractiveTriggerStep stepStats = InteractiveTriggerStep.None;
 
         void Start()
         {
@@ -45,76 +61,34 @@ namespace Zealot.Spawners
             Gizmos.DrawCube(centerPosition, new Vector3(1, 2, 1));
         }
 
-        void InitData()
-        {
-            controller.InitProgress();
-            player = null;
-            controller = null;
-        }
-
-        public void InitController(PlayerGhost mPlayer)
-        {
-            player = mPlayer;
-            controller = player.InteractiveController;
-            controller.Init((interactiveType == InteractiveType.Area) ? true : false, interrupt, this);
-        }
-        
-        #region ProgressBar
-        public void StartProgressBar ()
-        {
-            if (interactiveTime <= 0)
-                WithoutRunProgressBar();
-            else
-                ProgressBar();
-        }
-
-        void WithoutRunProgressBar()
-        {
-            if (!controller.isCompleted)
-                CompletedProgressBar();
-            else
-                Debug.LogError("Progress order is wrong.");
-        }
-
-        void ProgressBar()
-        {
-            UIManager.SetWidgetActive(HUDWidgetType.ProgressBar, true);
-            Hud_ProgressBar progressBar = UIManager.GetWidget(HUDWidgetType.ProgressBar).GetComponent<Hud_ProgressBar>();
-            progressBar.InitTimeBar(interactiveTime, CompletedProgressBar);
-        }
-
-        void CompletedProgressBar()
-        {
-            CloseProgressBar();
-            controller.CompletedProgress();
-            RPCFactory.CombatRPC.OnInteractiveTrigger(EntityId, keyId);
-
-            InitData();
-        }
-
-        void CloseProgressBar()
-        {
-            if (UIManager.IsWidgetActived(HUDWidgetType.ProgressBar))
-            {
-                Hud_ProgressBar progressBar = UIManager.GetWidget(HUDWidgetType.ProgressBar).GetComponent<Hud_ProgressBar>();
-                progressBar.ForceEnd();
-            }
-            UIManager.SetWidgetActive(HUDWidgetType.ProgressBar, false);
-        }
-        #endregion
-
         #region InteracitveTriggerEvent
         void OnTriggerEnter(Collider other)
         {
-            if (counter <= 0 || interactiveType == InteractiveType.Target)
+            if (counter == 0)
                 return;
 
             if (other.CompareTag("LocalPlayer"))
             {
-                if (player == null)
-                    InitController(GameInfo.gLocalPlayer);
+                PlayerGhost mPlayer = GameInfo.gLocalPlayer;
+                if (!player.Exists(x => x == mPlayer))
+                {
+                    AddPlayer(mPlayer);
+                }
+
+                if (stepStats == InteractiveTriggerStep.None)
+                {
+                    if (CanProgress(player.Count))
+                    {
+                        SetStep(InteractiveTriggerStep.OnTrigger);
+                    }
+                }
                 else
-                    UIManager.SystemMsgManager.ShowSystemMessage("Event is be using！", true);
+                {
+                    if (!CanProgress(player.Count))
+                    {
+                        progressPlayer.InteractiveController.ActionInterupted();
+                    }
+                }
             }
         }
 
@@ -122,44 +96,138 @@ namespace Zealot.Spawners
         {
             if (other.CompareTag("LocalPlayer"))
             {
-                if (player == GameInfo.gLocalPlayer)
-                    InitData();
+                PlayerGhost mPlayer = GameInfo.gLocalPlayer;
+                if (player.Exists(x => x == mPlayer))
+                {
+                    player.Remove(mPlayer);
+                }
+
+                if (stepStats != InteractiveTriggerStep.None)
+                {
+                    SetStep(CanProgress(player.Count) ? InteractiveTriggerStep.OnTrigger : InteractiveTriggerStep.None);
+                }
+            }
+        }
+        #endregion
+
+        #region InteracitveTriggerFunction
+        public bool SetPlayer(PlayerGhost mPlayer)
+        {
+            if (counter == 0)
+            {
+                UIManager.SystemMsgManager.ShowSystemMessage("觸發次數已用盡", true);
+                return false;
+            }
+            if (stepStats != InteractiveTriggerStep.OnProgress)
+            {
+                if (mPlayer.clientItemInvCtrl.itemInvData.HasItem((ushort)keyId))
+                {
+                    UIManager.SystemMsgManager.ShowSystemMessage("玩家未擁有需求道具", true);
+                    return false;
+                }
+                AddPlayer(mPlayer);
+                SetStep(InteractiveTriggerStep.OnTrigger);
+                return true;
+            }
+            else
+            {
+                UIManager.SystemMsgManager.ShowSystemMessage("有人在使用", true);
+                return false;
             }
         }
 
-        public void InterruptActrion()
+        void SetStep(InteractiveTriggerStep step)
         {
-            CloseProgressBar();
+            stepStats = step;
+        }
+
+        public void Init(int count)
+        {
+            counter = count;
+            if (counter > 0 || counter == -1)
+                this.enabled = true;
+            else
+                this.enabled = false;
+
+            InitData();
+        }
+
+        void InitData()
+        {
+            SetStep(InteractiveTriggerStep.None);
+            player.Clear();
+        }
+
+        public void InterruptAction()
+        {
             RPCFactory.CombatRPC.OnInteractiveUse(EntityId, false);
             if (interactiveType == InteractiveType.Target)
-                if(controller != null)
-                    InitData();
+            {
+                player.Clear();
+                SetStep(InteractiveTriggerStep.None);
+            }
             else
-                controller.InitProgress();
+            {
+                SetStep(InteractiveTriggerStep.OnTrigger);
+            }
+            progressPlayer = null;
         }
 
-        public void OnInteractiveTrigger()
+        void SetProgressPlayer()
         {
-            RPCFactory.CombatRPC.OnInteractiveUse(EntityId, true);
-            if (player.InteractiveTriggerStats.waitResponse)
+            if(CanProgress(player.Count) && progressPlayer == null)
             {
-                controller.StartProgress();
-                StartProgressBar();
+                progressPlayer = player[player.Count - 1];
             }
         }
 
-        public PlayerGhost GetPlayer()
+        public void TriggerEvent()
         {
-            return player;
+            RPCFactory.CombatRPC.OnInteractiveUse(EntityId, true);
+
+            SetProgressPlayer();
+            if (interactiveType == InteractiveType.Target)
+            {
+                progressPlayer.InteractiveController.OnActionEnter(this, interrupt);
+                SetStep(InteractiveTriggerStep.OnProgress);
+            }
+            else
+            {
+                if (CanProgress(player.Count) && stepStats == InteractiveTriggerStep.OnTrigger)
+                {
+                    progressPlayer.InteractiveController.OnActionEnter(this, interrupt);
+                    SetStep(InteractiveTriggerStep.OnProgress);
+                }
+            }
+        }
+
+        bool CanProgress(int playerC)
+        {
+            return (playerC >= min && playerC <= max) ? true : false;
+        }
+
+        void AddPlayer(PlayerGhost mPlayer)
+        {
+            if(!player.Exists(x => x == mPlayer))
+            {
+                player.Add(mPlayer);
+            }
         }
         #endregion
 
         void Update()
         {
-            if (player != null)
+            playerCount = player.Count;
+            if (stepStats == InteractiveTriggerStep.OnTrigger && CanProgress(playerCount))
             {
-                if(player.IsIdling() && !controller.IsProgressing())
-                    OnInteractiveTrigger();
+                for (int i = 0; i < playerCount; ++i)
+                {
+                    if (!player[i].IsIdling())
+                    {
+                        return;
+                    }
+                }
+                TriggerEvent();
             }
         }
 
@@ -190,13 +258,24 @@ namespace Zealot.Spawners
         public void GetJson(InteractiveTriggerJson jsonclass)
         {
             jsonclass.activeOnStartup = activeOnStartup;
-            jsonclass.archetype = archetype;
+            jsonclass.archetype = (archetype == string.Empty || archetype == null) ? sceneModel.name : archetype;
             jsonclass.parentPath = GetPathName();
             jsonclass.forward = transform.forward;
             jsonclass.interactiveTime = interactiveTime;
             jsonclass.interrupt = interrupt;
-            jsonclass.counter = counter;
-            jsonclass.keyId = keyId;
+            jsonclass.counter = (counter == 0) ? 1 : counter;
+            if(interactiveType == InteractiveType.Target)
+            {
+                jsonclass.keyId = keyId;
+                jsonclass.isArea = false;
+            }
+            else
+            {
+                jsonclass.keyId = 0;
+                jsonclass.isArea = true;
+            }
+            jsonclass.min = min;
+            jsonclass.max = max;
             base.GetJson(jsonclass);
         }
 

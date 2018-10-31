@@ -24,7 +24,7 @@ public class TeleportNPCTalk : MonoBehaviour
         if (collider.tag == "LocalPlayer")
         {
             GameInfo.gLocalPlayer.ForceIdle();
-            GameInfo.gLocalPlayer.Bot.StopBot();
+            GameInfo.gLocalPlayer.Bot.PauseBot();
             GameInfo.ResetJoystick();
             //UIManager.OpenWindow(WindowType.TeleportNPCTalk);
         }

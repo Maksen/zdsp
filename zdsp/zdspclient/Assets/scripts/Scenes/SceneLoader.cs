@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using Zealot.Repository;
 using AssetBundles;
 
 public class SceneLoader : MonoSingleton<SceneLoader>
@@ -12,6 +11,9 @@ public class SceneLoader : MonoSingleton<SceneLoader>
 
     public void LoadLevel(string levelname, UnityAction afterLoad = null)
     {
+        if (string.Equals(levelname, "ui_characterhierarchy", StringComparison.OrdinalIgnoreCase) && isCombatHierarchyLoaded)
+            UIManager.UIHierarchy.DestroyHierarchy();
+
         Debug.LogFormat("LoadLevel [{0}]", levelname);
         StartCoroutine(LoadLevelOp(levelname, afterLoad));
     }
@@ -20,8 +22,8 @@ public class SceneLoader : MonoSingleton<SceneLoader>
     {
         string levelLowercase = levelname.ToLower();
         AssetManager.PreLevelLoad(levelname);
-        string[] defaultLevels = { "ui_loginhierarchy", "ui_loginhierarchy_test", "lobby", "ui_createchar", "jobexhibition" }; // Here all small case
-        bool isCombatHierarchy = string.Compare(levelname, "UI_CombatHierarchy", true) == 0;
+        string[] defaultLevels = { "ui_loginhierarchy", "ui_characterhierarchy", "lobby", "ui_createchar", "jobexhibition" }; // Needs to be lower case
+        bool isCombatHierarchy = string.Equals(levelname, "ui_combathierarchy", StringComparison.OrdinalIgnoreCase);
         LoadSceneMode mode = isCombatHierarchy ? LoadSceneMode.Additive : LoadSceneMode.Single;
 
 #if UNITY_EDITOR && !USE_ASSETBUNDLE
@@ -103,47 +105,44 @@ public class SceneLoader : MonoSingleton<SceneLoader>
             case "ui_createchar":
             case "jobexhibition":
             case "ui_loginhierarchy":
-            case "ui_loginhierarchy_test":
-                //ClientUtils.PlayMusic(GameSettings.MusicEnabled);
+            case "ui_characterhierarchy":
+                if (string.Equals(levelName, "ui_loginhierarchy", StringComparison.OrdinalIgnoreCase)) // to be removed in future
+                    ClientUtils.PlayMusic(GameSettings.MusicEnabled);
                 PhotonNetwork.networkingPeer.NewSceneLoaded();
                 break;
             case "ui_combathierarchy":
+                string loadedScene = "";
+                for (int i = 0; i < SceneManager.sceneCount; ++i)
                 {
-                    string loadedScene = "";
-                    for (int i = 0; i < SceneManager.sceneCount; ++i)
+                    string sceneName = SceneManager.GetSceneAt(i).name;
+                    if (!sceneName.Equals("ui_combathierarchy", StringComparison.OrdinalIgnoreCase) &&
+                        !sceneName.Equals("ui_loginhierarchy", StringComparison.OrdinalIgnoreCase))
                     {
-                        string sceneName = SceneManager.GetSceneAt(i).name;
-                        if (!sceneName.Equals("ui_combathierarchy", StringComparison.OrdinalIgnoreCase) &&
-                            !sceneName.Equals("ui_loginhierarchy", StringComparison.OrdinalIgnoreCase))
-                        {
-                            loadedScene = sceneName;
-                            break;
-                        }
+                        loadedScene = sceneName;
+                        break;
                     }
-                    SetupLevel(loadedScene);
-                    PhotonNetwork.networkingPeer.NewSceneLoaded();
-                    UIManager.UIHierarchy.SetupEventSystem();
-                    isCombatHierarchyLoaded = true;
                 }
+                SetupLevel(loadedScene);
+                PhotonNetwork.networkingPeer.NewSceneLoaded();
+                UIManager.UIHierarchy.SetupEventSystem();
+                isCombatHierarchyLoaded = true;
                 break;
 
             default:
+                GameInfo.gClientState = GameClientState.Combat;
+
+                var CombatmainPrefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Prefabs_preloadcontainer", "CombatMain.prefab"));
+                GameObject main = Instantiate(CombatmainPrefab);
+
+                var CombatcameraPrefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Prefabs_preloadcontainer", "CombatCamera.prefab"));
+                GameObject cam = Instantiate(CombatcameraPrefab);
+
+                main.GetComponentInChildren<ClientMain>().InitPlayerCamera(cam);
+
+                if (isCombatHierarchyLoaded)
                 {
-                    GameInfo.gClientState = PiliClientState.Combat;
-
-                    var CombatmainPrefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Prefabs_preloadcontainer", "CombatMain.prefab"));
-                    GameObject main = Instantiate(CombatmainPrefab);
-
-                    var CombatcameraPrefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Prefabs_preloadcontainer", "CombatCamera.prefab"));
-                    GameObject cam = Instantiate(CombatcameraPrefab);
-
-                    main.GetComponentInChildren<ClientMain>().InitPlayerCamera(cam);
-
-                    if (isCombatHierarchyLoaded)
-                    {
-                        SetupLevel(levelName);
-                        PhotonNetwork.networkingPeer.NewSceneLoaded();
-                    }
+                    SetupLevel(levelName);
+                    PhotonNetwork.networkingPeer.NewSceneLoaded();
                 }
                 break;
         }
@@ -153,7 +152,7 @@ public class SceneLoader : MonoSingleton<SceneLoader>
     void SetupLevel(string levelName)
     {
         UIManager.OnAllWidgets();
-        //ClientUtils.PlayMusic(GameSettings.MusicEnabled);
+        ClientUtils.PlayMusic(GameSettings.MusicEnabled);
     }
 
     void LoadUICombat()

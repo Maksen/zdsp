@@ -62,16 +62,53 @@ public class PlayerInLobby : Photon.MonoBehaviour
         }
         else if (charCount >= 1)
         {
-            SceneLoader.Instance.LoadLevel("UI_LoginHierarchy_test", () => { GoToCharacterSelection(); });
+            GoToCharacterSelection();
         }
         else
         {
-            SceneLoader.Instance.LoadLevel("JobExhibition");
+            //SceneLoader.Instance.LoadLevel("JobExhibition");
+            GoToCharacterCreation();
         }
         Debug.Log("GetCharactersResult character count is " + charCount);   
 	}
 
+    public void GoToCharacterCreation()
+    {
+        SceneLoader.Instance.LoadLevel("UI_CharacterHierarchy", () => { PlayCharacterCreationCutscene(); });
+    }
+
+    public void PlayCharacterCreationCutscene()
+    {
+        if (GameInfo.gCharacterCreationManager == null)
+        {
+            Debug.LogWarning("Character Creation Manager Is Null");
+        }
+
+        UIManager.CloseWindow(WindowType.CharacterCreation);
+        UIManager.CloseWindow(WindowType.CharacterSelection);
+        GameInfo.gCharacterCreationManager.PlayCutscene();
+    }
+
+    public void StartCharacterCreation()
+    {
+        UIManager.StopHourglass();
+        if (mCharacterList.Count  == 0)
+        {
+            UIManager.OpenWindow(WindowType.CharacterCreation, (window) => window.GetComponent<UI_CharacterCreation>().InitFromLogin());
+        }
+        else
+        {
+            UIManager.OpenWindow(WindowType.CharacterCreation, (window) => window.GetComponent<UI_CharacterCreation>().InitFromSelection(mCharacterList));
+        }
+        UIManager.CloseWindow(WindowType.CharacterSelection);
+    }
+
     public void GoToCharacterSelection()
+    {
+        SceneLoader.Instance.LoadLevel("UI_CharacterHierarchy", () => { StartCharacterSelection(); });
+    }
+
+    private void StartCharacterSelection()
     {
         UIManager.StopHourglass();
         UIManager.OpenWindow(WindowType.CharacterSelection, (window) => window.GetComponent<UI_CharacterSelection>().Init(mCharacterList));
@@ -159,7 +196,7 @@ public class PlayerInLobby : Photon.MonoBehaviour
     public void JoinLobby()
     {
         RPCFactory.SetMainContext(typeof(PlayerInLobby));
-        if (GameInfo.gClientState == PiliClientState.Login || GameInfo.DCReconnectingGameServer)
+        if (GameInfo.gClientState == GameClientState.Login || GameInfo.DCReconnectingGameServer)
         {
             if (PhotonNetwork.connected)
             {
@@ -168,11 +205,7 @@ public class PlayerInLobby : Photon.MonoBehaviour
                 PhotonNetwork.networkingPeer.OpCustom(OperationCode.JoinGame, op, true);
             }    
         }
-        GameInfo.gClientState = PiliClientState.Lobby;
-        //if (GameInfo.gClientState == PiliClientState.Login)
-        //{       
-        //    ClientUtils.PlayMusic(GameSettings.MusicEnabled);
-        //}
+        GameInfo.gClientState = GameClientState.Lobby;
     }
 
     private IEnumerator DelayGetCharOnTransferServer()
@@ -206,7 +239,7 @@ public class PlayerInLobby : Photon.MonoBehaviour
     public void OnJoinedRoom()
     {
         PhotonNetwork.SetNetworkState(ClientState.Joined);
-        GameInfo.gClientState = PiliClientState.Lobby;
+        GameInfo.gClientState = GameClientState.Lobby;
         if (GameInfo.TransferingServer)
             StartCoroutine(DelayGetCharOnTransferServer());
         else
@@ -258,7 +291,7 @@ public class PlayerInLobby : Photon.MonoBehaviour
         for (int i = 0; i < charCount; i++)
         {
             CharacterCreationData characterdata = mCharacterList[i];
-            if (characterdata != null && characterdata.Name == name)
+            if (characterdata != null && characterdata.Name == charname)
             {
                 mCharacterList.RemoveAt(i);
                 charCount -= 1;

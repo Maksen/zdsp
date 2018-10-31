@@ -1,37 +1,38 @@
-using UnityEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.ComponentModel;
+using UnityEngine;
 
 namespace Zealot.Entities
 {
-	public enum AreaType
-	{
-		Sphere,
-		Box
-	} 
+    public enum AreaType
+    {
+        Sphere,
+        Box
+    } 
 
-	[Serializable]
-	public class DetectionArea
-	{
-		public AreaType mType = AreaType.Sphere;
-		public float mRadius = 2;
-		public Vector3 mExtents = Vector3.one;
-	}
+    [Serializable]
+    public class DetectionArea
+    {
+        public AreaType mType = AreaType.Sphere;
+        public float mRadius = 2;
+        public Vector3 mExtents = Vector3.one;
+    }
 
-	public class PortalEntryJson : ServerEntityJson
-	{
+    public class PortalEntryJson : ServerEntityJson
+    {
         //public bool activeOnStartup;
-        public string myName = "";
-        public string exitName = "";
+        [DefaultValue("")]
+        public string myName { get; set; }
+        [DefaultValue("")]
+        public string exitName { get; set; }
         //public bool partyTeleport;
         //public DetectionArea detectionArea;
     }
 
-	public class PortalExitJson : ServerEntityJson
-	{
-		public string myName = "";
+    public class PortalExitJson : ServerEntityJson
+    {
+        [DefaultValue("")]
+        public string myName { get; set; }
         public Vector3 forward = Vector3.forward;
-	}
+    }
 }
-

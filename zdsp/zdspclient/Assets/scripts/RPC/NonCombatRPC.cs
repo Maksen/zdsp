@@ -1,6 +1,4 @@
-﻿using ExitGames.Client.Photon;
-using System.Collections.Generic;
-using Zealot.Common.RPC;
+﻿using Zealot.Common.RPC;
 
 public partial class NonCombatRPC : RPCBase
 {
@@ -153,24 +151,6 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleSpawnSpecialBoss", name);
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildList)]
-    public void ConsoleGuildList()
-    {
-        ProxyMethod("ConsoleGuildList");
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildAddFavour)]
-    public void ConsoleGuildAddFavour(int amt)
-    {
-        ProxyMethod("ConsoleGuildAddFavour", amt);
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGuildSMLevel)]
-    public void ConsoleGuildSMLevel(int level)
-    {
-        ProxyMethod("ConsoleGuildSMLevel", level);
-    }
-
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddRewardGroupBag)]
     public void ConsoleAddRewardGroupBag(int grpID)
     {
@@ -243,40 +223,16 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleKillPlayer");
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleItemMallTopUp)]
-    public void ConsoleItemMallTopUp(int amount)
-    {
-        ProxyMethod("ConsoleItemMallTopUp", amount);
-    }
-
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleTestCombatFormula)]
     public void ConsoleTestCombatFormula(int value)
     {
         ProxyMethod("ConsoleTestCombatFormula", value);
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddLotteryFreeTickets)]
-    public void ConsoleAddLotteryFreeTickets(int lottery_id, int value)
-    {
-        ProxyMethod("ConsoleAddLotteryFreeTickets", lottery_id, value);
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddLotteryPoint)]
-    public void ConsoleAddLotteryPoint(int lottery_id, int point)
-    {
-        ProxyMethod("ConsoleAddLotteryPoint", lottery_id, point);
-    }
-
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleRefreshLeaderBoard)]
     public void ConsoleRefreshLeaderBoard()
     {
         ProxyMethod("ConsoleRefreshLeaderBoard");
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetPrizeGuarantee)]
-    public void ConsoleResetPrizeGuarantee()
-    {
-        ProxyMethod("ConsoleResetPrizeGuarantee");
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleDonateReset)]
@@ -295,18 +251,6 @@ public partial class NonCombatRPC : RPCBase
     public void ConsoleNotifyNewGMItem()
     {
         ProxyMethod("ConsoleNotifyNewGMItem");
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleAddActivePoints)]
-    public void ConsoleAddActivePoints(int amount)
-    {
-        ProxyMethod("ConsoleAddActivePoints", amount);
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleFinishQERTask)]
-    public void ConsoleFinishQERTask(int taskId)
-    {
-        ProxyMethod("ConsoleFinishQERTask", taskId);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSocialAddFriend)]
@@ -434,6 +378,12 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("ConsoleRemoveEquipSkills");
     }
+    
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleResetLevel)]
+    public void ConsoleResetLevel(int level)
+    {
+        ProxyMethod("ConsoleResetLevel", level);
+    }
     #endregion
 
     #region LeaderBoard
@@ -477,6 +427,12 @@ public partial class NonCombatRPC : RPCBase
     public void OnTriggerTutorial(int id)
     {
         ProxyMethod("OnTriggerTutorial", id);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.EndTutorial)]
+    public void OnEndTutorial(int system)
+    {
+        ProxyMethod("OnEndTutorial", system);
     }
     #endregion
 
@@ -987,6 +943,14 @@ public partial class NonCombatRPC : RPCBase
     public void Tooltip_DailyWeeklyLimit(int itemID)
     {
         ProxyMethod("Tooltip_DailyWeeklyLimit", itemID);
+    }
+    #endregion
+
+    #region Invincible
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.Invincible)]
+    public void ActivateInvincible(bool active)
+    {
+        ProxyMethod("ActivateInvincible", active);
     }
     #endregion
 }

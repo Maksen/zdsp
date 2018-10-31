@@ -136,6 +136,7 @@ namespace Zealot.Server.Entities
         {
             if (mMissionCompleted)
                 return;
+
             mMissionCompleted = true;
             if (timer != null)
                 mInstance.StopTimer(timer);

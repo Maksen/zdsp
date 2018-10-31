@@ -149,21 +149,6 @@ public class JECharacterManager : MonoBehaviour
 
     public void GoToCharacterCreate(GameObject obj)
     {
-        SceneLoader.Instance.LoadLevel("UI_LoginHierarchy_test", () => { GoToCharacterCreation(); });
-    }
-
-    public void GoToCharacterCreation()
-    {
-        UIManager.StopHourglass();
-        if (GameInfo.gLobby.mCharacterList != null && GameInfo.gLobby.mCharacterList.Count > 0)
-        {
-            UIManager.OpenWindow(WindowType.CharacterCreation, (window) => window.GetComponent<UI_CharacterCreation>().InitFromSelection(GameInfo.gLobby.mCharacterList));
-            UIManager.CloseWindow(WindowType.CharacterSelection);
-        }
-        else
-        {
-            UIManager.OpenWindow(WindowType.CharacterCreation, (window) => window.GetComponent<UI_CharacterCreation>().InitFromLogin());
-            UIManager.CloseWindow(WindowType.CharacterSelection);
-        }
+        GameInfo.gLobby.GoToCharacterCreation();
     }
 }

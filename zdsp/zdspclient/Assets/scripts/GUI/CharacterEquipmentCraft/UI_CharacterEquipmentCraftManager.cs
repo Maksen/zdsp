@@ -21,6 +21,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
 
     [SerializeField] Image EquipmentIcon;
     [SerializeField] Text EquipmentName;
+    [SerializeField] Text equipmentStats;
     [SerializeField] Text equipmentDescription;
 
     [SerializeField] GameObject equipmentsPrefab;
@@ -35,6 +36,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
     [SerializeField] Button CraftButton;
 
     static int nowItemId = 0;
+    ushort materialId = 0;
 
     static bool haveEnoughMaterial = true;
     static bool haveEnoughCurrency = true;
@@ -118,6 +120,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
         nowItemId = itemId;
         EquipmentIcon.sprite = ClientUtils.LoadItemIcon(itemId);
         EquipmentName.text = myEquipmentData[count].localizedname;
+        equipmentStats.text = EquipmentCraftRepo.GetEquipmentSideEffect(myEquipmentData[count].basese);
         equipmentDescription.text = myEquipmentData[count].description;
 
         InitCurrency(itemId);
@@ -130,7 +133,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
         currencyView.text = requireCurrency[1].ToString("N0");
 
         haveEnoughCurrency = (player.SecondaryStats.Money >= requireCurrency[1]) ? true : false;
-        currencyView.color = (haveEnoughCurrency) ? new Color(1, 1, 1, 1) : new Color(1, 0, 0, 1);
+        currencyView.color = (haveEnoughCurrency) ? Color.white : ClientUtils.ColorRed;
     }
 
     private void InitMaterial(int itemId)
@@ -154,7 +157,8 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
             reqItemDataObject.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(false);
             reqItemDataObject.transform.GetChild(3).GetComponent<Text>().text = material[i].stackCount.ToString();
 
-            int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(material[i].itemId);
+            materialId = material[i].itemId;
+            int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(materialId);
             GameObject gameIconObj = ClientUtils.CreateChild(reqItemDataObject.transform.GetChild(1), materialsPrefab);
             gameIconObj.transform.localScale = Vector3.one;
 
@@ -188,18 +192,13 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
         //    cannotCraftObject.SetActive(true);
         //    cannotCraftReason.text = "You have not enought currency.";
         //}
-
-        if (!haveEnoughCurrency)
-        {
-            
-        }
     }
 
     static void CompareMaterial(Text viewStack, int invAmount, int reqAmount)
     {
         if (invAmount < reqAmount)
         {
-            viewStack.color = Color.red;
+            viewStack.color = ClientUtils.ColorRed;
             haveEnoughMaterial = false;
         }
     }
@@ -225,7 +224,7 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
     #region ClickEvent
     public void OnClickMaterial()
     {
-        var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)nowItemId);
+        var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId(materialId);
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
             OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), _item);
         });

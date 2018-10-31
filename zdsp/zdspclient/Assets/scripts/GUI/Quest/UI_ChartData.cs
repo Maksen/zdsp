@@ -46,6 +46,9 @@ public class UI_ChartData : MonoBehaviour
     [SerializeField]
     GameObject LineObject;
 
+    [SerializeField]
+    Transform LineContent;
+
     private UI_DestinyQuest mParent;
     private List<QuestDestinyJson> mDestinyJsons;
     private List<GameObject> mLineObjects;
@@ -105,7 +108,7 @@ public class UI_ChartData : MonoBehaviour
                 Vector2 endpoint;
                 mParent.GetPoint(destiny.uicolumn, destiny.uirow, direction, nextdata.Column, nextdata.Row, invertdirection, out startpoint, out endpoint);
                 GameObject newline = Instantiate(LineObject);
-                newline.transform.SetParent(transform, false);
+                newline.transform.SetParent(LineContent, false);
                 newline.GetComponent<RectTransform>().anchoredPosition = startpoint;
                 newline.GetComponent<UILineRenderer>().Points[0].x = 0;
                 newline.GetComponent<UILineRenderer>().Points[0].y = 0;

@@ -86,19 +86,11 @@ namespace Zealot.Client.Entities
             recoveringtime -= dt;
             if (gethittime > 0)
             {
-                if (gethittime - dt <= 0)
-                {
-                    HitFinished();
-                }
+                gethittime -= dt;
             }
-            gethittime -= dt;
         }
 
         public bool IsRecovering { get { return recoveringtime > 0; } }
-        public override bool IsHitted()
-        {
-            return gethittime > 0;
-        }
 
         /// <summary>
         /// only for recording the Player CastSkill recovering time;
@@ -117,57 +109,22 @@ namespace Zealot.Client.Entities
         /// <param name="cooldown"></param>
         public void StartHitted(long cooldown)
         {
-            //play hit animation condition check.   
-            //if (IsRecovering || IsMoving()|| IsIdling()) // somehow this line is blocking
+            if (gethittime <= 0)
             {
-                if (PlayerStats.HeavyStand) return;
-                if (gethittime < 0)
-                {
-                    HitStarted();
-                    gethittime = cooldown;
-                }
+                gethittime = cooldown;
+                HitStarted();
             }
-        }
-
-        /// <summary>
-        ///Overload for enemy get hit
-        /// </summary>
-        /// <param name="cooldown"></param>
-        public void StartHitted(long cooldown, int index)
-        {
-            //play hit animation condition check.   
-            if (IsRecovering || IsMoving() || IsIdling())
-            {
-                if (gethittime < 0)
-                {
-                    HitStarted(index);
-                    gethittime = cooldown;
-                }
-            }
-        }
-
-        protected virtual void HitStarted(int index)
-        {
-            string anim = GetHitAnimation();// + index;
-            PlayAnimation(anim, -1);
         }
 
         protected virtual void HitStarted()
         {
-
             string animstr = GetHitAnimation();
-            //check for element
             PlayAnimation(animstr, -1);
         }
 
-        protected virtual void HitFinished()
+        public bool HasControlStatus(EffectVisualTypes t)
         {
-            if (IsDying())
-                return;
-            if (IsIdling())
-                PlayAnimation(GetStandbyAnimation(), -1);
-            else if (IsMoving())
-                PlayAnimation(GetRunningAnimation(), -1);
+            return ControlSE_Status[t.ToString()];
         }
 
         string applied_mat = "";
@@ -238,6 +195,7 @@ namespace Zealot.Client.Entities
 
                         break;
 
+                    case EffectVisualTypes.Petrify:
                     case EffectVisualTypes.Frozen:
                         {
                             //SetActorMaterial(t);
@@ -283,6 +241,7 @@ namespace Zealot.Client.Entities
 
                         break;
 
+                    case EffectVisualTypes.Petrify:
                     case EffectVisualTypes.Frozen:
                         {
                             //SetActorMaterial(t);
@@ -290,6 +249,7 @@ namespace Zealot.Client.Entities
 
                             foreach (var animator in animators)
                                 animator.StopPlayback();
+
                         }
                         break;
                 }
@@ -436,12 +396,14 @@ namespace Zealot.Client.Entities
             if (mAction == null)
                 return false;
             return IsMovingAction(mAction.mdbCommand.GetActionType());
+        }
 
-            //ActionCommand cmd = GetActionCmd();
-            //if (cmd == null)
-            //    return false;
-
-            //return IsMovingAction(cmd.GetActionType());
+        public bool IsMovingAction(ACTIONTYPE actiontype)
+        {
+            return actiontype == ACTIONTYPE.WALK ||
+                actiontype == ACTIONTYPE.APPROACH_PATHFIND ||
+                //actiontype == ACTIONTYPE.WALKANDCAST || //root on walkandcast is done within the action
+                actiontype == ACTIONTYPE.WALK_WAYPOINT;
         }
 
         public bool IsDying()
@@ -450,19 +412,19 @@ namespace Zealot.Client.Entities
                 return false;
             return mAction.mdbCommand.GetActionType() == ACTIONTYPE.DEAD;
         }
+
         public bool IsIdling()
         {
             if (mAction == null)
                 return true;
-            return (mAction.mdbCommand.GetActionType() == ACTIONTYPE.IDLE);
+            return mAction.mdbCommand.GetActionType() == ACTIONTYPE.IDLE;
         }
 
-        public bool IsMovingAction(ACTIONTYPE actiontype)
+        public bool IsGettingHit()
         {
-            return (actiontype == ACTIONTYPE.WALK ||
-                actiontype == ACTIONTYPE.APPROACH_PATHFIND ||
-                //actiontype == ACTIONTYPE.WALKANDCAST || //root on walkandcast is done within the action
-                actiontype == ACTIONTYPE.WALK_WAYPOINT);
+            if (mAction == null)
+                return false;
+            return mAction.mdbCommand.GetActionType() == ACTIONTYPE.GETHIT;
         }
 
         public virtual void SetHeadLabel(bool init = false)

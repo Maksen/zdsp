@@ -1,10 +1,6 @@
-﻿using Photon.SocketServer;
-using Photon.LoadBalancing.Operations;
+﻿using Photon.LoadBalancing.Operations;
 using Photon.LoadBalancing.GameServer;
-using Photon.LoadBalancing.GameServer.Mail;
 using Zealot.Common.RPC;
-using System;
-using Zealot.Common;
 
 namespace Zealot.RPC
 {
@@ -52,11 +48,11 @@ namespace Zealot.RPC
         //    ProxyMethod("LogUIDShift", userId, oldLoginType, oldLoginId, newLoginType, newLoginId, target);
         //}
 
-        //[RPCMethod(RPCCategory.MasterToGameRPC, (byte)MasterToGameRPCMethods.GMMessage)]
-        //public void GMMessage(string seesionid, string player, string message, int mode, object target)
-        //{
-        //    ProxyMethod("GMMessage", seesionid, player, message, mode, target);
-        //}
+        [RPCMethod(RPCCategory.MasterToGame, (byte)MasterToGameRPCMethods.GMMessage)]
+        public void GMMessage(string seesionid, string player, string message, int mode, object target)
+        {
+            ProxyMethod("GMMessage", seesionid, player, message, mode, target);
+        }
 
         //[RPCMethod(RPCCategory.MasterToGameRPC, (byte)MasterToGameRPCMethods.KickPlayer)]
         //public void KickPlayer(string seesionid, string player, string reason, object target)

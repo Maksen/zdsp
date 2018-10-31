@@ -1,8 +1,8 @@
 ﻿using Kopio.JsonContracts;
-using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEngine;
 using Zealot.Common;
 using Zealot.Repository;
 
@@ -193,7 +193,7 @@ public class AvatarController : MonoBehaviour
             InitAvatarBack(fashionSlots[(int)FashionSlot.Back], equipmentSlots[(int)EquipmentSlot.Back], gender);
             InitAvatarHelm(fashionSlots[(int)FashionSlot.Helm], equipmentSlots[(int)EquipmentSlot.Helm], appearanceSlots[(int)AppearanceSlot.HairStyle], appearanceSlots[(int)AppearanceSlot.HairColor], equipmentInvData.HideHelm, gender);
             InitAvatarBody(fashionSlots[(int)FashionSlot.Body], equipmentSlots[(int)EquipmentSlot.Body], appearanceSlots[(int)AppearanceSlot.SkinColor], gender, jobtype);
-            InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], gender);
+            InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], appearanceSlots[(int)AppearanceSlot.SkinColor], gender);
         }
     }
 
@@ -205,7 +205,26 @@ public class AvatarController : MonoBehaviour
 
         InitSpecialOutfit(outfit, appearanceSlots[(int)AppearanceSlot.SkinColor], gender);
         InitAvatarHelm(fashionSlots[(int)FashionSlot.Helm], equipmentSlots[(int)EquipmentSlot.Helm], appearanceSlots[(int)AppearanceSlot.HairStyle], appearanceSlots[(int)AppearanceSlot.HairColor], equipmentInvData.HideHelm, gender);
-        InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], gender);
+        InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], appearanceSlots[(int)AppearanceSlot.SkinColor], gender);
+    }
+
+    Dictionary<int, bool> mWaitingList = new Dictionary<int, bool>();
+    Action mCallback = null;
+
+    public void InitSelectionAvatar(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, Action callback)
+    {
+        List<Equipment> fashionSlots = equipmentInvData.FashionSlots;
+        List<Equipment> equipmentSlots = equipmentInvData.Slots;
+        List<int> appearanceSlots = equipmentInvData.AppearanceSlots;
+        mWaitingList = new Dictionary<int, bool>();
+        mWaitingList.Add(0, false);
+        mWaitingList.Add(1, false);
+        mWaitingList.Add(2, false);
+        mCallback = callback;
+
+        InitAvatarBody(fashionSlots[(int)FashionSlot.Body], equipmentSlots[(int)EquipmentSlot.Body], appearanceSlots[(int)AppearanceSlot.SkinColor], gender, jobtype);
+        InitAvatarHelm(fashionSlots[(int)FashionSlot.Helm], equipmentSlots[(int)EquipmentSlot.Helm], appearanceSlots[(int)AppearanceSlot.HairStyle], appearanceSlots[(int)AppearanceSlot.HairColor], equipmentInvData.HideHelm, gender);
+        InitAvatarFace(appearanceSlots[(int)AppearanceSlot.MakeUp], appearanceSlots[(int)AppearanceSlot.SkinColor], gender);
     }
 
     public void InitSpecialOutfit(int outfit, int skincolor, Gender gender)
@@ -222,7 +241,7 @@ public class AvatarController : MonoBehaviour
             case 1:
                 return gender == Gender.Male ? "Models_Characters/Pc_job/t3_general_male_body.fbx" : "Models_Characters/Pc_job/t3_general_female_body.fbx";
             case 2:
-                return gender == Gender.Male ? "Models_Characters/Pc_job/t3_executioner_male_body.fbx" : "Models_Characters/Pc_job/t3_executioner_female_body.fbx";
+                return gender == Gender.Male ? "Models_Characters/Pc_job/t3_bladeMaster_male_body.fbx" : "Models_Characters/Pc_job/t3_executioner_female_body.fbx";
             case 3:
                 return gender == Gender.Male ? "Models_Characters/Pc_fashion/fa_001_agent_male_body.fbx" : "Models_Characters/Pc_fashion/fa_001_agent_female_body.fbx";
             default:
@@ -237,9 +256,9 @@ public class AvatarController : MonoBehaviour
             case 1:
                 return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_general_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_general_female_body.mat";
             case 2:
-                return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_executioner_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_executioner_female_body.mat";
+                return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_bladeMaster_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_executioner_female_body.mat";
             case 3:
-                return gender == Gender.Male ? "Models_Characters/Pc_fashion/Materials/fa_001_agent_female_body.mat" : "Models_Characters/Pc_fashion/Materials/fa_001_agent_male_body.mat";
+                return gender == Gender.Male ? "Models_Characters/Pc_fashion/Materials/fa_001_agent_male_body.mat" : "Models_Characters/Pc_fashion/Materials/fa_001_agent_female_body.mat";
             default:
                 return gender == Gender.Male ? "Models_Characters/Pc_job/Materials/t3_bladeMaster_male_body.mat" : "Models_Characters/Pc_job/Materials/t3_bladeMaster_female_body.mat";
         }
@@ -285,9 +304,9 @@ public class AvatarController : MonoBehaviour
             EquipJobBody(jobtype, skincolor, gender);
     }
 
-    private void InitAvatarFace(int makeup, Gender gender)
+    private void InitAvatarFace(int makeup, int skincolor, Gender gender)
     {
-        EquipMakeUp(makeup, gender);
+        EquipMakeUp(makeup, skincolor, gender);
     }
 
     private void EquipJobBody(JobType jobtype, int skincolor, Gender gender)
@@ -329,16 +348,16 @@ public class AvatarController : MonoBehaviour
         }
     }
 
-    private void EquipMakeUp(int makeup, Gender gender)
+    private void EquipMakeUp(int makeup, int skincolor, Gender gender)
     {
         string makeup_materialpath = CharacterCreationRepo.GetMaterialPathByPartId(makeup, ApperanceType.MakeUp);
         if (string.IsNullOrEmpty(makeup_materialpath))
         {
-            OnSkinChanged("face", gender == Gender.Male ? "Models_Characters/Pc_face/Materials/face_000_base_male.mat" : "Models_Characters/Pc_face/Materials/face_000_base_female.mat");
+            OnSkinChanged("face", gender == Gender.Male ? "Models_Characters/Pc_face/Materials/face_000_base_male.mat" : "Models_Characters/Pc_face/Materials/face_000_base_female.mat", GetColorCodeByPart("face", skincolor));
         }
         else
         {
-            OnSkinChanged("face", makeup_materialpath);
+            OnSkinChanged("face", makeup_materialpath, GetColorCodeByPart("face", skincolor));
         }
     }
 
@@ -390,7 +409,7 @@ public class AvatarController : MonoBehaviour
         }
     }
 
-    private void OnSkinChanged(string partName, string materialpath)
+    private void OnSkinChanged(string partName, string materialpath, string colorcode)
     {
         AvatarSkinPart skinPart = GetSkinPart(partName);
         if (skinPart == null)
@@ -398,7 +417,19 @@ public class AvatarController : MonoBehaviour
         if (materialpath != skinPart.MaterialLoadingPath)
         {
             skinPart.MaterialLoadingPath = materialpath;
-            AssetLoader.Instance.LoadAsync<Material>(materialpath, (material) => OnMaterialLoaded(material, materialpath, skinPart, ""));
+            AssetLoader.Instance.LoadAsync<Material>(materialpath, (material) => OnMaterialLoaded(material, materialpath, skinPart, colorcode));
+        }
+        else
+        {
+            Color color = new Color();
+            if (ColorUtility.TryParseHtmlString(colorcode, out color))
+            {
+                if (skinPart.SkinMesh.sharedMaterial.HasProperty("_Discoloration"))
+                {
+                    skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
+                }
+            }
+            UpdateWaitingList(partName);
         }
     }
 
@@ -422,45 +453,28 @@ public class AvatarController : MonoBehaviour
             Color color = new Color();
             if (ColorUtility.TryParseHtmlString(colorcode, out color))
             {
-                skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
+                if (skinPart.SkinMesh.sharedMaterial.HasProperty("_Discoloration"))
+                {
+                    skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
+                }
             }
+            UpdateWaitingList(partName);
         }
     }
 
     private string GetPrefabPathByGender(EquipmentJson equipmentJson, Gender gender)
     {
-        if (gender == Gender.Male)
-        {
-            return equipmentJson.prefabpath;
-        }
-        else
-        {
-            return equipmentJson.femaleprefabpath;
-        }
+        return (gender == Gender.Male) ? equipmentJson.prefabpath : equipmentJson.femaleprefabpath;
     }
 
     private string GetMeshPathByGender(EquipmentJson equipmentJson, Gender gender)
     {
-        if (gender == Gender.Male)
-        {
-            return equipmentJson.malemeshpath;
-        }
-        else
-        {
-            return equipmentJson.femalemeshpath;
-        }
+        return (gender == Gender.Male) ? equipmentJson.malemeshpath : equipmentJson.femalemeshpath;
     }
 
     private string GetMaterialPathByGender(EquipmentJson equipmentJson, Gender gender)
     {
-        if (gender == Gender.Male)
-        {
-            return equipmentJson.malemeshpath;
-        }
-        else
-        {
-            return equipmentJson.femalemeshpath;
-        }
+        return (gender == Gender.Male) ? equipmentJson.malematerialpath : equipmentJson.femalematerialpath;
     }
 
     private string GetColorCodeByPart(string partName, int color)
@@ -471,6 +485,8 @@ public class AvatarController : MonoBehaviour
                 return CharacterCreationRepo.GetColorCodeByPartId(color, ApperanceType.SkinColor);
             case "helm":
                 return CharacterCreationRepo.GetColorCodeByPartId(color, ApperanceType.HairColor);
+            case "face":
+                return CharacterCreationRepo.GetColorCodeByPartId(color, ApperanceType.SkinColor);
             default:
                 return "";
         }
@@ -577,19 +593,21 @@ public class AvatarController : MonoBehaviour
         if (isDestroyed || skinPart.MaterialLoadingPath != path)
             return;
         skinPart.SkinMesh.sharedMaterial = material;
-        if (!string.IsNullOrEmpty(colorcode))
-        {
-            Color color = new Color();
-            if (ColorUtility.TryParseHtmlString(colorcode, out color))
-            {
-                skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
-            }
-        }        
         if (material == null)
         {
             Debug.LogErrorFormat("OnMaterialLoaded material path {0} not found!!!", path);
             return;
         }
+        else if (!string.IsNullOrEmpty(colorcode))
+        {
+            Color color = new Color();
+            if (ColorUtility.TryParseHtmlString(colorcode, out color))
+            {
+                if (skinPart.SkinMesh.sharedMaterial.HasProperty("_Discoloration"))
+                    skinPart.SkinMesh.sharedMaterial.SetColor("_Discoloration", color);
+            }
+        }
+        UpdateWaitingList(skinPart.PartName);
     }
 
     public void HideWeapon(bool hide)
@@ -624,8 +642,68 @@ public class AvatarController : MonoBehaviour
         return Array.Find(SkinParts, o => o.PartName == partname);
     }
 
+    private void UpdateWaitingList(string partname)
+    {
+        if (mWaitingList.Count > 0)
+        {
+            switch (partname)
+            {
+                case "body":
+                    if (mWaitingList.ContainsKey(0))
+                    {
+                        mWaitingList[0] = true;
+                    }
+                    break;
+                case "helm":
+                    if (mWaitingList.ContainsKey(1))
+                    {
+                        mWaitingList[1] = true;
+                    }
+                    break;
+                case "face":
+                    if (mWaitingList.ContainsKey(2))
+                    {
+                        mWaitingList[2] = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            CheckWaitingList();
+        }
+    }
+
+    private void CheckWaitingList()
+    {
+        foreach(KeyValuePair<int, bool> entry in mWaitingList)
+        {
+            if (entry.Value == false)
+                return;
+        }
+
+        if (mCallback != null)
+        {
+            mCallback();
+            mCallback = null;
+            mWaitingList = new Dictionary<int, bool>();
+        }
+    }
+
     void OnDestroy()
     {
         isDestroyed = true;
+    }
+
+    public void TransformWeapon(bool value)
+    {
+        AvatarAttachedPart attachedPart = GetAttachedPart("weapon_r");
+        if (attachedPart != null)
+        {
+            Animator animator = attachedPart.AttachedObj.GetComponent<Animator>();
+            if (animator != null && animator.runtimeAnimatorController != null)
+            {
+                animator.SetBool("On/Off", value);
+            }
+        }
     }
 }

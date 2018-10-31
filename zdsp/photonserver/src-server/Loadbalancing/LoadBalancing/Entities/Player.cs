@@ -5,7 +5,6 @@
     using Newtonsoft.Json;
     using Photon.LoadBalancing.Entities;
     using Photon.LoadBalancing.GameServer;
-    using Photon.LoadBalancing.GameServer.Crafting;
     using Photon.LoadBalancing.GameServer.Lottery;
     using Photon.LoadBalancing.GameServer.CombatFormula;
     using System;
@@ -52,10 +51,8 @@
         public WelfareStats WelfareStats { get; private set; }
         public SevenDaysStats SevenDaysStats { get; private set; }
         public QuestExtraRewardsStats QuestExtraRewardsStats { get; private set; }
-
-        //public DNAStats DNAStats { get; private set; }
-        public LotteryInfoStats LotteryInfoStats { get; private set; }
-
+        public DNAStats DNAStats { get; private set; }
+        public LotteryInfoStats LotteryInfoStats { get; private set; } 
         public ExchangeShopSynStats ExchangeShopSynStats { get; private set; }
         public PortraitDataStats PortraitDataStats { get; private set; }
         public PartyStatsServer PartyStats { get; set; }
@@ -68,7 +65,6 @@
 
         public PowerUpStats PowerUpStats { get; private set; }
         public MeridianStats MeridianStats { get; private set; }
-        public InteractiveTriggerStats InteractiveTriggerStats { get; private set; }
 
         #endregion Stats Local Objects
 
@@ -82,12 +78,6 @@
         private Dictionary<int, List<IPassiveSideEffect>> mTongbaoCostBuffPassiveSEs; //TongbaoCostBuff to SE
 
         private LotteryController mLotteryInvController;
-
-        //Quest
-        public QuestController QuestController;
-
-        //Destiny Clue
-        public DestinyClueController DestinyClueController;
 
         //Donate
         public DonateController DonateController;
@@ -103,8 +93,6 @@
         private static readonly long HEALTH_UPDATE_INTERVAL = 750; //in msec
 
         public GameClientPeer Slot { get; set; }
-
-        public Crafting mCrafting { get; private set; }
 
         public WardrobeController WardrobeController { get; private set; }
         public bool InspectMode = false;
@@ -152,12 +140,9 @@
             friendRemoveSB = new StringBuilder();
             friendsRecDict = new Dictionary<string, string>();
             friendRecommendedCD = DateTime.Now;
-
-            mCrafting = new Crafting(this);
+            
             WardrobeController = new WardrobeController(this);
-            QuestController = new QuestController(this);
-
-            DestinyClueController = new DestinyClueController(this);
+            
             DonateController = new DonateController(this);
         }
 
@@ -288,7 +273,7 @@
             QuestExtraRewardsStats = new QuestExtraRewardsStats();
             //LOStats.Add(LOTYPE.QuestExtraRewardsStats, QuestExtraRewardsStats);
 
-            //DNAStats = new DNAStats();
+            DNAStats = new DNAStats();
             //LOStats.Add(LOTYPE.DNAStats, DNAStats);
 
             LotteryInfoStats = new LotteryInfoStats();
@@ -318,9 +303,6 @@
 
             AchievementStats = new AchievementStatsServer();
             LOStats.Add(LOTYPE.AchievementStats, AchievementStats);
-
-            InteractiveTriggerStats = new InteractiveTriggerStats();
-            LOStats.Add(LOTYPE.InteractiveTriggerStats, InteractiveTriggerStats);
         }
 
         private void InitInvStats()
@@ -330,7 +312,7 @@
             if (maxcount % (int)InventorySlot.COLLECTION_SIZE != 0) // If got remainder
                 ++totalcount;
             InventoryStats = new InventoryStats[totalcount];
-            for (int i = 0; i < totalcount; i++)
+            for (int i = 0; i < totalcount; ++i)
             {
                 LOTYPE type = (LOTYPE)((int)LOTYPE.InventoryStats + i);
                 InventoryStats[i] = new InventoryStats(type);
@@ -553,7 +535,7 @@
                 LogStr(logstr2, attacker as Player);
             }
 
-            if (mInstance.IsDoingFirstGuideRealm())
+            if (mInstance.IsDoingTutorialRealm())
             {
                 SetHealth(GetHealthMax()); // Restore health if player killed in first guide realm.
                 return;
@@ -562,16 +544,16 @@
 
             base.OnKilled(attacker);
             RealmController realmController = mInstance.mRealmController;
-            if (realmController != null)
+            if(realmController != null)
             {
                 int respawnId = realmController.mRealmInfo.respawn;
                 mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
                 string attackername = attacker.Name == null ? "" : attacker.Name;
                 Slot.ZRPC.CombatRPC.OnPlayerDead(attackername, (byte)respawnId, Slot);
 
-                if (mRespawnInfo.respawntype == RespawnType.City)
+                if(mRespawnInfo.respawntype == RespawnType.City)
                 {
-                    if (mRespawnInfo.countdown != -1)
+                    if(mRespawnInfo.countdown != -1)
                     {
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
@@ -583,9 +565,9 @@
                         }, null);
                     }
                 }
-                else if (mRespawnInfo.respawntype == RespawnType.SafeZone)
+                else if(mRespawnInfo.respawntype == RespawnType.SafeZone)
                 {
-                    if (mRespawnInfo.countdown != -1)
+                    if(mRespawnInfo.countdown != -1)
                     {
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
@@ -620,7 +602,7 @@
             long curr = EntitySystem.Timers.GetSynchronizedTime();
             if (curr - lastComboTime < CombatUtils.COMBOTHIT_TIMEOUT)
             {
-                if (LocalCombatStats.ComboHit < 999)
+                if(LocalCombatStats.ComboHit < 999)
                 {
                     LocalCombatStats.ComboHit++;
                 }
@@ -709,7 +691,7 @@
         {
             foreach (AttackResult res in mDamageResults)
             {
-                peer.ZRPC.UnreliableCombatRPC.EntityOnDamage(res.TargetPID, 0, res.AttackInfo, res.RealDamage, res.LabelNum, peer);
+                peer.ZRPC.UnreliableCombatRPC.EntityOnDamage(res.TargetPID, 0, res.AttackInfo, res.RealDamage, res.LabelNum, res.Skillid, peer);
             }
             mDamageResults.Clear();
         }
@@ -865,7 +847,7 @@
             //mLotteryInvController.ResetOnNewDay();
             //Slot.CharacterData.ExchangeShopInv.NewDayReset();
             //Slot.mQuestExtraRewardsCtrler.ResetOnNewDay();
-            QuestController.ResetOnNewDay();
+            Slot.QuestController.ResetOnNewDay();
         }
 
         public void StartManaRegen()
@@ -898,7 +880,7 @@
 
         public void SaveToCharacterData(bool exitroom)
         {
-            if (mInstance.IsDoingFirstGuideRealm())
+            if (mInstance.IsDoingTutorialRealm())
                 return;
             log.InfoFormat("[{0}]: save ({1}) {2}", mInstance.ID, GetPersistentID(), Name);
 
@@ -1013,8 +995,8 @@
             characterData.RealmInventory.SaveToInventoryData(RealmStats);
 
             // Quest
-            QuestController.SaveQuestInventory(characterData.QuestInventory);
-            DestinyClueController.SaveDestinyClueInventory(characterData.ClueInventory);
+            Slot.QuestController.SaveQuestInventory(characterData.QuestInventory);
+            Slot.DestinyClueController.SaveDestinyClueInventory(characterData.ClueInventory);
 
             //serialise the m_SideEffectList balyat
             //format -> seid, number of stacks
@@ -1029,7 +1011,7 @@
             HeroStats.SaveToInventory(characterData.HeroInventory);
 
             // Achievement
-            AchievementStats.SaveToInventory(characterData.AchievementInventory);
+            AchievementStats.SaveToInventory(Slot.AchievementInvData);
 
             //SocialInventoryData socialInv = Slot.mSocialInventory;
             //IList<string> socialInvFriendList = socialInv.friendList;
@@ -1080,7 +1062,7 @@
             //WardrobeController.Save();
 
             // DNA
-            //characterData.DNAInventory.SaveToInventory(DNAStats);
+            characterData.DNAInventory.SaveToInventory(DNAStats);
 
             //ExchangeShop
             //characterData.ExchangeShopInv.SaveToExchangeShopInventory(ExchangeShopSynStats.exchangeLeftMapJsonString);
@@ -1098,9 +1080,6 @@
             //EquipFushion
             characterData.EquipFusionInventory.SaveToInventoryData(EquipFusionStats);
 
-            //InteractiveTrigger
-            characterData.InteractiveTriggerInventory.SaveToInventory(InteractiveTriggerStats);
-
             Slot.mCanSaveDB = true;
         }
 
@@ -1109,7 +1088,7 @@
             bool added = base.AddSpecialSideEffect(se);
             if (added)
             {
-                for (int i = 0; i < BuffTimeStats.MAX_EFFECTS; i++)
+                for (int i = 0; i < BuffTimeStats.MAX_EFFECTS; ++i)
                 {
                     if ((int)BuffTimeStats.Persistents[i] == 0)
                     {
@@ -1125,7 +1104,7 @@
         public override void RemoveSpecialSideEffect(SpecialSE se)
         {
             base.RemoveSpecialSideEffect(se);
-            for (int i = 0; i < BuffTimeStats.MAX_EFFECTS; i++)
+            for (int i = 0; i < BuffTimeStats.MAX_EFFECTS; ++i)
             {
                 //no need to care about the index of the same id if multiply.
                 if ((int)BuffTimeStats.Persistents[i] == se.mSideeffectData.id)
@@ -1153,7 +1132,7 @@
                     {
                         float expEach = exp / totalValidPlayers;
                         AddMonsterExperience(expEach, monsterLvl);
-                        for (int index = 0; index < count; index++)
+                        for (int index = 0; index < count; ++index)
                             partyPlayers[index].AddMonsterExperience(expEach, monsterLvl);
                     }
                 }
@@ -1161,7 +1140,7 @@
                     AddMonsterExperience(exp, monsterLvl);
             }
 
-            QuestController.KillCheck(npc.id, 1);
+            Slot.QuestController.KillCheck(npc.id, 1);
         }
 
         #region PlayerStats Methods
@@ -1188,7 +1167,7 @@
         private void GetLevelUpCost(int level)
         {
             if (level < mMaxLevel)
-                mExperienceNeeded = CharacterLevelRepo.GetExpByLevel(level);
+                mExperienceNeeded = CharacterLevelRepo.GetExpByLevel(level + 1);
             else
                 mExperienceNeeded = 0;
         }
@@ -1303,7 +1282,7 @@
             while (currentlevel < mMaxLevel && currentExp >= mExperienceNeeded)
             {
                 currentExp -= mExperienceNeeded;
-                currentlevel++;
+                ++currentlevel;
 
                 GetLevelUpCost(currentlevel);
             }
@@ -1318,8 +1297,9 @@
             if (IsInParty())
                 PartyStats.SetMemberLevel(Name, PlayerSynStats.Level);
 
-            QuestController.ConditionCheck(QuestRequirementType.Level);
+            Slot.QuestController.ConditionCheck(QuestRequirementType.Level);
             UpdateAchievement(AchievementObjectiveType.Level, "-1", true, PlayerSynStats.Level, false);
+            Slot.DestinyClueController.Unlock(PlayerSynStats.Level);
 
             //PlayerSynStats.progressLevel = currentlevel;
             //SecondaryStats.experience = currentExp;
@@ -1373,7 +1353,7 @@
             while (currentlevel < mMaxJobLevel && currentExp >= mJobExperienceNeeded)
             {
                 currentExp -= mJobExperienceNeeded;
-                currentlevel++;
+                ++currentlevel;
 
                 GetJobLevelUpCost(currentlevel);
             }
@@ -1401,13 +1381,20 @@
             if (PlayerSynStats.Level + level > 100)
                 return false;
 
-            for (int i = 0; i < level; i++)
+            for (int i = 0; i < level; ++i)
             {
                 PlayerSynStats.Level += 1;
                 //SecondaryStats.pointstoadd += (int)mLvlUpCost["Stats"];
                 GetLevelUpCost(PlayerSynStats.Level);
             }
             return true;
+        }
+
+        public void SetLevelTo(int level)
+        {
+            GetLevelUpCost(level - 1);
+            SecondaryStats.experience = mExperienceNeeded;
+            PlayerSynStats.Level = level;
         }
 
         public int GetAccumulatedLevel()
@@ -1701,11 +1688,6 @@
             equipFusionInv.InitFromInventory(EquipFusionStats);
         }
 
-        public void InitInteractiveTriggerStats(InteractiveTriggerInventoryData interactiveInv)
-        {
-            interactiveInv.InitFromInventory(InteractiveTriggerStats);
-        }
-
         // LotteryShopStats
 
         #region LotteryShopStats
@@ -1803,12 +1785,12 @@
 
         #endregion QuestExtraRewardsStats
 
-        //#region DNA
-        //public void InitDNAStats(DNAInvData dnaInv)
-        //{
-        //    dnaInv.InitFromInventory(DNAStats);
-        //}
-        //#endregion
+        #region DNA
+        public void InitDNAStats(DNAInvData dnaInv)
+        {
+            dnaInv.InitFromInventory(DNAStats);
+        }
+        #endregion
 
         //public void InitBattleTimeStats(BattleTimeInventoryData battleTimeInv)
         //{
@@ -3182,12 +3164,11 @@
             }
 
             ((ServerEntitySystem)EntitySystem).UnregisterPlayerName(Name);
-            DestinyClueController.Dispose();
         }
 
         public override bool IsInvalidTarget()
         {
-            return !IsAlive() || LocalCombatStats.IsInSafeZone;
+            return !IsAlive() || IsInSafeZone();
         }
 
         public override bool IsInSafeZone()
@@ -3320,7 +3301,7 @@
 
         public void RemoveMyBuff(int sideID)
         {
-            for (int i = 0; i < this.mSideEffectsPos.Length; i++)
+            for (int i = 0; i < this.mSideEffectsPos.Length; ++i)
             {
                 if (this.mSideEffectsPos[i] != null)
                 {
@@ -3506,6 +3487,15 @@
         public void UpdateAchievement(AchievementObjectiveType objType, string target = "-1", bool isNonTarget = true, int count = 1, bool increment = true)
         {
             AchievementStats.UpdateAchievement(objType, target, isNonTarget, count, increment);
+        }
+
+        public void SetQuestRealmId(int questid)
+        {
+            if (questid == -1)
+            {
+                Slot.QuestController.FailQuest(Slot.CharacterData.QuestInventory.RealmQuestId);
+            }
+            Slot.CharacterData.QuestInventory.RealmQuestId = questid;
         }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Zealot.Entities;
 
 public class SafeZoneJson : ServerEntityJson
 {
-    public Vector3 size;
-    public float safeZoneRadius;
-   // public string uniqueName;
+    public Vector3 size { get; set; }
+    public float safeZoneRadius { get; set; }
+    //public string uniqueName { get; set; }
 }

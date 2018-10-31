@@ -781,10 +781,10 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("End TrainingRealm")]
-    public void EndTrainingRealm(string[] param)
+    [ConsoleCmd("End Tutorial Realm")]
+    public void EndTutorialRealm(string[] param)
     {
-        GameInfo.gCombat.OnFinishedTraingingRealm();
+        RPCFactory.NonCombatRPC.ConsoleCompleteRealm();
         UIManager.CloseWindow(WindowType.ConsoleCommand);
     }
 
@@ -976,18 +976,6 @@ public class CommandManager
         }
         else
             PrintToConsole("Format: \\NewDay");
-    }
-
-    [ConsoleCmd("Set Shake Intensity")]
-    public void SetShakeIntensity(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            float res = 0;
-            float.TryParse(param[0], out res);
-            CombatUtils.SHAKE_INTENSITY = res;
-        }
-         
     }
 
     [ConsoleCmd("Inspect any player using input name")]
@@ -1247,47 +1235,6 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("GuildList")]
-    public void GuildList(string[] param)
-    {
-        if (param.Length == 0)
-        {
-            RPCFactory.NonCombatRPC.ConsoleGuildList();
-        }
-        else
-        {
-            PrintToConsole("Format: \\GuildList");
-        }
-    }
-
-    [ConsoleCmd("GuildAddFavour")]
-    public void GuildAddFavour(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            int amt = int.Parse(param[0]);
-            RPCFactory.NonCombatRPC.ConsoleGuildAddFavour(amt);
-        }
-        else
-        {
-            PrintToConsole("Format: \\GuildAddFavour <amt>");
-        }
-    }
-
-    [ConsoleCmd("GuildSMBossLevel")]
-    public void GuildSMBossLevel(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            int level = int.Parse(param[0]);
-            RPCFactory.NonCombatRPC.ConsoleGuildSMLevel(level);
-        }
-        else
-        {
-            PrintToConsole("Format: \\GuildSMBossLevel <level>");
-        }
-    }
-
     [ConsoleCmd("GiveRewardGrpMail")]
     public void GiveRewardGrpMail(string[] param)
     {
@@ -1454,20 +1401,6 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("SummonHero. Parameters: heroId")]
-    public void SummonHero(string[] param)
-    {
-        int id;
-        if (param.Length == 1 && int.TryParse(param[0], out id))
-        {
-            RPCFactory.CombatRPC.SummonHero(id);
-        }
-        else
-        {
-            PrintToConsole("Format: \\SummonHero heroId (0 to unsummon)");
-        }
-    }
-
     [ConsoleCmd("ResetExplorations")]
     public void ResetExplorations(string[] param)
     {
@@ -1485,22 +1418,6 @@ public class CommandManager
         else
         {
             PrintToConsole("Format: \\KillPlayer");
-        }
-    }
-
-    [ConsoleCmd("ItemMallTopUp")]
-    public void ItemMallTopUp(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            int amt = 0;
-            int.TryParse(param[0], out amt);
-            RPCFactory.NonCombatRPC.ConsoleItemMallTopUp(amt);
-            UIManager.CloseWindow(WindowType.ConsoleCommand);
-        }
-        else
-        {
-            PrintToConsole("Format: \\SetItemMallTopUp amount");
         }
     }
 
@@ -1569,30 +1486,6 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("Parameters: mountid")]
-    public void Mount(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            int mountId;
-            mountId = int.TryParse(param[0], out mountId) ? mountId : 0;
-            if (mountId > 0)
-                RPCFactory.CombatRPC.Mount(mountId);
-            else
-                PrintToConsole("Mount: invalid parameter");
-        }
-        else
-        {
-            PrintToConsole("Format: \\Mount <mount id>");
-        }
-    }
-
-    [ConsoleCmd("Parameters: none")]
-    public void UnMount(string[] param)
-    {
-        RPCFactory.CombatRPC.UnMount();
-    }
-
     [ConsoleCmd("Parameters:teamid")]
     public void SetTeamID(string[] param)
     {
@@ -1603,54 +1496,10 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("AddLotteryFreeTickets")]
-    public void AddLotteryFreeTickets(string[] param)
-    {
-        if (param.Length == 2)
-        {
-            int lottery_id, count;
-            lottery_id = int.TryParse(param[0], out lottery_id) ? lottery_id : 0;
-            count = int.TryParse(param[1], out count) ? count : 0;
-            if (lottery_id > 0 && count > 0)
-                RPCFactory.NonCombatRPC.ConsoleAddLotteryFreeTickets(lottery_id, count);
-            else
-                PrintToConsole("AddLotteryFreeTickets: invalid parameter");
-        }
-        else
-        {
-            PrintToConsole("Format: \\AddLotteryFreeTickets free-ticket-counts");
-        }
-    }
-
-    [ConsoleCmd("AddLotteryPoint")]
-    public void AddLotteryPoint(string[] param)
-    {
-        if (param.Length == 2)
-        {
-            int lottery_id, point;
-            lottery_id = int.TryParse(param[0], out lottery_id) ? lottery_id : 0;
-            point = int.TryParse(param[1], out point) ? point : 0;
-            if (lottery_id > 0 && point > 0)
-                RPCFactory.NonCombatRPC.ConsoleAddLotteryPoint(lottery_id, point);
-            else
-                PrintToConsole("AddLotteryPoint: invalid parameter");
-        }
-        else
-        {
-            PrintToConsole("Format: \\AddLotteryPoint free-ticket-counts");
-        }
-    }
-
     [ConsoleCmd("RefreshLeaderBoard")]
     public void RefreshLeaderBoard(string[] param)
     {
         RPCFactory.NonCombatRPC.ConsoleRefreshLeaderBoard();
-    }
-
-    [ConsoleCmd("Reset PrizeGuarantee")]
-    public void ResetPrizeGuarantee(string[] param)
-    {
-        RPCFactory.NonCombatRPC.ConsoleResetPrizeGuarantee();
     }
 
     [ConsoleCmd("DonateReset")]
@@ -1728,56 +1577,10 @@ public class CommandManager
         }
     }
 
-    [ConsoleCmd("AddActivePoints")]
-    public void AddActivePoints(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            int amount = 0;
-            int.TryParse(param[0], out amount);
-
-            RPCFactory.NonCombatRPC.ConsoleAddActivePoints(amount);
-        }
-        else
-        {
-            PrintToConsole("Format: \\AddActivePoints amount");
-        }
-    }
-
-    [ConsoleCmd("FinishQERTask")]
-    public void FinishQERTask(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            int taskId = 0;
-            int.TryParse(param[0], out taskId);
-
-            RPCFactory.NonCombatRPC.ConsoleFinishQERTask(taskId);
-        }
-        else
-        {
-            PrintToConsole("Format: \\FinishQERTask taskId");
-        }
-    }
-
     [ConsoleCmd("FastForwardGuildQuest")]
     public void FastForwardGuildQuest(string[] param)
     {
         RPCFactory.NonCombatRPC.ClientGuildQuestOperation((int)GuildQuestOperation.Fastforwad, 0);
-    }
-
-    [ConsoleCmd("TickerTapeAnnoucement")]
-    public void TickerTapeAnnoucement(string[] param)
-    {
-        if (param.Length == 1)
-        {
-            //string annoucement = param[0];
-            //UIManager.GetWidget(HUDWidgetType.TickerTape).GetComponent<HUD_TickerTape>().SetAnnoucementText(annoucement);
-        }
-        else
-        {
-            PrintToConsole("Format: \\TickerTapeAnnoucement annoucementText");
-        }
     }
 
     [ConsoleCmd("SocialAddfriend, add random friends if no name is specfied")]
@@ -1793,7 +1596,6 @@ public class CommandManager
             PrintToConsole("Format: \\SocialAddfriend <name>");
         }
     }
-
     
     [ConsoleCmd("SetStoreRefreshTime")]
     public void SetStoreRefreshTime(string[] param)
@@ -1821,14 +1623,6 @@ public class CommandManager
     public void ResetContLoginClaims(string[] param)
     {
         RPCFactory.NonCombatRPC.ConsoleResetContLoginClaims();
-    }
-
-    [ConsoleCmd("ActiveRandomBox")]
-    public void ActiveRandomBox(string[] param)
-    {
-        bool active;
-        if (bool.TryParse(param[0], out active))
-            RPCFactory.CombatRPC.ActiveRandomBox(active);
     }
 
     [ConsoleCmd("SetEquipmentUpgradeLevel")]
@@ -1987,7 +1781,8 @@ public class CommandManager
     }
 
     [ConsoleCmd("RTSpeed")]
-    public void RTSpeed(string[] param) {
+    public void RTSpeed(string[] param)
+    {
         if(param.Length == 1) {
             float amount = 0;
             float.TryParse(param[0], out amount);
@@ -1996,7 +1791,8 @@ public class CommandManager
     }
 
     [ConsoleCmd("BASpeed")]
-    public void BASpeed(string[] param) {
+    public void BASpeed(string[] param)
+    {
         if(param.Length == 1) {
             float amount = 0;
             float.TryParse(param[0], out amount);
@@ -2005,7 +1801,8 @@ public class CommandManager
     }
 
     [ConsoleCmd("SwapGender")]
-    public void SwapGender(string[] param) {
+    public void SwapGender(string[] param)
+    {
         Gender gender = (Gender)GameInfo.gLocalPlayer.PlayerSynStats.Gender;
         gender = (gender == Gender.Male) ? Gender.Female : Gender.Male;
 
@@ -2013,7 +1810,8 @@ public class CommandManager
     }
 
     [ConsoleCmd("SwapWeaponType")]
-    public void SwapWeaponType(string[] param) {
+    public void SwapWeaponType(string[] param)
+    {
         //GameInfo.gCombat.OnWeaponButton();
     }
     
@@ -2059,10 +1857,12 @@ public class CommandManager
     {
         if(param.Length == 1)
         {
-            byte job = 0;
-            if (byte.TryParse(param[0], out job) && job < 21)
-                RPCFactory.NonCombatRPC.ConsoleChangeJob(job);
+            byte jobType = 0;
+            if (byte.TryParse(param[0], out jobType) && Enum.IsDefined(typeof(JobType), (JobType)jobType))
+                RPCFactory.NonCombatRPC.ConsoleChangeJob(jobType);
         }
+        else
+            PrintToConsole("Format: \\ConsoleChangeJob <jobtype>");
     }
 
     [ConsoleCmd("ConsoleAddSkillPoint")]
@@ -2137,6 +1937,17 @@ public class CommandManager
     public void ClearCombatLog(string[] param)
     {
         RPCFactory.NonCombatRPC.CombatLogClear();
+    }
+
+    [ConsoleCmd("ResetLevel")]
+    public void ResetLevel(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int lvl;
+            int.TryParse(param[0], out lvl);
+            RPCFactory.NonCombatRPC.ConsoleResetLevel(lvl);
+        }
     }
 #endif
     #endregion

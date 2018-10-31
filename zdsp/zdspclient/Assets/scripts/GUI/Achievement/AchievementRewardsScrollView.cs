@@ -168,7 +168,8 @@ public class AchievementRewardsScrollView : MonoBehaviour
         for (int i = 1; i <= maxRows; i++)
         {
             var emptyRow = new GameObject("row " + i);
-            emptyRow.AddComponent<RectTransform>();
+            RectTransform rectTransform = emptyRow.AddComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(iconWidth, rectTransform.sizeDelta.y);
             LayoutElement layoutElement = emptyRow.AddComponent<LayoutElement>();
             layoutElement.preferredHeight = iconHeight;
             layoutElement.preferredWidth = iconWidth;

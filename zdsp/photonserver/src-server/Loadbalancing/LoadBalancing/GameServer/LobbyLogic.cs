@@ -1,17 +1,17 @@
 ﻿namespace Photon.LoadBalancing.GameServer
 {
+    using Hive;
+    using Kopio.JsonContracts;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using UnityEngine;
     using Photon.SocketServer;
-    using Kopio.JsonContracts;
     using Zealot.Common;
     using Zealot.Common.RPC;
     using Zealot.Repository;
     using Zealot.Server.Rules;
     using Zealot.Server.Counters;
-    using Hive;
 
     public partial class GameLogic
     {
@@ -61,6 +61,7 @@
         {
             CharacterData characterData = null;
             string charid = "";
+            Dictionary<string, object> characterinfo = null;
             foreach (Dictionary<string, object> charinfo in peer.CharacterList)
             {
                 if (charname.Equals((string)charinfo["charname"]))
@@ -68,6 +69,7 @@
                     string strCharData = (string)charinfo["characterdata"];
                     charid = charinfo["charid"].ToString();
                     characterData = CharacterData.DeserializeFromDB(strCharData);
+                    characterinfo = charinfo;
                     break;
                 }
             }
@@ -76,15 +78,18 @@
             {
                 if (string.IsNullOrEmpty(characterData.RemoveCharDT))
                 {
-                    DateTime endtime = DateTime.Now.AddHours(24);
+                    //DateTime endtime = DateTime.Now.AddHours(24);
+                    DateTime endtime = DateTime.Now.AddMinutes(1);
                     characterData.RemoveCharDT = string.Format("{0:yyyy}.{0:MM}.{0:dd}-{0:HH}:{0:mm}", endtime);
+                    string serializedData = characterData.SerializeForDB();
+                    characterinfo["characterdata"] = serializedData;
                     peer.SaveCharacterForRemoveCharacter(charid, charname, characterData);
                     peer.ZRPC.LobbyRPC.DeleteCharacterResult(0, charname, characterData.RemoveCharDT, peer);
                 }
                 else
                 {
                     DateTime endDT = DateTime.ParseExact(characterData.RemoveCharDT, "yyyy.MM.dd-HH:mm", null);
-                    if (DateTime.Now > endDT)
+                    if (DateTime.Now < endDT)
                     {
                         peer.ZRPC.LobbyRPC.DeleteCharacterResult(1, charname, characterData.RemoveCharDT, peer);
                     }
@@ -130,24 +135,23 @@
                     GameApplication.Instance.executionFiber.Enqueue(() =>
                     {
                         GameCounters.ExecutionFiberQueue.Decrement();
-                        //charData.TrainingRealmDone = true;
-                        if (!charData.TrainingRealmDone)
+                        //charData.IsTutorialRealmDone = true;
+                        if (!charData.IsTutorialRealmDone)
                         {                           
-                            //RealmTutorialJson FirstGuideRealmJson = RealmRepo.TutorialRealmJson;
-                            //if (FirstGuideRealmJson != null)
-                            //{
-                            //    LevelJson level = LevelRepo.GetInfoById(FirstGuideRealmJson.level);
-                            //    if (level != null)
-                            //    {
-                            //        // Create the turorial realm using realmid.
-                            //        peer.CreateRealm(FirstGuideRealmJson.id, level.unityscene);
-                            //        return;
-                            //    }
-                            //}
+                            TutorialJson tutorialRealmJson = RealmRepo.mTutorialInfo;
+                            if (tutorialRealmJson != null)
+                            {
+                                LevelJson level = LevelRepo.GetInfoById(tutorialRealmJson.level);
+                                if (level != null)
+                                {
+                                    // Create tutorial realm with realm Id
+                                    peer.CreateRealm(tutorialRealmJson.id, level.unityscene);
+                                    return;
+                                }
+                            }
                         }
-                        //charData.lastlevelid = 9;
-                        LevelJson levelInfo = LevelRepo.GetInfoById(charData.lastlevelid);
-                        
+
+                        LevelJson levelInfo = LevelRepo.GetInfoById(charData.lastlevelid);                 
                         if (levelInfo != null)
                         {
                             string levelName = levelInfo.unityscene;
@@ -213,14 +217,12 @@
                 return null;
             }
 
-            var chardefault = GameRules.NewCharacterData(false, charname, gender, hairstyle, haircolor, makeup, skincolor);
-            string strChar = chardefault.SerializeForDB(false);
-
+            var defaultCharData = GameRules.NewCharacterData(false, charname, gender, hairstyle, haircolor, makeup, skincolor);
+            string charDataStr = defaultCharData.SerializeForDB(false);
             int serverline = GameApplication.Instance.GetMyServerline();
-            string userId = peer.mUserId;
 
             Tuple<Guid?, bool> result =
-                await GameApplication.dbRepository.Character.InsertNewCharacter(userId, charname, serverline, chardefault.JobSect, chardefault.portraitID, chardefault.Faction, strChar);
+                await GameApplication.dbRepository.Character.InsertNewCharacter(peer.mUserId, charname, serverline, defaultCharData.JobSect, defaultCharData.portraitID, defaultCharData.Faction, charDataStr);
             if (!result.Item1.HasValue)
             {
                 peer.ZRPC.LobbyRPC.ShowSystemMessage("charactercreation_failed", peer);
@@ -240,6 +242,7 @@
         {
             CharacterData characterData = null;
             string charid = "";
+            Dictionary<string, object> characterinfo = null;
             foreach (Dictionary<string, object> charinfo in peer.CharacterList)
             {
                 if (charname.Equals((string)charinfo["charname"]))
@@ -247,6 +250,7 @@
                     string strCharData = (string)charinfo["characterdata"];
                     charid = charinfo["charid"].ToString();
                     characterData = CharacterData.DeserializeFromDB(strCharData);
+                    characterinfo = charinfo;
                     break;
                 }
             }
@@ -254,6 +258,8 @@
             if (characterData != null)
             {
                 characterData.RemoveCharDT = "";
+                string serializedData = characterData.SerializeForDB();
+                characterinfo["characterdata"] = serializedData;
                 peer.SaveCharacterForRemoveCharacter(charid, charname, characterData);
                 peer.ZRPC.LobbyRPC.CancelDeleteCharacterResult(true, charname, peer);
             }
@@ -267,7 +273,6 @@
         {
             
             //玩家ID，職業ID，時間，外觀
-
             string jobString = Enum.GetName(typeof(JobType), job);
             string genderString = Enum.GetName(typeof(Gender), gender);
 

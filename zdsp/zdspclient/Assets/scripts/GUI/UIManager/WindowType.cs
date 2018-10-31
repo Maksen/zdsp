@@ -27,6 +27,8 @@
     CharacterCreation = 22,
     CharacterSelection = 23,
     Achievement = 24,
+    DNA = 25,
+    Relic = 26,
 
     // Add persistent type window here
     //-----------------------------------
@@ -45,7 +47,7 @@
     DialogVideoPlayer = 402,
     DialogLicenseAgreement = 403,
     DialogServerSelection = 404,
-    DialogUsernamePassword = 405,
+    DialogAccountLoginType = 405,
 
     DialogPartySettings = 406,
     DialogPartyRequestList = 407,
@@ -81,8 +83,15 @@
     DialogAchievementTier = 430,
 
     DialogClaimReward = 440,
+
     DialogCutscene = 441,
-    DialogCharacterName = 442,
+    DialogAccountRegister = 442,
+    DialogAccountLogin = 443,
+    DialogCharacterName = 444,
+    DialogNews = 445,
+    DialogSettings = 446,
+
+    DialogTutorial = 447,
    
     DialogEnd = 699,
 

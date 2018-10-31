@@ -1,7 +1,7 @@
 ﻿using Kopio.JsonContracts;
 using System;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Zealot.Common;
 
@@ -15,6 +15,7 @@ namespace Zealot.Repository
         public static Dictionary<MapType, List<RealmWorldJson>> mRealmWorldByMapType;
         public static Dictionary<DungeonType, List<Dictionary<DungeonDifficulty, DungeonJson>>> mDungeons; // DungeonType <- List of dungeons
         public static Dictionary<DungeonType, Dictionary<int, byte>> mDungeonDaysOpen; // DungeonType <- (Seq <- daysopen)
+        public static TutorialJson mTutorialInfo;
 
         static RealmRepo()
         {
@@ -99,6 +100,9 @@ namespace Zealot.Repository
             {
                 list.Sort((a, b) => a.Values.First().sequence.CompareTo(b.Values.First().sequence));
             }
+
+            mTutorialInfo = gameData.Tutorial.Values.First();
+            mIdMap.Add(mTutorialInfo.id, mTutorialInfo);
         }
 
         public static RealmJson GetInfoById(int id)
@@ -122,10 +126,10 @@ namespace Zealot.Repository
             return realmWorldList;
         }
  
-        public static RealmWorldJson GetWorldByName(string levelname)
+        public static RealmWorldJson GetWorldByName(string levelName)
         {
             RealmWorldJson realmWorldJson;
-            mRealmWorldByName.TryGetValue(levelname, out realmWorldJson);
+            mRealmWorldByName.TryGetValue(levelName, out realmWorldJson);
             return realmWorldJson;
         }
 
@@ -157,7 +161,7 @@ namespace Zealot.Repository
                 }
             }
 
-            return !string.IsNullOrEmpty(cityName) ? cityName : "daliang_field_test";
+            return !string.IsNullOrEmpty(cityName) ? cityName : "handan";
         }
 
         public static byte IsDungeonDaysOpen(DungeonJson dungeonJson)
@@ -226,9 +230,9 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static RealmJson GetPortalExitRealmInfo(string level)
+        public static RealmJson GetPortalExitRealmInfo(string levelName)
         {
-            RealmWorldJson realmWorldJson = GetWorldByName(level);
+            RealmWorldJson realmWorldJson = GetWorldByName(levelName);
             if (realmWorldJson != null)
                 return realmWorldJson;
             else

@@ -54,7 +54,7 @@ public class RequiredItemData : MonoBehaviour
         }
         else
         {
-            colorText.color = Color.red;
+            colorText.color = ClientUtils.ColorRed;
             UI_CharacterPowerup_Manager.haveEnoughMaterial = false;
         }
     }

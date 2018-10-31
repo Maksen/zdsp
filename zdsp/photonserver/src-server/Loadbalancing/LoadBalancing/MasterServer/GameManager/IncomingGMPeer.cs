@@ -168,24 +168,42 @@ namespace Photon.LoadBalancing.MasterServer.GameManager
             ZRPC.MasterToGMRPC.GMResultBool(sessionid, result, peer);
         }
 
-        //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GMMessage)]
-        //public void GMMessage(string sessionid, string player, string message, int mode, int serverid, PeerBase peer)
-        //{
-        //    IncomingGameServerPeer targetpeer = this.application.GetServerPeerById(serverid);
-        //    if (targetpeer != null && targetpeer.Connected)
-        //        targetpeer.ZRPC.MasterToGameRPC.GMMessage(sessionid, player, message, mode, targetpeer);
-        //    else
-        //        ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer);
-        //}
+        [RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.GMMessage)]
+        public void GMMessage(string sessionid, string player, string message, int mode, int serverline, PeerBase peer)
+        {
+            var servers = this.application.GetServersByLine(serverline);
+
+            bool sent = false;
+            foreach (var server in servers)
+            {
+                IncomingGamePeer targetpeer = server.Value;
+                if (targetpeer != null && targetpeer.Connected)
+                {
+                    targetpeer.ZRPC.MasterToGameRPC.GMMessage(sessionid, player, message, mode, targetpeer);
+                    sent = true;
+                }                
+            }
+
+            ZRPC.MasterToGMRPC.GMResultBool(sessionid, sent, peer);
+        }
 
         [RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.KickPlayer)]
-        public void KickPlayer(string sessionid, string player, string reason, int serverid, PeerBase peer)
+        public void KickPlayer(string sessionid, string player, string reason, int serverline, PeerBase peer)
         {
-            IncomingGamePeer targetpeer = this.application.GetServerPeerById(serverid);
-            if (targetpeer != null && targetpeer.Connected)
-                targetpeer.ZRPC.MasterToGameRPC.ForceKick(player, reason, targetpeer);
-            else
-                ZRPC.MasterToGMRPC.GMResultBool(sessionid, false, peer);
+            var servers = this.application.GetServersByLine(serverline);
+
+            bool sent = false;
+            foreach (var server in servers)
+            {
+                IncomingGamePeer targetpeer = server.Value;
+                if (targetpeer != null && targetpeer.Connected)
+                {
+                    targetpeer.ZRPC.MasterToGameRPC.ForceKick(player, reason, targetpeer);
+                    sent = true;
+                }
+            }
+
+            ZRPC.MasterToGMRPC.GMResultBool(sessionid, sent, peer);
         }
 
         //[RPCMethod(RPCCategory.MasterToGMRPC, (byte)GMMasterRPCMethods.MutePlayer)]

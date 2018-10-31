@@ -6,13 +6,19 @@ using Zealot.Common;
 public class ServerData : MonoBehaviour
 {
     [SerializeField]
+    Toggle toggle = null;
+    [SerializeField]
+    GameObject gameobjRecommended = null;
+    [SerializeField]
     Text txtServerName = null;
+    [SerializeField]
+    Image[] imgJobSlots = null;
 
-    public void Init(ServerInfo serverInfo, ToggleGroup toggleGrp, UnityAction<bool> onValueChanged = null)
-    {    
-        txtServerName.text = string.Format("<color={0}>{1}</color>", ClientUtils.GetServerStatusColor(serverInfo.serverLoad), serverInfo.serverName);
+    public void Init(ServerInfo serverInfo, ServerLine serverLineInfo, ToggleGroup toggleGrp, UnityAction<bool> onValueChanged = null)
+    {
+        gameobjRecommended.SetActive(serverLineInfo.recommended);
+        txtServerName.text = ClientUtils.GetServerNameWithColor(serverInfo.serverLoad, serverLineInfo.displayName, serverInfo.serverName);
 
-        Toggle toggle = GetComponent<Toggle>();
         toggle.group = toggleGrp;
         toggle.onValueChanged.AddListener(onValueChanged);
     }

@@ -4,12 +4,12 @@ using Photon.SocketServer;
 using Photon.LoadBalancing.GameServer;
 using Photon.LoadBalancing.GameServer.Mail;
 using Photon.LoadBalancing.Operations;
-using Zealot.Entities;
-using Zealot.Server.Entities;
 using Zealot.Common;
 using Zealot.Common.RPC;
 using Zealot.Common.Entities;
+using Zealot.Entities;
 using Zealot.Repository;
+using Zealot.Server.Entities;
 using Zealot.Server.SideEffects;
 
 namespace Zealot.Server.Rules
@@ -22,29 +22,29 @@ namespace Zealot.Server.Rules
             string currentlevelname = player.mInstance.currentlevelname;
             int myProgressLvl = player.GetAccumulatedLevel();
             string[] exitNames = exitName.Split(';');
-            List<LocationData> validExit = new List<LocationData>();
-            for (int index = 0; index < exitNames.Length; index++)
+            int numOfExits = exitNames.Length;
+            List <LocationData> validExits = new List<LocationData>();
+            for (int index = 0; index < numOfExits; ++index)
             {
                 LocationData mPortalExitData;
                 if (PortalInfos.mExits.TryGetValue(exitNames[index], out mPortalExitData))
                 {
                     if (mPortalExitData.mLevel == currentlevelname)
-                        validExit.Add(mPortalExitData);
+                        validExits.Add(mPortalExitData);
                     else
                     {
                         RealmJson realmJson = RealmRepo.GetPortalExitRealmInfo(mPortalExitData.mLevel);
                         if (realmJson != null && myProgressLvl >= realmJson.reqlvl)
-                            validExit.Add(mPortalExitData);
+                            validExits.Add(mPortalExitData);
                     }
                 }
             }
-            int validExit_count = validExit.Count;
-            if (validExit_count > 0)
+
+            int validExits_count = validExits.Count;
+            if (validExits_count > 0)
             {
-                int index = 0;
-                if (validExit_count > 1)
-                    index = GameUtils.RandomInt(0, validExit_count - 1);
-                LocationData mPortalExitData = validExit[index];
+                int index = (validExits_count > 1) ? GameUtils.RandomInt(0, validExits_count-1) : 0;
+                LocationData mPortalExitData = validExits[index];
                 peer.mPortalExit = mPortalExitData;
                 if (mPortalExitData.mLevel == currentlevelname)
                     peer.ZRPC.CombatRPC.TeleportSetPosDirection(mPortalExitData.mPosition.ToRPCPosition(), mPortalExitData.mForward.ToRPCDirection(), peer);
@@ -493,11 +493,11 @@ namespace Zealot.Server.Rules
 
         public static IInventoryItem GenerateItem(int itemId, GameClientPeer peer, int stackcount = 1, bool superability = false)
         {
-            IInventoryItem retval = GameRepo.ItemFactory.GetInventoryItem(itemId);
-            if (retval == null)
+            IInventoryItem newItem = GameRepo.ItemFactory.GetInventoryItem(itemId);
+            if (newItem == null)
                 return null;
 
-            switch (retval.JsonObject.itemtype)
+            switch (newItem.JsonObject.itemtype)
             {
                 case ItemType.PotionFood:
                 case ItemType.Material:
@@ -511,7 +511,7 @@ namespace Zealot.Server.Rules
                 case ItemType.MercenaryItem:
                 case ItemType.InstanceItem:
                 case ItemType.PetItem:
-                    retval.StackCount = (ushort)stackcount;
+                    newItem.StackCount = stackcount;
                     break;
                 default:
                     break;
@@ -519,12 +519,12 @@ namespace Zealot.Server.Rules
 
             //peer == null when first creating items for new players
             //if false means invalid item or player exceed daily limit or weekely limit
-            if (peer != null && peer.CharacterData.ItemLimitData.DropItem(retval) == false)
+            if (peer != null && peer.CharacterData.ItemLimitData.DropItem(newItem) == false)
                 return null;
 
             //if (peer != null && retval.GenerateUID)
             //    retval.UID = peer.mInventory.GenerateItemUID();
-            return retval;
+            return newItem;
         }
 
         //public static EquipItem GenerateEquipment(int itemid)
@@ -592,14 +592,14 @@ namespace Zealot.Server.Rules
         /// Creates and instantiates default character data according to <paramref name="tutorialDone"/>
         /// </summary>
         /// <returns>Default Character Data</returns>
-        public static CharacterData NewCharacterData(bool tutorialDone, string charname, byte gender, int hairstyle, int haircolor, int makeup, int skincolor)
+        public static CharacterData NewCharacterData(bool isTutorialDone, string charName, byte gender, int hairstyle, int haircolor, int makeup, int skincolor)
         {
             NewCharInfo newCharInfo = GameConstantRepo.mNewCharInfo;
             CharacterData newCharData = new CharacterData
             {
-                TrainingRealmDone = true,
+                IsTutorialRealmDone = isTutorialDone,
                 ProgressLevel = 1,
-                Name = charname,
+                Name = charName,
                 JobSect = (byte)JobType.Newbie,
                 Gender = gender,
                 Health = -1,
@@ -610,31 +610,13 @@ namespace Zealot.Server.Rules
                 lastdirection = newCharInfo.dir,
                 BotSetting = "",
                 CurrencyExchangeTime = 0,
-                GetRecommendedFactionReward = false,
             };
             newCharData.InitDefault(JobType.Newbie);
-            SetCharacterFirstEquipments(newCharData.EquipmentInventory);
             SetCharacterAppearance(newCharData.EquipmentInventory, hairstyle, haircolor, makeup, skincolor);
-
+            SetCharacterStartingInventoryItems(newCharData.ItemInventory);
+            SetCharacterStartingEquipment(newCharData.EquipmentInventory);
+            SetCharacterStartingSkill(newCharData.SkillInventory, newCharData.EquipmentInventory, gender);
             return newCharData;
-        }
-
-        public static void SetCharacterFirstEquipments(EquipmentInventoryData equipmentInvData)
-        {
-            Dictionary<EquipmentSlot, int> slotItem = new Dictionary<EquipmentSlot, int>();
-            slotItem.Add(EquipmentSlot.Weapon, 2); // TODO: Hardcoded need to change
-
-            foreach(var kvp in slotItem)
-            {
-                int itemId = kvp.Value;
-                if (itemId != 0)
-                {
-                    Equipment equipItem = GenerateItem(itemId, null) as Equipment;
-                    if (equipItem == null)
-                        continue;
-                    equipmentInvData.SetEquipmentToSlot((int)kvp.Key, equipItem);
-                }
-            }
         }
 
         private static void SetCharacterAppearance(EquipmentInventoryData equipmentInvData, int hairstyle, int haircolor, int makeup, int skincolor)
@@ -644,6 +626,91 @@ namespace Zealot.Server.Rules
             equipmentInvData.SetAppearanceToSlot((int)AppearanceSlot.MakeUp, makeup);
             equipmentInvData.SetAppearanceToSlot((int)AppearanceSlot.SkinColor, skincolor);
         }
+
+        public static void SetCharacterStartingInventoryItems(ItemInventoryData itemInvData)
+        {
+            string newCharInvItemsStr = GameConstantRepo.GetConstant("NewChar_InventoryItems");
+            if (string.IsNullOrEmpty(newCharInvItemsStr))
+                return;
+
+            List<IInventoryItem> invItems = itemInvData.Slots;
+            string[] invItemsStrInfos = newCharInvItemsStr.Split('|');
+            int length = invItemsStrInfos.Length;
+            for (int i = 0; i < length; ++i)
+            {
+                string[] invItemsStrInfo = invItemsStrInfos[i].Split(';');
+                if (invItemsStrInfo.Length == 2)
+                {
+                    int itemId, amt;
+                    if (int.TryParse(invItemsStrInfo[0], out itemId) && itemId > 0)
+                        if (int.TryParse(invItemsStrInfo[1], out amt) && amt > 0)
+                        {
+                            while (amt > 0)
+                            {
+                                int slotId = itemInvData.GetAvailableSlotByItemId((ushort)itemId);
+                                if (slotId == -1)
+                                {
+                                    slotId = itemInvData.GetEmptySlotIndex();
+                                    if (slotId == -1)
+                                        break;
+                                }
+
+                                IInventoryItem invItem = invItems[slotId];
+                                if (invItem != null)
+                                {
+                                    int avail = invItem.MaxStackCount - invItem.StackCount;
+                                    int addAmt = (avail >= amt) ? amt : avail;
+                                    invItem.StackCount += addAmt;
+                                    amt -= addAmt;
+                                }
+                                else
+                                {
+                                    invItem = GenerateItem(itemId, null, amt);
+                                    itemInvData.SetSlotItem(slotId, invItem);
+                                    break;
+                                }
+                            }
+                        }
+                }
+            }
+        }
+
+        public static void SetCharacterStartingEquipment(EquipmentInventoryData equipmentInvData)
+        {
+            string newCharEquipStr = GameConstantRepo.GetConstant("NewChar_Equipment");
+            if (string.IsNullOrEmpty(newCharEquipStr))
+                return;
+
+            string[] equipStrInfos = newCharEquipStr.Split('|');
+            int length = equipStrInfos.Length;
+            for (int i = 0; i < length; ++i)
+            {
+                string equipStrInfo = equipStrInfos[i];
+                int itemId;
+                if (int.TryParse(equipStrInfo, out itemId) && itemId > 0)
+                {
+                    Equipment equipment = GenerateItem(itemId, null) as Equipment;
+                    if (equipment == null)
+                        continue;
+                    equipmentInvData.SetEquipmentToSlot((int)EquipmentSlot.Weapon, equipment);
+                }
+            }
+        }
+
+        public static void SetCharacterStartingSkill(SkillInventoryData skillinv, EquipmentInventoryData equipInv, byte gender)
+        {
+            string genderStr = (gender == 0) ? "M" : "F";
+            Equipment e = equipInv.GetEquipmentBySlotId((int)EquipmentSlot.Weapon);
+            
+            skillinv.AutoSkill[0] = SkillRepo.GetGenderWeaponBasicAttackData(e.EquipmentJson.partstype, 1, genderStr).skillJson.id;
+            skillinv.EquippedSkill[0] = SkillRepo.GetGenderWeaponBasicAttackData(e.EquipmentJson.partstype, 1, genderStr).skillJson.id;
+            skillinv.AutoSkill[1] = SkillRepo.GetSkill(51).skillJson.id;
+            skillinv.EquippedSkill[1] = SkillRepo.GetSkill(51).skillJson.id;
+            skillinv.SkillInv[0] = 55;
+            skillinv.SkillInv[1] = 51;
+
+        }
+
         #endregion
     }
 }

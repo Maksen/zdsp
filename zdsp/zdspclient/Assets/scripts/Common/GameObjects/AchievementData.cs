@@ -136,7 +136,6 @@ namespace Zealot.Common
         }
     }
 
-
     public class AchievementRecord
     {
         public int Id { get; set; }
@@ -176,5 +175,30 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "ct")]
         public string CompletedTargets { get; set; }
+
+        public static JsonSerializerSettings jsonSetting;
+
+        public AchievementInvData()
+        {
+            jsonSetting = new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                TypeNameHandling = TypeNameHandling.None,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
+            };
+
+            AchievementLevel = 1;
+        }
+
+        public string SerializeForDB()
+        {
+            return JsonConvert.SerializeObject(this, jsonSetting);
+        }
+
+        public static AchievementInvData DeserializeFromDB(string invData)
+        {
+            return JsonConvert.DeserializeObject<AchievementInvData>(invData, jsonSetting);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using System;
+using System.Collections;
 using UnityEngine;
 using Zealot.Common;
 using Zealot.Repository;
@@ -137,7 +138,25 @@ public class Model_3DAvatar : MonoBehaviour
             model.GetComponent<Animator>().PlayFromStart(animation);
     }
 
-    public void CreationChange(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, string layername)
+    public void PlayAnimation(string animation, Action callback)
+    {
+        if (model != null)
+        {
+            model.GetComponent<Animator>().PlayFromStart(animation);
+            StartCoroutine(WaitForAnimation(animation, callback));
+        }
+    }
+
+    private IEnumerator WaitForAnimation(string animation, Action callback)
+    {
+        do
+        {
+            yield return null;
+        } while (model.GetComponent<Animator>().IsPlaying(animation));
+        callback();
+    }
+
+    public void CreationChange(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, string layername, Action afterLoad = null)
     {
         string prefabPath = JobSectRepo.GetGenderInfo(gender).modelpath;
         if (model != null && modelpath != prefabPath)
@@ -150,7 +169,7 @@ public class Model_3DAvatar : MonoBehaviour
         if (model == null)
         {
             GameObject prefab = AssetLoader.Instance.Load<GameObject>(prefabPath);
-            model = GameObject.Instantiate(prefab);
+            model = Instantiate(prefab);
             CharacterController charCtrl = model.GetComponent<CharacterController>();
             if (charCtrl != null)
                 Destroy(charCtrl);
@@ -159,7 +178,15 @@ public class Model_3DAvatar : MonoBehaviour
             ClientUtils.SetLayerRecursively(model, LayerMask.NameToLayer(layername));
         }
 
-        model.GetComponent<AvatarController>().InitCreationAvatar(equipmentInvData, jobtype, gender, outfit);
-        model.GetComponent<Animator>().PlayFromStart("blade_nmstandby");
+        if (afterLoad == null)
+        {
+            model.GetComponent<AvatarController>().InitCreationAvatar(equipmentInvData, jobtype, gender, outfit);
+            model.GetComponent<Animator>().PlayFromStart("pc_show4");
+        }
+        else
+        {
+            model.GetComponent<AvatarController>().InitSelectionAvatar(equipmentInvData, jobtype, gender, outfit, afterLoad);
+            //model.GetComponent<Animator>().PlayFromStart("pc_show6");
+        }
     }
 }

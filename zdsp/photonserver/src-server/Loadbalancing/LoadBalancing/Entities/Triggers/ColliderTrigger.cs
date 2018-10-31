@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Photon.LoadBalancing.GameServer;
 using Zealot.Entities;
-using Photon.LoadBalancing.GameServer;
-using Zealot.Common;
 
 namespace Zealot.Server.Entities
 {
@@ -34,7 +31,7 @@ namespace Zealot.Server.Entities
             if (mActive && (mCount < mPropertyInfos.count || mPropertyInfos.count < 0))
             {
                 if (mPropertyInfos.count > 0)
-                    mCount++;
+                    ++mCount;
                 object[] _paramters = { player };
                 mInstance.BroadcastEvent(this, "OnEnter", _paramters);
             }

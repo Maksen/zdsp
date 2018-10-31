@@ -532,11 +532,11 @@ namespace Zealot.Server.Rules
                         else if (requirementDetailJson.type == QuestRequirementType.Companian)
                         {
                             int companionprogress = 0;
-                            if (requirementDetailJson.para2 == 1 && player.QuestController.GetQuestCompanionId() == requirementDetailJson.para1)
+                            if (requirementDetailJson.para2 == 1 && player.Slot.QuestController.GetQuestCompanionId() == requirementDetailJson.para1)
                             {
                                 companionprogress = 1;
                             }
-                            else if (requirementDetailJson.para2 == 2 && player.QuestController.GetQuestCompanionId() != requirementDetailJson.para1)
+                            else if (requirementDetailJson.para2 == 2 && player.Slot.QuestController.GetQuestCompanionId() != requirementDetailJson.para1)
                             {
                                 companionprogress = 1;
                             }
@@ -545,11 +545,11 @@ namespace Zealot.Server.Rules
                         else if (requirementDetailJson.type == QuestRequirementType.Clue)
                         {
                             int clueprogress = 0;
-                            if (requirementDetailJson.para2 == 1 && player.DestinyClueController.IsClueAlreadyUnlock(requirementDetailJson.para1))
+                            if (requirementDetailJson.para2 == 1 && player.Slot.DestinyClueController.IsClueAlreadyUnlock(requirementDetailJson.para1))
                             {
                                 clueprogress = 1;
                             }
-                            else if (requirementDetailJson.para2 == 2 && !player.DestinyClueController.IsClueAlreadyUnlock(requirementDetailJson.para1))
+                            else if (requirementDetailJson.para2 == 2 && !player.Slot.DestinyClueController.IsClueAlreadyUnlock(requirementDetailJson.para1))
                             {
                                 clueprogress = 1;
                             }
@@ -571,11 +571,11 @@ namespace Zealot.Server.Rules
                         else if (requirementDetailJson.type == QuestRequirementType.TimeClue)
                         {
                             int timeclueprogress = 0;
-                            if (requirementDetailJson.para2 == 1 && player.DestinyClueController.IsTimeClueAlreadyUnlock(requirementDetailJson.para1))
+                            if (requirementDetailJson.para2 == 1 && player.Slot.DestinyClueController.IsTimeClueAlreadyUnlock(requirementDetailJson.para1))
                             {
                                 timeclueprogress = 1;
                             }
-                            else if (requirementDetailJson.para2 == 2 && !player.DestinyClueController.IsTimeClueAlreadyUnlock(requirementDetailJson.para1))
+                            else if (requirementDetailJson.para2 == 2 && !player.Slot.DestinyClueController.IsTimeClueAlreadyUnlock(requirementDetailJson.para1))
                             {
                                 timeclueprogress = 1;
                             }
@@ -639,21 +639,21 @@ namespace Zealot.Server.Rules
                         }
                         return 0;
                     case QuestRequirementType.Companian:
-                        if (questRequirement.para2 == 1 && player.QuestController.GetQuestCompanionId() == questRequirement.para1)
+                        if (questRequirement.para2 == 1 && player.Slot.QuestController.GetQuestCompanionId() == questRequirement.para1)
                         {
                             return 1;
                         }
-                        else if (questRequirement.para2 == 2 && player.QuestController.GetQuestCompanionId() != questRequirement.para1)
+                        else if (questRequirement.para2 == 2 && player.Slot.QuestController.GetQuestCompanionId() != questRequirement.para1)
                         {
                             return 1;
                         }
                         return 0;
                     case QuestRequirementType.Clue:
-                        if (questRequirement.para2 == 1 && player.DestinyClueController.IsClueAlreadyUnlock(questRequirement.para1))
+                        if (questRequirement.para2 == 1 && player.Slot.DestinyClueController.IsClueAlreadyUnlock(questRequirement.para1))
                         {
                             return 1;
                         }
-                        else if (questRequirement.para2 == 2 && !player.DestinyClueController.IsClueAlreadyUnlock(questRequirement.para1))
+                        else if (questRequirement.para2 == 2 && !player.Slot.DestinyClueController.IsClueAlreadyUnlock(questRequirement.para1))
                         {
                             return 1;
                         }
@@ -669,11 +669,11 @@ namespace Zealot.Server.Rules
                         }
                         return 0;
                     case QuestRequirementType.TimeClue:
-                        if (questRequirement.para2 == 1 && player.DestinyClueController.IsTimeClueAlreadyUnlock(questRequirement.para1))
+                        if (questRequirement.para2 == 1 && player.Slot.DestinyClueController.IsTimeClueAlreadyUnlock(questRequirement.para1))
                         {
                             return 1;
                         }
-                        else if (questRequirement.para2 == 2 && !player.DestinyClueController.IsTimeClueAlreadyUnlock(questRequirement.para1))
+                        else if (questRequirement.para2 == 2 && !player.Slot.DestinyClueController.IsTimeClueAlreadyUnlock(questRequirement.para1))
                         {
                             return 1;
                         }
@@ -837,21 +837,21 @@ namespace Zealot.Server.Rules
                     }
                     break;
                 case QuestRequirementType.Companian:
-                    if (requirement.para2 == 1 && player.QuestController.GetQuestCompanionId() == requirement.para1)
+                    if (requirement.para2 == 1 && player.Slot.QuestController.GetQuestCompanionId() == requirement.para1)
                     {
                         return true;
                     }
-                    else if (requirement.para2 == 2 && player.QuestController.GetQuestCompanionId() != requirement.para1)
+                    else if (requirement.para2 == 2 && player.Slot.QuestController.GetQuestCompanionId() != requirement.para1)
                     {
                         return true;
                     }
                     break;
                 case QuestRequirementType.Clue:
-                    if (requirement.para2 == 1 && player.DestinyClueController.IsClueAlreadyUnlock(requirement.para1))
+                    if (requirement.para2 == 1 && player.Slot.DestinyClueController.IsClueAlreadyUnlock(requirement.para1))
                     {
                         return true;
                     }
-                    else if (requirement.para2 == 2 && !player.DestinyClueController.IsClueAlreadyUnlock(requirement.para1))
+                    else if (requirement.para2 == 2 && !player.Slot.DestinyClueController.IsClueAlreadyUnlock(requirement.para1))
                     {
                         return true;
                     }
@@ -867,11 +867,11 @@ namespace Zealot.Server.Rules
                     }
                     break;
                 case QuestRequirementType.TimeClue:
-                    if (requirement.para2 == 1 && player.DestinyClueController.IsTimeClueAlreadyUnlock(requirement.para1))
+                    if (requirement.para2 == 1 && player.Slot.DestinyClueController.IsTimeClueAlreadyUnlock(requirement.para1))
                     {
                         return true;
                     }
-                    else if (requirement.para2 == 2 && !player.DestinyClueController.IsTimeClueAlreadyUnlock(requirement.para1))
+                    else if (requirement.para2 == 2 && !player.Slot.DestinyClueController.IsTimeClueAlreadyUnlock(requirement.para1))
                     {
                         return true;
                     }

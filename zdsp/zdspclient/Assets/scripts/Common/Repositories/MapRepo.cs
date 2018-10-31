@@ -21,12 +21,14 @@ namespace Zealot.Repository
         public string iconPath;
         public string name;
         public int levelID;
+        public int interestID;  //Index to placeinterest in kopio
 
-        public WorldMapCountryPlaceInterest(string _iconPath, string _name, int _levelID)
+        public WorldMapCountryPlaceInterest(string _iconPath, string _name, int _levelID, int _interestID)
         {
             name = _name;
             levelID = _levelID;
             iconPath = _iconPath;
+            interestID = _interestID;
         }
     }
 
@@ -46,17 +48,33 @@ namespace Zealot.Repository
         }
     }
 
+    public struct WorldMapInterestMarkerPos
+    {
+        public float x;
+        public float y;
+        public float z;
+
+        public WorldMapInterestMarkerPos(float _x, float _y, float _z)
+        {
+            x = _x;
+            y = _y;
+            z = _z;
+        }
+    }
+
     public static class MapRepo
     {
         public static Dictionary<int, WorldMapCountry> mWorldMap = null;
         public static Dictionary<string, int> mWorldMap2 = null;
         public static List<WorldMapCountry> mWorldMapLst = null;
+        public static List<WorldMapInterestMarkerPos> mWorldMapInterestMarkLst = null;
 
         static MapRepo()
         {
             mWorldMap = new Dictionary<int, WorldMapCountry>();
             mWorldMap2 = new Dictionary<string, int>();
             mWorldMapLst = new List<WorldMapCountry>();
+            mWorldMapInterestMarkLst = new List<WorldMapInterestMarkerPos>();
         }
        
         public static void Init(GameDBRepo gameData)
@@ -73,7 +91,7 @@ namespace Zealot.Repository
                 foreach (var x in gameData.WorldMapCountryPlace.Values)
                 {
                     if (e.id == x.country)
-                        wmr.placeLst.Add(new WorldMapCountryPlaceInterest(x.placeiconpath, x.placename, x.level));
+                        wmr.placeLst.Add(new WorldMapCountryPlaceInterest(x.placeiconpath, x.placename, x.level, x.id));
                 }
 
                 foreach (var x in gameData.WorldMapCountryMonster.Values)
@@ -81,6 +99,11 @@ namespace Zealot.Repository
                     if (e.id == x.country)
                         wmr.monLst.Add(new WorldMapCountryMonster(x.archetype));
                 }
+            }
+
+            foreach (var e in gameData.WorldMapCountryPlace.Values)
+            {
+                mWorldMapInterestMarkLst.Add(new WorldMapInterestMarkerPos(e.posx, e.posy, e.posz));
             }
 
             //Create a list 

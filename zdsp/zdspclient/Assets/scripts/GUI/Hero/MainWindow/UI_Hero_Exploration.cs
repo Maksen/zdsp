@@ -31,8 +31,8 @@ public class UI_Hero_Exploration : MonoBehaviour
     [SerializeField] ScrollRect rewardScrollRect;
 
     [Header("Bottom")]
-    [SerializeField] Transform reqItemParent;
-    [SerializeField] GameObject reqItemPrefab;
+    [SerializeField] Image reqItemIcon;
+    [SerializeField] Button reqItemButton;
     [SerializeField] Text reqItemCount;
     [SerializeField] Button startButton;
     [SerializeField] Button claimButton;
@@ -57,10 +57,10 @@ public class UI_Hero_Exploration : MonoBehaviour
     private List<Hero_MapRequirementData> requirementList = new List<Hero_MapRequirementData>();
     private List<Hero_MapHeroData> heroList = new List<Hero_MapHeroData>();
     private List<ExplorationMapJson> mapList = new List<ExplorationMapJson>();  // list of selectable maps 
-    private GameIcon_MaterialConsumable requiredItem;
     private Dictionary<int, int> currentMapTargets = new Dictionary<int, int>(); // mapid -> targetid
     private int bindItemId, unbindItemId;
     private bool showSpendConfirmation;
+    private IInventoryItem reqItem;
 
     private class MapComparer : IComparer<ExplorationMapJson>
     {
@@ -319,22 +319,21 @@ public class UI_Hero_Exploration : MonoBehaviour
 
     private void SetBottomButton()
     {
-        if (requiredItem == null)
-        {
-            GameObject obj = ClientUtils.CreateChild(reqItemParent, reqItemPrefab);
-            requiredItem = obj.GetComponent<GameIcon_MaterialConsumable>();
-        }
-
         if (selectedOngoingMap == null)
         {
             startButton.gameObject.SetActive(true);
-            requiredItem.gameObject.SetActive(true);
             claimButton.gameObject.SetActive(false);
 
             string[] itemids = selectedMapData.reqitemid.Split(';');
             if (itemids.Length > 0 && int.TryParse(itemids[0], out bindItemId))
             {
-                requiredItem.InitWithToolTipView(bindItemId, 1);
+                reqItem = GameRepo.ItemFactory.GetInventoryItem(bindItemId);
+                if (reqItem != null)
+                {
+                    reqItemIcon.sprite = ClientUtils.LoadIcon(reqItem.JsonObject.iconspritepath);
+                    reqItemButton.onClick.RemoveAllListeners();
+                    reqItemButton.onClick.AddListener(() => OnClickShowItemToolTip(reqItem));
+                }
                 int bindCount = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)bindItemId);
                 int unbindCount = 0;
                 if (itemids.Length > 1 && int.TryParse(itemids[1], out unbindItemId))
@@ -350,10 +349,15 @@ public class UI_Hero_Exploration : MonoBehaviour
         else  // ongoing exploration
         {
             startButton.gameObject.SetActive(false);
-            requiredItem.gameObject.SetActive(false);
             claimButton.gameObject.SetActive(true);
             claimButton.interactable = selectedOngoingMap.Completed;
         }
+    }
+
+    private void OnClickShowItemToolTip(IInventoryItem inventoryItem)
+    {
+        UIManager.OpenDialog(WindowType.DialogItemDetail, 
+            (window) => window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(inventoryItem));
     }
 
     private void SetHeroList()
@@ -413,7 +417,7 @@ public class UI_Hero_Exploration : MonoBehaviour
             selectedTargetId = targetId;
             //print("selected target: " + selectedTargetId);
             if (selectedTargetId == 0)  // all
-                targetIconImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/zzz_Test.png");  // temp
+                targetIconImage.sprite = ClientUtils.LoadIcon("UI_ZDSP_Icons/Portraits/portraits_monsterall.png");
             else
             {
                 ExplorationTargetJson targetData = HeroRepo.GetExplorationTargetById(selectedTargetId);
@@ -558,7 +562,7 @@ public class UI_Hero_Exploration : MonoBehaviour
         {
             if (showSpendConfirmation)
             {
-                IInventoryItem bindItem = requiredItem.InventoryItem;
+                IInventoryItem bindItem = reqItem;
                 IInventoryItem unbindItem = GameRepo.ItemFactory.GetInventoryItem(unbindItemId);
                 if (bindItem != null && unbindItem != null)
                 {

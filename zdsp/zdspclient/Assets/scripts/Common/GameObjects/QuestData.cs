@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Zealot.Repository;
 
@@ -86,6 +85,7 @@ namespace Zealot.Common
             MainObjective = new CurrentObjectiveData();            
             SubObjective = new Dictionary<int, CurrentObjectiveData>();
             Status = (byte)QuestStatus.NewQuest;
+            SubStatus = (byte)QuestStatus.Non;
         }
 
         public CurrentQuestData(QuestDataStats stats)
@@ -100,6 +100,7 @@ namespace Zealot.Common
                 SubObjective.Add(entry.Key, new CurrentObjectiveData(entry.Value, entry.Key));
             }
             Status = stats.status;
+            SubStatus = stats.substatus;
         }
     }
 
@@ -180,6 +181,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "Status")]
         public byte status;
 
+        [JsonProperty(PropertyName = "SubStatus")]
+        public byte substatus;
+
         public QuestDataStats() { }
 
         public QuestDataStats(CurrentQuestData questData)
@@ -197,6 +201,7 @@ namespace Zealot.Common
                 }
             }
             status = questData.Status;
+            substatus = questData.SubStatus;
         }
     }
 
@@ -214,6 +219,9 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "CompletedAdventure")]
         public string CompletedAdventure { get; set; }
+
+        [JsonProperty(PropertyName = "LockedAdventure")]
+        public string LockedAdventure { get; set; }
 
         [JsonProperty(PropertyName = "SublineQuest")]
         public string SublineQuest { get; set; }
@@ -260,11 +268,21 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "CompanionId")]
         public int CompanionId { get; set; }
 
-        public QuestInventoryData() {
+        [JsonProperty(PropertyName = "RealmQuestId")]
+        public int RealmQuestId { get; set; }
+
+        public QuestInventoryData()
+        {
+            InitDefault();
+        }
+
+        public void InitDefault()
+        {
             MainQuest = "";
             CompletedMain = "";
             AdventureQuest = "";
             CompletedAdventure = "";
+            LockedAdventure = "";
             SublineQuest = "";
             CompletedSubline = "";
             GuildQuest = "";
@@ -284,7 +302,7 @@ namespace Zealot.Common
 
         public bool IsDefaultData()
         {
-            if (MainQuest == "" && CompletedMain == "" && AdventureQuest == "" && CompletedAdventure == ""
+            if (MainQuest == "" && CompletedMain == "" && AdventureQuest == "" && CompletedAdventure == "" && LockedAdventure == ""
                 && SublineQuest == "" && CompletedSubline == "" && GuildQuest == "" && CompletedGuild == ""
                 && SignboardQuest == "" && CompletedSignboard == "" && EventQuest == "" && CompletedEvent == ""
                 && TrackingList == "" && UnlockWonderful == "" && UnlockQuest == "" && UnlockSignboard =="")
@@ -390,6 +408,18 @@ namespace Zealot.Common
             return result;
         }
 
+        public List<int> DeseralizeLockedAdventureList()
+        {
+            if (string.IsNullOrEmpty(LockedAdventure))
+            {
+                return new List<int>();
+            }
+            else
+            {
+                return JsonConvertDefaultSetting.DeserializeObject<List<int>>(LockedAdventure);
+            }
+        }
+
         public List<int> DeseralizeTraclingList()
         {
             return JsonConvertDefaultSetting.DeserializeObject<List<int>>(TrackingList);
@@ -408,6 +438,12 @@ namespace Zealot.Common
         public List<int> DeseralizeUnlockSignboardList()
         {
             return JsonConvertDefaultSetting.DeserializeObject<List<int>>(UnlockSignboard);
+        }
+
+        public string SerailizeLockedAdventureList(List<int> lockedlist)
+        {
+            LockedAdventure = JsonConvertDefaultSetting.SerializeObject(lockedlist);
+            return LockedAdventure;
         }
 
         public string SerailizeTrackingList(List<int> trackinglist)

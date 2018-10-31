@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using Newtonsoft.Json;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Kopio.JsonContracts;
 using UnityEngine;
 using Zealot.Repository;
-using Newtonsoft.Json;
 //using ExitGames.Logging;
 
 namespace Zealot.Common
@@ -36,7 +36,7 @@ namespace Zealot.Common
     {
         [DefaultValue(1)]
         [JsonProperty(PropertyName = "sl")]
-        public int serverline;
+        public int serverLineId;
 
         [DefaultValue("")]
         [JsonProperty(PropertyName = "name")]
@@ -44,14 +44,14 @@ namespace Zealot.Common
 
         [DefaultValue(false)]
         [JsonProperty(PropertyName = "rec")]
-        public bool recommend;
+        public bool recommended;
 
         public ServerLine() { }
-        public ServerLine(int serverline, string name, bool recommend)
+        public ServerLine(int serverLine, string name, bool recommended)
         {
-            this.serverline = serverline;
+            this.serverLineId = serverLine;
             this.displayName = name;
-            this.recommend = recommend;
+            this.recommended = recommended;
         }
     }
 

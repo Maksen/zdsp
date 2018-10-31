@@ -123,6 +123,13 @@ namespace Photon.LoadBalancing.MasterServer
             return null;
         }
 
+        public Dictionary<int, IncomingGamePeer> GetServersByLine(int id)
+        {
+            if (mMasterGame.GameServersByLine.ContainsKey(id))
+                return mMasterGame.GameServersByLine[id];
+            return null;
+        }
+
         public Dictionary<int, IncomingGamePeer> GetAllServerPeers()
         {
             return mMasterGame.GameServersByServerId;

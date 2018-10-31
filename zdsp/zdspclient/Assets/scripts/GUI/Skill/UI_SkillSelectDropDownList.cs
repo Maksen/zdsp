@@ -48,7 +48,8 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
                 data.Init(skd);
                 data.AddListener(OnSelected);
                 m_ActiveSkills.Add(temp[i].Key, data);
-                data.transform.parent = m_ContentRect;
+                data.transform.SetParent(m_ContentRect, false);
+                data.transform.localScale = new Vector3(1, 1, 1);
             }
             else
             {

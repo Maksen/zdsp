@@ -12,17 +12,17 @@ namespace Zealot.Repository
         {
             mDic_ExpRewardByLevel = new Dictionary<int, List<int>>();
 
-            foreach (var lr in gameData.ExpReward)
-            {
-                mDic_ExpRewardByLevel.Add(lr.Value.playerlv, new List<int>());
+            //foreach (var lr in gameData.ExpReward)
+            //{
+            //    mDic_ExpRewardByLevel.Add(lr.Value.playerlv, new List<int>());
 
-                mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward01 );
-                mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward02 );
-                mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward04 );
-                mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward06 );
-                mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward08 );
-                mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward12 );
-            }
+            //    mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward01 );
+            //    mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward02 );
+            //    mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward04 );
+            //    mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward06 );
+            //    mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward08 );
+            //    mDic_ExpRewardByLevel[lr.Value.playerlv].Add( lr.Value.expreward12 );
+            //}
         }
 
         public static int GetNumberExpReward()

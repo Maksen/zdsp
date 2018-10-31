@@ -18,6 +18,7 @@ namespace Zealot.Common.Entities
         Root = 8,
         Disarmed = 16,
         Frozen = 32,
+        Petrify = 64,
         NUM
     }
 
@@ -263,6 +264,8 @@ namespace Zealot.Common.Entities
             _Party = 0;
             _QuestCompanionId = -1;
             _achievementLevel = 1;
+            _tutorialStatus = 0;
+
     }
 
         private int _Party;
@@ -340,6 +343,14 @@ namespace Zealot.Common.Entities
         {
             get { return _achievementLevel; }
             set { OnSetAttribute("AchievementLevel", value); _achievementLevel = value; }
+        }
+
+        private int _tutorialStatus;
+
+        public int TutorialStatus
+        {
+            get { return _tutorialStatus; }
+            set { OnSetAttribute("TutorialStatus", value); _tutorialStatus = value; }
         }
     }
 
@@ -1054,6 +1065,7 @@ namespace Zealot.Common.Entities
         private int _UnlockWorldBossLevel;
         private int _tutorialreddot;
         private int _BattleTime;
+        
 
         public SecondaryStats() : base(LOTYPE.SecondaryStats)
         {
@@ -1495,6 +1507,7 @@ namespace Zealot.Common.Entities
         private Dictionary<int, object> _adventurIdMap;
         private Dictionary<int, string> _adventureQuest;
         private string _completedAdventure;
+        private string _lockedAdventure;
 
         public CollectionHandler<object> SublineQuest { get; set; }
         private Dictionary<int, object> _sublineIdMap;
@@ -1533,6 +1546,7 @@ namespace Zealot.Common.Entities
             _adventurIdMap = new Dictionary<int, object>();
             _adventureQuest = new Dictionary<int, string>();
             _completedAdventure = "";
+            _lockedAdventure = "";
 
             SublineQuest = new CollectionHandler<object>(QuestRepo.GetMaxQuestCountByType(QuestType.Sub));
             SublineQuest.SetParent(this, "SublineQuest");
@@ -1592,6 +1606,12 @@ namespace Zealot.Common.Entities
         {
             get { return _completedAdventure; }
             set { OnSetAttribute("completedAdventure", value); _completedAdventure = value; }
+        }
+
+        public string lockedAdventure
+        {
+            get { return _lockedAdventure; }
+            set { OnSetAttribute("lockedAdventure", value); _lockedAdventure = value; }
         }
 
         public Dictionary<int, string> sublineQuest
@@ -1727,7 +1747,14 @@ namespace Zealot.Common.Entities
                 int count = 0;
                 foreach(KeyValuePair<int, string> entry in datas)
                 {
-                    idmap.Add(entry.Key, entry.Value);
+                    if (idmap.ContainsKey(entry.Key))
+                    {
+                        idmap[entry.Key] = entry.Value;
+                    }
+                    else
+                    {
+                        idmap.Add(entry.Key, entry.Value);
+                    }
                     SetColletionData(type, count, entry.Value);
                     count += 1;
                 }
@@ -2144,7 +2171,6 @@ namespace Zealot.Common.Entities
         }
     }
 
-
     //All static object local object should inherit from this class:
     public class StaticObjectStat : LocalObject
     {
@@ -2334,12 +2360,14 @@ namespace Zealot.Common.Entities
 
     public class SocialStats : LocalObject // Send only to local client
     {
+        public const int MAX_FRIENDS = 50;
+
         public SocialStats() : base(LOTYPE.SocialStats)
         {
-            friendList = new CollectionHandler<object>(SocialInventoryData.MAX_FRIENDS);
+            friendList = new CollectionHandler<object>(MAX_FRIENDS);
             friendList.SetParent(this, "friendList");
             friendListDict = new Dictionary<string, SocialInfo>();
-            friendRequestList = new CollectionHandler<object>(SocialInventoryData.MAX_FRIENDS);
+            friendRequestList = new CollectionHandler<object>(MAX_FRIENDS);
             friendRequestList.SetParent(this, "friendRequestList");
             friendRequestListDict = new Dictionary<string, SocialInfoBase>();
         }
@@ -2958,6 +2986,22 @@ namespace Zealot.Common.Entities
 
     #endregion
 
+    #region DNA
+
+    public class DNAStats : LocalObject
+    {
+        public DNAStats()
+            : base(LOTYPE.DNAStats)
+        {
+            dnaSlots = new CollectionHandler<object>(DNAInvData.MAX_DNASLOTS);
+            dnaSlots.SetParent(this, "dnaSlots");
+        }
+
+        public CollectionHandler<object> dnaSlots { get; set; }
+    }
+
+    #endregion
+
     #region PowerUp
 
     public class PowerUpStats : LocalObject
@@ -3058,32 +3102,6 @@ namespace Zealot.Common.Entities
         {
             get { return _FusionData; }
             set { OnSetAttribute("FusionData", value); _FusionData = value; }
-        }
-    }
-    #endregion
-
-    #region InteractiveTrigger
-    public class InteractiveTriggerStats : LocalObject
-    {
-        private bool _canTrigger;
-        private bool _waitResponse;
-
-        public InteractiveTriggerStats() : base(LOTYPE.InteractiveTriggerStats)
-        {
-            _canTrigger = false;
-            _waitResponse = false;
-        }
-
-        public bool canTrigger
-        {
-            get { return _canTrigger; }
-            set { OnSetAttribute("canTrigger", value); _canTrigger = value; }
-        }
-
-        public bool waitResponse
-        {
-            get { return _waitResponse; }
-            set { OnSetAttribute("waitResponse", value); _waitResponse = value; }
         }
     }
     #endregion

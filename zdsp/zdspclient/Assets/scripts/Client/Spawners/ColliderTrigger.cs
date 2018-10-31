@@ -28,7 +28,7 @@ namespace Zealot.Spawners
         public override ServerEntityJson GetJson()
 		{
             ColliderTriggerJson jsonclass = new ColliderTriggerJson();
-			GetJson (jsonclass);
+			GetJson(jsonclass);
 			return jsonclass;
 		}
 		
@@ -36,7 +36,7 @@ namespace Zealot.Spawners
 		{
             jsonclass.activeOnStartup = activeOnStartup;
             jsonclass.count = triggerCount;
-            base.GetJson (jsonclass);
+            base.GetJson(jsonclass);
 		}
 
 		public void OnTriggerEnter(Collider other)

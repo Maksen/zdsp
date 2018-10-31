@@ -16,8 +16,13 @@ public class UI_DestinyHeroData : MonoBehaviour
     {
         mHeroid = heroid;
         mParent = parent;
-        HeroIcon.sprite = ClientUtils.LoadIcon(path);
+        ClientUtils.LoadIconAsync(path, UpdateIcon);
         HeroToggle.group = group;
+    }
+
+    private void UpdateIcon(Sprite sprite)
+    {
+        HeroIcon.sprite = sprite;
     }
 
     public void OnValueChanged()

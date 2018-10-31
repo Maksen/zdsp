@@ -745,14 +745,6 @@ public class CombatRPC : RPCBase
     }
     #endregion
 
-    #region Crafting
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CraftItem)]
-    public void CraftItem(int craftid, bool autocraft)
-    {
-        ProxyMethod("CraftItem", craftid, autocraft);
-    }
-    #endregion
-
     #region Donate
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetGuildDonateData)]
     public void GetGuildDonateData(string lastUpdateTime)
@@ -827,12 +819,6 @@ public class CombatRPC : RPCBase
     public void CharInfoSetPortrait(int portraitID)
     {
         ProxyMethod("CharInfoSetPortrait", portraitID);
-    }
-
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ActiveRandomBox)]
-    public void ActiveRandomBox(bool active)
-    {
-        ProxyMethod("ActiveRandomBox", active);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetRandomBoxReward)]
@@ -928,9 +914,9 @@ public class CombatRPC : RPCBase
         ProxyMethod("OnInteractiveUse", objectId, enter);
     }
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
-    public void OnInteractiveTrigger(int objectId, int keyId)
+    public void OnInteractiveTrigger(int objectId)
     {
-        ProxyMethod("OnInteractiveTrigger", objectId, keyId);
+        ProxyMethod("OnInteractiveTrigger", objectId);
     }
     #endregion
 

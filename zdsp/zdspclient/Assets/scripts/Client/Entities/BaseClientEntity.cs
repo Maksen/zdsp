@@ -60,11 +60,8 @@ namespace Zealot.Client.Entities
                 mShadow = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_CheapShadow/Cheapshadow.prefab", true);
                 mShadow.name = "Shadow";
                 mShadow.transform.SetParent(AnimObj.transform, false);
-                Animation anim = AnimObj.GetComponent<Animation>();
                 EffectController effectController = AnimObj.AddComponent<EffectController>();
-                effectController.Anim = anim;
                 effectController.Animator = AnimObj.GetComponent<Animator>();
-                //ec.ShowAnimStates();
                 EffectController = effectController;
                 AnimObj.AddComponent<GameObjectToEntityRef>().mParentEntity = this;
             }
@@ -135,7 +132,8 @@ namespace Zealot.Client.Entities
                 for (int i = 0; i < count; ++i)
                     parent.GetChild(i).gameObject.SetActive(val);
 
-                mShadow.SetActive(isShadowVisible);
+                if (mShadow != null)
+                    mShadow.SetActive(isShadowVisible);
             }
         }
 
@@ -221,12 +219,6 @@ namespace Zealot.Client.Entities
         }
 
         public override bool CanSelect { get { return mActiveStatus; } }
-
-        public virtual void UpdateOngoingQuest(List<int> quests) { }
-
-        public virtual void RemoveOngoingQuest(int questid) { }
-
-        public virtual void UpdateAvailableQuestList() { }
 
         public int ActiveQuest { get { return mActiveQuest; } }
 

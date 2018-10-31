@@ -145,4 +145,9 @@ public class UI_Destiny : BaseWindowBehaviour
             UIManager.OpenWindow(WindowType.DestinyHistory, (window) => { window.GetComponent<UI_DestinyHistory>().Init(mDestinyClueController); });
         }
     }
+
+    public List<GameObject> GetMessages()
+    {
+        return mMessageObjects;
+    }
 }

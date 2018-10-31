@@ -83,6 +83,12 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\AchievementStats.cs">
       <Link>Entities\AchievementStats.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\DNA\DNAInventory.cs">
+      <Link>DNA\DNAInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\DNA\DNAInventory_Methods.cs">
+      <Link>DNA\DNAInventory_Methods.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Entities\ActorStats.cs">
       <Link>Entities\ActorStats.cs</Link>
     </Compile>
@@ -230,9 +236,6 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SkillInventoryData.cs">
       <Link>GameObjects\SkillInventoryData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\SocialInventoryData.cs">
-      <Link>GameObjects\SocialInventoryData.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\GameObjects\StoreInventoryData.cs">
       <Link>GameObjects\StoreInventoryData.cs</Link>
     </Compile>
@@ -335,9 +338,6 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CharacterRepo.cs">
       <Link>Repositories\CharacterRepo.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CraftingRepo.cs">
-      <Link>Repositories\CraftingRepo.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\CurrencyExchangeRepo.cs">
       <Link>Repositories\CurrencyExchangeRepo.cs</Link>
     </Compile>
@@ -364,9 +364,6 @@
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ExchangeShopRepo.cs">
       <Link>Repositories\ExchangeShopRepo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ExperienceRepo.cs">
-      <Link>Repositories\ExperienceRepo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\GameConstantRepo.cs">
       <Link>Repositories\GameConstantRepo.cs</Link>
@@ -446,6 +443,9 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\RewardListRepo.cs">
       <Link>Repositories\RewardListRepo.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\ScenesModelRepo.cs">
+      <Link>Repositories\ScenesModelRepo.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\SevenDaysRepo.cs">
       <Link>Repositories\SevenDaysRepo.cs</Link>
     </Compile>
@@ -463,6 +463,9 @@
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\TopUpRepo.cs">
       <Link>Repositories\TopUpRepo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\TutorialRepo.cs">
+      <Link>Repositories\TutorialRepo.cs</Link>
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Repositories\WalletRepo.cs">
       <Link>Repositories\WalletRepo.cs</Link>
@@ -488,6 +491,12 @@
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\SevenDays\SevenDaysInventory_Methods.cs">
       <Link>SevenDays\SevenDaysInventory_Methods.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Social\SocialInventory.cs">
+      <Link>Social\SocialInventory.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Social\SocialInventory_Methods.cs">
+      <Link>Social\SocialInventory_Methods.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\StateMachine.cs">
       <Link>StateMachine.cs</Link>
     </Compile>
@@ -499,9 +508,6 @@
     </Compile>
     <Compile Include="..\..\..\zdspclient\Assets\scripts\Common\Welfare\WelfareInventory_Methods.cs">
       <Link>Welfare\WelfareInventory_Methods.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\zdspclient\Assets\scripts\Scenes\Interactive\InteractiveInventory.cs">
-      <Link>InteractiveTrigger\InteractiveInventory.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zealot.Common;
 using Zealot.Repository;
-using System.Collections;
 
-public enum PiliClientState : byte
+public enum GameClientState : byte
 {
     Login,
     Lobby,
@@ -22,17 +22,29 @@ public enum PiliClientState : byte
 /// </summary>
 public class Login : Photon.MonoBehaviour
 {
-    static public List<string> GMMessages = new List<string>();
+    [SerializeField]
+    GameLoadingScreen gameLoadingScreen = null;
+
     public bool IsConnectingToGameServer { get; set; }
+    public Dictionary<int, ServerLine> ServerLineRefDict { get; set; } // serverline <- ServerLine
+    public Dictionary<int, ServerInfo> ServerInfoRefDict { get; set; } // ServerId <- ServerInfo
     public ServerInfo SelectedServerInfo { get; set; }
 
+    static public List<string> GMMessages = new List<string>();
+
+    // Use this for initialization
     void Awake()
     {
-        GameInfo.gClientState = PiliClientState.Login;
+        GameInfo.gClientState = GameClientState.Login;
         GameInfo.gLogin = this;
+
         IsConnectingToGameServer = false;
         SelectedServerInfo = null;
+        ServerLineRefDict = new Dictionary<int, ServerLine>();
+        ServerInfoRefDict = new Dictionary<int, ServerInfo>();
+
         DontDestroyOnLoad(gameObject);
+        gameLoadingScreen.OnAwake();
     }
 
     /// <summary>if we don't want to connect in Start(), we have to "remember" if we called ConnectUsingSettings()</summary>
@@ -43,8 +55,21 @@ public class Login : Photon.MonoBehaviour
             GameRepo.InitClient(AssetManager.LoadPiliQGameData());
             EfxSystem.Instance.InitFromGameDB();
         }
-
         DisplayGMMessage();
+    }
+
+    void OnDestroy()
+    {
+        UIManager.DestroyLoadingScreen();
+        gameLoadingScreen = null;
+
+        if (ServerInfoRefDict != null)
+        {
+            ServerInfoRefDict.Clear();
+            ServerInfoRefDict = null;
+        }
+
+        GameInfo.gLogin = null;
     }
 
     void DisplayGMMessage()
@@ -52,9 +77,7 @@ public class Login : Photon.MonoBehaviour
         if (GMMessages != null && GMMessages.Count > 0)
         {
             var message = GMMessages[0];
-
             UIManager.OpenOkDialog(message, DisplayGMMessage);
-
             GMMessages.RemoveAt(0);
         }
     }
@@ -78,12 +101,12 @@ public class Login : Photon.MonoBehaviour
         {
             // Note: took out EscapeDataString for token, may screw up token
             authVal.AuthGetParameters = string.Format("username={0}&token={1}&extraparam={2}", Uri.EscapeDataString(user),
-                                                   Uri.EscapeDataString(token), Uri.EscapeDataString(extraParam));
+                                                      Uri.EscapeDataString(token), Uri.EscapeDataString(extraParam));
         }
         GameVersion gameVersion = GameLoader.Instance.gameVersion;
         string versionNumber = (gameVersion != null) ? gameVersion.ServerWithPatchVersion : "";
         PhotonNetwork.networkingPeer.OpAuthenticate(appID, versionNumber.Trim(), authVal, "");
-        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysOpAuthenticate);
+        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgOpAuthenticate);
     }
 
     public virtual void CustomAuthWithServer(byte opCode, string user, string token = "", string deviceId = "")
@@ -100,7 +123,7 @@ public class Login : Photon.MonoBehaviour
         parameters.Add(ParameterCode.AppVersion, versionNumber.Trim());
         parameters.Add(ParameterCode.ClientPlatform, GameVersion.GetClientPlatform());
         PhotonNetwork.networkingPeer.OpCustom(opCode, parameters, true, 0, PhotonNetwork.networkingPeer.IsEncryptionAvailable);
-        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysOpAuthenticate);
+        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgOpAuthenticate);
     }
 
     /*public void CustomAuthWithServerUIDShift(LoginType oldType, string oldLoginId, LoginType newType, string newLoginId, 
@@ -122,7 +145,7 @@ public class Login : Photon.MonoBehaviour
 
         bool isEncryptAvail = PhotonNetwork.networkingPeer.IsEncryptionAvailable;
         PhotonNetwork.networkingPeer.OpCustom(OperationCode.UIDShift, param, true, 0, isEncryptAvail);
-        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysOpAuthenticate);
+        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgOpAuthenticate);
     }*/
 
     public virtual bool ReconnectWhenDisconnected(string connectType)
@@ -158,7 +181,7 @@ public class Login : Photon.MonoBehaviour
     {
         if (SelectedServerInfo == null)
             return;
-        if (SelectedServerInfo.serverLoad == ServerLoad.Full)
+        else if (SelectedServerInfo.serverLoad == ServerLoad.Full)
         {
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ServerFull"));
             return;
@@ -169,12 +192,13 @@ public class Login : Photon.MonoBehaviour
         Dictionary<byte, object> parameters = new Dictionary<byte, object>();
         parameters.Add(ParameterCode.ServerID, serverid);
         PhotonNetwork.networkingPeer.OpCustom(OperationCode.ConnectGameSetup, parameters, true, 0, PhotonNetwork.networkingPeer.IsEncryptionAvailable);
-        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysConnectingGameServer);
+        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgConnectingGameServer);
     }
 
     public void OnConnectGameSetup(short errorcode)
     {
         UIManager.StopHourglass();
+
         if (SelectedServerInfo == null)
             return;
         if (errorcode == ErrorCode.ServerOffline)
@@ -189,17 +213,17 @@ public class Login : Photon.MonoBehaviour
 
     private IEnumerator ConnectToGameServer(string ipAddress)
     {
-        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysConnectingGameServer);
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(1.0f);
         Debug.LogFormat("Connecting to Gameserver: {0}", ipAddress);
         PhotonNetwork.ConnectGameServer(ipAddress);
+        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgConnectingGameServer);
     }
 
     public virtual void OnConnectedToGameServer()
     {
         IsConnectingToGameServer = false;
         PhotonNetwork.AuthenticateCookie(LoginData.Instance.userId.ToString(), LoginData.Instance.cookieId.ToString(), SelectedServerInfo.id);
-        UIManager.StartHourglass(10.0f, GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_ConnectingGameServer", null));
+        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgConnectingGameServer);
     }
 
     // The following methods are implemented to give you some context. re-implement them as needed.
@@ -231,7 +255,7 @@ public class Login : Photon.MonoBehaviour
         if (SceneManager.GetActiveScene().name.Equals("UI_LoginHierarchy"))
             return;
 
-        GameInfo.gClientState = PiliClientState.Login;
+        GameInfo.gClientState = GameClientState.Login;
         GameInfo.OnQuitGame();
         DestroyAllOnDC();
         if (!PhotonHandler.AppQuits)
@@ -256,15 +280,13 @@ public class Login : Photon.MonoBehaviour
 
     void DestroyAllOnDC()
     {
-        UIManager.DestroyLoadingScreen();
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
 
     public bool GetLoginData()
     {
-        if (LoginData.Instance.DeserializeLoginData())
-            if (!string.IsNullOrEmpty(LoginData.Instance.DeviceId) && !string.IsNullOrEmpty(LoginData.Instance.LoginId))
-                return true;
+        if (LoginData.Instance.DeserializeLoginData() && LoginData.Instance.IsDataValid)
+            return true;
 
         // Get device ID, also send to server
         LoginData.Instance.DeviceId = (Application.platform != RuntimePlatform.WindowsEditor)
@@ -279,7 +301,7 @@ public class Login : Photon.MonoBehaviour
         string loginTypeStr = loginType.ToString();
         if (ReconnectWhenDisconnected(loginTypeStr))
         {
-            UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysOpAuthenticate);
+            UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgOpAuthenticate);
             return;
         }
 
@@ -292,7 +314,7 @@ public class Login : Photon.MonoBehaviour
     public void UserFreezed()
     {
         UIManager.StopHourglass();
-        UIManager.OpenOkDialog(GameInfo.gUILogin.RetUserFreezed, null);
+        //UIManager.OpenOkDialog(GameInfo.gUILogin.RetUserFreezed, null);
     }
 
     #region Photon MonoMessages
@@ -314,8 +336,8 @@ public class Login : Photon.MonoBehaviour
                         LoginData.Instance.SerializeLoginData();
                     }
 
-                    if (GameInfo.gClientState == PiliClientState.Login)
-                        UIManager.StartHourglass(10.0f, GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_LoadingLobby", null));
+                    if (GameInfo.gClientState == GameClientState.Login)
+                        UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgLoadingLobby);
                     if (GameInfo.gLobby != null)
                         GameInfo.gLobby.JoinLobby();
                 }
@@ -325,11 +347,11 @@ public class Login : Photon.MonoBehaviour
                 PhotonNetwork.networkingPeer.Disconnect();
                 break;
             case ErrorCode.UserBlocked:
-                UIManager.OpenOkDialog(GameInfo.gUILogin.RetUserFreezed, null);
+                //UIManager.OpenOkDialog(GameInfo.gUILogin.RetUserFreezed, null);
                 PhotonNetwork.networkingPeer.Disconnect();
                 break;
             case ErrorCode.GameFull:
-                UIManager.OpenOkDialog(GameInfo.gUILogin.RetGameServerFullStr, null);
+                //UIManager.OpenOkDialog(GameInfo.gUILogin.RetGameServerFullStr, null);
                 PhotonNetwork.networkingPeer.Disconnect();
                 break;
         }
@@ -340,7 +362,11 @@ public class Login : Photon.MonoBehaviour
         UIManager.StopHourglass();
         UI_Login uiLogin = GameInfo.gUILogin;
         uiLogin.ParseServersInfoStr(serversInfoStr);
-        // Generate data file to store device ID
+
+        if (!LoginData.Instance.IsDataValid && !UIManager.IsWindowOpen(WindowType.DialogLicenseAgreement))
+            UIManager.OpenDialog(WindowType.DialogAccountLoginType);
+
+        // Actions after established connection
         if (!string.IsNullOrEmpty(connectTypeStr))
         {
             if (Enum.IsDefined(typeof(LoginType), connectTypeStr))
@@ -354,17 +380,17 @@ public class Login : Photon.MonoBehaviour
                         GameInfo.gLogin.OnLogin(loginType, loginId, loginId);
                         break;
                     case LoginType.Username:
-                        GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogUsernamePassword);
+                        GameObject dialogObj = UIManager.GetWindowGameObject(WindowType.DialogAccountLogin);
                         string password = "";
-                        if (gameObj.GetComponent<Dialog_UsernamePassword>().TryGetInputfieldSignIn(out loginId, out password))
+                        if (dialogObj.GetComponent<UI_DialogAccountLogin>().TryGetInputfieldSignIn(out loginId, out password))
                             GameInfo.gLogin.OnLogin(loginType, loginId, password);
                         else if (uiLogin.TryGetLoginDataPass(out password))
                             GameInfo.gLogin.OnLogin(loginType, LoginData.Instance.LoginId, password);
                         else
                         {
-                            UIManager.OpenDialog(WindowType.DialogUsernamePassword, (window) => {
-                                window.GetComponent<Dialog_UsernamePassword>().OnClickOpenUsernameSignIn();
-                            });
+                            //UIManager.OpenDialog(WindowType.DialogAccountLogin, (window) => {
+                            //    window.GetComponent<UI_DialogAccountLogin>().OnClickOpenUsernameSignIn();
+                            //});
                         }
                         break;
                     case LoginType.Facebook:
@@ -381,13 +407,13 @@ public class Login : Photon.MonoBehaviour
             }
             else if (connectTypeStr.Equals("Register"))
             {
-                GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogUsernamePassword);
-                gameObj.GetComponent<Dialog_UsernamePassword>().OnClickUsernameSignUp();
+                GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogAccountRegister);
+                gameObj.GetComponent<UI_DialogAccountRegister>().OnClickSignUp();
             }
             else if (connectTypeStr.Equals("VerifyLoginIdRegister"))
             {
-                GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogUsernamePassword);
-                gameObj.GetComponent<Dialog_UsernamePassword>().OnClickUsernameVerify();
+                GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogAccountRegister);
+                gameObj.GetComponent<UI_DialogAccountRegister>().OnClickVerifyUsername();
             }
             /*else if(connectTypeStr.Equals("VerifyLoginIdUIDShift"))
                 uiLogin.OnSetUIDShiftVerifyButton();
@@ -419,7 +445,7 @@ public class Login : Photon.MonoBehaviour
         }
     }
 
-    public void OnGetServerList(string serversInfoStr)
+    public void OnGetServerListResult(string serversInfoStr)
     {
         UIManager.StopHourglass();
 
@@ -431,24 +457,23 @@ public class Login : Photon.MonoBehaviour
     public void OnRegisterResult(bool registerSuccess, string loginId)
     {
         UIManager.StopHourglass();
+
         UI_Login uiLogin = GameInfo.gUILogin;
         if (registerSuccess) // Proceed to login is success
         {
-            //GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogUsernamePassword);
-            //Dialog_UsernamePassword dialogUserPass = gameObj.GetComponent<Dialog_UsernamePassword>();
-            //dialogUserPass.InitInputfieldSignIn(loginId, uiLogin.CachedPass);
-            //dialogUserPass.OnClickOpenUsernameSignIn();
-            //OnLogin(LoginType.Username, loginId, uiLogin.CachedPass);
-            UIManager.CloseDialog(WindowType.DialogUsernamePassword);
-            UIManager.OpenOkDialog(GameInfo.gUILogin.RetSignUpSuccessStr, null);
+            UIManager.CloseDialog(WindowType.DialogAccountLoginType);
+            UIManager.CloseDialog(WindowType.DialogAccountRegister);
+            UIManager.OpenOkDialog(uiLogin.RetMsgSignUpSuccess, null);
 
             LoginData.Instance.LoginType = (short)LoginType.Username; // Set to username login type
             LoginData.Instance.LoginId = loginId; // Set to new login ID
-            uiLogin.SetAccountName(loginId);
             uiLogin.SetLoginDataPass(LoginType.Username, uiLogin.CachedPass);
+
+            GameObject dialogObj = UIManager.GetWindowGameObject(WindowType.DialogAccountLogin);
+            dialogObj.GetComponent<UI_DialogAccountLogin>().SetInputfieldSignIn(loginId, uiLogin.CachedPass);
         }
         else
-            UIManager.OpenOkDialog(uiLogin.RetUserAlreadyExistStr, null);
+            UIManager.OpenOkDialog(uiLogin.RetMsgUserAlreadyExist, null);
 
         uiLogin.CachedPass = "";
     }
@@ -456,6 +481,7 @@ public class Login : Photon.MonoBehaviour
     public void OnLoginSuccess(string loginTypeStr, string loginId, string cookie, string userid, string serversInfoStr, string password)
     {
         UIManager.StopHourglass();
+
         UI_Login uiLogin = GameInfo.gUILogin;
         uiLogin.ParseServersInfoStr(serversInfoStr);
         Debug.LogFormat("{0} Login success...Login ID: {1}", loginTypeStr, loginId);
@@ -464,7 +490,6 @@ public class Login : Photon.MonoBehaviour
             short loginType = (short)Enum.Parse(typeof(LoginType), loginTypeStr);
             LoginData.Instance.LoginType = loginType; // Set to new login type
             LoginData.Instance.LoginId = loginId;     // Set to new login ID
-            uiLogin.SetAccountName(loginId);
             uiLogin.SetLoginDataPass((LoginType)loginType, password);
         }
         LoginData.Instance.SerializeLoginData();
@@ -482,14 +507,14 @@ public class Login : Photon.MonoBehaviour
     public void InvalidClientVer(bool val)
     {
         UIManager.StopHourglass();
-        UIManager.OpenOkDialog(GameInfo.gUILogin.SysInvalidClientVer, null);
+        //UIManager.OpenOkDialog(GameInfo.gUILogin.SysInvalidClientVer, null);
     }
 
     public void OnVerifiedLoginId(bool isLoginExist, string loginId, string requestType)
     {
         UIManager.StopHourglass();
-        GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogUsernamePassword);
-        gameObj.GetComponent<Dialog_UsernamePassword>().SetVerifyCheck(!isLoginExist);
+        GameObject gameObj = UIManager.GetWindowGameObject(WindowType.DialogAccountRegister);
+        gameObj.GetComponent<UI_DialogAccountRegister>().SetVerifyCheck(!isLoginExist);
     }
 
     //public void OnPasswordModifyResult(short errorCode, string password)
@@ -505,6 +530,8 @@ public class Login : Photon.MonoBehaviour
     //}
 
     #endregion
+
+    #region Encryption
 
     public static string EncryptTxt(string Data, string Key, byte[] IV, int iterations = 1000)
     {
@@ -558,4 +585,6 @@ public class Login : Photon.MonoBehaviour
             return null;
         }
     }
+
+    #endregion
 }

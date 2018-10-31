@@ -1,61 +1,42 @@
-﻿using ExitGames.Client.Photon;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Audio;
 using Zealot.Common;
 using Zealot.Repository;
-using Zealot.Audio;
 
 public class UI_Login : MonoBehaviour
 {
-    #region Variables
-    public string AnnouncementServerURL = "https://piliq.zealotdigital.com.tw/topnews.aspx";
-    // Editor Linked Gameobjects
     [SerializeField]
-    Text txtAccountName = null;
+    string announcementServerURL = "https://piliq.zealotdigital.com.tw/topnews.aspx";
     [SerializeField]
     Text txtServerName = null;
     [SerializeField]
-    Text txtVersion = null;
+    Text txtGameVersion = null;
 
     const string secretKey = "3h5j3k2fv1";
 
     public string CachedPass { get; set; }
-    Dictionary<int, ServerInfo> serverListDict = new Dictionary<int, ServerInfo>();
-    public Dictionary<int, ServerLine> serverLineDict = new Dictionary<int, ServerLine>();
 
     // Localized System message
-    public string RetRePasswordMismatchStr { get; protected set; }
-    public string RetUserAlreadyExistStr { get; protected set; }
-    public string RetGameServerFullStr { get; protected set; }
-    public string RetAuthCookieFailedStr { get; protected set; }
-    public string RetUserDoesNotExistStr { get; protected set; }
-    public string RetUserOrPassFailedStr { get; protected set; }
-    public string RetSignUpSuccessStr { get; protected set; }
-    public string RetUserFreezed { get; protected set; }
+    public string RetMsgSignUpSuccess { get; protected set; }
+    public string RetMsgUserAlreadyExist { get; protected set; }
+    public string RetMsgRePasswordMismatch { get; protected set; }
+    public string RetMsgUserDoesNotExist { get; protected set; }
+    public string RetMsgUserOrPassFailed { get; protected set; }
 
-    //public string RetUIShiftFailedStr { get; protected set; }
-    //public string RetUsernameAccReqStr { get; protected set; }
-    //public string RetSameNewAndOldPassStr { get; protected set; }
-    //public string RetUIShiftAccExistStr { get; protected set; }
-    //public string RetInvalidEmailStr { get; protected set; }
-
-    public string SysOpAuthenticate { get; protected set; }
-    public string SysConnectingGameServer { get; protected set; }
-    public string SysConnectedToGameServer { get; protected set; }
-    public string SysLoadingLobby { get; protected set; }
-    public string SysInvalidClientVer { get; protected set; }
-    public string SysUpdatingServerList { get; protected set; }
-
-    #endregion
+    public string SysMsgOpAuthenticate { get; protected set; }
+    public string SysMsgConnectingGameServer { get; protected set; }
+    public string SysMsgUpdatingServerList { get; protected set; }
+    public string SysMsgLoadingLobby { get; protected set; }
 
     void Awake()
     {
         GameInfo.gUILogin = this;
-        NetworkHandler.AnnouncementServerURL = AnnouncementServerURL;
+        NetworkHandler.AnnouncementServerURL = announcementServerURL;
         GameVersion gameVersion = GameLoader.Instance.gameVersion;
 #if ZEALOT_DEVELOPMENT && !UNITY_EDITOR
         Zealot.RemoteLog.SetFileID("");
@@ -65,27 +46,16 @@ public class UI_Login : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        if (GameInfo.firstViewMovie)
-        {
-            //UIManager.OpenDialog(WindowType.DialogSceneMovie, 
-               // (window) => { window.GetComponent<DialogMovie>().StartPlay(GameLoader.MovieOpening, null); });
-            GameInfo.firstViewMovie = false;
-        }
-
         bool isLoginDataValid = GameInfo.gLogin.GetLoginData();
         LoginData loginData = LoginData.Instance;
 
-        OpenDialogLicenseAgreement();
-        // Establish connection and get device ID
-        if (isLoginDataValid) // Has existing login data
-        {
-            GameInfo.gLogin.ConnectToPhotonServer(LoginType.EstablishConnection.ToString(), "");
-            txtAccountName.text = loginData.LoginId;
-        }
-        else // New device login
-        {
-            GameInfo.gLogin.ConnectToPhotonServer(LoginType.EstablishConnection.ToString(), loginData.DeviceId);
-        }
+        if (!loginData.HasReadLicense)
+            UIManager.OpenDialog(WindowType.DialogLicenseAgreement);
+
+        // Establish connection and send device ID if is a new device
+        // Send empty string if has existing login data
+        string newDeviceId = isLoginDataValid ? "" : loginData.DeviceId;
+        GameInfo.gLogin.ConnectToPhotonServer(LoginType.EstablishConnection.ToString(), newDeviceId);
 
         CachedPass = "";
         StartCoroutine(InitLocalizeText());
@@ -97,11 +67,6 @@ public class UI_Login : MonoBehaviour
     void OnDestroy()
     {
         GameInfo.gUILogin = null;
-        if (serverListDict != null)
-        {
-            serverListDict.Clear();
-            serverListDict = null;
-        }
     }
 
     IEnumerator InitLocalizeText()
@@ -110,28 +75,19 @@ public class UI_Login : MonoBehaviour
 
         GameVersion gameVersion = GameLoader.Instance.gameVersion;
         string versionNumber = (gameVersion != null) ? gameVersion.ServerVersion : "";
-        txtVersion.text = string.Format("{0}: {1}", GUILocalizationRepo.GetLocalizedString("login_Version"), versionNumber.Trim());
-        // Localize system message
-        RetRePasswordMismatchStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_RePasswordMismatch", null);
-        RetUserAlreadyExistStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserAlreadyExist", null);
-        RetGameServerFullStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_GameServerFull", null);
-        RetAuthCookieFailedStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_AuthCookieFailed", null);
-        RetUserDoesNotExistStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserDoesNotExist", null);
-        RetUserOrPassFailedStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserOrPassFailed", null);
-        RetSignUpSuccessStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_SignUpSuccess", null);
-        RetUserFreezed = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserFreezed");
-        //RetUIShiftFailedStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UIShiftFailed", null);
-        //RetUsernameAccReqStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UsernameAccReq", null);
-        //RetSameNewAndOldPassStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_SameNewAndOldPass", null);
-        //RetUIShiftAccExistStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UIShiftAccExist", null);
-        //RetInvalidEmailStr = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_InvalidEmail", null);
+        txtGameVersion.text = string.Format("{0}：{1}", GUILocalizationRepo.GetLocalizedString("login_Version"), versionNumber.Trim());
 
-        SysOpAuthenticate = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_OpAuthenticate", null);
-        SysConnectingGameServer = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_ConnectingGameServer", null);
-        SysConnectedToGameServer = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_ConnectedToGameServer", null);
-        SysLoadingLobby = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_LoadingLobby", null);
-        SysInvalidClientVer = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_InvalidClientVersion", null);
-        SysUpdatingServerList = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_UpdatingServerList", null);
+        // Localize system message
+        RetMsgSignUpSuccess = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_SignUpSuccess", null);
+        RetMsgUserAlreadyExist = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserAlreadyExist", null);
+        RetMsgRePasswordMismatch = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_RePasswordMismatch", null);
+        RetMsgUserDoesNotExist = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserDoesNotExist", null);
+        RetMsgUserOrPassFailed = GUILocalizationRepo.GetLocalizedSysMsgByName("ret_Login_UserOrPassFailed", null);
+
+        SysMsgOpAuthenticate = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_OpAuthenticate", null);
+        SysMsgConnectingGameServer = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_ConnectingGameServer", null);
+        SysMsgUpdatingServerList = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_UpdatingServerList", null);
+        SysMsgLoadingLobby = GUILocalizationRepo.GetLocalizedSysMsgByName("sys_Login_LoadingLobby", null);
     }
 
     void InitAudioSettings()
@@ -141,11 +97,6 @@ public class UI_Login : MonoBehaviour
 
         volumeScale = GameSettings.SoundFXEnabled ? GameSettings.SoundFXVolume / 100 : 0;
         SoundFX.Instance.SetVolume(volumeScale);
-    }
-
-    public void SetAccountName(string accountName)
-    {
-        txtAccountName.text = accountName;
     }
 
     public void SetLoginDataPass(LoginType loginType, string password)
@@ -167,100 +118,80 @@ public class UI_Login : MonoBehaviour
             !string.IsNullOrEmpty(LoginData.Instance.EncryptedPass) && 
             !string.IsNullOrEmpty(LoginData.Instance.IV))
         {
-            password = Login.DecryptTxt(LoginData.Instance.EncryptedPass, secretKey, 
-                                        Convert.FromBase64String(LoginData.Instance.IV));
+            password = Login.DecryptTxt(LoginData.Instance.EncryptedPass, secretKey, Convert.FromBase64String(LoginData.Instance.IV));
             return true;
         }   
         return false;
     }
 
-    public void SetSelectedGameServer(int serverid)
+    public void SetSelectedGameServer(int serverId)
     {
-        if (serverListDict.ContainsKey(serverid))
+        Login login = GameInfo.gLogin;
+        Dictionary<int, ServerInfo> serverInfoRefDict = login.ServerInfoRefDict;
+        if (serverInfoRefDict.ContainsKey(serverId))
         {
-            ServerInfo serverInfo = serverListDict[serverid];
-            GameInfo.gLogin.SelectedServerInfo = serverInfo;
-            string world = serverLineDict[serverInfo.serverLine].displayName;          
-            txtServerName.text = string.Format("<color={0}>{1} {2}</color>", ClientUtils.GetServerStatusColor(serverInfo.serverLoad), world, serverInfo.serverName);
-            if (GameInfo.gLogin.IsConnectingToGameServer)
-                GameInfo.gLogin.ConnectToSelectedGameServerSetup();
+            ServerInfo serverInfo = serverInfoRefDict[serverId];
+            login.SelectedServerInfo = serverInfo;
+            string world = login.ServerLineRefDict[serverInfo.serverLine].displayName;
+            txtServerName.text = ClientUtils.GetServerNameWithColor(serverInfo.serverLoad, world, serverInfo.serverName);
+            if (login.IsConnectingToGameServer)
+                login.ConnectToSelectedGameServerSetup();
         }
         else
-            GameInfo.gLogin.SelectedServerInfo = null;
-    }
-
-    void SetServerBuckets(Dictionary<int, ServerInfo> serverInfoList)
-    {
-        GameObject gameobjServerSelection = UIManager.GetWindowGameObject(WindowType.DialogServerSelection);
-        if (gameobjServerSelection != null)
-            gameobjServerSelection.GetComponent<Dialog_ServerSelection>().InitServerBuckets(serverListDict, serverLineDict);
-    }
-
-    public ServerInfo GetLastLogin()
-    {
-        int id = LoginData.Instance.ServerId;
-        if (serverListDict.ContainsKey(id))
-            return serverListDict[id];
-        return null;
+            login.SelectedServerInfo = null;
     }
 
     public void ParseServersInfoStr(string serversInfoStr)
     {
-        serverListDict.Clear();      
-        bool selectedServerExist = false;
-        int selectedSvrId = (GameInfo.gLogin.SelectedServerInfo != null) ? GameInfo.gLogin.SelectedServerInfo.id : LoginData.Instance.ServerId;
+        Login login = GameInfo.gLogin;
+        int selectedServerId = (login.SelectedServerInfo != null) ? login.SelectedServerInfo.id : LoginData.Instance.ServerId;
+
+        bool isSelectedServerValid = false;
+        Dictionary<int, ServerInfo> serverInfoRefDict = login.ServerInfoRefDict;
+        serverInfoRefDict.Clear();
         if (!string.IsNullOrEmpty(serversInfoStr))
-        {
+        {      
             string[] serversInfoStrArray = serversInfoStr.Split(';');
-            var serverLineList = JsonConvertDefaultSetting.DeserializeObject<ServerLineList>(serversInfoStrArray[0]).list;
-            serverLineDict.Clear();
-            for (int index = 0; index < serverLineList.Count; index++)
-                serverLineDict[serverLineList[index].serverline] = serverLineList[index];
-            for (int index = 1; index < serversInfoStrArray.Length; index++)
+            List<ServerLine> serverLineList = JsonConvertDefaultSetting.DeserializeObject<ServerLineList>(serversInfoStrArray[0]).list;
+            Dictionary<int, ServerLine> serverLineRefDict = login.ServerLineRefDict;
+            serverLineRefDict.Clear();
+            int count = serverLineList.Count;
+            for (int index = 0; index < count; ++index)
+            {
+                ServerLine serverLine = serverLineList[index];
+                serverLineRefDict[serverLine.serverLineId] = serverLine;
+            }
+
+            count = serversInfoStrArray.Length;
+            for (int index = 1; index < count; ++index)
             {
                 string[] serverConfigAndLoad = serversInfoStrArray[index].Split('|');
+                if (serverConfigAndLoad.Length != 2)
+                    continue;
                 string serverConfigStr = serverConfigAndLoad[0];
                 if (!string.IsNullOrEmpty(serverConfigStr))
                 {
                     ServerLoad serverload = (ServerLoad)byte.Parse(serverConfigAndLoad[1]);
                     ServerConfig serverConfig = ServerConfig.Deserialize(serverConfigStr);
-                    int serverid = serverConfig.id;
-                    ServerInfo serverInfo = new ServerInfo(serverid, serverConfig.ipAddr, serverConfig.servername, serverConfig.serverline, serverload);
-                    serverListDict.Add(serverid, serverInfo);
-                    if (selectedSvrId == serverid) // Saved Id exist
-                        selectedServerExist = true;
+                    int serverId = serverConfig.id;
+                    ServerInfo serverInfo = new ServerInfo(serverId, serverConfig.ipAddr, serverConfig.servername, serverConfig.serverline, serverload);
+                    serverInfoRefDict[serverId] = serverInfo;
+                    if (selectedServerId == serverId) // Selected server Id is valid
+                        isSelectedServerValid = true;
                 }
             }
         }
-        SetSelectedGameServer(selectedServerExist ? selectedSvrId : 0);
-        SetServerBuckets(serverListDict);
-    }
+        SetSelectedGameServer(isSelectedServerValid ? selectedServerId : 0);
 
-    void OpenDialogLicenseAgreement()
-    {
-        if (!LoginData.Instance.HasReadLicense)
-            UIManager.OpenDialog(WindowType.DialogLicenseAgreement);
+        GameObject gameobjServerSelection = UIManager.GetWindowGameObject(WindowType.DialogServerSelection);
+        if (gameobjServerSelection != null)
+            gameobjServerSelection.GetComponent<UI_DialogServerSelection>().InitServerBuckets(serverInfoRefDict);
     }
 
     public void OpenOkDialogLoginFailed(bool isUserNotExist)
     {
-        string retCodeStr = isUserNotExist ? RetUserDoesNotExistStr : RetUserOrPassFailedStr;
+        string retCodeStr = isUserNotExist ? RetMsgUserDoesNotExist : RetMsgUserOrPassFailed;
         UIManager.OpenOkDialog(retCodeStr, null);
-    }
-
-    public void OpenDialogServerSelection(bool isGettingServerList=true)
-    {
-        Login login = GameInfo.gLogin;
-        if (login.ReconnectWhenDisconnected("ServerList"))
-        {
-            UIManager.StartHourglass(10.0f, SysUpdatingServerList);
-            return;
-        }
-
-        if (isGettingServerList)
-            login.CustomAuthWithServer(OperationCode.GetServerList, LoginData.Instance.DeviceId);
-        else // Recieved GetServerList result, open dialog
-            UIManager.OpenDialog(WindowType.DialogServerSelection);
     }
 
     private void OpenDialogAnnouncement()
@@ -268,14 +199,19 @@ public class UI_Login : MonoBehaviour
         //UIManager.OpenDialog(WindowType.DialogAnnouncement);
     }
 
-    public void OnClickAnnouncement()
+    public void OpenDialogServerSelection(bool isUpdatingServerList = true)
     {
-        OpenDialogAnnouncement();
-    }
+        Login login = GameInfo.gLogin;
+        if (login.ReconnectWhenDisconnected("ServerList"))
+        {
+            UIManager.StartHourglass(10.0f, SysMsgUpdatingServerList);
+            return;
+        }
 
-    public void OnClickSwitchAccount()
-    {
-        UIManager.OpenDialog(WindowType.DialogUsernamePassword);
+        if (isUpdatingServerList)
+            login.CustomAuthWithServer(OperationCode.GetServerList, LoginData.Instance.DeviceId);
+        else // Recieved GetServerList result, open dialog
+            UIManager.OpenDialog(WindowType.DialogServerSelection);
     }
 
     public void OnClickServerSelection()
@@ -283,7 +219,7 @@ public class UI_Login : MonoBehaviour
         OpenDialogServerSelection();
     }
 
-    public void OnClickEnterGame()
+    public void OnClickAnywhereToStart()
     {
         LoginType type = (LoginType)LoginData.Instance.LoginType;
         switch (type)
@@ -303,6 +239,11 @@ public class UI_Login : MonoBehaviour
         }
     }
 
+    public void OnClickSettings()
+    {
+        UIManager.OpenDialog(WindowType.DialogSettings);
+    }
+
     /*public void SetUIActive(string parent, string child, bool isActive)
     {
         GameObject parentObj = GameObject.Find(parent);
@@ -318,4 +259,3 @@ public class UI_Login : MonoBehaviour
         }
     }*/
 }
-

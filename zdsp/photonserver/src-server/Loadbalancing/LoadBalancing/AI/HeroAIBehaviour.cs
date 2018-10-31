@@ -1,7 +1,4 @@
-﻿//#define COMBAT_DEBUG
-
-using Kopio.JsonContracts;
-using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
 using Zealot.Common;
 using Zealot.Common.Actions;
 using Zealot.Repository;
@@ -24,14 +21,11 @@ namespace Zealot.Server.AI
         private long mTimeElapsed;
         private long mSummonDuration;
 
-        private int mThreatScanCount;
-        private Dictionary<int, Threat> mThreats = new Dictionary<int, Threat>();
-
         public HeroAIBehaviour(HeroEntity hero) : base(hero)
         {
             mHeroEntity = hero;
             mOwner = mHeroEntity.Owner;
-            mTarget = mOwner;
+            mTarget = null;
             mSkillCDEnd = new long[2];  // 0 - basic attack, 1 - skill
             mBasicAttack = SkillRepo.GetSkill(mHeroEntity.HeroData.basicattack);
             mSkill1 = SkillRepo.GetSkillByGroupIDOfLevel(mHeroEntity.HeroData.skill1grp, mHeroEntity.Hero.Skill1Level);
@@ -77,64 +71,73 @@ namespace Zealot.Server.AI
 
         #region Idle State
 
+        protected override void OnIdleEnter(string prevstate)
+        {
+            // Cannot set Idle on HeroEntity Init because it will interrupt summon action, so if ActionCommand is still null
+            // when enter Idle state, set the Idle action
+            ActionCommand cmd = mHeroEntity.GetActionCmd();
+            if (cmd == null)
+                mHeroEntity.Idle();
+        }
+
         protected override void OnIdleUpdate(long dt)
         {
-#if !COMBAT_DEBUG
-            BaseServerCastSkill skillAction = mOwner.GetAction() as BaseServerCastSkill;
-            if (skillAction != null && !skillAction.IsFriendlySkill())  //owner is casting an enemy targeting skill
+            if (mOwner.LocalCombatStats.IsInCombat) //owner has casted skill or got attacked
             {
-                //get target of owner's cast skill and also attack that target
-                Actor attackingTarget = skillAction.GetTarget();
-                if (attackingTarget != null)
+                Actor potentialTarget = DeterminePotentialTarget();
+                if (potentialTarget != null)
                 {
-                    mTarget = attackingTarget;
+                    SwitchTarget(potentialTarget);
                     ResetSkillToExecute();
                     GotoState("CombatApproach");
+                    return;
                 }
             }
-            else //owner is not attacking
+
+            // owner not in combat or cannot get a valid target
+            if (!IsTargetInRange())  //out of range so approach owner
             {
-                if (!IsTargetInRange())  //out of range so approach owner
-                {
-                    GotoState("Follow");
-                    ApproachTarget();
-                }
+                GotoState("Follow");
+                ApproachTarget();
             }
-#else
-            //scan for player opponent once every 2 updates (each update is 500 msec)
-            Actor threat = ThreatScan(2);
-            if (threat != null)
-            {
-                AddThreat(threat.GetPersistentID(), threat, 0);
-                SwitchTarget(threat);
-                ResetSkillToExecute();
-                GotoState("CombatApproach");
-            }
-#endif
         }
 
         #endregion Idle State
 
         #region Follow State
 
-        private void OnFollowEnter(string prevstate)
+        protected void OnFollowEnter(string prevstate)
         {
         }
 
-        private void OnFollowLeave()
+        protected void OnFollowLeave()
         {
         }
 
-        private void OnFollowUpdate(long dt)
+        protected void OnFollowUpdate(long dt)
         {
+            // Owner go into combat when approaching
+            if (mOwner.LocalCombatStats.IsInCombat)
+            {
+                Actor potentialTarget = DeterminePotentialTarget();
+                if (potentialTarget != null)
+                {
+                    SwitchTarget(potentialTarget);
+                    ResetSkillToExecute();
+                    GotoState("CombatApproach");
+                    return;
+                }
+            }
+
+            // owner not in combat or cannot get valid target, so usual follow
             if (IsTargetInRange())
             {
                 GotoState("Idle");
             }
             else  // not in range yet, can be idling or still approaching
             {
-                ACTIONTYPE actiontype = mHeroEntity.GetActionCmd().GetActionType();
-                if (actiontype == ACTIONTYPE.IDLE)
+                ActionCommand cmd = mHeroEntity.GetActionCmd();
+                if (cmd == null || cmd.GetActionType() == ACTIONTYPE.IDLE)
                 {
                     ApproachTarget();
                 }
@@ -155,7 +158,7 @@ namespace Zealot.Server.AI
         protected override void OnCombatApproachUpdate(long dt)
         {
             //Determine if target still valid
-            if (!CheckTargetValid())
+            if (!CheckTargetValid())  // if invalid will go back to idle
                 return;
 
             if (mSkillToExecute == null)
@@ -173,10 +176,10 @@ namespace Zealot.Server.AI
             }
             else //Out of range, either idling or still approaching
             {
-                ACTIONTYPE actiontype = mHeroEntity.GetActionCmd().GetActionType();
+                ActionCommand cmd = mHeroEntity.GetActionCmd();
 
                 //Approach if out of range (include path find) and not already doing pathfind (note that monster can idle while waiting for pathfind result)
-                if (actiontype == ACTIONTYPE.IDLE)
+                if (cmd == null || cmd.GetActionType() == ACTIONTYPE.IDLE)
                 {
                     ApproachTarget();
                 }
@@ -233,6 +236,40 @@ namespace Zealot.Server.AI
             mHeroEntity.ApproachTargetWithPathFind(target.GetPersistentID(), null, range, true, false);
         }
 
+        private Actor DeterminePotentialTarget()
+        {
+            Actor potentialTarget = null;
+
+            BaseServerCastSkill skillAction = mOwner.GetAction() as BaseServerCastSkill;
+            if (skillAction != null && !skillAction.IsFriendlySkill())  //owner is casting an enemy targeting skill
+            {
+                //get target of owner's cast skill and also attack that target
+                potentialTarget = skillAction.GetTarget();
+            }
+
+            // owner not attacking any target
+            if (potentialTarget == null)
+            {
+                // check other players attacking owner first
+                var playerAttackers = mOwner.GetPlayerAttackers();
+                foreach (var player in playerAttackers)
+                {
+                    if (!IsTargetInvalid(player.Value))
+                        return player.Value;
+                }
+
+                // check npcs attacking owner
+                var npcAttackers = mOwner.GetNPCAttackers();
+                foreach (var npc in npcAttackers)
+                {
+                    if (!IsTargetInvalid(npc.Value))
+                        return npc.Value;
+                }
+            }
+
+            return potentialTarget;
+        }
+
         public void UpdateSkill()
         {
             mSkill1 = SkillRepo.GetSkillByGroupIDOfLevel(mHeroEntity.HeroData.skill1grp, mHeroEntity.Hero.Skill1Level);
@@ -278,104 +315,68 @@ namespace Zealot.Server.AI
                 if (now < mSkillCDEnd[0])
                     return;
                 mSkillCDEnd[0] = now + (long)(mSkillToExecute.skillJson.cooldown * 1000);
-                //GameUtils.DebugWriteLine("use basic attack!!");
             }
             else
             {
                 //Skill being cast definitely not in cooldown here, can safely cast
                 mSkillCDEnd[1] = now + (long)(mSkillToExecute.skillJson.cooldown * 1000);
-                //GameUtils.DebugWriteLine("use skill!!");
             }
-            mHeroEntity.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID());
+            mHeroEntity.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position);
         }
 
         protected bool IsTargetInvalid(Actor target)
         {
-#if !COMBAT_DEBUG
-            BaseServerCastSkill skillAction = mOwner.GetAction() as BaseServerCastSkill;
-            return !mOwner.IsAlive() || skillAction == null || target != skillAction.GetTarget() || CombatUtils.IsInvalidTarget(target);
-#else
-            return CombatUtils.IsInvalidTarget(target);
-#endif
+            return CombatUtils.IsInvalidTarget(target) || !CombatUtils.IsEnemy(mOwner, target)
+                || !mOwner.IsAlive() || !mOwner.LocalCombatStats.IsInCombat;
         }
 
         protected virtual bool CheckTargetValid()
         {
             if (IsTargetInvalid(mTarget))
             {
-#if !COMBAT_DEBUG
-                mTarget = null;
-                mIsAttacking = false;
-                GotoState("Idle");
-                return false;
-#else
-                if (mTarget != null)
-                {
-                    mThreats.Remove(mTarget.GetPersistentID());
-                }
                 SwitchTarget(null);
 
-                List<int> removeList = new List<int>();
-                foreach (KeyValuePair<int, Threat> entry in mThreats)
+                // current target is invalid, determine next potential target
+                Actor potentialTarget = DeterminePotentialTarget();
+                if (potentialTarget != null)
                 {
-                    int pid = entry.Key;
-                    Actor potentialTarget = entry.Value.actor;
-                    if (IsTargetInvalid(potentialTarget)) //Take this opportunity to remove all invalid targets (by right arena only 1 opponent)
-                    {
-                        removeList.Add(pid);
-                    }
-                    else if (mTarget == null)
-                    {
-                        SwitchTarget(potentialTarget);
-                        ResetSkillToExecute();
-                    }
+                    SwitchTarget(potentialTarget);
+                    ResetSkillToExecute();
                 }
-
-                foreach (int pid in removeList)
-                    mThreats.Remove(pid);
 
                 if (mTarget == null)
                     GotoState("Idle");
                 else
                     GotoState("CombatApproach");
                 return false;
-#endif
             }
-            return true;
-        }
-
-        protected Actor ThreatScan(int tickcount)
-        {
-            Actor threat = null;
-            if (mThreatScanCount % tickcount == 0)
+            else  // target is still valid
             {
-                threat = mHeroEntity.QueryForThreat();
-                mThreatScanCount = 0;
-            }
-            mThreatScanCount++;
-            return threat;
-        }
-
-        public void AddThreat(int attackerPID, Actor attackerActor, int aggro)
-        {
-            if (mThreats.ContainsKey(attackerPID))
-            {
-                mThreats[attackerPID].aggro += aggro;
-            }
-            else
-            {
-                mThreats.Add(attackerPID, new Threat(attackerActor, aggro));
+                Actor potentialTarget = DeterminePotentialTarget(); // check whether owner has switched target
+                if (potentialTarget != mTarget) // if new target not the same as current target, switch target
+                {
+                    SwitchTarget(potentialTarget);
+                    ResetSkillToExecute();
+                    if (mTarget == null)
+                        GotoState("Idle");
+                    else
+                        GotoState("CombatApproach");
+                    return false;
+                }
+                return true;  // same target, so continue attacking this target
             }
         }
 
         protected void SwitchTarget(Actor target)
         {
             if (mTarget != null)
-                mTarget.RemoveNPCAttacker(mHeroEntity); //aiplayer is no longer seeking this target
+                mTarget.RemoveNPCAttacker(mHeroEntity);
 
             mTarget = target;
             if (mTarget != null)
                 mTarget.AddNPCAttacker(mHeroEntity);
+            else
+                mIsAttacking = false;
         }
     }
 }

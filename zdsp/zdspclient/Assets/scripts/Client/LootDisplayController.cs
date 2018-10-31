@@ -31,22 +31,22 @@ public class LootDisplayController : MonoBehaviour
         int itemid = loot.itemid;
         string prefabName = "";
         if (itemid < 0)
-            prefabName = "LootMoney.prefab";
+            prefabName = GameConstantRepo.GetConstant("Loot_3DModel_Money");
         else
         {
             var itemJson = GameRepo.ItemFactory.GetItemById(itemid);
             if (itemJson != null)
             {
                 if (itemJson.itemtype == ItemType.Equipment)
-                    prefabName = "LootEquipment.prefab";
+                    prefabName = GameConstantRepo.GetConstant("Loot_3DModel_Chest");
                 else
-                    prefabName = "LootBag.prefab";
+                    prefabName = GameConstantRepo.GetConstant("Loot_3DModel_Bag");
             }
         }
         if (string.IsNullOrEmpty(prefabName))
             return;
 
-        GameObject prefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Prefabs_preloadcontainer", prefabName));
+        GameObject prefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Scenes_Zdsp_itemobj_FBX_FOR_VIEW_NOTFORBUILD", prefabName));
         if (prefab == null)
             return;
         GameObject lootObject = Instantiate(prefab);
@@ -63,7 +63,7 @@ public class LootDisplayController : MonoBehaviour
         int myLootCount = mMyLoot.Count;
         if (myLootCount > 0)
         {
-            mFlyTimeLeft = 1f;
+            mFlyTimeLeft = 2f;
             int notMyLootCount = mNotMyLoot.Count;
             for (int index = 0; index < notMyLootCount; index++)
                 mNotMyLoot[index].SetActive(false);

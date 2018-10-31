@@ -212,7 +212,7 @@ public class EquipmentModdingScrollView : MonoBehaviour
         if (scrollRect != null)
         {
             topPadding = verticalLayout.padding.top;
-            iconHeight = rowPrefab.GetComponent<RectTransform>().rect.height; // TODO: Change to row prefab's rect transform
+            iconHeight = rowPrefab.GetComponent<LayoutElement>().preferredHeight;
             cellHeight = verticalLayout.spacing + iconHeight;
             maxHeight = maxRows * cellHeight + iconHeight;
 
@@ -223,42 +223,27 @@ public class EquipmentModdingScrollView : MonoBehaviour
 
             var scrollContent = verticalLayout.gameObject;
             //create empty rows
-            for (int i = 1; i <= maxRows; i++)
-            {
-                var emptyRow = new GameObject("row " + i.ToString());
-                emptyRow.AddComponent<RectTransform>();
-                emptyRow.AddComponent<LayoutElement>().preferredHeight = iconHeight;
-                emptyRow.transform.SetParent(scrollContent.transform, false);
-                emptyRowList.Add(emptyRow);
-            }
-
-            int emptyRowCount = emptyRowList.Count;
-            if (currentTopIndex + numRowsAvailable >= emptyRowCount)
-            {
-                if (emptyRowCount < numRowsVisible)
-                {
-                    currentTopIndex = 0;
-                    currentFirstRow = 1;
-                }
-                else
-                {
-                    currentTopIndex = emptyRowCount - numRowsAvailable;
-                    if (currentTopIndex < 0)
-                    {
-                        currentTopIndex = 0;
-                    }
-                }
-            }
+            //for(int i = 1; i <= maxRows; i++)
+            //{
+            //    var emptyRow = new GameObject("row " + i.ToString());
+            //    emptyRow.AddComponent<RectTransform>();
+            //    emptyRow.AddComponent<LayoutElement>();
+            //    LayoutElement emptyRowLE = emptyRow.GetComponent<LayoutElement>();
+            //    emptyRowLE.preferredWidth = rowWidth;
+            //    emptyRowLE.preferredHeight = iconHeight;
+            //    emptyRow.transform.SetParent(scrollContent.transform, false);
+            //    emptyRowList.Add(emptyRow);
+            //}
 
             //create content row
-            for (int i = currentTopIndex; i < currentTopIndex + numRowsAvailable; i++)
+            for(int i = currentTopIndex; i < currentTopIndex + numRowsAvailable; i++)
             {
                 var contentRow = Instantiate(rowPrefab);
                 contentRow.GetComponent<EquipmentModdingRow>().Init();
 
                 //add to first numRowsAvailable rows
-                var emptyRow = emptyRowList[i];
-                contentRow.transform.SetParent(emptyRow.transform, false);
+                //var emptyRow = emptyRowList[i];
+                contentRow.transform.SetParent(scrollContent.transform, false);
                 contentRow.SetActive(true);
 
                 //int newRowName = i + 1;
@@ -267,6 +252,42 @@ public class EquipmentModdingScrollView : MonoBehaviour
 
                 contentRowList.Add(contentRow);
             }
+
+            //int emptyRowCount = emptyRowList.Count;
+            if(currentTopIndex + numRowsAvailable >= maxRows)
+            {
+                if(maxRows < numRowsVisible)
+                {
+                    currentTopIndex = 0;
+                    currentFirstRow = 1;
+                }
+                else
+                {
+                    currentTopIndex = maxRows - numRowsAvailable;
+                    if(currentTopIndex < 0)
+                    {
+                        currentTopIndex = 0;
+                    }
+                }
+            }
+
+            //create content row
+            //for(int i = currentTopIndex; i < currentTopIndex + numRowsAvailable; i++)
+            //{
+            //    var contentRow = Instantiate(rowPrefab);
+            //    contentRow.GetComponent<EquipmentModdingRow>().Init();
+
+            //    //add to first numRowsAvailable rows
+            //    var emptyRow = emptyRowList[i];
+            //    contentRow.transform.SetParent(emptyRow.transform, false);
+            //    contentRow.SetActive(true);
+
+            //    //int newRowName = i + 1;
+            //    //var heroData = contentRow.GetComponentInChildren<HeroData>();
+            //    //heroData.cpText.text = newRowName.ToString() + newRowName.ToString();
+
+            //    contentRowList.Add(contentRow);
+            //}
 
             //Destroy(rowPrefab);
 

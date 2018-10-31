@@ -238,6 +238,9 @@
                         return;
                 }
 
+                if (entity.IsGettingHit())
+                    return;
+
                 forward.Normalize();
                 entity.Forward = forward; //server just set the direction immediately while client will do the slerp for better visual
                 float moveSpeed = entity.PlayerStats.MoveSpeed;

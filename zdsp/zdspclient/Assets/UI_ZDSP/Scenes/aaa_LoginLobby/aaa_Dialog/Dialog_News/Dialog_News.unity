@@ -1667,7 +1667,6 @@ GameObject:
   - component: {fileID: 1313517880}
   - component: {fileID: 1313517882}
   - component: {fileID: 1313517881}
-  - component: {fileID: 1313517883}
   m_Layer: 5
   m_Name: Dialog_News
   m_TagString: Untagged
@@ -1723,27 +1722,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94e04668f4f189141a03fcc41e5a51ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  windowType: 0
+  windowType: 445
   closeButton: []
   windowCanvas:
   - {fileID: 1564658204}
   objectsToHide: []
   HasCloseAnimation: 0
---- !u!114 &1313517883
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1313517879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29a32d892d67a8e42816715a31cea1cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Content: {fileID: 0}
-  YesButton: {fileID: 0}
-  NoButton: {fileID: 0}
-  OkButton: {fileID: 1727587985}
 --- !u!1 &1322528775
 GameObject:
   m_ObjectHideFlags: 0
@@ -2293,7 +2277,7 @@ Prefab:
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1313517883}
+      objectReference: {fileID: 0}
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -2317,11 +2301,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 447addfcd3cabe545b6900a2be10abc1, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &1727587985 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1032071954315080, guid: 447addfcd3cabe545b6900a2be10abc1,
-    type: 2}
-  m_PrefabInternal: {fileID: 1727587984}
 --- !u!224 &1727587986 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 224088748305904146, guid: 447addfcd3cabe545b6900a2be10abc1,

@@ -39,6 +39,12 @@ AnimationClip:
         tangentMode: 5
       - serializedVersion: 2
         time: 1.7333333
+        value: 0.8
+        inSlope: -0.5139614
+        outSlope: -0.5139614
+        tangentMode: 1
+      - serializedVersion: 2
+        time: 2.2666667
         value: 0
         inSlope: 0
         outSlope: 0
@@ -193,7 +199,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 1.7666667
+    m_StopTime: 2.3
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -232,6 +238,12 @@ AnimationClip:
         tangentMode: 5
       - serializedVersion: 2
         time: 1.7333333
+        value: 0.8
+        inSlope: -0.5139614
+        outSlope: -0.5139614
+        tangentMode: 1
+      - serializedVersion: 2
+        time: 2.2666667
         value: 0
         inSlope: 0
         outSlope: 0
@@ -342,7 +354,14 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_GenerateMotionCurves: 0
   m_Events:
-  - time: 1.7666667
+  - time: 0.5
+    functionName: OnStop
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 2.3
     functionName: OnFinished
     data: 
     objectReferenceParameter: {fileID: 0}

@@ -16,6 +16,7 @@ MonoBehaviour:
   individualAssetBundle: 1
   containerAssetsPath: Models/Npcs/Prefabs
   allowAbsolutePath: 0
+  addSubFolder: 0
   ExportedAssets:
   - assetPath: npc_null.prefab
     asset: {fileID: 1234529903470184, guid: 66c0348097c6b6644839a10cece0846e, type: 2}
@@ -29,8 +30,6 @@ MonoBehaviour:
     asset: {fileID: 1805926671427226, guid: 1d799dae0b542eb4da70d112f7ac3197, type: 2}
   - assetPath: boss/prefab_b_014_dou_liang.prefab
     asset: {fileID: 1769798746948644, guid: 3249793e206301d4aad4d4b2ea11e01f, type: 2}
-  - assetPath: boss/prefab_b_017_lian_jin.prefab
-    asset: {fileID: 1297381374786774, guid: 18f8f00e8ea1ede4db7bfc467f5ee279, type: 2}
   - assetPath: hero/prefab_h_002_teng_yi_t1.prefab
     asset: {fileID: 1344426042577434, guid: 1ee189af01359cd449e359a1f228516c, type: 2}
   - assetPath: hero/prefab_h_002_teng_yi_t2.prefab
@@ -41,8 +40,6 @@ MonoBehaviour:
     asset: {fileID: 1988172230010014, guid: 1a312b79d478f3b468d1028e6b3d6d9a, type: 2}
   - assetPath: hero/prefab_h_003_long_yang_jun_t2.prefab
     asset: {fileID: 1427401231915030, guid: 254ec1b6dcb65914c93d6e9950446931, type: 2}
-  - assetPath: hero/prefab_h_003_long_yang_jun_t3.prefab
-    asset: {fileID: 1191559430825242, guid: e4af97993ea23a74288a89838cf23ba8, type: 2}
   - assetPath: hero/prefab_h_004_li_mu_t1.prefab
     asset: {fileID: 1104429905024338, guid: b33db5651a683a143ba58714218679bc, type: 2}
   - assetPath: hero/prefab_h_004_li_mu_t2.prefab
@@ -169,8 +166,6 @@ MonoBehaviour:
     asset: {fileID: 1084065025472930, guid: bdd7b84ed7005b84ca221b5484581575, type: 2}
   - assetPath: NPC_show/prefab_show_019_realm01_male.prefab
     asset: {fileID: 1513234212943264, guid: 5ff18b2746b68a9409b3fb244d93bfad, type: 2}
-  - assetPath: NPC_show/prefab_show_026_xiang_shao_long_injured.prefab
-    asset: {fileID: 1997244732831786, guid: 43e7b3311e13b1f4d8891b7667ce83d7, type: 2}
   - assetPath: NPC_show/prefab_show_027_tao_fang.prefab
     asset: {fileID: 1338733164987606, guid: dbdddc6138f0a2d46b0f4c0f4c4f66c8, type: 2}
   - assetPath: NPC_show/prefab_show_031_long_yang_jun_nude.prefab
@@ -179,14 +174,6 @@ MonoBehaviour:
     asset: {fileID: 1762435216062630, guid: 0a04aaa3a015caa47aa36d8aa5a60be3, type: 2}
   - assetPath: NPC_show/prefab_show_033_shi_ren_hua.prefab
     asset: {fileID: 1065194987591902, guid: 832419cb2c2578140aac8f35e8d9f991, type: 2}
-  - assetPath: NPC_show/prefab_show_042_blademaster_m.prefab
-    asset: {fileID: 1039140427550190, guid: 5a88e2656a45b7940967e51556affcbf, type: 2}
-  - assetPath: NPC_show/prefab_show_043_executioner_f.prefab
-    asset: {fileID: 1054564688313076, guid: c1b26f9c88ed630429b481cef3a3c2c8, type: 2}
-  - assetPath: NPC_show/show_018_realm01_female.prefab
-    asset: {fileID: 1474404804696388, guid: 96b090e1fcfbbd341a3e6a8736f7df6a, type: 2}
-  - assetPath: NPC_show/show_019_realm01_male.prefab
-    asset: {fileID: 1165937480137300, guid: 0b414f4ea40c3e44d82cbd893968115e, type: 2}
   - assetPath: Snpc/prefab_s_005_yuan_zong.prefab
     asset: {fileID: 1308496411315756, guid: e32c50c29b7a70445aff6c7113dbcea5, type: 2}
   - assetPath: Snpc/prefab_s_009_li_mu.prefab
@@ -195,8 +182,6 @@ MonoBehaviour:
     asset: {fileID: 1106986168953464, guid: 8c468bef27c37794caf77f66df169283, type: 2}
   - assetPath: Snpc/prefab_s_011_zhao_ya.prefab
     asset: {fileID: 1832027337803042, guid: 7088205ef5e6dba4da90ea7cc6c22dac, type: 2}
-  - assetPath: Snpc/prefab_s_012_mei_can_niang.prefab
-    asset: {fileID: 1162007972232248, guid: d3bee291bce09984b8fb4fdfe55d3d34, type: 2}
   - assetPath: Snpc/prefab_s_018_xiu_yi.prefab
     asset: {fileID: 1142384783379910, guid: a67a2eed61ee23f41be33af014f05375, type: 2}
   - assetPath: Snpc/prefab_s_019_shan_rou.prefab
@@ -209,12 +194,72 @@ MonoBehaviour:
     asset: {fileID: 1586324726869168, guid: 5b19016554d76a045ad4ed6b601c0948, type: 2}
   - assetPath: Snpc/prefab_s_065_wu_jia_wu_shi.prefab
     asset: {fileID: 1166093135171376, guid: 930281894370bc343ad9db17f4919fd7, type: 2}
-  - assetPath: Snpc/prefab_s_093_xiang_shao_long.prefab
-    asset: {fileID: 1540577150624090, guid: 736f4a089f6e88a45b20a75d26d41a7b, type: 2}
   - assetPath: Snpc/prefab_s_096_tao_fang.prefab
     asset: {fileID: 1643982101009750, guid: 957725485d9e59b43bd12233c8e2cf30, type: 2}
   - assetPath: Snpc/prefab_s_101_rogue.prefab
     asset: {fileID: 1599455624233166, guid: e45dc828d42766d418bc10d4e93af034, type: 2}
+  - assetPath: boss/prefab_b_017_lian_jin.prefab
+    asset: {fileID: 1200898915131298, guid: 18f8f00e8ea1ede4db7bfc467f5ee279, type: 2}
+  - assetPath: hero/prefab_h_026_gui_gu_zi_t2.prefab
+    asset: {fileID: 1261685503342606, guid: bb7ff4d3d8f2dcd4f84efaeacdce134b, type: 2}
+  - assetPath: hero/prefab_h_043_xiang_shao_long_t3.prefab
+    asset: {fileID: 1985427163256058, guid: 0866b6ce06484ca44868ccb39ccabc98, type: 2}
+  - assetPath: Mon/prefab_m_028_xue_lan.prefab
+    asset: {fileID: 1090409120123674, guid: 4f4d0650abacec5419055aa46dcc36da, type: 2}
+  - assetPath: Mon/prefab_m_040_li_mu.prefab
+    asset: {fileID: 1602437261572226, guid: 0c23f21f5be2da74fa2df8bc7812cbec, type: 2}
+  - assetPath: Mon/prefab_m_048_shan_rou.prefab
+    asset: {fileID: 1720351918306448, guid: cad5f59511bc2c947872166605498e60, type: 2}
+  - assetPath: Mon/prefab_m_083_zhao_ya.prefab
+    asset: {fileID: 1450649295280338, guid: 4b97a0728db013346842c854ce88206e, type: 2}
+  - assetPath: Mon/prefab_m_086_qiong_ji_hu_s.prefab
+    asset: {fileID: 1296103621545554, guid: b661a7c8f3ef24d43a60b217c2416475, type: 2}
+  - assetPath: NPC_show/prefab_show_010_rogue.prefab
+    asset: {fileID: 1362437014087004, guid: 160728759998e0c41af3bcf5ca745674, type: 2}
+  - assetPath: NPC_show/prefab_show_017_chi_luo_nu_zi.prefab
+    asset: {fileID: 1428399359123808, guid: 405056039d3314e43bd8de6571503e19, type: 2}
+  - assetPath: NPC_show/prefab_show_025_xiang_shao_long.prefab
+    asset: {fileID: 1076183717386112, guid: 122641babf6044b408179eb656ac766e, type: 2}
+  - assetPath: NPC_show/prefab_show_026_xiang_shao_long_injured.prefab
+    asset: {fileID: 1240931466323638, guid: 43e7b3311e13b1f4d8891b7667ce83d7, type: 2}
+  - assetPath: NPC_show/prefab_show_034_lisa_ai.prefab
+    asset: {fileID: 1609836065822822, guid: a4d488dac946bc84c8c1ad95fa26c5a8, type: 2}
+  - assetPath: NPC_show/prefab_show_036_lisa_bird.prefab
+    asset: {fileID: 1578980041249752, guid: b3465bd4fd399c248a9ec8a156b7098d, type: 2}
+  - assetPath: NPC_show/prefab_show_040_rogue_s.prefab
+    asset: {fileID: 1134746573672296, guid: 15ed6edc0e2f5d24a94dde814ad44159, type: 2}
+  - assetPath: NPC_show/prefab_show_042_blademaster_m.prefab
+    asset: {fileID: 1486358137075034, guid: 5a88e2656a45b7940967e51556affcbf, type: 2}
+  - assetPath: NPC_show/prefab_show_043_executioner_f.prefab
+    asset: {fileID: 1096702742865604, guid: c1b26f9c88ed630429b481cef3a3c2c8, type: 2}
+  - assetPath: NPC_show/prefab_show_044_newbie_m.prefab
+    asset: {fileID: 1038032834641694, guid: 0d63543baf0ac0d418932cbb701aa851, type: 2}
+  - assetPath: NPC_show/prefab_show_045_newbie_f.prefab
+    asset: {fileID: 1960280258315556, guid: fd8ab5bf1aa0eb641b7dcf3dcbd35a77, type: 2}
+  - assetPath: NPC_show/prefab_show_046_qiong_ji_hu_s.prefab
+    asset: {fileID: 1436591848717862, guid: d456bb61d0bf6c040aae6b0cd45255f1, type: 2}
+  - assetPath: NPC_show/prefab_show_047_sword_soldier_5.prefab
+    asset: {fileID: 1043714503454276, guid: 04681ea7b043c0349b73f6879eb5b36c, type: 2}
+  - assetPath: NPC_show/prefab_show_048_mei_can_niang_t2.prefab
+    asset: {fileID: 1451772018836328, guid: 878ba0100f972ad49b5a6d3ed7b79ca9, type: 2}
+  - assetPath: NPC_show/prefab_show_049_realm02_male.prefab
+    asset: {fileID: 1266885021414282, guid: 9fa0991cbfd23d841a7e66034b3a8e06, type: 2}
+  - assetPath: Snpc/prefab_s_012_mei_can_niang.prefab
+    asset: {fileID: 1850164467633104, guid: d3bee291bce09984b8fb4fdfe55d3d34, type: 2}
+  - assetPath: Snpc/prefab_s_034_gui_gu_zi.prefab
+    asset: {fileID: 1269756427294492, guid: 4f0413afc8d03514d8ed9993e2b6f2a3, type: 2}
+  - assetPath: Snpc/prefab_s_080_chi_luo_nu_zi.prefab
+    asset: {fileID: 1273240596947484, guid: 5ad25840a2df36a49b52a49da921fc78, type: 2}
+  - assetPath: Snpc/prefab_s_093_xiang_shao_long.prefab
+    asset: {fileID: 1055311979726392, guid: 3d404c63710007f4c8649f402f0b294a, type: 2}
+  - assetPath: Snpc/prefab_s_094_xiang_shao_long_injured.prefab
+    asset: {fileID: 1761629954293332, guid: baafe3d514540c749ade81fa4761907d, type: 2}
+  - assetPath: Snpc/prefab_s_105_sword_soldier_3.prefab
+    asset: {fileID: 1375949653501302, guid: e71ce574ecd3159479a6e50e8a28dd11, type: 2}
+  - assetPath: Snpc/prefab_s_109_lisa_bird.prefab
+    asset: {fileID: 1742940274669092, guid: ba67b5718ade3b64985d147c89f183ea, type: 2}
+  - assetPath: hero/prefab_h_003_long_yang_jun_t3.prefab
+    asset: {fileID: 1191559430825242, guid: e4af97993ea23a74288a89838cf23ba8, type: 2}
   PrefabList:
   - {fileID: 1234529903470184, guid: 66c0348097c6b6644839a10cece0846e, type: 2}
   - {fileID: 1048727044849216, guid: 265e63f082a3d024e9a7018e3fa37e22, type: 2}
@@ -222,13 +267,11 @@ MonoBehaviour:
   - {fileID: 1104423494426198, guid: 4ccb39c560b27b048b9fcbea57a450a9, type: 2}
   - {fileID: 1805926671427226, guid: 1d799dae0b542eb4da70d112f7ac3197, type: 2}
   - {fileID: 1769798746948644, guid: 3249793e206301d4aad4d4b2ea11e01f, type: 2}
-  - {fileID: 1297381374786774, guid: 18f8f00e8ea1ede4db7bfc467f5ee279, type: 2}
   - {fileID: 1344426042577434, guid: 1ee189af01359cd449e359a1f228516c, type: 2}
   - {fileID: 1992642828574058, guid: 3d6fada4fc0fcc243b2dbf353c621ffd, type: 2}
   - {fileID: 1931717745870348, guid: c3f98b7772a986644a232c7e77a25f68, type: 2}
   - {fileID: 1988172230010014, guid: 1a312b79d478f3b468d1028e6b3d6d9a, type: 2}
   - {fileID: 1427401231915030, guid: 254ec1b6dcb65914c93d6e9950446931, type: 2}
-  - {fileID: 1191559430825242, guid: e4af97993ea23a74288a89838cf23ba8, type: 2}
   - {fileID: 1104429905024338, guid: b33db5651a683a143ba58714218679bc, type: 2}
   - {fileID: 1385257365262062, guid: f2c19b5ff66a86344be9f669decc23c0, type: 2}
   - {fileID: 1322191205157178, guid: 3eca9c9845609dc458f37107a0d60a28, type: 2}
@@ -292,26 +335,50 @@ MonoBehaviour:
   - {fileID: 1876663639381084, guid: 2fc8c60e9f8aeff4b909c73f80321a99, type: 2}
   - {fileID: 1084065025472930, guid: bdd7b84ed7005b84ca221b5484581575, type: 2}
   - {fileID: 1513234212943264, guid: 5ff18b2746b68a9409b3fb244d93bfad, type: 2}
-  - {fileID: 1997244732831786, guid: 43e7b3311e13b1f4d8891b7667ce83d7, type: 2}
   - {fileID: 1338733164987606, guid: dbdddc6138f0a2d46b0f4c0f4c4f66c8, type: 2}
   - {fileID: 1325679386880612, guid: a792d3efde181c64f81b52fe8a63e714, type: 2}
   - {fileID: 1762435216062630, guid: 0a04aaa3a015caa47aa36d8aa5a60be3, type: 2}
   - {fileID: 1065194987591902, guid: 832419cb2c2578140aac8f35e8d9f991, type: 2}
-  - {fileID: 1039140427550190, guid: 5a88e2656a45b7940967e51556affcbf, type: 2}
-  - {fileID: 1054564688313076, guid: c1b26f9c88ed630429b481cef3a3c2c8, type: 2}
-  - {fileID: 1474404804696388, guid: 96b090e1fcfbbd341a3e6a8736f7df6a, type: 2}
-  - {fileID: 1165937480137300, guid: 0b414f4ea40c3e44d82cbd893968115e, type: 2}
   - {fileID: 1308496411315756, guid: e32c50c29b7a70445aff6c7113dbcea5, type: 2}
   - {fileID: 1775689237961768, guid: 1e087606940836544b2342637ae3b926, type: 2}
   - {fileID: 1106986168953464, guid: 8c468bef27c37794caf77f66df169283, type: 2}
   - {fileID: 1832027337803042, guid: 7088205ef5e6dba4da90ea7cc6c22dac, type: 2}
-  - {fileID: 1162007972232248, guid: d3bee291bce09984b8fb4fdfe55d3d34, type: 2}
   - {fileID: 1142384783379910, guid: a67a2eed61ee23f41be33af014f05375, type: 2}
   - {fileID: 1084665999874882, guid: f6dd0a192a3d63f4ba56d1b071173d3d, type: 2}
   - {fileID: 1213860791978894, guid: 8ab708c85f09f5947a40391250669173, type: 2}
   - {fileID: 1580273690235560, guid: 7868715ccafdb6849837bb6edfa20aea, type: 2}
   - {fileID: 1586324726869168, guid: 5b19016554d76a045ad4ed6b601c0948, type: 2}
   - {fileID: 1166093135171376, guid: 930281894370bc343ad9db17f4919fd7, type: 2}
-  - {fileID: 1540577150624090, guid: 736f4a089f6e88a45b20a75d26d41a7b, type: 2}
   - {fileID: 1643982101009750, guid: 957725485d9e59b43bd12233c8e2cf30, type: 2}
   - {fileID: 1599455624233166, guid: e45dc828d42766d418bc10d4e93af034, type: 2}
+  - {fileID: 1200898915131298, guid: 18f8f00e8ea1ede4db7bfc467f5ee279, type: 2}
+  - {fileID: 1261685503342606, guid: bb7ff4d3d8f2dcd4f84efaeacdce134b, type: 2}
+  - {fileID: 1985427163256058, guid: 0866b6ce06484ca44868ccb39ccabc98, type: 2}
+  - {fileID: 1090409120123674, guid: 4f4d0650abacec5419055aa46dcc36da, type: 2}
+  - {fileID: 1602437261572226, guid: 0c23f21f5be2da74fa2df8bc7812cbec, type: 2}
+  - {fileID: 1720351918306448, guid: cad5f59511bc2c947872166605498e60, type: 2}
+  - {fileID: 1450649295280338, guid: 4b97a0728db013346842c854ce88206e, type: 2}
+  - {fileID: 1296103621545554, guid: b661a7c8f3ef24d43a60b217c2416475, type: 2}
+  - {fileID: 1362437014087004, guid: 160728759998e0c41af3bcf5ca745674, type: 2}
+  - {fileID: 1428399359123808, guid: 405056039d3314e43bd8de6571503e19, type: 2}
+  - {fileID: 1076183717386112, guid: 122641babf6044b408179eb656ac766e, type: 2}
+  - {fileID: 1240931466323638, guid: 43e7b3311e13b1f4d8891b7667ce83d7, type: 2}
+  - {fileID: 1609836065822822, guid: a4d488dac946bc84c8c1ad95fa26c5a8, type: 2}
+  - {fileID: 1578980041249752, guid: b3465bd4fd399c248a9ec8a156b7098d, type: 2}
+  - {fileID: 1134746573672296, guid: 15ed6edc0e2f5d24a94dde814ad44159, type: 2}
+  - {fileID: 1486358137075034, guid: 5a88e2656a45b7940967e51556affcbf, type: 2}
+  - {fileID: 1096702742865604, guid: c1b26f9c88ed630429b481cef3a3c2c8, type: 2}
+  - {fileID: 1038032834641694, guid: 0d63543baf0ac0d418932cbb701aa851, type: 2}
+  - {fileID: 1960280258315556, guid: fd8ab5bf1aa0eb641b7dcf3dcbd35a77, type: 2}
+  - {fileID: 1436591848717862, guid: d456bb61d0bf6c040aae6b0cd45255f1, type: 2}
+  - {fileID: 1043714503454276, guid: 04681ea7b043c0349b73f6879eb5b36c, type: 2}
+  - {fileID: 1451772018836328, guid: 878ba0100f972ad49b5a6d3ed7b79ca9, type: 2}
+  - {fileID: 1266885021414282, guid: 9fa0991cbfd23d841a7e66034b3a8e06, type: 2}
+  - {fileID: 1850164467633104, guid: d3bee291bce09984b8fb4fdfe55d3d34, type: 2}
+  - {fileID: 1269756427294492, guid: 4f0413afc8d03514d8ed9993e2b6f2a3, type: 2}
+  - {fileID: 1273240596947484, guid: 5ad25840a2df36a49b52a49da921fc78, type: 2}
+  - {fileID: 1055311979726392, guid: 3d404c63710007f4c8649f402f0b294a, type: 2}
+  - {fileID: 1761629954293332, guid: baafe3d514540c749ade81fa4761907d, type: 2}
+  - {fileID: 1375949653501302, guid: e71ce574ecd3159479a6e50e8a28dd11, type: 2}
+  - {fileID: 1742940274669092, guid: ba67b5718ade3b64985d147c89f183ea, type: 2}
+  - {fileID: 1191559430825242, guid: e4af97993ea23a74288a89838cf23ba8, type: 2}

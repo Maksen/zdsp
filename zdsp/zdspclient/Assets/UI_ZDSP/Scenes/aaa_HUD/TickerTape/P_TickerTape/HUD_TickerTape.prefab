@@ -97,9 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66a46709a596c1847a1ad2c638eee4bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mAnnoucementText: {fileID: 114568237488822156}
-  mAnnoucementTrans: {fileID: 224156094960879012}
-  mMoveSpeed: 2
+  messageText: {fileID: 114568237488822156}
+  translateSpeed: 1
 --- !u!114 &114568237488822156
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -171,8 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   widgetType: 8
-  ActiveOnStartup: 1
-  toggle: {fileID: 0}
+  ActiveOnStartup: 0
 --- !u!114 &114812869912207878
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -227,9 +225,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 50, y: -13.5}
+  m_AnchoredPosition: {x: 10, y: -3.6333313}
   m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 1}
 --- !u!224 &224284376330683422
 RectTransform:
   m_ObjectHideFlags: 1
@@ -246,6 +244,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 458.4, y: 34}
+  m_AnchoredPosition: {x: 458, y: 34}
   m_SizeDelta: {x: 450, y: 26}
   m_Pivot: {x: 1, y: 1}

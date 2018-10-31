@@ -16,29 +16,12 @@ MonoBehaviour:
   individualAssetBundle: 1
   containerAssetsPath: Models/Characters
   allowAbsolutePath: 0
+  addSubFolder: 0
   ExportedAssets:
   - assetPath: Pc_face/Materials/face_000_base_female.mat
     asset: {fileID: 2100000, guid: a0374d0666d7ac04580b441dbc9610d0, type: 2}
   - assetPath: Pc_face/Materials/face_000_base_male.mat
     asset: {fileID: 2100000, guid: 5227f55e5a1738044b8f7fdd0b79f514, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_000_base_female_body.mat
-    asset: {fileID: 2100000, guid: df950d7893c0d06439c8b626bc614b9b, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_000_base_male_body.mat
-    asset: {fileID: 2100000, guid: 00416ed3135e99b42880eb9c30bbab8f, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_female_body.mat
-    asset: {fileID: 2100000, guid: 63b0ac8261d4c11408672f98615e4011, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_female_head.mat
-    asset: {fileID: 2100000, guid: 2473374d11cbf9d428b356b7f3eb10f3, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_female_head_glasses.mat
-    asset: {fileID: 2100000, guid: b20dca3d8a964a948bcea9460a4f9d42, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_female_weapon.mat
-    asset: {fileID: 2100000, guid: 049dbd2a178985d4681afab6e6e501ee, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_male_body.mat
-    asset: {fileID: 2100000, guid: 846ca7b5064b6c94cb022721c4501251, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_male_head.mat
-    asset: {fileID: 2100000, guid: 7a860c4714e08b64eb6a83c23b2cba22, type: 2}
-  - assetPath: Pc_fashion/Materials/fa_001_agent_male_weapon.mat
-    asset: {fileID: 2100000, guid: 45a06dfa01812ee4e975eaad70c31689, type: 2}
   - assetPath: Pc_hair/Materials/hair_f_long_1.mat
     asset: {fileID: 2100000, guid: 1d9b80124bc714049a58fdc9856a680f, type: 2}
   - assetPath: Pc_hair/Materials/hair_f_short_1.mat
@@ -165,6 +148,88 @@ MonoBehaviour:
     asset: {fileID: 2100000, guid: 7639454c57aa3d1438d7b07a882c806c, type: 2}
   - assetPath: Pc_Weapon/Materials/wp_xbow_nlv80.mat
     asset: {fileID: 2100000, guid: 1af8172677653334ab20691b763bb60f, type: 2}
+  - assetPath: Pc_face/Materials/face_001_base_female.mat
+    asset: {fileID: 2100000, guid: b0c4a4652b94d07428ec0933e8a332c5, type: 2}
+  - assetPath: Pc_face/Materials/face_001_base_male.mat
+    asset: {fileID: 2100000, guid: 5f0225cbb58e6334b8a43260e6525f3c, type: 2}
+  - assetPath: Pc_face/Materials/face_002_base_female.mat
+    asset: {fileID: 2100000, guid: 7fde4199fbd360647b96a04215a0874d, type: 2}
+  - assetPath: Pc_face/Materials/face_002_base_male.mat
+    asset: {fileID: 2100000, guid: 44f6b807d0096d8428cee94054dc798e, type: 2}
+  - assetPath: Pc_face/Materials/face_003_base_female.mat
+    asset: {fileID: 2100000, guid: d20dd88959a5973419de217c29aacd4c, type: 2}
+  - assetPath: Pc_face/Materials/face_003_base_male.mat
+    asset: {fileID: 2100000, guid: e3cc3ba6c2a4d35419985deacf1ddd5e, type: 2}
+  - assetPath: Pc_face/Materials/face_004_base_female.mat
+    asset: {fileID: 2100000, guid: d65cba16e73a9da49aecd5a7bd696b9b, type: 2}
+  - assetPath: Pc_face/Materials/face_004_base_male.mat
+    asset: {fileID: 2100000, guid: a6380ece11e22fb4f98143d26a4f053b, type: 2}
+  - assetPath: Pc_face/Materials/face_005_base_female.mat
+    asset: {fileID: 2100000, guid: 76673a0bf926d6240b6bccf496d4d8a1, type: 2}
+  - assetPath: Pc_face/Materials/face_005_base_male.mat
+    asset: {fileID: 2100000, guid: 01e51b95f7c5b6343ba2e5b7b06989e1, type: 2}
+  - assetPath: Pc_job/Materials/t1_soldier_male_body.mat
+    asset: {fileID: 2100000, guid: 92fc51697edcf7541ba425eea58947ee, type: 2}
+  - assetPath: Pc_job/Materials/t1_soldier_male_head.mat
+    asset: {fileID: 2100000, guid: bc9d317d1eb696b41a2ae68922d02bb4, type: 2}
+  - assetPath: Pc_job/Materials/t1_tactician_male_body.mat
+    asset: {fileID: 2100000, guid: 10aa3cc148ed1be4db1ddb41d4dd8141, type: 2}
+  - assetPath: Pc_job/Materials/t1_tactician_male_head.mat
+    asset: {fileID: 2100000, guid: 6ee67bd02f5adb949a679e102518eebe, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_blade_mech01.mat
+    asset: {fileID: 2100000, guid: f391c3fdf09f23849b25b61761ce07f6, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_blade_nlv40.mat
+    asset: {fileID: 2100000, guid: d42413b4597d7794a9f73d6a2987ddfb, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_dagger_class_t1.mat
+    asset: {fileID: 2100000, guid: 3de88615ae9e1384fa8bd0724aa7ee98, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_fan_class_t1.mat
+    asset: {fileID: 2100000, guid: 625d9b72b9fbba842beb2a596afa693f, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_fan_nlv20.mat
+    asset: {fileID: 2100000, guid: bd4b6631644fff84c97b4dd60d58e4f3, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_fan_nlv40.mat
+    asset: {fileID: 2100000, guid: 47e91fbf176aa4e4ba3d3298978f9b2e, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_lance_class_t1.mat
+    asset: {fileID: 2100000, guid: 2786a086c37fdf04d8b0f5fc860dcf3f, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_lance_nlv20.mat
+    asset: {fileID: 2100000, guid: af6a61ceaca62034b99e35fee5258d5e, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_sanxian_class_t1.mat
+    asset: {fileID: 2100000, guid: 3d5a8bee0f0ca4042b22de470712052b, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_sanxian_nlv20.mat
+    asset: {fileID: 2100000, guid: ce7d10481ee9f10458b13201d15a3a8b, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_sanxian_nlv40.mat
+    asset: {fileID: 2100000, guid: 47660674a9c5704469d5aa4c11420eec, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_sword_nlv100.mat
+    asset: {fileID: 2100000, guid: 97e77bbcb4cf7a5418c3122e464e2010, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_xbow_class_t1.mat
+    asset: {fileID: 2100000, guid: 07217e94660a69e4096b3df9dcf694f2, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_xbow_sp02.mat
+    asset: {fileID: 2100000, guid: 304eaac6f6a84c847b307109d382a496, type: 2}
+  - assetPath: Pc_Weapon/Materials/wp_xbow_mech01.mat
+    asset: {fileID: 2100000, guid: 3849ff86698f3cb49983f10866cdd9f6, type: 2}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/Materials/_.mat
+    asset: {fileID: 2100000, guid: ad411c32ae7c94f44b8bb2ed16949205, type: 2}
+  - assetPath: Pc_Weapon/Materials/test001.mat
+    asset: {fileID: 2100000, guid: a0254b6d6820e8a41b70fd88cc068390, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_000_base_female_body.mat
+    asset: {fileID: 2100000, guid: 2d34a910b71c1de4cb72477086ace102, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_000_base_male_body.mat
+    asset: {fileID: 2100000, guid: 4d022efa3c5133f41ae46b12b168cff5, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_body.mat
+    asset: {fileID: 2100000, guid: 7e166140723a2264884ff67433a870da, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_head.mat
+    asset: {fileID: 2100000, guid: 79722c15fa931fd43a4d75d6d0551a21, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_head_glasses.mat
+    asset: {fileID: 2100000, guid: 4d2741b637ca6d845bb1a38eb48b30de, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_female_weapon.mat
+    asset: {fileID: 2100000, guid: ad141738a76586d4e91c84a75751f439, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_male_body.mat
+    asset: {fileID: 2100000, guid: 31b81ce5f5e271e4491b12197df58594, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_male_head.mat
+    asset: {fileID: 2100000, guid: cf529301aa5104d45a3f2846bd3dc5b3, type: 2}
+  - assetPath: Pc_fashion/Materials/fa_001_agent_male_weapon.mat
+    asset: {fileID: 2100000, guid: 99b49c2cf9589924e9d283e7d1d395a5, type: 2}
+  - assetPath: Pc_Weapon/Materials/Material.mat
+    asset: {fileID: 2100000, guid: 77675aa8def45a44da1f77d607acfa2d, type: 2}
   - assetPath: Pc_animation/male_hammer/hammer_dying.fbx
     asset: {fileID: 4300000, guid: 865c9173e7cf5ea43bfbb707c7b34c35, type: 3}
   - assetPath: Pc_animation/male_hammer/male_hammer_0-6_10-36_37-38_40-55.fbx
@@ -175,26 +240,6 @@ MonoBehaviour:
     asset: {fileID: 4300000, guid: 3e9d54b6ef035904898617e77aa2f85a, type: 3}
   - assetPath: Pc_face/face_000_base_male.fbx
     asset: {fileID: 4300002, guid: 149b7f4dba224b744ac704d10b5fff0c, type: 3}
-  - assetPath: Pc_fashion/famale_blade.fbx
-    asset: {fileID: 4300004, guid: de67e523b4761df4b8be5faf5a5bbf57, type: 3}
-  - assetPath: Pc_fashion/fa_001_agent_female_body.fbx
-    asset: {fileID: 4300000, guid: dbb3cd84ef2b7aa4d83f7ebdda315fc3, type: 3}
-  - assetPath: Pc_fashion/fa_001_agent_female_head.fbx
-    asset: {fileID: 4300000, guid: f81c59467491f3c49947bd74a0abf648, type: 3}
-  - assetPath: Pc_fashion/fa_001_agent_male_body.fbx
-    asset: {fileID: 4300000, guid: 47c4089e58490cd4f8caf69b58e9c68f, type: 3}
-  - assetPath: Pc_fashion/fa_001_agent_male_head.fbx
-    asset: {fileID: 4300000, guid: bc8d5fd7ab52c654795c3cdf08b49c5a, type: 3}
-  - assetPath: Pc_fashion/male_blade.fbx
-    asset: {fileID: 4300000, guid: 891887c64f4486348809bab37ebb56ce, type: 3}
-  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_000_base_female_view.fbx
-    asset: {fileID: 4300000, guid: a4add08ce8f526843b21d7d3d90a85d8, type: 3}
-  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_000_base_male_view.fbx
-    asset: {fileID: 4300002, guid: 52fc042b7a74b174ea86a42d90e8afed, type: 3}
-  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_001_agent_female_view.fbx
-    asset: {fileID: 4300004, guid: e3c99c3ed12cbc746b5cf81608ebebd8, type: 3}
-  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_001_agent_male_view.fbx
-    asset: {fileID: 4300004, guid: 98456ab4427f74b44ba6b60b5dc6552f, type: 3}
   - assetPath: Pc_hair/hair_f_long_1.fbx
     asset: {fileID: 4300000, guid: f42f8c4f16daaa245aabaf7760ec719f, type: 3}
   - assetPath: Pc_hair/hair_f_short_1.fbx
@@ -239,10 +284,6 @@ MonoBehaviour:
     asset: {fileID: 4300000, guid: bc953c0f3af5bf547a25ae96f8a011ab, type: 3}
   - assetPath: Pc_job/t3_executioner_female_head.fbx
     asset: {fileID: 4300000, guid: 1d0aab461d295994386e9c5029a9a745, type: 3}
-  - assetPath: Pc_job/t3_executioner_male_body.fbx
-    asset: {fileID: 4300000, guid: 2895974d2787cbe40b959fa67c8dd90b, type: 3}
-  - assetPath: Pc_job/t3_executioner_male_head.fbx
-    asset: {fileID: 4300000, guid: 8c4b0455bc9a32a49b4f007d2f616dcf, type: 3}
   - assetPath: Pc_job/t3_general_female_body.fbx
     asset: {fileID: 4300000, guid: 805ccbf8c75b87d429577be39979d3ce, type: 3}
   - assetPath: Pc_job/t3_general_female_head.fbx
@@ -335,8 +376,6 @@ MonoBehaviour:
     asset: {fileID: 4300000, guid: 8a9b958864ac1604a9b5fa3380c52a4b, type: 3}
   - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_hammer_nlv20.fbx
     asset: {fileID: 4300000, guid: bb4aba14b94d3e5438bae80589bd38ed, type: 3}
-  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_lance_nlv80.fbx
-    asset: {fileID: 4300000, guid: 6f33b8bd2c55c3e4181f826946a58bfa, type: 3}
   - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_sword_class_t1.fbx
     asset: {fileID: 4300000, guid: dede2b001b40be2438f55367bcb0f029, type: 3}
   - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_sword_class_t3.fbx
@@ -359,18 +398,121 @@ MonoBehaviour:
     asset: {fileID: 4300000, guid: 81b6a762e7273b44f96fed309be3d8cb, type: 3}
   - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_xbow_nlv80.fbx
     asset: {fileID: 4300000, guid: 6a7f4cf204a04ad4bac4a6e52ef7ca30, type: 3}
+  - assetPath: Pc_animation/female_sword/female_sword_sp1.fbx
+    asset: {fileID: 4300000, guid: e118288a8014e5a449eec5ec31b678b9, type: 3}
+  - assetPath: Pc_animation/male_sword/sword_sp1.fbx
+    asset: {fileID: 4300002, guid: f38b5ffed5ff3fb4f92c21e78c9623e7, type: 3}
+  - assetPath: Pc_job/t0_newbie_female_body.fbx
+    asset: {fileID: 4300000, guid: a457b05a8b7093e42895d309bf16b856, type: 3}
+  - assetPath: Pc_job/t0_newbie_female_head.fbx
+    asset: {fileID: 4300000, guid: 93eff8ac1df95f94b98e5ced91799c00, type: 3}
+  - assetPath: Pc_job/t0_newbie_male_body.fbx
+    asset: {fileID: 4300000, guid: dc3a38ee6309a664e9fbc9fd1594b6cd, type: 3}
+  - assetPath: Pc_job/t0_newbie_male_head.fbx
+    asset: {fileID: 4300002, guid: a8dc25ec510526c40a8042d5a2559b24, type: 3}
+  - assetPath: Pc_job/FBX_FOR_VIEW_NOTFORBUILD/t1_soldier_male_view.fbx
+    asset: {fileID: 4300002, guid: f193ed9300ea1c84eb79b85b83aacfc3, type: 3}
+  - assetPath: Pc_job/FBX_FOR_VIEW_NOTFORBUILD/t1_tactician_male_view.fbx
+    asset: {fileID: 4300026, guid: 6353d2a3149bd3445ac37e527411afd1, type: 3}
+  - assetPath: Pc_Weapon/wp_blade_class_t1.fbx
+    asset: {fileID: 4300000, guid: c03e74b6feeb4644484b95ac53597c1d, type: 3}
+  - assetPath: Pc_Weapon/wp_blade_mech01.fbx
+    asset: {fileID: 4300000, guid: 4a94e0a871ba12c47807d611ea00a44f, type: 3}
+  - assetPath: Pc_Weapon/wp_fan_nlv20.fbx
+    asset: {fileID: 4300000, guid: 62d99b539ca6358488db20ec5942ef47, type: 3}
+  - assetPath: Pc_Weapon/wp_sanxian_class_t1.fbx
+    asset: {fileID: 4300000, guid: 9a17f4c8541aea04aa3fb893a3800c17, type: 3}
+  - assetPath: Pc_Weapon/wp_sword_class_t1.fbx
+    asset: {fileID: 4300000, guid: b3eae4c3a51c4e3499ea1382b86c0c91, type: 3}
+  - assetPath: Pc_Weapon/wp_sword_nlv100.fbx
+    asset: {fileID: 4300002, guid: 27171cd62c53c594ea0a40d70d4ed0bc, type: 3}
+  - assetPath: Pc_Weapon/wp_sword_sp02.fbx
+    asset: {fileID: 4300000, guid: 43240e72176e23a4994834943b3414bf, type: 3}
+  - assetPath: Pc_Weapon/wp_sword_sp06.fbx
+    asset: {fileID: 4300000, guid: d154e8b9f2b9c194bb3106b8fba5e610, type: 3}
+  - assetPath: Pc_Weapon/wp_sword_sp06_test.fbx
+    asset: {fileID: 4300000, guid: abeefcb8b98cdfd4c9f16d6ef14716cb, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_blade_mech01.fbx
+    asset: {fileID: 4300000, guid: e8c6dd496958c204b946e82ad821723f, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_blade_nlv40.fbx
+    asset: {fileID: 4300000, guid: 37dd035bae52dd54692e88eb941cbdc5, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_fan_class_t1.fbx
+    asset: {fileID: 4300002, guid: 3eef0f7475819bc479897b30752c4c73, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_fan_nlv20.fbx
+    asset: {fileID: 4300002, guid: 7c82d341a3f90cb4b93ab06470267092, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_fan_nlv40.fbx
+    asset: {fileID: 4300002, guid: 2dc4ceabd32fa0649b7070aa4264f0a7, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_lance_class_t1.fbx
+    asset: {fileID: 4300000, guid: 99da06b8f0bab854e9a83f92b329b5f0, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_lance_nlv20.fbx
+    asset: {fileID: 4300000, guid: e5a84cf2a0d90c641add5dcf9eae7a99, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_lance_nlv80.fbx
+    asset: {fileID: 4300002, guid: 6f33b8bd2c55c3e4181f826946a58bfa, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_sanxian_class_t1.fbx
+    asset: {fileID: 4300000, guid: f3434cced94c66449933fdc9b7e7630c, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_sanxian_nlv20.fbx
+    asset: {fileID: 4300000, guid: 4dffdfa93fa8cd64a88bdb3c4e6c4a9f, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_sanxian_nlv40.fbx
+    asset: {fileID: 4300000, guid: d281edd855092434085c31277ae458dd, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_sword_nlv100.fbx
+    asset: {fileID: 4300002, guid: a28ab91038c39314cb0f008dfa5dd204, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_xbow_class_t1.fbx
+    asset: {fileID: 4300000, guid: 8aa3a0c0443eff246bf5a43538be6fe6, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_xbow_sp02.fbx
+    asset: {fileID: 4300002, guid: 566d287d09a8bb44691d92b299256d8e, type: 3}
+  - assetPath: Pc_job/t1_warrior_female_body.fbx
+    asset: {fileID: 4300000, guid: 689fe33360ba24c45b2a77b66f354be4, type: 3}
+  - assetPath: Pc_job/t1_warrior_female_head.fbx
+    asset: {fileID: 4300000, guid: a5f11c2eb81a34747b160dcca7b5f27c, type: 3}
+  - assetPath: Pc_job/t1_warrior_male_body.fbx
+    asset: {fileID: 4300000, guid: 17d0a216a1ad19848b61c8d68468acef, type: 3}
+  - assetPath: Pc_job/t1_warrior_male_head.fbx
+    asset: {fileID: 4300000, guid: 8c62c5a278bc20c44b41c48622597648, type: 3}
+  - assetPath: Pc_Weapon/wp_dagger_class_t1.fbx
+    asset: {fileID: 4300002, guid: 001371174c3c96a4ab28a059debcc788, type: 3}
+  - assetPath: Pc_Weapon/wp_dagger_sp02.fbx
+    asset: {fileID: 4300000, guid: 629dd865b70ab304d8d58080ffb9e2d3, type: 3}
+  - assetPath: Pc_Weapon/wp_fan_class_t1_f.fbx
+    asset: {fileID: 4300000, guid: de7c3d71705b6ab4d9a4fb6eb701bf41, type: 3}
+  - assetPath: Pc_Weapon/wp_fan_class_t1_m.fbx
+    asset: {fileID: 4300000, guid: fab112d3f15e10d44af6b101bf8719b1, type: 3}
+  - assetPath: Pc_Weapon/wp_hammer_class_t1.fbx
+    asset: {fileID: 4300000, guid: 06ce2413c386aef44a7236389006be32, type: 3}
+  - assetPath: Pc_Weapon/wp_lance_class_t1.fbx
+    asset: {fileID: 4300002, guid: b068e9cacb526d54487b2b0d13f4467c, type: 3}
+  - assetPath: Pc_Weapon/wp_xbow_class_t1.fbx
+    asset: {fileID: 4300000, guid: c81a2126f98549d44a5b76dadd444941, type: 3}
+  - assetPath: Pc_Weapon/wp_xbow_mech01.fbx
+    asset: {fileID: 4300000, guid: c841a8da12636fa4088e457a30a5e140, type: 3}
+  - assetPath: Pc_Weapon/wp_xbow_sp02.fbx
+    asset: {fileID: 4300000, guid: 25ded64c750c60e4c9661a1eec405ef5, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_xbow_mech01.fbx
+    asset: {fileID: 4300000, guid: 7eacd0c1fc909294088d428b908df74d, type: 3}
+  - assetPath: Pc_Weapon/FBX_FOR_VIEW_NOTFORBUILD/wp_dagger_class_t1.fbx
+    asset: {fileID: 4300002, guid: a472480d5fee51340ae3404772832035, type: 3}
+  - assetPath: Pc_fashion/famale_blade.fbx
+    asset: {fileID: 4300004, guid: fd1888799171eb54fafaefbdcb0003b3, type: 3}
+  - assetPath: Pc_fashion/fa_001_agent_female_body.fbx
+    asset: {fileID: 4300000, guid: 746a4efb5f5a8034c9310b165311f354, type: 3}
+  - assetPath: Pc_fashion/fa_001_agent_female_head.fbx
+    asset: {fileID: 4300000, guid: 936af2f13e7129f4ab51a73018fa7504, type: 3}
+  - assetPath: Pc_fashion/fa_001_agent_male_body.fbx
+    asset: {fileID: 4300000, guid: 44bb08e6cfccbf74fad30030ccfa6166, type: 3}
+  - assetPath: Pc_fashion/fa_001_agent_male_head.fbx
+    asset: {fileID: 4300000, guid: c48f3c047afc69043aba160dfd13ab32, type: 3}
+  - assetPath: Pc_fashion/male_blade.fbx
+    asset: {fileID: 4300000, guid: 163cb9319f39b5142a80ef4b38c183c2, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_000_base_female_view.fbx
+    asset: {fileID: 4300000, guid: da582698ee176804fb2eb97490a2715c, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_000_base_male_view.fbx
+    asset: {fileID: 4300002, guid: 2a7d0c8ab7a313347a1e2d7f03b0ce11, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_001_agent_female_view.fbx
+    asset: {fileID: 4300004, guid: 21717d12486ad504c8fcc239b2e871f7, type: 3}
+  - assetPath: Pc_fashion/FBX_FOR_VIEW_NOTFORBUILD/fa_001_agent_male_view.fbx
+    asset: {fileID: 4300004, guid: 885cece8f717e23418d46b1891a38139, type: 3}
   MaterialList:
   - {fileID: 2100000, guid: a0374d0666d7ac04580b441dbc9610d0, type: 2}
   - {fileID: 2100000, guid: 5227f55e5a1738044b8f7fdd0b79f514, type: 2}
-  - {fileID: 2100000, guid: df950d7893c0d06439c8b626bc614b9b, type: 2}
-  - {fileID: 2100000, guid: 00416ed3135e99b42880eb9c30bbab8f, type: 2}
-  - {fileID: 2100000, guid: 63b0ac8261d4c11408672f98615e4011, type: 2}
-  - {fileID: 2100000, guid: 2473374d11cbf9d428b356b7f3eb10f3, type: 2}
-  - {fileID: 2100000, guid: b20dca3d8a964a948bcea9460a4f9d42, type: 2}
-  - {fileID: 2100000, guid: 049dbd2a178985d4681afab6e6e501ee, type: 2}
-  - {fileID: 2100000, guid: 846ca7b5064b6c94cb022721c4501251, type: 2}
-  - {fileID: 2100000, guid: 7a860c4714e08b64eb6a83c23b2cba22, type: 2}
-  - {fileID: 2100000, guid: 45a06dfa01812ee4e975eaad70c31689, type: 2}
   - {fileID: 2100000, guid: 1d9b80124bc714049a58fdc9856a680f, type: 2}
   - {fileID: 2100000, guid: 0a573512b1717ff47ba152ce3126c8de, type: 2}
   - {fileID: 2100000, guid: 120d314dd4dbb21428b0f9a5e5001053, type: 2}
@@ -434,22 +576,53 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 43761f431c4d0f247bd92f49caec1f9e, type: 2}
   - {fileID: 2100000, guid: 7639454c57aa3d1438d7b07a882c806c, type: 2}
   - {fileID: 2100000, guid: 1af8172677653334ab20691b763bb60f, type: 2}
+  - {fileID: 2100000, guid: b0c4a4652b94d07428ec0933e8a332c5, type: 2}
+  - {fileID: 2100000, guid: 5f0225cbb58e6334b8a43260e6525f3c, type: 2}
+  - {fileID: 2100000, guid: 7fde4199fbd360647b96a04215a0874d, type: 2}
+  - {fileID: 2100000, guid: 44f6b807d0096d8428cee94054dc798e, type: 2}
+  - {fileID: 2100000, guid: d20dd88959a5973419de217c29aacd4c, type: 2}
+  - {fileID: 2100000, guid: e3cc3ba6c2a4d35419985deacf1ddd5e, type: 2}
+  - {fileID: 2100000, guid: d65cba16e73a9da49aecd5a7bd696b9b, type: 2}
+  - {fileID: 2100000, guid: a6380ece11e22fb4f98143d26a4f053b, type: 2}
+  - {fileID: 2100000, guid: 76673a0bf926d6240b6bccf496d4d8a1, type: 2}
+  - {fileID: 2100000, guid: 01e51b95f7c5b6343ba2e5b7b06989e1, type: 2}
+  - {fileID: 2100000, guid: 92fc51697edcf7541ba425eea58947ee, type: 2}
+  - {fileID: 2100000, guid: bc9d317d1eb696b41a2ae68922d02bb4, type: 2}
+  - {fileID: 2100000, guid: 10aa3cc148ed1be4db1ddb41d4dd8141, type: 2}
+  - {fileID: 2100000, guid: 6ee67bd02f5adb949a679e102518eebe, type: 2}
+  - {fileID: 2100000, guid: f391c3fdf09f23849b25b61761ce07f6, type: 2}
+  - {fileID: 2100000, guid: d42413b4597d7794a9f73d6a2987ddfb, type: 2}
+  - {fileID: 2100000, guid: 3de88615ae9e1384fa8bd0724aa7ee98, type: 2}
+  - {fileID: 2100000, guid: 625d9b72b9fbba842beb2a596afa693f, type: 2}
+  - {fileID: 2100000, guid: bd4b6631644fff84c97b4dd60d58e4f3, type: 2}
+  - {fileID: 2100000, guid: 47e91fbf176aa4e4ba3d3298978f9b2e, type: 2}
+  - {fileID: 2100000, guid: 2786a086c37fdf04d8b0f5fc860dcf3f, type: 2}
+  - {fileID: 2100000, guid: af6a61ceaca62034b99e35fee5258d5e, type: 2}
+  - {fileID: 2100000, guid: 3d5a8bee0f0ca4042b22de470712052b, type: 2}
+  - {fileID: 2100000, guid: ce7d10481ee9f10458b13201d15a3a8b, type: 2}
+  - {fileID: 2100000, guid: 47660674a9c5704469d5aa4c11420eec, type: 2}
+  - {fileID: 2100000, guid: 97e77bbcb4cf7a5418c3122e464e2010, type: 2}
+  - {fileID: 2100000, guid: 07217e94660a69e4096b3df9dcf694f2, type: 2}
+  - {fileID: 2100000, guid: 304eaac6f6a84c847b307109d382a496, type: 2}
+  - {fileID: 2100000, guid: 3849ff86698f3cb49983f10866cdd9f6, type: 2}
+  - {fileID: 2100000, guid: ad411c32ae7c94f44b8bb2ed16949205, type: 2}
+  - {fileID: 2100000, guid: a0254b6d6820e8a41b70fd88cc068390, type: 2}
+  - {fileID: 2100000, guid: 2d34a910b71c1de4cb72477086ace102, type: 2}
+  - {fileID: 2100000, guid: 4d022efa3c5133f41ae46b12b168cff5, type: 2}
+  - {fileID: 2100000, guid: 7e166140723a2264884ff67433a870da, type: 2}
+  - {fileID: 2100000, guid: 79722c15fa931fd43a4d75d6d0551a21, type: 2}
+  - {fileID: 2100000, guid: 4d2741b637ca6d845bb1a38eb48b30de, type: 2}
+  - {fileID: 2100000, guid: ad141738a76586d4e91c84a75751f439, type: 2}
+  - {fileID: 2100000, guid: 31b81ce5f5e271e4491b12197df58594, type: 2}
+  - {fileID: 2100000, guid: cf529301aa5104d45a3f2846bd3dc5b3, type: 2}
+  - {fileID: 2100000, guid: 99b49c2cf9589924e9d283e7d1d395a5, type: 2}
+  - {fileID: 2100000, guid: 77675aa8def45a44da1f77d607acfa2d, type: 2}
   MeshList:
   - {fileID: 4300000, guid: 865c9173e7cf5ea43bfbb707c7b34c35, type: 3}
   - {fileID: 4300000, guid: a296626749388c646bfc855c7648bd4a, type: 3}
   - {fileID: 4300000, guid: 521d82ec218196c44a44db25306f24e0, type: 3}
   - {fileID: 4300000, guid: 3e9d54b6ef035904898617e77aa2f85a, type: 3}
   - {fileID: 4300002, guid: 149b7f4dba224b744ac704d10b5fff0c, type: 3}
-  - {fileID: 4300004, guid: de67e523b4761df4b8be5faf5a5bbf57, type: 3}
-  - {fileID: 4300000, guid: dbb3cd84ef2b7aa4d83f7ebdda315fc3, type: 3}
-  - {fileID: 4300000, guid: f81c59467491f3c49947bd74a0abf648, type: 3}
-  - {fileID: 4300000, guid: 47c4089e58490cd4f8caf69b58e9c68f, type: 3}
-  - {fileID: 4300000, guid: bc8d5fd7ab52c654795c3cdf08b49c5a, type: 3}
-  - {fileID: 4300000, guid: 891887c64f4486348809bab37ebb56ce, type: 3}
-  - {fileID: 4300000, guid: a4add08ce8f526843b21d7d3d90a85d8, type: 3}
-  - {fileID: 4300002, guid: 52fc042b7a74b174ea86a42d90e8afed, type: 3}
-  - {fileID: 4300004, guid: e3c99c3ed12cbc746b5cf81608ebebd8, type: 3}
-  - {fileID: 4300004, guid: 98456ab4427f74b44ba6b60b5dc6552f, type: 3}
   - {fileID: 4300000, guid: f42f8c4f16daaa245aabaf7760ec719f, type: 3}
   - {fileID: 4300000, guid: 3dba864980ccc46499cfe8cce3590676, type: 3}
   - {fileID: 4300000, guid: 35a9a36eac8034047a35265dad6e2dc1, type: 3}
@@ -472,8 +645,6 @@ MonoBehaviour:
   - {fileID: 4300002, guid: e6aef7cd1ce3dab469777b433ca70714, type: 3}
   - {fileID: 4300000, guid: bc953c0f3af5bf547a25ae96f8a011ab, type: 3}
   - {fileID: 4300000, guid: 1d0aab461d295994386e9c5029a9a745, type: 3}
-  - {fileID: 4300000, guid: 2895974d2787cbe40b959fa67c8dd90b, type: 3}
-  - {fileID: 4300000, guid: 8c4b0455bc9a32a49b4f007d2f616dcf, type: 3}
   - {fileID: 4300000, guid: 805ccbf8c75b87d429577be39979d3ce, type: 3}
   - {fileID: 4300000, guid: f82e8f93f5363124bb48cc7816033d33, type: 3}
   - {fileID: 4300000, guid: a1dce914532643c4b9d4f29a68d8b90f, type: 3}
@@ -520,7 +691,6 @@ MonoBehaviour:
   - {fileID: 4300000, guid: cf1452add5379c2419bc81a1c7d3d531, type: 3}
   - {fileID: 4300000, guid: 8a9b958864ac1604a9b5fa3380c52a4b, type: 3}
   - {fileID: 4300000, guid: bb4aba14b94d3e5438bae80589bd38ed, type: 3}
-  - {fileID: 4300000, guid: 6f33b8bd2c55c3e4181f826946a58bfa, type: 3}
   - {fileID: 4300000, guid: dede2b001b40be2438f55367bcb0f029, type: 3}
   - {fileID: 4300000, guid: 24e01ded426c7634394915dd5e4f9145, type: 3}
   - {fileID: 4300000, guid: 818367a809287a74b8f88bae56072d87, type: 3}
@@ -532,3 +702,59 @@ MonoBehaviour:
   - {fileID: 4300000, guid: 9129f69ed66daba40b4d9d98dedc3e2c, type: 3}
   - {fileID: 4300000, guid: 81b6a762e7273b44f96fed309be3d8cb, type: 3}
   - {fileID: 4300000, guid: 6a7f4cf204a04ad4bac4a6e52ef7ca30, type: 3}
+  - {fileID: 4300000, guid: e118288a8014e5a449eec5ec31b678b9, type: 3}
+  - {fileID: 4300002, guid: f38b5ffed5ff3fb4f92c21e78c9623e7, type: 3}
+  - {fileID: 4300000, guid: a457b05a8b7093e42895d309bf16b856, type: 3}
+  - {fileID: 4300000, guid: 93eff8ac1df95f94b98e5ced91799c00, type: 3}
+  - {fileID: 4300000, guid: dc3a38ee6309a664e9fbc9fd1594b6cd, type: 3}
+  - {fileID: 4300002, guid: a8dc25ec510526c40a8042d5a2559b24, type: 3}
+  - {fileID: 4300002, guid: f193ed9300ea1c84eb79b85b83aacfc3, type: 3}
+  - {fileID: 4300026, guid: 6353d2a3149bd3445ac37e527411afd1, type: 3}
+  - {fileID: 4300000, guid: c03e74b6feeb4644484b95ac53597c1d, type: 3}
+  - {fileID: 4300000, guid: 4a94e0a871ba12c47807d611ea00a44f, type: 3}
+  - {fileID: 4300000, guid: 62d99b539ca6358488db20ec5942ef47, type: 3}
+  - {fileID: 4300000, guid: 9a17f4c8541aea04aa3fb893a3800c17, type: 3}
+  - {fileID: 4300000, guid: b3eae4c3a51c4e3499ea1382b86c0c91, type: 3}
+  - {fileID: 4300002, guid: 27171cd62c53c594ea0a40d70d4ed0bc, type: 3}
+  - {fileID: 4300000, guid: 43240e72176e23a4994834943b3414bf, type: 3}
+  - {fileID: 4300000, guid: d154e8b9f2b9c194bb3106b8fba5e610, type: 3}
+  - {fileID: 4300000, guid: abeefcb8b98cdfd4c9f16d6ef14716cb, type: 3}
+  - {fileID: 4300000, guid: e8c6dd496958c204b946e82ad821723f, type: 3}
+  - {fileID: 4300000, guid: 37dd035bae52dd54692e88eb941cbdc5, type: 3}
+  - {fileID: 4300002, guid: 3eef0f7475819bc479897b30752c4c73, type: 3}
+  - {fileID: 4300002, guid: 7c82d341a3f90cb4b93ab06470267092, type: 3}
+  - {fileID: 4300002, guid: 2dc4ceabd32fa0649b7070aa4264f0a7, type: 3}
+  - {fileID: 4300000, guid: 99da06b8f0bab854e9a83f92b329b5f0, type: 3}
+  - {fileID: 4300000, guid: e5a84cf2a0d90c641add5dcf9eae7a99, type: 3}
+  - {fileID: 4300002, guid: 6f33b8bd2c55c3e4181f826946a58bfa, type: 3}
+  - {fileID: 4300000, guid: f3434cced94c66449933fdc9b7e7630c, type: 3}
+  - {fileID: 4300000, guid: 4dffdfa93fa8cd64a88bdb3c4e6c4a9f, type: 3}
+  - {fileID: 4300000, guid: d281edd855092434085c31277ae458dd, type: 3}
+  - {fileID: 4300002, guid: a28ab91038c39314cb0f008dfa5dd204, type: 3}
+  - {fileID: 4300000, guid: 8aa3a0c0443eff246bf5a43538be6fe6, type: 3}
+  - {fileID: 4300002, guid: 566d287d09a8bb44691d92b299256d8e, type: 3}
+  - {fileID: 4300000, guid: 689fe33360ba24c45b2a77b66f354be4, type: 3}
+  - {fileID: 4300000, guid: a5f11c2eb81a34747b160dcca7b5f27c, type: 3}
+  - {fileID: 4300000, guid: 17d0a216a1ad19848b61c8d68468acef, type: 3}
+  - {fileID: 4300000, guid: 8c62c5a278bc20c44b41c48622597648, type: 3}
+  - {fileID: 4300002, guid: 001371174c3c96a4ab28a059debcc788, type: 3}
+  - {fileID: 4300000, guid: 629dd865b70ab304d8d58080ffb9e2d3, type: 3}
+  - {fileID: 4300000, guid: de7c3d71705b6ab4d9a4fb6eb701bf41, type: 3}
+  - {fileID: 4300000, guid: fab112d3f15e10d44af6b101bf8719b1, type: 3}
+  - {fileID: 4300000, guid: 06ce2413c386aef44a7236389006be32, type: 3}
+  - {fileID: 4300002, guid: b068e9cacb526d54487b2b0d13f4467c, type: 3}
+  - {fileID: 4300000, guid: c81a2126f98549d44a5b76dadd444941, type: 3}
+  - {fileID: 4300000, guid: c841a8da12636fa4088e457a30a5e140, type: 3}
+  - {fileID: 4300000, guid: 25ded64c750c60e4c9661a1eec405ef5, type: 3}
+  - {fileID: 4300000, guid: 7eacd0c1fc909294088d428b908df74d, type: 3}
+  - {fileID: 4300002, guid: a472480d5fee51340ae3404772832035, type: 3}
+  - {fileID: 4300004, guid: fd1888799171eb54fafaefbdcb0003b3, type: 3}
+  - {fileID: 4300000, guid: 746a4efb5f5a8034c9310b165311f354, type: 3}
+  - {fileID: 4300000, guid: 936af2f13e7129f4ab51a73018fa7504, type: 3}
+  - {fileID: 4300000, guid: 44bb08e6cfccbf74fad30030ccfa6166, type: 3}
+  - {fileID: 4300000, guid: c48f3c047afc69043aba160dfd13ab32, type: 3}
+  - {fileID: 4300000, guid: 163cb9319f39b5142a80ef4b38c183c2, type: 3}
+  - {fileID: 4300000, guid: da582698ee176804fb2eb97490a2715c, type: 3}
+  - {fileID: 4300002, guid: 2a7d0c8ab7a313347a1e2d7f03b0ce11, type: 3}
+  - {fileID: 4300004, guid: 21717d12486ad504c8fcc239b2e871f7, type: 3}
+  - {fileID: 4300004, guid: 885cece8f717e23418d46b1891a38139, type: 3}

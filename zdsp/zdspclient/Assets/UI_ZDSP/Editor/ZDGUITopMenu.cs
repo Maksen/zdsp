@@ -136,6 +136,13 @@ public class ZDGUITopMenu : EditorWindow
         OpenNewScene(myScene);
     }
 	
+	[MenuItem("ZDGUI/UI_CharacterHierarchy", false, 56)]
+    static void CharacterHierarchy()
+    {
+        string myScene = "Assets/UI_ZDSP/Scenes/aaa_LoginLobby/UI_CharacterHierarchy/UI_CharacterHierarchy.unity";
+        OpenNewScene(myScene);
+    }
+	
 	[MenuItem("ZDGUI/JobExhibition", false, 58)]
     static void JobExhibition()
     {
@@ -190,6 +197,13 @@ public class ZDGUITopMenu : EditorWindow
     static void ItemDetail()
     {
         string myScene = "Assets/UI_ZDSP/Scenes/aaa_Dialog/ItemDetail/Dialog_ItemDetail.unity";
+        OpenNewScene(myScene);
+    }
+	
+	[MenuItem("ZDGUI/Achievement", false, 61)]
+    static void Achievement()
+    {
+        string myScene = "Assets/UI_ZDSP/Scenes/Achievement/UI_Achievement.unity";
         OpenNewScene(myScene);
     }
 	

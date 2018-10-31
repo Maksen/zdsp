@@ -6,14 +6,25 @@ ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
     100000: //RootNode
+    100002: root
+    100004: wp_sanxian_class_t1
     400000: //RootNode
+    400002: root
+    400004: wp_sanxian_class_t1
     2100000: lambert1
     2300000: //RootNode
+    2300002: wp_sanxian_class_t1
     3300000: //RootNode
+    3300002: wp_sanxian_class_t1
     4300000: wp_sanxian_class_t1
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lambert3
+    second: {fileID: 2100000, guid: 3d5a8bee0f0ca4042b22de470712052b, type: 2}
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 0

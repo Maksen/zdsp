@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 114154846030430978}
   - component: {fileID: 114979758461000724}
   m_Layer: 5
-  m_Name: Text_ItemNameA
+  m_Name: Text_AEXP
   m_TagString: Highlight
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -288,7 +288,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1929424058841350
 GameObject:
   m_ObjectHideFlags: 1
@@ -562,7 +562,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1.3
-  m_Text: "\u5496\u54E9\u9B5A\u982D\u5496\u54E9\u9B5A\u982D"
+  m_Text: "\u5496\u54E9"
 --- !u!114 &114233625672026278
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -847,7 +847,6 @@ MonoBehaviour:
   iconSlot: {fileID: 224430000647754446}
   iconImage: {fileID: 114476949633780170}
   achievementNameText: {fileID: 114403469465650566}
-  aexpNameText: {fileID: 114223187094107008}
   aexpAmtText: {fileID: 114862157925715806}
   rewardNameText: {fileID: 114710032749625396}
   rewardAmtText: {fileID: 114429024371372244}
@@ -866,7 +865,7 @@ MonoBehaviour:
   m_MinWidth: -1
   m_MinHeight: -1
   m_PreferredWidth: 440
-  m_PreferredHeight: 80
+  m_PreferredHeight: 92
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
@@ -1433,7 +1432,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 86, y: -62}
-  m_SizeDelta: {x: 221.17804, y: 30}
+  m_SizeDelta: {x: 219.26129, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224204322030414106
 RectTransform:
@@ -1486,8 +1485,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 157.03737, y: -15}
-  m_SizeDelta: {x: 64.14066, y: 30}
+  m_AnchoredPosition: {x: 156.89587, y: -15}
+  m_SizeDelta: {x: 62.36542, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224277556848627018
 RectTransform:
@@ -1504,10 +1503,10 @@ RectTransform:
   m_Father: {fileID: 224595237035716958}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 30}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 86, y: -32}
+  m_SizeDelta: {x: 105.59528, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224366625198664774
 RectTransform:
@@ -1558,10 +1557,10 @@ RectTransform:
   m_Father: {fileID: 224277556848627018}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 30}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: -15}
+  m_SizeDelta: {x: 38.22397, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224460648747248388
 RectTransform:
@@ -1599,7 +1598,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -15}
-  m_SizeDelta: {x: 153.03737, y: 30}
+  m_SizeDelta: {x: 152.89587, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224527704559154734
 RectTransform:
@@ -1633,10 +1632,10 @@ RectTransform:
   m_Father: {fileID: 224277556848627018}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 30}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 42.22397, y: -15}
+  m_SizeDelta: {x: 63.371315, y: 30}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224595237035716958
 RectTransform:
@@ -1660,11 +1659,11 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 2, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 440, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 1}
 --- !u!224 &224733400965448572
 RectTransform:
   m_ObjectHideFlags: 1

@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: fe1912d16e51c254a83f7c1d3ace7d19
-timeCreated: 1539593406
+guid: 4dffdfa93fa8cd64a88bdb3c4e6c4a9f
+timeCreated: 1539592721
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -11,7 +11,17 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: wp_sanxian_nlv20
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: default
+    second: {fileID: 2100000, guid: 6810c304d3815f54ca46ac6274499194, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wp_sanxian_nlv20
+    second: {fileID: 2100000, guid: ce7d10481ee9f10458b13201d15a3a8b, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

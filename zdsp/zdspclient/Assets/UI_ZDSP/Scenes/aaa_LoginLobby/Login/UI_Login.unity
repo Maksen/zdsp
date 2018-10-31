@@ -204,7 +204,7 @@ GameObject:
   - component: {fileID: 31521601}
   - component: {fileID: 31521600}
   m_Layer: 5
-  m_Name: Text_22
+  m_Name: Text_22_ClickAnywhereToStart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -224,9 +224,9 @@ RectTransform:
   m_Father: {fileID: 1564658205}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -241}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 47}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &31521600
@@ -501,7 +501,7 @@ GameObject:
   - component: {fileID: 407080983}
   - component: {fileID: 407080982}
   m_Layer: 5
-  m_Name: Button_ClickAnywhereArea
+  m_Name: Button_ClickAnywhereToStart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -542,11 +542,11 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 0
+  m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.7882353, g: 0.7882353, b: 0.7882353, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -560,10 +560,21 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 407080983}
+  m_TargetGraphic: {fileID: 1674223605}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1313517881}
+        m_MethodName: OnClickAnywhereToStart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &407080983
@@ -627,6 +638,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 408af0100d97886458a8be2e34271137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ambientLightColor: {r: 0.68, g: 0.6905, b: 0.8, a: 1}
+  ambientIntensity: 1
 --- !u!20 &533847908
 Camera:
   m_ObjectHideFlags: 0
@@ -770,7 +783,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 589518265}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1313517881}
+        m_MethodName: OnClickServerSelection
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &589518265
@@ -1003,7 +1027,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 804565543}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1313517881}
+        m_MethodName: OnClickSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &804565543
@@ -1105,6 +1140,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1313517880}
   - component: {fileID: 1313517882}
+  - component: {fileID: 1313517881}
   m_Layer: 5
   m_Name: UI_Login
   m_TagString: Untagged
@@ -1133,6 +1169,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1313517881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1313517879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a80b94b1f105514b85f6992c188e334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  announcementServerURL: https://piliq.zealotdigital.com.tw/topnews.aspx
+  txtServerName: {fileID: 1988628221}
+  txtGameVersion: {fileID: 30970845}
 --- !u!114 &1313517882
 MonoBehaviour:
   m_ObjectHideFlags: 0

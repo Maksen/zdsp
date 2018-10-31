@@ -303,6 +303,7 @@ GameObject:
   - component: {fileID: 114270455977952350}
   - component: {fileID: 95742984392129498}
   - component: {fileID: 225276274784536392}
+  - component: {fileID: 114889523393723748}
   m_Layer: 5
   m_Name: DNAEmptyData
   m_TagString: Untagged
@@ -750,7 +751,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: I
+  m_Text: 1
 --- !u!114 &114255009314797848
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1379,6 +1380,24 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114889523393723748
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1743370745728452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a168e944ef11dc4ca9889a0fc3f3ab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dnaIconPrefab: {fileID: 1701380584179628, guid: 09a955d4dda39bb42ba213a6293bd9db,
+    type: 2}
+  dnaIconParent: {fileID: 224091162250652920}
+  dnaNameText: {fileID: 114575028073168720}
+  dnaMutateText: {fileID: 114240488162759140}
+  dnaStatsLeftText: {fileID: 114999236568975612}
+  dnaStatsRightText: {fileID: 114549614688517198}
 --- !u!114 &114893172857462436
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -3,8 +3,7 @@ using UnityEngine.UI;
 
 namespace FancyScrollView
 {
-    public class Example04ScrollViewCell
-        : FancyScrollViewCell<Example04CellDto, Example04ScrollViewContext>
+    public class Example04ScrollViewCell : FancyScrollViewCell<Example04CellDto, Example04ScrollViewContext>
     {
         [SerializeField]
         Animator animator;
@@ -16,34 +15,23 @@ namespace FancyScrollView
         Button button;
 
         static readonly int scrollTriggerHash = Animator.StringToHash("scroll");
-        Example04ScrollViewContext context;
 
         void Start()
         {
-            UpdatePosition(0);
             button.onClick.AddListener(OnPressedCell);
         }
 
         /// <summary>
-        /// コンテキストを設定します
+        /// Updates the content.
         /// </summary>
-        /// <param name="context"></param>
-        public override void SetContext(Example04ScrollViewContext context)
-        {
-            this.context = context;
-        }
-
-        /// <summary>
-        /// セルの内容を更新します
-        /// </summary>
-        /// <param name="itemData"></param>
+        /// <param name="itemData">Item data.</param>
         public override void UpdateContent(Example04CellDto itemData)
         {
             message.text = itemData.Message;
 
-            if (context != null)
+            if (Context != null)
             {
-                var isSelected = context.SelectedIndex == DataIndex;
+                var isSelected = Context.SelectedIndex == DataIndex;
                 image.color = isSelected
                     ? new Color32(0, 255, 255, 100)
                     : new Color32(255, 255, 255, 77);
@@ -51,14 +39,22 @@ namespace FancyScrollView
         }
 
         /// <summary>
-        /// セルの位置を更新します
+        /// Updates the position.
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="position">Position.</param>
         public override void UpdatePosition(float position)
         {
             currentPosition = position;
             animator.Play(scrollTriggerHash, -1, position);
             animator.speed = 0;
+        }
+
+        void OnPressedCell()
+        {
+            if (Context != null)
+            {
+                Context.OnPressedCell(this);
+            }
         }
 
         // GameObject が非アクティブになると Animator がリセットされてしまうため
@@ -67,14 +63,6 @@ namespace FancyScrollView
         void OnEnable()
         {
             UpdatePosition(currentPosition);
-        }
-
-        void OnPressedCell()
-        {
-            if (context != null)
-            {
-                context.OnPressedCell(this);
-            }
         }
     }
 }

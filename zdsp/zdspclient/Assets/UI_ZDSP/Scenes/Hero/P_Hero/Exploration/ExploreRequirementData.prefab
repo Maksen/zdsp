@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 114099715054228198}
   - component: {fileID: 114637601926888850}
   - component: {fileID: 225327108884292188}
-  - component: {fileID: 114504123032300568}
   - component: {fileID: 114823635861433488}
   - component: {fileID: 114836389594781236}
   m_Layer: 5
@@ -353,21 +352,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!114 &114504123032300568
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1082193784535084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c0b51e442f643747a17311896b289d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  flareGroup: {fileID: 225327108884292188}
-  minIntensity: 0.75
-  maxIntensity: 1
-  speed: 15
 --- !u!114 &114592558678714150
 MonoBehaviour:
   m_ObjectHideFlags: 1

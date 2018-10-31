@@ -10,7 +10,7 @@ namespace FancyScrollView
 
         void Awake()
         {
-            scrollPositionController.OnUpdatePosition(UpdatePosition);
+            scrollPositionController.OnUpdatePosition(p => UpdatePosition(p));
             SetContext(new Example03ScrollViewContext { OnPressedCell = OnPressedCell });
         }
 
@@ -24,7 +24,7 @@ namespace FancyScrollView
         void OnPressedCell(Example03ScrollViewCell cell)
         {
             scrollPositionController.ScrollTo(cell.DataIndex, 0.4f);
-            context.SelectedIndex = cell.DataIndex;
+            Context.SelectedIndex = cell.DataIndex;
             UpdateContents();
         }
     }

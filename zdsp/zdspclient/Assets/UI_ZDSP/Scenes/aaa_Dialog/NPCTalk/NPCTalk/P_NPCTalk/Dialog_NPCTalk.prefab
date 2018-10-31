@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4140781015978282}
   - component: {fileID: 20485132795317764}
+  - component: {fileID: 114475942359034858}
   m_Layer: 5
   m_Name: CameraUI
   m_TagString: Untagged
@@ -902,6 +903,19 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114475942359034858
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1070732203844098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 408af0100d97886458a8be2e34271137, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ambientLightColor: {r: 0.68, g: 0.6905, b: 0.8, a: 1}
+  ambientIntensity: 1
 --- !u!114 &114573780042075602
 MonoBehaviour:
   m_ObjectHideFlags: 1

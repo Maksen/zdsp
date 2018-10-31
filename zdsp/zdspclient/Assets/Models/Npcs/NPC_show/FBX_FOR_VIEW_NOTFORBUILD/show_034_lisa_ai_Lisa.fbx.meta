@@ -12,12 +12,17 @@ ModelImporter:
     3300000: //RootNode
     4300000: show_034_lisa_ai_Lisa
     9500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: show_034_lisa_ai_Lisa
+    second: {fileID: 2100000, guid: 6dd02cb7e770bb647bafe93709264d52, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 0
+    materialLocation: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

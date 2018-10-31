@@ -6,12 +6,12 @@
 Shader "ZD_Shader/Effect/Effect_Obj/Forzen" {
     Properties {
         [HDR]_Color ("Color", Color) = (0.07843138,0.3921569,0.7843137,1)
-        _Opacity ("Opacity", Range(0, 1)) = 1
+		[PerRendererData]_Opacity ("Opacity", Range(0, 1)) = 1
         _Fresnel ("Fresnel", Float ) = 1
         _HeightMap ("HeightMap", 2D) = "white" {}
 		[PerRendererData]_Height ("Height", Float ) = 0.2
         _RefractionTex ("RefractionTex", 2D) = "bump" {}
-        _Refraction ("Refraction", Range(0, 1)) = 0.1
+		[PerRendererData]_Refraction ("Refraction", Range(0, 1)) = 0.1
         [HideInInspector]_Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
     }
     SubShader {

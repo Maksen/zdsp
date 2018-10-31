@@ -11,9 +11,14 @@ ModelImporter:
     2300000: //RootNode
     3300000: //RootNode
     4300000: wp_fan_nlv21
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wp_fan_nlv20
+    second: {fileID: 2100000, guid: bd4b6631644fff84c97b4dd60d58e4f3, type: 2}
   materials:
-    importMaterials: 1
+    importMaterials: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 0

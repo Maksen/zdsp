@@ -457,6 +457,7 @@ GameObject:
   - component: {fileID: 114092331435171132}
   - component: {fileID: 95246686272407118}
   - component: {fileID: 225074640686377930}
+  - component: {fileID: 114159512194558834}
   m_Layer: 5
   m_Name: DNAToggleButton
   m_TagString: Untagged
@@ -669,6 +670,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imgRarity: {fileID: 114099630550257758}
   rarityEffects: []
+--- !u!114 &114159512194558834
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1950794444666806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a168e944ef11dc4ca9889a0fc3f3ab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dnaIconPrefab: {fileID: 1701380584179628, guid: 09a955d4dda39bb42ba213a6293bd9db,
+    type: 2}
+  dnaIconParent: {fileID: 224219975386709570}
+  dnaNameText: {fileID: 114571366406533404}
+  dnaMutateText: {fileID: 114433017025762380}
+  dnaStatsLeftText: {fileID: 114705967974605382}
+  dnaStatsRightText: {fileID: 114631432081654096}
 --- !u!114 &114271781001552086
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5371,7 +5390,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -169, y: 108}
   m_SizeDelta: {x: 285, y: 88}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224433542747627090

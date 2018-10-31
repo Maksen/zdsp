@@ -39,7 +39,7 @@ GameObject:
   - component: {fileID: 114760185657566916}
   - component: {fileID: 95563374454850202}
   - component: {fileID: 225273553797539184}
-  - component: {fileID: 114914957554365332}
+  - component: {fileID: 114608798241332332}
   m_Layer: 5
   m_Name: Button_CreateCharacter
   m_TagString: Untagged
@@ -281,6 +281,20 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114608798241332332
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1202772245288028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db0eb6924690a648a54097cfef26485, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  JobIcon: {fileID: 114330321757911132}
+  Name: {fileID: 114137496652283866}
+  DefaultIcon: {fileID: 21300000, guid: 13d95ed1463d8dc40b141d301d36dfcf, type: 3}
 --- !u!114 &114659693402219742
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -347,7 +361,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114914957554365332}
+      - m_Target: {fileID: 114608798241332332}
         m_MethodName: OnClickCharacter
         m_Mode: 1
         m_Arguments:
@@ -428,20 +442,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114914957554365332
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1202772245288028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22382e0b4d6bf8244b20cffc9cca0c79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  JobIcon: {fileID: 114330321757911132}
-  Name: {fileID: 114137496652283866}
-  DefaultIcon: {fileID: 21300000, guid: 13d95ed1463d8dc40b141d301d36dfcf, type: 3}
 --- !u!222 &222003290426045678
 CanvasRenderer:
   m_ObjectHideFlags: 1

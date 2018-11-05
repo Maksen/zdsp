@@ -253,11 +253,13 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleNotifyNewGMItem");
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSocialAddFriend)]
-    public void ConsoleSocialAddFriend(string playerName)
-    {
-        ProxyMethod("ConsoleSocialAddFriend", playerName);
-    }
+    #region Old Code:Social
+    //[RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSocialAddFriend)]
+    //public void ConsoleSocialAddFriend(string playerName)
+    //{
+    //    ProxyMethod("ConsoleSocialAddFriend", playerName);
+    //}
+    #endregion
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSetStoreRefreshTime)]
     public void ConsoleSetStoreRefreshTime(int storecat, int time)
@@ -951,6 +953,24 @@ public partial class NonCombatRPC : RPCBase
     public void ActivateInvincible(bool active)
     {
         ProxyMethod("ActivateInvincible", active);
+    }
+    #endregion
+
+    #region Social
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialOnOpenFriendsMenu)]
+    public void SocialOnOpenFriendsMenu()
+    {
+        ProxyMethod("SocialOnOpenFriendsMenu");
+    }
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequestByName)]
+    public void SocialRaiseRequestByName(string friendName)
+    {
+        ProxyMethod("SocialRaiseRequestByName", friendName);
+    }
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptRequest)]
+    public void SocialAcceptRequest(string friendName)
+    {
+        ProxyMethod("SocialAcceptRequest", friendName);
     }
     #endregion
 }

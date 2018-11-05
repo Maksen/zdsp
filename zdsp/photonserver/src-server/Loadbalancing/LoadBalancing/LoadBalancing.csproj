@@ -159,6 +159,7 @@
     <Compile Include="ClusterServers\GameServer\IncomingGameServerPeer.cs" />
     <Compile Include="Entities\HeroEntity.cs" />
     <Compile Include="Entities\PersonalMonsterSpawner.cs" />
+    <Compile Include="Entities\Triggers\CutsceneBroadcaster.cs" />
     <Compile Include="Entities\Triggers\InteractiveTrigger.cs" />
     <Compile Include="Entities\Triggers\RandomTrigger.cs" />
     <Compile Include="Entities\Triggers\ColliderTrigger.cs" />
@@ -168,16 +169,20 @@
     <Compile Include="GameServer\DestinyClue\DestinyClueController.cs" />
     <Compile Include="GameServer\EquipFushion\EquipFushionController.cs" />
     <Compile Include="GameServer\EquipmentCraft\EquipmentCraftController.cs" />
+    <Compile Include="GameServer\GameClientPeerExtensions.cs" />
     <Compile Include="GameServer\GameRules\DonationRules.cs" />
     <Compile Include="GameServer\GameRules\InteractiveTriggerRule.cs" />
     <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
+    <Compile Include="GameServer\InteractiveTrigger\InteractiveTriggerController.cs" />
     <Compile Include="GameServer\NPCStore\NPCStoreManager.cs" />
     <Compile Include="GameServer\PowerUp\PowerUpController.cs" />
     <Compile Include="GameServer\Quest\DonateController.cs" />
     <Compile Include="GameServer\Quest\QuestController.cs" />
     <Compile Include="GameServer\Revive\ReviveItemController.cs" />
+    <Compile Include="GameServer\Social\SocialController.cs" />
+    <Compile Include="GameServer\Social\SocialExtensions.cs" />
     <Compile Include="MasterServer\ClusterServer\IncomingGamePeer.cs" />
     <Compile Include="MasterServer\MasterGame.cs" />
     <Compile Include="GameServer\GameRules\PartyRules.cs" />
@@ -219,7 +224,6 @@
     <Compile Include="Entities\SMBossSpawner.cs" />
     <Compile Include="Entities\SpecialBossSpawner.cs" />
     <Compile Include="Entities\Triggers\Counter.cs" />
-    <Compile Include="Entities\Triggers\CutSceneBroadcaster.cs" />
     <Compile Include="Entities\Triggers\DelayTickerServer.cs" />
     <Compile Include="Entities\Triggers\GateSpawner.cs" />
     <Compile Include="Entities\Triggers\MessageBroadcaster.cs" />

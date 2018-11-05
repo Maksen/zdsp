@@ -77,11 +77,11 @@ public partial class ClientMain : MonoBehaviour
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveTrigger)]
-    public void InteractiveTrigger(int pid, int counter)
+    public void InteractiveTrigger(int pid, bool canUse, int step, bool active)
     {
         InteractiveGhost ghost = mEntitySystem.GetEntityByPID(pid) as InteractiveGhost;
         InteractiveEntities mEntity = ghost.entityObj.GetComponent<InteractiveEntities>();
-        mEntity.RefreshInteractiveStats(counter);
+        mEntity.RefreshInteractiveStats(canUse, active, step);
     }
 
     IEnumerator ReturnToStandby(int pid, float duration)
@@ -705,44 +705,46 @@ public partial class ClientMain : MonoBehaviour
         player.Bot.SeekToPosition(pos.ToVector3());
     }
 
-    [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.Ret_SocialReturnResult)]
-    public void Ret_SocialReturnResult(byte retCode, string param)
-    {
-        SocialReturnCode returnCode = (SocialReturnCode) retCode;
-        switch (returnCode)
-        {
-            case SocialReturnCode.Ret_AlreadyAdded:
-            {
-                Dictionary<string, string> paramDict = new Dictionary<string, string>();
-                paramDict.Add("name", param);
-                string msg = GameUtils.FormatString(
-                    GUILocalizationRepo.GetLocalizedSysMsgByName("ret_fr_AlreadyAdded"), paramDict);
-                UIManager.ShowSystemMessage(msg, false);
-            }
-                break;
-            case SocialReturnCode.Ret_DoesNotExist:
-                UIManager.OpenOkDialog(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_fr_NameDoesNotExist"), null);
-                break;
-            case SocialReturnCode.Ret_RecommendedResult:
-                //GameObject recommendedFriendsWindow = UIManager.GetWindowGameObject(WindowType.DialogFriendsRecommended);
-              //  if (recommendedFriendsWindow != null && recommendedFriendsWindow.activeInHierarchy)
-                   // recommendedFriendsWindow.GetComponent<Dialog_FriendsRecommended>().ParseStrAndInitData(param);
-                break;
-            case SocialReturnCode.Ret_OnCooldown:
-                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_OnCooldown"), false);
-                break;
-            case SocialReturnCode.Ret_LevelNotEnough:
-            {
-                Dictionary<string, string> paramDict = new Dictionary<string, string>();
-                paramDict.Add("lvl", param);
-                string msg =
-                    GameUtils.FormatString(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_fr_LevelNotEnough"),
-                        paramDict);
-                UIManager.ShowSystemMessage(msg, false);
-            }
-                break;
-        }
-    }
+    #region Old Code:Social
+    //[RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.Ret_SocialReturnResult)]
+    //public void Ret_SocialReturnResult(byte retCode, string param)
+    //{
+    //    SocialReturnCode returnCode = (SocialReturnCode) retCode;
+    //    switch (returnCode)
+    //    {
+    //        case SocialReturnCode.Ret_AlreadyAdded:
+    //        {
+    //            Dictionary<string, string> paramDict = new Dictionary<string, string>();
+    //            paramDict.Add("name", param);
+    //            string msg = GameUtils.FormatString(
+    //                GUILocalizationRepo.GetLocalizedSysMsgByName("ret_fr_AlreadyAdded"), paramDict);
+    //            UIManager.ShowSystemMessage(msg, false);
+    //        }
+    //            break;
+    //        case SocialReturnCode.Ret_DoesNotExist:
+    //            UIManager.OpenOkDialog(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_fr_NameDoesNotExist"), null);
+    //            break;
+    //        case SocialReturnCode.Ret_RecommendedResult:
+    //            //GameObject recommendedFriendsWindow = UIManager.GetWindowGameObject(WindowType.DialogFriendsRecommended);
+    //          //  if (recommendedFriendsWindow != null && recommendedFriendsWindow.activeInHierarchy)
+    //               // recommendedFriendsWindow.GetComponent<Dialog_FriendsRecommended>().ParseStrAndInitData(param);
+    //            break;
+    //        case SocialReturnCode.Ret_OnCooldown:
+    //            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_OnCooldown"), false);
+    //            break;
+    //        case SocialReturnCode.Ret_LevelNotEnough:
+    //        {
+    //            Dictionary<string, string> paramDict = new Dictionary<string, string>();
+    //            paramDict.Add("lvl", param);
+    //            string msg =
+    //                GameUtils.FormatString(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_fr_LevelNotEnough"),
+    //                    paramDict);
+    //            UIManager.ShowSystemMessage(msg, false);
+    //        }
+    //            break;
+    //    }
+    //}
+    #endregion
 
     #region IAP
 

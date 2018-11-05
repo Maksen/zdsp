@@ -56,6 +56,9 @@ public class UI_DialogueAvatar : MonoBehaviour
         else
         {
             GameObject go = Instantiate(asset);
+            CharacterController charCtrl = go.GetComponent<CharacterController>();
+            if (charCtrl != null)
+                Destroy(charCtrl);
             mNpcList.Add(npcId, go);
         }
     }
@@ -65,6 +68,9 @@ public class UI_DialogueAvatar : MonoBehaviour
         if (asset != null)
         {
             GameObject go = Instantiate(asset);
+            CharacterController charCtrl = go.GetComponent<CharacterController>();
+            if (charCtrl != null)
+                Destroy(charCtrl);
             mNpcList.Add(npcId, go);
 
             if (mActivatedNpc == npcId)

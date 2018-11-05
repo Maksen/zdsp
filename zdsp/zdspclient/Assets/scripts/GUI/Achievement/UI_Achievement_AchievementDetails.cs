@@ -26,12 +26,7 @@ public class UI_Achievement_AchievementDetails : MonoBehaviour
         }
     }
 
-    public void CleanUp()
-    {
-        objectivesPanel.CleanUp();
-    }
-
-    private void OnDisable()
+    public void CleanUp()  // called by back button or when close window
     {
         bool allowSwitchOff = toggleGroup.allowSwitchOff;
         toggleGroup.allowSwitchOff = true;
@@ -39,6 +34,7 @@ public class UI_Achievement_AchievementDetails : MonoBehaviour
             toggles[i].isOn = false;
         toggleGroup.allowSwitchOff = allowSwitchOff;
 
+        objectivesPanel.CleanUp();
         objectivesPanel.gameObject.SetActive(false);
     }
 }

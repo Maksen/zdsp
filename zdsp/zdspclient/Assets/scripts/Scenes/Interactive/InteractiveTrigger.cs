@@ -3,20 +3,9 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using Zealot.Entities;
-using Zealot.Client.Entities;
 using System.Text;
 using System.Collections.Generic;
 using Zealot.Common;
-
-namespace Zealot.Common
-{
-    public enum InteractiveTriggerStep
-    {
-        None,
-        OnTrigger,
-        OnProgress
-    }
-}
 
 namespace Zealot.Spawners
 {
@@ -39,18 +28,21 @@ namespace Zealot.Spawners
         public InteractiveType interactiveType = InteractiveType.Area;
         public int min = 1;
         public int max = 1;
-
-        List<PlayerGhost> player = new List<PlayerGhost>();
-        int playerCount = 0;
-        PlayerGhost progressPlayer = null;
+        
         private InteractiveTriggerStep stepStats = InteractiveTriggerStep.None;
+        private InteractiveUpdater updater = null;
 
-        void Start()
+        private void Start()
         {
             if (interactiveType == InteractiveType.Target)
             {
                 if(gameObject.GetComponent<Collider>() != null)
                     gameObject.GetComponent<Collider>().enabled = false;
+            }
+            else
+            {
+                updater = gameObject.AddComponent<InteractiveUpdater>();
+                updater.enabled = false;
             }
         }
 
@@ -60,176 +52,71 @@ namespace Zealot.Spawners
             Vector3 centerPosition = transform.position + new Vector3(0, 1, 0);
             Gizmos.DrawCube(centerPosition, new Vector3(1, 2, 1));
         }
-
+        
         #region InteracitveTriggerEvent
-        void OnTriggerEnter(Collider other)
+        private void OnTriggerEnter(Collider other)
         {
-            if (counter == 0)
+            if (stepStats == InteractiveTriggerStep.CannotUse)
                 return;
 
             if (other.CompareTag("LocalPlayer"))
             {
-                PlayerGhost mPlayer = GameInfo.gLocalPlayer;
-                if (!player.Exists(x => x == mPlayer))
-                {
-                    AddPlayer(mPlayer);
-                }
-
-                if (stepStats == InteractiveTriggerStep.None)
-                {
-                    if (CanProgress(player.Count))
-                    {
-                        SetStep(InteractiveTriggerStep.OnTrigger);
-                    }
-                }
-                else
-                {
-                    if (!CanProgress(player.Count))
-                    {
-                        progressPlayer.InteractiveController.ActionInterupted();
-                    }
-                }
+                updater.Init(GameInfo.gLocalPlayer, EntityId, interrupt, this);
+                OpenUpdate();
             }
         }
 
-        void OnTriggerExit(Collider other)
+        private void OnTriggerExit(Collider other)
         {
             if (other.CompareTag("LocalPlayer"))
             {
-                PlayerGhost mPlayer = GameInfo.gLocalPlayer;
-                if (player.Exists(x => x == mPlayer))
-                {
-                    player.Remove(mPlayer);
-                }
-
-                if (stepStats != InteractiveTriggerStep.None)
-                {
-                    SetStep(CanProgress(player.Count) ? InteractiveTriggerStep.OnTrigger : InteractiveTriggerStep.None);
-                }
+                updater.enabled = false;
+                GameInfo.gLocalPlayer.InteractiveController.OnActionLeave();
+                RPCFactory.CombatRPC.OnInteractiveUse(EntityId, false);
             }
         }
         #endregion
 
         #region InteracitveTriggerFunction
-        public bool SetPlayer(PlayerGhost mPlayer)
+        public void Init(bool canUse, bool active, int step)
         {
-            if (counter == 0)
-            {
-                UIManager.SystemMsgManager.ShowSystemMessage("觸發次數已用盡", true);
-                return false;
-            }
-            if (stepStats != InteractiveTriggerStep.OnProgress)
-            {
-                if (mPlayer.clientItemInvCtrl.itemInvData.HasItem((ushort)keyId))
-                {
-                    UIManager.SystemMsgManager.ShowSystemMessage("玩家未擁有需求道具", true);
-                    return false;
-                }
-                AddPlayer(mPlayer);
-                SetStep(InteractiveTriggerStep.OnTrigger);
-                return true;
-            }
-            else
-            {
-                UIManager.SystemMsgManager.ShowSystemMessage("有人在使用", true);
-                return false;
-            }
+            gameObject.SetActive(active);
+            SetStep((!active || !canUse) ? InteractiveTriggerStep.CannotUse : (InteractiveTriggerStep)step);
         }
 
-        void SetStep(InteractiveTriggerStep step)
+        public bool CanUse()
+        {
+            return stepStats != InteractiveTriggerStep.CannotUse;
+        }
+
+        public InteractiveTriggerStep GetStep()
+        {
+            return stepStats;
+        }
+
+        public void SetStep(InteractiveTriggerStep step)
         {
             stepStats = step;
         }
 
-        public void Init(int count)
-        {
-            counter = count;
-            if (counter > 0 || counter == -1)
-                this.enabled = true;
-            else
-                this.enabled = false;
-
-            InitData();
-        }
-
-        void InitData()
-        {
-            SetStep(InteractiveTriggerStep.None);
-            player.Clear();
-        }
-
         public void InterruptAction()
         {
-            RPCFactory.CombatRPC.OnInteractiveUse(EntityId, false);
             if (interactiveType == InteractiveType.Target)
             {
-                player.Clear();
                 SetStep(InteractiveTriggerStep.None);
             }
             else
             {
                 SetStep(InteractiveTriggerStep.OnTrigger);
             }
-            progressPlayer = null;
         }
 
-        void SetProgressPlayer()
+        public void OpenUpdate()
         {
-            if(CanProgress(player.Count) && progressPlayer == null)
-            {
-                progressPlayer = player[player.Count - 1];
-            }
-        }
-
-        public void TriggerEvent()
-        {
-            RPCFactory.CombatRPC.OnInteractiveUse(EntityId, true);
-
-            SetProgressPlayer();
-            if (interactiveType == InteractiveType.Target)
-            {
-                progressPlayer.InteractiveController.OnActionEnter(this, interrupt);
-                SetStep(InteractiveTriggerStep.OnProgress);
-            }
-            else
-            {
-                if (CanProgress(player.Count) && stepStats == InteractiveTriggerStep.OnTrigger)
-                {
-                    progressPlayer.InteractiveController.OnActionEnter(this, interrupt);
-                    SetStep(InteractiveTriggerStep.OnProgress);
-                }
-            }
-        }
-
-        bool CanProgress(int playerC)
-        {
-            return (playerC >= min && playerC <= max) ? true : false;
-        }
-
-        void AddPlayer(PlayerGhost mPlayer)
-        {
-            if(!player.Exists(x => x == mPlayer))
-            {
-                player.Add(mPlayer);
-            }
+            updater.enabled = true;
+            updater.ResetTime();
         }
         #endregion
-
-        void Update()
-        {
-            playerCount = player.Count;
-            if (stepStats == InteractiveTriggerStep.OnTrigger && CanProgress(playerCount))
-            {
-                for (int i = 0; i < playerCount; ++i)
-                {
-                    if (!player[i].IsIdling())
-                    {
-                        return;
-                    }
-                }
-                TriggerEvent();
-            }
-        }
 
         public override string[] Triggers
         {
@@ -246,7 +133,6 @@ namespace Zealot.Spawners
                 return new string[] { "OnInteractive" };
             }
         }
-        
 
         public override ServerEntityJson GetJson()
         {
@@ -276,10 +162,11 @@ namespace Zealot.Spawners
             }
             jsonclass.min = min;
             jsonclass.max = max;
+            jsonclass.activeObject = true;
             base.GetJson(jsonclass);
         }
 
-        string GetPathName()
+        private string GetPathName()
         {
             StringBuilder path = new StringBuilder();
             List<string> pathName = new List<string>();

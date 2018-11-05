@@ -38,6 +38,10 @@ namespace Photon.LoadBalancing.GameServer
     using Zealot.Entities;
     #endregion
 
+    /// <summary>
+    /// server對玩家客戶端的處理端點
+    /// server to client peer
+    /// </summary>
     public class GameClientPeer : HivePeer
     {
         #region Constants and Fields
@@ -45,7 +49,7 @@ namespace Photon.LoadBalancing.GameServer
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         private readonly GameApplication application;
-        
+
         #endregion
 
         #region Constructors and Destructors
@@ -515,6 +519,7 @@ namespace Photon.LoadBalancing.GameServer
         public WelfareController mWelfareCtrlr;
         public SevenDaysController mSevenDaysController;
         public QuestExtraRewardsController mQuestExtraRewardsCtrler;
+        public SocialController mSocialController;
         public SocialInventoryData mSocialInventory;
         public PowerUpController mPowerUpController;
         public EquipmentCraftController mEquipmentCraftController;
@@ -557,7 +562,15 @@ namespace Photon.LoadBalancing.GameServer
                             GameSetting = string.IsNullOrEmpty(gameSettingStr)
                                 ? new ServerSettingsData() : ServerSettingsData.Deserialize(gameSettingStr);
                             Task task = InitAchievementInventory();
-                            var ignoreAwait = InitSocialInventory((string)charinfo["friends"], (string)charinfo["friendrequests"]);
+
+                            #region Social
+                            mSocialController = new SocialController(this);
+                            mSocialInventory = new SocialInventoryData();
+                            mSocialInventory.LoadDataFromJsonString((string)charinfo["friends"]);
+                            #region Old Code
+                            //var ignoreAwait = InitSocialInventory((string)charinfo["friends"], (string)charinfo["friendrequests"]);
+                            #endregion
+                            #endregion
 
                             lastLogLogin = logoutDT;
                             LogLogin(createdDT == logoutDT);
@@ -700,8 +713,8 @@ namespace Photon.LoadBalancing.GameServer
                                                                         0, 0,
                                                                         0, 0,
                                                                         new DateTime(characterData.LeaveGuildCDEndTick),
-                                                                        SocialInvToString(mSocialInventory.friendList),
-                                                                        SocialInvToString(mSocialInventory.friendRequestList),
+                                                                        mSocialInventory.SaveDataToJsonString()/*SocialInvToString(mSocialInventory.friendList)*/,//social社群資料欄位
+                                                                        string.Empty/*SocialInvToString(mSocialInventory.friendRequestList)*/,//沒用到的資料庫欄位，舊版friendRequestList使用
                                                                         characterData.FirstBuyFlag, characterData.FirstBuyCollected,
                                                                         GameSetting.Serialize(),
                                                                         serializedData, loginDT, logoutDT);
@@ -729,85 +742,7 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
-        #region Social        
-        private async Task InitSocialInventory(string friendListStr, string friendRequestListStr)
-        {
-            mSocialInventory = new SocialInventoryData();
-            if (string.IsNullOrEmpty(friendListStr) && string.IsNullOrEmpty(friendRequestListStr))
-                return;
-
-            string[] splitList = friendListStr.Split('|');
-            int splitListLen = splitList.Length;
-            if (splitListLen > 0)
-            {
-                List<string> names = new List<string>();
-                for (int i = 0; i < splitListLen; ++i)
-                {
-                    string listInfo = splitList[i];
-                    if (string.IsNullOrEmpty(listInfo))
-                        continue;
-                    names.Add(GetNameFromSocialInfo(listInfo));
-                }
-                // Update friends to latest info from DB
-                List<Dictionary<string, object>> dbInfoList = await GameApplication.dbRepository.Character.GetSocialByNames(names);
-                application.executionFiber.Enqueue(() => {
-                    if (dbInfoList.Count > 0)
-                    {
-                        SocialInfo socialInfo = new SocialInfo();
-                        int count = dbInfoList.Count;
-                        for (int i = 0; i < count; ++i)
-                        {
-                            Dictionary<string, object> dbInfo = dbInfoList[i];
-                            socialInfo.charName = dbInfo["charname"] as string;
-                            socialInfo.portraitId = (int)dbInfo["portraitid"];
-                            socialInfo.jobSect = (byte)dbInfo["jobsect"];
-                            socialInfo.vipLvl = (byte)dbInfo["viplevel"];
-                            socialInfo.charLvl = (int)dbInfo["progresslevel"];
-                            socialInfo.combatScore = (int)dbInfo["combatscore"];
-                            socialInfo.faction = (byte)dbInfo["faction"];
-                            socialInfo.guildName = GuildRules.GetGuildNameById((int)dbInfo["guildid"]);
-                            mSocialInventory.friendList.Add(socialInfo.ToString());
-                        }
-                    }
-                });
-            }
-            splitList = friendRequestListStr.Split('|');
-            splitListLen = splitList.Length;
-            for (int i = 0; i < splitListLen; ++i)
-            {
-                string listInfo = splitList[i];
-                if (string.IsNullOrEmpty(listInfo))
-                    continue;
-                mSocialInventory.friendRequestList.Add(listInfo);
-            }
-        }
-
-        private string GetNameFromSocialInfo(string info)
-        {
-            if (!string.IsNullOrEmpty(info))
-            {
-                int sepIdx = info.IndexOf('`');
-                if (sepIdx != -1)
-                    return info.Substring(0, sepIdx);
-            }
-            return "";
-        }
-
-        private string SocialInvToString(IList<string> list)
-        {
-            int listCnt = list.Count;
-            if (listCnt == 0)
-                return "";
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < listCnt; ++i)
-            {
-                if (i != 0)
-                    sb.Append('|');
-                sb.Append(list[i]);
-            }
-            return sb.ToString();
-        }
+        #region Social
 
         public void SendInspectPlayerInfo(GameClientPeer recievingPeer)
         {
@@ -830,49 +765,132 @@ namespace Photon.LoadBalancing.GameServer
             avatarData.InspectCombatStats.Update(mPlayer.LocalCombatStats);
             ZRPC.CombatRPC.SetInspectPlayerInfo(avatarData.SerializeForCharCreation(), recievingPeer);
         }
-        
-        public string GetOnlinePlayerInfoByName(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-                return null;
 
-            /*SocialInfo socialInfo = new SocialInfo();
-            // Find name in SocialStats
-            string strData = "", result = "";
-            int idx = -1;
-            int socialType = GetNameInSocialStats(name, ref strData, ref idx);
-            GameClientPeer peer = GameApplication.GetCharPeer(name);
-            if (peer != null && peer.mPlayer != null) // Online
-            {
-                PlayerSynStats playerSynStats = peer.mPlayer.PlayerSynStats;
-                socialInfo.name = name;
-                socialInfo.jobsect = playerSynStats.jobsect;
-                socialInfo.rank = playerSynStats.rank;
-                socialInfo.progressLvl = playerSynStats.progressLevel;
-                socialInfo.combatScore = peer.mPlayer.LocalCombatStats.CombatScore;
-                socialInfo.lastLvlId = peer.CharacterData.lastlevelid;
-                socialInfo.countryType = playerSynStats.countryType; // country
-                socialInfo.guildName = playerSynStats.guildName; // guild
-                socialInfo.isOnline = true;
-                if (socialType != -1)
-                {
-                    result = socialInfo.ToString();
-                    mPlayer.SocialStats.friendList[idx] = result;
-                }
-            }
-            else
-            {
-                if (socialType != -1)
-                {
-                    socialInfo.InitFromString(strData);
-                    socialInfo.isOnline = false;
-                    result = socialInfo.ToString();
-                }
-                else
-                    result = string.Format("{0}`0`0`1`9000`0`0``true", name);
-            }*/
-            return "";
-        }
+        #region Old Code
+        //private string SocialInvToString(IList<string> list)
+        //{
+        //    int listCnt = list.Count;
+        //    if (listCnt == 0)
+        //        return "";
+
+        //    StringBuilder sb = new StringBuilder();
+        //    for (int i = 0; i < listCnt; ++i)
+        //    {
+        //        if (i != 0)
+        //            sb.Append('|');
+        //        sb.Append(list[i]);
+        //    }
+        //    return sb.ToString();
+        //}
+
+        //private async Task InitSocialInventory(string friendListStr, string friendRequestListStr)
+        //{
+        //    mSocialInventory = new SocialInventoryData();
+        //    if (string.IsNullOrEmpty(friendListStr) && string.IsNullOrEmpty(friendRequestListStr))
+        //        return;
+
+        //    string[] splitList = friendListStr.Split('|');
+        //    int splitListLen = splitList.Length;
+        //    if (splitListLen > 0)
+        //    {
+        //        List<string> names = new List<string>();
+        //        for (int i = 0; i < splitListLen; ++i)
+        //        {
+        //            string listInfo = splitList[i];
+        //            if (string.IsNullOrEmpty(listInfo))
+        //                continue;
+        //            names.Add(GetNameFromSocialInfo(listInfo));
+        //        }
+        //        // Update friends to latest info from DB
+        //        List<Dictionary<string, object>> dbInfoList = await GameApplication.dbRepository.Character.GetSocialByNames(names);
+        //        application.executionFiber.Enqueue(() => {
+        //            if (dbInfoList.Count > 0)
+        //            {
+        //                SocialInfo socialInfo = new SocialInfo();
+        //                int count = dbInfoList.Count;
+        //                for (int i = 0; i < count; ++i)
+        //                {
+        //                    Dictionary<string, object> dbInfo = dbInfoList[i];
+        //                    socialInfo.charName = dbInfo["charname"] as string;
+        //                    socialInfo.portraitId = (int)dbInfo["portraitid"];
+        //                    socialInfo.jobSect = (byte)dbInfo["jobsect"];
+        //                    socialInfo.vipLvl = (byte)dbInfo["viplevel"];
+        //                    socialInfo.charLvl = (int)dbInfo["progresslevel"];
+        //                    socialInfo.combatScore = (int)dbInfo["combatscore"];
+        //                    socialInfo.faction = (byte)dbInfo["faction"];
+        //                    socialInfo.guildName = GuildRules.GetGuildNameById((int)dbInfo["guildid"]);
+        //                    mSocialInventory.friendList.Add(socialInfo.ToString());
+        //                }
+        //            }
+        //        });
+        //    }
+        //    splitList = friendRequestListStr.Split('|');
+        //    splitListLen = splitList.Length;
+        //    for (int i = 0; i < splitListLen; ++i)
+        //    {
+        //        string listInfo = splitList[i];
+        //        if (string.IsNullOrEmpty(listInfo))
+        //            continue;
+        //        mSocialInventory.friendRequestList.Add(listInfo);
+        //    }
+        //}
+
+        //private string GetNameFromSocialInfo(string info)
+        //{
+        //    if (!string.IsNullOrEmpty(info))
+        //    {
+        //        int sepIdx = info.IndexOf('`');
+        //        if (sepIdx != -1)
+        //            return info.Substring(0, sepIdx);
+        //    }
+        //    return "";
+        //}
+
+        
+
+        //public string GetOnlinePlayerInfoByName(string name)
+        //{
+        //    if (string.IsNullOrEmpty(name))
+        //        return null;
+
+        //    /*SocialInfo socialInfo = new SocialInfo();
+        //    // Find name in SocialStats
+        //    string strData = "", result = "";
+        //    int idx = -1;
+        //    int socialType = GetNameInSocialStats(name, ref strData, ref idx);
+        //    GameClientPeer peer = GameApplication.GetCharPeer(name);
+        //    if (peer != null && peer.mPlayer != null) // Online
+        //    {
+        //        PlayerSynStats playerSynStats = peer.mPlayer.PlayerSynStats;
+        //        socialInfo.name = name;
+        //        socialInfo.jobsect = playerSynStats.jobsect;
+        //        socialInfo.rank = playerSynStats.rank;
+        //        socialInfo.progressLvl = playerSynStats.progressLevel;
+        //        socialInfo.combatScore = peer.mPlayer.LocalCombatStats.CombatScore;
+        //        socialInfo.lastLvlId = peer.CharacterData.lastlevelid;
+        //        socialInfo.countryType = playerSynStats.countryType; // country
+        //        socialInfo.guildName = playerSynStats.guildName; // guild
+        //        socialInfo.isOnline = true;
+        //        if (socialType != -1)
+        //        {
+        //            result = socialInfo.ToString();
+        //            mPlayer.SocialStats.friendList[idx] = result;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (socialType != -1)
+        //        {
+        //            socialInfo.InitFromString(strData);
+        //            socialInfo.isOnline = false;
+        //            result = socialInfo.ToString();
+        //        }
+        //        else
+        //            result = string.Format("{0}`0`0`1`9000`0`0``true", name);
+        //    }*/
+        //    return "";
+        //}
+        #endregion
         #endregion
 
         #region Guild

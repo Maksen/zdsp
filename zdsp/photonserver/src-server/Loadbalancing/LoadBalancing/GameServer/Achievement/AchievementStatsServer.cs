@@ -59,6 +59,8 @@ namespace Photon.LoadBalancing.GameServer
             ParseLatestRecords(latestCollectionsList, LatestCollections);
             ParseLatestRecords(latestAchievementList, LatestAchievements);
             ParseCompleteTargets(invData.CompletedTargets);
+            CurrentLISATier = invData.CurrentTier;
+            HighestUnlockedTier = invData.HighestUnlockedTier;
 
             AchievementLevel levelInfo = AchievementRepo.GetAchievementLevelInfo(player.PlayerSynStats.AchievementLevel);
             if (levelInfo != null)
@@ -75,6 +77,8 @@ namespace Photon.LoadBalancing.GameServer
             invData.LatestCollections = LatestCollections;
             invData.LatestAchievements = LatestAchievements;
             invData.CompletedTargets = CompletedTargetsSerializeForDB();
+            invData.CurrentTier = CurrentLISATier;
+            invData.HighestUnlockedTier = HighestUnlockedTier;
         }
 
         #region ParseFromString
@@ -833,6 +837,19 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+        public void UnlockNextLISATier()
+        {
+            var nextTierInfo = AchievementRepo.GetLISATierInfoByTier(HighestUnlockedTier + 1);
+            if (nextTierInfo != null && player.PlayerSynStats.AchievementLevel >= nextTierInfo.reqlvl)
+                HighestUnlockedTier++;
+        }
+
+        public void ChangeLISATier(int tier)
+        {
+            if (tier <= HighestUnlockedTier && tier != CurrentLISATier)
+                CurrentLISATier = tier;
+        }
+
 #if DEBUG
         public void ConsoleResetCollections()
         {
@@ -919,6 +936,15 @@ namespace Photon.LoadBalancing.GameServer
                 GiveLevelUpReward(info);
 
             UpdateAchievement(AchievementObjectiveType.AchievementLevel, "-1", true, newLevel, false);
+
+            var highestTier = AchievementRepo.GetHighestLISATierInfoByLevel(newLevel);
+            if (highestTier != null)
+            {
+                if (HighestUnlockedTier > highestTier.tierid)
+                    HighestUnlockedTier = highestTier.tierid;
+                if (CurrentLISATier > highestTier.tierid)
+                    CurrentLISATier = highestTier.tierid;
+            }
         }
 
         public void ConsoleClearAchievementRewards()

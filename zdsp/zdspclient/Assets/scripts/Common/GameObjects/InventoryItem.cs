@@ -1,10 +1,10 @@
 ﻿using Kopio.JsonContracts;
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -43,12 +43,12 @@ namespace Zealot.Common
     public class IItemData
     {
         [DefaultValue(0)]
-        [JsonProperty(PropertyName = "itemkindid")]
-        public ushort ItemKindID { get; set; }
+        [JsonProperty(PropertyName = "itemsortid")]
+        public ushort ItemSortId { get; set; }
 
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "itemid")]
-        public ushort ItemID { get; set; }
+        public ushort ItemId { get; set; }
 
         [DefaultValue(0)]
         [JsonProperty(PropertyName = "dailycharges")]
@@ -58,19 +58,21 @@ namespace Zealot.Common
         //[JsonProperty(PropertyName = "lastusedt")]
         public DateTime LastUsedt { get; set; }
 
-        public IItemData() { }
-
-        public IItemData(ushort itemkindid, ushort itemid, ushort dailycharges, DateTime lastusedt)
+        public IItemData()
         {
-            ItemKindID = itemkindid;
-            ItemID = itemid;
+        }
+
+        public IItemData(ushort itemSortId, ushort itemId, ushort dailycharges, DateTime lastusedt)
+        {
+            ItemSortId = itemSortId;
+            ItemId = itemId;
             DailyCharges = dailycharges;
             LastUsedt = lastusedt;
         }
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-    public class ItemKindData
+    public class ItemSortInventoryData
     {
         [JsonProperty]
         public List<IItemData> Slots = new List<IItemData>();
@@ -82,24 +84,24 @@ namespace Zealot.Common
                 Slots.Add(new IItemData((ushort)i, 0, 0, DateTime.MinValue));
         }
 
-        public IItemData GetDataByItemKindId(int id)
+        public IItemData GetDataByItemSortId(int id)
         {
-            return Slots.FirstOrDefault(o => o.ItemKindID == id);
+            return Slots.FirstOrDefault(o => o.ItemSortId == id);
         }
 
         public IItemData GetDataByItemId(int id)
         {
-            return Slots.FirstOrDefault(o => o.ItemID == id);
+            return Slots.FirstOrDefault(o => o.ItemId == id);
         }
 
-        public int GetIndexByItemKindId(int id)
+        public int GetIndexByItemSortId(int id)
         {
-            return Slots.FindIndex(o => o.ItemKindID == id);
+            return Slots.FindIndex(o => o.ItemSortId == id);
         }
 
         public int GetIndexByItemId(int id)
         {
-            return Slots.FindIndex(o => o.ItemID == id);
+            return Slots.FindIndex(o => o.ItemId == id);
         }
 
         public int GetEmptySlot()
@@ -108,10 +110,10 @@ namespace Zealot.Common
             return index == -1 ? Slots.Count : index;
         }
 
-        public void SetDataBySlotId(int slotid, IItemData data)
+        public void SetDataBySlotId(int slotId, IItemData data)
         {
-            if (slotid < Slots.Count)
-                Slots[slotid] = data;
+            if (slotId < Slots.Count)
+                Slots[slotId] = data;
             else
                 Slots.Add(data);
         }
@@ -201,7 +203,7 @@ namespace Zealot.Common
             ItemID = (ushort)jsonobject.itemid;
             ItemSortJson = GameRepo.ItemFactory.GetItemSortById(jsonobject.itemsort);
             SortOrder = ItemSortJson.sortorder;
-            MaxStackCount = (ushort)GameRepo.ItemFactory.GetItemMaxStackCount(ItemSortJson.bagtabtype);
+            MaxStackCount = (ushort)ItemSortJson.maxstackcount;
         }
 
         public virtual void EncodeItem()
@@ -797,7 +799,6 @@ namespace Zealot.Common
 
         public DNA()
         {
-
         }
 
         public override void LoadJson(ItemBaseJson jsonobject)

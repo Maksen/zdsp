@@ -15,4 +15,11 @@ public class GameIconCmpt_StackCount : MonoBehaviour
     {
         txtStackCount.text = (count > 999) ? uncapped ? count.ToString() : "999+" : (count < -999) ? "-999+" : count.ToString();
     }
+
+    public void SetStackCount(int invcount, int reqcount)
+    {
+        string hexaStr = ClientUtils.GetHexaStringFromColor(ClientUtils.ColorRed);
+        string stackCountTxt = invcount < reqcount ? string.Format(ClientUtils.FormatStringColor("{0}", "#" + hexaStr) + "/{1}", invcount, reqcount) : string.Format("{0}/{1}", invcount, reqcount);
+        txtStackCount.text = stackCountTxt;
+    }
 }

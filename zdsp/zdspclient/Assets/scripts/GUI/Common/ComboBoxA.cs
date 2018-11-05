@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ComboBoxA : MonoBehaviour
@@ -15,8 +15,11 @@ public class ComboBoxA : MonoBehaviour
     GameObject comboBoxItem;
 
     private Toggle toggle;
+    private List<GameObject> raycastTargetObjects = new List<GameObject>();
+    private List<RaycastResult> raycastHitsCache = new List<RaycastResult>();
 
     private int selectedIndex = -1;
+
     public int SelectedIndex
     {
         get { return selectedIndex; }
@@ -62,6 +65,13 @@ public class ComboBoxA : MonoBehaviour
     private void Awake()
     {
         toggle = GetComponent<Toggle>();
+
+        Image[] images = GetComponentsInChildren<Image>();
+        for (int i = 0; i < images.Length; i++)
+        {
+            if (images[i].raycastTarget)
+                raycastTargetObjects.Add(images[i].gameObject);
+        }
     }
 
     private void OnEnable()
@@ -95,7 +105,7 @@ public class ComboBoxA : MonoBehaviour
 
     public void AddItem(string text, string value)
     {
-        GameObject child = Instantiate(comboBoxItem) as GameObject;
+        GameObject child = Instantiate(comboBoxItem);
         child.transform.SetParent(childContent, false);
         ComboBoxAItem item = child.GetComponent<ComboBoxAItem>();
         int index = ItemList.Count;
@@ -149,11 +159,48 @@ public class ComboBoxA : MonoBehaviour
 
     public int GetIndexByValue(string value)
     {
-        List<ComboBoxAItem> result = ItemList.Where(o => o.Value == value).ToList();
-        if (result.Count > 0)
+        int foundIndex = ItemList.FindIndex(x => x.Value == value);
+        return foundIndex == -1 ? 0 : foundIndex;
+    }
+
+    private void Update()
+    {
+        if (!toggle.isOn)
+            return;
+
+        Vector2 pointerPosition = Vector2.zero;
+
+#if UNITY_EDITOR || UNITY_STANDALONE
+        if (Input.GetMouseButtonUp(0))
+            pointerPosition = Input.mousePosition;
+#elif UNITY_IOS || UNITY_ANDROID
+        int touchCount = Input.touchCount;
+        for (int i = 0; i < touchCount; i++)
         {
-            return result[0].Index;
+            if (Input.GetTouch(i).phase == TouchPhase.Ended)
+            {
+                pointerPosition = Input.GetTouch(i).position;
+                break;
+            }
         }
-        return 0;
+#endif
+        if (pointerPosition != Vector2.zero)
+        {
+            PointerEventData eventData = new PointerEventData(EventSystem.current);
+            eventData.position = pointerPosition;
+
+            EventSystem.current.RaycastAll(eventData, raycastHitsCache);
+            bool clickOutside = true;
+            for (int i = 0; i < raycastHitsCache.Count; i++)
+            {
+                if (raycastTargetObjects.Contains(raycastHitsCache[i].gameObject))
+                {
+                    clickOutside = false;
+                    break;
+                }
+            }
+            if (clickOutside)
+                HideDropDown();
+        }
     }
 }

@@ -532,84 +532,86 @@ namespace Photon.LoadBalancing.GameServer
             DonateRules.ConsoleResetDonateRemainingCount();
         }
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSocialAddFriend)]
-        public async Task ConsoleSocialAddFriend(string playerName, GameClientPeer peer)
-        {
-            if (!string.IsNullOrEmpty(playerName))
-                await peer.mPlayer.SocialAcceptFriendRequest(playerName);
-            else
-            {
-                // Get Dict of peers
-                Dictionary<string, GameClientPeer> charPeerDict = GameApplication.Instance.GetCharPeerDictCopy();
-                if (charPeerDict == null)
-                    return;
+        #region Social: removed or modified future
+        //[RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSocialAddFriend)]
+        //public async Task ConsoleSocialAddFriend(string playerName, GameClientPeer peer)
+        //{
+        //    if (!string.IsNullOrEmpty(playerName))
+        //        await peer.mPlayer.SocialAcceptFriendRequest(playerName);
+        //    else
+        //    {
+        //        // Get Dict of peers
+        //        Dictionary<string, GameClientPeer> charPeerDict = GameApplication.Instance.GetCharPeerDictCopy();
+        //        if (charPeerDict == null)
+        //            return;
 
-                Player player = peer.mPlayer;
-                string myName = player.Name;
-                StringBuilder friendRemoveSB = new StringBuilder();
-                friendRemoveSB.AppendFormat("|{0}|", myName);
-                charPeerDict.Remove(myName); // Remove your name from peer dict
-                Dictionary<string, SocialInfo> myFriendsDict = player.SocialStats.GetFriendListDict();
-                foreach (string friend in myFriendsDict.Keys) // Append your friends to filter dict
-                {
-                    friendRemoveSB.AppendFormat("{0}|", friend);
-                    charPeerDict.Remove(friend); // Remove your friends from dict
-                }
+        //        Player player = peer.mPlayer;
+        //        string myName = player.Name;
+        //        StringBuilder friendRemoveSB = new StringBuilder();
+        //        friendRemoveSB.AppendFormat("|{0}|", myName);
+        //        charPeerDict.Remove(myName); // Remove your name from peer dict
+        //        Dictionary<string, SocialInfo> myFriendsDict = player.SocialStats.GetFriendListDict();
+        //        foreach (string friend in myFriendsDict.Keys) // Append your friends to filter dict
+        //        {
+        //            friendRemoveSB.AppendFormat("{0}|", friend);
+        //            charPeerDict.Remove(friend); // Remove your friends from dict
+        //        }
 
-                Dictionary<string, string> friendsRecDict = new Dictionary<string, string>();
-                int peerDictCnt = charPeerDict.Count, foundCnt = 0;
-                if (peerDictCnt > 0) // Get random friends from online peer list first
-                {
-                    int min = (peerDictCnt < 100) ? peerDictCnt : 100;
-                    int max = (peerDictCnt < 150) ? peerDictCnt : 150;
-                    // Random sample size
-                    int sampleSize = (min == max) ? peerDictCnt : GameUtils.RandomInt(min, max);
+        //        Dictionary<string, string> friendsRecDict = new Dictionary<string, string>();
+        //        int peerDictCnt = charPeerDict.Count, foundCnt = 0;
+        //        if (peerDictCnt > 0) // Get random friends from online peer list first
+        //        {
+        //            int min = (peerDictCnt < 100) ? peerDictCnt : 100;
+        //            int max = (peerDictCnt < 150) ? peerDictCnt : 150;
+        //            // Random sample size
+        //            int sampleSize = (min == max) ? peerDictCnt : GameUtils.RandomInt(min, max);
 
-                    friendsRecDict.Clear();
-                    for (int i = 0; i < sampleSize; ++i)
-                    {
-                        int currIdx = GameUtils.RandomInt(0, sampleSize-1);
-                        GameClientPeer currPeer = charPeerDict.Values.ElementAt(currIdx);
-                        string currCharName = currPeer.mChar;
-                        if (myFriendsDict.ContainsKey(currCharName) || friendsRecDict.ContainsKey(currCharName))
-                            continue;
+        //            friendsRecDict.Clear();
+        //            for (int i = 0; i < sampleSize; ++i)
+        //            {
+        //                int currIdx = GameUtils.RandomInt(0, sampleSize-1);
+        //                GameClientPeer currPeer = charPeerDict.Values.ElementAt(currIdx);
+        //                string currCharName = currPeer.mChar;
+        //                if (myFriendsDict.ContainsKey(currCharName) || friendsRecDict.ContainsKey(currCharName))
+        //                    continue;
 
-                        friendRemoveSB.AppendFormat("{0}|", currCharName);
-                        friendsRecDict[currCharName] = currCharName;
-                        if (++foundCnt >= 5)
-                            break;
-                    }
-                }
+        //                friendRemoveSB.AppendFormat("{0}|", currCharName);
+        //                friendsRecDict[currCharName] = currCharName;
+        //                if (++foundCnt >= 5)
+        //                    break;
+        //            }
+        //        }
 
-                if (foundCnt < 5) // If can't find more than 5 in local, search from db
-                {
-                    var dbInfo = await GameApplication.dbRepository.Character.GetSocialRandom(friendRemoveSB.ToString());
-                    GameApplication.Instance.executionFiber.Enqueue(async () => {
-                        int dbInfoCnt = dbInfo.Count;
-                        if (dbInfoCnt > 0)
-                        {
-                            int dbIdx = 0;
-                            for (int i = foundCnt; i < 5; ++i)
-                            {
-                                if (dbIdx >= dbInfoCnt)
-                                    break;
-                                Dictionary<string, object> infoDict = dbInfo[dbIdx];
-                                string currCharName = infoDict["charname"] as string;
-                                friendsRecDict[currCharName] = currCharName;
-                                ++dbIdx;
-                            }
-                        }
-                        foreach(string request in friendsRecDict.Keys)
-                            await peer.mPlayer.SocialAcceptFriendRequest(request);
-                    });
-                }
-                else
-                {
-                    foreach (string request in friendsRecDict.Keys)
-                        await peer.mPlayer.SocialAcceptFriendRequest(request);
-                }
-            }
-        }
+        //        if (foundCnt < 5) // If can't find more than 5 in local, search from db
+        //        {
+        //            var dbInfo = await GameApplication.dbRepository.Character.GetSocialRandom(friendRemoveSB.ToString());
+        //            GameApplication.Instance.executionFiber.Enqueue(async () => {
+        //                int dbInfoCnt = dbInfo.Count;
+        //                if (dbInfoCnt > 0)
+        //                {
+        //                    int dbIdx = 0;
+        //                    for (int i = foundCnt; i < 5; ++i)
+        //                    {
+        //                        if (dbIdx >= dbInfoCnt)
+        //                            break;
+        //                        Dictionary<string, object> infoDict = dbInfo[dbIdx];
+        //                        string currCharName = infoDict["charname"] as string;
+        //                        friendsRecDict[currCharName] = currCharName;
+        //                        ++dbIdx;
+        //                    }
+        //                }
+        //                foreach(string request in friendsRecDict.Keys)
+        //                    await peer.mPlayer.SocialAcceptFriendRequest(request);
+        //            });
+        //        }
+        //        else
+        //        {
+        //            foreach (string request in friendsRecDict.Keys)
+        //                await peer.mPlayer.SocialAcceptFriendRequest(request);
+        //        }
+        //    }
+        //}
+        #endregion
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSetStoreRefreshTime)]
         public void ConsoleSetStoreRefreshTime(int storecat, int time, GameClientPeer peer)

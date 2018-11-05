@@ -683,6 +683,9 @@
             DonateSynStats donateStats = player.DonateStats;
             player.DonateController.InitDonateStats(ref donateStats);
 
+            //-------------------- InteractiveTrigger Stats --------------------//
+            player.InteractiveTriggerController.InitController();
+
             /*********************   Realm Stats   ***************************/
             player.RealmStats.Init(characterData.RealmInventory);
 
@@ -737,8 +740,10 @@
             SkillStats.CopyFromInvData(characterData.SkillInventory);
 
             /*********************   SocialStats   *********************/
-            SocialStats socialStats = player.SocialStats;
-            SocialInventoryData socialInventory = peer.mSocialInventory;
+            //SocialStats socialStats = player.SocialStats;
+            //SocialInventoryData socialInventory = peer.mSocialInventory;
+            player.SocialStats.LoadFromInventoryData(peer.mSocialInventory);
+
             //listCount = socialInventory.friendList.Count;
             //for(int i = 0; i < listCount; ++i)
             //{

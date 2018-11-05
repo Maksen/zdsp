@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Photon.LoadBalancing.GameServer;
 using Zealot.Entities;
-using Photon.LoadBalancing.GameServer;
-using Zealot.Common;
 
 namespace Zealot.Server.Entities
 {
-    public class CutSceneBroadcaster : IServerEntity
+    public class CutsceneBroadcaster : IServerEntity
     {
-        public CutSceneBroadcasterJson mPropertyInfos;
+        public CutsceneBroadcasterJson mPropertyInfos;
         public GameLogic mInstance;
 
-        public CutSceneBroadcaster(CutSceneBroadcasterJson info, GameLogic instance)
+        public CutsceneBroadcaster(CutsceneBroadcasterJson info, GameLogic instance)
         {
             mPropertyInfos = info;
             mInstance = instance;
@@ -23,7 +20,12 @@ namespace Zealot.Server.Entities
         }
 
         public void InstanceStartUp()
-        {           
+        {
+        }
+
+        public void OnCutsceneFinished()
+        {
+            mInstance.BroadcastEvent(this, "OnCutsceneFinished");
         }
 
         #region Triggers

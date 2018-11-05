@@ -1,4 +1,5 @@
-﻿using Zealot.Spawners;
+﻿using Zealot.Client.Entities;
+using Zealot.Spawners;
 
 public class InteractiveController {
 
@@ -6,34 +7,47 @@ public class InteractiveController {
     {
 
     }
-    
-    public bool isInterruptible = false;
-    public bool isUsing = false;
-    
-    InteractiveTrigger interactiveTrigger;
 
-    public void OnActionEnter(InteractiveTrigger trigger, bool interruptible)
+    private int pid = 0;
+    public bool isInterruptible = false;
+    private bool isArea = false;
+    public bool isUsing = false;
+    private InteractiveTrigger trigger;
+
+    public void OnActionEnter(int mPid, bool interruptible, bool mIsArea, InteractiveTrigger mTrigger)
     {
-        interactiveTrigger = trigger;
+        trigger = mTrigger;
         isInterruptible = interruptible;
+        pid = mPid;
         isUsing = true;
+        isArea = mIsArea;
+        RPCFactory.CombatRPC.OnInteractiveUse(mPid, true);
     }
 
     public void OnActionLeave()
     {
-        interactiveTrigger.InterruptAction();
-        interactiveTrigger = null;
+        RPCFactory.CombatRPC.OnInteractiveUse(pid, false);
+        pid = 0;
+        trigger = null;
         isInterruptible = false;
         isUsing = false;
     }
 
-    public void ActionInterupted()
+    public void InterruptAction()
     {
+        if(isArea)
+            trigger.OpenUpdate();
         OnActionLeave();
     }
 
-    public bool IsUsing()
+    public void SetEntityStats(int pid, bool canUse, bool active, int step)
     {
-        return isUsing;
+        //InteractiveGhost ghost = GameInfo.gLocalPlayer.EntitySystem.GetEntityByPID(pid) as InteractiveGhost;
+        //ghost.entityObj.GetComponent<InteractiveEntities>().RefreshInteractiveStats(canUse, active, step);
+    }
+
+    public static void Init()
+    {
+        RPCFactory.CombatRPC.OnInteractiveInit();
     }
 }

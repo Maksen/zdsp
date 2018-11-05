@@ -85,18 +85,14 @@ public class CutsceneEntity : MonoBehaviour
     public void SkipCutScene()
     {
         if (canSkip == CanSkip.False)
-        {
             return;
-        }
 
         if (canSkip == CanSkip.First)
         {
             var key = "Cutscene " + CutsceneName;
             var first = PlayerPrefs.HasKey(key);
-            if (first == false)
-            {                
+            if (first == false)             
                 return;
-            }
         }
 
         if (Cutscene != null)
@@ -124,7 +120,7 @@ public class CutsceneEntity : MonoBehaviour
 
     private void Cutscene_CutsceneFinished()
     {
-        if (GameInfo.gLocalPlayer != null)
+        if (GameInfo.gCombat != null)
             GameInfo.gCombat.CutsceneManager.OnCutsceneFinished(this);
         OnCutsceneFinished.Invoke();
 

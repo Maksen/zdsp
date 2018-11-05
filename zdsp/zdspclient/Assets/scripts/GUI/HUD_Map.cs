@@ -425,35 +425,35 @@ public class HUD_Map : MonoBehaviour
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.RETURN_DAILYQUEST:
-                img.sprite = mIconDailyQuest;
+                img.sprite = mIconReturnDailyQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.RETURN_DESTINYQUEST:
-                img.sprite = mIconDestinyQuest;
+                img.sprite = mIconReturnDestinyQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.RETURN_MAINQUEST:
-                img.sprite = mIconMainQuest;
+                img.sprite = mIconReturnMainQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.RETURN_SIDEQUEST:
-                img.sprite = mIconSideQuest;
+                img.sprite = mIconReturnSideQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.FINISH_DAILYQUEST:
-                img.sprite = mIconDailyQuest;
+                img.sprite = mIconFinishDailyQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.FINISH_DESTINYQUEST:
-                img.sprite = mIconDestinyQuest;
+                img.sprite = mIconFinishDestinyQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.FINISH_MAINQUEST:
-                img.sprite = mIconMainQuest;
+                img.sprite = mIconFinishMainQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             case IconType.FINISH_SIDEQUEST:
-                img.sprite = mIconSideQuest;
+                img.sprite = mIconFinishSideQuest;
                 img.gameObject.transform.SetParent(mQuestNPCGO.transform, false);
                 break;
             //case IconType.QUEST_COMPLETED:
@@ -480,6 +480,51 @@ public class HUD_Map : MonoBehaviour
         }
 
         img.gameObject.SetActive(true);
+    }
+    private void SetIcon2(StaticMapIconGameObjectPair pair, Image img)
+    {
+        QuestType qt = QuestType.Main;
+        if (pair.GetNPCQuestType(ref qt) == false)
+        {
+            Debug.LogError("HUD_MiniMap.SetIcon2: Walaoeh!! quest id is invalid");
+            return;
+        }
+
+        switch (qt)
+        {
+            case QuestType.Destiny:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.DESTINYQUEST, img);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_DESTINYQUEST, img);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_DESTINYQUEST, img);
+                break;
+            case QuestType.Main:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.MAINQUEST, img);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_MAINQUEST, img);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_MAINQUEST, img);
+                break;
+            case QuestType.Sub:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.DAILYQUEST, img);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_DAILYQUEST, img);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_DAILYQUEST, img);
+                break;
+            case QuestType.Event:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.SIDEQUEST, img);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_SIDEQUEST, img);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_SIDEQUEST, img);
+                break;
+        }
     }
     private void SetIconPos(Image img, Vector3 pos)
     {
@@ -675,60 +720,23 @@ public class HUD_Map : MonoBehaviour
         {
             mBossIconLst[i].gameObject.SetActive(false);
         }
-        //QuestNPC
+        //QuestNPC - create new map icon loop
         for (int i = 0; i < HUD_MapController.mQuestNPCPosLst.Count; ++i)
         {
+            //if there is a new quest NPC as told by HUD_MapController
+            //Create a new icon in the map
             if (i >= mQuestNPCIconLst.Count)
             {
                 Image icon = CreateIcon();
-                QuestType qt = QuestType.Destiny;
-                if (HUD_MapController.mQuestNPCPosLst[i].GetNPCQuestType(ref qt) == false)
-                {
-                    Debug.LogError("HUD_MiniMap.MiniMapUpdateIconCoroutine: Walaoeh!! quest id is invalid");
-                    continue;
-                }
-
-                switch (qt)
-                {
-                    case QuestType.Destiny:
-                        if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
-                            SetIcon(IconType.DESTINYQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
-                            SetIcon(IconType.RETURN_DESTINYQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestCompleted())
-                            SetIcon(IconType.FINISH_DESTINYQUEST, icon);
-                        break;
-                    case QuestType.Main:
-                        if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
-                            SetIcon(IconType.MAINQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
-                            SetIcon(IconType.RETURN_MAINQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestCompleted())
-                            SetIcon(IconType.FINISH_MAINQUEST, icon);
-                        break;
-                    case QuestType.Sub:
-                        if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
-                            SetIcon(IconType.DAILYQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
-                            SetIcon(IconType.RETURN_DAILYQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestCompleted())
-                            SetIcon(IconType.FINISH_DAILYQUEST, icon);
-                        break;
-                    case QuestType.Event:
-                        if (HUD_MapController.mQuestNPCPosLst[i].hasQuestAvailable())
-                            SetIcon(IconType.SIDEQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestToSubmit())
-                            SetIcon(IconType.RETURN_SIDEQUEST, icon);
-                        else if (HUD_MapController.mQuestNPCPosLst[i].hasQuestCompleted())
-                            SetIcon(IconType.FINISH_SIDEQUEST, icon);
-                        break;
-                }
                 mQuestNPCIconLst.Add(icon);
             }
 
+            //Set its label, pos and turn it on when expander is ON
+            SetIcon2(HUD_MapController.mQuestNPCPosLst[i], mQuestNPCIconLst[i]);
             SetIconPos(mQuestNPCIconLst[i], HUD_MapController.mQuestNPCPosLst[i].iconPos);
             mQuestNPCIconLst[i].gameObject.SetActive(mNPCExpanderTg.isOn);
         }
+        //QuestNPC - hide unused map icon loop
         for (int i = HUD_MapController.mQuestNPCPosLst.Count; i < mQuestNPCIconLst.Count; ++i)
         {
             mQuestNPCIconLst[i].gameObject.SetActive(false);

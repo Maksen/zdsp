@@ -57,9 +57,9 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveTrigger)]
-        public void InteractiveTrigger(int pid, int count, object target)
+        public void InteractiveTrigger(int pid, bool canUse, bool active, object target)
         {
-            ProxyMethod("InteractiveTrigger", pid, count, target);
+            ProxyMethod("InteractiveTrigger", pid, canUse, active, target);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnPlayerDead)]
@@ -459,11 +459,13 @@ namespace Zealot.RPC
             ProxyMethod("ReplyValidMonSpawnPos", pos, target);
         }
 
-        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_SocialReturnResult)]
-        public void Ret_SocialReturnResult(byte retCode, string param, object target)
-        {
-            ProxyMethod("Ret_SocialReturnResult", retCode, param, target);
-        }
+        #region Old Code:Social
+        //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_SocialReturnResult)]
+        //public void Ret_SocialReturnResult(byte retCode, string param, object target)
+        //{
+        //    ProxyMethod("Ret_SocialReturnResult", retCode, param, target);
+        //}
+        #endregion
 
         #region IAP
 

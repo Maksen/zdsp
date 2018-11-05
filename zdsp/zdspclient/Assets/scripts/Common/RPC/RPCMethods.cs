@@ -221,7 +221,11 @@
         SendMessageToConsoleCmd,
         #endregion        
 
-        Ret_SocialReturnResult,
+        #region Old Code
+        //#region Social
+        //Ret_SocialReturnResult,
+        //#endregion
+        #endregion
 
         ReplyValidMonSpawnPos,
 
@@ -358,13 +362,13 @@
         VerifyPurchase,
         #endregion IAP
 
-        #region Social
-        SocialAcceptRequest,
-        SocialRemoveRequest,
-        SocialSendRequest,
-        SocialRemoveFriend,
-        SocialGetRecommendedFriends,
-        SocialUpdateFriendsInfo,
+        #region Old Code:Social
+        //SocialAcceptRequest,
+        //SocialRemoveRequest,
+        //SocialSendRequest,
+        //SocialRemoveFriend,
+        //SocialGetRecommendedFriends,
+        //SocialUpdateFriendsInfo,
         #endregion
 
         #region Arena
@@ -460,6 +464,8 @@
         ClaimAllAchievementRewards,
         AchievementNPCInteract,
         StoreCollectionItem,
+        UnlockNextLISATier,
+        ChangeLISATier,
         #endregion
         
         #region Donate
@@ -518,9 +524,11 @@
 
         #region Triggers
         OnColliderTrigger,
+        OnCutsceneFinished,
         #endregion
 
         #region InteractiveTrigger
+        OnInteractiveInit,
         OnInteractiveUse,
         OnInteractiveTrigger,
         #endregion
@@ -585,7 +593,9 @@
         ConsoleDonateReset,
         ConsoleResetDonateRemainingCount,
         ConsoleNotifyNewGMItem,
-        ConsoleSocialAddFriend,
+        #region Old Code:Social
+        //ConsoleSocialAddFriend,
+        #endregion
         ConsoleSetStoreRefreshTime,
         ConsoleResetGoldJackpotRoll,
         ConsoleResetContLoginClaims,
@@ -784,9 +794,21 @@
         Tooltip_DailyWeeklyLimit,
         #endregion
 
+        #region Social
+        SocialOnOpenFriendsMenu,
+        SocialRaiseRequestByName,
+        SocialAcceptRequest,
+        //SocialGetFriendList,
+        /*SocialGetBlackList,
+        SocialGetRequestList,
+        SocialGetRecommandList,
+        SocialAddGoodFriend,*/
+        #endregion
+
         #region Invincible
         Invincible
         #endregion
+
     }
 
     public enum ServerNonCombatRPCMethods : byte
@@ -897,6 +919,12 @@
 
         #region Tooltip
         Ret_Tooltip_DailyWeeklyLimit,
+        #endregion
+
+        #region Social
+        Ret_SocialRaiseRequestByName,
+        Ret_SocialOnOpenFriendsMenu,
+        Ret_SocialAcceptRequest
         #endregion
     }
 }

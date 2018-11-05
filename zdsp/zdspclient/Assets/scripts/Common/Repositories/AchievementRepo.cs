@@ -15,6 +15,7 @@ namespace Zealot.Repository
         public int rewardId;
         public int rewardCount;
         public string rewardIconPath;
+        public int completeCount = 1;
     }
 
     public class CollectionObjective : BaseAchievementObjective
@@ -64,9 +65,9 @@ namespace Zealot.Repository
         public int subType;
         public AchievementObjectiveType objType;
         public string target;
-        public int completeCount;
-        public LISAFunction rewardFunction = LISAFunction.None;
+        public LISAFunction rewardFunction;
         public int rewardFunctionValue;
+        public string rewardFunctionDesc;
 
         public AchievementObjective(AchievementObjectiveJson json, AchievementType maintype)
         {
@@ -90,13 +91,11 @@ namespace Zealot.Repository
             }
         }
 
-        public void AddRewardFunction(LISAFunction function, int value)
+        public void AddRewardFunction(LISAExternalFunctionJson json)
         {
-            if (function != LISAFunction.None)
-            {
-                rewardFunction = function;
-                rewardFunctionValue = value;
-            }
+            rewardFunction = json.functiontype;
+            rewardFunctionValue = json.functionvalue;
+            rewardFunctionDesc = json.localizeddescription;
         }
     }
 
@@ -195,17 +194,17 @@ namespace Zealot.Repository
             }
         }
 
-        public LISAMsgDirectionType GetRandomMsgDirection(bool systemOpen, bool rewardTip, bool changeTier)
+        public LISAMsgDirectionType GetRandomMsgDirection(bool hasFunctionUnlocked, bool hasUnclaimedRewards, bool canChangeTier)
         {
             totalWeight = 0;
             int count = jsons.Count;
             for (int i = 0; i < count; ++i)
             {
-                if (jsons[i].directiontype == LISAMsgDirectionType.SystemOpen && !systemOpen)
+                if (jsons[i].directiontype == LISAMsgDirectionType.SystemOpen && !hasFunctionUnlocked)
                     continue;
-                else if (jsons[i].directiontype == LISAMsgDirectionType.RewardTip && !rewardTip)
+                else if (jsons[i].directiontype == LISAMsgDirectionType.RewardTip && !hasUnclaimedRewards)
                     continue;
-                else if (jsons[i].directiontype == LISAMsgDirectionType.ChangeTier && !changeTier)
+                else if (jsons[i].directiontype == LISAMsgDirectionType.ChangeTier && !canChangeTier)
                     continue;
                 totalWeight += jsons[i].weight;
             }
@@ -213,11 +212,11 @@ namespace Zealot.Repository
             int randWeight = GameUtils.RandomInt(1, totalWeight);
             for (int i = 0; i < count; ++i)
             {
-                if (jsons[i].directiontype == LISAMsgDirectionType.SystemOpen && !systemOpen)
+                if (jsons[i].directiontype == LISAMsgDirectionType.SystemOpen && !hasFunctionUnlocked)
                     continue;
-                else if (jsons[i].directiontype == LISAMsgDirectionType.RewardTip && !rewardTip)
+                else if (jsons[i].directiontype == LISAMsgDirectionType.RewardTip && !hasUnclaimedRewards)
                     continue;
-                else if (jsons[i].directiontype == LISAMsgDirectionType.ChangeTier && !changeTier)
+                else if (jsons[i].directiontype == LISAMsgDirectionType.ChangeTier && !canChangeTier)
                     continue;
                 if (randWeight <= jsons[i].weight)
                     return jsons[i].directiontype;
@@ -261,7 +260,7 @@ namespace Zealot.Repository
         public static Dictionary<CollectionType, CollectionCategoryJson> collectionCategories;
         public static Dictionary<int, CollectionObjective> collectionObjectives; // key = id
         public static Dictionary<CollectionType, List<CollectionObjective>> collectionTypeToObjectives; // type -> sorted
-        public static Dictionary<Pair<CollectionType, int>, CollectionObjective> collectionKeyToObjective; // server use 
+        public static Dictionary<Pair<CollectionType, int>, CollectionObjective> collectionKeyToObjective; // server use
         public static Dictionary<int, PhotoDescGroup> collectionPhotoDescriptions; // party member count -> descriptions
 
         // Achievements
@@ -269,7 +268,7 @@ namespace Zealot.Repository
         public static Dictionary<int, AchievementSubTypeJson> achievementSubTypes;
         public static Dictionary<AchievementType, List<AchievementSubTypeJson>> achievementMainToSubTypes; // main -> sorted sub
         public static Dictionary<int, AchievementObjective> achievementObjectives; // key = id
-        public static Dictionary<int, List<AchievementObjective>> achievementSubTypeToObjectives; // subtype -> sorted
+        public static Dictionary<int, Dictionary<int, List<AchievementObjective>>> achievementSubTypeToObjectivesByGroup; // subtype -> group of sorted obj
         public static Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>> achievementKeyToObjectives; // server use
         public static Dictionary<AchievementObjectiveType, List<string>> achievementObjTypeToTargets; // list of targets for each obj type
 
@@ -294,7 +293,7 @@ namespace Zealot.Repository
             achievementSubTypes = new Dictionary<int, AchievementSubTypeJson>();
             achievementMainToSubTypes = new Dictionary<AchievementType, List<AchievementSubTypeJson>>();
             achievementObjectives = new Dictionary<int, AchievementObjective>();
-            achievementSubTypeToObjectives = new Dictionary<int, List<AchievementObjective>>();
+            achievementSubTypeToObjectivesByGroup = new Dictionary<int, Dictionary<int, List<AchievementObjective>>>();
             achievementKeyToObjectives = new Dictionary<Pair<AchievementObjectiveType, string>, List<AchievementObjective>>();
             achievementObjTypeToTargets = new Dictionary<AchievementObjectiveType, List<string>>();
 
@@ -318,7 +317,7 @@ namespace Zealot.Repository
             achievementSubTypes.Clear();
             achievementMainToSubTypes.Clear();
             achievementObjectives.Clear();
-            achievementSubTypeToObjectives.Clear();
+            achievementSubTypeToObjectivesByGroup.Clear();
             achievementKeyToObjectives.Clear();
             achievementObjTypeToTargets.Clear();
 
@@ -374,6 +373,7 @@ namespace Zealot.Repository
             foreach (var type in achievementMainToSubTypes.Keys.ToList())
                 achievementMainToSubTypes[type] = achievementMainToSubTypes[type].OrderBy(x => x.sequence).ToList(); // stable sort
 
+            Dictionary<int, List<AchievementObjective>> achievementSubTypeToObjectives = new Dictionary<int, List<AchievementObjective>>();
             foreach (var entry in gameData.AchievementObjective)
             {
                 if (!achievementSubTypes.ContainsKey(entry.Value.subtype))
@@ -386,6 +386,9 @@ namespace Zealot.Repository
                     achievementSubTypeToObjectives[obj.subType].Add(obj);
                 else
                     achievementSubTypeToObjectives.Add(obj.subType, new List<AchievementObjective>() { obj });
+
+                if (!achievementSubTypeToObjectivesByGroup.ContainsKey(obj.subType))
+                    achievementSubTypeToObjectivesByGroup.Add(obj.subType, new Dictionary<int, List<AchievementObjective>>());
 
                 var key = Pair.Create(obj.objType, obj.target);
                 if (achievementKeyToObjectives.ContainsKey(key))
@@ -403,6 +406,22 @@ namespace Zealot.Repository
             }
             foreach (var type in achievementSubTypeToObjectives.Keys.ToList())
                 achievementSubTypeToObjectives[type] = achievementSubTypeToObjectives[type].OrderBy(x => x.json.sortorder).ToList(); // stable sort
+
+            foreach (var entry in achievementSubTypeToObjectives)
+            {
+                var group = achievementSubTypeToObjectivesByGroup[entry.Key];
+                List<AchievementObjective> objList = entry.Value;
+                for (int i = 0; i < objList.Count; ++i)
+                {
+                    if (group.ContainsKey(objList[i].json.achgroup))
+                        group[objList[i].json.achgroup].Add(objList[i]);
+                    else
+                        group.Add(objList[i].json.achgroup, new List<AchievementObjective> { objList[i] });
+                }
+                foreach (var grpid in group.Keys.ToList())
+                    group[grpid] = group[grpid].OrderBy(x => x.json.step).ToList(); // stable sort
+            }
+
             foreach (var key in achievementKeyToObjectives.Keys.ToList())
                 achievementKeyToObjectives[key] = achievementKeyToObjectives[key].OrderBy(x => x.json.step).ToList(); // stable sort
 
@@ -433,7 +452,7 @@ namespace Zealot.Repository
                 {
                     var achObj = GetAchievementObjectiveById(entry.Value.triggervalue);
                     if (achObj != null)
-                        achObj.AddRewardFunction(entry.Value.functiontype, entry.Value.functionvalue);
+                        achObj.AddRewardFunction(entry.Value);
                 }
 
                 if (lisaFunctionTypeToDataList.ContainsKey(entry.Value.functiontype))
@@ -515,12 +534,11 @@ namespace Zealot.Repository
             return objList;
         }
 
-        public static List<AchievementObjective> GetAchievementObjectivesBySubType(int subTypeId)
+        public static Dictionary<int, List<AchievementObjective>> GetAchievementObjectivesGroupsBySubType(int subTypeId)
         {
-            List<AchievementObjective> list;
-            if (achievementSubTypeToObjectives.TryGetValue(subTypeId, out list))
-                return list;
-            return new List<AchievementObjective>();
+            Dictionary<int, List<AchievementObjective>> groups;
+            achievementSubTypeToObjectivesByGroup.TryGetValue(subTypeId, out groups);
+            return groups;
         }
 
         public static int GetAchievementObjectiveCountByMainType(AchievementType mainType)
@@ -559,11 +577,9 @@ namespace Zealot.Repository
             return new List<AchievementSubTypeJson>();
         }
 
-
-
         public static AchievementType GetAchievementMainTypeBySubType(int subType)
         {
-            foreach(var kvp in achievementMainToSubTypes)
+            foreach (var kvp in achievementMainToSubTypes)
             {
                 if (kvp.Value.Exists(x => x.id == subType))
                     return kvp.Key;
@@ -585,7 +601,7 @@ namespace Zealot.Repository
             return json;
         }
 
-        public static LISATransformTierJson GetLISATierInfoByLevel(int level)
+        public static LISATransformTierJson GetHighestLISATierInfoByLevel(int level)
         {
             LISATransformTierJson highest = null;
             foreach (var entry in lisaTiers.Values)
@@ -609,6 +625,19 @@ namespace Zealot.Repository
             List<LISAExternalFunctionJson> list;
             lisaFunctionTypeToDataList.TryGetValue(functionType, out list);
             return list;
+        }
+
+        public static string GetRandomLisaMessage(LISAMsgBehaviourType behaviourType, bool hasFunctionUnlocked, bool hasUnclaimedRewards, bool canUnlockTier)
+        {
+            LISAMessageDirectionGroup directionGrp;
+            if (lisaMsgBehaviours.TryGetValue(behaviourType, out directionGrp))
+            {
+                LISAMsgDirectionType directionType = directionGrp.GetRandomMsgDirection(hasFunctionUnlocked, hasUnclaimedRewards, canUnlockTier);
+                LISAMessageGroup msgGrp;
+                if (lisaMsgGroups.TryGetValue(directionType, out msgGrp))
+                    return msgGrp.GetRandomMsg();
+            }
+            return "";
         }
     }
 }

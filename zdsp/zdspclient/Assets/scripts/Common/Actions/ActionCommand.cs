@@ -732,7 +732,6 @@ namespace Zealot.Common.Actions
     {
         public int entityId;
         public int triggerTime;
-        public int count;
         public bool isArea;
         public InteractiveTriggerCommand() : base(ACTIONTYPE.INTERACTIVE_TRIGGER) { }
 
@@ -742,7 +741,6 @@ namespace Zealot.Common.Actions
             dic.Add(pcode++, mActionType);
             dic.Add(pcode++, entityId);
             dic.Add(pcode++, triggerTime);
-            dic.Add(pcode++, count);
             dic.Add(pcode++, isArea);
             return true;
         }
@@ -751,7 +749,6 @@ namespace Zealot.Common.Actions
         {
             entityId = (int)dic[pcode++];
             triggerTime = (int)dic[pcode++];
-            count = (int)dic[pcode++];
             isArea = (bool)dic[pcode++];
         }
     }

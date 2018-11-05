@@ -118,81 +118,99 @@ public class HUD_MiniMap : MonoBehaviour
 
         return img;
     }
-    private void SetIcon(IconType type, Image img)
+    private void SetIcon(IconType type, Image img, bool setParent = true)
     {
         switch (type)
         {
             case IconType.PLAYER:
                 img.sprite = mSprPlayer;
-                img.gameObject.transform.SetParent(mMMIconParent_Player.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_Player.transform, false);
                 break;
             case IconType.MONSTER:
                 img.sprite = mSprMonster;
-                img.gameObject.transform.SetParent(mMMIconParent_Monster.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_Monster.transform, false);
                 break;
             case IconType.PARTY:
                 img.sprite = mSprParty;
-                img.gameObject.transform.SetParent(mMMIconParent_Party.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_Party.transform, false);
                 break;
             case IconType.MINIBOSS:
                 img.sprite = mSprMiniBoss;
-                img.gameObject.transform.SetParent(mMMIconParent_MiniBoss.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_MiniBoss.transform, false);
                 break;
             case IconType.BOSS:
                 img.sprite = mSprBoss;
-                img.gameObject.transform.SetParent(mMMIconParent_Boss.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_Boss.transform, false);
                 break;
             case IconType.TELEPORT:
                 img.sprite = mSprTeleport;
-                img.gameObject.transform.SetParent(mMMIconParent_Teleport.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_Teleport.transform, false);
                 break;
             case IconType.DAILYQUEST:
                 img.sprite = mSprDailyQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.DESTINYQUEST:
                 img.sprite = mSprDestinyQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.MAINQUEST:
                 img.sprite = mSprMainQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.SIDEQUEST:
                 img.sprite = mSprSideQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.RETURN_DAILYQUEST:
                 img.sprite = mSprReturnDailyQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.RETURN_DESTINYQUEST:
                 img.sprite = mSprReturnDestinyQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.RETURN_MAINQUEST:
                 img.sprite = mSprReturnMainQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.RETURN_SIDEQUEST:
                 img.sprite = mSprReturnSideQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.FINISH_DAILYQUEST:
                 img.sprite = mSprFinishDailyQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.FINISH_DESTINYQUEST:
                 img.sprite = mSprFinishDestinyQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.FINISH_MAINQUEST:
                 img.sprite = mSprFinishMainQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             case IconType.FINISH_SIDEQUEST:
                 img.sprite = mSprFinishSideQuest;
-                img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 break;
             //case IconType.QUEST_COMPLETED:
             //    //img.sprite = mSprCompleteQuest;
@@ -205,11 +223,13 @@ public class HUD_MiniMap : MonoBehaviour
             //    break;
             case IconType.SHOP:
                 img.sprite = mSprShop;
-                img.gameObject.transform.SetParent(mMMIconParent_ShopNPC.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_ShopNPC.transform, false);
                 break;
             case IconType.REVIVE:
                 img.sprite = mSprRevive;
-                img.gameObject.transform.SetParent(mMMIconParent_Revive.transform, false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_Revive.transform, false);
                 break;
             case IconType.EMPTY:
                 img.sprite = null;
@@ -218,6 +238,52 @@ public class HUD_MiniMap : MonoBehaviour
         }
 
         img.gameObject.SetActive(true);
+    }
+    private void SetIcon2(StaticMapIconGameObjectPair pair, Image img, bool setParent = true)
+    {
+        QuestType qt = QuestType.Event;
+
+        if (pair.GetNPCQuestType(ref qt) == false)
+        {
+            Debug.LogError("HUD_MiniMap.MiniMapUpdateIconCoroutine: Walaoeh!! quest id is invalid");
+            return;
+        }
+
+        switch (qt)
+        {
+            case QuestType.Destiny:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.DESTINYQUEST, img, setParent);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_DESTINYQUEST, img, setParent);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_DESTINYQUEST, img, setParent);
+                break;
+            case QuestType.Main:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.MAINQUEST, img, setParent);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_MAINQUEST, img, setParent);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_MAINQUEST, img, setParent);
+                break;
+            case QuestType.Sub:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.DAILYQUEST, img, setParent);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_DAILYQUEST, img, setParent);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_DAILYQUEST, img, setParent);
+                break;
+            case QuestType.Event:
+                if (pair.hasQuestAvailable())
+                    SetIcon(IconType.SIDEQUEST, img, setParent);
+                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                    SetIcon(IconType.RETURN_SIDEQUEST, img, setParent);
+                else if (pair.hasQuestCompleted())
+                    SetIcon(IconType.FINISH_SIDEQUEST, img, setParent);
+                break;
+        }
     }
     private void SetIconPos(Image img, Vector3 pos)
     {
@@ -419,66 +485,30 @@ public class HUD_MiniMap : MonoBehaviour
                 for (int i = 0; i < HUD_MapController.mQuestNPCPosLst.Count; ++i)
                 {
                     StaticMapIconGameObjectPair npcIconPair = HUD_MapController.mQuestNPCPosLst[i];
-                    //Do nothing if no quest
-                    //Do nothing if no need to show quest marker
+                    //Turn off marker if marker has no need to show
                     if (npcIconPair.hasQuest() == false ||
                         !npcIconPair.hasQuestAvailable() &&
+                        !npcIconPair.hasQuestOngoing() &&
                         !npcIconPair.hasQuestToSubmit() &&
                         !npcIconPair.hasQuestCompleted())
+                    {
+                        //Check if marker already exist, if it doesnt.. dont create at all
+                        if (i < mMMIconParent_QuestNPC.transform.childCount)
+                            mMMIconParent_QuestNPC.transform.GetChild(i).gameObject.SetActive(false);
                         continue;
+                    }
 
                     //if there are more quest NPCs now than when created initially
                     if (i >= mMMIconParent_QuestNPC.transform.childCount)
                     {
                         Image newicon = CreateIcon();
-                        QuestType qt = QuestType.Destiny;
-                        
-                        if (npcIconPair.GetNPCQuestType(ref qt) == false)
-                        {
-                            Debug.LogError("HUD_MiniMap.MiniMapUpdateIconCoroutine: Walaoeh!! quest id is invalid");
-                            continue;
-                        }
-
-                        switch (qt)
-                        {
-                            case QuestType.Destiny:
-                                if (npcIconPair.hasQuestAvailable())
-                                    SetIcon(IconType.DESTINYQUEST, newicon);
-                                else if (npcIconPair.hasQuestToSubmit())
-                                    SetIcon(IconType.RETURN_DESTINYQUEST, newicon);
-                                else if (npcIconPair.hasQuestCompleted())
-                                    SetIcon(IconType.FINISH_DESTINYQUEST, newicon);
-                                break;
-                            case QuestType.Main:
-                                if (npcIconPair.hasQuestAvailable())
-                                    SetIcon(IconType.MAINQUEST, newicon);
-                                else if (npcIconPair.hasQuestToSubmit())
-                                    SetIcon(IconType.RETURN_MAINQUEST, newicon);
-                                else if (npcIconPair.hasQuestCompleted())
-                                    SetIcon(IconType.FINISH_MAINQUEST, newicon);
-                                break;
-                            case QuestType.Sub:
-                                if (npcIconPair.hasQuestAvailable())
-                                    SetIcon(IconType.DAILYQUEST, newicon);
-                                else if (npcIconPair.hasQuestToSubmit())
-                                    SetIcon(IconType.RETURN_DAILYQUEST, newicon);
-                                else if (npcIconPair.hasQuestCompleted())
-                                    SetIcon(IconType.FINISH_DAILYQUEST, newicon);
-                                break;
-                            case QuestType.Event:
-                                if (npcIconPair.hasQuestAvailable())
-                                    SetIcon(IconType.SIDEQUEST, newicon);
-                                else if (npcIconPair.hasQuestToSubmit())
-                                    SetIcon(IconType.RETURN_SIDEQUEST, newicon);
-                                else if (npcIconPair.hasQuestCompleted())
-                                    SetIcon(IconType.FINISH_SIDEQUEST, newicon);
-                                break;
-                        }
+                        SetIcon2(npcIconPair, newicon);
                     }
 
                     Transform child = mMMIconParent_QuestNPC.transform.GetChild(i);
                     Image icon = child.GetComponent<Image>();
-                    SetIconPos(icon, HUD_MapController.mQuestNPCPosLst[i].iconPos);
+                    SetIcon2(HUD_MapController.mQuestNPCPosLst[i], icon, false);
+                    SetIconPos(icon, npcIconPair.iconPos);
                     child.gameObject.SetActive(true);
                 }
             }

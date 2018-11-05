@@ -59,6 +59,56 @@ namespace Zealot.Client.Entities
         private bool _isInLocalCombat;
         protected Dictionary<string, bool> ControlSE_Status;
 
+        public Dictionary<EffectVisualTypes, string> kopioEffectTransitionKeys =
+            new Dictionary<EffectVisualTypes, string>();
+
+        class TransitionStats
+        {
+            public float transitiontime;
+
+            public class Parameter
+            {
+                public string name;
+                public float value;
+            }
+            public List<Parameter> parameters = new List<Parameter>();
+        }
+        TransitionStats GetTransitionStats(EffectVisualTypes t)
+        {
+            TransitionStats ret = new TransitionStats();
+
+            var key = kopioEffectTransitionKeys[t];
+
+            var data = GameConstantRepo.GetConstant(key);
+
+            var args = data.Split(',');
+
+            int index = 0;
+            if (float.TryParse(args[0], out ret.transitiontime))
+            {
+                index = 1;
+                while (index < args.Length)
+                {
+                    string property = args[index];
+                    float value;
+
+                    if (float.TryParse(args[index + 1], out value) == false)
+                    {
+                        Debug.LogError("Failed to get value for status: " + t.ToString() + ", property: " + property + ", check kopio GameConstants");
+                        break;
+                    }
+
+                    ret.parameters.Add( new TransitionStats.Parameter { name = property, value = value } );
+
+                    index += 2;
+                }
+            }
+            else
+                Debug.LogError("Failed to get transition time for status: " + t.ToString() + ", check kopio GameConstants");
+
+            return ret;
+        }
+
         public ActorGhost() : base()
         {
             mPrevPosVisualSEName = null;
@@ -71,6 +121,14 @@ namespace Zealot.Client.Entities
             {
                 ControlSE_Status.Add(((EffectVisualTypes)i).ToString(), false);
             }
+
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Stun, "");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Slow, "");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Silence, "");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Root, "");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Disarmed, "");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Frozen, "FrozenTransition");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Petrify, "PetrifyTransition");
         }
 
         protected virtual void PlayStunEffect(bool bplay)
@@ -143,18 +201,26 @@ namespace Zealot.Client.Entities
 
             if (loadedmat != null)
             {
-                applied_mat = loadedmat.name;                
+                applied_mat = loadedmat.name;
+
+                var tstats = GetTransitionStats(t);
 
                 var interp = mCharController.gameObject.AddComponent<ShaderPropertyInterpolate>();
                 interp.AddMaterial(loadedmat);
-                interp.Activate("_Height", 0.25f, 0.3f); 
+
+                foreach (var prop in tstats.parameters)
+                {                    
+                    interp.Activate(prop.name, tstats.transitiontime, prop.value);
+                }
             }
         }
 
         void RemoveActorMaterial(EffectVisualTypes t)
         {
             var removedname = applied_mat;
-            
+
+            var tstats = GetTransitionStats(t);
+
             var interp = mCharController.gameObject.AddComponent<ShaderPropertyInterpolate>();
             interp.Activate("_Height", 0.25f, 0.3f, true, removedname);
         }

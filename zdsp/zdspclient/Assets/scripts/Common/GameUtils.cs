@@ -560,6 +560,41 @@ namespace Zealot.Common
             System.Diagnostics.Debug.WriteLine(message);
         }
 
+        /// <summary>
+        /// better ver. of string FormatString(string str, Dictionary&lt;string,string&gt; parameters) when args count is large
+        /// </summary>
+        public static string FormatByName(string format, Dictionary<string, string> args,int capcityIncrease=32)
+        {
+            if (args.Count < 5)
+                return FormatString(format, args);
+            StringBuilder sb = new StringBuilder(format.Length + capcityIncrease);
+            int begin = 0;
+            int end = 0;
+            int init = 0;
+            do
+            {
+                begin = format.IndexOf('{', init);
+                if (begin >= 0)
+                {
+                    end = format.IndexOf('}', begin);
+                    if (end > begin)
+                    {
+                        sb.Append(format.Substring(init, begin - init));
+                        string name = format.Substring(begin + 1, end - begin - 1);
+                        string val;
+                        if (args.TryGetValue(name, out val))
+                            sb.Append(val);
+
+                        init = end + 1;
+                        continue;
+                    }
+                }
+                sb.Append(format.Substring(init, format.Length - init));
+                break;
+            } while (init < format.Length);
+            return sb.ToString();
+        }
+
         public static string FormatString(string str, Dictionary<string, string> parameters)
         {
             foreach (KeyValuePair<string, string> entry in parameters)

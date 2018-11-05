@@ -59,6 +59,7 @@ namespace Zealot.Client.Entities
         private BotController mBotController;
         public BotController Bot { get { return mBotController; } }
         public InteractiveController InteractiveController { get; private set; }
+        public SocialController clientSocialController { get; private set; }
 
         public TutorialController m_TutorialController { get; private set; }
 
@@ -373,7 +374,7 @@ namespace Zealot.Client.Entities
 
                         if ((int)oldvalue != -1)
                         {
-                            PlayEffect("", "levelup", null, 4f, Position, this);
+                            PlayEffect("", "levelup");
                         }
                         UpdateQuestRequirement(QuestRequirementType.Level, -1);
                         UpdateTutorialStatus((int)value);
@@ -586,9 +587,7 @@ namespace Zealot.Client.Entities
             {
                 UI_EquipmentUpgrade uiEquipUpgrade = uiEquipUpgradeObj.GetComponent<UI_EquipmentUpgrade>();
                 if(uiEquipUpgrade != null)
-                {
                     uiEquipUpgrade.Refresh();
-                }
             }
 
             GameObject uiEquipReformObj = UIManager.GetWindowGameObject(WindowType.EquipReform);
@@ -912,7 +911,7 @@ namespace Zealot.Client.Entities
                 UI_CharacterPowerup_Manager uiPowerUp = uiPowerUpObj.GetComponentInChildren<UI_CharacterPowerup_Manager>();
                 if (uiPowerUp != null)
                 {
-                    uiPowerUp.Init(UI_CharacterPowerup_Manager.nowPartTypeCount);
+                    uiPowerUp.InitFromOther();
                 }
             }
         }
@@ -927,10 +926,9 @@ namespace Zealot.Client.Entities
                 UI_CharacterPowerup_Manager uiPowerUp = uiPowerUpObj.GetComponentInChildren<UI_CharacterPowerup_Manager>();
                 if(uiPowerUp != null)
                 {
-                    uiPowerUp.Init(UI_CharacterPowerup_Manager.nowPartTypeCount);
+                    uiPowerUp.InitFromOther();
                 }
             }
-            //UI_CharacterPowerup_Manager.CharacterToggle.CS_MG_ToggleSelected(UI_CharacterPowerup_Manager.CP_State);
         }
 
         public void OnMeridianStatsChanged()
@@ -942,9 +940,11 @@ namespace Zealot.Client.Entities
         {
             clientEquipmentCraftCtrl.InitFromStats(EquipmentCraftStats);
 
-            if (EquipmentCraftStats.finishedCraft)
+            GameObject uiEquipCraftObj = UIManager.GetWindowGameObject(WindowType.EquipCraft);
+
+            if (EquipmentCraftStats.finishedCraft && uiEquipCraftObj != null)
             {
-                UI_CharacterEquipmentCraftManager.AfterCraft();
+                uiEquipCraftObj.GetComponent<UI_CharacterEquipmentCraftManager>().AfterCraft();
                 EquipmentCraftStats.finishedCraft = false;
             }
         }
@@ -953,9 +953,11 @@ namespace Zealot.Client.Entities
         {
             clientEquipmentCraftCtrl.EquipmentCraftInventory.EquipmentCrafted = (bool)value;
 
-            if (EquipmentCraftStats.finishedCraft)
+            GameObject uiEquipCraftObj = UIManager.GetWindowGameObject(WindowType.EquipCraft);
+
+            if (EquipmentCraftStats.finishedCraft && uiEquipCraftObj != null)
             {
-                UI_CharacterEquipmentCraftManager.AfterCraft();
+                uiEquipCraftObj.GetComponent<UI_CharacterEquipmentCraftManager>().AfterCraft();
                 EquipmentCraftStats.finishedCraft = false;
             }
         }
@@ -980,11 +982,12 @@ namespace Zealot.Client.Entities
 
                 Equipment myEquip = clientItemInvCtrl.itemInvData.Slots[EquipFusionStats.FusionItemSort] as Equipment;
 
-                List<string> equipStats = EquipFusionRepo.BuildEquipStats(myEquip);
-                List<string> beforeEffect = EquipFusionRepo.DecodeEffect(myEquip.FusionEffect);
-                List<string> afterEffect = EquipFusionRepo.DecodeEffect(EquipFusionStats.FusionData);
+                List<string> equipStats = EquipFusionController.BuildEquipStats(myEquip);
+                List<string> beforeEffect = EquipFusionController.DecodeEffect(myEquip.FusionEffect);
+                List<string> afterEffect = EquipFusionController.DecodeEffect(EquipFusionStats.FusionData);
                 uiEquipFusionObj.GetComponent<Dialog_EquipFusionManager>().EnterUI(myEquip.ItemID, equipStats, beforeEffect, afterEffect);
-            } else
+            }
+            else
             {
                 uiEquipFusionObj.SetActive(false);
             }
@@ -1138,6 +1141,12 @@ namespace Zealot.Client.Entities
                     break;
                 case "LatestAchievements":
                     AchievementStats.UpdateLatestRecords(AchievementKind.Achievement, (string)value);
+                    break;
+                case "CurrentLISATier":
+                    AchievementStats.OnChangeLISATier();
+                    break;
+                case "HighestUnlockedTier":
+                    AchievementStats.OnUnlockLISATier();
                     break;
             }
         }
@@ -1337,6 +1346,7 @@ namespace Zealot.Client.Entities
                 DestinyClueController = new DestinyClueClientController();
                 DonateController = new DonateClientController();
                 m_TutorialController = new TutorialController(this);
+                clientSocialController = new SocialController(this);
             }
             mEquipmentInvData = new EquipmentInventoryData();
             mEquipmentInvData.InitDefault();
@@ -1479,6 +1489,20 @@ namespace Zealot.Client.Entities
                     DonateStats.OnValueChanged = OnDonateStatsValueChanged;
                     DonateStats.OnNewlyAdded = OnDonateStatsAdded;
                     mylocalobj = DonateStats;
+                    break;
+                case LOTYPE.SocialStats:
+                    SocialStats = new SocialStats(false);
+                    if (clientSocialController != null)
+                    {
+                        SocialStats.OnValueChanged = clientSocialController.OnValueChanged;
+                        SocialStats.OnNewlyAdded = clientSocialController.OnNewlyAdded;
+                    }
+                    else
+                    {
+                        SocialStats.OnValueChanged = (a, b, c) => clientSocialController.OnValueChanged(a, b, c);
+                        SocialStats.OnNewlyAdded= () => clientSocialController.OnNewlyAdded();
+                    }
+                    mylocalobj = SocialStats;
                     break;
             }
 
@@ -2254,9 +2278,9 @@ namespace Zealot.Client.Entities
                     return;
                 }
 
-                if (InteractiveController.IsUsing())
+                if (InteractiveController.isUsing)
                 {
-                    InteractiveController.ActionInterupted();
+                    InteractiveController.InterruptAction();
                 }
             }
 
@@ -2287,7 +2311,7 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public IEnumerator FinishCutscene(float delay)
+        public IEnumerator OnCutsceneFinished(float delay)
         {
             yield return new WaitForSecondsRealtime(delay);
 

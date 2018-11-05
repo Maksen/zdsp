@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Photon.LoadBalancing.Operations;
 using Photon.LoadBalancing.GameServer;
 using Zealot.Common.RPC;
+using Photon.LoadBalancing.GameServer.Extensions;
+using System.Threading.Tasks;
 
 namespace Zealot.RPC
 {
@@ -50,7 +52,7 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_GuildOperationResult)]
-        public void Ret_GuildOperationResult(byte error,  object target)
+        public void Ret_GuildOperationResult(byte error, object target)
         {
             ProxyMethod("Ret_GuildOperationResult", error, target);
         }
@@ -59,7 +61,7 @@ namespace Zealot.RPC
         #region Item Mall
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_ItemMallPurchaseItem)]
-        public void Ret_ItemMallPurchaseItem(int itemMallReturnCode,string kopioPurchaseLimit,string gmPurchaseLimit, object target)
+        public void Ret_ItemMallPurchaseItem(int itemMallReturnCode, string kopioPurchaseLimit, string gmPurchaseLimit, object target)
         {
             ProxyMethod("Ret_ItemMallPurchaseItem", itemMallReturnCode, kopioPurchaseLimit, gmPurchaseLimit, target);
         }
@@ -70,12 +72,12 @@ namespace Zealot.RPC
             ProxyMethod("Ret_ItemMallInit", serializedMallData, target);
         }
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_ItemMallGetList)]        
-        public void Ret_ItemMallGetList(string itemInfoData,int count, int cat,bool cleanbefore, object target)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_ItemMallGetList)]
+        public void Ret_ItemMallGetList(string itemInfoData, int count, int cat, bool cleanbefore, object target)
         {
-            ProxyMethod("Ret_ItemMallGetList", itemInfoData, count,cat, cleanbefore, target);
+            ProxyMethod("Ret_ItemMallGetList", itemInfoData, count, cat, cleanbefore, target);
         }
-        
+
         #endregion Item Mall
 
         #region Lottery
@@ -112,7 +114,7 @@ namespace Zealot.RPC
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_LotteryGetPointReward)]
         public void Ret_LotteryGetPointRewardResult(int lottery_id, int point, string items, string counts, object target)
         {
-            ProxyMethod("Ret_LotteryGetPointRewardResult",lottery_id, point, items, counts, target);
+            ProxyMethod("Ret_LotteryGetPointRewardResult", lottery_id, point, items, counts, target);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_LotteryUsePointItem)]
@@ -226,10 +228,10 @@ namespace Zealot.RPC
         }
         #endregion
 
-		#region Store
+        #region Store
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_StoreInit)]
         public void Ret_StoreInit(string scJsonString, object target)
-		{
+        {
             ProxyMethod("Ret_StoreInit", scJsonString, target);
         }
         #endregion
@@ -329,6 +331,24 @@ namespace Zealot.RPC
         public void Ret_Tooltip_DailyWeeklyLimit(int itemID, int dGet, int dUse, int wGet, int wUse, object target)
         {
             ProxyMethod("Ret_Tooltip_DailyWeeklyLimit", itemID, dGet, dUse, wGet, wUse, target);
+        }
+        #endregion
+
+        #region Social
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialOnOpenFriendsMenu)]
+        public void Ret_SocialOnOpenFriendsMenu(object target)
+        {
+            ProxyMethod("Ret_SocialOnOpenFriendsMenu", target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequestByName)]
+        public void Ret_SocialRaiseRequestByName(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialRaiseRequestByName", resultCode, target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptRequest)]
+        public void Ret_SocialAcceptRequest(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialAcceptRequest", resultCode, target);
         }
         #endregion
     }
@@ -1625,6 +1645,28 @@ namespace Photon.LoadBalancing.GameServer
             peer.mPlayer.PlayerStats.InvincibleStatsDef = active;
             peer.mPlayer.PlayerStats.InvincibleDmg = active;
             peer.mPlayer.PlayerStats.InvincibleDot = active;
+        }
+        #endregion
+
+        #region Social
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialOnOpenFriendsMenu)]
+        public async Task SocialOnOpenFriendsMenu(GameClientPeer peer)
+        {
+            await peer.SocialOnOpenFriendsMenu();
+        }
+        
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequestByName)]
+        public async Task SocialRaiseRequestByName(string friendName, GameClientPeer peer)
+        {
+            await peer.SocialRaiseRequestByName(friendName);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptRequest)]
+        public async Task SocialAcceptRequest(int index, GameClientPeer peer)
+        {
+            await peer.SocialAcceptRequest(index);
         }
         #endregion
     }

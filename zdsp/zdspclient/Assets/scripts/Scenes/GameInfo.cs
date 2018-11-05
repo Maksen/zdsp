@@ -75,9 +75,9 @@ public static class GameInfo
     {
         DCReconnectingGameServer = false;
         TransferingServer = false;
-        gLocalPlayer = null;
         mRealmInfo = null;
         mRealmState = RealmState.Created;
+        gLocalPlayer = null;       
         mIsPlayerReady = false;
         if (gCombat != null)
         {

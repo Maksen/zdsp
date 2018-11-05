@@ -80,6 +80,7 @@ class AssetContainerCreator
                 newContainer.Preload = true;
                 newContainer.Build = true;
                 newContainer.IndividualAssetBundle = false;
+                newContainer.AddSubFolder = true;
 
                 AssetDatabase.CreateAsset(asset, targetPath);
 

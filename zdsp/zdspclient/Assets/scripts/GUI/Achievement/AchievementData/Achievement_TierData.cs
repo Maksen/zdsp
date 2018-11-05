@@ -23,7 +23,7 @@ public class Achievement_TierData : MonoBehaviour
         ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
     }
 
-    public void Init(LISATransformTierJson data, ToggleGroup toggleGrp, Action<int> callback, bool unlocked)
+    public void Init(LISATransformTierJson data, ToggleGroup toggleGrp, Action<int> callback)
     {
         tier = data.tierid;
         toggle.group = toggleGrp;
@@ -31,12 +31,17 @@ public class Achievement_TierData : MonoBehaviour
 
         AchievementLevel achLevel = AchievementRepo.GetAchievementLevelInfo(data.reqlvl);
         if (achLevel != null)
-            versionText.text = achLevel.name;
+            versionText.text = "Ver " + achLevel.name;
 
         tierNameText.text = data.localizedname;
         tierDescText.text = data.localizeddescription;
         iconImage.sprite = ClientUtils.LoadIcon(data.iconpath);
+    }
+
+    public void SetUnlocked(bool unlocked)
+    {
         iconImage.color = unlocked ? Color.white : lockedColor;
+        toggle.interactable = unlocked;
     }
 
     public void EnableToggleCallback(bool value)

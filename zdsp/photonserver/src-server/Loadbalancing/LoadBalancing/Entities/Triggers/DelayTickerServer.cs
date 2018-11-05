@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Zealot.Entities;
-using Photon.LoadBalancing.GameServer;
+﻿using Photon.LoadBalancing.GameServer;
 using Zealot.Common;
+using Zealot.Entities;
 
 namespace Zealot.Server.Entities
 {
@@ -52,7 +50,7 @@ namespace Zealot.Server.Entities
             timer = mInstance.SetTimer(mPropertyInfos.ticker, OnTickerTimeUp, null);
         }
 
-        #region trigger
+        #region Triggers
         public void TurnOn(IServerEntity sender, object[] parameters = null)
         {
             if (timer == null)

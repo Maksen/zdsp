@@ -1,8 +1,8 @@
 ﻿using Kopio.JsonContracts;
-using System;
-using System.Text;
-using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Zealot.Common;
 
 namespace Zealot.Repository
@@ -59,11 +59,6 @@ namespace Zealot.Repository
 
             foreach (KeyValuePair<int, ElementalStoneJson> kvp in gameData.ElementalStone)
                 ItemTable.Add(kvp.Value.itemid, kvp.Value);
-        }
-
-        public int GetItemMaxStackCount(BagTabType type)
-        {
-            return (type != BagTabType.Equipment) ? GameConstantRepo.ItemMaxStackCount : 1;
         }
 
         public ItemBaseJson GetItemById(int itemId)
@@ -206,12 +201,13 @@ namespace Zealot.Repository
                 string _origin = _itemJson.origin;
                 if (_origin != "-1" && _origin != "")
                 {
-                    string[] _originids = _origin.Split(';');
-                    for (int index = 0; index < _originids.Length; ++index)
+                    string[] _originIds = _origin.Split(';');
+                    int length = _originIds.Length, _originId;
+                    ItemOriginJson itemOriginJson;
+                    for (int index = 0; index < length; ++index)
                     {
-                        int _originid;
-                        if (int.TryParse(_originids[index], out _originid) && ItemOriginTable.ContainsKey(_originid))
-                            _result.Add(ItemOriginTable[_originid]);
+                        if (int.TryParse(_originIds[index], out _originId) && ItemOriginTable.TryGetValue(_originId, out itemOriginJson))
+                            _result.Add(itemOriginJson);
                     }
                 }
             }

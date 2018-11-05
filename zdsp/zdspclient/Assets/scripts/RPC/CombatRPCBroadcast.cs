@@ -124,6 +124,9 @@ public partial class ClientMain : MonoBehaviour
             case BroadcastMessageType.MessageBroadcaster:
                 MessageBroadcaster(int.Parse(parameters_array[0]) == 1, parameters_array[1]);
                 break;
+            case BroadcastMessageType.InteractiveTrigger:
+                BroadcastInteractiveTrigge(int.Parse(parameters_array[0]), bool.Parse(parameters_array[1]), bool.Parse(parameters_array[2]), int.Parse(parameters_array[3]));
+                break;
         }
     }
 
@@ -391,5 +394,10 @@ public partial class ClientMain : MonoBehaviour
             UIManager.ShowEventNotification(_message);
         else
             UIManager.ShowSystemMessage(_message, true);
+    }
+
+    private void BroadcastInteractiveTrigge(int pid, bool canUse, bool active, int step)
+    {
+        GameInfo.gLocalPlayer.InteractiveController.SetEntityStats(pid, canUse, active, step);
     }
 }

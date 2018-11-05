@@ -180,9 +180,12 @@ public static class ClientUtils
 
     public static string FormatString(string str, Dictionary<string, string> parameters)
     {
-        foreach (KeyValuePair<string, string> entry in parameters)
+        if (parameters != null)
         {
-            str = str.Replace(string.Format("{{{0}}}", entry.Key), entry.Value);
+            foreach (KeyValuePair<string, string> entry in parameters)
+            {
+                str = str.Replace(string.Format("{{{0}}}", entry.Key), entry.Value);
+            }
         }
         return str;
     }
@@ -787,5 +790,15 @@ public static class ClientUtils
         }
 
         return output.ToString();
+    }
+
+    public static string GetHexaStringFromColor(Color color)
+    {
+        int r = (int)(color.r * 255.0f);
+        int g = (int)(color.g * 255.0f);
+        int b = (int)(color.b * 255.0f);
+        int a = (int)(color.a * 255.0f);
+        
+        return string.Format("{0:X2}{1:X2}{2:X2}{3:X2}", r, g, b, a);
     }
 }

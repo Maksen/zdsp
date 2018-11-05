@@ -1,31 +1,34 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems; // Required when using event data
-using System;
 
 [RequireComponent(typeof(UnityEngine.UI.Image))]//requires this to block raycast
 public class UI_DragEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler // required interface when using the OnDrag method.
 {
     [SerializeField]
     float offsetLimit = 0.1f;
-    
+
+    public Action onBeginDrag;
     public Action<Vector2> onDragging;
     public Action onClicked;
 
-    bool isDragging;
+    private bool isDragging;
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.delta.magnitude > offsetLimit)
+        {
             isDragging = true;
+            if (onBeginDrag != null)
+                onBeginDrag();
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         if (onDragging != null)
             onDragging(eventData.delta);
-
-        //onDragging?.Invoke(eventData.scrollDelta);
     }
-
 
     public void OnEndDrag(PointerEventData eventData)
     {
@@ -39,10 +42,5 @@ public class UI_DragEvent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
             if (onClicked != null)
                 onClicked();
         }
-    }
-
-    void OnDestroy()
-    {
-        onDragging = null;
     }
 }

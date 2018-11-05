@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using UnityEngine;
-using Zealot.Common.Entities;
+﻿using Zealot.Common.Entities;
 using Zealot.Common.Actions;
 using Zealot.Client.Entities;
 
@@ -14,14 +8,12 @@ namespace Zealot.Client.Actions
     {
         protected int entityId;
         protected int triggerTime;
-        protected int count;
         protected bool isArea;
 
         public BaseInteractiveTrigger(Entity entity, InteractiveTriggerCommand cmd) : base(entity, cmd)
         {
             entityId = cmd.entityId;
             triggerTime = cmd.triggerTime;
-            count = cmd.count;
             isArea = cmd.isArea;
         }
 
@@ -41,10 +33,10 @@ namespace Zealot.Client.Actions
         void CompeletedProgress()
         {
             RPCFactory.CombatRPC.OnInteractiveTrigger(entityId);
-            CloseProgressBar();
+            CloseProgressState();
         }
         
-        void CloseProgressBar()
+        void CloseProgressState()
         {
             if (UIManager.IsWidgetActived(HUDWidgetType.ProgressBar))
             {
@@ -52,6 +44,13 @@ namespace Zealot.Client.Actions
                 progressBar.ForceEnd();
             }
             UIManager.SetWidgetActive(HUDWidgetType.ProgressBar, false);
+
+            if (!isArea)
+            {
+                PlayerGhost mPlayer = GameInfo.gLocalPlayer;
+                if (mPlayer != null)
+                    GameInfo.gLocalPlayer.InteractiveController.OnActionLeave();
+            }
         }
 
         protected override void OnActiveLeave()
@@ -61,9 +60,8 @@ namespace Zealot.Client.Actions
             NetEntityGhost ghost = mEntity as NetEntityGhost;
             if (ghost == null)
                 return;
-            //GameInfo.gLocalPlayer.InteractiveController.OnActionLeave();
 
-            CloseProgressBar();
+            CloseProgressState();
         }
     }
 

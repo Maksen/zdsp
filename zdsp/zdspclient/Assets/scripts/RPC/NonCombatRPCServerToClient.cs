@@ -239,4 +239,22 @@ public partial class ClientMain : MonoBehaviour
         tt.SetDailyWeeklyLimit(itemID, dailyGetLimit, dailyUseLimit, weeklyGetLimit, weeklyUseLimit);
     }
     #endregion
+
+    #region Social
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialOnOpenFriendsMenu)]
+    public void Ret_SocialOnOpenFriendsMenu()
+    {
+    }
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequestByName)]
+    public void Ret_SocialRaiseRequestByName(int resultCode)
+    {
+        Zealot.Common.Entities.Social.SocialResult result = (Zealot.Common.Entities.Social.SocialResult)resultCode;
+
+        Debug.Log("[RPC]Ret_SocialRaiseRequestByName:" + result.ToString());
+    }
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptRequest)]
+    public void Ret_SocialAcceptRequest(int resultCode)
+    {
+    }
+    #endregion
 }

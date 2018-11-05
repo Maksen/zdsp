@@ -54,15 +54,20 @@ public class StaticMapIconGameObjectPair
     }
     public bool hasQuestAvailable()
     {
-        return (hasQuest() && GameInfo.gLocalPlayer.QuestController.IsQuestAvailable(npc.ActiveQuest));
+        return GameInfo.gLocalPlayer.QuestController.IsQuestAvailable(npc.ActiveQuest);
+    }
+    public bool hasQuestOngoing()
+    {
+        QuestType type = QuestRepo.GetQuestTypeByQuestId(npc.ActiveQuest);
+        return GameInfo.gLocalPlayer.QuestController.IsQuestOngoing(type, npc.ActiveQuest);
     }
     public bool hasQuestToSubmit()
     {
-        return (hasQuest() && GameInfo.gLocalPlayer.QuestController.IsQuestCanSubmit(npc.ActiveQuest));
+        return GameInfo.gLocalPlayer.QuestController.IsQuestCanSubmit(npc.ActiveQuest);
     }
     public bool hasQuestCompleted()
     {
-        return (hasQuest() && GameInfo.gLocalPlayer.QuestController.IsQuestCompleted(npc.ActiveQuest));
+        return GameInfo.gLocalPlayer.QuestController.IsQuestCompleted(npc.ActiveQuest);
     }
     public bool GetNPCQuestType(ref QuestType type)
     {

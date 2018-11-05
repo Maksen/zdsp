@@ -61,6 +61,11 @@ public class GameIcon_MaterialConsumable : GameIcon_Base
         itemStackCount.SetStackCountFull(stackCount, uncapped);
     }
 
+    public void SetStackCount(int invcount, int reqcount)
+    {
+        itemStackCount.SetStackCount(invcount, reqcount);
+    }
+
     public bool StatusCannotUse
     {
         set { iconStatusCannotuse.SetActive(value); }

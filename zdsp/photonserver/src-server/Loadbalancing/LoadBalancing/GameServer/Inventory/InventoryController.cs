@@ -32,7 +32,7 @@ namespace Photon.LoadBalancing.GameServer
         //private ItemUIDGenerator mUIDGenerator;
         public ItemInventoryServerData mInvData;
         private EquipmentInventoryData mEquipInvData;
-        private ItemKindData mItemKindData;
+        private ItemSortInventoryData mItemSortInvData;
         private GameClientPeer mSlot;
 
         // At these slots, player are unable to meet the requirement of the equipment and failed to wear them.
@@ -61,7 +61,7 @@ namespace Photon.LoadBalancing.GameServer
             mInvData.Init(itemInvData);
 
             mEquipInvData = characterData.EquipmentInventory;
-            mItemKindData = characterData.ItemKindInv;
+            mItemSortInvData = characterData.ItemSortInventory;
         }
 
         //public string GenerateItemUID()
@@ -287,7 +287,7 @@ namespace Photon.LoadBalancing.GameServer
 
             int slotId = -1;
             ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
-            if (itemSortJson.bagtabtype != BagTabType.Equipment)
+            if (itemSortJson.maxstackcount > 1)
             {
                 while (stackCount > 0)
                 {
@@ -306,7 +306,7 @@ namespace Photon.LoadBalancing.GameServer
                     break;
                 else
                 {
-                    IInventoryItem newitem = GameRules.GenerateItem(itemId, mSlot, 1);
+                    IInventoryItem newitem = GameRules.GenerateItem(itemId, mSlot);
                     if (newitem == null)
                         return false;
                     if (stackCount <= newitem.MaxStackCount)
@@ -923,7 +923,7 @@ namespace Photon.LoadBalancing.GameServer
                     continue; //skip
 
                 IInventoryItem item = mInvData.Slots[slotId];
-                if (item == null || item.ItemSortJson.bagtabtype != BagTabType.Consumable/* || item.itemtype != ItemType.Currency*/)
+                if (item == null || item.ItemSortJson.bagtabtype != BagTabType.Consumable)
                 {
                     retval.retCode = InvReturnCode.UseFailed;
                     return retval;
@@ -1284,17 +1284,17 @@ namespace Photon.LoadBalancing.GameServer
 
         public void NewDayReset()
         {
-            mItemKindData.NewDayReset();
+            mItemSortInvData.NewDayReset();
         }
 
-        public ItemKindData GetItemKindData()
+        public ItemSortInventoryData GetItemSortInvData()
         {
-            return mItemKindData;
+            return mItemSortInvData;
         }
 
-        private bool IsItemUnderCoolDown(int itemKind, int seconds)
+        private bool IsItemUnderCoolDown(int itemSort, int seconds)
         {
-            IItemData data = mItemKindData.GetDataByItemKindId(itemKind);
+            IItemData data = mItemSortInvData.GetDataByItemSortId(itemSort);
             if (data == null)
                 return false;
 
@@ -1308,33 +1308,33 @@ namespace Photon.LoadBalancing.GameServer
             DateTime now = DateTime.Now.AddSeconds(cooldowntime);
             if (global)
             {
-                data = mItemKindData.GetDataByItemKindId(itemtype);
+                data = mItemSortInvData.GetDataByItemSortId(itemtype);
                 if (data == null)
                 {
                     data = new IItemData(itemtype, 0, 0, now);
-                    idx = mItemKindData.GetEmptySlot();
+                    idx = mItemSortInvData.GetEmptySlot();
                 }
                 else
                 {
                     data.LastUsedt = now;
-                    idx = mItemKindData.GetIndexByItemKindId(itemtype);
+                    idx = mItemSortInvData.GetIndexByItemSortId(itemtype);
                 }
             }
             else
             {
-                data = mItemKindData.GetDataByItemId(itemId);
+                data = mItemSortInvData.GetDataByItemId(itemId);
                 if (data == null)
                 {
                     data = new IItemData(0, itemId, 0, now);
-                    idx = mItemKindData.GetEmptySlot();
+                    idx = mItemSortInvData.GetEmptySlot();
                 }
                 else
                 {
                     data.LastUsedt = now;
-                    idx = mItemKindData.GetIndexByItemId(itemId);
+                    idx = mItemSortInvData.GetIndexByItemId(itemId);
                 }
             }
-            mItemKindData.SetDataBySlotId(idx, data);
+            mItemSortInvData.SetDataBySlotId(idx, data);
         }
 
         private bool SellItemForMoney(int amtToAdd)
@@ -1399,20 +1399,16 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
-        public void SetItemToHotbar(byte idx, int slotId)
+        public void SetItemToHotbar(byte index, int slotId)
         {
             if (slotId >= 0)
             {
                 IInventoryItem invItem = mInvData.Slots[slotId];
-                if (invItem != null)
-                {
-                    ItemType itemType = invItem.JsonObject.itemtype;
-                    if (itemType == ItemType.PotionFood || (itemType == ItemType.Material && ((MaterialJson)invItem.JsonObject).mattype == MaterialType.Special))
-                        mSlot.mPlayer.UpdateItemHotbar(idx, invItem.ItemID);
-                }
+                if (invItem != null && invItem.ItemSortJson.bagtabtype == BagTabType.Consumable)
+                    mSlot.mPlayer.UpdateItemHotbar(index, invItem.ItemID);
             }
             else // Remove from item hotbar slot
-                mSlot.mPlayer.UpdateItemHotbar(idx, 0);
+                mSlot.mPlayer.UpdateItemHotbar(index, 0);
         }
 
         public InvRetval UseItemInHotbar(byte index)
@@ -1425,7 +1421,11 @@ namespace Photon.LoadBalancing.GameServer
             if (slotId == -1)
                 return new InvRetval() { retCode = InvReturnCode.UseFailed };
 
-            return UseItemInInventory(slotId, 1);
+            InvRetval retval = UseItemInInventory(slotId, 1);
+            slotId = mInvData.GetLeastStackCountSlotIdxByItemId((ushort)itemId);
+            if (slotId == -1)
+                mSlot.mPlayer.UpdateItemHotbar(index, 0);
+            return retval;
         }
 
         public void UpdateEquipFusion(int slotID, string value)

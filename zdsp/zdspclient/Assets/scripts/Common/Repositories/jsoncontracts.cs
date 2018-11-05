@@ -133,6 +133,7 @@ namespace Zealot.Common
     public enum ApperanceGender {Male = 0, Female = 1, All = 2};
     public enum ApperanceCurrency {Silver = 0, Ingot = 1, Free = 2, NFS = 3};
     public enum FilterType {All = 0, Naming = 1, Chat = 2};
+    public enum InteractiveTriggerStep {None = 0, OnTrigger = 1, OnProgress = 2, CannotUse = 3};
 
 }
 
@@ -229,6 +230,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("6")]
         public ItemGameIconType gameicontype { get; set; } 
         
+        [JsonProperty("7")]
+        public int maxstackcount { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -238,6 +242,7 @@ namespace Kopio.JsonContracts
             sortorder = (int)vals["sortorder"];
             bagtabtype = (BagTabType)vals["bagtabtype"];
             gameicontype = (ItemGameIconType)vals["gameicontype"];
+            maxstackcount = (int)vals["maxstackcount"];
         }
     }
     
@@ -3066,564 +3071,6 @@ namespace Kopio.JsonContracts
     }
     
     [JsonObject(MemberSerialization.OptIn)]
-    public class LevelJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public string excelname { get; set; } 
-        
-        [JsonProperty("2")]
-        public string localizedname { get; set; } 
-        
-        [JsonProperty("3")]
-        public string unityscene { get; set; } 
-        
-        [AssetData("sprite")]
-        [JsonProperty("4")]
-        public string maptexture { get; set; } 
-        
-        [JsonProperty("5")]
-        public string banitemtype { get; set; } 
-        
-        [JsonProperty("6")]
-        public string banitemid { get; set; } 
-        
-        [AssetData("prefab")]
-        [JsonProperty("7")]
-        public string effectpath { get; set; } 
-        
-        [AssetData("sprite")]
-        [JsonProperty("8")]
-        public string loadingbgpath { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            excelname = (string)vals["excelname"];
-            localizedname = (string)vals["localizedname"];
-            unityscene = (string)vals["unityscene"];
-            maptexture = (string)vals["maptexture"];
-            banitemtype = (string)vals["banitemtype"];
-            banitemid = (string)vals["banitemid"];
-            effectpath = (string)vals["effectpath"];
-            loadingbgpath = (string)vals["loadingbgpath"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class MapCategoryJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public string categoryname { get; set; } 
-        
-        [JsonProperty("2")]
-        public MapType maptype { get; set; } 
-        
-        [JsonProperty("3")]
-        public string localizedname { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            categoryname = (string)vals["categoryname"];
-            maptype = (MapType)vals["maptype"];
-            localizedname = (string)vals["localizedname"];
-        }
-    }
-    
-    public class RealmJson
-    {
-        public virtual int id { get; set; } 
-        
-        public virtual RealmType type { get { return RealmType.World; } } 
-        
-        public virtual string excelname { get; set; } 
-        
-        public virtual string localizedname { get; set; } 
-        
-        //type LevelJson
-        public virtual int level { get; set; } 
-        
-        public virtual int reqlvl { get; set; } 
-        
-        public virtual RealmPVPType pvptype { get; set; } 
-        
-        public virtual int preparation { get; set; } 
-        
-        public virtual int timelimit { get; set; } 
-        
-        //type RespawnJson
-        public virtual int respawn { get; set; } 
-        
-        public virtual int respawncd { get; set; } 
-        
-        public virtual int minplayer { get; set; } 
-        
-        public virtual int maxplayer { get; set; } 
-        
-        public virtual MapType maptype { get; set; } 
-        
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class RealmWorldJson : RealmJson
-    {
-        [JsonProperty("0")]
-        public override int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public override string excelname { get; set; } 
-        
-        [JsonProperty("2")]
-        public override string localizedname { get; set; } 
-        
-        //type LevelJson
-        [JsonProperty("3")]
-        public override int level { get; set; } 
-        
-        [JsonProperty("4")]
-        public override int reqlvl { get; set; } 
-        
-        [JsonProperty("5")]
-        public override RealmPVPType pvptype { get; set; } 
-        
-        [JsonProperty("6")]
-        public override int preparation { get; set; } 
-        
-        [JsonProperty("7")]
-        public override int timelimit { get; set; } 
-        
-        //type RespawnJson
-        [JsonProperty("8")]
-        public override int respawn { get; set; } 
-        
-        [JsonProperty("9")]
-        public override int respawncd { get; set; } 
-        
-        [JsonProperty("10")]
-        public override int minplayer { get; set; } 
-        
-        [JsonProperty("11")]
-        public override int maxplayer { get; set; } 
-        
-        [JsonProperty("12")]
-        public override MapType maptype { get; set; } 
-        
-        public override RealmType type { get { return RealmType.World; } } 
-        
-        [JsonProperty("13")]
-        public int sequence { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            excelname = (string)vals["excelname"];
-            localizedname = (string)vals["localizedname"];
-            level = (int)vals["level"];
-            reqlvl = (int)vals["reqlvl"];
-            pvptype = (RealmPVPType)vals["pvptype"];
-            preparation = (int)vals["preparation"];
-            timelimit = (int)vals["timelimit"];
-            respawn = (int)vals["respawn"];
-            respawncd = (int)vals["respawncd"];
-            minplayer = (int)vals["minplayer"];
-            maxplayer = (int)vals["maxplayer"];
-            maptype = (MapType)vals["maptype"];
-            sequence = (int)vals["sequence"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class DungeonJson : RealmJson
-    {
-        [JsonProperty("0")]
-        public override int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public override string excelname { get; set; } 
-        
-        [JsonProperty("2")]
-        public override string localizedname { get; set; } 
-        
-        //type LevelJson
-        [JsonProperty("3")]
-        public override int level { get; set; } 
-        
-        [JsonProperty("4")]
-        public override int reqlvl { get; set; } 
-        
-        [JsonProperty("5")]
-        public override RealmPVPType pvptype { get; set; } 
-        
-        [JsonProperty("6")]
-        public override int preparation { get; set; } 
-        
-        [JsonProperty("7")]
-        public override int timelimit { get; set; } 
-        
-        //type RespawnJson
-        [JsonProperty("8")]
-        public override int respawn { get; set; } 
-        
-        [JsonProperty("9")]
-        public override int respawncd { get; set; } 
-        
-        [JsonProperty("10")]
-        public override int minplayer { get; set; } 
-        
-        [JsonProperty("11")]
-        public override int maxplayer { get; set; } 
-        
-        [JsonProperty("12")]
-        public override MapType maptype { get; set; } 
-        
-        public override RealmType type { get { return RealmType.Dungeon; } } 
-        
-        [JsonProperty("13")]
-        public DungeonType dungeontype { get; set; } 
-        
-        [JsonProperty("14")]
-        public int sequence { get; set; } 
-        
-        [AssetData("sprite")]
-        [JsonProperty("15")]
-        public string iconpath { get; set; } 
-        
-        [JsonProperty("16")]
-        public DungeonDifficulty difficulty { get; set; } 
-        
-        [JsonProperty("17")]
-        public int entrylimit { get; set; } 
-        
-        [JsonProperty("18")]
-        public string lootdisplayids { get; set; } 
-        
-        [JsonProperty("19")]
-        public string lootrewardids { get; set; } 
-        
-        [JsonProperty("20")]
-        public string opendate { get; set; } 
-        
-        [JsonProperty("21")]
-        public string closedate { get; set; } 
-        
-        [JsonProperty("22")]
-        public string opentime { get; set; } 
-        
-        [JsonProperty("23")]
-        public string closetime { get; set; } 
-        
-        [JsonProperty("24")]
-        public bool isopenday1 { get; set; } 
-        
-        [JsonProperty("25")]
-        public bool isopenday2 { get; set; } 
-        
-        [JsonProperty("26")]
-        public bool isopenday3 { get; set; } 
-        
-        [JsonProperty("27")]
-        public bool isopenday4 { get; set; } 
-        
-        [JsonProperty("28")]
-        public bool isopenday5 { get; set; } 
-        
-        [JsonProperty("29")]
-        public bool isopenday6 { get; set; } 
-        
-        [JsonProperty("30")]
-        public bool isopenday7 { get; set; } 
-        
-        [JsonProperty("31")]
-        public int lootlimit { get; set; } 
-        
-        [JsonProperty("32")]
-        public LootResetType lootresettype { get; set; } 
-        
-        [JsonProperty("33")]
-        public string lootresettime { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            excelname = (string)vals["excelname"];
-            localizedname = (string)vals["localizedname"];
-            level = (int)vals["level"];
-            reqlvl = (int)vals["reqlvl"];
-            pvptype = (RealmPVPType)vals["pvptype"];
-            preparation = (int)vals["preparation"];
-            timelimit = (int)vals["timelimit"];
-            respawn = (int)vals["respawn"];
-            respawncd = (int)vals["respawncd"];
-            minplayer = (int)vals["minplayer"];
-            maxplayer = (int)vals["maxplayer"];
-            maptype = (MapType)vals["maptype"];
-            dungeontype = (DungeonType)vals["dungeontype"];
-            sequence = (int)vals["sequence"];
-            iconpath = (string)vals["iconpath"];
-            difficulty = (DungeonDifficulty)vals["difficulty"];
-            entrylimit = (int)vals["entrylimit"];
-            lootdisplayids = (string)vals["lootdisplayids"];
-            lootrewardids = (string)vals["lootrewardids"];
-            opendate = (string)vals["opendate"];
-            closedate = (string)vals["closedate"];
-            opentime = (string)vals["opentime"];
-            closetime = (string)vals["closetime"];
-            isopenday1 = (bool)vals["isopenday1"];
-            isopenday2 = (bool)vals["isopenday2"];
-            isopenday3 = (bool)vals["isopenday3"];
-            isopenday4 = (bool)vals["isopenday4"];
-            isopenday5 = (bool)vals["isopenday5"];
-            isopenday6 = (bool)vals["isopenday6"];
-            isopenday7 = (bool)vals["isopenday7"];
-            lootlimit = (int)vals["lootlimit"];
-            lootresettype = (LootResetType)vals["lootresettype"];
-            lootresettime = (string)vals["lootresettime"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class TutorialJson : RealmJson
-    {
-        [JsonProperty("0")]
-        public override int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public override string excelname { get; set; } 
-        
-        [JsonProperty("2")]
-        public override string localizedname { get; set; } 
-        
-        //type LevelJson
-        [JsonProperty("3")]
-        public override int level { get; set; } 
-        
-        [JsonProperty("4")]
-        public override int reqlvl { get; set; } 
-        
-        [JsonProperty("5")]
-        public override RealmPVPType pvptype { get; set; } 
-        
-        [JsonProperty("6")]
-        public override int preparation { get; set; } 
-        
-        [JsonProperty("7")]
-        public override int timelimit { get; set; } 
-        
-        //type RespawnJson
-        [JsonProperty("8")]
-        public override int respawn { get; set; } 
-        
-        [JsonProperty("9")]
-        public override int respawncd { get; set; } 
-        
-        [JsonProperty("10")]
-        public override int minplayer { get; set; } 
-        
-        [JsonProperty("11")]
-        public override int maxplayer { get; set; } 
-        
-        [JsonProperty("12")]
-        public override MapType maptype { get; set; } 
-        
-        public override RealmType type { get { return RealmType.Tutorial; } } 
-        
-        [JsonProperty("13")]
-        public string localizeddescription { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            excelname = (string)vals["excelname"];
-            localizedname = (string)vals["localizedname"];
-            level = (int)vals["level"];
-            reqlvl = (int)vals["reqlvl"];
-            pvptype = (RealmPVPType)vals["pvptype"];
-            preparation = (int)vals["preparation"];
-            timelimit = (int)vals["timelimit"];
-            respawn = (int)vals["respawn"];
-            respawncd = (int)vals["respawncd"];
-            minplayer = (int)vals["minplayer"];
-            maxplayer = (int)vals["maxplayer"];
-            maptype = (MapType)vals["maptype"];
-            localizeddescription = (string)vals["localizeddescription"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class RewardListJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public int rewardgroupid { get; set; } 
-        
-        [JsonProperty("2")]
-        public bool isexpgrade { get; set; } 
-        
-        [JsonProperty("3")]
-        public int job { get; set; } 
-        
-        [JsonProperty("4")]
-        public int experience { get; set; } 
-        
-        [JsonProperty("5")]
-        public int skillpoint { get; set; } 
-        
-        [JsonProperty("6")]
-        public int money { get; set; } 
-        
-        [JsonProperty("7")]
-        public int donatept { get; set; } 
-        
-        [JsonProperty("8")]
-        public int guildactivept { get; set; } 
-        
-        [JsonProperty("9")]
-        public int itemid1 { get; set; } 
-        
-        [JsonProperty("10")]
-        public int itemcount1 { get; set; } 
-        
-        [JsonProperty("11")]
-        public int itemid2 { get; set; } 
-        
-        [JsonProperty("12")]
-        public int itemcount2 { get; set; } 
-        
-        [JsonProperty("13")]
-        public int itemid3 { get; set; } 
-        
-        [JsonProperty("14")]
-        public int itemcount3 { get; set; } 
-        
-        [JsonProperty("15")]
-        public int itemid4 { get; set; } 
-        
-        [JsonProperty("16")]
-        public int itemcount4 { get; set; } 
-        
-        [JsonProperty("17")]
-        public int itemid5 { get; set; } 
-        
-        [JsonProperty("18")]
-        public int itemcount5 { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            rewardgroupid = (int)vals["rewardgroupid"];
-            isexpgrade = (bool)vals["isexpgrade"];
-            job = (int)vals["job"];
-            experience = (int)vals["experience"];
-            skillpoint = (int)vals["skillpoint"];
-            money = (int)vals["money"];
-            donatept = (int)vals["donatept"];
-            guildactivept = (int)vals["guildactivept"];
-            itemid1 = (int)vals["itemid1"];
-            itemcount1 = (int)vals["itemcount1"];
-            itemid2 = (int)vals["itemid2"];
-            itemcount2 = (int)vals["itemcount2"];
-            itemid3 = (int)vals["itemid3"];
-            itemcount3 = (int)vals["itemcount3"];
-            itemid4 = (int)vals["itemid4"];
-            itemcount4 = (int)vals["itemcount4"];
-            itemid5 = (int)vals["itemid5"];
-            itemcount5 = (int)vals["itemcount5"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class ExperienceRateJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public int level { get; set; } 
-        
-        [JsonProperty("2")]
-        public float exprate { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            level = (int)vals["level"];
-            exprate = Convert.ToSingle((double)vals["exprate"]);
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class ActivityRewardJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public int activitygroupid { get; set; } 
-        
-        [JsonProperty("2")]
-        public int score { get; set; } 
-        
-        [JsonProperty("3")]
-        public string rewardgroupid { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            activitygroupid = (int)vals["activitygroupid"];
-            score = (int)vals["score"];
-            rewardgroupid = (string)vals["rewardgroupid"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
-    public class RespawnJson
-    {
-        [JsonProperty("0")]
-        public int id { get; set; } 
-        
-        [JsonProperty("1")]
-        public string name { get; set; } 
-        
-        [JsonProperty("2")]
-        public int respawnid { get; set; } 
-        
-        [JsonProperty("3")]
-        public bool siturespawn { get; set; } 
-        
-        [JsonProperty("4")]
-        public string deductitem { get; set; } 
-        
-        [JsonProperty("5")]
-        public string deductcurrency { get; set; } 
-        
-        [JsonProperty("6")]
-        public RespawnType respawntype { get; set; } 
-        
-        [JsonProperty("7")]
-        public int countdown { get; set; } 
-        
-        public void Load(Dictionary<string, object> vals)
-        {
-            id = (int)vals["id"];
-            name = (string)vals["name"];
-            respawnid = (int)vals["respawnid"];
-            siturespawn = (bool)vals["siturespawn"];
-            deductitem = (string)vals["deductitem"];
-            deductcurrency = (string)vals["deductcurrency"];
-            respawntype = (RespawnType)vals["respawntype"];
-            countdown = (int)vals["countdown"];
-        }
-    }
-    
-    [JsonObject(MemberSerialization.OptIn)]
     public class SkillGroupJson
     {
         [JsonProperty("0")]
@@ -4155,6 +3602,564 @@ namespace Kopio.JsonContracts
             smash = (int)vals["smash"];
             god = (int)vals["god"];
             normal = (int)vals["normal"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class LevelJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public string excelname { get; set; } 
+        
+        [JsonProperty("2")]
+        public string localizedname { get; set; } 
+        
+        [JsonProperty("3")]
+        public string unityscene { get; set; } 
+        
+        [AssetData("sprite")]
+        [JsonProperty("4")]
+        public string maptexture { get; set; } 
+        
+        [JsonProperty("5")]
+        public string banitemtype { get; set; } 
+        
+        [JsonProperty("6")]
+        public string banitemid { get; set; } 
+        
+        [AssetData("prefab")]
+        [JsonProperty("7")]
+        public string effectpath { get; set; } 
+        
+        [AssetData("sprite")]
+        [JsonProperty("8")]
+        public string loadingbgpath { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            excelname = (string)vals["excelname"];
+            localizedname = (string)vals["localizedname"];
+            unityscene = (string)vals["unityscene"];
+            maptexture = (string)vals["maptexture"];
+            banitemtype = (string)vals["banitemtype"];
+            banitemid = (string)vals["banitemid"];
+            effectpath = (string)vals["effectpath"];
+            loadingbgpath = (string)vals["loadingbgpath"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class MapCategoryJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public string categoryname { get; set; } 
+        
+        [JsonProperty("2")]
+        public MapType maptype { get; set; } 
+        
+        [JsonProperty("3")]
+        public string localizedname { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            categoryname = (string)vals["categoryname"];
+            maptype = (MapType)vals["maptype"];
+            localizedname = (string)vals["localizedname"];
+        }
+    }
+    
+    public class RealmJson
+    {
+        public virtual int id { get; set; } 
+        
+        public virtual RealmType type { get { return RealmType.World; } } 
+        
+        public virtual string excelname { get; set; } 
+        
+        public virtual string localizedname { get; set; } 
+        
+        //type LevelJson
+        public virtual int level { get; set; } 
+        
+        public virtual int reqlvl { get; set; } 
+        
+        public virtual RealmPVPType pvptype { get; set; } 
+        
+        public virtual int preparation { get; set; } 
+        
+        public virtual int timelimit { get; set; } 
+        
+        //type RespawnJson
+        public virtual int respawn { get; set; } 
+        
+        public virtual int respawncd { get; set; } 
+        
+        public virtual int minplayer { get; set; } 
+        
+        public virtual int maxplayer { get; set; } 
+        
+        public virtual MapType maptype { get; set; } 
+        
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class RealmWorldJson : RealmJson
+    {
+        [JsonProperty("0")]
+        public override int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public override string excelname { get; set; } 
+        
+        [JsonProperty("2")]
+        public override string localizedname { get; set; } 
+        
+        //type LevelJson
+        [JsonProperty("3")]
+        public override int level { get; set; } 
+        
+        [JsonProperty("4")]
+        public override int reqlvl { get; set; } 
+        
+        [JsonProperty("5")]
+        public override RealmPVPType pvptype { get; set; } 
+        
+        [JsonProperty("6")]
+        public override int preparation { get; set; } 
+        
+        [JsonProperty("7")]
+        public override int timelimit { get; set; } 
+        
+        //type RespawnJson
+        [JsonProperty("8")]
+        public override int respawn { get; set; } 
+        
+        [JsonProperty("9")]
+        public override int respawncd { get; set; } 
+        
+        [JsonProperty("10")]
+        public override int minplayer { get; set; } 
+        
+        [JsonProperty("11")]
+        public override int maxplayer { get; set; } 
+        
+        [JsonProperty("12")]
+        public override MapType maptype { get; set; } 
+        
+        public override RealmType type { get { return RealmType.World; } } 
+        
+        [JsonProperty("13")]
+        public int sequence { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            excelname = (string)vals["excelname"];
+            localizedname = (string)vals["localizedname"];
+            level = (int)vals["level"];
+            reqlvl = (int)vals["reqlvl"];
+            pvptype = (RealmPVPType)vals["pvptype"];
+            preparation = (int)vals["preparation"];
+            timelimit = (int)vals["timelimit"];
+            respawn = (int)vals["respawn"];
+            respawncd = (int)vals["respawncd"];
+            minplayer = (int)vals["minplayer"];
+            maxplayer = (int)vals["maxplayer"];
+            maptype = (MapType)vals["maptype"];
+            sequence = (int)vals["sequence"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class DungeonJson : RealmJson
+    {
+        [JsonProperty("0")]
+        public override int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public override string excelname { get; set; } 
+        
+        [JsonProperty("2")]
+        public override string localizedname { get; set; } 
+        
+        //type LevelJson
+        [JsonProperty("3")]
+        public override int level { get; set; } 
+        
+        [JsonProperty("4")]
+        public override int reqlvl { get; set; } 
+        
+        [JsonProperty("5")]
+        public override RealmPVPType pvptype { get; set; } 
+        
+        [JsonProperty("6")]
+        public override int preparation { get; set; } 
+        
+        [JsonProperty("7")]
+        public override int timelimit { get; set; } 
+        
+        //type RespawnJson
+        [JsonProperty("8")]
+        public override int respawn { get; set; } 
+        
+        [JsonProperty("9")]
+        public override int respawncd { get; set; } 
+        
+        [JsonProperty("10")]
+        public override int minplayer { get; set; } 
+        
+        [JsonProperty("11")]
+        public override int maxplayer { get; set; } 
+        
+        [JsonProperty("12")]
+        public override MapType maptype { get; set; } 
+        
+        public override RealmType type { get { return RealmType.Dungeon; } } 
+        
+        [JsonProperty("13")]
+        public DungeonType dungeontype { get; set; } 
+        
+        [JsonProperty("14")]
+        public int sequence { get; set; } 
+        
+        [AssetData("sprite")]
+        [JsonProperty("15")]
+        public string iconpath { get; set; } 
+        
+        [JsonProperty("16")]
+        public DungeonDifficulty difficulty { get; set; } 
+        
+        [JsonProperty("17")]
+        public int entrylimit { get; set; } 
+        
+        [JsonProperty("18")]
+        public string lootdisplayids { get; set; } 
+        
+        [JsonProperty("19")]
+        public string lootrewardids { get; set; } 
+        
+        [JsonProperty("20")]
+        public string opendate { get; set; } 
+        
+        [JsonProperty("21")]
+        public string closedate { get; set; } 
+        
+        [JsonProperty("22")]
+        public string opentime { get; set; } 
+        
+        [JsonProperty("23")]
+        public string closetime { get; set; } 
+        
+        [JsonProperty("24")]
+        public bool isopenday1 { get; set; } 
+        
+        [JsonProperty("25")]
+        public bool isopenday2 { get; set; } 
+        
+        [JsonProperty("26")]
+        public bool isopenday3 { get; set; } 
+        
+        [JsonProperty("27")]
+        public bool isopenday4 { get; set; } 
+        
+        [JsonProperty("28")]
+        public bool isopenday5 { get; set; } 
+        
+        [JsonProperty("29")]
+        public bool isopenday6 { get; set; } 
+        
+        [JsonProperty("30")]
+        public bool isopenday7 { get; set; } 
+        
+        [JsonProperty("31")]
+        public int lootlimit { get; set; } 
+        
+        [JsonProperty("32")]
+        public LootResetType lootresettype { get; set; } 
+        
+        [JsonProperty("33")]
+        public string lootresettime { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            excelname = (string)vals["excelname"];
+            localizedname = (string)vals["localizedname"];
+            level = (int)vals["level"];
+            reqlvl = (int)vals["reqlvl"];
+            pvptype = (RealmPVPType)vals["pvptype"];
+            preparation = (int)vals["preparation"];
+            timelimit = (int)vals["timelimit"];
+            respawn = (int)vals["respawn"];
+            respawncd = (int)vals["respawncd"];
+            minplayer = (int)vals["minplayer"];
+            maxplayer = (int)vals["maxplayer"];
+            maptype = (MapType)vals["maptype"];
+            dungeontype = (DungeonType)vals["dungeontype"];
+            sequence = (int)vals["sequence"];
+            iconpath = (string)vals["iconpath"];
+            difficulty = (DungeonDifficulty)vals["difficulty"];
+            entrylimit = (int)vals["entrylimit"];
+            lootdisplayids = (string)vals["lootdisplayids"];
+            lootrewardids = (string)vals["lootrewardids"];
+            opendate = (string)vals["opendate"];
+            closedate = (string)vals["closedate"];
+            opentime = (string)vals["opentime"];
+            closetime = (string)vals["closetime"];
+            isopenday1 = (bool)vals["isopenday1"];
+            isopenday2 = (bool)vals["isopenday2"];
+            isopenday3 = (bool)vals["isopenday3"];
+            isopenday4 = (bool)vals["isopenday4"];
+            isopenday5 = (bool)vals["isopenday5"];
+            isopenday6 = (bool)vals["isopenday6"];
+            isopenday7 = (bool)vals["isopenday7"];
+            lootlimit = (int)vals["lootlimit"];
+            lootresettype = (LootResetType)vals["lootresettype"];
+            lootresettime = (string)vals["lootresettime"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class TutorialJson : RealmJson
+    {
+        [JsonProperty("0")]
+        public override int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public override string excelname { get; set; } 
+        
+        [JsonProperty("2")]
+        public override string localizedname { get; set; } 
+        
+        //type LevelJson
+        [JsonProperty("3")]
+        public override int level { get; set; } 
+        
+        [JsonProperty("4")]
+        public override int reqlvl { get; set; } 
+        
+        [JsonProperty("5")]
+        public override RealmPVPType pvptype { get; set; } 
+        
+        [JsonProperty("6")]
+        public override int preparation { get; set; } 
+        
+        [JsonProperty("7")]
+        public override int timelimit { get; set; } 
+        
+        //type RespawnJson
+        [JsonProperty("8")]
+        public override int respawn { get; set; } 
+        
+        [JsonProperty("9")]
+        public override int respawncd { get; set; } 
+        
+        [JsonProperty("10")]
+        public override int minplayer { get; set; } 
+        
+        [JsonProperty("11")]
+        public override int maxplayer { get; set; } 
+        
+        [JsonProperty("12")]
+        public override MapType maptype { get; set; } 
+        
+        public override RealmType type { get { return RealmType.Tutorial; } } 
+        
+        [JsonProperty("13")]
+        public string localizeddescription { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            excelname = (string)vals["excelname"];
+            localizedname = (string)vals["localizedname"];
+            level = (int)vals["level"];
+            reqlvl = (int)vals["reqlvl"];
+            pvptype = (RealmPVPType)vals["pvptype"];
+            preparation = (int)vals["preparation"];
+            timelimit = (int)vals["timelimit"];
+            respawn = (int)vals["respawn"];
+            respawncd = (int)vals["respawncd"];
+            minplayer = (int)vals["minplayer"];
+            maxplayer = (int)vals["maxplayer"];
+            maptype = (MapType)vals["maptype"];
+            localizeddescription = (string)vals["localizeddescription"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class RespawnJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public string name { get; set; } 
+        
+        [JsonProperty("2")]
+        public int respawnid { get; set; } 
+        
+        [JsonProperty("3")]
+        public bool siturespawn { get; set; } 
+        
+        [JsonProperty("4")]
+        public string deductitem { get; set; } 
+        
+        [JsonProperty("5")]
+        public string deductcurrency { get; set; } 
+        
+        [JsonProperty("6")]
+        public RespawnType respawntype { get; set; } 
+        
+        [JsonProperty("7")]
+        public int countdown { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            name = (string)vals["name"];
+            respawnid = (int)vals["respawnid"];
+            siturespawn = (bool)vals["siturespawn"];
+            deductitem = (string)vals["deductitem"];
+            deductcurrency = (string)vals["deductcurrency"];
+            respawntype = (RespawnType)vals["respawntype"];
+            countdown = (int)vals["countdown"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class RewardListJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public int rewardgroupid { get; set; } 
+        
+        [JsonProperty("2")]
+        public bool isexpgrade { get; set; } 
+        
+        [JsonProperty("3")]
+        public int job { get; set; } 
+        
+        [JsonProperty("4")]
+        public int experience { get; set; } 
+        
+        [JsonProperty("5")]
+        public int skillpoint { get; set; } 
+        
+        [JsonProperty("6")]
+        public int money { get; set; } 
+        
+        [JsonProperty("7")]
+        public int donatept { get; set; } 
+        
+        [JsonProperty("8")]
+        public int guildactivept { get; set; } 
+        
+        [JsonProperty("9")]
+        public int itemid1 { get; set; } 
+        
+        [JsonProperty("10")]
+        public int itemcount1 { get; set; } 
+        
+        [JsonProperty("11")]
+        public int itemid2 { get; set; } 
+        
+        [JsonProperty("12")]
+        public int itemcount2 { get; set; } 
+        
+        [JsonProperty("13")]
+        public int itemid3 { get; set; } 
+        
+        [JsonProperty("14")]
+        public int itemcount3 { get; set; } 
+        
+        [JsonProperty("15")]
+        public int itemid4 { get; set; } 
+        
+        [JsonProperty("16")]
+        public int itemcount4 { get; set; } 
+        
+        [JsonProperty("17")]
+        public int itemid5 { get; set; } 
+        
+        [JsonProperty("18")]
+        public int itemcount5 { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            rewardgroupid = (int)vals["rewardgroupid"];
+            isexpgrade = (bool)vals["isexpgrade"];
+            job = (int)vals["job"];
+            experience = (int)vals["experience"];
+            skillpoint = (int)vals["skillpoint"];
+            money = (int)vals["money"];
+            donatept = (int)vals["donatept"];
+            guildactivept = (int)vals["guildactivept"];
+            itemid1 = (int)vals["itemid1"];
+            itemcount1 = (int)vals["itemcount1"];
+            itemid2 = (int)vals["itemid2"];
+            itemcount2 = (int)vals["itemcount2"];
+            itemid3 = (int)vals["itemid3"];
+            itemcount3 = (int)vals["itemcount3"];
+            itemid4 = (int)vals["itemid4"];
+            itemcount4 = (int)vals["itemcount4"];
+            itemid5 = (int)vals["itemid5"];
+            itemcount5 = (int)vals["itemcount5"];
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class ExperienceRateJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public int level { get; set; } 
+        
+        [JsonProperty("2")]
+        public float exprate { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            level = (int)vals["level"];
+            exprate = Convert.ToSingle((double)vals["exprate"]);
+        }
+    }
+    
+    [JsonObject(MemberSerialization.OptIn)]
+    public class ActivityRewardJson
+    {
+        [JsonProperty("0")]
+        public int id { get; set; } 
+        
+        [JsonProperty("1")]
+        public int activitygroupid { get; set; } 
+        
+        [JsonProperty("2")]
+        public int score { get; set; } 
+        
+        [JsonProperty("3")]
+        public string rewardgroupid { get; set; } 
+        
+        public void Load(Dictionary<string, object> vals)
+        {
+            id = (int)vals["id"];
+            activitygroupid = (int)vals["activitygroupid"];
+            score = (int)vals["score"];
+            rewardgroupid = (string)vals["rewardgroupid"];
         }
     }
     
@@ -8200,6 +8205,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("4")]
         public string localizedname { get; set; } 
         
+        [JsonProperty("5")]
+        public string localizedheader { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -8207,6 +8215,7 @@ namespace Kopio.JsonContracts
             maintype = (AchievementType)vals["maintype"];
             sequence = (int)vals["sequence"];
             localizedname = (string)vals["localizedname"];
+            localizedheader = (string)vals["localizedheader"];
         }
     }
     
@@ -8747,33 +8756,6 @@ namespace Kopio.JsonContracts
         public Dictionary<int, ExpMonsterLvDifferenceJson> ExpMonsterLvDifference = new Dictionary<int, ExpMonsterLvDifferenceJson>();
 
         [JsonProperty]
-        public Dictionary<int, LevelJson> Level = new Dictionary<int, LevelJson>();
-
-        [JsonProperty]
-        public Dictionary<int, MapCategoryJson> MapCategory = new Dictionary<int, MapCategoryJson>();
-
-        [JsonProperty]
-        public Dictionary<int, RealmWorldJson> RealmWorld = new Dictionary<int, RealmWorldJson>();
-
-        [JsonProperty]
-        public Dictionary<int, DungeonJson> Dungeon = new Dictionary<int, DungeonJson>();
-
-        [JsonProperty]
-        public Dictionary<int, TutorialJson> Tutorial = new Dictionary<int, TutorialJson>();
-
-        [JsonProperty]
-        public Dictionary<int, RewardListJson> RewardList = new Dictionary<int, RewardListJson>();
-
-        [JsonProperty]
-        public Dictionary<int, ExperienceRateJson> ExperienceRate = new Dictionary<int, ExperienceRateJson>();
-
-        [JsonProperty]
-        public Dictionary<int, ActivityRewardJson> ActivityReward = new Dictionary<int, ActivityRewardJson>();
-
-        [JsonProperty]
-        public Dictionary<int, RespawnJson> Respawn = new Dictionary<int, RespawnJson>();
-
-        [JsonProperty]
         public Dictionary<int, SkillGroupJson> SkillGroup = new Dictionary<int, SkillGroupJson>();
 
         [JsonProperty]
@@ -8799,6 +8781,33 @@ namespace Kopio.JsonContracts
 
         [JsonProperty]
         public Dictionary<int, WeaknessChartJson> WeaknessChart = new Dictionary<int, WeaknessChartJson>();
+
+        [JsonProperty]
+        public Dictionary<int, LevelJson> Level = new Dictionary<int, LevelJson>();
+
+        [JsonProperty]
+        public Dictionary<int, MapCategoryJson> MapCategory = new Dictionary<int, MapCategoryJson>();
+
+        [JsonProperty]
+        public Dictionary<int, RealmWorldJson> RealmWorld = new Dictionary<int, RealmWorldJson>();
+
+        [JsonProperty]
+        public Dictionary<int, DungeonJson> Dungeon = new Dictionary<int, DungeonJson>();
+
+        [JsonProperty]
+        public Dictionary<int, TutorialJson> Tutorial = new Dictionary<int, TutorialJson>();
+
+        [JsonProperty]
+        public Dictionary<int, RespawnJson> Respawn = new Dictionary<int, RespawnJson>();
+
+        [JsonProperty]
+        public Dictionary<int, RewardListJson> RewardList = new Dictionary<int, RewardListJson>();
+
+        [JsonProperty]
+        public Dictionary<int, ExperienceRateJson> ExperienceRate = new Dictionary<int, ExperienceRateJson>();
+
+        [JsonProperty]
+        public Dictionary<int, ActivityRewardJson> ActivityReward = new Dictionary<int, ActivityRewardJson>();
 
         [JsonProperty]
         public Dictionary<int, CombatNPCJson> CombatNPC = new Dictionary<int, CombatNPCJson>();
@@ -9287,33 +9296,6 @@ namespace Kopio.JsonContracts
                 case "ExpMonsterLvDifferenceJson":
                 ExpMonsterLvDifference.Add((item as ExpMonsterLvDifferenceJson).id, item as ExpMonsterLvDifferenceJson);
                 break;
-                case "LevelJson":
-                Level.Add((item as LevelJson).id, item as LevelJson);
-                break;
-                case "MapCategoryJson":
-                MapCategory.Add((item as MapCategoryJson).id, item as MapCategoryJson);
-                break;
-                case "RealmWorldJson":
-                RealmWorld.Add((item as RealmWorldJson).id, item as RealmWorldJson);
-                break;
-                case "DungeonJson":
-                Dungeon.Add((item as DungeonJson).id, item as DungeonJson);
-                break;
-                case "TutorialJson":
-                Tutorial.Add((item as TutorialJson).id, item as TutorialJson);
-                break;
-                case "RewardListJson":
-                RewardList.Add((item as RewardListJson).id, item as RewardListJson);
-                break;
-                case "ExperienceRateJson":
-                ExperienceRate.Add((item as ExperienceRateJson).id, item as ExperienceRateJson);
-                break;
-                case "ActivityRewardJson":
-                ActivityReward.Add((item as ActivityRewardJson).id, item as ActivityRewardJson);
-                break;
-                case "RespawnJson":
-                Respawn.Add((item as RespawnJson).id, item as RespawnJson);
-                break;
                 case "SkillGroupJson":
                 SkillGroup.Add((item as SkillGroupJson).id, item as SkillGroupJson);
                 break;
@@ -9340,6 +9322,33 @@ namespace Kopio.JsonContracts
                 break;
                 case "WeaknessChartJson":
                 WeaknessChart.Add((item as WeaknessChartJson).id, item as WeaknessChartJson);
+                break;
+                case "LevelJson":
+                Level.Add((item as LevelJson).id, item as LevelJson);
+                break;
+                case "MapCategoryJson":
+                MapCategory.Add((item as MapCategoryJson).id, item as MapCategoryJson);
+                break;
+                case "RealmWorldJson":
+                RealmWorld.Add((item as RealmWorldJson).id, item as RealmWorldJson);
+                break;
+                case "DungeonJson":
+                Dungeon.Add((item as DungeonJson).id, item as DungeonJson);
+                break;
+                case "TutorialJson":
+                Tutorial.Add((item as TutorialJson).id, item as TutorialJson);
+                break;
+                case "RespawnJson":
+                Respawn.Add((item as RespawnJson).id, item as RespawnJson);
+                break;
+                case "RewardListJson":
+                RewardList.Add((item as RewardListJson).id, item as RewardListJson);
+                break;
+                case "ExperienceRateJson":
+                ExperienceRate.Add((item as ExperienceRateJson).id, item as ExperienceRateJson);
+                break;
+                case "ActivityRewardJson":
+                ActivityReward.Add((item as ActivityRewardJson).id, item as ActivityRewardJson);
                 break;
                 case "CombatNPCJson":
                 CombatNPC.Add((item as CombatNPCJson).id, item as CombatNPCJson);

@@ -1014,7 +1014,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         stoneSlotTxt.Value = EquipFusionRepo.StoneTypeGetName(es.ElementalStoneJson.type).ToString();
         //Unique - Sideeffects
         sideeffectTxt.text = string.Empty;
-        List<string> effectGroup = EquipFusionRepo.DecodeEffect(es.FusionData);
+        List<string> effectGroup = EquipFusionController.DecodeEffect(es.FusionData);
         for (int i = 0; i < effectGroup.Count; ++i)
             sideeffectTxt.text += effectGroup[i] + '\n';
     }

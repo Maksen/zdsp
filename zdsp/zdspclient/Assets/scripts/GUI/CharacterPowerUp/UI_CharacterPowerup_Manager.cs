@@ -49,11 +49,11 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     [SerializeField]
     private Sprite[] SP_PartIcon;
 
-    public static bool haveEnoughMaterial;
-    public static bool LevelCanPowerUp;
+    public bool haveEnoughMaterial;
+    public bool LevelCanPowerUp;
 
-    public static UI_CharacterPartToggle CharacterToggle;
-    public static UI_CharacterPowerup_Manager mManager;
+    public UI_CharacterPartToggle CharacterToggle;
+    public UI_CharacterPowerup_Manager mManager;
 
     [Space(10)]
     [SerializeField]
@@ -66,7 +66,7 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     [SerializeField]
     private UI_Inventory CS_Inventory;
     PowerUpPartsType nowPartType;
-    public static int nowPartTypeCount;
+    public int nowPartTypeCount;
 
     [SerializeField]
     private Transform[] selectPartButtonParents;
@@ -85,6 +85,8 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
         {
             equipIconData.Add(selectPartButtonParents[i].Find("GameIcon_Equip").GetComponent<GameIcon_Equip>());
         }
+
+        BTN_PowerUp.onClick.AddListener(PowerUpClick);
     }
 
     void OnEnable()
@@ -101,22 +103,22 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     #endregion
 
     #region Refresh
-    public void Init(int part)
+    public void InitFromOther()
+    {
+        Init(nowPartTypeCount);
+    }
+
+    void Init(int part)
     {
         powerUpToggle[nowPartTypeCount].isOn = false;
         nowPartTypeCount = part;
-        powerUpToggle[nowPartTypeCount].isOn = true;
+        powerUpToggle[part].isOn = true;
         ClientUtils.DestroyChildren(ItemRequirements_Parents);
         LevelCanPowerUp = false;
         haveEnoughMaterial = false;
 
         RefreshPowerUpShow(part);
         InstantiatePartRequir(part);
-    }
-
-    public static void StaticInit()
-    {
-        mManager.Init(nowPartTypeCount);
     }
     #endregion
 
@@ -126,15 +128,7 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     {
         TXT_PartName.text = partLocalName[part];
         IMG_PartIcon.sprite = SP_PartIcon[part];
-        int partLevel = player.clientPowerUpCtrl.PowerUpInventory.powerUpSlots[part];
-        NowPartLevel = partLevel;
-        NextPartLevel = NowPartLevel + 1;
-        
-        nowPartType = (PowerUpPartsType)part;
-        powerupData = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, partLevel);
-        TXT_Effect.text = SideEffectRepo.GetSideEffect(powerupData.effect).localizedname ?? string.Empty;
-        TXT_NowValue.text = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, partLevel).value.ToString() ?? string.Empty;
-        TXT_NextValue.text = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, NextPartLevel).value.ToString() ?? string.Empty;
+        NowPartLevel = player.clientPowerUpCtrl.PowerUpInventory.powerUpSlots[part];
 
         if (NowPartLevel >= TopMaxPlayerLevel)
         {
@@ -152,6 +146,12 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
             LevelCanPowerUp = true;
         }
 
+        nowPartType = (PowerUpPartsType)part;
+        powerupData = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, NowPartLevel);
+        TXT_Effect.text = SideEffectRepo.GetSideEffect(powerupData.effect).localizedname ?? string.Empty;
+        TXT_NowValue.text = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, NowPartLevel).value.ToString() ?? string.Empty;
+        TXT_NextValue.text = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, NextPartLevel).value.ToString() ?? string.Empty;
+
         StringBuilder partsLevelStr = new StringBuilder();
         partsLevelStr.Append(NowPartLevel);
         partsLevelStr.Append("/");
@@ -162,6 +162,8 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
 
     void InstantiatePartRequir(int part)
     {
+        if (player == null) { return; }
+
         powerupData = PowerUpRepo.GetPowerUpByPartsLevel(nowPartType, player.clientPowerUpCtrl.PowerUpInventory.powerUpSlots[part]);
 
         if (powerupData != null)
@@ -176,8 +178,6 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
             {
                 GameObject reqItemDataObj = Instantiate(requiredItemDataPrefab);
                 reqItemDataObj.transform.SetParent(ItemRequirements_Parents, false);
-
-                if (player == null) { return; }
 
                 int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(Split_List[i].itemId);
 
@@ -204,6 +204,19 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     #endregion
 
     #region ClickEvent
+    void PowerUpClick()
+    {
+        if(haveEnoughMaterial && LevelCanPowerUp)
+        {
+            RPCFactory.NonCombatRPC.PowerUp(nowPartTypeCount);
+        }
+        else
+        {
+            UIManager.SystemMsgManager.ShowSystemMessage("材料或貨幣不夠強化，請玩家努力收集！", true);
+            //UIManager.OpenDialog(WindowType.DialogItemStore);
+        }
+    }
+
     public void GameIconSwitch(bool Open)
     {
         int iconCount = GameIcon.childCount;

@@ -286,42 +286,42 @@ public class CombatRPC : RPCBase
     }
     #endregion IAP
 
-    #region Social
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
-    public void SocialAcceptRequest(string playerList)
-    {
-        ProxyMethod("SocialAcceptRequest", playerList);
-    }
+    #region Old Code:Social
+    //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
+    //public void SocialAcceptRequest(string playerList)
+    //{
+    //    ProxyMethod("SocialAcceptRequest", playerList);
+    //}
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
-    public void SocialRemoveRequest(string playerList)
-    {
-        ProxyMethod("SocialRemoveRequest", playerList);
-    }
+    //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
+    //public void SocialRemoveRequest(string playerList)
+    //{
+    //    ProxyMethod("SocialRemoveRequest", playerList);
+    //}
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
-    public void SocialSendRequest(string playerList)
-    {
-        ProxyMethod("SocialSendRequest", playerList);
-    }
+    //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
+    //public void SocialSendRequest(string playerList)
+    //{
+    //    ProxyMethod("SocialSendRequest", playerList);
+    //}
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
-    public void SocialRemoveFriend(string playerName)
-    {
-        ProxyMethod("SocialRemoveFriend", playerName);
-    }
+    //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
+    //public void SocialRemoveFriend(string playerName)
+    //{
+    //    ProxyMethod("SocialRemoveFriend", playerName);
+    //}
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
-    public void SocialGetRecommendedFriends()
-    {
-        ProxyMethod("SocialGetRecommendedFriends");
-    }
+    //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
+    //public void SocialGetRecommendedFriends()
+    //{
+    //    ProxyMethod("SocialGetRecommendedFriends");
+    //}
 
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
-    public void SocialUpdateFriendsInfo()
-    {
-        ProxyMethod("SocialUpdateFriendsInfo");
-    }
+    //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
+    //public void SocialUpdateFriendsInfo()
+    //{
+    //    ProxyMethod("SocialUpdateFriendsInfo");
+    //}
     #endregion
 
     #region Arena
@@ -743,6 +743,18 @@ public class CombatRPC : RPCBase
     {
         ProxyMethod("StoreCollectionItem", id, isStore);
     }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UnlockNextLISATier)]
+    public void UnlockNextLISATier()
+    {
+        ProxyMethod("UnlockNextLISATier");
+    }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeLISATier)]
+    public void ChangeLISATier(int tier)
+    {
+        ProxyMethod("ChangeLISATier", tier);
+    }
     #endregion
 
     #region Donate
@@ -905,14 +917,27 @@ public class CombatRPC : RPCBase
     {
         ProxyMethod("OnColliderTrigger", objectId, enter);
     }
+
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnCutsceneFinished)]
+    public void OnCutsceneFinished(int objectId)
+    {
+        ProxyMethod("OnCutsceneFinished", objectId);
+    }
     #endregion
 
     #region InteractiveTrigger
+    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
+    public void OnInteractiveInit()
+    {
+        ProxyMethod("OnInteractiveInit");
+    }
+
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
     public void OnInteractiveUse(int objectId, bool enter)
     {
         ProxyMethod("OnInteractiveUse", objectId, enter);
     }
+
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveTrigger)]
     public void OnInteractiveTrigger(int objectId)
     {

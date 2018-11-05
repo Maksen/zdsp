@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
@@ -10,11 +10,12 @@ public class TimelineAssist : MonoBehaviour
 {
     public PlayableDirector playableDirector;
     public Transform replaceLocalPlayer;
-    public GameObject malePrefab;
-    public GameObject femalePrefab;
+    public GameObject malePrefab = null;
+    public GameObject femalePrefab = null;
     public TimelineWeaponAssist weaponAssist;
     private Action mFinishCB = null;
     private GameObject myLocalPlayer = null;
+    private bool IsCutsceneSkipped = false;
 
     private void ReplaceActor()
     {
@@ -25,7 +26,7 @@ public class TimelineAssist : MonoBehaviour
             {
                 GameObject prefab = localplayer.mGender == Gender.Male ? malePrefab : femalePrefab;
                 if (prefab != null)
-                    myLocalPlayer = GameObject.Instantiate(prefab);
+                    myLocalPlayer = Instantiate(prefab);
                 else
                     myLocalPlayer = ClientUtils.InstantiatePlayer(localplayer.mGender);
                 myLocalPlayer.GetComponent<AvatarController>().InitAvatar(localplayer.mEquipmentInvData, (JobType)localplayer.PlayerSynStats.jobsect, localplayer.mGender);
@@ -82,6 +83,7 @@ public class TimelineAssist : MonoBehaviour
 
     public void Play(Action onFinishCB)
     {
+        IsCutsceneSkipped = false;
         mFinishCB = onFinishCB;
         ReplaceActor();
         gameObject.SetActive(true);
@@ -90,8 +92,8 @@ public class TimelineAssist : MonoBehaviour
 
     public void Skip()
     {
-        playableDirector.time = playableDirector.duration;
-        //OnFinished();
+        IsCutsceneSkipped = true;
+        OnFinished();
     }
 
     public bool IsPlaying()
@@ -99,7 +101,7 @@ public class TimelineAssist : MonoBehaviour
         return gameObject.activeInHierarchy && playableDirector.state == PlayState.Playing;
     }
 
-    void OnFinished()
+    private void OnFinished()
     {
         playableDirector.Stop();
         gameObject.SetActive(false);
@@ -112,10 +114,19 @@ public class TimelineAssist : MonoBehaviour
             mFinishCB();
     }
 
+    IEnumerator FinishCutsceneNextFrame()
+    {
+        yield return null;
+        OnFinished();
+    }
+
     void Update()
     {
-        if (playableDirector.time >= playableDirector.duration)
-            OnFinished();
+        if (!IsCutsceneSkipped)
+        {
+            double currentTime = playableDirector.time;
+            if (currentTime > 0 && currentTime + Time.deltaTime >= playableDirector.duration)
+                StartCoroutine(FinishCutsceneNextFrame());
+        }
     }
 }
-

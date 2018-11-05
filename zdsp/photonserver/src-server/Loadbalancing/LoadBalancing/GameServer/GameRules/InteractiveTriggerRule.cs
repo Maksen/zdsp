@@ -1,60 +1,71 @@
-﻿using System.Collections.Generic;
-using ExitGames.Concurrency.Fibers;
+﻿using ExitGames.Concurrency.Fibers;
 using Photon.LoadBalancing.GameServer;
+using Kopio.JsonContracts;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using Zealot.Repository;
+using Zealot.Server.Entities;
 
 namespace Zealot.Server.Rules
 {
-    class InteractiveTriggerRule
+    public class InteractiveTriggerRule
     {
         private static readonly PoolFiber executionFiber;
         private static Dictionary<int, List<string>> partyUsed = new Dictionary<int, List<string>>();
+        public static List<InteractiveGate> interactiveEntity = new List<InteractiveGate>();
 
         static InteractiveTriggerRule()
         {
             executionFiber = GameApplication.Instance.executionFiber;
         }
-
-        public static void UseInteractiveTrigger(int triggerId, string playerName, int min, int max, 
-            Zealot.Server.Entities.NetEntity myEntity, int time, int count, bool isArea)
+        
+        #region InteractiveTriggerEvent
+        public static void UseInteractiveTrigger(int pid, string playerName, InteractiveGate mEntity, 
+            int time, bool isArea)
         {
             executionFiber.Enqueue(() =>
             {
-                if (!partyUsed.ContainsKey(triggerId))
+                if (!isArea)
                 {
-                    partyUsed.Add(triggerId, new List<string>() { playerName });
-                } else
-                {
-                    if(!partyUsed[triggerId].Exists(x => x == playerName))
-                    partyUsed[triggerId].Add(playerName);
+                    if(mEntity.step == Common.InteractiveTriggerStep.None)
+                    {
+                        SetAction(pid, time, isArea, mEntity);
+                        mEntity.step = Common.InteractiveTriggerStep.OnProgress;
+                    }
+                    return;
                 }
 
-                ComparePlayer(min, max, myEntity, triggerId, time, count, isArea);
-            });
-        }
-
-        static void ComparePlayer(int min, int max, Zealot.Server.Entities.NetEntity myEntity, int pid, int time, int count, bool isArea)
-        {
-            int playerCount = partyUsed.Count;
-            if (playerCount >= min)
-            {
-                if (playerCount <= max)
+                if (!partyUsed.ContainsKey(pid))
                 {
-                    Zealot.Common.Actions.InteractiveTriggerCommand cmd = new Zealot.Common.Actions.InteractiveTriggerCommand();
-                    cmd.entityId = pid;
-                    cmd.triggerTime = time;
-                    cmd.count = count;
-                    cmd.isArea = isArea;
-                    myEntity.SetAction(cmd);
+                    partyUsed.Add(pid, new List<string>() { playerName });
+                } else
+                {
+                    if(!partyUsed[pid].Exists(x => x == playerName))
+                        partyUsed[pid].Add(playerName);
+                }
+
+                int playerCount = partyUsed.Count;
+                if (CanPartyUse(mEntity.mPropertyInfos.min, mEntity.mPropertyInfos.max, playerCount))
+                {
+                    SetAction(pid, time, isArea, mEntity);
+                    mEntity.step = Common.InteractiveTriggerStep.OnProgress;
                 }
                 else
                 {
-                    myEntity.StopAction();
+                    mEntity.StopAction();
+                    mEntity.step = Common.InteractiveTriggerStep.OnTrigger;
                 }
-            }
-            else
-            {
-                myEntity.StopAction();
-            }
+            });
+        }
+
+        static void SetAction(int pid, int time, bool isArea, InteractiveGate mEntity)
+        {
+            Zealot.Common.Actions.InteractiveTriggerCommand cmd = new Zealot.Common.Actions.InteractiveTriggerCommand();
+            cmd.entityId = pid;
+            cmd.triggerTime = time;
+            cmd.isArea = isArea;
+            mEntity.SetAction(cmd);
         }
 
         public static string GetCurrentPlayer()
@@ -63,30 +74,182 @@ namespace Zealot.Server.Rules
             return playerName;
         }
 
-        public static void InterruptedEvent(int triggerId, string playerName)
+        public static void InterruptedEvent(int pid, string playerName, InteractiveGate mEntity, bool isArea)
         {
             executionFiber.Enqueue(() =>
             {
-                if (partyUsed.ContainsKey(triggerId))
+                if (isArea)
                 {
-                    partyUsed[triggerId].Remove(playerName);
-                    if (partyUsed[triggerId].Count == 0)
+                    if (partyUsed.ContainsKey(pid))
                     {
-                        partyUsed.Remove(triggerId);
+                        partyUsed[pid].Remove(playerName);
                     }
+
+                    //if (CanPartyUse(mEntity.mPropertyInfos.min, mEntity.mPropertyInfos.max, partyUsed.Count))
+                    //{
+                    //    SetAction(pid, mEntity.mPropertyInfos.interactiveTime, true, mEntity);
+                    //}
+                }
+                mEntity.step = Common.InteractiveTriggerStep.None;
+                mEntity.StopAction();
+            });
+        }
+
+        public static void CompeletedEvent(int pid)
+        {
+            executionFiber.Enqueue(() =>
+            {
+                if (partyUsed.ContainsKey(pid))
+                {
+                    partyUsed.Remove(pid);
                 }
             });
         }
 
-        public static void CompeletedEvent(int triggerId)
+        static bool CanPartyUse(int min, int max, int now)
         {
-            executionFiber.Enqueue(() =>
-            {
-                if (partyUsed.ContainsKey(triggerId))
-                {
-                    partyUsed.Remove(triggerId);
-                }
-            });
+            return now >= min && now <= max;
         }
+        #endregion
+
+        public static void Init()
+        {
+            SetEntiesActive();
+            CallFiberSchedule();
+        }
+
+        #region Update Entity Active Per 30 Minutes
+        static void CallFiberSchedule()
+        {
+            executionFiber.ScheduleOnInterval(SetEntiesActive, GetDurationTime(), 1800000);
+        }
+
+        private static long GetDurationTime()
+        {
+            DateTime now = DateTime.Now;
+            int minUnit = (int)Math.Ceiling((decimal)now.Minute / (decimal)30);
+            int nxMin = minUnit * 30;
+            if (nxMin == 60)
+            {
+                nxMin = 0;
+            }
+
+            int nxHour = (minUnit * 30 == 60) ? now.Hour + 1 : now.Hour;
+            if(nxHour == 24)
+            {
+                nxHour = 0;
+                now.AddDays(1);
+            }
+
+            DateTime nextTime = new DateTime(now.Year, now.Month, now.Day, nxHour, nxMin, 0);
+            long returnTime = (long)(nextTime - DateTime.Now).TotalMilliseconds;
+            if(returnTime <= 0)
+            {
+                returnTime += 1800000;
+            }
+            return returnTime;
+        }
+
+        public static void SetEntiesActive()
+        {
+            for (int i = 0; i < interactiveEntity.Count; ++i)
+            {
+                InteractiveGate mEntity = interactiveEntity[i];
+                bool compare = CanActiveGameObject(mEntity);
+                mEntity.mPropertyInfos.activeObject = compare;
+                GameApplication.BroadcastInteractiveCount(mEntity.GetPersistentID(),
+                    mEntity.mPropertyInfos.canTrigger, compare, (int)mEntity.step);
+            }
+        }
+
+        public static bool CanActiveGameObject(InteractiveGate mEntity)
+        {
+            ScenesModelJson sceneModel = ScenesModelRepo.GetScenesModelJson(mEntity.entityName);
+            if (sceneModel == null)
+                return true;
+
+            if (IsOpenTime(sceneModel.npcopentime, sceneModel.npcclosetime) && IsCycleTime(sceneModel.npccycletime))
+                return true;
+
+            return false;
+        }
+
+        public static bool IsCycleTime(string cycleTime)
+        {
+            if(cycleTime == "")
+            {
+                return true;
+            }
+            int number = 0;
+            bool isNumber = false;
+            List<string> nowTime = cycleTime.Split(';').ToList();
+            isNumber = int.TryParse(nowTime[0], out number);
+
+            if (isNumber)
+            {
+                return CheckDate(nowTime);
+            }
+            else
+            {
+                return CheckWeek(nowTime[0]);
+            }
+        }
+
+        static bool CheckDate(List<string> nowTime)
+        {
+            int month = DateTime.Now.Month;
+            int date = DateTime.Now.Day;
+            for (int i = 0; i < nowTime.Count; ++i)
+            {
+                if (int.Parse(nowTime[i].Substring(0, 2)) == month && int.Parse(nowTime[i].Substring(2, 2)) == date)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool CheckWeek(string weekString)
+        {
+            char[] checkWeek = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G' };
+            char[] week = weekString.ToCharArray();
+            List<int> weekToInt = new List<int>();
+            int wkCount = 0;
+            for (int wk = 0; wk < checkWeek.Length; ++wk)
+            {
+                if (week[wkCount] == checkWeek[wk])
+                {
+                    weekToInt.Add(wk + 1);
+                }
+            }
+
+            int intWeek = (int)DateTime.Now.DayOfWeek;
+            for (int i = 0; i < weekToInt.Count; ++i)
+            {
+                if (weekToInt[i] == intWeek)
+                    return true;
+            }
+            return false;
+        }
+
+        public static bool IsOpenTime(string openTime, string closeTime)
+        {
+            if(openTime == "" && closeTime == "")
+            {
+                return true;
+            }
+            DateTime now = DateTime.Now;
+            List<string> openList = openTime.Split(';').ToList();
+            List<string> closeList = closeTime.Split(';').ToList();
+
+            for (int i = 0; i < openList.Count; ++i)
+            {
+                if (now > DateTime.ParseExact(openList[i], "HHmm", null)
+                    && now <= DateTime.ParseExact(closeList[i], "HHmm", null))
+                    return true;
+            }
+
+            return false;
+        }
+        #endregion
     }
 }

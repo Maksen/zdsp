@@ -46,9 +46,9 @@ namespace Zealot.Entities
         public override string GetServerClassName() { return "GateSpawner"; }
     }
 
-    public class CutSceneBroadcasterJson : ServerEntityJson
+    public class CutsceneBroadcasterJson : ServerEntityWithEventJson
     {
-        public override string GetServerClassName() { return "CutSceneBroadcaster"; }
+        public override string GetServerClassName() { return "CutsceneBroadcaster"; }
     }
 
     public class ColliderTriggerJson : ServerEntityWithEventJson
@@ -74,6 +74,10 @@ namespace Zealot.Entities
 
     public class InteractiveTriggerJson : ServerEntityWithEventJson
     {
+        [DefaultValue(true)]
+        public bool activeObject;
+        [DefaultValue(true)]
+        public bool canTrigger;
         [DefaultValue(true)]
         public bool activeOnStartup { get; set; }
         [DefaultValue("")]

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Repository;
 
@@ -152,7 +153,9 @@ public class UI_Hero_Exploration : MonoBehaviour
 
     private void SetExploreLimitText()
     {
-        exploreLimitText.text = heroStats.GetExplorationsDict().Count + "/" + HeroRepo.EXPLORE_LIMIT;
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        int bonus = player.AchievementStats.GetLISAFunctionValue(LISAFunction.Hero_ExplorationTime, player.PlayerSynStats.AchievementLevel);
+        exploreLimitText.text = heroStats.GetExplorationsDict().Count + " / " + (HeroRepo.EXPLORE_LIMIT + bonus);
     }
 
     public void OnMapSelectionChanged(int index)
@@ -583,7 +586,6 @@ public class UI_Hero_Exploration : MonoBehaviour
     private void OnConfirmExplore(string heroesStr)
     {
         RPCFactory.CombatRPC.ExploreMap(selectedMapId, selectedTargetId, heroesStr);
-
     }
 
     public void OnClickClaimReward()

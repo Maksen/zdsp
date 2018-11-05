@@ -302,6 +302,74 @@ namespace Zealot.DBRepository
             return result;
         }
 
+        public async Task<List<Dictionary<string, object>>> GetAllByCharaIds(IList<string> ids)
+        {
+            return await GetByCharaIds("All", ids);
+        }
+
+        public async Task<List<Dictionary<string, object>>> GetSocialByCharaIds(IList<string> ids)
+        {
+            return await GetByCharaIds("Social",ids);
+        }
+
+        /// <summary>
+        /// Get info by list of ids
+        /// <remarks>
+        /// Calls [Character_GetSocialByCharaIds]
+        /// </remarks>
+        /// </summary>
+        private async Task<List<Dictionary<string, object>>> GetByCharaIds(string sp_flag,IList<string> ids)
+        {
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            if (ids.Count == 0)
+                return result;
+            DataTable namesDataTable = new DataTable();
+            namesDataTable.Columns.Add("id", typeof(string));
+            for (int i = 0; i < ids.Count; ++i)
+            {
+                DataRow row = namesDataTable.NewRow();
+                row["id"] = ids[i];
+                namesDataTable.Rows.Add(row);
+            }
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    try
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("Character_Get"+ sp_flag + "ByCharaIds", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+
+                            SqlParameter sqlParam = command.Parameters.AddWithValue("@ids", namesDataTable);
+                            sqlParam.SqlDbType = SqlDbType.Structured;
+                            sqlParam.TypeName = "dbo.IdsTableType";
+
+                            using (SqlDataReader reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                            {
+                                while (await reader.ReadAsync().ConfigureAwait(false))
+                                {
+                                    Dictionary<string, object> row = new Dictionary<string, object>();
+                                    for (int index = 0; index < reader.FieldCount; ++index)
+                                    {
+                                        string colname = reader.GetName(index);
+                                        row.Add(colname, reader[colname]);
+                                    }
+                                    result.Add(row);
+                                }
+                            }
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        HandleQueryException(e);
+                    }
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         /// Get random 5 entry of character</summary>
         /// <remarks>

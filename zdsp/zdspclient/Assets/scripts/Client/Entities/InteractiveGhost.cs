@@ -21,19 +21,19 @@ namespace Zealot.Client.Entities
             var prefabObj = AssetManager.LoadSceneNPC(prefab);
             if (prefabObj != null)
             {
-                SpawnNpc(prefabObj, parent, pos, rota, new Vector3(1, 1, 1), true);
+                SpawnEntity(prefabObj, parent, pos, rota, new Vector3(1, 1, 1), true);
             }
             else
             {
                 prefabObj = AssetDatabase.LoadAssetAtPath(AssetLoader.GetLoadString("Assets", prefab), typeof(GameObject)) as GameObject;
                 if (prefabObj != null)
-                    SpawnNpc(prefabObj, parent, pos, rota, ScenesModelRepo.GetScenesModelScale(prefab));
+                    SpawnEntity(prefabObj, parent, pos, rota, ScenesModelRepo.GetScenesModelScale(prefab));
                 else
                     Debug.LogFormat("Interactive object doesn't found. {0}. {1}.", prefabObj, prefab);
             }
         }
 
-        void SpawnNpc(GameObject npc, string parent, Vector3 pos, Vector3 rota, Vector3 scal, bool isNpc = false)
+        void SpawnEntity(GameObject npc, string parent, Vector3 pos, Vector3 rota, Vector3 scal, bool isNpc = false)
         {
             AnimObj = UnityEngine.Object.Instantiate(npc);
             AnimObj.transform.position = pos;

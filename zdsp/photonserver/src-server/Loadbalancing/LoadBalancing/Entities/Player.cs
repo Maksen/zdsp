@@ -82,6 +82,9 @@
         //Donate
         public DonateController DonateController;
 
+        //InteractiveTrigger
+        public InteractiveTriggerController InteractiveTriggerController;
+
         // Friends
         private StringBuilder friendSB;
 
@@ -144,6 +147,8 @@
             WardrobeController = new WardrobeController(this);
             
             DonateController = new DonateController(this);
+
+            InteractiveTriggerController = new InteractiveTriggerController();
         }
 
         public override int GetAccuracy()
@@ -261,8 +266,8 @@
 
             //LOStats.Add(LOTYPE.BuffTimeStats, BuffTimeStats);
 
-            SocialStats = new SocialStats();
-            //LOStats.Add(LOTYPE.SocialStats, SocialStats);
+            SocialStats = new SocialStats(true);
+            LOStats.Add(LOTYPE.SocialStats, SocialStats);
 
             WelfareStats = new WelfareStats();
             //LOStats.Add(LOTYPE.WelfareStats, WelfareStats);
@@ -1012,6 +1017,9 @@
 
             // Achievement
             AchievementStats.SaveToInventory(Slot.AchievementInvData);
+
+            // Social
+            SocialStats.SaveToInventoryData(Slot.mSocialInventory);
 
             //SocialInventoryData socialInv = Slot.mSocialInventory;
             //IList<string> socialInvFriendList = socialInv.friendList;
@@ -2516,401 +2524,401 @@
         #endregion BuffTimeStats Methods
 
         #region SocialStats Methods
+        #region Social:removed future
+        //public async Task SocialAcceptFriendRequest(string requestNameList)
+        //{
+        //    if (string.IsNullOrEmpty(requestNameList))
+        //        return;
+        //    string[] splitRequestNameList = requestNameList.Split('`');
+        //    int requestNameListLen = splitRequestNameList.Length;
+        //    if (requestNameListLen == 0)
+        //        return;
 
-        public async Task SocialAcceptFriendRequest(string requestNameList)
-        {
-            if (string.IsNullOrEmpty(requestNameList))
-                return;
-            string[] splitRequestNameList = requestNameList.Split('`');
-            int requestNameListLen = splitRequestNameList.Length;
-            if (requestNameListLen == 0)
-                return;
+        //    CollectionHandler<object> myFriendsList = SocialStats.friendList;
+        //    Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
+        //    int max = SocialInventoryData.MAX_GOOD_FRIENDS;
+        //    if (myFriendsDict != null)
+        //    {
+        //        SocialInfo mySocialInfo = new SocialInfo(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, 0,
+        //                                                 PlayerSynStats.Level, 0, PlayerSynStats.faction,
+        //                                                 PlayerSynStats.guildName, true, 0);
+        //        string mySocialInfoStr = mySocialInfo.ToString();
+        //        friendRemoveSB.Clear();
+        //        for (int i = 0; i < requestNameListLen; ++i)
+        //        {
+        //            string currRequestName = splitRequestNameList[i];
+        //            if (myFriendsDict.Count < max && !myFriendsDict.ContainsKey(currRequestName))
+        //            {
+        //                GameClientPeer requestPeer = GameApplication.Instance.GetCharPeer(currRequestName);
+        //                if (requestPeer != null && requestPeer.mPlayer != null) // Current player is online
+        //                {
+        //                    SocialStats currSocialStats = requestPeer.mPlayer.SocialStats;
+        //                    Dictionary<string, SocialInfo> currFriendsDict = currSocialStats.GetFriendListDict();
+        //                    if (currFriendsDict.Count >= max || currFriendsDict.ContainsKey(Name)) // Is max or already added me
+        //                        continue;
 
-            CollectionHandler<object> myFriendsList = SocialStats.friendList;
-            Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
-            int max = SocialInventoryData.MAX_FRIENDS;
-            if (myFriendsDict != null)
-            {
-                SocialInfo mySocialInfo = new SocialInfo(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect, 0,
-                                                         PlayerSynStats.Level, 0, PlayerSynStats.faction,
-                                                         PlayerSynStats.guildName, true, 0);
-                string mySocialInfoStr = mySocialInfo.ToString();
-                friendRemoveSB.Clear();
-                for (int i = 0; i < requestNameListLen; ++i)
-                {
-                    string currRequestName = splitRequestNameList[i];
-                    if (myFriendsDict.Count < max && !myFriendsDict.ContainsKey(currRequestName))
-                    {
-                        GameClientPeer requestPeer = GameApplication.Instance.GetCharPeer(currRequestName);
-                        if (requestPeer != null && requestPeer.mPlayer != null) // Current player is online
-                        {
-                            SocialStats currSocialStats = requestPeer.mPlayer.SocialStats;
-                            Dictionary<string, SocialInfo> currFriendsDict = currSocialStats.GetFriendListDict();
-                            if (currFriendsDict.Count >= max || currFriendsDict.ContainsKey(Name)) // Is max or already added me
-                                continue;
+        //                    int slotIdx = currSocialStats.GetAvailableSlotFriends();
+        //                    mySocialInfo.localObjIdx = slotIdx;
+        //                    currFriendsDict[Name] = mySocialInfo;
+        //                    currSocialStats.friendList[slotIdx] = mySocialInfoStr;
+        //                    requestPeer.mPlayer.SocialRemoveFriendRequest(Name); // Remove friend request from me if any
 
-                            int slotIdx = currSocialStats.GetAvailableSlotFriends();
-                            mySocialInfo.localObjIdx = slotIdx;
-                            currFriendsDict[Name] = mySocialInfo;
-                            currSocialStats.friendList[slotIdx] = mySocialInfoStr;
-                            requestPeer.mPlayer.SocialRemoveFriendRequest(Name); // Remove friend request from me if any
+        //                    // Add to my friendlist
+        //                    int mySlotIdx = SocialStats.GetAvailableSlotFriends();
+        //                    PlayerSynStats playerSynStats = requestPeer.mPlayer.PlayerSynStats;
+        //                    SocialInfo currSocialInfo = new SocialInfo(currRequestName, (byte)playerSynStats.PortraitID, playerSynStats.jobsect,
+        //                                                               0, playerSynStats.Level,
+        //                                                               0, playerSynStats.faction,
+        //                                                               playerSynStats.guildName, true, mySlotIdx);
+        //                    myFriendsDict[currRequestName] = currSocialInfo;
+        //                    myFriendsList[mySlotIdx] = currSocialInfo.ToString();
+        //                }
+        //                else // Current player is offline
+        //                {
+        //                    Dictionary<string, object> dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(currRequestName);
+        //                    GameApplication.Instance.executionFiber.Enqueue(() =>
+        //                    {
+        //                        if (dbInfo.Count > 0)
+        //                        {
+        //                            string friendListStr = (string)dbInfo["friends"];
+        //                            string[] splitStr = friendListStr.Split('|');
+        //                            int splitStrLen = splitStr.Length;
+        //                            if (splitStrLen < max && !SocialStrContains(splitStr, Name))
+        //                            {
+        //                                StringBuilder sb = new StringBuilder(friendListStr);
+        //                                if (sb.Length != 0) sb.Append('|');
+        //                                sb.Append(mySocialInfoStr);
+        //                                Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(currRequestName, sb.ToString(), false);
 
-                            // Add to my friendlist
-                            int mySlotIdx = SocialStats.GetAvailableSlotFriends();
-                            PlayerSynStats playerSynStats = requestPeer.mPlayer.PlayerSynStats;
-                            SocialInfo currSocialInfo = new SocialInfo(currRequestName, (byte)playerSynStats.PortraitID, playerSynStats.jobsect,
-                                                                       0, playerSynStats.Level,
-                                                                       0, playerSynStats.faction,
-                                                                       playerSynStats.guildName, true, mySlotIdx);
-                            myFriendsDict[currRequestName] = currSocialInfo;
-                            myFriendsList[mySlotIdx] = currSocialInfo.ToString();
-                        }
-                        else // Current player is offline
-                        {
-                            Dictionary<string, object> dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(currRequestName);
-                            GameApplication.Instance.executionFiber.Enqueue(() =>
-                            {
-                                if (dbInfo.Count > 0)
-                                {
-                                    string friendListStr = (string)dbInfo["friends"];
-                                    string[] splitStr = friendListStr.Split('|');
-                                    int splitStrLen = splitStr.Length;
-                                    if (splitStrLen < max && !SocialStrContains(splitStr, Name))
-                                    {
-                                        StringBuilder sb = new StringBuilder(friendListStr);
-                                        if (sb.Length != 0) sb.Append('|');
-                                        sb.Append(mySocialInfoStr);
-                                        Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(currRequestName, sb.ToString(), false);
+        //                                // Add to my friendlist
+        //                                string guildName = GuildRules.GetGuildNameById((int)dbInfo["guildid"]);
+        //                                int mySlotIdx = SocialStats.GetAvailableSlotFriends();
+        //                                SocialInfo currSocialInfo = new SocialInfo(currRequestName, (int)dbInfo["portraitid"],
+        //                                                                           (byte)dbInfo["jobsect"], (byte)dbInfo["viplevel"],
+        //                                                                           (int)dbInfo["progresslevel"], (int)dbInfo["combatscore"],
+        //                                                                           (byte)dbInfo["faction"], guildName, false, mySlotIdx);
+        //                                myFriendsDict[currRequestName] = currSocialInfo;
+        //                                myFriendsList[mySlotIdx] = currSocialInfo.ToString();
+        //                            }
+        //                        }
+        //                    });
+        //                }
+        //                if (friendRemoveSB.Length != 0)
+        //                    friendRemoveSB.Append('`');
+        //                friendRemoveSB.Append(currRequestName);
+        //            }
+        //        }
+        //        SocialRemoveFriendRequest(friendRemoveSB.ToString()); // Remove accepted friend request
+        //    }
+        //}
 
-                                        // Add to my friendlist
-                                        string guildName = GuildRules.GetGuildNameById((int)dbInfo["guildid"]);
-                                        int mySlotIdx = SocialStats.GetAvailableSlotFriends();
-                                        SocialInfo currSocialInfo = new SocialInfo(currRequestName, (int)dbInfo["portraitid"],
-                                                                                   (byte)dbInfo["jobsect"], (byte)dbInfo["viplevel"],
-                                                                                   (int)dbInfo["progresslevel"], (int)dbInfo["combatscore"],
-                                                                                   (byte)dbInfo["faction"], guildName, false, mySlotIdx);
-                                        myFriendsDict[currRequestName] = currSocialInfo;
-                                        myFriendsList[mySlotIdx] = currSocialInfo.ToString();
-                                    }
-                                }
-                            });
-                        }
-                        if (friendRemoveSB.Length != 0)
-                            friendRemoveSB.Append('`');
-                        friendRemoveSB.Append(currRequestName);
-                    }
-                }
-                SocialRemoveFriendRequest(friendRemoveSB.ToString()); // Remove accepted friend request
-            }
-        }
+        //public void SocialRemoveFriendRequest(string playerList)
+        //{
+        //    // Check if player is in ur friendrequest list
+        //    // If true, remove from ur socialstats friendrequest list
+        //    string[] splitPlayerList = playerList.Split('`');
+        //    int playerListLen = splitPlayerList.Length;
+        //    if (playerListLen == 0)
+        //        return;
 
-        public void SocialRemoveFriendRequest(string playerList)
-        {
-            // Check if player is in ur friendrequest list
-            // If true, remove from ur socialstats friendrequest list
-            string[] splitPlayerList = playerList.Split('`');
-            int playerListLen = splitPlayerList.Length;
-            if (playerListLen == 0)
-                return;
+        //    CollectionHandler<object> myRequestsList = SocialStats.friendRequestList;
+        //    Dictionary<string, SocialInfoBase> myRequestsDict = SocialStats.GetFriendRequestListDict();
+        //    if (myRequestsDict != null && myRequestsDict.Count > 0 && myRequestsList != null)
+        //    {
+        //        int max = SocialInventoryData.MAX_GOOD_FRIENDS;
+        //        for (int i = 0; i < playerListLen; ++i)
+        //        {
+        //            string currName = splitPlayerList[i];
+        //            if (myRequestsDict.ContainsKey(currName))
+        //            {
+        //                myRequestsList[myRequestsDict[currName].localObjIdx] = null;
+        //                myRequestsDict.Remove(currName);
+        //            }
+        //        }
+        //    }
+        //}
 
-            CollectionHandler<object> myRequestsList = SocialStats.friendRequestList;
-            Dictionary<string, SocialInfoBase> myRequestsDict = SocialStats.GetFriendRequestListDict();
-            if (myRequestsDict != null && myRequestsDict.Count > 0 && myRequestsList != null)
-            {
-                int max = SocialInventoryData.MAX_FRIENDS;
-                for (int i = 0; i < playerListLen; ++i)
-                {
-                    string currName = splitPlayerList[i];
-                    if (myRequestsDict.ContainsKey(currName))
-                    {
-                        myRequestsList[myRequestsDict[currName].localObjIdx] = null;
-                        myRequestsDict.Remove(currName);
-                    }
-                }
-            }
-        }
+        //private bool SocialStrContains(string[] socialStrList, string value)
+        //{
+        //    int socialStrListLen = socialStrList.Length;
+        //    for (int i = 0; i < socialStrListLen; ++i)
+        //    {
+        //        string currentStr = socialStrList[i];
+        //        if (string.IsNullOrEmpty(currentStr))
+        //            continue;
+        //        int sepIdx = currentStr.IndexOf('`');
+        //        if (sepIdx != -1 && currentStr.IndexOf(value, 0, sepIdx) != -1)
+        //            return true;
+        //    }
+        //    return false;
+        //}
 
-        private bool SocialStrContains(string[] socialStrList, string value)
-        {
-            int socialStrListLen = socialStrList.Length;
-            for (int i = 0; i < socialStrListLen; ++i)
-            {
-                string currentStr = socialStrList[i];
-                if (string.IsNullOrEmpty(currentStr))
-                    continue;
-                int sepIdx = currentStr.IndexOf('`');
-                if (sepIdx != -1 && currentStr.IndexOf(value, 0, sepIdx) != -1)
-                    return true;
-            }
-            return false;
-        }
+        //public async Task SocialSendFriendRequest(string sendPlayerList)
+        //{
+        //    string[] splitSendPlayerList = sendPlayerList.Split('`');
+        //    int sendPlayerListLen = splitSendPlayerList.Length;
+        //    if (sendPlayerListLen == 0)
+        //        return;
 
-        public async Task SocialSendFriendRequest(string sendPlayerList)
-        {
-            string[] splitSendPlayerList = sendPlayerList.Split('`');
-            int sendPlayerListLen = splitSendPlayerList.Length;
-            if (sendPlayerListLen == 0)
-                return;
+        //    Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
+        //    int max = SocialInventoryData.MAX_GOOD_FRIENDS;
+        //    if (myFriendsDict != null && myFriendsDict.Count < max)
+        //    {
+        //        StringBuilder friendAddSB = new StringBuilder();
+        //        SocialInfoBase mySocialInfo = new SocialInfoBase(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect,
+        //                                                         0, PlayerSynStats.Level,
+        //                                                         0, 0);
+        //        string mySocialInfoStr = mySocialInfo.ToString();
+        //        int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
+        //        for (int i = 0; i < sendPlayerListLen; ++i)
+        //        {
+        //            string currSendName = splitSendPlayerList[i];
+        //            if (currSendName == Name)  // Is yourself
+        //                continue;
+        //            if (myFriendsDict.ContainsKey(currSendName)) // Already is your friend
+        //            {
+        //                Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_AlreadyAdded, currSendName, Slot);
+        //                continue;
+        //            }
 
-            Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
-            int max = SocialInventoryData.MAX_FRIENDS;
-            if (myFriendsDict != null && myFriendsDict.Count < max)
-            {
-                StringBuilder friendAddSB = new StringBuilder();
-                SocialInfoBase mySocialInfo = new SocialInfoBase(Name, (byte)PlayerSynStats.PortraitID, PlayerSynStats.jobsect,
-                                                                 0, PlayerSynStats.Level,
-                                                                 0, 0);
-                string mySocialInfoStr = mySocialInfo.ToString();
-                int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
-                for (int i = 0; i < sendPlayerListLen; ++i)
-                {
-                    string currSendName = splitSendPlayerList[i];
-                    if (currSendName == Name)  // Is yourself
-                        continue;
-                    if (myFriendsDict.ContainsKey(currSendName)) // Already is your friend
-                    {
-                        Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_AlreadyAdded, currSendName, Slot);
-                        continue;
-                    }
+        //            GameClientPeer sendPeer = GameApplication.Instance.GetCharPeer(currSendName);
+        //            if (sendPeer != null && sendPeer.mPlayer != null) // Current player is online
+        //            {
+        //                Player sendPlayer = sendPeer.mPlayer;
+        //                if (sendPlayer.GetAccumulatedLevel() < minLvl)
+        //                {
+        //                    Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_LevelNotEnough, minLvl.ToString(), Slot);
+        //                    continue;
+        //                }
+        //                if (!sendPeer.GameSetting.AutoAcceptFriendRequest)
+        //                {
+        //                    SocialStats currSocialStats = sendPlayer.SocialStats;
+        //                    Dictionary<string, SocialInfoBase> currRequestsDict = currSocialStats.GetFriendRequestListDict();
+        //                    if (currRequestsDict.Count >= max || currRequestsDict.ContainsKey(Name)) // Is max or already added me
+        //                        continue;
 
-                    GameClientPeer sendPeer = GameApplication.Instance.GetCharPeer(currSendName);
-                    if (sendPeer != null && sendPeer.mPlayer != null) // Current player is online
-                    {
-                        Player sendPlayer = sendPeer.mPlayer;
-                        if (sendPlayer.GetAccumulatedLevel() < minLvl)
-                        {
-                            Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_LevelNotEnough, minLvl.ToString(), Slot);
-                            continue;
-                        }
-                        if (!sendPeer.GameSetting.AutoAcceptFriendRequest)
-                        {
-                            SocialStats currSocialStats = sendPlayer.SocialStats;
-                            Dictionary<string, SocialInfoBase> currRequestsDict = currSocialStats.GetFriendRequestListDict();
-                            if (currRequestsDict.Count >= max || currRequestsDict.ContainsKey(Name)) // Is max or already added me
-                                continue;
+        //                    int slotIdx = currSocialStats.GetAvailableSlotRequests();
+        //                    mySocialInfo.localObjIdx = slotIdx;
+        //                    currRequestsDict[Name] = mySocialInfo;
+        //                    currSocialStats.friendRequestList[slotIdx] = mySocialInfoStr;
+        //                }
+        //                else  // Immediate add as friend
+        //                {
+        //                    if (friendAddSB.Length != 0)
+        //                        friendAddSB.Append('`');
+        //                    friendAddSB.Append(currSendName);
+        //                }
+        //            }
+        //            else // Current player is offline
+        //            {
+        //                Dictionary<string, object> dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(currSendName);
+        //                GameApplication.Instance.executionFiber.Enqueue(async () =>
+        //                {
+        //                    if (dbInfo.Count > 0)
+        //                    {
+        //                        int currProgressLvl = (int)dbInfo["progresslevel"];
+        //                        if (currProgressLvl >= minLvl)
+        //                        {
+        //                            string gameSettingStr = (string)dbInfo["gamesetting"];
+        //                            ServerSettingsData gamesetting = string.IsNullOrEmpty(gameSettingStr)
+        //                                ? new ServerSettingsData() : ServerSettingsData.Deserialize(gameSettingStr);
+        //                            if (gamesetting != null && gamesetting.AutoAcceptFriendRequest)
+        //                            {
+        //                                await SocialAcceptFriendRequest(currSendName);
+        //                            }
+        //                            else
+        //                            {
+        //                                string friendRequestListStr = (string)dbInfo["friendrequests"];
+        //                                string[] splitStr = friendRequestListStr.Split('|');
+        //                                int splitStrLen = splitStr.Length;
+        //                                if (splitStrLen < max && !SocialStrContains(splitStr, Name))
+        //                                {
+        //                                    StringBuilder sb = new StringBuilder(friendRequestListStr);
+        //                                    if (sb.Length != 0) sb.Append('|');
+        //                                    sb.Append(mySocialInfoStr);
+        //                                    Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(currSendName, sb.ToString(), true);
+        //                                }
+        //                            }
+        //                        }
+        //                        else
+        //                            Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_LevelNotEnough, minLvl.ToString(), Slot);
+        //                    }
+        //                    else
+        //                        Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_DoesNotExist, "", Slot);
+        //                });
+        //            }
+        //        }
+        //        string friendList = friendAddSB.ToString();
+        //        Task task;
+        //        if (!string.IsNullOrEmpty(friendList))
+        //            task = SocialAcceptFriendRequest(friendList);
+        //    }
+        //}
 
-                            int slotIdx = currSocialStats.GetAvailableSlotRequests();
-                            mySocialInfo.localObjIdx = slotIdx;
-                            currRequestsDict[Name] = mySocialInfo;
-                            currSocialStats.friendRequestList[slotIdx] = mySocialInfoStr;
-                        }
-                        else  // Immediate add as friend
-                        {
-                            if (friendAddSB.Length != 0)
-                                friendAddSB.Append('`');
-                            friendAddSB.Append(currSendName);
-                        }
-                    }
-                    else // Current player is offline
-                    {
-                        Dictionary<string, object> dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(currSendName);
-                        GameApplication.Instance.executionFiber.Enqueue(async () =>
-                        {
-                            if (dbInfo.Count > 0)
-                            {
-                                int currProgressLvl = (int)dbInfo["progresslevel"];
-                                if (currProgressLvl >= minLvl)
-                                {
-                                    string gameSettingStr = (string)dbInfo["gamesetting"];
-                                    ServerSettingsData gamesetting = string.IsNullOrEmpty(gameSettingStr)
-                                        ? new ServerSettingsData() : ServerSettingsData.Deserialize(gameSettingStr);
-                                    if (gamesetting != null && gamesetting.AutoAcceptFriendRequest)
-                                    {
-                                        await SocialAcceptFriendRequest(currSendName);
-                                    }
-                                    else
-                                    {
-                                        string friendRequestListStr = (string)dbInfo["friendrequests"];
-                                        string[] splitStr = friendRequestListStr.Split('|');
-                                        int splitStrLen = splitStr.Length;
-                                        if (splitStrLen < max && !SocialStrContains(splitStr, Name))
-                                        {
-                                            StringBuilder sb = new StringBuilder(friendRequestListStr);
-                                            if (sb.Length != 0) sb.Append('|');
-                                            sb.Append(mySocialInfoStr);
-                                            Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(currSendName, sb.ToString(), true);
-                                        }
-                                    }
-                                }
-                                else
-                                    Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_LevelNotEnough, minLvl.ToString(), Slot);
-                            }
-                            else
-                                Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_DoesNotExist, "", Slot);
-                        });
-                    }
-                }
-                string friendList = friendAddSB.ToString();
-                Task task;
-                if (!string.IsNullOrEmpty(friendList))
-                    task = SocialAcceptFriendRequest(friendList);
-            }
-        }
+        //public async Task SocialRemoveFriend(string playerName)
+        //{
+        //    CollectionHandler<object> myFriendsList = SocialStats.friendList;
+        //    Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
+        //    if (myFriendsDict != null && myFriendsDict.Count > 0 && myFriendsList != null)
+        //    {
+        //        if (myFriendsDict.ContainsKey(playerName))
+        //        {
+        //            myFriendsList[myFriendsDict[playerName].localObjIdx] = null;
+        //            myFriendsDict.Remove(playerName);
 
-        public async Task SocialRemoveFriend(string playerName)
-        {
-            CollectionHandler<object> myFriendsList = SocialStats.friendList;
-            Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
-            if (myFriendsDict != null && myFriendsDict.Count > 0 && myFriendsList != null)
-            {
-                if (myFriendsDict.ContainsKey(playerName))
-                {
-                    myFriendsList[myFriendsDict[playerName].localObjIdx] = null;
-                    myFriendsDict.Remove(playerName);
+        //            // Remove from friend's list
+        //            GameClientPeer peer = GameApplication.Instance.GetCharPeer(playerName);
+        //            if (peer != null && peer.mPlayer != null) // Current player is online
+        //            {
+        //                SocialStats currSocialStats = peer.mPlayer.SocialStats;
+        //                CollectionHandler<object> currFriendsList = currSocialStats.friendList;
+        //                Dictionary<string, SocialInfo> currFriendsDict = currSocialStats.GetFriendListDict();
+        //                if (currFriendsDict.ContainsKey(Name))
+        //                {
+        //                    currFriendsList[currFriendsDict[Name].localObjIdx] = null;
+        //                    currFriendsDict.Remove(Name);
+        //                }
+        //            }
+        //            else // Current player is offline
+        //            {
+        //                var dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(playerName);
+        //                GameApplication.Instance.executionFiber.Enqueue(() =>
+        //                {
+        //                    if (dbInfo.Count > 0)
+        //                    {
+        //                        string friendListStr = (string)dbInfo["friends"];
+        //                        string[] splitStr = friendListStr.Split('|');
+        //                        int splitStrLen = splitStr.Length;
+        //                        StringBuilder sb = new StringBuilder();
+        //                        for (int i = 0; i < splitStrLen; ++i)
+        //                        {
+        //                            string currentStr = splitStr[i];
+        //                            int idx = currentStr.IndexOf('`');
+        //                            if (idx != -1 && currentStr.IndexOf(Name, 0, idx) != -1)
+        //                                continue;
+        //                            if (i != 0) sb.Append('|');
+        //                            sb.Append(currentStr);
+        //                        }
+        //                        Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(playerName, sb.ToString(), false);
+        //                    }
+        //                });
+        //            }
+        //        }
+        //    }
+        //}
 
-                    // Remove from friend's list
-                    GameClientPeer peer = GameApplication.Instance.GetCharPeer(playerName);
-                    if (peer != null && peer.mPlayer != null) // Current player is online
-                    {
-                        SocialStats currSocialStats = peer.mPlayer.SocialStats;
-                        CollectionHandler<object> currFriendsList = currSocialStats.friendList;
-                        Dictionary<string, SocialInfo> currFriendsDict = currSocialStats.GetFriendListDict();
-                        if (currFriendsDict.ContainsKey(Name))
-                        {
-                            currFriendsList[currFriendsDict[Name].localObjIdx] = null;
-                            currFriendsDict.Remove(Name);
-                        }
-                    }
-                    else // Current player is offline
-                    {
-                        var dbInfo = await GameApplication.dbRepository.Character.GetSocialByName(playerName);
-                        GameApplication.Instance.executionFiber.Enqueue(() =>
-                        {
-                            if (dbInfo.Count > 0)
-                            {
-                                string friendListStr = (string)dbInfo["friends"];
-                                string[] splitStr = friendListStr.Split('|');
-                                int splitStrLen = splitStr.Length;
-                                StringBuilder sb = new StringBuilder();
-                                for (int i = 0; i < splitStrLen; ++i)
-                                {
-                                    string currentStr = splitStr[i];
-                                    int idx = currentStr.IndexOf('`');
-                                    if (idx != -1 && currentStr.IndexOf(Name, 0, idx) != -1)
-                                        continue;
-                                    if (i != 0) sb.Append('|');
-                                    sb.Append(currentStr);
-                                }
-                                Task dbTask = GameApplication.dbRepository.Character.UpdateSocialList(playerName, sb.ToString(), false);
-                            }
-                        });
-                    }
-                }
-            }
-        }
+        //public async Task SocialGetRecommendedFriends()
+        //{
+        //    if ((DateTime.Now - friendRecommendedCD).TotalSeconds <= 3)
+        //    {
+        //        Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_OnCooldown, "", Slot);
+        //        return;
+        //    }
 
-        public async Task SocialGetRecommendedFriends()
-        {
-            if ((DateTime.Now - friendRecommendedCD).TotalSeconds <= 3)
-            {
-                Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_OnCooldown, "", Slot);
-                return;
-            }
+        //    // Get Dict of peers
+        //    Dictionary<string, GameClientPeer> charPeerDict = GameApplication.Instance.GetCharPeerDictCopy();
+        //    if (charPeerDict == null)
+        //        return;
 
-            // Get Dict of peers
-            Dictionary<string, GameClientPeer> charPeerDict = GameApplication.Instance.GetCharPeerDictCopy();
-            if (charPeerDict == null)
-                return;
+        //    friendRecommendedCD = DateTime.Now;
+        //    friendSB.Clear();
+        //    friendRemoveSB.Clear();
+        //    friendRemoveSB.AppendFormat("|{0}|", Name);
+        //    charPeerDict.Remove(Name); // Remove your name from peer dict
+        //    Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
+        //    var myFriendsDictKeys = myFriendsDict.Keys;
+        //    foreach (string friend in myFriendsDictKeys) // Append your friends to filter dict
+        //    {
+        //        friendRemoveSB.AppendFormat("{0}|", friend);
+        //        charPeerDict.Remove(friend); // Remove your friends from dict
+        //    }
 
-            friendRecommendedCD = DateTime.Now;
-            friendSB.Clear();
-            friendRemoveSB.Clear();
-            friendRemoveSB.AppendFormat("|{0}|", Name);
-            charPeerDict.Remove(Name); // Remove your name from peer dict
-            Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
-            var myFriendsDictKeys = myFriendsDict.Keys;
-            foreach (string friend in myFriendsDictKeys) // Append your friends to filter dict
-            {
-                friendRemoveSB.AppendFormat("{0}|", friend);
-                charPeerDict.Remove(friend); // Remove your friends from dict
-            }
+        //    int peerDictCnt = charPeerDict.Count, foundCnt = 0;
+        //    if (peerDictCnt > 0) // Get random friends from online peer list first
+        //    {
+        //        int min = (peerDictCnt < 100) ? peerDictCnt : 100;
+        //        int max = (peerDictCnt < 150) ? peerDictCnt : 150;
+        //        // Random sample size
+        //        int sampleSize = (min == max) ? peerDictCnt : GameUtils.RandomInt(min, max);
 
-            int peerDictCnt = charPeerDict.Count, foundCnt = 0;
-            if (peerDictCnt > 0) // Get random friends from online peer list first
-            {
-                int min = (peerDictCnt < 100) ? peerDictCnt : 100;
-                int max = (peerDictCnt < 150) ? peerDictCnt : 150;
-                // Random sample size
-                int sampleSize = (min == max) ? peerDictCnt : GameUtils.RandomInt(min, max);
+        //        friendsRecDict.Clear();
+        //        int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
+        //        for (int i = 0; i < sampleSize; ++i)
+        //        {
+        //            int currIdx = GameUtils.RandomInt(0, sampleSize - 1);
+        //            GameClientPeer currPeer = charPeerDict.Values.ElementAt(currIdx);
+        //            string currCharName = currPeer.mChar;
+        //            if (myFriendsDict.ContainsKey(currCharName) || friendsRecDict.ContainsKey(currCharName))
+        //                continue;
 
-                friendsRecDict.Clear();
-                int minLvl = GameConstantRepo.GetConstantInt("Friends_UnlockLvl");
-                for (int i = 0; i < sampleSize; ++i)
-                {
-                    int currIdx = GameUtils.RandomInt(0, sampleSize - 1);
-                    GameClientPeer currPeer = charPeerDict.Values.ElementAt(currIdx);
-                    string currCharName = currPeer.mChar;
-                    if (myFriendsDict.ContainsKey(currCharName) || friendsRecDict.ContainsKey(currCharName))
-                        continue;
+        //            PlayerSynStats currPlayerSynStats = currPeer.mPlayer.PlayerSynStats;
+        //            if (currPlayerSynStats.Level < minLvl)
+        //                continue;
 
-                    PlayerSynStats currPlayerSynStats = currPeer.mPlayer.PlayerSynStats;
-                    if (currPlayerSynStats.Level < minLvl)
-                        continue;
+        //            if (foundCnt != 0) friendSB.Append('|');
+        //            friendSB.AppendFormat("{0}`{1}`{2}`{3}`{4}`{5}", currCharName, currPlayerSynStats.PortraitID, currPlayerSynStats.jobsect,
+        //                                  0, currPlayerSynStats.Level,
+        //                                  0);
+        //            friendRemoveSB.AppendFormat("{0}|", currCharName);
+        //            friendsRecDict[currCharName] = currCharName;
+        //            if (++foundCnt >= 5)
+        //                break;
+        //        }
+        //    }
 
-                    if (foundCnt != 0) friendSB.Append('|');
-                    friendSB.AppendFormat("{0}`{1}`{2}`{3}`{4}`{5}", currCharName, currPlayerSynStats.PortraitID, currPlayerSynStats.jobsect,
-                                          0, currPlayerSynStats.Level,
-                                          0);
-                    friendRemoveSB.AppendFormat("{0}|", currCharName);
-                    friendsRecDict[currCharName] = currCharName;
-                    if (++foundCnt >= 5)
-                        break;
-                }
-            }
+        //    if (foundCnt < 5) // If can't find more than 5 from peer list, search from db
+        //    {
+        //        var dbInfo = await GameApplication.dbRepository.Character.GetSocialRandom(friendRemoveSB.ToString());
+        //        GameApplication.Instance.executionFiber.Enqueue(() =>
+        //        {
+        //            int dbInfoCnt = dbInfo.Count;
+        //            if (dbInfoCnt > 0)
+        //            {
+        //                int dbIdx = 0;
+        //                for (int i = foundCnt; i < 5; ++i)
+        //                {
+        //                    if (dbIdx >= dbInfoCnt)
+        //                        break;
+        //                    Dictionary<string, object> infoDict = dbInfo[dbIdx];
+        //                    if (i != 0) friendSB.Append('|');
+        //                    friendSB.AppendFormat("{0}`{1}`{2}`{3}`{4}`{5}", infoDict["charname"], infoDict["portraitid"], infoDict["jobsect"],
+        //                                          infoDict["viplevel"], infoDict["progresslevel"], infoDict["combatscore"]);
+        //                    ++dbIdx;
+        //                }
+        //            }
+        //            Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_RecommendedResult, friendSB.ToString(), Slot);
+        //        });
+        //    }
+        //    else
+        //    {
+        //        Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_RecommendedResult, friendSB.ToString(), Slot);
+        //    }
+        //}
 
-            if (foundCnt < 5) // If can't find more than 5 from peer list, search from db
-            {
-                var dbInfo = await GameApplication.dbRepository.Character.GetSocialRandom(friendRemoveSB.ToString());
-                GameApplication.Instance.executionFiber.Enqueue(() =>
-                {
-                    int dbInfoCnt = dbInfo.Count;
-                    if (dbInfoCnt > 0)
-                    {
-                        int dbIdx = 0;
-                        for (int i = foundCnt; i < 5; ++i)
-                        {
-                            if (dbIdx >= dbInfoCnt)
-                                break;
-                            Dictionary<string, object> infoDict = dbInfo[dbIdx];
-                            if (i != 0) friendSB.Append('|');
-                            friendSB.AppendFormat("{0}`{1}`{2}`{3}`{4}`{5}", infoDict["charname"], infoDict["portraitid"], infoDict["jobsect"],
-                                                  infoDict["viplevel"], infoDict["progresslevel"], infoDict["combatscore"]);
-                            ++dbIdx;
-                        }
-                    }
-                    Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_RecommendedResult, friendSB.ToString(), Slot);
-                });
-            }
-            else
-            {
-                Slot.ZRPC.CombatRPC.Ret_SocialReturnResult((byte)SocialReturnCode.Ret_RecommendedResult, friendSB.ToString(), Slot);
-            }
-        }
-
-        public void SocialUpdateFriendsInfo()
-        {
-            Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
-            foreach (var kvp in myFriendsDict)
-            {
-                SocialInfo socialInfo = kvp.Value;
-                GameClientPeer peer = GameApplication.Instance.GetCharPeer(kvp.Key);
-                if (peer != null && peer.mPlayer != null) // Friend is online
-                {
-                    Player currPlayer = peer.mPlayer;
-                    PlayerSynStats currPlayerStats = currPlayer.PlayerSynStats;
-                    socialInfo.portraitId = currPlayerStats.PortraitID;
-                    socialInfo.vipLvl = 0;
-                    socialInfo.charLvl = currPlayerStats.Level;
-                    //socialInfo.combatScore = currPlayer.LocalCombatStats.CombatScore;
-                    socialInfo.guildName = currPlayerStats.guildName;
-                    socialInfo.isOnline = true;
-                }
-                else
-                    socialInfo.isOnline = false;
-                SocialStats.friendList[socialInfo.localObjIdx] = socialInfo.ToString();
-            }
-        }
-
+        //public void SocialUpdateFriendsInfo()
+        //{
+        //    Dictionary<string, SocialInfo> myFriendsDict = SocialStats.GetFriendListDict();
+        //    foreach (var kvp in myFriendsDict)
+        //    {
+        //        SocialInfo socialInfo = kvp.Value;
+        //        GameClientPeer peer = GameApplication.Instance.GetCharPeer(kvp.Key);
+        //        if (peer != null && peer.mPlayer != null) // Friend is online
+        //        {
+        //            Player currPlayer = peer.mPlayer;
+        //            PlayerSynStats currPlayerStats = currPlayer.PlayerSynStats;
+        //            socialInfo.portraitId = currPlayerStats.PortraitID;
+        //            socialInfo.vipLvl = 0;
+        //            socialInfo.charLvl = currPlayerStats.Level;
+        //            //socialInfo.combatScore = currPlayer.LocalCombatStats.CombatScore;
+        //            socialInfo.guildName = currPlayerStats.guildName;
+        //            socialInfo.isOnline = true;
+        //        }
+        //        else
+        //            socialInfo.isOnline = false;
+        //        SocialStats.friendList[socialInfo.localObjIdx] = socialInfo.ToString();
+        //    }
+        //}
+        #endregion
         #endregion SocialStats Methods
 
         #region Guild Methods
@@ -3043,9 +3051,9 @@
             charData.GuildBossRewardRealm = 0;
         }
 
-        #endregion Guild Methods
+#endregion Guild Methods
 
-        #region Party Methods
+#region Party Methods
 
         public bool IsInParty()
         {
@@ -3087,9 +3095,9 @@
                 HeroStats.SummonHero(HeroStats.SummonedHeroId);
         }
 
-        #endregion Party Methods
+#endregion Party Methods
 
-        #region TongbaoCostBuff Methods
+#region TongbaoCostBuff Methods
 
         public void ApplyTongbaoCostBuffPassiveSE()
         {
@@ -3137,7 +3145,7 @@
             }
         }
 
-        #endregion TongbaoCostBuff Methods
+#endregion TongbaoCostBuff Methods
 
         public void SetPortraitID(int portraitID)
         {

@@ -50,6 +50,7 @@ public class Achievement_FunctionData : MonoBehaviour
     {
         nameText.color = unlocked ? origNameColor: grayColor;
         descriptionText.color = unlocked ? origDescColor : grayColor;
+        iconImage.color = unlocked ? Color.white : grayColor;
     }
 
     public void SetToggleOn(bool value)

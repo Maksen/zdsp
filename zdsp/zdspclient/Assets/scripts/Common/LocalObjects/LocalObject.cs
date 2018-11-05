@@ -454,6 +454,18 @@
                 CollectionHandler<object> col = kvp.Value as CollectionHandler<object>;
                 col.Reset();
             }
+
+            OnReset();
+        }
+
+        protected virtual void OnSerializeStream()
+        {
+
+        }
+
+        protected virtual void OnReset()
+        {
+
         }
 
         public byte GetLocalObjectType()
@@ -477,7 +489,8 @@
 
         // multiple commands serialize
         public bool SerializeStream(byte locategory, int containerid, bool createnew, ref Dictionary<byte, object> dic)
-        {                     
+        {
+            OnSerializeStream();
             byte code = (byte)dic.Count;
             if (createnew)
             {

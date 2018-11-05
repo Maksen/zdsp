@@ -184,8 +184,8 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "skillInv")]
         public SkillInventoryData SkillInventory { get; set; }
 
-        [JsonProperty(PropertyName = "itemkind")]
-        public ItemKindData ItemKindInv { get; set; }
+        [JsonProperty(PropertyName = "itemsortinv")]
+        public ItemSortInventoryData ItemSortInventory { get; set; }
 
         [JsonProperty(PropertyName = "arenainv")]
         public ArenaInventoryData ArenaInventory { get; set; }
@@ -282,7 +282,7 @@ namespace Zealot.Common
             DonateInventory = new DonateInventoryData();
             SideEffectInventory = new SideEffectInventoryData();
             SkillInventory = new SkillInventoryData();
-            ItemKindInv = new ItemKindData();
+            ItemSortInventory = new ItemSortInventoryData();
             ArenaInventory = new ArenaInventoryData();
             MailInventory = new MailInventoryData();
             ItemMallInventory = new ItemMallInventoryData();
@@ -311,7 +311,7 @@ namespace Zealot.Common
         {
             ItemInventory.InitDefault();
             EquipmentInventory.InitDefault();
-            //ItemKindInv.InitDefault();
+            //ItemSortInventory.InitDefault();
             RestoreDefaultSkill();
             //WelfareInventory.InitDefault();
             //SevenDaysInventory.InitDefault();

@@ -22,7 +22,7 @@ public class Achievement_RewardData : MonoBehaviour
         BaseAchievementObjective obj = AchievementRepo.GetObjectiveByTypeAndId(reward.ClaimType, reward.Id);
         if (obj != null)
         {
-            achievementNameText.text = obj.localizedName;
+            achievementNameText.text = obj.localizedName.Replace("{count}", obj.completeCount.ToString());
             aexpAmtText.text = "x" + obj.exp;
             SetReward(obj);
         }

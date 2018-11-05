@@ -65,6 +65,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
     // Private variables
     private int                 _slotID                     = -1;
+    private int                 _safeEquipSlotID            = -1;
     private bool                _isEquipped                 = false;
     private Equipment           _selectedEquipment          = null;
     private int                 _genMatSel                  = -1;
@@ -195,9 +196,13 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         EquipmentType equipType = equipment.EquipmentJson.equiptype;
         ItemRarity rarity = equipment.EquipmentJson.rarity;
         int nextLevel = currentLevel + 1;
-        float successProb = EquipmentModdingRepo.GetEquipmentUpgradeSuccessProb(equipType, rarity, nextLevel);
-        probSuccessTextObj.SetActive(true);
-        probSuccessText.text = string.Format("{0}%", successProb);
+
+        if(CheckMaxedLevel() == true)
+        {
+            float successProb = EquipmentModdingRepo.GetEquipmentUpgradeSuccessProb(equipType, rarity, nextLevel);
+            probSuccessTextObj.SetActive(true);
+            probSuccessText.text = string.Format("{0}%", successProb);
+        }
 
         bool isSafeUpgrade = safeUpgradeTab.isOn;
 
@@ -222,6 +227,11 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                     checkmarkToggle.isOn = true;
                 }
             }
+        }
+
+        if(_safeEquipSlotID != -1)
+        {
+            GenerateSelectedSafeEquipGemIcon(_selectedSafeEquipment);
         }
 
         SetEquipmentUpgradeButtonState(equipment);
@@ -360,7 +370,6 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         if(isToggleOn)
         {
             _isEquippedSafe = false;
-            _slotID = -1;
             _safeMatSel = safeMatSel;
 
             confirmSelectEquipBtn.interactable = true;
@@ -409,7 +418,10 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         {
             _selectedSafeEquipment = equipToUpgrade.mEquip;
             _isEquippedSafe = isEquipped;
-            _slotID = equipToUpgrade.mSlotID;
+            if(equipToUpgrade.mSlotID != -1)
+            {
+                _safeEquipSlotID = equipToUpgrade.mSlotID;
+            }
 
             confirmSelectEquipBtn.interactable = true;
 
@@ -477,49 +489,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
         ClearSafeEquipMatIcon();
 
-        if(_isEquippedSafe)
-        {
-            EquipmentType equipType = _selectedSafeEquipment.EquipmentJson.equiptype;
-            ItemRarity rarity = _selectedSafeEquipment.EquipmentJson.rarity;
-            int currentStep = _selectedSafeEquipment.ReformStep;
-            int currentLevel = _selectedSafeEquipment.UpgradeLevel;
-            int nextLevel = currentLevel + 1;
-
-            EquipmentUpgradeJson upgradeData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, nextLevel);
-
-            if (upgradeData == null)
-            {
-                return;
-            }
-
-            GameObject newEquipObj = Instantiate(equipIconPrefab);
-            newEquipObj.transform.SetParent(selectSafeEquipIconParent, false);
-            
-            GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
-            equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, 
-                false, OnClickOpenSelectSafeUpgradeEquipment);
-
-            _safeEquipMatIcon = newEquipObj;
-        }
-        else
-        {
-            PlayerGhost player = GameInfo.gLocalPlayer;
-
-            if(player == null)
-            {
-                return;
-            }
-
-            GameObject newMaterialObj = Instantiate(matIconPrefab);
-            newMaterialObj.transform.SetParent(selectSafeEquipIconParent, false);
-
-            GameIcon_MaterialConsumable matIcon = newMaterialObj.GetComponent<GameIcon_MaterialConsumable>();
-            int selectedMatId = _safeMatSel == 0 ? GameConstantRepo.GetConstantInt("safe_gem_general") : GameConstantRepo.GetConstantInt("safe_gem_advanced");
-            int matCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedMatId);
-            matIcon.Init(selectedMatId, matCount, false, false, false, OnClickOpenSelectSafeUpgradeEquipment);
-
-            _safeEquipMatIcon = newMaterialObj;
-        }
+        GenerateSelectedSafeEquipGemIcon(_selectedSafeEquipment);
     }
 
     private void OnClickSelectGeneralUpgradeMaterial(bool isToggleOn, int genMatSel)
@@ -682,7 +652,14 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
     public override void OnCloseWindow()
     {
+        ClearSelectedEquipment();
+        ClearSafeEquipMatIcon();
+        ClearMaterialIcons();
+        ClearSelectEquipStatsList();
+        ClearInvEquipmentIcons();
+
         _slotID                 = -1;
+        _safeEquipSlotID        = -1;
         _isEquipped             = false;
         _selectedEquipment      = null;
         _genMatSel              = -1;
@@ -691,12 +668,6 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         _selectedSafeEquipment  = null;
 
         rightSideAnimator.Play(_rightSideSlideOut);
-
-        ClearSelectedEquipment();
-        ClearSafeEquipMatIcon();
-        ClearMaterialIcons();
-        ClearSelectEquipStatsList();
-        ClearInvEquipmentIcons();
     }
 
     private void OpenUpgradeItemStoreDialog(bool isEnoughGenMat, bool isEnoughSafeMat)
@@ -823,20 +794,24 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         int nextLevel = currentLevel + 1;
 
         bool isSafeUpgrade = safeUpgradeTab.isOn;
-        int moneyCost = EquipmentModdingRepo.GetEquipmentUpgradeCost(equipType, rarity, nextLevel, isSafeUpgrade);
+
+        int moneyCost = 0;
+        if(CheckMaxedLevel() == true)
+        {
+            moneyCost = EquipmentModdingRepo.GetEquipmentUpgradeCost(equipType, rarity, nextLevel, isSafeUpgrade);
+        }
         upgradeCostText.text = moneyCost.ToString();
+
         if(CheckSufficientMoney())
         {
-            confirmUpgradeBtn.interactable = true;
             upgradeCostText.color = Color.white;
         }
         else
         {
-            confirmUpgradeBtn.interactable = false;
             upgradeCostText.color = ClientUtils.ColorRed;
         }
 
-        if(IsMatSelected() == true)
+        if(CheckSufficientMoney() && IsMatSelected() == true && CheckMaxedLevel() == true)
         {
             confirmUpgradeBtn.interactable = true;
         }
@@ -860,18 +835,77 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         _selectedEquipmentIcon = newEquipObj;
     }
 
+    private void GenerateSelectedSafeEquipGemIcon(Equipment equipment)
+    {
+        ClearSafeEquipMatIcon();
+
+        if(_isEquippedSafe)
+        {
+            EquipmentType equipType = equipment.EquipmentJson.equiptype;
+            ItemRarity rarity = equipment.EquipmentJson.rarity;
+            int currentStep = equipment.ReformStep;
+            int currentLevel = equipment.UpgradeLevel;
+            int nextLevel = currentLevel + 1;
+
+            EquipmentUpgradeJson upgradeData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, nextLevel);
+
+            if (upgradeData == null)
+            {
+                return;
+            }
+
+            GameObject newEquipObj = Instantiate(equipIconPrefab);
+            newEquipObj.transform.SetParent(selectSafeEquipIconParent, false);
+            
+            GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
+            equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, 
+                false, OnClickOpenSelectSafeUpgradeEquipment);
+
+            _safeEquipMatIcon = newEquipObj;
+        }
+        else
+        {
+            PlayerGhost player = GameInfo.gLocalPlayer;
+
+            if(player == null)
+            {
+                return;
+            }
+
+            GameObject newMaterialObj = Instantiate(matIconPrefab);
+            newMaterialObj.transform.SetParent(selectSafeEquipIconParent, false);
+
+            GameIcon_MaterialConsumable matIcon = newMaterialObj.GetComponent<GameIcon_MaterialConsumable>();
+            int selectedMatId = _safeMatSel == 0 ? GameConstantRepo.GetConstantInt("safe_gem_general") : GameConstantRepo.GetConstantInt("safe_gem_advanced");
+            int matCount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)selectedMatId);
+            matIcon.Init(selectedMatId, matCount, false, false, false, OnClickOpenSelectSafeUpgradeEquipment);
+
+            _safeEquipMatIcon = newMaterialObj;
+        }
+    }
+
     private void GenerateNormalMaterialIcons(List<EquipUpgMaterial> materialList, Transform parent)
     {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if(player == null)
+        {
+            return;
+        }
+
         ClearMaterialIcons();
         for(int i = 0; i < materialList.Count; ++i)
         {
             EquipUpgMaterial matData = materialList[i];
+            ushort matId = matData.mMat.itemId;
 
             GameObject newMatObj = Instantiate(matIconPrefab);
             newMatObj.transform.SetParent(parent, false);
 
+            int invcount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(matId);
+
             GameIcon_MaterialConsumable newMatIcon = newMatObj.GetComponent<GameIcon_MaterialConsumable>();
             newMatIcon.Init(matData.mMat.itemId, matData.mMat.stackCount, false, false, true);
+            newMatIcon.SetStackCount(invcount, matData.mMat.stackCount);
             GameIconCmpt_SelectCheckmark selectCheckMark = newMatIcon.gameObject.GetComponentInChildren<GameIconCmpt_SelectCheckmark>();
             if (selectCheckMark != null)
             {

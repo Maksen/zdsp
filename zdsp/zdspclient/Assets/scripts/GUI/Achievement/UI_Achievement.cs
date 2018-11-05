@@ -1,5 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
@@ -31,10 +32,17 @@ public class UI_Achievement : BaseWindowBehaviour
     private AchievementStatsClient achStats;
     private PlayerGhost player;
     private LISATransformTierJson currentTierData;
+    private DateTime lastLisaMsgTime;
+    private bool hasRewardFunctionUnlocked;
+    private Coroutine refreshCoroutine;
+    private WaitForSeconds refreshWait;
 
     private void Awake()
     {
         uiDragEvent.onClicked = OnClickAvatar;
+        uiDragEvent.onBeginDrag = OnClickAvatar;
+        float refreshInterval = GameConstantRepo.GetConstantInt("LISA_MessageRefreshInterval", 60);
+        refreshWait = new WaitForSeconds(refreshInterval);
     }
 
     private void Start()
@@ -54,19 +62,7 @@ public class UI_Achievement : BaseWindowBehaviour
     public override void OnOpenWindow()
     {
         base.OnOpenWindow();
-        Init();
-    }
 
-    public override void OnCloseWindow()
-    {
-        base.OnCloseWindow();
-        messageText.text = "";
-        messageToggle.isOn = false;
-        dragSpinAvatar.Reset();
-    }
-
-    private void Init()
-    {
         player = GameInfo.gLocalPlayer;
         achStats = player.AchievementStats;
 
@@ -74,8 +70,43 @@ public class UI_Achievement : BaseWindowBehaviour
         UpdateTierProgress();
         UpdateCollectionProgress();
         UpdateAchievementProgress();
+        UpdateAvatarModel(achStats.CurrentLISATier);
 
         claimRewardBtn.interactable = achStats.HasUnclaimedRewards();
+
+        lastLisaMsgTime = DateTime.Now.AddHours(-1);
+        messageText.text = "";
+        ShowLisaMessage(LISAMsgBehaviourType.OnOpen);
+    }
+
+    public override void OnCloseWindow()
+    {
+        base.OnCloseWindow();
+        messageText.text = "";
+        messageToggle.isOn = false;
+        messageObj.SetActive(true);
+        claimRewardBtn.gameObject.SetActive(true);
+        dragSpinAvatar.Reset();
+        uiAchDetails.CleanUp();
+        hasRewardFunctionUnlocked = false;
+        if (refreshCoroutine != null)
+        {
+            StopCoroutine(refreshCoroutine);
+            refreshCoroutine = null;
+        }
+    }
+
+    public void OnAchievementLevelUp(bool isUIOpen)
+    {
+        if (isUIOpen)
+        {
+            UpdateLevelProgress();
+            UpdateTierProgress();
+        }
+
+        AchievementLevel levelInfo = AchievementRepo.GetAchievementLevelInfo(player.PlayerSynStats.AchievementLevel);
+        if (levelInfo != null)
+            hasRewardFunctionUnlocked = levelInfo.rewardFunction != LISAFunction.None;
     }
 
     public void UpdateLevelProgress()
@@ -105,10 +136,9 @@ public class UI_Achievement : BaseWindowBehaviour
 
     public void UpdateTierProgress()
     {
-        var currentTierInfo = AchievementRepo.GetLISATierInfoByLevel(player.PlayerSynStats.AchievementLevel);
+        var currentTierInfo = AchievementRepo.GetLISATierInfoByTier(achStats.HighestUnlockedTier);
         if (currentTierInfo != null)
         {
-            UpdateTier(currentTierInfo.tierid);
             var nextTierInfo = AchievementRepo.GetLISATierInfoByTier(currentTierInfo.tierid + 1);
             if (nextTierInfo != null) // still have next tier
             {
@@ -127,6 +157,13 @@ public class UI_Achievement : BaseWindowBehaviour
             tierProgressBar.Value = 0;
         }
         tierProgressBar.Refresh();
+
+        GameObject tierDialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementTier);
+        if (tierDialog != null && tierDialog.activeInHierarchy)
+        {
+            float currentProgress = tierProgressBar.Value / tierProgressBar.Max;
+            tierDialog.GetComponent<UI_Achievement_TierDialog>().Refresh(currentProgress);
+        }
     }
 
     public void UpdateCollectionProgress()
@@ -158,6 +195,7 @@ public class UI_Achievement : BaseWindowBehaviour
 
     private void OnClickAvatar()
     {
+        ShowLisaMessage(LISAMsgBehaviourType.OnTouchAvatar);
     }
 
     public void ZoomInAvatar()
@@ -202,11 +240,7 @@ public class UI_Achievement : BaseWindowBehaviour
 
         messageObj.SetActive(true);
         claimRewardBtn.gameObject.SetActive(true);
-    }
-
-    public void OnCloseAchievementDetails()
-    {
-        uiAchDetails.CleanUp();
+        ShowLisaMessage(LISAMsgBehaviourType.OnOpen);
     }
 
     public void OnClickTier()
@@ -216,22 +250,19 @@ public class UI_Achievement : BaseWindowBehaviour
 
         float currentProgress = tierProgressBar.Value / tierProgressBar.Max;
         UIManager.OpenDialog(WindowType.DialogAchievementTier,
-            (window) => window.GetComponent<UI_Achievement_TierDialog>().Init(currentTierData.tierid, currentProgress, UpdateTier));
+            (window) => window.GetComponent<UI_Achievement_TierDialog>().Init(currentTierData.tierid, currentProgress));
     }
 
-    private void UpdateTier(int tier)
+    public void UpdateAvatarModel(int tier)
     {
         dragSpinAvatar.Reset();
 
         LISATransformTierJson tierData = AchievementRepo.GetLISATierInfoByTier(tier);
         if (tierData != null)
         {
-            modelAvatar.transform.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(false);  //to be removed
             currentTierData = tierData;
             modelAvatar.Change(tierData.modelpath, OnModelLoaded);
         }
-        else
-            modelAvatar.transform.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(true); //to be removed
     }
 
     private void OnModelLoaded(GameObject model)
@@ -257,5 +288,34 @@ public class UI_Achievement : BaseWindowBehaviour
     {
         UIManager.OpenDialog(WindowType.DialogAchievementRewards,
             (window) => window.GetComponent<UI_Achievement_RewardsDialog>().InitRewardsList(achStats.claimsList));
+    }
+
+    public void ShowLisaMessage(LISAMsgBehaviourType behaviourType)
+    {
+        DateTime now = DateTime.Now;
+        TimeSpan interval = now.Subtract(lastLisaMsgTime);
+        if (interval.TotalSeconds >= 3)
+        {
+            lastLisaMsgTime = now;
+
+            string message = AchievementRepo.GetRandomLisaMessage(behaviourType, hasRewardFunctionUnlocked,
+                achStats.HasUnclaimedRewards(), achStats.CanUnlockLISATier());
+
+            if (!string.IsNullOrEmpty(message))
+            {
+                string currentMsg = messageText.text;
+                messageText.text = string.IsNullOrEmpty(currentMsg) ? message : string.Format("{0}\n{1}", currentMsg, message);
+            }
+
+            if (refreshCoroutine != null)
+                StopCoroutine(refreshCoroutine);
+            refreshCoroutine = StartCoroutine(IdleRefreshLisaMessage());
+        }
+    }
+
+    private IEnumerator IdleRefreshLisaMessage()
+    {
+        yield return refreshWait;
+        ShowLisaMessage(LISAMsgBehaviourType.RegularRefresh);
     }
 }

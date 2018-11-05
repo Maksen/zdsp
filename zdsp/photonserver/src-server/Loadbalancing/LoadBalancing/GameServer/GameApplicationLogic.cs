@@ -949,5 +949,13 @@ namespace Photon.LoadBalancing.GameServer
             Instance.BroadcastDonationRefreshMessage(BroadcastMessageType.DonationRefresh, normarlRefresh);
         }
         #endregion
+
+        #region InteractiveTrigger
+        public static void BroadcastInteractiveCount(int pid, bool canUse, bool active, int step)
+        {
+            string bind = string.Format("{0};{1};{2};{3}", pid, canUse, active, step);
+            Instance.BroadcastMessage(BroadcastMessageType.InteractiveTrigger, bind);
+        }
+        #endregion
     }
 }

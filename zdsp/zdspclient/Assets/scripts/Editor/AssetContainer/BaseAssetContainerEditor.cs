@@ -22,7 +22,7 @@ public abstract class BaseAssetContainerEditor : Editor
 
     protected IAssetContainer assetContainer;
 
-    bool addSubfolder = true;
+    SerializedProperty addSubFolder;
     const string addSubfolderTooltip = "True to include all files in subfolders when using Add Folder";
 
     protected virtual void OnEnable()
@@ -74,7 +74,7 @@ public abstract class BaseAssetContainerEditor : Editor
         SerializedProperty allowAbsolutePath = serializedObject.FindProperty("allowAbsolutePath");
         EditorGUILayout.PropertyField(allowAbsolutePath, new GUIContent("Allow Absolute Path", "true to allow include asset from different folders"));
 
-        SerializedProperty addSubFolder = serializedObject.FindProperty("addSubFolder");
+        addSubFolder = serializedObject.FindProperty("addSubFolder");
         EditorGUILayout.PropertyField(addSubFolder, new GUIContent("Include Subfolders", addSubfolderTooltip));
     }
 
@@ -203,7 +203,7 @@ public abstract class BaseAssetContainerEditor : Editor
         {
             string[] extensionArray = filter.Split(';');
 
-            var files = Directory.GetFiles(path, "*.*", addSubfolder ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+            var files = Directory.GetFiles(path, "*.*", addSubFolder.boolValue ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
             foreach (var file in files)
             {
                 foreach (string extension in extensionArray)

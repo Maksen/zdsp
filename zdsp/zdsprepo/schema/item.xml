@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <magicalarea51>
   <data>
-    <enum name="ItemOriginType">      
+    <enum name="ItemOriginType">
       <item key="Monster" value="0"/>
       <item key="Item" value="1"/>
       <item key="NPC" value="2"/>
@@ -14,13 +14,13 @@
       <property name="origintype" type="ItemOriginType" uitext="Origin Type" default="0"/>
       <property name="param" type="string" uitext="Param" default="" info="UI-uiid，Monster-archetype, NPC-archetype"/>
     </element>
-    
+
     <element name="LinkUI" useexcel="true">
       <property name="uiid" type="int" uitext="UIID" unique="true"/>
       <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
       <property name="uitype" type="LinkUIType" uitext="UI Type"/>
     </element>    
-    
+
     <element name="ItemSort" useexcel="true">
       <property name="itemsortid" type="int" uitext="Item Sort Id" unique="true" default="0"/>
       <property name="name" type="string" uitext="Name" default=""/>
@@ -28,8 +28,9 @@
       <property name="sortorder" type="int" uitext="Sorting Order" default="0"/>
       <property name="bagtabtype" type="BagTabType" uitext="Bag Tab" default="0"/>
       <property name="gameicontype" type="ItemGameIconType" uitext="Game Icon Type" default="0"/>
+      <property name="maxstackcount" type="int" uitext="Max Stack Count" default="1"/>
     </element>
-    
+
     <element name="ItemBase" useexcel="true" collectionkey="name" localizeexport="itemid">
       <property name="itemid" type="int" uitext="Item ID" min="0" max="9999999"/>
       <property name="name" type="string" uitext="Name" default=""/>
@@ -54,7 +55,7 @@
       <property name="tickermessage" type="bool" uitext="Ticker Message" default="false"/>
       <property name="generateuid" type="bool" uitext="Generate UID" default="false"/>
     </element>
-    
+
     <element name="PotionFood" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.PotionFood"/>
       <property name="cdtime" type="float" uitext="Cooldown Time" default="1"/>
@@ -62,7 +63,7 @@
       <property name="gcdtype" type="GCDType" uitext="GCD Type"/>
       <property name="seid" type="string" uitext="Side Effect ID" default=""/>
     </element>
-    
+
     <element name="Material" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Material"/>
       <property name="tooltiptype" type="ToolTipType" uitext="Tooltip Type"/>
@@ -73,13 +74,13 @@
       <property name="upgitemrate" type="float" uitext="Upgrade Item Rate" default="1"/>
       <property name="addinstancetime" type="string" uitext="Add Instance Time" default=""/>
     </element>
-    
+
     <element name="LuckyPick" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.LuckyPick"/>
       <property name="luckypickgroup" type="string" uitext="LootGroup ids" default="" info="id1;id2"/>
       <property name="currency" type="string" uitext="Currency" default="" info ="Format: 1|500;2|1000"/>
     </element>
-    
+
     <element name="Henshin" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Henshin"/>
       <property name="henshinname" type="localizedstring" uitext="Henshin Name(Localized)" default=""/>
@@ -87,12 +88,12 @@
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="prefabpath" type="asset" uitext="Prefab Path" default="" assettype="prefab"/>
     </element>
-    
+
     <element name="Features" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Features"/>
       <property name="uiid" type="int" uitext="Open UI" default="0"/>
     </element>
-    
+
     <element name="Equipment" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Equipment"/>
       <property name="equiptype" type="EquipmentType" uitext="Equipment Type"/>
@@ -115,7 +116,7 @@
       <property name="femalemeshpath" type="asset" uitext="Female Mesh Path" default="" assettype="mesh"/>
       <property name="femalematerialpath" type="asset" uitext="Female Material Path" default="" assettype="material"/>
     </element>
-    
+
     <element name="DNA" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.DNA"/>
       <property name="dnatype" type="DNAType" uitext="DNA Type" default="1"/>
@@ -126,7 +127,7 @@
       <property name="postive" type="string" uitext="Positive" default=""/>
       <property name="negative" type="string" uitext="Negative" default=""/>
     </element>
-    
+
     <element name="Relic" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.Relic"/>
       <property name="relictype" type="RelicType" uitext="Relic Type" default="0"/>
@@ -135,7 +136,7 @@
       <property name="collectability" type="string" uitext="Collect Ability" default="null"/>
       <property name="recycle" type="bool" uitext="Recycle" default="true"/>
     </element>
-    
+
     <element name="QuestItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.QuestItem"/>
       <property name="delquesttype" type="int" uitext="Delete Quest Type" default="-1"/>
@@ -155,12 +156,12 @@
       <property name="heroskinpath" type="asset" uitext="Hero Skin Path" default="" assettype="prefab"/>
       <property name="heroimagepath" type="asset" uitext="Hero Image Path" default="" assettype="sprite"/>
     </element>
-    
+
     <element name="InstanceItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.InstanceItem"/>
       <property name="coordinate" type="string" uitext="Coordinate" default="-1"/>
     </element>
-    
+
     <element name="ExtraSideEffect">
       <property name="name" type="string" uitext="Name" default="#undefined#"/>
       <property name="description" type="localizedstring" uitext="Description(Localized)" default="#undefined#"/>

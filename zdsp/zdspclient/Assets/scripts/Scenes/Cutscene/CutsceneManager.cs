@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Zealot.Client.Entities;
 using Zealot.Spawners;
 
 public class CutsceneManager : MonoBehaviour
@@ -32,7 +33,8 @@ public class CutsceneManager : MonoBehaviour
     {
         cutsceneEntities = new List<CutsceneEntity>();
         var cutsceneObjs = GameObject.FindGameObjectsWithTag("Cutscene");
-        for (int i = 0; i < cutsceneObjs.Length; i++)
+        int length = cutsceneObjs.Length;
+        for (int i = 0; i < length; ++i)
         {
             var entity = cutsceneObjs[i].GetComponent<CutsceneEntity>();
             if (entity != null)
@@ -87,14 +89,16 @@ public class CutsceneManager : MonoBehaviour
 
     void OnDestroy()
     {
-        for (int i = 0; i < cutsceneEntities.Count; i++)
+        int count = cutsceneEntities.Count;
+        for (int i = 0; i < count; ++i)
         {
             cutsceneEntities[i] = null;
         }
         cutsceneEntities = null;
 
         List<int> keylist = new List<int>(eventCutscenes.Keys);
-        for (int i = 0; i < keylist.Count; i++)
+        count = eventCutscenes.Count;
+        for (int i = 0; i < count; ++i)
         {
             eventCutscenes[keylist[i]] = null;
         }
@@ -102,8 +106,7 @@ public class CutsceneManager : MonoBehaviour
 
         questCutscenes.Clear();
         questCutscenes = null;        
-    }
-      
+    }     
      
     public bool IsPlaying()
     {
@@ -115,13 +118,18 @@ public class CutsceneManager : MonoBehaviour
 
     public void OnStartCutscene(CutsceneEntity cutsceneEntity)
     {
+        UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(false);
+        isHudVisible = UIManager.UIHud.IsVisible();
+        UIManager.UIHud.HideHUD();
+        GameInfo.gCombat.ShowEntitiesForCutscene(false);
+        CutsceneLoading = false;
+        currentPlaying = cutsceneEntity;
+
         ZDSPCamera combatCamera = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
         combatCamera.targetObject = null;
         combatCamera.SetCameraActive(false);
         combatCamera.gameObject.SetActive(false);
-        currentPlaying = cutsceneEntity;
-        CutsceneLoading = false;
-         
+    
         GameInfo.gLocalPlayer.ForceIdle();
 
         if (PartyFollowTarget.Enabled)
@@ -132,12 +140,6 @@ public class CutsceneManager : MonoBehaviour
         else
             isPartyFollowEnabled = false;
 
-        UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(false);
-        isHudVisible = UIManager.UIHud.IsVisible();
-        UIManager.UIHud.HideHUD();
-
-        GameInfo.gCombat.ShowEntitiesForCutscene(false);
-        
         //Debug.Log("WM.Instance[WinPanel.CutScene].GetComponent<UI_CutScene>().Init(cutsceneEntity.Cutscene); ");
     }
 
@@ -149,34 +151,38 @@ public class CutsceneManager : MonoBehaviour
    
     public void OnCutsceneFinished(CutsceneEntity cutsceneEntity)
     {
-        ZDSPCamera combatCamera = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
-        combatCamera.targetObject = GameInfo.gLocalPlayer.AnimObj;
-        combatCamera.SetCameraActive(true);
-        combatCamera.gameObject.SetActive(true);
-        currentPlaying = null; 
-        GameInfo.gCombat.ShowEntitiesForCutscene(true);
+        ClientMain gCombat = GameInfo.gCombat;
+        UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(true);
+        UIManager.CloseDialog(WindowType.DialogCutscene);
+        if (isHudVisible)
+            UIManager.UIHud.ShowHUD();
+        else
+            UIManager.UIHud.HideHUD(); //the HUD also in the hierachy
+        gCombat.ShowEntitiesForCutscene(true);
+        currentPlaying = null;
 
-        //Debug.Log("WM.Instance[WinPanel.CutScene].GetComponent<UI_CutScene>().Close();");
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player != null)
+        {
+            ZDSPCamera combatCamera = gCombat.PlayerCamera.GetComponent<ZDSPCamera>();
+            combatCamera.targetObject = player.AnimObj;
+            combatCamera.SetCameraActive(true);
+            combatCamera.gameObject.SetActive(true);
+
+            player.QuestController.CloseNpcTalk();
+            gCombat.StartCoroutine(player.OnCutsceneFinished(3));
+        }
+
+        if (isPartyFollowEnabled)
+            PartyFollowTarget.Resume();
 
         if (OnFinishedCutsceneAction != null)
             OnFinishedCutsceneAction();
 
-        UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(true);
-        UIManager.CloseDialog(WindowType.DialogCutscene);
+        //Debug.Log("WM.Instance[WinPanel.CutScene].GetComponent<UI_CutScene>().Close();");
+    }
 
-        if (isHudVisible)
-            UIManager.UIHud.ShowHUD();
-        else
-            UIManager.UIHud.HideHUD(); //the HUD also in the hierachy. 
-
-        if (isPartyFollowEnabled)
-            PartyFollowTarget.Resume();
-        
-        GameInfo.gLocalPlayer.QuestController.CloseNpcTalk();
-        GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.FinishCutscene(3));
-    }   
-
-    public void RegisterCutsceneBroadcaster(CutSceneBroadcaster entity)
+    public void RegisterCutsceneBroadcaster(CutsceneBroadcaster entity)
     {
         eventCutscenes[entity.EntityId] = entity.cutsceneEntity;
     }
@@ -186,7 +192,7 @@ public class CutsceneManager : MonoBehaviour
         if (currentPlaying != null)
         {
             currentPlaying.SkipCutScene();
-            GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.FinishCutscene(3));
+            GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.OnCutsceneFinished(3));
         }
     }
 

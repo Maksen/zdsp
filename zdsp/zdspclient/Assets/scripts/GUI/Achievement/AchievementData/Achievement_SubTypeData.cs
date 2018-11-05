@@ -21,7 +21,7 @@ public class Achievement_SubTypeData : MonoBehaviour
         subType = data.id;
         toggle.group = toggleGroup;
         OnSelectCallback = callback;
-        titleText.text = data.localizedname.Substring(0, 1);
+        titleText.text = data.localizedheader;
     }
 
     public void OnToggle(bool isOn)

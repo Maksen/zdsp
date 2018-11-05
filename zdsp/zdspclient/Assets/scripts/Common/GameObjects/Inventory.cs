@@ -324,14 +324,14 @@ namespace Zealot.Common
             return -1;
         }
 
-        public virtual bool IsExistSlotAvailableByItemId(ushort itemId, int stackCount, int maxStack)
+        public virtual bool IsExistSlotAvailableByItemId(ushort itemId, int stackCount, int maxStackCount)
         {
             for (int index = 0; index < UnlockedSlotCount; ++index)
             {
                 IInventoryItem invItem = Slots[index];
                 if (invItem != null && invItem.ItemID == itemId)
                 {
-                    stackCount -= (maxStack - invItem.StackCount);
+                    stackCount -= (maxStackCount - invItem.StackCount);
                     if (stackCount <= 0)
                         return true;
                 }
@@ -351,7 +351,7 @@ namespace Zealot.Common
             if (itemJson != null)
             {
                 ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
-                if (itemSortJson != null && itemSortJson.bagtabtype != BagTabType.Equipment)
+                if (itemSortJson != null && itemSortJson.maxstackcount > 1)
                 {
                     for (int index = 0; index < UnlockedSlotCount; ++index)
                     {
@@ -435,9 +435,9 @@ namespace Zealot.Common
                 ushort itemId = item.itemId;
                 ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
                 if (itemJson == null)
-                    return false;
+                    continue;
                 ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
-                if (itemSortJson.bagtabtype == BagTabType.Equipment || !IsExistSlotAvailableByItemId(itemId, item.stackCount, GameConstantRepo.ItemMaxStackCount))
+                if (itemSortJson.maxstackcount == 1 || !IsExistSlotAvailableByItemId(itemId, item.stackCount, itemSortJson.maxstackcount))
                 {
                     if (--emptySlot < 0)
                         return false;
@@ -548,7 +548,14 @@ namespace Zealot.Common
 
         public int GetLeastStackCountSlotIdxByItemId(ushort itemId)
         {
-            int slotIdx = -1, leastStackCnt = GameConstantRepo.ItemMaxStackCount;
+            ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
+            if (itemJson == null)
+                return -1;
+            ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
+            if (itemSortJson == null)
+                return -1;
+
+            int slotIdx = -1, leastStackCount = itemSortJson.maxstackcount;
             if (itemSlotMap.ContainsKey(itemId))
             {
                 List<int> itemSlotIdxs = itemSlotMap[itemId].slotIds;
@@ -557,9 +564,9 @@ namespace Zealot.Common
                 {
                     int currSlotId = itemSlotIdxs[i];
                     int currStackCnt = Slots[currSlotId].StackCount;
-                    if (currStackCnt < leastStackCnt)
+                    if (currStackCnt < leastStackCount)
                     {
-                        leastStackCnt = currStackCnt;
+                        leastStackCount = currStackCnt;
                         slotIdx = currSlotId;
                     }
                 }
@@ -636,7 +643,7 @@ namespace Zealot.Common
 
         public override bool IsExistSlotAvailableByItemId(ushort itemId, int stackCount, int maxstack)
         {
-            ItemSlotInfo itemSlotInfo = null;
+            ItemSlotInfo itemSlotInfo;
             if (itemSlotMap.TryGetValue(itemId, out itemSlotInfo))
                 return (itemSlotInfo.slotIds.Count * maxstack - itemSlotInfo.stackTotal) >= stackCount;
 
@@ -650,7 +657,7 @@ namespace Zealot.Common
             if (itemJson != null)
             {
                 ItemSortJson itemSortJson = GameRepo.ItemFactory.GetItemSortById(itemJson.itemsort);
-                if (itemSortJson != null && itemSortJson.bagtabtype != BagTabType.Equipment)
+                if (itemSortJson != null && itemSortJson.maxstackcount > 1)
                 {
                     if (itemSlotMap.ContainsKey(itemId))
                     {

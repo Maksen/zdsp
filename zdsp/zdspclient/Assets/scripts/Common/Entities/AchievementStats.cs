@@ -11,6 +11,8 @@ namespace Zealot.Common.Entities
         private string _rewardClaims;
         private string _latestCollections;
         private string _latestAchievements;
+        private int _currentLisaTier;
+        private int _highestUnlockedTier;
 
         public Dictionary<int, CollectionElement> GetCollectionsDict() { return collectionsDict; }
         protected Dictionary<int, CollectionElement> collectionsDict; // key: id
@@ -27,6 +29,8 @@ namespace Zealot.Common.Entities
             _rewardClaims = "";
             _latestCollections = "";
             _latestAchievements = "";
+            _currentLisaTier = 1;
+            _highestUnlockedTier = 1;
 
             collectionsDict = new Dictionary<int, CollectionElement>();
             achievementsDict = new Dictionary<int, AchievementElement>();
@@ -62,6 +66,18 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("LatestAchievements", value); _latestAchievements = value; }
         }
 
+        public int CurrentLISATier
+        {
+            get { return _currentLisaTier; }
+            set { OnSetAttribute("CurrentLISATier", value); _currentLisaTier = value; }
+        }
+
+        public int HighestUnlockedTier
+        {
+            get { return _highestUnlockedTier; }
+            set { OnSetAttribute("HighestUnlockedTier", value); _highestUnlockedTier = value; }
+        }
+
         public BaseAchievementElement GetElementByTypeAndId(AchievementKind type, int id)
         {
             if (type == AchievementKind.Collection)
@@ -82,6 +98,14 @@ namespace Zealot.Common.Entities
             AchievementElement elem;
             achievementsDict.TryGetValue(id, out elem);
             return elem;
+        }
+
+        public bool IsAchievementCompleted(int id)
+        {
+            AchievementElement elem = GetAchievementById(id);
+            if (elem != null)
+                return elem.IsCompleted();
+            return false;
         }
 
         public bool IsAchievementCompletedAndClaimed(int id)

@@ -842,72 +842,72 @@ namespace Photon.LoadBalancing.GameServer
 
         #endregion IAP
 
-        #region Social
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
-        public void SocialAcceptRequest(string playerList, GameClientPeer peer)
-        {
-            var task = peer.mPlayer.SocialAcceptFriendRequest(playerList);
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
-        public void SocialAcceptRequestProxy(object[] args)
-        {
-            SocialAcceptRequest((string)args[0], (GameClientPeer)args[1]);
-        }
+        #region Old Code:Social
+        //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
+        //public void SocialAcceptRequest(string playerList, GameClientPeer peer)
+        //{
+        //    var task = peer.mPlayer.SocialAcceptFriendRequest(playerList);
+        //}
+        //[RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialAcceptRequest)]
+        //public void SocialAcceptRequestProxy(object[] args)
+        //{
+        //    SocialAcceptRequest((string)args[0], (GameClientPeer)args[1]);
+        //}
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
-        public void SocialRemoveRequest(string playerList, GameClientPeer peer)
-        {
-            peer.mPlayer.SocialRemoveFriendRequest(playerList);
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
-        public void SocialRemoveRequestProxy(object[] args)
-        {
-            SocialRemoveRequest((string)args[0], (GameClientPeer)args[1]);
-        }
+        //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
+        //public void SocialRemoveRequest(string playerList, GameClientPeer peer)
+        //{
+        //    peer.mPlayer.SocialRemoveFriendRequest(playerList);
+        //}
+        //[RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveRequest)]
+        //public void SocialRemoveRequestProxy(object[] args)
+        //{
+        //    SocialRemoveRequest((string)args[0], (GameClientPeer)args[1]);
+        //}
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
-        public void SocialSendRequest(string playerList, GameClientPeer peer)
-        {
-            var task = peer.mPlayer.SocialSendFriendRequest(playerList);
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
-        public void SocialSendRequestProxy(object[] args)
-        {
-            SocialSendRequest((string)args[0], (GameClientPeer)args[1]);
-        }
+        //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
+        //public void SocialSendRequest(string playerList, GameClientPeer peer)
+        //{
+        //    var task = peer.mPlayer.SocialSendFriendRequest(playerList);
+        //}
+        //[RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialSendRequest)]
+        //public void SocialSendRequestProxy(object[] args)
+        //{
+        //    SocialSendRequest((string)args[0], (GameClientPeer)args[1]);
+        //}
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
-        public void SocialRemoveFriend(string playerName, GameClientPeer peer)
-        {
-            var task = peer.mPlayer.SocialRemoveFriend(playerName);
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
-        public void SocialRemoveFriendProxy(object[] args)
-        {
-            SocialRemoveFriend((string)args[0], (GameClientPeer)args[1]);
-        }
+        //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
+        //public void SocialRemoveFriend(string playerName, GameClientPeer peer)
+        //{
+        //    var task = peer.mPlayer.SocialRemoveFriend(playerName);
+        //}
+        //[RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialRemoveFriend)]
+        //public void SocialRemoveFriendProxy(object[] args)
+        //{
+        //    SocialRemoveFriend((string)args[0], (GameClientPeer)args[1]);
+        //}
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
-        public void SocialGetRecommendedFriends(GameClientPeer peer)
-        {
-            var task = peer.mPlayer.SocialGetRecommendedFriends();
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
-        public void SocialGetRecommendedFriendsProxy(object[] args)
-        {
-            SocialGetRecommendedFriends((GameClientPeer)args[0]);
-        }
+        //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
+        //public void SocialGetRecommendedFriends(GameClientPeer peer)
+        //{
+        //    var task = peer.mPlayer.SocialGetRecommendedFriends();
+        //}
+        //[RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialGetRecommendedFriends)]
+        //public void SocialGetRecommendedFriendsProxy(object[] args)
+        //{
+        //    SocialGetRecommendedFriends((GameClientPeer)args[0]);
+        //}
 
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
-        public void SocialUpdateFriendsInfo(GameClientPeer peer)
-        {
-            peer.mPlayer.SocialUpdateFriendsInfo();
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
-        public void SocialUpdateFriendsInfoProxy(object[] args)
-        {
-            SocialUpdateFriendsInfo((GameClientPeer)args[0]);
-        }
+        //[RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
+        //public void SocialUpdateFriendsInfo(GameClientPeer peer)
+        //{
+        //    peer.mPlayer.SocialUpdateFriendsInfo();
+        //}
+        //[RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SocialUpdateFriendsInfo)]
+        //public void SocialUpdateFriendsInfoProxy(object[] args)
+        //{
+        //    SocialUpdateFriendsInfo((GameClientPeer)args[0]);
+        //}
         #endregion
 
         #region Arena
@@ -1912,8 +1912,36 @@ namespace Photon.LoadBalancing.GameServer
         {
             StoreCollectionItem((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
         }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UnlockNextLISATier)]
+        public void UnlockNextLISATier(GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.UnlockNextLISATier();
+
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UnlockNextLISATier)]
+        public void UnlockNextLISATierProxy(object[] args)
+        {
+            UnlockNextLISATier((GameClientPeer)args[0]);
+        }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeLISATier)]
+        public void ChangeLISATier(int tier, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ChangeLISATier(tier);
+
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.ChangeLISATier)]
+        public void ChangeLISATierProxy(object[] args)
+        {
+            ChangeLISATier((int)args[0], (GameClientPeer)args[1]);
+        }
         #endregion
-        
+
         #region Donate
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.GetGuildDonateData)]
         public void GetGuildDonateData(string lastUpdateTime, GameClientPeer peer)
@@ -2215,9 +2243,37 @@ namespace Photon.LoadBalancing.GameServer
         {
             OnColliderTrigger((int)args[0], (bool)args[1], (GameClientPeer)args[2]);
         }
+
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnCutsceneFinished)]
+        public void OnCutsceneFinished(int objectId, GameClientPeer peer)
+        {
+            IServerEntity _serverEntity;
+            if (mObjectMap.TryGetValue(objectId, out _serverEntity))
+            {
+                CutsceneBroadcaster cutsceneBroadcaster = _serverEntity as CutsceneBroadcaster;
+                if (cutsceneBroadcaster != null)
+                    cutsceneBroadcaster.OnCutsceneFinished();
+            }
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnCutsceneFinished)]
+        public void OnCutsceneFinishedProxy(object[] args)
+        {
+            OnCutsceneFinished((int)args[0], (GameClientPeer)args[1]);
+        }
         #endregion
 
         #region InteractiveTrigger
+        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
+        public void OnInteractiveInit(GameClientPeer peer)
+        {
+            peer.mPlayer.InteractiveTriggerController.Init();
+        }
+        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
+        public void OnInteractiveInitProxy(object[] args)
+        {
+            OnInteractiveInit((GameClientPeer)args[0]);
+        }
+
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
         public void OnInteractiveUse(int objectId, bool enter, GameClientPeer peer)
         {
@@ -2305,5 +2361,4 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
     }
-
 }

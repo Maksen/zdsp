@@ -25,16 +25,6 @@ namespace EZCameraShake
 
         List<CameraShakeInstance> cameraShakeInstances = new List<CameraShakeInstance>();
 
-        //public float mag;
-        //public float rough;
-        //public float fadeOut = 0.2f;
-
-        //public void TestShake()
-        //{
-        //    ShakeOnce(mag, rough, 0, fadeOut);
-        //}
-
-
         void Awake()
         {
             Instance = this;

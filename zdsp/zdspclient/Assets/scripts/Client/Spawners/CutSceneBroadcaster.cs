@@ -1,45 +1,46 @@
 ﻿using UnityEngine;
-using System;
-using System.Collections.Generic;
 using Zealot.Entities;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Zealot.Spawners
 {
-    [AddComponentMenu("Spawners at Server/CutSceneBroadcaster")]
-    public class CutSceneBroadcaster : ServerEntity {
+    [AddComponentMenu("Spawners at Server/CutsceneBroadcaster")]
+    public class CutsceneBroadcaster : ServerEntityWithEvent
+    {
+        public CutsceneEntity cutsceneEntity;
 
         public override string[] Triggers
         {
-            get
-            {
-                return new string[] { "Play" };
-            }
+            get { return new string[] { "Play" }; }
         }
 
-        public CutsceneEntity cutsceneEntity;
+        public override string[] Events
+        {
+            get { return new string[] { "OnCutsceneFinished" }; }
+        }
 
         void Start()
         {
-            if(PhotonNetwork.connected && cutsceneEntity != null)
-            {
+            if (PhotonNetwork.connected && cutsceneEntity != null)
                 GameInfo.AddPlayerSpawnListener(OnPlayerSpawned);                
-            }
         }
 
         public void OnPlayerSpawned()
         {
+            cutsceneEntity.OnCutsceneFinished.AddListener(OnCutsceneFinished);
             GameInfo.gCombat.CutsceneManager.RegisterCutsceneBroadcaster(this);
         }
 
+        void OnCutsceneFinished()
+        {
+            RPCFactory.CombatRPC.OnCutsceneFinished(EntityId);
+        }
+
         public override ServerEntityJson GetJson()
-		{
-            CutSceneBroadcasterJson jsonclass = new CutSceneBroadcasterJson();
-			GetJson (jsonclass);
-			return jsonclass;
-		}
+        {
+            CutsceneBroadcasterJson jsonclass = new CutsceneBroadcasterJson();
+            GetJson(jsonclass);
+            return jsonclass;
+        }
 
         void OnDestroy()
         {

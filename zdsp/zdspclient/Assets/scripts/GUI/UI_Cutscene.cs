@@ -14,8 +14,6 @@ public class UI_Cutscene : BaseWindowBehaviour
     public void OnClickSkip()
     {
         if (GameInfo.gCombat != null && GameInfo.gCombat.CutsceneManager != null)
-        {
             GameInfo.gCombat.CutsceneManager.SkipCutscene();
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using Zealot.Repository;
 
 namespace Zealot.Common
 {
@@ -176,6 +177,12 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "ct")]
         public string CompletedTargets { get; set; }
 
+        [JsonProperty(PropertyName = "ctr")]
+        public int CurrentTier { get; set; }
+
+        [JsonProperty(PropertyName = "htr")]
+        public int HighestUnlockedTier { get; set; }
+
         public static JsonSerializerSettings jsonSetting;
 
         public AchievementInvData()
@@ -189,6 +196,8 @@ namespace Zealot.Common
             };
 
             AchievementLevel = 1;
+            CurrentTier = 1;
+            HighestUnlockedTier = 1;
         }
 
         public string SerializeForDB()
@@ -201,4 +210,24 @@ namespace Zealot.Common
             return JsonConvert.DeserializeObject<AchievementInvData>(invData, jsonSetting);
         }
     }
+
+
+    // Client use
+    public class AchievementInfo
+    {
+        public AchievementObjective objective;
+        public int count;
+
+        public AchievementInfo(AchievementObjective obj, int currCount)
+        {
+            objective = obj;
+            count = currCount;
+        }
+
+        public bool IsCompleted()
+        {
+            return count >= objective.completeCount;
+        }
+    }
+
 }

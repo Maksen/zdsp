@@ -148,9 +148,11 @@ namespace Photon.LoadBalancing.GameServer
                         isGuildMate = true;
 
                     // check friend
-                    var friendList = leaderPeer.mPlayer.SocialStats.GetFriendListDict().Keys;
-                    if (friendList.Contains(player.Name))
-                        isFriend = true;
+                    #region Old Code:Social: modified future
+                    //var friendList = leaderPeer.mPlayer.SocialStats.GetFriendListDict().Keys;
+                    //if (friendList.Contains(player.Name))
+                    //    isFriend = true;
+                    #endregion
 
                     return (isGuildMate || isFriend);
                 }

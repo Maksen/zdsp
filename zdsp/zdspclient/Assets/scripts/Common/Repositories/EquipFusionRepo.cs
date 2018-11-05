@@ -138,11 +138,11 @@ namespace Zealot.Repository
             return null;
         }
 
-        public static List<EquipFusionSideEffectJson> GetGemSideEffect(string GemEffect)
+        public static List<EquipFusionSideEffectJson> GetGemSideEffect(string gemEffect)
         {
-            if (equipFusionSideEffectSort.ContainsKey(GemEffect))
+            if (equipFusionSideEffectSort.ContainsKey(gemEffect))
             {
-                return equipFusionSideEffectSort[GemEffect];
+                return equipFusionSideEffectSort[gemEffect];
             }
             return null;
         }
@@ -168,6 +168,15 @@ namespace Zealot.Repository
         public static Dictionary<int, ItemSortJson> Look()
         {
             return itemSortMap;
+        }
+
+        public static int GetEffectRarity(int effectGroupId)
+        {
+            if (equipFusionSideEffectMap.ContainsKey(effectGroupId))
+            {
+                return equipFusionSideEffectMap[effectGroupId].se_rarity;
+            }
+            return 0;
         }
 
         #region RandomGem
@@ -265,34 +274,6 @@ namespace Zealot.Repository
         #endregion
 
         #region GetSlotsGem
-        public static List<string> DecodeEffect(string EffectString)
-        {
-            List<string> effectGroup = EffectString.Split('|').ToList();
-            List<string> lis = new List<string>();
-
-            for (int i = 0; i < 3; ++i)
-            {
-                for (int j = 1; j < 3; ++j)
-                {
-                    int order = i * 3 + j;
-
-                    if (effectGroup[order] != "0,0")
-                    {
-                        List<string> devideLis = effectGroup[order].Split(',').ToList();
-                        StringBuilder bind = new StringBuilder(SideEffectRepo.GetSideEffect(int.Parse(devideLis[0])).localizedname);
-                        bind.Append("+");
-                        bind.Append(devideLis[1]);
-                        lis.Add(bind.ToString());
-                    }
-                    else
-                    {
-                        lis.Add(string.Empty);
-                    }
-                }
-            }
-            return lis;
-        }
-
         public static int GetTotalCurrencyCount(int GemId1, int GemId2, int GemId3)
         {
             if(elementalStoneMap.ContainsKey(GemId1) && elementalStoneMap.ContainsKey(GemId2) && elementalStoneMap.ContainsKey(GemId3))
@@ -311,7 +292,7 @@ namespace Zealot.Repository
         #endregion
 
         #region GetAdditionRule
-        static int AdditionWeightSearch (int id)
+        public static int AdditionWeightSearch (int id)
         {
             if (equipFusionSideEffectMap.ContainsKey(id))
             {
@@ -389,18 +370,6 @@ namespace Zealot.Repository
                     lis.Add("0|0,0|0,0|");
                 }
             }
-            return lis;
-        }
-
-        public static List<string> BuildEquipStats(Equipment equip)
-        {
-            List<string> lis = new List<string>();
-            lis.Add(equip.GetEquipmentName());
-            lis.Add(equip.UpgradeLevel.ToString());
-            StringBuilder st = new StringBuilder("+");
-            st.Append(equip.ReformStep);
-            lis.Add(st.ToString());
-            lis.Add("階");
             return lis;
         }
     }

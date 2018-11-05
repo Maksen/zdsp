@@ -20,7 +20,6 @@ namespace Zealot.Repository
     {
         public static Dictionary<string, string> mNameMap;
         public static NewCharInfo mNewCharInfo;
-        public static int ItemMaxStackCount = 0;
         public static int ItemInvStartingSlotCount = 0;
 
         static GameConstantRepo()
@@ -50,7 +49,6 @@ namespace Zealot.Repository
                 mNewCharInfo.dir = new float[] { float.Parse(newChar_Dir[0]), float.Parse(newChar_Dir[1]), float.Parse(newChar_Dir[2]) };
             }
 
-            ItemMaxStackCount = GetConstantInt("Item_MaxStackCount");
             ItemInvStartingSlotCount = GetConstantInt("NewChar_InventorySlotCount", 30);
         }
 

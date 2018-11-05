@@ -46,8 +46,9 @@ public class UI_Hero_ModelTierDialog : BaseWindowBehaviour
         InitSkinItems();
 
         EnableTogglesCallback(false);
-        if (tierDataList.ContainsKey(currentTier))
-            tierDataList[currentTier].SetToggleOn(true);
+        Hero_ModelTierData data;
+        if (tierDataList.TryGetValue(currentTier, out data))
+            data.SetToggleOn(true);
         EnableTogglesCallback(true);
     }
 

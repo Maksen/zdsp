@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
 using Zealot.Spawners;
 using Zealot.Client.Entities;
-using Zealot.Common.Entities;
 
 public class InteractiveEntities : MonoBehaviour {
-
-    InteractiveTrigger parentTrigger;
+    
+    public InteractiveTrigger parentTrigger;
     bool canClick = false;
 
 	void Start () {
@@ -32,19 +31,16 @@ public class InteractiveEntities : MonoBehaviour {
 
     void Interactive()
     {
-        if (canClick && parentTrigger.SetPlayer(GameInfo.gLocalPlayer))
+        if (canClick && parentTrigger.GetStep() == Zealot.Common.InteractiveTriggerStep.None)
         {
-            parentTrigger.TriggerEvent();
+            int entityId = parentTrigger.EntityId;
+            GameInfo.gLocalPlayer.InteractiveController.OnActionEnter(entityId,
+                parentTrigger.interrupt, false, parentTrigger.GetComponent<InteractiveTrigger>());
         }
     }
 
-    public void OnInteractiveTriggerEvent()
+    public void RefreshInteractiveStats(bool canUse, bool active, int step)
     {
-        
-    }
-
-    public void RefreshInteractiveStats(int counter)
-    {
-        parentTrigger.Init(counter);
+        parentTrigger.Init(canUse, active, step);
     }
 }

@@ -20,7 +20,7 @@ namespace Zealot.Common.Entities
         Frozen = 32,
         Petrify = 64,
         NUM
-    }
+    }    
 
     public class ActorSynStats : LocalObject // Send to all relevant player
     {
@@ -2237,170 +2237,35 @@ namespace Zealot.Common.Entities
     }
 
     #region Social
-    public class SocialInfoBase
+
+    /// <summary>
+    /// 社群資料for zdsp
+    /// </summary>
+    public partial class SocialStats : AdvancedLocalObject, IStats // Send only to local client
     {
-        public string charName = "";
-        public int portraitId = 0;
-        public byte jobSect = 0;
-        public byte vipLvl = 0;
-        public int charLvl = 0;
-        public int combatScore = 0;
-        public int localObjIdx = 0;
+        public const int MAX_GOOD_FRIENDS = SocialInventoryData.MAX_GOOD_FRIENDS;
+        public const int MAX_BLACK_FRIENDS = SocialInventoryData.MAX_BLACK_FRIENDS;
+        public const int MAX_REQUEST_FRIENDS = SocialInventoryData.MAX_REQUEST_FRIENDS;
+        public const int MAX_RECOMMAND_COUNT = SocialInventoryData.MAX_RECOMMAND_COUNT;
+        public const int MAX_COUNT = SocialInventoryData.MAX_COUNT;
 
-        public SocialInfoBase(string charname, int portrait, byte job, byte viplvl, int progresslvl, int combatscore, int mLocalObjIdx)
-        {
-            charName = charname;
-            portraitId = portrait;
-            jobSect = job;
-            vipLvl = viplvl;
-            charLvl = progresslvl;
-            combatScore = combatscore;
-            localObjIdx = mLocalObjIdx;
-        }
+        [NotSynced]
+        public Social.SocialData data { get; private set; }
 
-        public SocialInfoBase(string str = "")
-        {
-            InitFromString(str);
-        }
+        #region removed future
+        //public Dictionary<string, SocialInfo> GetFriendListDict() { return friendListDict; }
+        //public Dictionary<string, SocialInfoBase> GetFriendRequestListDict() { return friendRequestListDict; }
+        //private Dictionary<string, SocialInfo> friendListDict;
+        //private Dictionary<string, SocialInfoBase> friendRequestListDict;
+        ////public CollectionHandler<object> friendList { get; set; }
+        //public CollectionHandler<object> friendList;//眼睛業障種,假的;fake
+        ////public CollectionHandler<object> friendRequestList { get; set; }
+        //public CollectionHandler<object> friendRequestList;//眼睛業障種,假的;fake
+        //public int GetAvailableSlotFriends() { return GetAvailableSlot(FriendType.Good); }
+        //public int GetAvailableSlotRequests() { return GetAvailableSlot(FriendType.Good); }
+        #endregion
 
-        public void InitFromString(string str)
-        {
-            string[] infos = str.Split('`');
-            if (infos.Length == 6)
-            {
-                int idx = 0;
-                charName = infos[idx++];
-                portraitId = int.Parse(infos[idx++]);
-                jobSect = byte.Parse(infos[idx++]);
-                vipLvl = byte.Parse(infos[idx++]);
-                charLvl = int.Parse(infos[idx++]);
-                combatScore = int.Parse(infos[idx++]);
-            }
-        }
 
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(charName);
-            sb.Append("`");
-            sb.Append(portraitId);
-            sb.Append("`");
-            sb.Append(jobSect);
-            sb.Append("`");
-            sb.Append(vipLvl);
-            sb.Append("`");
-            sb.Append(charLvl);
-            sb.Append("`");
-            sb.Append(combatScore);
-            return sb.ToString();
-        }
-    }
-
-    public class SocialInfo : SocialInfoBase
-    {
-        public byte faction = 0;
-        public string guildName = "";
-        public bool isOnline = false;
-
-        public SocialInfo(string charname, int portrait, byte job, byte viplvl, int progresslvl, int combatscore,
-                          byte factiontype, string guildname, bool online, int mLocalObjIdx)
-                        : base(charname, portrait, job, viplvl, progresslvl, combatscore, mLocalObjIdx)
-        {
-            faction = factiontype;
-            guildName = guildname;
-            isOnline = online;
-        }
-
-        public SocialInfo(string str = "")
-        {
-            InitFromString(str);
-        }
-
-        public new void InitFromString(string str)
-        {
-            string[] infos = str.Split('`');
-            if (infos.Length == 9)
-            {
-                int idx = 0;
-                charName = infos[idx++];
-                portraitId = int.Parse(infos[idx++]);
-                jobSect = byte.Parse(infos[idx++]);
-                vipLvl = byte.Parse(infos[idx++]);
-                charLvl = int.Parse(infos[idx++]);
-                combatScore = int.Parse(infos[idx++]);
-                faction = byte.Parse(infos[idx++]);
-                guildName = infos[idx++];
-                isOnline = bool.Parse(infos[idx++]);
-            }
-        }
-
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(charName);
-            sb.Append("`");
-            sb.Append(portraitId);
-            sb.Append("`");
-            sb.Append(jobSect);
-            sb.Append("`");
-            sb.Append(vipLvl);
-            sb.Append("`");
-            sb.Append(charLvl);
-            sb.Append("`");
-            sb.Append(combatScore);
-            sb.Append("`");
-            sb.Append(faction);
-            sb.Append("`");
-            sb.Append(guildName);
-            sb.Append("`");
-            sb.Append(isOnline);
-            return sb.ToString();
-        }
-    }
-
-    public class SocialStats : LocalObject // Send only to local client
-    {
-        public const int MAX_FRIENDS = 50;
-
-        public SocialStats() : base(LOTYPE.SocialStats)
-        {
-            friendList = new CollectionHandler<object>(MAX_FRIENDS);
-            friendList.SetParent(this, "friendList");
-            friendListDict = new Dictionary<string, SocialInfo>();
-            friendRequestList = new CollectionHandler<object>(MAX_FRIENDS);
-            friendRequestList.SetParent(this, "friendRequestList");
-            friendRequestListDict = new Dictionary<string, SocialInfoBase>();
-        }
-
-        public CollectionHandler<object> friendList { get; set; }
-        public CollectionHandler<object> friendRequestList { get; set; }
-
-        public Dictionary<string, SocialInfo> GetFriendListDict() { return friendListDict; }
-        private Dictionary<string, SocialInfo> friendListDict;
-        public Dictionary<string, SocialInfoBase> GetFriendRequestListDict() { return friendRequestListDict; }
-        private Dictionary<string, SocialInfoBase> friendRequestListDict;
-
-        public int GetAvailableSlotFriends()
-        {
-            int cnt = friendList.Count;
-            for (int i = 0; i < cnt; ++i)
-            {
-                if (friendList[i] == null)
-                    return i;
-            }
-            return -1;
-        }
-
-        public int GetAvailableSlotRequests()
-        {
-            int cnt = friendRequestList.Count;
-            for (int i = 0; i < cnt; ++i)
-            {
-                if (friendRequestList[i] == null)
-                    return i;
-            }
-            return -1;
-        }
     }
     #endregion
 

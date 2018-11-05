@@ -1589,7 +1589,10 @@ public class CommandManager
         if (param.Length <= 1)
         {
             string playerName = (param.Length == 1) ? param[0] : "";
-            RPCFactory.NonCombatRPC.ConsoleSocialAddFriend(playerName);
+            #region Old Code:Social
+            throw new InvalidOperationException("RPCFactory.NonCombatRPC.ConsoleSocialAddFriend");
+            //RPCFactory.NonCombatRPC.ConsoleSocialAddFriend(playerName);
+            #endregion
         }
         else
         {

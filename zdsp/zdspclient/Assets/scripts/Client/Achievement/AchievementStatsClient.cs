@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Kopio.JsonContracts;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using UnityEngine;
+using Zealot.Client.Entities;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
@@ -11,28 +13,25 @@ public class AchievementStatsClient : AchievementStats
 {
     private GameObject windowObj;
     private UI_Achievement uiAchieve;
+    private PlayerGhost player;
 
     public void Init()
     {
         windowObj = UIManager.GetWindowGameObject(WindowType.Achievement);
         uiAchieve = windowObj.GetComponent<UI_Achievement>();
+        player = GameInfo.gLocalPlayer;
     }
 
     public void OnUpdateAchievementLevel()
     {
-        if (windowObj.activeInHierarchy)
-        {
-            uiAchieve.UpdateLevelProgress();
-            uiAchieve.UpdateTierProgress();
-        }
+        if (windowObj != null)
+            uiAchieve.OnAchievementLevelUp(windowObj.activeInHierarchy);
     }
 
     public void OnUpdateAchievementExp()
     {
-        if (windowObj.activeInHierarchy)
-        {
+        if (windowObj != null && windowObj.activeInHierarchy)
             uiAchieve.UpdateLevelProgress();
-        }
     }
 
     public int GetTotalCompletedCollectionsCount()
@@ -59,7 +58,7 @@ public class AchievementStatsClient : AchievementStats
     {
         if (string.IsNullOrEmpty(value))
             return;
-        Debug.Log("col index: " + idx + "-" + value);
+        //Debug.Log("col index: " + idx + "-" + value);
 
         string[] colArray = value.Split('|');
         for (int i = 0; i < colArray.Length; ++i)
@@ -100,7 +99,7 @@ public class AchievementStatsClient : AchievementStats
     {
         if (string.IsNullOrEmpty(value))
             return;
-        Debug.Log("ach index: " + idx + " - " + value);
+        //Debug.Log("ach index: " + idx + " - " + value);
 
         string[] achArray = value.Split('|');
         for (int i = 0; i < achArray.Length; ++i)
@@ -153,9 +152,7 @@ public class AchievementStatsClient : AchievementStats
 
         GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
         if (dialog != null && dialog.activeInHierarchy)
-        {
             dialog.GetComponent<UI_Achievement_RewardsDialog>().RefreshRewardsList(claimsList);
-        }
     }
 
     public bool HasUnclaimedRewards()
@@ -204,6 +201,43 @@ public class AchievementStatsClient : AchievementStats
                 list.Add(record);
             }
         }
+    }
+
+    public void GetLastCompletedAndNextAchievement(List<AchievementObjective> objList, out AchievementObjective last, out AchievementObjective next)
+    {
+        last = next = null;
+        if (objList == null || objList.Count == 0)
+            return;
+        int lastIndex = -1;
+        for (int i = 0; i < objList.Count; ++i)
+        {
+            if (IsAchievementCompleted(objList[i].id))
+                lastIndex = i;
+            else
+                break;
+        }
+        if (lastIndex != -1)
+            last = objList[lastIndex];
+        if (lastIndex + 1 < objList.Count)
+            next = objList[lastIndex + 1];
+    }
+
+    public void OnChangeLISATier()
+    {
+        if (windowObj != null && windowObj.activeInHierarchy)
+            uiAchieve.UpdateAvatarModel(CurrentLISATier);
+    }
+
+    public bool CanUnlockLISATier()
+    {
+        LISATransformTierJson highestTier = AchievementRepo.GetHighestLISATierInfoByLevel(player.PlayerSynStats.AchievementLevel);
+        return highestTier != null && highestTier.tierid != HighestUnlockedTier;
+    }
+
+    public void OnUnlockLISATier()
+    {
+        if (windowObj != null && windowObj.activeInHierarchy)
+            uiAchieve.UpdateTierProgress();
     }
 
 #if ZEALOT_DEVELOPMENT

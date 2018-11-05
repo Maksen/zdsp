@@ -178,8 +178,8 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
                     OnClickRightEquipment(equipSlots[index].InventoryIndex, index, equipData.ItemID);
                 });
                 FusionData_BagItem bagData = equip.GetComponent<FusionData_BagItem>();
-                List<string> equipEffect = EquipFusionRepo.DecodeEffect(equipData.FusionEffect);
-                List<string> equipStats = EquipFusionRepo.BuildEquipStats(equipData);
+                List<string> equipEffect = EquipFusionController.DecodeEffect(equipData.FusionEffect);
+                List<string> equipStats = EquipFusionController.BuildEquipStats(equipData);
                 bagData.SetEquipStats(ClientUtils.LoadItemIcon(equipData.ItemID), equipStats[0], equipStats[1], equipStats[2], equipStats[3], equipEffect);
             }
         } else
@@ -242,7 +242,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
                 GameObject stone = ClientUtils.CreateChild(materialParent, bagPrefab);
                 elementalList.Add(stone);
                 ElementalStone stoneData = stoneSlots[index].Item as ElementalStone;
-                List<string> effectGroup = EquipFusionRepo.DecodeEffect(stoneData.FusionData);
+                List<string> effectGroup = EquipFusionController.DecodeEffect(stoneData.FusionData);
                 stone.GetComponent<Toggle>().onValueChanged.AddListener(delegate
                 {
                     OnClickRightStone(stoneSlots[index].InventoryIndex, index, stoneSlots[index].Item.ItemID);
@@ -318,8 +318,8 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
             selectedMaterial[0] = new SelectItemData(Index, EquipListIndex, equipSlots[EquipListIndex].Item);
             SelectButton(0, ItemId);
             Equipment equip = equipSlots[EquipListIndex].Item as Equipment;
-            List<string> equipEffect = EquipFusionRepo.DecodeEffect(equip.FusionEffect);
-            List<string> equipStats = EquipFusionRepo.BuildEquipStats(equip);
+            List<string> equipEffect = EquipFusionController.DecodeEffect(equip.FusionEffect);
+            List<string> equipStats = EquipFusionController.BuildEquipStats(equip);
             SetFusionEquipStats(equipStats[0], equipStats[1], equipStats[2], true);
             for (int i = 0; i < 6; ++i)
             {
@@ -346,7 +346,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
                 selectedMaterial[index] = new SelectItemData(Index, StoneListIndex, stoneSlots[StoneListIndex].Item);
                 SelectButton(index, ItemId);
                 ElementalStone stone = selectedMaterial[index].Item as ElementalStone;
-                List<string> stoneEffect = EquipFusionRepo.DecodeEffect(stone.FusionData);
+                List<string> stoneEffect = EquipFusionController.DecodeEffect(stone.FusionData);
                 SetGemEffect(stoneEffect, index);
             }
         }
@@ -402,15 +402,8 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
         string str = BuildMaterialItem();
         Equipment equip = selectedMaterial[0].Item as Equipment;
 
-        if (equip.FusionEffect != "0|0,0|0,0|0|0,0|0,0|0|0,0|0,0")
-        {
-            RPCFactory.NonCombatRPC.EquipFusionGive(selectedMaterial[0].InventoryIndex, str);
-            AddWindowsListener(equip);
-
-        } else
-        {
-            RPCFactory.NonCombatRPC.EquipFusion(selectedMaterial[0].InventoryIndex, str, true);
-        }
+        RPCFactory.NonCombatRPC.EquipFusionGive(selectedMaterial[0].InventoryIndex, str);
+        AddWindowsListener(equip);
     }
     
     public void FinishedFusion ()

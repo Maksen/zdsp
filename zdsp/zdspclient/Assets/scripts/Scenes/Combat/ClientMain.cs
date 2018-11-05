@@ -425,7 +425,6 @@ public partial class ClientMain : MonoBehaviour
         PlayerGhost playerghost = mEntitySystem.SpawnNetEntityGhost<PlayerGhost>(pid);
         playerghost.IsLocal = isLocal;
         playerghost.SetOwnerID(ownerid);
-
         playerghost.Init(playername, gender, pos, rpcdir.ToVector3());
 
         //Setup camera and control if this is local playerghost
@@ -435,18 +434,17 @@ public partial class ClientMain : MonoBehaviour
             GameInfo.gLocalPlayer = playerghost;
             playerghost.Idle();
 
-            
             mNetClient.AddLocalEntity(playerghost);
             mTimers.SetTimer(100, UnLoadingScreen, null);
             GameInfo.gSkillCDState = new PlayerSkillCDState();
             GameInfo.OnLocalPlayerSpawned();
             SpawnClientSpawners();
             MailInvController.Init();
+            InteractiveController.Init();
 
             mPlayerInput.Init(playerghost);
             mPlayerInput.enabled = true;
             GameInfo.gLocalPlayer.InitBot(mPlayerInput);
-
 
             if (GameInfo.gDmgLabelPool == null)
             {
@@ -528,8 +526,6 @@ public partial class ClientMain : MonoBehaviour
         {
             GameInfo.gLocalPlayer.Bot.StartBot();
         }
-
-        
     }
 
     private void UpdateBuffsTime(object args)
@@ -727,80 +723,80 @@ public partial class ClientMain : MonoBehaviour
     }
 
     #region Social
+    #region Old Code
+    //private string ConcatPlayerListHelper(List<string> playerNameList)
+    //{
+    //    int cnt = playerNameList.Count;
+    //    if (cnt == 0)
+    //        return "";
 
-    private string ConcatPlayerListHelper(List<string> playerNameList)
-    {
-        int cnt = playerNameList.Count;
-        if (cnt == 0)
-            return "";
+    //    StringBuilder sb = new StringBuilder();
+    //    for (int i = 0; i < cnt; ++i)
+    //    {
+    //        sb.Append(playerNameList[i]);
+    //        if (i < cnt - 1)
+    //            sb.Append('`');
+    //    }
+    //    return sb.ToString();
+    //}
 
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < cnt; ++i)
-        {
-            sb.Append(playerNameList[i]);
-            if (i < cnt - 1)
-                sb.Append('`');
-        }
-        return sb.ToString();
-    }
+    //public void SocialAcceptFriendRequest(List<string> playerNameList)
+    //{
+    //    string playerListStr = ConcatPlayerListHelper(playerNameList);
+    //    SocialAcceptFriendRequest(playerListStr);
+    //}
 
-    public void SocialAcceptFriendRequest(List<string> playerNameList)
-    {
-        string playerListStr = ConcatPlayerListHelper(playerNameList);
-        SocialAcceptFriendRequest(playerListStr);
-    }
+    //public void SocialAcceptFriendRequest(string playerNameStr)
+    //{
+    //    if (!string.IsNullOrEmpty(playerNameStr))
+    //    {
+    //        RPCFactory.CombatRPC.SocialAcceptRequest(playerNameStr);
+    //    }
+    //}
 
-    public void SocialAcceptFriendRequest(string playerNameStr)
-    {
-        if (!string.IsNullOrEmpty(playerNameStr))
-        {
-            RPCFactory.CombatRPC.SocialAcceptRequest(playerNameStr);
-        }
-    }
+    //public void SocialRemoveFriendRequest(List<string> playerNameList)
+    //{
+    //    string playerListStr = ConcatPlayerListHelper(playerNameList);
+    //    SocialRemoveFriendRequest(playerListStr);
+    //}
 
-    public void SocialRemoveFriendRequest(List<string> playerNameList)
-    {
-        string playerListStr = ConcatPlayerListHelper(playerNameList);
-        SocialRemoveFriendRequest(playerListStr);
-    }
+    //public void SocialRemoveFriendRequest(string playerNameStr)
+    //{
+    //    if (!string.IsNullOrEmpty(playerNameStr))
+    //        RPCFactory.CombatRPC.SocialRemoveRequest(playerNameStr);
+    //}
 
-    public void SocialRemoveFriendRequest(string playerNameStr)
-    {
-        if (!string.IsNullOrEmpty(playerNameStr))
-            RPCFactory.CombatRPC.SocialRemoveRequest(playerNameStr);
-    }
+    //public void SocialSendFriendRequest(List<string> playerNameList)
+    //{
+    //    string playerListStr = ConcatPlayerListHelper(playerNameList);
+    //    SocialSendFriendRequest(playerListStr);
+    //}
 
-    public void SocialSendFriendRequest(List<string> playerNameList)
-    {
-        string playerListStr = ConcatPlayerListHelper(playerNameList);
-        SocialSendFriendRequest(playerListStr);
-    }
+    //public void SocialSendFriendRequest(string playerNameStr)
+    //{
+    //    if (!string.IsNullOrEmpty(playerNameStr))
+    //    {
+    //        if (!playerNameStr.Equals(GameInfo.gLocalPlayer.Name))
+    //            RPCFactory.CombatRPC.SocialSendRequest(playerNameStr);
+    //    }
+    //}
 
-    public void SocialSendFriendRequest(string playerNameStr)
-    {
-        if (!string.IsNullOrEmpty(playerNameStr))
-        {
-            if (!playerNameStr.Equals(GameInfo.gLocalPlayer.Name))
-                RPCFactory.CombatRPC.SocialSendRequest(playerNameStr);
-        }
-    }
+    //public void SocialRemoveFriend(string playerName)
+    //{
+    //    if (!string.IsNullOrEmpty(playerName))
+    //        RPCFactory.CombatRPC.SocialRemoveFriend(playerName);
+    //}
 
-    public void SocialRemoveFriend(string playerName)
-    {
-        if (!string.IsNullOrEmpty(playerName))
-            RPCFactory.CombatRPC.SocialRemoveFriend(playerName);
-    }
+    //public void SocialGetRecommendedFriends()
+    //{
+    //    RPCFactory.CombatRPC.SocialGetRecommendedFriends();
+    //}
 
-    public void SocialGetRecommendedFriends()
-    {
-        RPCFactory.CombatRPC.SocialGetRecommendedFriends();
-    }
-
-    public void SocialUpdateFriendsInfo()
-    {
-        RPCFactory.CombatRPC.SocialUpdateFriendsInfo();
-    }
-
+    //public void SocialUpdateFriendsInfo()
+    //{
+    //    RPCFactory.CombatRPC.SocialUpdateFriendsInfo();
+    //}
+    #endregion
     #endregion Social
 
     public void OnClickHyperText(HyperText source, HyperText.LinkInfo linkInfo)
@@ -904,9 +900,9 @@ public partial class ClientMain : MonoBehaviour
             mNetClient.CleanUp();
             mNetClient = null;
         }
-        HUD_MapController.FreeMapController();
-        GameInfo.gCombat = null;
+        HUD_MapController.FreeMapController();     
         gameObject.SetActive(false);
+        GameInfo.gCombat = null;
     }
 
     #region Select Entity

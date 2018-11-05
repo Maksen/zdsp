@@ -111,7 +111,5 @@ public class UI_DialogServerSelection : MonoBehaviour
         selectedServerId = serverId;
         GameInfo.gLogin.SelectedServerInfo = serverInfo;
         //Debug.LogFormat("lastEnteredServerInfo.idDisplay: {0}", lastEnteredServerInfo.idDisplay);
-        //if (!isInitDefault)
-        //    UIManager.CloseDialog(WindowType.DialogServerSelection);
     }
 }

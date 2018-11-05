@@ -840,7 +840,9 @@ namespace Photon.LoadBalancing.GameServer
             ExplorationMapJson mapData = HeroRepo.GetExplorationMapById(mapId);
             if (mapData == null)
                 return;
-            if (explorationsDict.Count >= HeroRepo.EXPLORE_LIMIT)
+
+            int bonus = player.AchievementStats.GetLISAFunctionValue(LISAFunction.Hero_ExplorationTime, player.PlayerSynStats.AchievementLevel);
+            if (explorationsDict.Count >= HeroRepo.EXPLORE_LIMIT + bonus)
             {
                 peer.ZRPC.CombatRPC.Ret_SendSystemMessage("sys_hero_ReachedExploreLimit", "", false, peer);
                 return;

@@ -70,7 +70,7 @@ namespace Zealot.Server.Rules
             }
             else if (hour >= 12 && hour < 24)
             {
-                nextDT = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1, 0, 0, 0);
+                nextDT = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0).AddDays(1);
             }
             else
             {

@@ -90,6 +90,18 @@
         <option uitext="ExpMonsterLvDifference" datasource="ExpMonsterLvDifference"/>
       </category>
 
+      <category uitext="Skills">
+        <option uitext="Skill Group" datasource="SkillGroup"/>
+        <option uitext="Skill" datasource="Skill"/>
+        <option uitext="Skill Tree" datasource="SkillTree"/>
+        <option uitext="Side Effect" datasource="SideEffect"/>
+        <option uitext="SDG" datasource="SkillDescriptionGroup"/>
+        <option uitext="SideEffectGroup" datasource="SideEffectGroup"/>
+        <option uitext="NPC Skills link" datasource="NPCToSkillsLink"/>
+        <option uitext="Elemental Chart" datasource="ElementChart"/>
+        <option uitext="Weakness Chart" datasource="WeaknessChart"/>
+      </category>
+
       <category uitext="Level">
         <option uitext="Level" datasource="Level"/>
         <option uitext="Map Category" datasource="MapCategory"/>
@@ -107,26 +119,14 @@
         <option uitext="Elite Map" datasource="EliteMap"/>-->
       </category>
 
-      <category uitext="Reward">
-        <option uitext="Reward List" datasource="RewardList"/>
-        <option uitext="Experience Rate" datasource="ExperienceRate"/>
-        <option uitext="ActivityReward" datasource="ActivityReward"/>
-      </category>
-
       <category uitext="Respawn">
         <option uitext="Respawn Type" datasource="Respawn"/>
       </category>
 
-      <category uitext="Skills">
-        <option uitext="Skill Group" datasource="SkillGroup"/>
-        <option uitext="Skill" datasource="Skill"/>
-        <option uitext="Skill Tree" datasource="SkillTree"/>
-        <option uitext="Side Effect" datasource="SideEffect"/>
-        <option uitext="SDG" datasource="SkillDescriptionGroup"/>
-        <option uitext="SideEffectGroup" datasource="SideEffectGroup"/>
-        <option uitext="NPC Skills link" datasource="NPCToSkillsLink"/>
-        <option uitext="Elemental Chart" datasource="ElementChart"/>
-        <option uitext="Weakness Chart" datasource="WeaknessChart"/>
+      <category uitext="Reward">
+        <option uitext="Reward List" datasource="RewardList"/>
+        <option uitext="Experience Rate" datasource="ExperienceRate"/>
+        <option uitext="ActivityReward" datasource="ActivityReward"/>
       </category>
 
       <category uitext="NPC">
@@ -265,12 +265,12 @@
       <category uitext="Onsen">
         <option uitext="Onsen" datasource="Onsen"/>
       </category>
-	  
-	    <category uitext="Map">
-		    <option uitext="WorldMapCountryMonster" datasource="WorldMapCountryMonster"/>
-		    <option uitext="WorldMapCountryPlace" datasource="WorldMapCountryPlace"/>
-		    <option uitext="WorldMapCountry" datasource="WorldMapCountry"/>
-	    </category>
+
+      <category uitext="Map">
+        <option uitext="WorldMapCountryMonster" datasource="WorldMapCountryMonster"/>
+        <option uitext="WorldMapCountryPlace" datasource="WorldMapCountryPlace"/>
+        <option uitext="WorldMapCountry" datasource="WorldMapCountry"/>
+      </category>
 
       <category uitext="Achievement">
         <option uitext="Collection Category" datasource="CollectionCategory"/>
@@ -290,7 +290,6 @@
         <option uitext="Guide" datasource="TutorialGuide"/>
         <option uitext="Description" datasource="TutorialDescription"/>
       </category>
-
     </menu>
   </presentation>
 </magicalarea51>

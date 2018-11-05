@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Repository;
@@ -10,37 +9,55 @@ public class UI_Achievement_TierDialog : BaseWindowBehaviour
     [SerializeField] GameObject dataPrefab;
     [SerializeField] UI_ProgressBarC progressBar;
 
-    private Action<int> OnSelectedCallback;
     private ToggleGroup toggleGroup;
     private Dictionary<int, Achievement_TierData> tierDataList = new Dictionary<int, Achievement_TierData>();
+    private AchievementStatsClient achStats;
 
     private void Awake()
     {
         toggleGroup = dataParent.GetComponent<ToggleGroup>();
+        Setup();
     }
 
-    public void Init(int currentTier, float currentTierProgress, Action<int> callback)
+    private void Setup()
     {
-        ClientUtils.DestroyChildren(dataParent);
-
-        OnSelectedCallback = callback;
         progressBar.Max = 1;
-        progressBar.Value = currentTierProgress;
 
         var tierList = AchievementRepo.lisaTiers.Values;
         foreach (var tier in tierList)
         {
             GameObject go = ClientUtils.CreateChild(dataParent, dataPrefab);
             Achievement_TierData tierData = go.GetComponent<Achievement_TierData>();
-            bool unlocked = GameInfo.gLocalPlayer.PlayerSynStats.AchievementLevel >= tier.reqlvl;
-            tierData.Init(tier, toggleGroup, OnTierSelected, unlocked);
+            tierData.Init(tier, toggleGroup, OnTierSelected);
             tierDataList.Add(tier.tierid, tierData);
         }
+    }
+
+    public void Init(int currentTier, float currentTierProgress)
+    {
+        progressBar.Value = currentTierProgress;
+        progressBar.Refresh();
+
+        achStats = GameInfo.gLocalPlayer.AchievementStats;
+        foreach (var data in tierDataList)
+            data.Value.SetUnlocked(achStats.HighestUnlockedTier >= data.Key);
 
         EnableTogglesCallback(false);
-        if (tierDataList.ContainsKey(currentTier))
-            tierDataList[currentTier].SetToggleOn(true);
+        Achievement_TierData tierData;
+        if (tierDataList.TryGetValue(currentTier, out tierData))
+            tierData.SetToggleOn(true);
         EnableTogglesCallback(true);
+
+        // todo: jm scroll to selected data
+    }
+
+    public void Refresh(float currentTierProgress)
+    {
+        progressBar.Value = currentTierProgress;
+        progressBar.Refresh();
+
+        foreach (var data in tierDataList)
+            data.Value.SetUnlocked(achStats.HighestUnlockedTier >= data.Key);
     }
 
     private void EnableTogglesCallback(bool value)
@@ -51,14 +68,14 @@ public class UI_Achievement_TierDialog : BaseWindowBehaviour
 
     private void OnTierSelected(int tier)
     {
-        OnSelectedCallback(tier);
+        if (tier != achStats.CurrentLISATier)
+            RPCFactory.CombatRPC.ChangeLISATier(tier);
         GetComponent<UIDialog>().ClickClose();
     }
 
-    public override void OnCloseWindow()
+    public void OnClickUnlockNextTier()
     {
-        base.OnCloseWindow();
-        tierDataList.Clear();
-        ClientUtils.DestroyChildren(dataParent);
+        if (achStats.CanUnlockLISATier())
+            RPCFactory.CombatRPC.UnlockNextLISATier();
     }
 }

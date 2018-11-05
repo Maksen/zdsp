@@ -11,12 +11,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f716ec81201fa84c991b71f8f90a277, type: 3}
   m_Name: Effects_ZDSP_hero
   m_EditorClassIdentifier: 
-  preload: 1
+  preload: 0
   build: 1
-  individualAssetBundle: 0
+  individualAssetBundle: 1
   containerAssetsPath: Effects_ZDSP/hero
   allowAbsolutePath: 0
-  addSubFolder: 0
+  addSubFolder: 1
   ExportedAssets:
   - assetPath: h_002_teng_yi_t3/prefab/atk1.prefab
     asset: {fileID: 1511604767855236, guid: 0f4b5b281236d0a4c999395fe1a2507e, type: 2}
@@ -92,6 +92,10 @@ MonoBehaviour:
     asset: {fileID: 1118541269798114, guid: 7e6ce5e8dbba93d4995d7c4d76037b22, type: 2}
   - assetPath: h_008_zhu_ji_t3/prefab/skill1_hit.prefab
     asset: {fileID: 1587010922675242, guid: 5cd00b4f98b5e1b4eb32bd5e2807f09f, type: 2}
+  - assetPath: h_009_ji_yan_ran_t3/prefab/atk1.prefab
+    asset: {fileID: 1584877464945124, guid: bb96383b1218b1244b6f093a14269b7d, type: 2}
+  - assetPath: h_009_ji_yan_ran_t3/prefab/performance.prefab
+    asset: {fileID: 1704231750107436, guid: 85290bdcc027a0c4eb0203353e07e207, type: 2}
   - assetPath: h_012_qin_qing_t3/prefab/atk1.prefab
     asset: {fileID: 1596798766136456, guid: dfc633eec94b4ea4e8f63c566f1e9db3, type: 2}
   - assetPath: h_012_qin_qing_t3/prefab/atk1_hit.prefab
@@ -124,10 +128,6 @@ MonoBehaviour:
     asset: {fileID: 1264279258580198, guid: df45db77739e1844aad85506865f563c, type: 2}
   - assetPath: h_014_shan_rou_t3/prefab/skill1_hit.prefab
     asset: {fileID: 1576461180455782, guid: f0c33718328f75c4d9c69ad216624f7d, type: 2}
-  - assetPath: h_009_ji_yan_ran_t3/prefab/atk1.prefab
-    asset: {fileID: 1584877464945124, guid: bb96383b1218b1244b6f093a14269b7d, type: 2}
-  - assetPath: h_009_ji_yan_ran_t3/prefab/performance.prefab
-    asset: {fileID: 1704231750107436, guid: 85290bdcc027a0c4eb0203353e07e207, type: 2}
   - assetPath: h_026_gui_gu_zi_t3/prefab/atk1.prefab
     asset: {fileID: 1094815092820188, guid: c2cae724935e5274498769c21d9c2168, type: 2}
   - assetPath: h_026_gui_gu_zi_t3/prefab/atk1_hit.prefab
@@ -190,6 +190,8 @@ MonoBehaviour:
   - {fileID: 1119046547380464, guid: 66804a8d1bba79846865ed83e0604d1a, type: 2}
   - {fileID: 1118541269798114, guid: 7e6ce5e8dbba93d4995d7c4d76037b22, type: 2}
   - {fileID: 1587010922675242, guid: 5cd00b4f98b5e1b4eb32bd5e2807f09f, type: 2}
+  - {fileID: 1584877464945124, guid: bb96383b1218b1244b6f093a14269b7d, type: 2}
+  - {fileID: 1704231750107436, guid: 85290bdcc027a0c4eb0203353e07e207, type: 2}
   - {fileID: 1596798766136456, guid: dfc633eec94b4ea4e8f63c566f1e9db3, type: 2}
   - {fileID: 1331144028877214, guid: d0726bc4010741542b7d51a601ad10a5, type: 2}
   - {fileID: 1847576879921292, guid: 2f14b76fd910ca1429baa45c7ae0893e, type: 2}
@@ -206,8 +208,6 @@ MonoBehaviour:
   - {fileID: 1004077075478232, guid: 34f4b99e64176aa46a891e4000f987d0, type: 2}
   - {fileID: 1264279258580198, guid: df45db77739e1844aad85506865f563c, type: 2}
   - {fileID: 1576461180455782, guid: f0c33718328f75c4d9c69ad216624f7d, type: 2}
-  - {fileID: 1584877464945124, guid: bb96383b1218b1244b6f093a14269b7d, type: 2}
-  - {fileID: 1704231750107436, guid: 85290bdcc027a0c4eb0203353e07e207, type: 2}
   - {fileID: 1094815092820188, guid: c2cae724935e5274498769c21d9c2168, type: 2}
   - {fileID: 1755155707153160, guid: 11ca17585a26d69478e4f7a15fc3ba33, type: 2}
   - {fileID: 1594047863706422, guid: 39cf3d43298d01a489eae8cca36bd303, type: 2}

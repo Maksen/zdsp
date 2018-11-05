@@ -156,6 +156,13 @@ public class UI_ProgressBarC : MonoBehaviour {
     [SerializeField]
     public bool showMax = false;
 
+    private string maxText = "MAX";
+    public string MaxText
+    {
+        get { return maxText; }
+        set { maxText = value; }
+    }
+
     [Header("Any parented gameobject need to have their X axis to be 0 and anchor min max X axis to be 0")]
     [Tooltip("Object follow tip of bar")]
     [SerializeField]
@@ -208,7 +215,7 @@ public class UI_ProgressBarC : MonoBehaviour {
 
     public static string TextMax(UI_ProgressBarC bar)
     {
-        return string.Format("{0}", "MAX");
+        return string.Format("{0}", bar.MaxText);
     }
 
     [SerializeField]

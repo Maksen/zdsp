@@ -11,12 +11,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f716ec81201fa84c991b71f8f90a277, type: 3}
   m_Name: Effects_ZDSP_monster
   m_EditorClassIdentifier: 
-  preload: 1
+  preload: 0
   build: 1
-  individualAssetBundle: 0
+  individualAssetBundle: 1
   containerAssetsPath: Effects_ZDSP/monster
   allowAbsolutePath: 0
-  addSubFolder: 0
+  addSubFolder: 1
   ExportedAssets:
   - assetPath: m_001_blade_soldier_1/prefab/atk1.prefab
     asset: {fileID: 1515008187428764, guid: 4b0ea63394b92af4b8c4d48760ccad33, type: 2}
@@ -186,10 +186,6 @@ MonoBehaviour:
     asset: {fileID: 1162304539488856, guid: b8a42b4257dc94148ad62033f7e1b7c1, type: 2}
   - assetPath: m_026_rouge/prefab/atk1_hit.prefab
     asset: {fileID: 1981436794282084, guid: 2accd3cd01dd92849802ec37683e9d76, type: 2}
-  - assetPath: m_026_rouge/prefab/dying.prefab
-    asset: {fileID: 1135545204145070, guid: 51adc52677f2848478cd640a582b8657, type: 2}
-  - assetPath: m_026_rouge/prefab/run.prefab
-    asset: {fileID: 1141355449807164, guid: 8322c1e1d4da03e46874745707eb191b, type: 2}
   - assetPath: m_026_rouge/prefab/skill1.prefab
     asset: {fileID: 1749052994849414, guid: 45300a577cdbc794399f102a1f15972d, type: 2}
   - assetPath: m_026_rouge/prefab/skill1_hit.prefab
@@ -198,10 +194,6 @@ MonoBehaviour:
     asset: {fileID: 1117868414849832, guid: 9db5a180d529f264dba59c9a6168db46, type: 2}
   - assetPath: m_027_baolin/prefab/atk1_hit.prefab
     asset: {fileID: 1595706127277888, guid: 9908669346df3244a80ebd3a774bd22c, type: 2}
-  - assetPath: m_027_baolin/prefab/dying.prefab
-    asset: {fileID: 1061073629348844, guid: 752f40c0c8ea4534186aeeab6e4d1345, type: 2}
-  - assetPath: m_027_baolin/prefab/run.prefab
-    asset: {fileID: 1957032937904634, guid: 603e803360350b74f95ac01529c0b943, type: 2}
   - assetPath: m_027_baolin/prefab/skill1.prefab
     asset: {fileID: 1693255044127266, guid: 3680825904a739e44aba85e8811c6cdd, type: 2}
   - assetPath: m_027_baolin/prefab/skill1_hit.prefab
@@ -248,10 +240,6 @@ MonoBehaviour:
     asset: {fileID: 1231749660033462, guid: a8d44caace9688d4aa1b1b885bc1fbd1, type: 2}
   - assetPath: m_049_jian_fu/prefab/atk1_hit.prefab
     asset: {fileID: 1316644455374016, guid: c51f02da223054842a0e34d9ba17b21f, type: 2}
-  - assetPath: m_049_jian_fu/prefab/dying.prefab
-    asset: {fileID: 1310147811441754, guid: 22ca9b560cc58e9438d5ee675ec3c541, type: 2}
-  - assetPath: m_049_jian_fu/prefab/run.prefab
-    asset: {fileID: 1659540961682612, guid: 6ad9de4000482e04fbd40ed36d9e1b48, type: 2}
   - assetPath: m_049_jian_fu/prefab/skill1.prefab
     asset: {fileID: 1768906896674800, guid: 6316716364087d345a737c73b2d150cb, type: 2}
   - assetPath: m_049_jian_fu/prefab/skill1_hit.prefab
@@ -260,10 +248,6 @@ MonoBehaviour:
     asset: {fileID: 1557233232288622, guid: ce6331eb48396e64c862c6c6a167ae1c, type: 2}
   - assetPath: m_074_ma_zei_dun_bing/prefab/atk1_hit.prefab
     asset: {fileID: 1840299220113356, guid: 74e86e18270f44e41bd24a4da0662ae1, type: 2}
-  - assetPath: m_074_ma_zei_dun_bing/prefab/dying.prefab
-    asset: {fileID: 1800300265090732, guid: 9e53cb4ab9305d548b511c8b830e97f7, type: 2}
-  - assetPath: m_074_ma_zei_dun_bing/prefab/run.prefab
-    asset: {fileID: 1247024603304364, guid: 8346ccc65d0eea6478922172093a3cb9, type: 2}
   - assetPath: m_074_ma_zei_dun_bing/prefab/skill1.prefab
     asset: {fileID: 1233564490047182, guid: aeea83d590217734798081c9a9c9628d, type: 2}
   - assetPath: m_074_ma_zei_dun_bing/prefab/skill1_hit.prefab
@@ -361,14 +345,10 @@ MonoBehaviour:
   - {fileID: 1525645195154986, guid: 4e8485c8c5a8a61428865fee562c71d2, type: 2}
   - {fileID: 1162304539488856, guid: b8a42b4257dc94148ad62033f7e1b7c1, type: 2}
   - {fileID: 1981436794282084, guid: 2accd3cd01dd92849802ec37683e9d76, type: 2}
-  - {fileID: 1135545204145070, guid: 51adc52677f2848478cd640a582b8657, type: 2}
-  - {fileID: 1141355449807164, guid: 8322c1e1d4da03e46874745707eb191b, type: 2}
   - {fileID: 1749052994849414, guid: 45300a577cdbc794399f102a1f15972d, type: 2}
   - {fileID: 1983844317091974, guid: 14a7ee5bb3e68b446a7b5b40b64e370d, type: 2}
   - {fileID: 1117868414849832, guid: 9db5a180d529f264dba59c9a6168db46, type: 2}
   - {fileID: 1595706127277888, guid: 9908669346df3244a80ebd3a774bd22c, type: 2}
-  - {fileID: 1061073629348844, guid: 752f40c0c8ea4534186aeeab6e4d1345, type: 2}
-  - {fileID: 1957032937904634, guid: 603e803360350b74f95ac01529c0b943, type: 2}
   - {fileID: 1693255044127266, guid: 3680825904a739e44aba85e8811c6cdd, type: 2}
   - {fileID: 1269928737552170, guid: a338f30217ab2734c81a345acec575d0, type: 2}
   - {fileID: 1372348156737462, guid: 396f4fcbba896944f9799cf196da2096, type: 2}
@@ -392,14 +372,10 @@ MonoBehaviour:
   - {fileID: 1620101408101532, guid: 0b6f94ccc1b80594a8f57ab5b0dc6a0e, type: 2}
   - {fileID: 1231749660033462, guid: a8d44caace9688d4aa1b1b885bc1fbd1, type: 2}
   - {fileID: 1316644455374016, guid: c51f02da223054842a0e34d9ba17b21f, type: 2}
-  - {fileID: 1310147811441754, guid: 22ca9b560cc58e9438d5ee675ec3c541, type: 2}
-  - {fileID: 1659540961682612, guid: 6ad9de4000482e04fbd40ed36d9e1b48, type: 2}
   - {fileID: 1768906896674800, guid: 6316716364087d345a737c73b2d150cb, type: 2}
   - {fileID: 1323772784194102, guid: 03ff1f98f625232498b2911557623925, type: 2}
   - {fileID: 1557233232288622, guid: ce6331eb48396e64c862c6c6a167ae1c, type: 2}
   - {fileID: 1840299220113356, guid: 74e86e18270f44e41bd24a4da0662ae1, type: 2}
-  - {fileID: 1800300265090732, guid: 9e53cb4ab9305d548b511c8b830e97f7, type: 2}
-  - {fileID: 1247024603304364, guid: 8346ccc65d0eea6478922172093a3cb9, type: 2}
   - {fileID: 1233564490047182, guid: aeea83d590217734798081c9a9c9628d, type: 2}
   - {fileID: 1827905146107132, guid: 39d82348f38290d4ca82073d0ad352a1, type: 2}
   - {fileID: 1478294790579890, guid: cf68a08ffd8ddf1489dbda8cb8c1b24a, type: 2}

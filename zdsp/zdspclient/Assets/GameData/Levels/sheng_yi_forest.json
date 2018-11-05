@@ -1,48 +1,7 @@
 {
   "mEntities": {
-    "ColliderTriggerJson": {
-      "-1545112": {
-        "$type": "Zealot.Entities.ColliderTriggerJson, Assembly-CSharp",
-        "EntityLinks_Server": {
-          "OnEnter": [
-            {
-              "mReceiver": -1454752,
-              "mTrigger": "SendMessage3"
-            }
-          ]
-        },
-        "ObjectID": -1545112,
-        "position": {
-          "x": 302.9001,
-          "y": -3.492075,
-          "z": 251.7002
-        }
-      },
-      "-1454866": {
-        "$type": "Zealot.Entities.ColliderTriggerJson, Assembly-CSharp",
-        "EntityLinks_Server": {
-          "OnEnter": [
-            {
-              "mReceiver": -1454908,
-              "mTrigger": "TurnOn"
-            },
-            {
-              "mReceiver": -1454872,
-              "mTrigger": "Play"
-            }
-          ]
-        },
-        "activeOnStartup": false,
-        "ObjectID": -1454866,
-        "position": {
-          "x": 89.3,
-          "y": -2.325746,
-          "z": 47.1699944
-        }
-      }
-    },
     "MonsterSpawnerJson": {
-      "-1455010": {
+      "-73112": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 20.0,
@@ -59,14 +18,14 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -1454894,
+              "mReceiver": -72988,
               "mTrigger": "Increase"
             }
           ]
         },
         "activeOnStartup": false,
         "archetype": "sheng_yi_forest_mb01",
-        "ObjectID": -1455010,
+        "ObjectID": -73112,
         "position": {
           "x": 306.200073,
           "y": -3.4920752,
@@ -74,7 +33,7 @@
         },
         "ShowInMap": true
       },
-      "-1455008": {
+      "-73110": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 20.0,
@@ -91,14 +50,14 @@
         "EntityLinks_Server": {},
         "activeOnStartup": false,
         "archetype": "sheng_yi_forest_m02",
-        "ObjectID": -1455008,
+        "ObjectID": -73110,
         "position": {
           "x": 307.1,
           "y": -3.4920752,
           "z": 270.4
         }
       },
-      "-1454980": {
+      "-73098": {
         "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
         "archetypeGroup": "",
         "aggroRadius": 20.0,
@@ -115,404 +74,39 @@
         "EntityLinks_Server": {},
         "activeOnStartup": false,
         "archetype": "sheng_yi_forest_m02",
-        "ObjectID": -1454980,
+        "ObjectID": -73098,
         "position": {
           "x": 305.2,
           "y": -3.4920752,
           "z": 307.400024
         },
         "ShowInMap": true
-      }
-    },
-    "StaticClientNPCSpawnerJson": {
-      "-1454904": {
-        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
-        "archetype": "sheng_yi_forest_n002",
-        "ObjectID": -1454904,
-        "position": {
-          "x": 109.0,
-          "y": -2.32595587,
-          "z": 77.4
-        },
-        "ShowInMap": true
       },
-      "-1454886": {
-        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
-        "archetype": "sheng_yi_forest_n003",
-        "ObjectID": -1454886,
-        "position": {
-          "x": 85.0,
-          "y": -2.69140148,
-          "z": 96.0
-        }
-      },
-      "-1454880": {
-        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
-        "archetype": "sheng_yi_forest_n004",
-        "ObjectID": -1454880,
-        "position": {
-          "x": 83.2,
-          "y": -2.44012928,
-          "z": 92.6000061
-        }
-      },
-      "-1454878": {
-        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
-        "archetype": "sheng_yi_forest_n005",
-        "ObjectID": -1454878,
-        "position": {
-          "x": 85.8,
-          "y": -2.44304824,
-          "z": 93.40001
-        }
-      },
-      "-1454868": {
-        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
-        "archetype": "sheng_yi_forest_n006",
-        "radius": 2.0,
-        "ObjectID": -1454868,
-        "position": {
-          "x": 94.9,
-          "y": -3.18391681,
-          "z": 102.100006
-        }
-      },
-      "-1454900": {
-        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
-        "archetype": "sheng_yi_forest_n001",
-        "ObjectID": -1454900,
-        "position": {
-          "x": 94.52,
-          "y": -2.32590461,
-          "z": 55.90999
-        }
-      }
-    },
-    "GateSpawnerJson": {
-      "-1454854": {
-        "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
-        "forward": {
-          "x": -0.453990519,
-          "y": 0.0,
-          "z": -0.8910067
-        },
-        "prefab": "Models/Scenes/Prefabs/prefab_boxcollider.prefab",
-        "ObjectID": -1454854,
-        "position": {
-          "x": 313.0001,
-          "y": -4.39,
-          "z": 334.000153
-        }
-      },
-      "-1454870": {
-        "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
-        "forward": {
-          "x": -0.275637358,
-          "y": 0.0,
-          "z": 0.9612617
-        },
-        "prefab": "Models/Scenes/Prefabs/prefab_boxcollider.prefab",
-        "ObjectID": -1454870,
-        "position": {
-          "x": 87.0,
-          "y": -5.03,
-          "z": 109.000008
-        }
-      }
-    },
-    "ObjectSpawnerJson": {
-      "-1454882": {
-        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
-        "prefab": "Effects_ZDSP/levelshare/prefab/effectswall_01.prefab",
-        "forward": {
-          "x": -0.453990519,
-          "y": 0.0,
-          "z": -0.8910067
-        },
-        "ObjectID": -1454882,
-        "position": {
-          "x": 313.0001,
-          "y": -6.5,
-          "z": 334.000153
-        }
-      },
-      "-1454888": {
-        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
-        "prefab": "Effects_ZDSP/levelshare/prefab/effectswall_01.prefab",
-        "forward": {
-          "x": -0.275637358,
-          "y": 0.0,
-          "z": 0.9612617
-        },
-        "ObjectID": -1454888,
-        "position": {
-          "x": 87.0,
-          "y": -7.0,
-          "z": 109.000015
-        }
-      },
-      "-1454858": {
-        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
-        "prefab": "Effects_ZDSP/levelshare/prefab/transfer_01.prefab",
-        "forward": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 1.0
-        },
-        "ObjectID": -1454858,
-        "position": {
-          "x": 314.7,
-          "y": -3.492075,
-          "z": 337.1
-        }
-      },
-      "-1454876": {
-        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
-        "activeOnStartup": false,
-        "prefab": "Effects_ZDSP/levelshare/prefab/transfer_01.prefab",
-        "forward": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 1.0
-        },
-        "ObjectID": -1454876,
-        "position": {
-          "x": 88.77,
-          "y": -2.32574844,
-          "z": 47.0599976
-        }
-      },
-      "-1454892": {
-        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
-        "prefab": "Effects_ZDSP/levelshare/prefab/transfer_01.prefab",
-        "forward": {
-          "x": 0.0,
-          "y": -1.00000012,
-          "z": -1.1920929E-07
-        },
-        "ObjectID": -1454892,
-        "position": {
-          "x": 85.15,
-          "y": -4.39,
-          "z": 116.84
-        }
-      }
-    },
-    "CutSceneBroadcasterJson": {
-      "-1454872": {
-        "$type": "Zealot.Entities.CutSceneBroadcasterJson, Assembly-CSharp",
-        "ObjectID": -1454872
-      }
-    },
-    "PortalExitJson": {
-      "-1454902": {
-        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
-        "forward": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": -1.0
-        },
-        "myName": "sheng_yi_forest_exit_02",
-        "ObjectID": -1454902,
-        "position": {
-          "x": 88.8,
-          "y": -4.0547123,
-          "z": 106.100006
-        }
-      },
-      "-1454890": {
-        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
-        "forward": {
-          "x": 0.0550306663,
-          "y": 0.0,
-          "z": 0.9984847
-        },
-        "myName": "sheng_yi_forest_exit_01",
-        "ObjectID": -1454890,
-        "position": {
-          "x": 302.900146,
-          "y": -3.4920752,
-          "z": 251.7002
-        }
-      }
-    },
-    "DelayTickerJson": {
-      "-1454908": {
-        "$type": "Zealot.Entities.DelayTickerJson, Assembly-CSharp",
-        "EntityLinks_Server": {
-          "OnDelay": [
-            {
-              "mReceiver": -1454732,
-              "mTrigger": "CompleteRealm"
-            }
-          ]
-        },
-        "activeOnStartup": false,
-        "delay": 10000,
-        "ObjectID": -1454908
-      }
-    },
-    "PortalEntryJson": {
-      "-1454856": {
-        "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
-        "myName": "sheng_yi_forest_01",
-        "exitName": "sheng_yi_forest_exit_01",
-        "ObjectID": -1454856,
-        "position": {
-          "x": 84.76,
-          "y": -4.272076,
-          "z": 114.670006
-        },
-        "ShowInMap": true
-      },
-      "-1454898": {
-        "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
-        "myName": "sheng_yi_forest_02",
-        "exitName": "sheng_yi_forest_exit_02",
-        "ObjectID": -1454898,
-        "position": {
-          "x": 314.700043,
-          "y": -3.4920752,
-          "z": 337.100037
-        },
-        "ShowInMap": true
-      }
-    },
-    "CounterJson": {
-      "-1454894": {
-        "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
-        "EntityLinks_Server": {
-          "OnCounter": [
-            {
-              "mReceiver": -1454752,
-              "mTrigger": "SendMessage2"
-            },
-            {
-              "mReceiver": -1454870,
-              "mTrigger": "Close"
-            },
-            {
-              "mReceiver": -1454888,
-              "mTrigger": "TriggerSpawn"
-            },
-            {
-              "mReceiver": -1454854,
-              "mTrigger": "Open"
-            },
-            {
-              "mReceiver": -1454882,
-              "mTrigger": "DestoryAll"
-            }
-          ]
-        },
-        "count": 1,
-        "ObjectID": -1454894
-      },
-      "-1454896": {
-        "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
-        "EntityLinks_Server": {
-          "OnCounter": [
-            {
-              "mReceiver": -1454870,
-              "mTrigger": "Open"
-            },
-            {
-              "mReceiver": -1454888,
-              "mTrigger": "DestoryAll"
-            },
-            {
-              "mReceiver": -1454980,
-              "mTrigger": "TriggerSpawn"
-            },
-            {
-              "mReceiver": -1455008,
-              "mTrigger": "TriggerSpawn"
-            },
-            {
-              "mReceiver": -1455010,
-              "mTrigger": "TriggerSpawn"
-            },
-            {
-              "mReceiver": -1454752,
-              "mTrigger": "SendMessage1"
-            }
-          ]
-        },
-        "count": 5,
-        "ObjectID": -1454896
-      }
-    },
-    "MapInfoJson": {
-      "-1454736": {
-        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
-        "centerPoint": {
-          "x": 92.6,
-          "y": 100.0,
-          "z": 74.4
-        },
-        "mapScale": {
-          "x": 0.227995813,
-          "y": 0.227995828,
-          "z": 0.227995828
-        },
-        "width": 512.0,
-        "height": 512.0,
-        "ObjectID": -1454736,
-        "position": {
-          "x": 92.6,
-          "y": 100.0,
-          "z": 74.4
-        }
-      }
-    },
-    "RealmControllerDungeonJson": {
-      "-1454732": {
-        "$type": "Zealot.Entities.RealmControllerDungeonJson, Assembly-CSharp",
+      "-72796": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 10.0,
+        "combatRadius": 15.0,
+        "spawnRadius": 1.0,
+        "population": 1,
         "forward": {
           "x": 0.0,
           "y": 0.0,
           "z": 1.0
         },
         "EntityLinks_Server": {},
-        "ObjectID": -1454732,
+        "archetype": "sheng_yi_forest_m01",
+        "ObjectID": -72796,
         "position": {
-          "x": 90.0,
-          "y": -2.32589984,
-          "z": 53.9999962
-        }
-      }
-    },
-    "PlayerSpawnerJson": {
-      "-1454734": {
-        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
-        "forward": {
-          "x": 0.0,
-          "y": 0.0,
-          "z": 1.0
-        },
-        "ObjectID": -1454734,
-        "position": {
-          "x": 90.0,
-          "y": -2.3259,
-          "z": 54.0
+          "x": 81.02,
+          "y": -2.32592368,
+          "z": 69.51
         },
         "ShowInMap": true
       }
     },
-    "MessageBroadcasterJson": {
-      "-1454752": {
-        "$type": "Zealot.Entities.MessageBroadcasterJson, Assembly-CSharp",
-        "type": 1,
-        "messages": [
-          "前往時光隧道的通道已開啟",
-          "前往聖夷森林的通道已開啟",
-          "進入時光隧道"
-        ],
-        "ObjectID": -1454752
-      }
-    },
     "PersonalMonsterSpawnerJson": {
-      "-1454724": {
+      "-73136": {
         "$type": "Zealot.Entities.PersonalMonsterSpawnerJson, Assembly-CSharp",
         "aggroRadius": 20.0,
         "combatRadius": 25.0,
@@ -528,18 +122,18 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -1454866,
+              "mReceiver": -72942,
               "mTrigger": "On"
             },
             {
-              "mReceiver": -1454876,
+              "mReceiver": -72952,
               "mTrigger": "TriggerSpawn"
             }
           ]
         },
         "activeOnStartup": false,
         "archetype": "sheng_yi_forest_b01",
-        "ObjectID": -1454724,
+        "ObjectID": -73136,
         "position": {
           "x": 93.1,
           "y": -2.32594061,
@@ -547,7 +141,7 @@
         },
         "ShowInMap": true
       },
-      "-1454718": {
+      "-73094": {
         "$type": "Zealot.Entities.PersonalMonsterSpawnerJson, Assembly-CSharp",
         "aggroRadius": 12.0,
         "combatRadius": 40.0,
@@ -563,20 +157,494 @@
         "EntityLinks_Server": {
           "OnChildDead": [
             {
-              "mReceiver": -1454896,
+              "mReceiver": -72990,
               "mTrigger": "Increase"
             }
           ]
         },
         "activeOnStartup": false,
         "archetype": "sheng_yi_forest_m01",
-        "ObjectID": -1454718,
+        "ObjectID": -73094,
         "position": {
           "x": 91.4,
           "y": -2.325928,
           "z": 69.96
         },
         "ShowInMap": true
+      }
+    },
+    "StaticClientNPCSpawnerJson": {
+      "-72998": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
+        "archetype": "sheng_yi_forest_n002",
+        "ObjectID": -72998,
+        "position": {
+          "x": 92.6,
+          "y": -4.046311,
+          "z": 106.17
+        },
+        "ShowInMap": true
+      },
+      "-72966": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
+        "archetype": "sheng_yi_forest_n003",
+        "ObjectID": -72966,
+        "position": {
+          "x": 86.31,
+          "y": -2.379942,
+          "z": 95.12001
+        }
+      },
+      "-72956": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
+        "archetype": "sheng_yi_forest_n004",
+        "ObjectID": -72956,
+        "position": {
+          "x": 83.69,
+          "y": -2.400919,
+          "z": 92.51001
+        }
+      },
+      "-72954": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
+        "archetype": "sheng_yi_forest_n005",
+        "ObjectID": -72954,
+        "position": {
+          "x": 86.25,
+          "y": -2.50890756,
+          "z": 93.18001
+        }
+      },
+      "-72944": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
+        "archetype": "sheng_yi_forest_n006",
+        "radius": 2.0,
+        "ObjectID": -72944,
+        "position": {
+          "x": 94.9,
+          "y": -3.18391681,
+          "z": 102.100006
+        }
+      },
+      "-72994": {
+        "$type": "Zealot.Entities.StaticClientNPCSpawnerJson, Assembly-CSharp",
+        "archetype": "sheng_yi_forest_n001",
+        "ObjectID": -72994,
+        "position": {
+          "x": 94.52,
+          "y": -2.32590461,
+          "z": 55.90999
+        }
+      }
+    },
+    "GateSpawnerJson": {
+      "-72908": {
+        "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": -0.453990519,
+          "y": 0.0,
+          "z": -0.8910067
+        },
+        "prefab": "Models/Scenes/Prefabs/prefab_boxcollider.prefab",
+        "ObjectID": -72908,
+        "position": {
+          "x": 313.0001,
+          "y": -4.39,
+          "z": 334.000153
+        }
+      },
+      "-72946": {
+        "$type": "Zealot.Entities.GateSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": -0.275637358,
+          "y": 0.0,
+          "z": 0.9612617
+        },
+        "prefab": "Models/Scenes/Prefabs/prefab_boxcollider.prefab",
+        "ObjectID": -72946,
+        "position": {
+          "x": 87.0,
+          "y": -5.03,
+          "z": 109.000008
+        }
+      }
+    },
+    "ObjectSpawnerJson": {
+      "-72958": {
+        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
+        "prefab": "Effects_ZDSP/levelshare/prefab/effectswall_01.prefab",
+        "forward": {
+          "x": -0.453990519,
+          "y": 0.0,
+          "z": -0.8910067
+        },
+        "ObjectID": -72958,
+        "position": {
+          "x": 313.0001,
+          "y": -6.5,
+          "z": 334.000153
+        }
+      },
+      "-72968": {
+        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
+        "prefab": "Effects_ZDSP/levelshare/prefab/effectswall_01.prefab",
+        "forward": {
+          "x": -0.275637358,
+          "y": 0.0,
+          "z": 0.9612617
+        },
+        "ObjectID": -72968,
+        "position": {
+          "x": 87.0,
+          "y": -7.0,
+          "z": 109.000015
+        }
+      },
+      "-72912": {
+        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
+        "prefab": "Effects_ZDSP/levelshare/prefab/transfer_01.prefab",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "ObjectID": -72912,
+        "position": {
+          "x": 314.7,
+          "y": -3.492075,
+          "z": 337.1
+        }
+      },
+      "-72952": {
+        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
+        "activeOnStartup": false,
+        "prefab": "Effects_ZDSP/levelshare/prefab/transfer_01.prefab",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "ObjectID": -72952,
+        "position": {
+          "x": 88.77,
+          "y": -2.32574844,
+          "z": 47.0599976
+        }
+      },
+      "-72972": {
+        "$type": "Zealot.Entities.ObjectSpawnerJson, Assembly-CSharp",
+        "prefab": "Effects_ZDSP/levelshare/prefab/transfer_01.prefab",
+        "forward": {
+          "x": 0.0,
+          "y": -1.00000012,
+          "z": -1.1920929E-07
+        },
+        "ObjectID": -72972,
+        "position": {
+          "x": 85.15,
+          "y": -4.39,
+          "z": 116.84
+        }
+      }
+    },
+    "ColliderTriggerJson": {
+      "-72942": {
+        "$type": "Zealot.Entities.ColliderTriggerJson, Assembly-CSharp",
+        "EntityLinks_Server": {
+          "OnEnter": [
+            {
+              "mReceiver": -73000,
+              "mTrigger": "TurnOn"
+            },
+            {
+              "mReceiver": -72948,
+              "mTrigger": "Play"
+            }
+          ]
+        },
+        "activeOnStartup": false,
+        "ObjectID": -72942,
+        "position": {
+          "x": 89.3,
+          "y": -2.325746,
+          "z": 47.1699944
+        }
+      },
+      "-72770": {
+        "$type": "Zealot.Entities.ColliderTriggerJson, Assembly-CSharp",
+        "EntityLinks_Server": {
+          "OnEnter": [
+            {
+              "mReceiver": -72788,
+              "mTrigger": "SendMessage3"
+            }
+          ]
+        },
+        "ObjectID": -72770,
+        "position": {
+          "x": 302.9001,
+          "y": -3.492075,
+          "z": 251.7002
+        }
+      }
+    },
+    "CutsceneBroadcasterJson": {
+      "-72948": {
+        "$type": "Zealot.Entities.CutsceneBroadcasterJson, Assembly-CSharp",
+        "EntityLinks_Server": {},
+        "ObjectID": -72948
+      }
+    },
+    "PortalExitJson": {
+      "-72996": {
+        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -1.0
+        },
+        "myName": "sheng_yi_forest_exit_02",
+        "ObjectID": -72996,
+        "position": {
+          "x": 88.8,
+          "y": -4.0547123,
+          "z": 106.100006
+        }
+      },
+      "-72970": {
+        "$type": "Zealot.Entities.PortalExitJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.0550306663,
+          "y": 0.0,
+          "z": 0.9984847
+        },
+        "myName": "sheng_yi_forest_exit_01",
+        "ObjectID": -72970,
+        "position": {
+          "x": 302.900146,
+          "y": -3.4920752,
+          "z": 251.7002
+        }
+      }
+    },
+    "DelayTickerJson": {
+      "-73000": {
+        "$type": "Zealot.Entities.DelayTickerJson, Assembly-CSharp",
+        "EntityLinks_Server": {
+          "OnDelay": [
+            {
+              "mReceiver": -72766,
+              "mTrigger": "CompleteRealm"
+            }
+          ]
+        },
+        "activeOnStartup": false,
+        "delay": 12000,
+        "ObjectID": -73000
+      }
+    },
+    "PortalEntryJson": {
+      "-72910": {
+        "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
+        "myName": "sheng_yi_forest_01",
+        "exitName": "sheng_yi_forest_exit_01",
+        "ObjectID": -72910,
+        "position": {
+          "x": 84.76,
+          "y": -4.272076,
+          "z": 114.670006
+        },
+        "ShowInMap": true
+      },
+      "-72992": {
+        "$type": "Zealot.Entities.PortalEntryJson, Assembly-CSharp",
+        "myName": "sheng_yi_forest_02",
+        "exitName": "sheng_yi_forest_exit_02",
+        "ObjectID": -72992,
+        "position": {
+          "x": 314.700043,
+          "y": -3.4920752,
+          "z": 337.100037
+        },
+        "ShowInMap": true
+      }
+    },
+    "CounterJson": {
+      "-72988": {
+        "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
+        "EntityLinks_Server": {
+          "OnCounter": [
+            {
+              "mReceiver": -72788,
+              "mTrigger": "SendMessage2"
+            },
+            {
+              "mReceiver": -72946,
+              "mTrigger": "Close"
+            },
+            {
+              "mReceiver": -72968,
+              "mTrigger": "TriggerSpawn"
+            },
+            {
+              "mReceiver": -72908,
+              "mTrigger": "Open"
+            },
+            {
+              "mReceiver": -72958,
+              "mTrigger": "DestoryAll"
+            }
+          ]
+        },
+        "count": 1,
+        "ObjectID": -72988
+      },
+      "-72990": {
+        "$type": "Zealot.Entities.CounterJson, Assembly-CSharp",
+        "EntityLinks_Server": {
+          "OnCounter": [
+            {
+              "mReceiver": -72946,
+              "mTrigger": "Open"
+            },
+            {
+              "mReceiver": -72968,
+              "mTrigger": "DestoryAll"
+            },
+            {
+              "mReceiver": -73098,
+              "mTrigger": "TriggerSpawn"
+            },
+            {
+              "mReceiver": -73110,
+              "mTrigger": "TriggerSpawn"
+            },
+            {
+              "mReceiver": -73112,
+              "mTrigger": "TriggerSpawn"
+            },
+            {
+              "mReceiver": -72788,
+              "mTrigger": "SendMessage1"
+            }
+          ]
+        },
+        "count": 5,
+        "ObjectID": -72990
+      }
+    },
+    "InteractiveTriggerJson": {
+      "-72794": {
+        "$type": "Zealot.Entities.InteractiveTriggerJson, Assembly-CSharp",
+        "EntityLinks_Server": {
+          "OnInteractive": [
+            {
+              "mReceiver": -72796,
+              "mTrigger": "TriggerSpawn"
+            }
+          ]
+        },
+        "archetype": "test_prefab_sheng_yi_forest_d_n01",
+        "parentPath": "Entity/Entities_sheng_yi_forest/test_interactive",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "interactiveTime": 1,
+        "interrupt": true,
+        "counter": -1,
+        "ObjectID": -72794,
+        "position": {
+          "x": 92.65,
+          "y": -2.32593727,
+          "z": 75.12
+        },
+        "ShowInMap": true
+      }
+    },
+    "MapInfoJson": {
+      "-72772": {
+        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
+        "centerPoint": {
+          "x": 92.6,
+          "y": 100.0,
+          "z": 74.4
+        },
+        "mapScale": {
+          "x": 0.227995813,
+          "y": 0.227995828,
+          "z": 0.227995828
+        },
+        "width": 512.0,
+        "height": 512.0,
+        "ObjectID": -72772,
+        "position": {
+          "x": 92.6,
+          "y": 100.0,
+          "z": 74.4
+        }
+      }
+    },
+    "RealmControllerDungeonJson": {
+      "-72766": {
+        "$type": "Zealot.Entities.RealmControllerDungeonJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "EntityLinks_Server": {},
+        "ObjectID": -72766,
+        "position": {
+          "x": 90.0,
+          "y": -2.32589984,
+          "z": 53.9999962
+        }
+      }
+    },
+    "PlayerSpawnerJson": {
+      "-72768": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "ObjectID": -72768,
+        "position": {
+          "x": 90.0,
+          "y": -2.3259,
+          "z": 54.0
+        },
+        "ShowInMap": true
+      },
+      "141634": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "ObjectID": 141634,
+        "position": {
+          "x": 304.07,
+          "y": -2.687,
+          "z": 261.17
+        },
+        "ShowInMap": true
+      }
+    },
+    "MessageBroadcasterJson": {
+      "-72788": {
+        "$type": "Zealot.Entities.MessageBroadcasterJson, Assembly-CSharp",
+        "type": 1,
+        "messages": [
+          "前往時光隧道的通道已開啟",
+          "前往聖夷森林的通道已開啟",
+          "進入時光隧道"
+        ],
+        "ObjectID": -72788
       }
     }
   }

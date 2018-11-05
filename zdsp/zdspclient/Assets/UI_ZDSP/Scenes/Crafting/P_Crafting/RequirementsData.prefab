@@ -56,6 +56,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224781305093529070}
   - component: {fileID: 114740140434276362}
+  - component: {fileID: 114888847432292168}
   m_Layer: 5
   m_Name: RequirementsData
   m_TagString: Untagged
@@ -1075,7 +1076,6 @@ MonoBehaviour:
   itemRarity: {fileID: 114709068549113774}
   newDot: {fileID: 1167488447364374}
   iconStatusCannotuse: {fileID: 1650729572909956}
-  iconStatusBreak: {fileID: 1693097057193292}
   txtPowerUp: {fileID: 114351970857514642}
   txtEvolve: {fileID: 114003529662764176}
   itemUpgrade: {fileID: 114172094166467532}
@@ -1186,6 +1186,20 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1.3
   m_Text: "\u5496\u5496"
+--- !u!114 &114888847432292168
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1012972335965188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9de8f786326935049b701ea63de37b08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sampleObject: {fileID: 1086358336905526}
+  itemReqStack: {fileID: 114656490854819374}
+  gameIconParent: {fileID: 224654486113146984}
 --- !u!114 &114938962062768214
 MonoBehaviour:
   m_ObjectHideFlags: 1

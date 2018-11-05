@@ -5536,6 +5536,12 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 2d479e3c3dfacfd4c9d48e748312c244, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &79073951 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114688760471921836, guid: 2d479e3c3dfacfd4c9d48e748312c244,
+    type: 2}
+  m_PrefabInternal: {fileID: 79073950}
+  m_Script: {fileID: 11500000, guid: 3b556b2de9f2dd04eb296391a7d5e2e1, type: 3}
 --- !u!1001 &82792829
 Prefab:
   m_ObjectHideFlags: 0
@@ -6925,10 +6931,10 @@ MonoBehaviour:
   - {fileID: 206502898}
   - {fileID: 1378148114}
   ContentScrollBar: {fileID: 51417377}
-  Reset: {fileID: 0}
-  Delete: {fileID: 0}
-  TypeComboBox: {fileID: 0}
-  MapComboBox: {fileID: 0}
+  Reset: {fileID: 1439454620}
+  Delete: {fileID: 2082710259}
+  TypeComboBox: {fileID: 1566381656}
+  MapComboBox: {fileID: 79073951}
 --- !u!1001 &134626396
 Prefab:
   m_ObjectHideFlags: 0
@@ -68905,9 +68911,20 @@ Prefab:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 114918936309500918, guid: 447addfcd3cabe545b6900a2be10abc1,
+        type: 2}
+      propertyPath: localizeText
+      value: qst_reset
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 447addfcd3cabe545b6900a2be10abc1, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1439454620 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
+    type: 2}
+  m_PrefabInternal: {fileID: 1439454619}
+  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1 &1439584857
 GameObject:
   m_ObjectHideFlags: 0
@@ -74952,6 +74969,12 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 2d479e3c3dfacfd4c9d48e748312c244, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1566381656 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114688760471921836, guid: 2d479e3c3dfacfd4c9d48e748312c244,
+    type: 2}
+  m_PrefabInternal: {fileID: 1566381655}
+  m_Script: {fileID: 11500000, guid: 3b556b2de9f2dd04eb296391a7d5e2e1, type: 3}
 --- !u!1 &1575080387
 GameObject:
   m_ObjectHideFlags: 0
@@ -113330,16 +113353,27 @@ Prefab:
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClickedReset
+      value: OnClickedDelete
       objectReference: {fileID: 0}
     - target: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 114918936309500918, guid: 447addfcd3cabe545b6900a2be10abc1,
+        type: 2}
+      propertyPath: localizeText
+      value: qst_delete
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 447addfcd3cabe545b6900a2be10abc1, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &2082710259 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114098220828425146, guid: 447addfcd3cabe545b6900a2be10abc1,
+    type: 2}
+  m_PrefabInternal: {fileID: 2082710258}
+  m_Script: {fileID: 1392445389, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
 --- !u!1001 &2094619387
 Prefab:
   m_ObjectHideFlags: 0

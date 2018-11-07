@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: efsp_ui_hero008_001_de
+  m_Shader: {fileID: 4800000, guid: bdcddadbacc24d744862a1839d35c500, type: 3}
+  m_ShaderKeywords: EDGE_COLOR EDGE_ON OPACITYSLIDER_ON SOFTDISSOLVE_OFF SOFTRIM_ON
+    STRETCH_ON
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DissolveTex:
+        m_Texture: {fileID: 2800000, guid: 101572f487c7a574ea21e03375243bfe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EdgeAroundRamp:
+        m_Texture: {fileID: 2800000, guid: 53435f9f84d193448a58c7bee9abc0d8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EdgeRamp:
+        m_Texture: {fileID: 2800000, guid: f7d186cbd21bb124bb1b3d3eb8ae1cdc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: eee1fa615b9d10e45b03287b39c3e1c9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _CullMode: 0
+    - _Edge: 0.5
+    - _EdgeAround: 0.154
+    - _EdgeAroundHDR: 3
+    - _EdgeAroundPower: 2.88
+    - _EdgeDistortion: 0.3
+    - _EdgeWidth: 0.501
+    - _Opacity: 1
+    - _Progress: 1
+    - _SoftRim: 1.5
+    - _UseEdgeColor: 1
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EdgeColor: {r: 1, g: 0, b: 0, a: 1}

@@ -9,18 +9,29 @@ using Newtonsoft.Json;
 namespace Zealot.Common.Entities
 {
     //TODO: add all other sideeffect which should play its effect simmutanlously
-    [Flags]
-    public enum EffectVisualTypes : byte
+    //[Flags]
+    //public enum EffectVisualTypes : byte
+    //{
+    //    Stun = 1,
+    //    Slow = 2,
+    //    Silence = 4,
+    //    Root = 8,
+    //    Disarmed = 16,
+    //    Frozen = 32,
+    //    Petrify = 64,
+    //    NUM
+    //}    
+    public enum EffectVisualTypes
     {
-        Stun = 1,
-        Slow = 2,
-        Silence = 4,
-        Root = 8,
-        Disarmed = 16,
-        Frozen = 32,
-        Petrify = 64,
+        Stun,
+        Slow,
+        Silence,
+        Root,
+        Disarmed,
+        Frozen,
+        Petrify,
         NUM
-    }    
+    }
 
     public class ActorSynStats : LocalObject // Send to all relevant player
     {

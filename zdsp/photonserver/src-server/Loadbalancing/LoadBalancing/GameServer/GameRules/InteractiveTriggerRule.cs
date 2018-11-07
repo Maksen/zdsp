@@ -1,11 +1,13 @@
-﻿using ExitGames.Concurrency.Fibers;
-using Photon.LoadBalancing.GameServer;
-using Kopio.JsonContracts;
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using Zealot.Repository;
+using Zealot.Common.Actions;
 using Zealot.Server.Entities;
+
+using ExitGames.Concurrency.Fibers;
+using Photon.LoadBalancing.GameServer;
+using Kopio.JsonContracts;
 
 namespace Zealot.Server.Rules
 {
@@ -13,7 +15,10 @@ namespace Zealot.Server.Rules
     {
         private static readonly PoolFiber executionFiber;
         private static Dictionary<int, List<string>> partyUsed = new Dictionary<int, List<string>>();
-        public static List<InteractiveGate> interactiveEntity = new List<InteractiveGate>();
+        public static Dictionary<int, InteractiveGate> interactiveEntity = new Dictionary<int, InteractiveGate>();
+        static List<InteractiveGate> updateEntity = new List<InteractiveGate>();
+
+        static bool isSchedule = false;
 
         static InteractiveTriggerRule()
         {
@@ -53,7 +58,7 @@ namespace Zealot.Server.Rules
                 }
                 else
                 {
-                    mEntity.StopAction();
+                    mEntity.CancelAction();
                     mEntity.step = Common.InteractiveTriggerStep.OnTrigger;
                 }
             });
@@ -61,7 +66,7 @@ namespace Zealot.Server.Rules
 
         static void SetAction(int pid, int time, bool isArea, InteractiveGate mEntity)
         {
-            Zealot.Common.Actions.InteractiveTriggerCommand cmd = new Zealot.Common.Actions.InteractiveTriggerCommand();
+            InteractiveTriggerCommand cmd = new InteractiveTriggerCommand();
             cmd.entityId = pid;
             cmd.triggerTime = time;
             cmd.isArea = isArea;
@@ -84,14 +89,9 @@ namespace Zealot.Server.Rules
                     {
                         partyUsed[pid].Remove(playerName);
                     }
-
-                    //if (CanPartyUse(mEntity.mPropertyInfos.min, mEntity.mPropertyInfos.max, partyUsed.Count))
-                    //{
-                    //    SetAction(pid, mEntity.mPropertyInfos.interactiveTime, true, mEntity);
-                    //}
                 }
                 mEntity.step = Common.InteractiveTriggerStep.None;
-                mEntity.StopAction();
+                mEntity.CancelAction();
             });
         }
 
@@ -111,14 +111,29 @@ namespace Zealot.Server.Rules
             return now >= min && now <= max;
         }
         #endregion
-
-        public static void Init()
+        
+        #region Update Entity Active Per 30 Minutes
+        public static void Init(int levelId)
         {
-            SetEntiesActive();
-            CallFiberSchedule();
+            updateEntity = new List<InteractiveGate>();
+            
+            if (InteractiveTriggerController.interactiveEntity.ContainsKey(levelId))
+            {
+                List<int> entitiesId = InteractiveTriggerController.GetSceneEntities(levelId);
+                for (int i = 0; i < entitiesId.Count; ++i)
+                {
+                    updateEntity.Add(interactiveEntity[entitiesId[i]]);
+                }
+                SetEntiesActive();
+            }
+
+            if (!isSchedule)
+            {
+                CallFiberSchedule();
+                isSchedule = true;
+            }
         }
 
-        #region Update Entity Active Per 30 Minutes
         static void CallFiberSchedule()
         {
             executionFiber.ScheduleOnInterval(SetEntiesActive, GetDurationTime(), 1800000);
@@ -152,13 +167,13 @@ namespace Zealot.Server.Rules
 
         public static void SetEntiesActive()
         {
-            for (int i = 0; i < interactiveEntity.Count; ++i)
+            for (int i = 0; i < updateEntity.Count; ++i)
             {
-                InteractiveGate mEntity = interactiveEntity[i];
+                InteractiveGate mEntity = updateEntity[i];
                 bool compare = CanActiveGameObject(mEntity);
                 mEntity.mPropertyInfos.activeObject = compare;
                 GameApplication.BroadcastInteractiveCount(mEntity.GetPersistentID(),
-                    mEntity.mPropertyInfos.canTrigger, compare, (int)mEntity.step);
+                    mEntity.canTrigger, compare, (int)mEntity.step);
             }
         }
 
@@ -167,6 +182,11 @@ namespace Zealot.Server.Rules
             ScenesModelJson sceneModel = ScenesModelRepo.GetScenesModelJson(mEntity.entityName);
             if (sceneModel == null)
                 return true;
+            
+            if (!sceneModel.activeonstartup)
+            {
+                return false;
+            }
 
             if (IsOpenTime(sceneModel.npcopentime, sceneModel.npcclosetime) && IsCycleTime(sceneModel.npccycletime))
                 return true;

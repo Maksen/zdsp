@@ -180,7 +180,7 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
                 FusionData_BagItem bagData = equip.GetComponent<FusionData_BagItem>();
                 List<string> equipEffect = EquipFusionController.DecodeEffect(equipData.FusionEffect);
                 List<string> equipStats = EquipFusionController.BuildEquipStats(equipData);
-                bagData.SetEquipStats(ClientUtils.LoadItemIcon(equipData.ItemID), equipStats[0], equipStats[1], equipStats[2], equipStats[3], equipEffect);
+                bagData.SetEquipStats(ClientUtils.LoadItemIcon(equipData.ItemID), equipStats[0], equipStats[1], equipStats[2], equipEffect);
             }
         } else
         {
@@ -196,7 +196,6 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
     {
         if (!compeletStep[0])
         {
-            //view you should select equipment before click this button
             return;
         }
         CloseElementalList();

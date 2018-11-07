@@ -601,7 +601,7 @@ namespace Zealot.Repository
             return json;
         }
 
-        public static LISATransformTierJson GetHighestLISATierInfoByLevel(int level)
+        public static int GetHighestLISATierByLevel(int level)
         {
             LISATransformTierJson highest = null;
             foreach (var entry in lisaTiers.Values)
@@ -609,7 +609,7 @@ namespace Zealot.Repository
                 if (highest == null || (level >= entry.reqlvl && entry.reqlvl > highest.reqlvl))
                     highest = entry;
             }
-            return highest;
+            return highest == null ? 1 : highest.tierid;
         }
 
         public static List<LISAExternalFunctionJson> GetExternalFunctionsByTriggerType(LISAFunctionTriggerType triggerType)

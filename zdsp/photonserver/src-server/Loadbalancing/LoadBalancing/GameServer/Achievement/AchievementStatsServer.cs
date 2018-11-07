@@ -937,14 +937,11 @@ namespace Photon.LoadBalancing.GameServer
 
             UpdateAchievement(AchievementObjectiveType.AchievementLevel, "-1", true, newLevel, false);
 
-            var highestTier = AchievementRepo.GetHighestLISATierInfoByLevel(newLevel);
-            if (highestTier != null)
-            {
-                if (HighestUnlockedTier > highestTier.tierid)
-                    HighestUnlockedTier = highestTier.tierid;
-                if (CurrentLISATier > highestTier.tierid)
-                    CurrentLISATier = highestTier.tierid;
-            }
+            var highestTier = AchievementRepo.GetHighestLISATierByLevel(newLevel);
+            if (HighestUnlockedTier > highestTier)
+                HighestUnlockedTier = highestTier;
+            if (CurrentLISATier > highestTier)
+                CurrentLISATier = highestTier;
         }
 
         public void ConsoleClearAchievementRewards()

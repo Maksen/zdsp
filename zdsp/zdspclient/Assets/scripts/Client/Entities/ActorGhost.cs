@@ -81,6 +81,11 @@ namespace Zealot.Client.Entities
 
             var data = GameConstantRepo.GetConstant(key);
 
+            if (data == null || data.Length < 1)
+            {
+                return null;
+            }
+
             var args = data.Split(',');
 
             int index = 0;
@@ -117,7 +122,7 @@ namespace Zealot.Client.Entities
             _isInLocalCombat = false;
             Radius = CombatUtils.DEFAULT_ACTOR_RADIUS;//todo: make sure this is same as server.
             ControlSE_Status = new Dictionary<string, bool>();
-            for (int i = 0; i < (int)EffectVisualTypes.NUM; ++i)
+            for (EffectVisualTypes i = 0; i < EffectVisualTypes.NUM; ++i)
             {
                 ControlSE_Status.Add(((EffectVisualTypes)i).ToString(), false);
             }
@@ -205,6 +210,9 @@ namespace Zealot.Client.Entities
 
                 var tstats = GetTransitionStats(t);
 
+                if (tstats == null)
+                    return;
+
                 var interp = mCharController.gameObject.AddComponent<ShaderPropertyInterpolate>();
                 interp.AddMaterial(loadedmat);
 
@@ -220,6 +228,9 @@ namespace Zealot.Client.Entities
             var removedname = applied_mat;
 
             var tstats = GetTransitionStats(t);
+
+            if (tstats == null)
+                return;
 
             var interp = mCharController.gameObject.AddComponent<ShaderPropertyInterpolate>();
             interp.Activate("_Height", 0.25f, 0.3f, true, removedname);
@@ -396,9 +407,9 @@ namespace Zealot.Client.Entities
             if (field == "VisualEffectTypes")
             {
                 //Debug.Log(System.Convert.ToString((int)value, 2));
-                for (EffectVisualTypes se = 0; se < EffectVisualTypes.NUM; ++se)
+                for (int se = 0, num = (int)EffectVisualTypes.NUM; se < num; ++se)
                 {
-                    UpdateControlStatusEffect(se, (int)value);
+                    UpdateControlStatusEffect((EffectVisualTypes)se, (int)value);
                 }
             }
             else if (field == "ElementalVisualSE")

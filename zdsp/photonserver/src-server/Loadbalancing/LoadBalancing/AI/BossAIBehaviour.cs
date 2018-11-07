@@ -13,7 +13,7 @@ namespace Zealot.Server.AI
     public class BossAIBehaviour : BaseAIBehaviour
     {
         public const int ROAM_COOLDOWN_TIME = 8000; //in msec
-        
+
         protected int mLastRoam;
         protected bool mCanRoam;        
         protected int mCurrentRoamCoolDown;
@@ -70,8 +70,7 @@ namespace Zealot.Server.AI
             AddState("CombatExecute", OnCombatExecuteEnter, OnCombatExecuteLeave, OnCombatExecuteUpdate); 
             AddState("Goback", OnGobackEnter, OnGobackLeave, OnGobackUpdate);
         }
-
-        
+  
         public override void StartMonitoring()
         {           
             InitAiConditions();
@@ -120,7 +119,7 @@ namespace Zealot.Server.AI
                 return;
             }
         }
-        
+
         protected override void OnIdleUpdate(long dt)
         {            
             if (mMonster.IsAggressive())
@@ -135,7 +134,7 @@ namespace Zealot.Server.AI
                     return;
                 }
             }
-            
+
             if (mCanRoam)
             {
                 mLastRoam += (int)dt;                                
@@ -153,7 +152,7 @@ namespace Zealot.Server.AI
                 }
             }
         }
-        
+
         #region Roam State
         protected virtual void OnRoamEnter(string prevstate)
         {
@@ -243,7 +242,7 @@ namespace Zealot.Server.AI
 
                 //Peter, TODO: basic attack also have cooldown and cooldown can differ for different monster    
                 //We will not check basic attack cooldown here to allow at least 1 skill and its range to refer to e.g. when approaching
-            }            
+            }
             
             SkillGroupJson skillgroupJson = mSkillToExecute.skillgroupJson;
 
@@ -282,6 +281,7 @@ namespace Zealot.Server.AI
             else 
                 return SkillRepo.GetSkill(mMonster.mArchetype.basicattack2);
         }
+
         protected void ApproachTarget()
         {
             //mHasMoved = true;
@@ -295,10 +295,9 @@ namespace Zealot.Server.AI
                 mMonster.ApproachTargetWithPathFind(mTarget.GetPersistentID(), null, mSkillRange - 0.5f, true, false); //-0.5f so that it does not toggle at bordercase
             else
                 mMonster.ApproachTarget(mTarget.GetPersistentID(), mSkillRange - 0.5f); //-0.5f so that it does not toggle at bordercase
-        }      
-                
+        }
 
-        #region Combat State        
+        #region Combat State
         protected override void OnCombatApproachEnter(string prevstate)
         {
             base.OnCombatApproachEnter(prevstate);
@@ -307,9 +306,9 @@ namespace Zealot.Server.AI
         }
 
         //protected override void OnCombatApproachLeave() {}
-        
+
         protected override void OnCombatApproachUpdate(long dt)
-        {            
+        {
             //Determine if target still valid
             if (!CheckTargetValid())
                 return;
@@ -331,7 +330,6 @@ namespace Zealot.Server.AI
             }
             else //Out of range, either idling or still approaching
             {
-                
                 if (action.mdbCommand.GetActionType() == ACTIONTYPE.IDLE && !mMonster.IsPerformingApproach() &&
                     !mMonster.HasControlStatus(ControlSEType.Root))
                 {
@@ -346,7 +344,7 @@ namespace Zealot.Server.AI
         protected override void OnCombatExecuteEnter(string prevstate)
         {
             //Normal monsters only have 1 normal attack. While boss can have additional skills of various range       
-            base.OnCombatExecuteEnter(prevstate);                
+            base.OnCombatExecuteEnter(prevstate);
             CastSkill();
         }
 
@@ -362,7 +360,7 @@ namespace Zealot.Server.AI
                     return;
 
                 //just finished last execution
-                DetermineSkillToExecute();                   
+                DetermineSkillToExecute();
 
                 if (IsTargetInRange())
                 {
@@ -403,7 +401,7 @@ namespace Zealot.Server.AI
                 canCast = /*!mMonster.HasControlStatus(ControlSEType.Disarmed) &&*/ !mMonster.HasControlStatus(ControlSEType.Stun);
                 if (canCast)
                 {
-                    mMonster.CastSkill(mSkillToExecute.skillgroupJson.id, mTarget.GetPersistentID(), mTarget.Position); 
+                    mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position); 
                 }
                 return;
             }
@@ -420,7 +418,7 @@ namespace Zealot.Server.AI
             }
             if (canCast && !IsSkillInCooldown(mSkillToExecute.skillJson.id, now))
             {
-                mMonster.CastSkill(mSkillToExecute.skillgroupJson.id, mTarget.GetPersistentID(), mTarget.Position);
+                mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position);
                 mSkillCDEndbyID[mSkillToExecute.skillJson.id] = now + (long)(mSkillToExecute.skillJson.cooldown * 1000);
                 mSkillGCDEnd = now + (long)(mSkillToExecute.skillJson.globalcd * 1000);
 
@@ -479,15 +477,14 @@ namespace Zealot.Server.AI
                 foreach (int pid in removeList)
                     mThreats.Remove(pid);
 
-                if (mTarget == null)                                    
-                    GotoState("Goback");                
-                else                                 
-                    GotoState("CombatApproach");                
+                if (mTarget == null)
+                    GotoState("Goback");
+                else
+                    GotoState("CombatApproach");
                 return false;
             }
             return true;
         }
-
 
         #region Goback State
 
@@ -511,8 +508,8 @@ namespace Zealot.Server.AI
             mThreats.Clear();
             SwitchTarget(null);
             mGoingBack = false;
-            if (mMonster.mInstance.HasCPUResourceToGoBack())            
-                GoBackToSafePoint();            
+            if (mMonster.mInstance.HasCPUResourceToGoBack())
+                GoBackToSafePoint();
         }        
 
         protected override void OnGobackUpdate(long dt)
@@ -536,7 +533,7 @@ namespace Zealot.Server.AI
                 GotoState("Idle");
             }
         }
-        #endregion        
+        #endregion
 
         #region Stun state
         protected override void OnStunEnter(string prevstate)
@@ -632,7 +629,7 @@ namespace Zealot.Server.AI
         public override void OnAttacked(IActor attacker, int aggro) //Only boss will attack target that is top of its aggro list
         {
             if (!OnNormalAIAttacked(attacker, aggro))
-                return;            
+                return;
         }
 
         public override void OnGroupAggro(IActor attacker, int aggro)
@@ -646,7 +643,7 @@ namespace Zealot.Server.AI
             mHighestThreatAttacker = null;
             mThreats.Clear();
         }
-                
+
         public override void OnUpdate(long dt)
         {
             base.OnUpdate(dt); 
@@ -751,7 +748,6 @@ namespace Zealot.Server.AI
             protected bool mTriggered = false;
             public NoneSpecifiedCondition(int idx, BossAIJson data, BossAIBehaviour target) :base(idx, data,target) 
             {
-                 
             }
 
             public override bool Update(long dt)
@@ -1014,6 +1010,6 @@ namespace Zealot.Server.AI
                 }   
                 return res;
             }
-        }       
-    }    
+        }
+    }
 }

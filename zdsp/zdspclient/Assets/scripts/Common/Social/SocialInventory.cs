@@ -69,6 +69,9 @@ namespace Zealot.Common
             MyListFull,
             PlayerNameNotFound,
             PlayerIdNotFound,
+            Blacked,
+            RemoveGoodFriendFirst,
+            PlayerCantBeSelf,
         }
 
         /// <summary>
@@ -110,7 +113,7 @@ namespace Zealot.Common
                 this.type = type;
             }
         }
-
+        
         public class SocialFriendList : JArrayNode<SocialFriend>
         {
             FriendType type;
@@ -148,9 +151,63 @@ namespace Zealot.Common
                         return true;
                 return false;
             }
+
+            public bool FindFriendByName(string name,out SocialFriend friend,out int index)
+            {
+                int c = Count;
+                for (int i=0;i<c;i++)
+                {
+                    friend = this[i];
+                    if (this[i].name==name)
+                    {
+                        index = i;
+                        return true;
+                    }
+                }
+                friend = new SocialFriend();
+                index = -1;
+                return false;
+            }
         }
 
-        public class SocialData : AdvancedLocalObjectData
+        public struct SocialFriendState
+        {
+            public readonly JToken node;
+            public SocialFriendState(JToken node)
+            {
+                this.node = node;
+            }
+
+            public bool online
+            {
+                get { return node["online"].Value<bool>(); }
+            }
+
+            public SocialFriendState(bool online)
+            {
+                node = new JObject();
+                node["online"] = new JValue(online);
+            }
+        }
+
+        public class SocialFriendStateList : JArrayNode<SocialFriendState>
+        {
+            protected override SocialFriendState GetNode(JToken token)
+            {
+                return new SocialFriendState(token);
+            }
+
+            protected override JToken GetToken(SocialFriendState node)
+            {
+                return node.node;
+            }
+
+            public SocialFriendStateList(JArray array, string path, AdvancedLocalObject obj) : base(array, path, obj)
+            {
+            }
+        }
+
+        public partial class SocialData : AdvancedLocalObjectData
         {
             void initFromRoot(JToken root, AdvancedLocalObject obj)
             {
@@ -159,6 +216,14 @@ namespace Zealot.Common
                 blackFriends = new SocialFriendList(FriendType.Black, NewIfNotExist(root, "blackFriends", NewArray), "blackFriends", obj);
                 requestFriends = new SocialFriendList(FriendType.Request, NewIfNotExist(root, "requestFriends", NewArray), "requestFriends", obj);
                 recommandFriends = new SocialFriendList(FriendType.Recommand, NewIfNotExist(root, "recommandFriends", NewArray), "recommandFriends", obj);
+                goodFriendStates = new SocialFriendStateList(NewIfNotExist(root, "goodFriendStates", NewArray), "goodFriendStates", obj);
+            }
+
+            protected override void OnSetDataUsage()
+            {
+                this.m_Records = new string[] { "goodFriends", "blackFriends", "requestFriends", "recommandFriends" };
+                this.m_ServerRecords = new string[] { "checkdate" };
+                this.m_States = new string[] { "goodFriendStates" };
             }
 
             /// <summary>
@@ -167,16 +232,18 @@ namespace Zealot.Common
             /// <param name="root"></param>
             public SocialData(SocialData data,AdvancedLocalObject obj) : base(obj,data.Root)
             {
-                //之後
+                //先暫時不要建立索引，因為目前還沒需要大量使用的時機
+                //doMap = true;
+                //allMap = new Dictionary<string, IndexInfo>();
+                //name2id = new Dictionary<string, string>();
                 data.AffectEntities.Add(this);
                 OnUpdateRootValue += () => { initFromRoot(m_Root, obj); };
                 UpdateRootValue();
             }
             public SocialData() : base(null, new JObject())
             {
+                doMap = false;
                 OnUpdateRootValue += () => { initFromRoot(m_Root, null); };
-                UpdateRootValue();
-
             }
             /// <summary>
             /// 給server端的Inventory使用
@@ -184,6 +251,7 @@ namespace Zealot.Common
             /// <param name="root"></param>
             public SocialData(JToken root) : base(null,root)
             {
+                doMap = false;
                 OnUpdateRootValue += () => { initFromRoot(m_Root, null); };
                 UpdateRootValue();
             }
@@ -192,6 +260,8 @@ namespace Zealot.Common
             public SocialFriendList blackFriends { get; private set; }
             public SocialFriendList requestFriends { get; private set; }
             public SocialFriendList recommandFriends { get; private set; }
+
+            public SocialFriendStateList goodFriendStates { get; private set; }
 
             public string checkdate { get { return GetValue<string>("checkdate"); } set { SetValueNoPatch("checkdate", value);  } }
 
@@ -231,7 +301,6 @@ namespace Zealot.Common
             {
                 switch (name)
                 {
-
                     case "goodFriends":
                         return FriendType.Good;
                     case "blackFriends":
@@ -261,6 +330,20 @@ namespace Zealot.Common
                 }
             }
 
+            struct IndexInfo
+            {
+                public FriendType type;
+                public int index;
+                public IndexInfo(FriendType type, int index)
+                {
+                    this.type = type;
+                    this.index = index;
+                }
+            }
+
+            private bool doMap=false;
+            private Dictionary<string, IndexInfo> allMap;
+            private Dictionary<string, string> name2id;
         }
     }
 

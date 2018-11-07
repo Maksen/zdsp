@@ -526,6 +526,7 @@ namespace Photon.LoadBalancing.GameServer
         public EquipFusionController mEquipFusionController;
         public QuestController QuestController { get; private set; }
         public DestinyClueController DestinyClueController { get; private set; }
+        public InteractiveTriggerController InteractiveTriggerController { get; private set; }
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -555,6 +556,8 @@ namespace Photon.LoadBalancing.GameServer
                             mEquipFusionController = new EquipFusionController(this);
                             QuestController = new QuestController(this);
                             DestinyClueController = new DestinyClueController(this);
+                            InteractiveTriggerController = new InteractiveTriggerController();
+                            InteractiveTriggerController.LoadSceneData();
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
@@ -2834,13 +2837,18 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            PowerUpJson nextPowerUp = PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)part, nextPartLevel);
-            if(nextPowerUp == null)
+            PowerUpJson powerUpData = PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)part, currPartLevel);
+            if(powerUpData == null)
+            {
+                return;
+            }
+
+            if(powerUpData.cost > mPlayer.SecondaryStats.Money)
             {
                 return;
             }
             
-            List<ItemInfo> useMatList = PowerUpRepo.GetPowerUpMaterialByPartsEffect((PowerUpPartsType)part, nextPartLevel);
+            List<ItemInfo> useMatList = PowerUpRepo.GetPowerUpMaterialByPartsEffect((PowerUpPartsType)part, currPartLevel);
             InvRetval result = mInventory.DeductItems(useMatList, "PowerUp");
             if(result.retCode == InvReturnCode.UseFailed)
             {
@@ -2848,6 +2856,8 @@ namespace Photon.LoadBalancing.GameServer
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_PowerUp_NotEnoughMaterials"), "", false, mPlayer.Slot);
                 return;
             }
+
+            mPlayer.DeductCurrency(CurrencyType.Money, powerUpData.cost, false, "PowerUpUseCurrency");
 
             characterData.PowerUpInventory.powerUpSlots[part] = nextPartLevel;
             mPlayer.PowerUpStats.powerUpSlots[part] = nextPartLevel;

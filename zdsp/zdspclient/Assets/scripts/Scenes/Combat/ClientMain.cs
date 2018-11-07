@@ -973,11 +973,28 @@ public partial class ClientMain : MonoBehaviour
                 UIManager.SetWidgetActive(HUDWidgetType.SelectTarget, true);
             }
 
+            //[Social] just for testing, modified future
+            var tool = GetComponent<SocialTestTool>();
+            if (tool == null)
+                tool = gameObject.AddComponent<SocialTestTool>();
+            //[Social] end
+
             //set player label
             if (entity.IsPlayer())
             {
                 PlayerGhost pg = entity as PlayerGhost;
                 pg.HeadLabel.mPlayerLabel.SetSelectedFieldPlayer();
+
+
+                //[Social] begin testing
+                tool.OpenOtherPlayerMenu(entity.Name);
+                //[Social] end
+            }
+            else
+            {
+                //[Social] begin testing
+                tool.CloseMenu();
+                //[Social] end
             }
         }
         else

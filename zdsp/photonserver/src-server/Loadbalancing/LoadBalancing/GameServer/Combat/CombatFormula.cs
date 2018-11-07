@@ -579,7 +579,7 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
 
             float roll = (float)GameUtils.GetRandomGenerator().NextDouble() * 100f;
 
-            return roll < rate;
+            return roll > rate;
         }
 
         public static bool IsEvade(IActor attacker, IActor defender, string debugKey)

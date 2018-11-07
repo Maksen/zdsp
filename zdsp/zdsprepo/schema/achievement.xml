@@ -208,7 +208,8 @@
       <property name="modeltype" type="LISAModelType" uitext="Model Type"/>
       <property name="modelpath" type="asset" uitext="Avatar Path" default="" assettype="prefab"/>
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
-      <property name="posinui" type="string" uitext="Position In UI" default="0;0;0;1" info="x;y;rotatey;scale"/>
+      <property name="mainuipos" type="string" uitext="Main UI Position" default="0;0;0;1" info="x;y;rotatey;scale"/>
+      <property name="previewpos" type="string" uitext="Preview Position" default="0;0;0;1" info="x;y;rotatey;scale"/>
     </element>
 
     <enum name="LISAFunctionTriggerType">

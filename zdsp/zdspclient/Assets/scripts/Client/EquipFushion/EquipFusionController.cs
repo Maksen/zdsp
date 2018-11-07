@@ -24,11 +24,10 @@ public class EquipFusionController
     {
         List<string> lis = new List<string>();
         lis.Add(equip.GetEquipmentName());
-        lis.Add(equip.UpgradeLevel.ToString());
         StringBuilder st = new StringBuilder("+");
-        st.Append(equip.ReformStep);
+        st.Append(equip.UpgradeLevel.ToString());
         lis.Add(st.ToString());
-        lis.Add("階");
+        lis.Add(equip.ReformStep.ToString());
         return lis;
     }
 
@@ -62,8 +61,8 @@ public class EquipFusionController
                 int order = i * 2;
                 int rarity = EquipFusionRepo.GetEffectRarity(int.Parse(effectGroup[i * 3]));
                 string color = ItemUtils.GetStrColorByRarity((ItemRarity)rarity);
-                lis[order] = string.Format("<color={0}>{1}</color>", color, lis[order]);
-                lis[order + 1] = string.Format("<color={0}>{1}</color>", color, lis[order + 1]);
+                lis[order] = (lis[order] == string.Empty) ? string.Empty : string.Format("<color={0}>{1}</color>", color, lis[order]);
+                lis[order + 1] = (lis[order + 1] == string.Empty) ? string.Empty : string.Format("<color={0}>{1}</color>", color, lis[order + 1]);
             }
         }
         return lis;

@@ -336,20 +336,51 @@ namespace Zealot.RPC
 
         #region Social
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialOnOpenFriendsMenu)]
-        public void Ret_SocialOnOpenFriendsMenu(object target)
+        public void Ret_SocialOnOpenFriendsMenu(int resultCode, object target)
         {
-            ProxyMethod("Ret_SocialOnOpenFriendsMenu", target);
+            ProxyMethod("Ret_SocialOnOpenFriendsMenu", resultCode, target);
         }
-        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequestByName)]
-        public void Ret_SocialRaiseRequestByName(int resultCode, object target)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequest)]
+        public void Ret_SocialRaiseRequest(int resultCode, object target)
         {
-            ProxyMethod("Ret_SocialRaiseRequestByName", resultCode, target);
+            ProxyMethod("Ret_SocialRaiseRequest", resultCode, target);
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptRequest)]
         public void Ret_SocialAcceptRequest(int resultCode, object target)
         {
             ProxyMethod("Ret_SocialAcceptRequest", resultCode, target);
         }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptAllRequest)]
+        public void Ret_SocialAcceptAllRequest(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialAcceptAllRequest", resultCode, target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRejectRequest)]
+        public void Ret_SocialRejectRequest(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialRejectRequest", resultCode, target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRejectAllRequest)]
+        public void Ret_SocialRejectAllRequest(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialRejectAllRequest", resultCode, target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAddBlack)]
+        public void Ret_SocialAddBlack(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialAddBlack", resultCode, target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveBlack)]
+        public void Ret_SocialRemoveBlack(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialRemoveBlack", resultCode, target);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveGood)]
+        public void Ret_SocialRemoveGood(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialRemoveGood", resultCode, target);
+        }
+
         #endregion
     }
 }
@@ -1651,23 +1682,58 @@ namespace Photon.LoadBalancing.GameServer
         #region Social
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialOnOpenFriendsMenu)]
-        public async Task SocialOnOpenFriendsMenu(GameClientPeer peer)
+        public void SocialOnOpenFriendsMenu(GameClientPeer peer)
         {
-            await peer.SocialOnOpenFriendsMenu();
+            peer.mSocialController.SocialOnOpenFriendsMenu();
         }
-        
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequestByName)]
-        public async Task SocialRaiseRequestByName(string friendName, GameClientPeer peer)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequest)]
+        public void SocialRaiseRequest(string friendName, GameClientPeer peer)
         {
-            await peer.SocialRaiseRequestByName(friendName);
+            peer.mSocialController.SocialRaiseRequest(friendName);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptRequest)]
-        public async Task SocialAcceptRequest(int index, GameClientPeer peer)
+        public void SocialAcceptRequest(string friendName, GameClientPeer peer)
         {
-            await peer.SocialAcceptRequest(index);
+            peer.mSocialController.SocialAcceptRequest(friendName);
         }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptAllRequest)]
+        public void SocialAcceptAllRequest(GameClientPeer peer)
+        {
+            peer.mSocialController.SocialAcceptAllRequest();
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRejectRequest)]
+        public void SocialRejectRequest(string friendName,GameClientPeer peer)
+        {
+            peer.mSocialController.SocialRejectRequest(friendName);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRejectAllRequest)]
+        public void SocialRejectAllRequest( GameClientPeer peer)
+        {
+            peer.mSocialController.SocialRejectAllRequest();
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAddBlack)]
+        public void SocialAddBlack(string friendName, GameClientPeer peer)
+        {
+            peer.mSocialController.SocialAddBlack(friendName);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRemoveBlack)]
+        public void SocialRemoveBlack(string friendName, GameClientPeer peer)
+        {
+            peer.mSocialController.SocialRemoveBlack(friendName);
+        }
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRemoveGood)]
+        public void SocialRemoveGood(string friendName, GameClientPeer peer)
+        {
+            peer.mSocialController.SocialRemoveGood(friendName);
+        }
+        
         #endregion
     }
 }

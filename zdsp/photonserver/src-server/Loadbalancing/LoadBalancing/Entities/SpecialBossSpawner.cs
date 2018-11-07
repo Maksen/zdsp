@@ -65,7 +65,11 @@ namespace Zealot.Server.Entities
             monster.Position = mPositionHelperData.position;
             monster.Forward = mPropertyInfos.forward;
             monster.Init(this);
-            monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
+            MonsterType monsterType = mArchetype.monstertype;
+            if (monsterType == MonsterType.Normal)
+                monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
+            else if (monsterType == MonsterType.MiniBoss || monsterType == MonsterType.Boss)
+                monster.SetAIBehaviour(new BossAIBehaviour(monster));
             maChildren.Add(monster);
         }
 

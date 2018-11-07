@@ -77,8 +77,6 @@ namespace Zealot.Entities
         [DefaultValue(true)]
         public bool activeObject;
         [DefaultValue(true)]
-        public bool canTrigger;
-        [DefaultValue(true)]
         public bool activeOnStartup { get; set; }
         [DefaultValue("")]
         public string archetype { get; set; }

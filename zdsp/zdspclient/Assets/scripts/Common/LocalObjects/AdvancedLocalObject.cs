@@ -6,6 +6,7 @@ using Zealot.DebugTools;
 using System;
 using System.Text;
 using System.Collections;
+using System.Reflection;
 
 namespace Zealot.DebugTools
 {
@@ -20,12 +21,30 @@ namespace Zealot.DebugTools
 #endif
         }
 
+        public static void PrintFormat(string format ,params object[] param)
+        {
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogFormat(format, param);
+#else
+            Console.WriteLine(format, param);
+#endif
+        }
+
         public static void Error(object value)
         {
 #if UNITY_EDITOR
             UnityEngine.Debug.LogError(value);
 #else
             Console.WriteLine("[Error]: "+value);
+#endif
+        }
+
+        public static void ErrorFormat(string format, params object[] param)
+        {
+#if UNITY_EDITOR
+            UnityEngine.Debug.LogErrorFormat(format, param);
+#else
+            Console.WriteLine(format, param);
 #endif
         }
     }
@@ -45,85 +64,85 @@ namespace Zealot.Common.Datablock
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, short value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, long value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, ulong value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, string value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, float value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, double value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, char value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, DateTime value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, DateTimeOffset value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, TimeSpan value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, bool value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, decimal value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         public static void SetObjectValue(this JObject obj, AdvancedLocalObject localObj, string path, string name, object value)
         {
             obj[name] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "." + name, value);
+                localObj.PatchAddValue(path , name, value);
         }
         #endregion
 
@@ -133,85 +152,85 @@ namespace Zealot.Common.Datablock
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, short value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, long value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, ulong value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, string value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, float value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, double value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, char value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, DateTime value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, DateTimeOffset value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, TimeSpan value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, bool value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, decimal value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         public static void SetArrayValue(this JArray array, AdvancedLocalObject localObj, string path, int index, object value)
         {
             array[index] = new JValue(value);
             if (localObj != null)
-                localObj.PatchUpdateValue(path + "[" + index + "]", value);
+                localObj.PatchAddValue(path ,index.ToString(), value);
         }
         #endregion
     }
@@ -224,18 +243,52 @@ namespace Zealot.Common.Datablock
     {
         protected AdvancedLocalObject m_Obj;
         protected JToken m_Root;
+        protected string[] m_Records;
+        protected string[] m_States;
+        protected string[] m_ServerRecords;
+
+        public JToken BuildRecords()
+        {
+            JObject data = new JObject();
+            if(m_Records!=null)
+                foreach(var item in m_Records)
+                    data.Add(item, m_Root[item].DeepClone());
+
+            if (m_ServerRecords != null)
+                foreach (var item in m_ServerRecords)
+                    data.Add(item, m_Root[item].DeepClone());
+
+            return data;
+        }
+
+        public void PatchToClient()
+        {
+            if (m_Records != null)
+                foreach (var item in m_Records)
+                    m_Obj.PatchKey(item);
+
+            if (m_States != null)
+                foreach (var item in m_States)
+                    m_Obj.PatchKey(item);
+        }
+
         protected AdvancedLocalObjectData(AdvancedLocalObject obj)
         {
             AffectEntities = new List<AdvancedLocalObjectData>(2);
             m_Obj = obj;
             m_Root = obj.Root;
+            OnSetDataUsage();
         }
         protected AdvancedLocalObjectData(AdvancedLocalObject obj, JToken root)
         {
             AffectEntities = new List<AdvancedLocalObjectData>(2);
             m_Obj = obj;
             m_Root = root;
+            OnSetDataUsage();
         }
+
+        protected abstract void OnSetDataUsage();
+
         public JToken Root { get { return m_Root; } }
         public AdvancedLocalObject Object { get { return m_Obj; } }
 
@@ -246,8 +299,10 @@ namespace Zealot.Common.Datablock
 
         public event Action OnUpdateRootValue;
 
-        public void UpdateRootValue()
+        public void UpdateRootValue(JToken root=null)
         {
+            if (root != null)
+                m_Root = root;
             OnUpdateRootValue();
         }
 
@@ -355,88 +410,88 @@ namespace Zealot.Common.Datablock
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, short value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, long value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, ulong value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, string value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, float value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, double value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
 
         public void SetValue(string name, char value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
 
         public void SetValue(string name, DateTime value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
 
         public void SetValue(string name, DateTimeOffset value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, TimeSpan value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, bool value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, decimal value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         public void SetValue(string name, object value)
         {
             m_Root[name] = new JValue(value);
             if (m_Obj != null)
-                m_Obj.PatchUpdateValue(name, value);
+                m_Obj.PatchAddValue(string.Empty, name, value);
         }
         #endregion
 
@@ -461,6 +516,25 @@ namespace Zealot.Common.Datablock
             }
             return item;
         }
+
+
+        public static void PathCapture_ElementOfArray(string path, Action<string, int> array_update, Action<string> other_update)
+        {
+            int l = path.LastIndexOf('[');
+            int r = path.LastIndexOf(']');
+            if (r == path.Length - 1 && l >= 0 && l < r)
+            {
+                int index;
+                if (int.TryParse(path.Substring(l + 1, r - l - 1), out index) && index >= 0)
+                {
+                    string name = path.Substring(0, l);
+                    if (array_update != null)
+                        array_update(name, index);
+                }
+            }
+            else if (other_update != null)
+                other_update(path);
+        }
     }
 
     /// <summary>
@@ -476,7 +550,7 @@ namespace Zealot.Common.Datablock
         public enum MessageType : ushort
         {
             /// <summary>
-            /// 如果路徑上的節點是陣列或者物件，新增資料至路徑上的節點
+            /// 如果路徑上的節點是陣列或者物件，新增資料至路徑上的節點，如果已經有該索引值，則更新資料
             /// </summary>
             Add = 'a',
             /// <summary>
@@ -492,12 +566,68 @@ namespace Zealot.Common.Datablock
             /// </summary>
             Clear = 'c',
             /// <summary>
+            /// 根據清單內的資料移除路徑上的節點
+            /// </summary>
+            RemoveList = 'l',
+            /// <summary>
             /// 傳送事件給另一個端點，目前只能使用在server傳送訊息給client
             /// </summary>
             Event = 'e',
         }
-
+        protected string m_Tag=string.Empty;
         protected bool m_IsServer;
+        protected bool m_DebugMode = false;
+
+
+        private List<MethodInfo> m_RefreshPropList = new List<MethodInfo>();
+        protected Dictionary<string, NoticeRefreshNode> m_RefreshList = new Dictionary<string, NoticeRefreshNode>();
+
+        protected virtual object OnGetRootData() { return this; }
+        protected virtual Type OnGetRootDataType() { return this.GetType(); }
+
+        private void GetRefreshList()
+        {
+            Type type = OnGetRootDataType();
+            var props = type.GetProperties();
+            foreach (var prop in props)
+            {
+                if (typeof(NoticeRefreshNode).IsAssignableFrom(prop.PropertyType))
+                    m_RefreshPropList.Add(prop.GetGetMethod());
+            }
+
+        }
+
+        private void RefreshUpdatedNode(string path, JToken newNode)
+        {
+            if (m_RefreshPropList.Count > 0)
+            {
+                List<MethodInfo> toSave = new List<MethodInfo>(m_RefreshPropList.Count);
+                for (int i = 0; i < m_RefreshPropList.Count; i++)
+                {
+                    NoticeRefreshNode node = (NoticeRefreshNode)m_RefreshPropList[i].Invoke(OnGetRootData(), null);
+                    if (node != null)
+                    {
+                        if(m_DebugMode)
+                            DebugTool.PrintFormat("[AdvancedLocalObject] method:'RefreshUpdatedNode' section:'m_RefreshList.Add' node.Path:'{0}'", node.Path);
+                        m_RefreshList.Add(node.Path, node);
+                    }
+                    else
+                        toSave.Add(m_RefreshPropList[i]);
+                }
+                m_RefreshPropList.Clear();
+                m_RefreshPropList.AddRange(toSave);
+            }
+            {
+                NoticeRefreshNode node;
+                if (m_RefreshList.TryGetValue(path, out node))
+                {
+                    if (m_DebugMode)
+                        DebugTool.PrintFormat("[AdvancedLocalObject] method:'RefreshUpdatedNode' section:'OnRefresh' node.Path:'{0}'", node.Path);
+                    node.OnRefresh(newNode);
+                }
+            }
+        }
+
 
         public static bool Parse(string time, out DateTime t, string format= DateTimeFormat_Day)
         {
@@ -566,25 +696,84 @@ namespace Zealot.Common.Datablock
             Root = new JObject();
             pack = new StringBuilder();
             wrapBuilder = new StringBuilder();
+
+            GetRefreshList();
         }
+
+        public static int[] List_S2I(string[] indices)
+        {
+            List<int> i_indices = new List<int>(indices.Length);
+            for (int i = 0; i < indices.Length; i++)
+            {
+                int index;
+                if (int.TryParse(indices[i], out index))
+                    i_indices.Add(index);
+            }
+            return i_indices.ToArray();
+        }
+        public static string[] List_I2S(int[] indices)
+        {
+            string[] s_indices = new string[indices.Length];
+            for (int i = 0; i < s_indices.Length; i++)
+                s_indices[i] = indices[i].ToString();
+            return s_indices;
+        }
+
+        public static void RemoveArrayNodesFromList(JArray array, int[] indices)
+        {
+            List<JToken> toSave = new List<JToken>(array.Count);
+            Array.Sort(indices);
+            for (int i = 0; i < array.Count; i++)
+            {
+                int index = Array.BinarySearch(indices, i);
+                if (index < 0)
+                    toSave.Add(array[i]);
+            }
+
+            array.Clear();
+            for (int i = 0; i < toSave.Count; i++)
+                array.Add(toSave[i]);
+        }
+
+
+        public static JToken JsonFilter(JToken root, string[] except)
+        {
+            if (except != null && except.Length > 0 && root.Type == JTokenType.Object)
+            {
+                JObject obj = root.DeepClone() as JObject;
+                foreach (var item in except)
+                    obj.Remove(item);
+                root = obj;
+            }
+            return root;
+        }
+
         /// <summary>
         /// 從根結點更新整塊資料
         /// </summary>
         public void PatchFull()
         {
-            JToken root=Root;
-            if (NotPatchedItem != null && NotPatchedItem.Length > 0)
-            {
-                JObject obj= JsonConvert.DeserializeObject<JToken>( Root.ToString(Formatting.None)) as JObject;
-                if(obj!=null)
-                {
-                    foreach (var item in NotPatchedItem)
-                        obj.Remove(item);
-                    root = obj;
-                }
-            }
-            PatchUpdateValue("", root);
+            PatchUpdateValue("", JsonFilter(Root, NotPatchedItem));
         }
+
+        /// <summary>
+        /// 從路徑節點更新資料
+        /// 注意,此方式必須對方資料也有該節點
+        /// </summary>
+        public void PatchPath(string path)
+        {
+            PatchUpdateValue(path, Root.SelectToken(path));
+        }
+
+        /// <summary>
+        /// 從第一層的子節點更新資料
+        /// </summary>
+        public void PatchKey(string key)
+        {
+            PatchAddValue(string.Empty, key, ((JObject)Root)[key]);
+        }
+
+
         /// <summary>
         /// 取得節點資料
         /// </summary>
@@ -654,6 +843,17 @@ namespace Zealot.Common.Datablock
         }
 
         /// <summary>
+        /// 移除清單
+        /// </summary>
+        /// <param name="path">路徑</param>
+        /// <param name="patch">是否更新至另一個端點</param>
+        public void PathRemoveList(string path, string[] indices, bool patch)
+        {
+            RemoveList(path, indices);
+            if (patch)
+                PatchRemoveList(path, indices);
+        }
+        /// <summary>
         /// 移除節點資料
         /// </summary>
         /// <param name="path">路徑</param>
@@ -665,7 +865,7 @@ namespace Zealot.Common.Datablock
                 PatchRemoveValue(path);
         }
         /// <summary>
-        /// 更新節點資料
+        /// 更新已存在的節點資料
         /// </summary>
         /// <typeparam name="T">資料型別</typeparam>
         /// <param name="path">路徑</param>
@@ -733,7 +933,6 @@ namespace Zealot.Common.Datablock
             }
             string str, type; ToStringAndType(value, out str, out type);
             pack.AppendLine("a|" + WrapValue(path) + "|" + str + "|" + type + "|" + WrapValue(key));
-
         }
         /// <summary>
         /// 傳送更新資料指令至另一個端點
@@ -772,6 +971,33 @@ namespace Zealot.Common.Datablock
         }
 
         /// <summary>
+        /// 傳送移除清單資料指令至另一個端點
+        /// </summary>
+        /// <param name="path"></param>
+        public void PatchRemoveList(string path,string[] properties)
+        {
+            if (!m_IsServer)
+                return;
+            if (!bMyDirty)
+            {
+                pack.Length = 0;
+                bMyDirty = true;
+                SetDirty();
+            }
+
+            StringBuilder sb = new StringBuilder(128);
+            for (int i = 0; i < properties.Length; i++)
+            {
+                if (i > 0)
+                    sb.Append("," + properties[i]);
+                else
+                    sb.Append(properties[0]);
+            }
+
+            pack.AppendLine("l|" + WrapValue(path) + "|" + WrapValue(sb.ToString()));
+        }
+
+        /// <summary>
         /// 傳送清除資料指令至另一個端點
         /// </summary>
         /// <param name="path"></param>
@@ -792,8 +1018,9 @@ namespace Zealot.Common.Datablock
         /// 傳遞事件
         /// </summary>
         /// <param name="path"></param>
+        /// <param name="eventName"></param>
         /// <param name="param"></param>
-        public void PatchEvent(string path, string param)
+        public void PatchEvent(string path,string eventName, string param)
         {
             if (!bMyDirty)
             {
@@ -801,7 +1028,7 @@ namespace Zealot.Common.Datablock
                 bMyDirty = true;
                 SetDirty();
             }
-            pack.AppendLine("e|" + WrapValue(path) + "|" + WrapValue(param));
+            pack.AppendLine("e|" + WrapValue(path) + "|" + WrapValue(eventName) + "|" + WrapValue(param));
         }
 
         private void ClearPath(string path)
@@ -821,19 +1048,52 @@ namespace Zealot.Common.Datablock
             
         }
 
+        private void RemoveList(string path, string[] indices)
+        {
+            JToken token = Root.SelectToken(path);
+            if (token != null)
+            {
+                if (token.Type == JTokenType.Object)
+                {
+                    JObject o = (token as JObject);
+                    for (int i = 0; i < indices.Length; i++)
+                        o.Remove(indices[i]);
+                }
+                else if (token.Type == JTokenType.Array)
+                {
+                    JArray arr = (token as JArray);
+                    RemoveArrayNodesFromList(arr, List_S2I(indices));
+                }
+            }
+        }
+
         private void UpdatePath(string path, string value, string type, string key)
         {
             JToken token = Root.SelectToken(path);
             if (token != null)
             {
+                //Remove
                 if (type==null)
                 {
-                    token.Remove();
+                    var parent = token.Parent;
+                    if (parent != null)
+                    {
+                        if (parent.Type == JTokenType.Array)
+                            token.Remove();
+                        else if (parent.Type == JTokenType.Property)
+                            parent.Remove();//remove must from JProperty
+                        else if (parent.Type == JTokenType.Object)
+                            token.Remove();
+                        else
+                            DebugTool.ErrorFormat("[AdvancedLocalObject] msg:'Remove failed' path:'{0}' reason:'parent type is {1}'",path, parent.Type);
+                    }
+                    else
+                        DebugTool.ErrorFormat("[AdvancedLocalObject] msg:'Remove failed' path:'{0}' reason:'parent is null'", path);
                     return;
                 }
 
                 JToken node = null;
-
+                //deserialize
                 switch (type)
                 {
                     case "String":
@@ -940,17 +1200,26 @@ namespace Zealot.Common.Datablock
 
                 if (node != null)
                 {
+                    //replace
                     if (key==null)
                     {
                         if (string.IsNullOrEmpty(path))
+                        {
                             Root = node;
+                            RefreshUpdatedNode(string.Empty, node);
+                        }
                         else
+                        {
                             token.Replace(node);
+                            RefreshUpdatedNode(path, Root.SelectToken(path));
+                        }
                     }
+                    //object[key]=value
                     else if (token.Type == JTokenType.Object)
                     {
                         (token as JObject)[key] = node;
                     }
+                    //array[index]=value
                     else if (token.Type == JTokenType.Array)
                     {
                         JArray arr = token as JArray;
@@ -981,6 +1250,7 @@ namespace Zealot.Common.Datablock
         StringBuilder wrapBuilder;
 
         readonly static char[] sp = new char[] { '|' };
+        readonly static char[] sp2 = new char[] { ',' };
         void unpack(string msgs)
         {
             int index = 0;
@@ -1000,27 +1270,34 @@ namespace Zealot.Common.Datablock
                     switch (op)
                     {
                         case  MessageType.Add:
-                            BeforePacth(i, op, path);
-                            UpdatePath(path, UnwrapValue(items[2]), UnwrapValue(items[3]), UnwrapValue(items[4]));
-                            AfterPacth(i, op, path);
+                            string key = UnwrapValue(items[4]);
+                            BeforePacth(i, op, path, key);
+                            UpdatePath(path, UnwrapValue(items[2]), UnwrapValue(items[3]), key);
+                            AfterPacth(i, op, path, key);
                             break;
                         case MessageType.Update:
-                            BeforePacth(i, op, path);
+                            BeforePacth(i, op, path,null);
                             UpdatePath(path, UnwrapValue(items[2]), UnwrapValue(items[3]), null);
-                            AfterPacth(i, op, path);
+                            AfterPacth(i, op, path, null);
                             break;
                         case MessageType.Remove:
-                            BeforePacth(i, op, path);
+                            BeforePacth(i, op, path,null);
                             UpdatePath(path, null, null, null);
-                            AfterPacth(i, op, path);
+                            AfterPacth(i, op, path, null);
                             break;
                         case MessageType.Clear:
-                            BeforePacth(i, op, path);
+                            BeforePacth(i, op, path,null);
                             ClearPath(path);
-                            AfterPacth(i, op, path);
+                            AfterPacth(i, op, path, null);
+                            break;
+                        case MessageType.RemoveList:
+                            string[] indices = UnwrapValue(items[2]).Split(sp2, StringSplitOptions.RemoveEmptyEntries);
+                            BeforePacth(i, op, path, indices);
+                            RemoveList(path, indices);
+                            AfterPacth(i, op, path, indices);
                             break;
                         case MessageType.Event:
-                            OnEvent(i, path, UnwrapValue(items[2]));
+                            OnEvent(i, path, UnwrapValue(items[2]), UnwrapValue(items[3]));
                             break;
                     }
 
@@ -1121,7 +1398,7 @@ namespace Zealot.Common.Datablock
         /// <param name="cmdIndex">第幾個更新指令</param>
         /// <param name="op">指令的類型</param>
         /// <param name="path">資料的路徑</param>
-        public virtual void BeforePacth(int cmdIndex, MessageType op, string path)
+        public virtual void BeforePacth(int cmdIndex, MessageType op, string path,object key)
         {
 
         }
@@ -1132,7 +1409,7 @@ namespace Zealot.Common.Datablock
         /// <param name="cmdIndex">第幾個更新指令</param>
         /// <param name="op">指令的類型</param>
         /// <param name="path">資料的路徑</param>
-        public virtual void AfterPacth(int cmdIndex, MessageType op, string path)
+        public virtual void AfterPacth(int cmdIndex, MessageType op, string path,object key)
         {
 
         }
@@ -1143,7 +1420,7 @@ namespace Zealot.Common.Datablock
         /// <param name="index">第幾個更新指令</param>
         /// <param name="path">資料的路徑</param>
         /// <param name="param">事件參數</param>
-        public virtual void OnEvent(int index, string path, string param)
+        public virtual void OnEvent(int index, string path,string eventName, string param)
         {
         }
 
@@ -1152,9 +1429,11 @@ namespace Zealot.Common.Datablock
             get { return pack.ToString(); }
             set
             {
-                DebugTool.Error("(這個不是錯誤只是用來提醒) on set msg:" + value);
+                if(m_DebugMode)
+                    DebugTool.Print("["+ m_Tag + "] msg: "+value);
                 unpack(value);
-                DebugTool.Print("Root:\n"+Root);
+                if (m_DebugMode)
+                    DebugTool.Print("[" + m_Tag + "] Updated:\n" + Root.ToString());
             }
         }
 
@@ -1174,36 +1453,203 @@ namespace Zealot.Common.Datablock
 
         bool bMyDirty = false;
 
+    }
 
-        public static void PathCapture_ElementOfArray(string path,Action<string,int> array_update,Action<string> other_update)
+    public interface NoticeRefreshNode
+    {
+        string Path { get; }
+        void OnRefresh(JToken newNode);
+    }
+
+    public abstract class JNode: NoticeRefreshNode
+    {
+        protected AdvancedLocalObject save_obj;
+        protected AdvancedLocalObject obj;
+        public AdvancedLocalObject LocalObject { get { return obj; } }
+
+        protected string path;
+        public virtual string Path { get { return path; } }
+        public abstract void OnRefresh(JToken newNode);
+
+        public void StopPatch() { obj = null; }
+        public void ResumePatch() { obj = save_obj; }
+        public void PatchFull()
         {
-            int l = path.LastIndexOf('[');
-            int r = path.LastIndexOf(']');
-            if (r == path.Length - 1 && l >= 0 && l < r)
-            {
-                int index;
-                if (int.TryParse(path.Substring(l + 1, r - l - 1), out index) && index >= 0)
-                {
-                    string name = path.Substring(0, l);
-                    if (array_update != null)
-                        array_update(name, index);
-                }
-            }
-            else if(other_update!=null)
-                other_update(path);
+            if (obj != null)
+                obj.PatchPath(Path);
         }
     }
 
-    public abstract class JArrayNode<T>:IEnumerable<T>
+    public abstract class JDictionaryNode<T> : JNode, IDictionary<string, T>
     {
-        private AdvancedLocalObject obj;
-        private string path;
-        private JArray array;
-
-        public string Path { get { return path; } }
+        protected JObject dic;
+        public override void OnRefresh(JToken newNode) { dic = newNode as JObject; }
 
         protected abstract JToken GetToken(T node);
         protected abstract T GetNode(JToken token);
+
+        public JDictionaryNode(JObject dic, string path, AdvancedLocalObject obj)
+        {
+            this.dic = dic;
+            this.path = path;
+            this.obj = obj;
+            this.save_obj = obj;
+        }
+       
+
+        public T this[string key]
+        {
+            get { return GetNode(dic[key]); }
+            set {
+                var token = GetToken(value);
+                dic[key] = token;
+                if (obj != null)
+                    obj.PatchAddValue(path, key, token);
+            }
+        }
+
+        public ICollection<string> Keys
+        {
+            get
+            {
+                string[] keys = new string[dic.Count];
+                int i = 0;
+                foreach (var item in dic)
+                    keys[i++] = item.Key;
+                return keys;
+            }
+        }
+
+        public ICollection<T> Values
+        {
+            get
+            {
+                T[] values = new T[dic.Count];
+                int i = 0;
+                foreach (var item in dic)
+                    values[i++] = GetNode( item.Value);
+                return values;
+            }
+        }
+
+        public int Count { get { return dic.Count; } }
+
+        public bool IsReadOnly { get { return false; } }
+
+        public void Add(string key, T value)
+        {
+            var token = GetToken(value);
+            dic.Add(key, token);
+            if (obj != null)
+                obj.PatchAddValue(path, key, token);
+        }
+
+        public void Add(KeyValuePair<string, T> item)
+        {
+            var token = GetToken(item.Value);
+            dic.Add(item.Key, token);
+            if (obj != null)
+                obj.PatchAddValue(path, item.Key, token);
+        }
+
+        public void Clear()
+        {
+            dic.RemoveAll();
+            if (obj != null)
+                obj.PatchClearValue(path);
+        }
+
+        public bool Contains(KeyValuePair<string, T> item)
+        {
+            JToken token;
+            if(dic.TryGetValue(item.Key, out token))
+            {
+                if (GetToken(item.Value) == token)
+                    return true;
+            }
+            return false;
+        }
+
+        public bool ContainsKey(string key)
+        {
+            JToken token;
+            return dic.TryGetValue(key, out token);
+        }
+
+        public void CopyTo(KeyValuePair<string, T>[] array, int arrayIndex)
+        {
+            foreach(var item in dic)
+            {
+                array[arrayIndex] = new KeyValuePair<string, T>(item.Key, GetNode(item.Value));
+                arrayIndex++;
+            }
+        }
+
+        public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
+        {
+            foreach (var item in dic)
+                yield return new KeyValuePair<string, T>(item.Key, GetNode(item.Value));
+        }
+
+        public bool Remove(string key)
+        {
+            bool b= dic.Remove(key);
+            if (b && obj != null)
+                obj.PatchRemoveValue(path + "." + key);
+            return b;
+        }
+
+        public bool Remove(KeyValuePair<string, T> item)
+        {
+            JToken token;
+            if(dic.TryGetValue(item.Key,out token))
+            {
+                if (GetToken(item.Value) == token)
+                {
+                    dic.Remove(item.Key);
+
+                    if (obj != null)
+                        obj.PatchRemoveValue(path + "." + item.Key);
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryGetValue(string key, out T value)
+        {
+            JToken token;
+            if (dic.TryGetValue(key, out token))
+            {
+                value = GetNode(token);
+                return true;
+            }
+            value = default(T);
+            return false;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+    }
+
+    public abstract class JArrayNode<T>: JNode, IEnumerable<T>, NoticeRefreshNode
+    {
+        private JArray array;
+        public override void OnRefresh(JToken newNode) { array = newNode as JArray; }
+
+        protected abstract JToken GetToken(T node);
+        protected abstract T GetNode(JToken token);
+
+        public JArrayNode(JArray array, string path, AdvancedLocalObject obj)
+        {
+            this.array = array;
+            this.path = path;
+            this.obj = obj;
+            this.save_obj = obj;
+        }
 
         public void Clear()
         {
@@ -1214,9 +1660,10 @@ namespace Zealot.Common.Datablock
 
         public void Add(T node)
         {
-            array.Add(GetToken(node));
+            var token = GetToken(node);
+            array.Add(token);
             if (obj != null)
-                obj.PatchAddValue(path, string.Empty, GetToken(node));
+                obj.PatchAddValue(path, string.Empty, token);
         }
 
         public void RemoveAt(int index)
@@ -1224,6 +1671,14 @@ namespace Zealot.Common.Datablock
             array.RemoveAt(index);
             if (obj != null)
                 obj.PatchRemoveValue(path + "[" + index + "]");
+        }
+
+        public void RemoveList(int[] indices)
+        {
+            AdvancedLocalObject.RemoveArrayNodesFromList(array,indices);
+
+            if (obj != null)
+                obj.PatchRemoveList(path,AdvancedLocalObject.List_I2S(indices));
         }
 
         public int Count { get { return array.Count; } }
@@ -1258,13 +1713,6 @@ namespace Zealot.Common.Datablock
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
-        }
-
-        public JArrayNode(JArray array, string path, AdvancedLocalObject obj)
-        {
-            this.array = array;
-            this.path = path;
-            this.obj = obj;
         }
     }
 

@@ -2266,7 +2266,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
         public void OnInteractiveInit(GameClientPeer peer)
         {
-            peer.mPlayer.InteractiveTriggerController.Init();
+            peer.mPlayer.InteractiveTriggerController.Init(peer.mPlayer.mInstance.mCurrentLevelID);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
         public void OnInteractiveInitProxy(object[] args)

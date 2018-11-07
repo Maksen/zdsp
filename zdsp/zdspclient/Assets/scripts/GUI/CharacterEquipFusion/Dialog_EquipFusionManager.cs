@@ -17,7 +17,7 @@ public class Dialog_EquipFusionManager : MonoBehaviour {
 
     public void EnterUI(int itemId, List<string> itemStats, List<string> beforeStats, List<string> afterStats)
     {
-        beforeFusionDataConfirm.Init(confirmPrefab, itemId, itemStats[0], itemStats[1], itemStats[2], itemStats[3], beforeStats);
-        afterFusionDataConfirm.Init(confirmPrefab, itemId, itemStats[0], itemStats[1], itemStats[2], itemStats[3], afterStats);
+        beforeFusionDataConfirm.Init(confirmPrefab, itemId, itemStats[0], itemStats[1], itemStats[2], beforeStats);
+        afterFusionDataConfirm.Init(confirmPrefab, itemId, itemStats[0], itemStats[1], itemStats[2], afterStats);
     }
 }

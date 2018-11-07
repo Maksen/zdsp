@@ -72,6 +72,7 @@ public class UI_DialogueSelection : MonoBehaviour
         }
         else if (mType == SelectionType.Function)
         {
+            mParent.CloseDialog();
             mParent.SelectedFunction(mFunctionType, mFunctionGroup);
         }
         else

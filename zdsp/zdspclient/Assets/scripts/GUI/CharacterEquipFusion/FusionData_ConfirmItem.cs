@@ -13,11 +13,9 @@ public class FusionData_ConfirmItem : MonoBehaviour {
     [SerializeField]
     private Text itemEvolve;
     [SerializeField]
-    private Text itemRank;
-    [SerializeField]
     private Text[] itemStats;
 
-    public void Init(GameObject confirmPrefab, int id, string name, string upgrade, string evolve, string rank, List<string> stats)
+    public void Init(GameObject confirmPrefab, int id, string name, string upgrade, string evolve, List<string> stats)
     {
         ClientUtils.DestroyChildren(confirmParent);
         GameObject confirmObj = ClientUtils.CreateChild(confirmParent, confirmPrefab);
@@ -28,7 +26,7 @@ public class FusionData_ConfirmItem : MonoBehaviour {
         itemName.text = name;
         itemUpgrade.text = upgrade;
         itemEvolve.text = evolve;
-        itemRank.text = rank;
+
         for (int i = 0; i < itemStats.Length; ++i)
         {
             itemStats[i].text = stats[i];

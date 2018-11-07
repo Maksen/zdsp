@@ -27,8 +27,6 @@ public class Achievement_ObjectiveDataBase : MonoBehaviour
         trophyIconImage.sprite = LoadTrophyIcon(obj.json.trophytype);
         achNameText.text = obj.localizedName.Replace("{count}", obj.completeCount.ToString());
         achDescText.text = obj.json.localizeddescription.Replace("{count}", obj.completeCount.ToString());
-        aexpIconImage.sprite = ClientUtils.LoadCurrencyIcon(CurrencyType.AExp);
-        aexpAmtText.text = "x" + obj.exp;
         SetReward(obj);
         progressBar.Max = obj.completeCount;
         progressBar.Value = count;
@@ -51,6 +49,9 @@ public class Achievement_ObjectiveDataBase : MonoBehaviour
 
     private void SetReward(BaseAchievementObjective obj)
     {
+        aexpIconImage.sprite = ClientUtils.LoadCurrencyIcon(CurrencyType.AExp);
+        aexpAmtText.text = "x" + obj.exp;
+
         switch (obj.rewardType)
         {
             case AchievementRewardType.None:

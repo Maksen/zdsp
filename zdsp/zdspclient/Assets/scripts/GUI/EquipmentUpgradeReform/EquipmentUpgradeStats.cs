@@ -27,7 +27,13 @@ public class EquipmentUpgradeStats : MonoBehaviour
     public Text statsLabel;
     public Text statsValue;
 
-    public void Init(EquipmentUpgradeStatsType statsType, int upgradeLevel, string description)
+    public void Init(int upgradeLevel, int upgradeLimit, string seDescription, int increase)
+    {
+        statsLabel.text = string.Format("{0}/{1}", upgradeLevel, upgradeLimit);
+        statsValue.text = string.Format("{0} + {1}", seDescription, increase);
+    }
+
+    public void Init(EquipmentUpgradeStatsType statsType, int upgradeLevel, string seDescription)
     {
         Dictionary<string, string> statsUpgParam = new Dictionary<string, string>();
         statsUpgParam.Add("level", upgradeLevel.ToString());
@@ -36,14 +42,17 @@ public class EquipmentUpgradeStats : MonoBehaviour
         switch(statsType)
         {
             case EquipmentUpgradeStatsType.ToGet:
-                buffLabel = GUILocalizationRepo.GetLocalizedString("eqp_mod_upgrade_to_get");
+                Dictionary<string, string> toGetBuffParam = new Dictionary<string, string>();
+                toGetBuffParam.Add("buff", seDescription);
+                buffLabel = GUILocalizationRepo.GetLocalizedString("eqp_mod_upgrade_to_get", toGetBuffParam);
                 break;
             case EquipmentUpgradeStatsType.Gotten:
-                buffLabel = GUILocalizationRepo.GetLocalizedString("eqp_mod_upgrade_gotten");
+                Dictionary<string, string> gottenBuffParam = new Dictionary<string, string>();
+                gottenBuffParam.Add("buff", seDescription);
+                buffLabel = GUILocalizationRepo.GetLocalizedString("eqp_mod_upgrade_gotten", gottenBuffParam);
                 break;
         }
 
-        statsLabel.text = buffLabel;
-        statsValue.text = description;
+        statsValue.text = buffLabel;
     }
 }

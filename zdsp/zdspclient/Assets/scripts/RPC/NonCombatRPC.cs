@@ -962,15 +962,52 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("SocialOnOpenFriendsMenu");
     }
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequestByName)]
-    public void SocialRaiseRequestByName(string friendName)
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequest)]
+    public void SocialRaiseRequest(string friendName)
     {
-        ProxyMethod("SocialRaiseRequestByName", friendName);
+        ProxyMethod("SocialRaiseRequest", friendName);
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptRequest)]
     public void SocialAcceptRequest(string friendName)
     {
         ProxyMethod("SocialAcceptRequest", friendName);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptAllRequest)]
+    public void SocialAcceptAllRequest()
+    {
+        ProxyMethod("SocialAcceptAllRequest");
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRejectRequest)]
+    public void SocialRejectRequest(string friendName)
+    {
+        ProxyMethod("SocialRejectRequest", friendName);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRejectAllRequest)]
+    public void SocialRejectAllRequest()
+    {
+        ProxyMethod("SocialRejectAllRequest");
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAddBlack)]
+    public void SocialAddBlack(string friendName)
+    {
+        ProxyMethod("SocialAddBlack", friendName);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRemoveBlack)]
+    public void SocialRemoveBlack(string friendName)
+    {
+        ProxyMethod("SocialRemoveBlack", friendName);
+    }
+
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRemoveGood)]
+    public void SocialRemoveGood(string friendName)
+    {
+        ProxyMethod("SocialRemoveGood", friendName);
     }
     #endregion
 }

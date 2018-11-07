@@ -1,5 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -86,6 +87,14 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     GameObject mSellIcon;
     #endregion
 
+    [Header("Compare")]
+    #region Compare
+    [SerializeField]
+    GameObject mCompareObject;
+    [SerializeField]
+    GameObject mCompareParent;
+    #endregion
+
     #region Left Panel
     List<Button> mLeftPanelButtonLst = new List<Button>();
 
@@ -120,7 +129,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     /// <summary>
     /// Pass custom item in from inventory
     /// </summary>
-    public void InitTooltip(IInventoryItem item)
+    public void InitTooltip(IInventoryItem item, bool isEquippedItem = false)
     {
         //Retrieve what you need from
         //InventoryItem
@@ -165,6 +174,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 break;
             case ItemType.Equipment:
                 InitTT_Equipment(item);
+                InitCompareEquipment(item, isEquippedItem);
                 break;
             case ItemType.DNA:
                 InitTT_DNA(item);
@@ -274,6 +284,13 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             mNormalStatsLst.Clear();
             mExtraSideEffectLst.Clear();
         }
+
+        foreach (Transform child in mCompareParent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        mCompareObject.SetActive(false);
+
         ClearTTBtn();
     }
     private void ClearTTBtn()
@@ -1223,6 +1240,102 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             mWeeklyGetTV.Value = string.Format(localstr, weeklyGet, mItem.JsonObject.weeklygetlimit);
         if (weeklyUse > -1)
             mWeeklyUseTV.Value = string.Format(localstr, weeklyUse, mItem.JsonObject.weeklyuselimit);
+    }
+    private void InitCompareEquipment(IInventoryItem item, bool isEquippedItem)
+    {
+        //Do nothing if target item is not equipment
+        if (item.JsonObject.itemtype != ItemType.Equipment || isEquippedItem)
+            return;
+
+        Equipment eq2 = item as Equipment;
+        //find equipment slot index of preview equipment
+        var eqSlot = GameInfo.gLocalPlayer.mEquipmentInvData.FindAEquipSlotToSwap(eq2);
+        if (eqSlot == EquipmentSlot.MAXSLOTS)
+            return;
+        //find equipped equipment at equipment slot index
+        Equipment eq1 = GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)eqSlot);
+        if (eq1 == null)
+            return;
+        //find similarity and differences of their base side effect
+        Dictionary<int, SideEffectJson> eq1SeDic;
+        Dictionary<int, SideEffectJson> eq2SeDic;
+        RetrieveSideEffect(eq1.EquipmentJson.basese, out eq1SeDic);
+        RetrieveSideEffect(eq2.EquipmentJson.basese, out eq2SeDic);
+        HashSet<int> commonKeys = new HashSet<int>(eq1SeDic.Keys);
+        commonKeys.IntersectWith(eq2SeDic.Keys);
+        HashSet<int> uncommonKeys = new HashSet<int>(eq1SeDic.Keys);
+        uncommonKeys.UnionWith(eq2SeDic.Keys);
+        uncommonKeys.ExceptWith(commonKeys);
+
+        List<int> commonKeysLst = commonKeys.ToList();
+        List<SideEffectJson> uncommonEffLst = eq1SeDic.Where(x => uncommonKeys.Contains(x.Key))
+                                              .Concat(eq2SeDic.Where(y => uncommonKeys.Contains(y.Key)))
+                                              .Select(z => z.Value)
+                                              .ToList();
+
+        CompareEquipment_Common(commonKeysLst, eq1SeDic, eq2SeDic);
+        CompareEquipment_Uncommon(uncommonEffLst);
+
+        //TODO: Need to implement ring or accessory double comparison
+
+        mCompareObject.SetActive(true);
+    }
+    private void RetrieveSideEffect(string seStr, out Dictionary<int, SideEffectJson> seDic)
+    {
+        seDic = new Dictionary<int, SideEffectJson>();
+
+        string[] baseseGrpLst = seStr.Split(';');
+        foreach (string s in baseseGrpLst)
+        {
+            int x;
+            if (int.TryParse(s, out x) == false)
+            {
+                Debug.LogError("HUD_ItemDetailToolTip.RetrieveSideEffect: Cannot convert Base side effect ID string chain in EquipmentJson.basese to int");
+                continue;
+            }
+
+            //Get side effect; if get nothing, skip
+            SideEffectJson sej = SideEffectRepo.GetSideEffect(x);
+            if (sej == null)
+                continue;
+
+            seDic.Add(x, sej);
+        }
+    }
+    private void CompareEquipment_Common(List<int> keysLst, Dictionary<int, SideEffectJson> effDic, Dictionary<int, SideEffectJson> eff2Dic)
+    {
+        if (keysLst == null || effDic == null)
+            return;
+
+        for (int i = 0; i < keysLst.Count; ++i)
+        {
+            GameObject tcvpObj = Instantiate(mTTTextColonValuePrefab, mCompareParent.transform);
+            UI_DialogItemDetail_TextValue tcvp = tcvpObj.GetComponent<UI_DialogItemDetail_TextValue>();
+
+            //TODO: Add + - to values
+            tcvp.Identifier = effDic[keysLst[i]].description;
+            float nMin = eff2Dic[keysLst[i]].min - effDic[keysLst[i]].min;
+            float nMax = eff2Dic[keysLst[i]].max - effDic[keysLst[i]].max;
+            tcvp.Value = string.Format("{0} ~ {1}", nMin, nMax);
+        }
+    }
+    private void CompareEquipment_Uncommon(List<SideEffectJson> effLst)
+    {
+        if (effLst == null)
+            return;
+
+        for (int i = 0; i < effLst.Count; ++i)
+        {
+            GameObject tcvpObj = Instantiate(mTTTextColonValuePrefab, mCompareParent.transform);
+            UI_DialogItemDetail_TextValue tcvp = tcvpObj.GetComponent<UI_DialogItemDetail_TextValue>();
+
+            //TODO: Add + - to values
+            tcvp.Identifier = effLst[i].description;
+            if (effLst[i].min == effLst[i].max)
+                tcvp.Value = effLst[i].min.ToString();
+            else
+                tcvp.Value = string.Format("{0} ~ {1}", effLst[i].min, effLst[i].max);
+        }
     }
 
     #region Debug

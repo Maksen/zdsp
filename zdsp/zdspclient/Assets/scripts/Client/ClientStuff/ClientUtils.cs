@@ -1,6 +1,7 @@
 ﻿using Kopio.JsonContracts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -794,11 +795,33 @@ public static class ClientUtils
 
     public static string GetHexaStringFromColor(Color color)
     {
-        int r = (int)(color.r * 255.0f);
-        int g = (int)(color.g * 255.0f);
-        int b = (int)(color.b * 255.0f);
-        int a = (int)(color.a * 255.0f);
+        int r = (int)(color.r * 255f);
+        int g = (int)(color.g * 255f);
+        int b = (int)(color.b * 255f);
+        int a = (int)(color.a * 255f);
         
         return string.Format("{0:X2}{1:X2}{2:X2}{3:X2}", r, g, b, a);
+    }
+
+    public static List<int> GetIntListFromString(string str, char separator)
+    {
+        List<int> intList = new List<int>();
+
+        if (string.IsNullOrEmpty(str) || str == "-1")
+        {
+            return intList;
+        }
+
+        List<string> strList = str.Split(separator).ToList();
+        for (int i = 0; i < strList.Count; ++i)
+        {
+            int realInt = 0;
+            if (int.TryParse(strList[i], out realInt))
+            {
+                intList.Add(realInt);
+            }
+        }
+
+        return intList;
     }
 }

@@ -192,6 +192,9 @@ namespace Zealot.Repository
         public static Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>  equipReformJsonMap;     // Reform Group -> Reform Step -> Json List
         public static Dictionary<string, int>                                              equipReformMaxLvlMap;   // Reform Group -> Max Level
 
+        // Equipment Extra Side Effect
+        public static Dictionary<int, ExtraSideEffectJson> equipExtraSEIDJsonMap; // Extra SE ID -> Json
+
         static EquipmentModdingRepo()
         {
             // Equipment Upgrade
@@ -200,12 +203,16 @@ namespace Zealot.Repository
             // Equipment Reform
             equipReformJsonMap      = new Dictionary<string, Dictionary<int, List<EquipmentReformGroupJson>>>();
             equipReformMaxLvlMap    = new Dictionary<string, int>();
+
+            // Equipment Extra Side Effect
+            equipExtraSEIDJsonMap = new Dictionary<int, ExtraSideEffectJson>();
         }
 
         public static void Init(GameDBRepo gameData)
         {
             InitUpgrade(gameData);
             InitReform(gameData);
+            InitExtraSideEffects(gameData);
         }
 
         public static void InitUpgrade(GameDBRepo gameData)
@@ -274,6 +281,14 @@ namespace Zealot.Repository
             }
 
             equipReformMaxLvlMap.Add(prevGrpId, maxLvl);
+        }
+
+        public static void InitExtraSideEffects(GameDBRepo gameData)
+        {
+            foreach(KeyValuePair<int, ExtraSideEffectJson> entry in gameData.ExtraSideEffect)
+            {
+                equipExtraSEIDJsonMap.Add(entry.Key, entry.Value);
+            }
         }
 
         public static EquipmentUpgradeJson GetEquipmentUpgradeData(EquipmentType equipType, ItemRarity equipRarity, int upgradeLvl)
@@ -658,6 +673,40 @@ namespace Zealot.Repository
             }
 
             return -1;
+        }
+
+        public static ExtraSideEffectJson GetEquipmentExtraSideEffect(int extraSEID)
+        {
+            if(equipExtraSEIDJsonMap.ContainsKey(extraSEID) == true)
+            {
+                return equipExtraSEIDJsonMap[extraSEID];
+            }
+
+            return null;
+        }
+
+        public static List<int> GetEquipmentExtraSideEffectsList(int extraSEID)
+        {
+            List<int> seList = new List<int>();
+
+            ExtraSideEffectJson extraSEData = GetEquipmentExtraSideEffect(extraSEID);
+
+            if(extraSEData == null)
+            {
+                return seList;
+            }
+
+            List<string> seStrList = extraSEData.sideeffect.Split(';').ToList();
+            for (int i = 0; i < seStrList.Count; ++i)
+            {
+                int seId = 0;
+                if (int.TryParse(seStrList[i], out seId))
+                {
+                    seList.Add(seId);
+                }
+            }
+
+            return seList;
         }
 
         public static List<ItemInfo> GetModdingMaterialsFromStr(string matStr)

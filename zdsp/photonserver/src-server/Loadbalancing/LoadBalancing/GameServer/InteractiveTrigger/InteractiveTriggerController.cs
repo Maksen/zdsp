@@ -6,49 +6,55 @@ namespace Photon.LoadBalancing.GameServer
 {
     public class InteractiveTriggerController
     {
-        public static Dictionary<string, List<int>> interactiveEntity = new Dictionary<string, List<int>>();
-        static Dictionary<int, string> searchEntityInScene = new Dictionary<int, string>();
-        static Dictionary<int, int> objectIdToPid = new Dictionary<int, int>();
+        public static Dictionary<int, List<int>> interactiveEntity = new Dictionary<int, List<int>>();
+        public static Dictionary<int, int> objectIdToPid = new Dictionary<int, int>();
 
         public InteractiveTriggerController()
         {
+            
         }
 
-        public void Init()
+        public void Init(int levelId)
         {
-            InteractiveTriggerRule.Init();
+            if (levelId != -1)
+                InteractiveTriggerRule.Init(levelId);
         }
 
-        public void InitController()
+        public void LoadSceneData()
         {
-            if (interactiveEntity.Count != 0)
+            if(interactiveEntity.Count != 0)
             {
                 return;
             }
 
-            Dictionary<int, string> levelEntityList = Zealot.Entities.LevelReader.mInteractiveTriggerMap;
-            foreach (KeyValuePair<int, string> entry in levelEntityList)
+            Dictionary<int, int> levelEntityList = Zealot.Entities.LevelReader.mInteractiveTriggerMap;
+            foreach (KeyValuePair<int, int> entry in levelEntityList)
             {
-                string sceneName = entry.Value;
+                int sceneId = entry.Value;
                 int key = entry.Key;
-                if (!interactiveEntity.ContainsKey(sceneName))
+                if (!interactiveEntity.ContainsKey(sceneId))
                 {
-                    interactiveEntity.Add(sceneName, new List<int>());
+                    interactiveEntity.Add(sceneId, new List<int>());
                 }
-                interactiveEntity[sceneName].Add(key);
-                searchEntityInScene.Add(key, sceneName);
+                interactiveEntity[sceneId].Add(key);
             }
-        }
-
-        public List<int> CurrentSceneEntities(string sceneName)
-        {
-            return interactiveEntity[sceneName];
         }
 
         public static void AddEntityToPid(InteractiveGate pid)
         {
-            InteractiveTriggerRule.interactiveEntity.Add(pid);
+            InteractiveTriggerRule.interactiveEntity.Add(pid.GetPersistentID(), pid);
             objectIdToPid.Add(pid.mPropertyInfos.ObjectID, pid.GetPersistentID());
+        }
+
+        public static List<int> GetSceneEntities(int sceneId)
+        {
+            List<int> objectsId = interactiveEntity[sceneId];
+            List<int> list = new List<int>();
+            for (int i = 0; i < objectsId.Count; ++i)
+            {
+                list.Add(objectIdToPid[objectsId[i]]);
+            }
+            return list;
         }
     }
 }

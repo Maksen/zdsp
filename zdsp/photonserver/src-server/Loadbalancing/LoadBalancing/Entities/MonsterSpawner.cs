@@ -55,13 +55,13 @@ namespace Zealot.Server.Entities
             //    monster.SetAIBehaviour(new NullAIBehaviour(monster));
             if (monsterType == MonsterType.Normal)
                 monster.SetAIBehaviour(new MonsterAIBehaviour(monster));
-            else if(monsterType == MonsterType.Boss || monsterType == MonsterType.MiniBoss)
+            else if(monsterType == MonsterType.MiniBoss || monsterType == MonsterType.Boss)
                 monster.SetAIBehaviour(new BossAIBehaviour(monster));
             //else if(monsterType == MonsterType.Escape)
             //    monster.SetAIBehaviour(new MonsterEscapeAIBehaviour(monster));
 
             if (mArchetype.broadcast)
-                GameApplication.Instance.BroadcastMessage(BroadcastMessageType.MonsterSpawn, mArchetype.id + ";" + mInstance.mCurrentLevelID);
+                GameApplication.Instance.BroadcastMessage(BroadcastMessageType.MonsterSpawn, string.Format("{0};{1}", mArchetype.id, mInstance.mCurrentLevelID));
 
             maChildren.Add(monster);
         }

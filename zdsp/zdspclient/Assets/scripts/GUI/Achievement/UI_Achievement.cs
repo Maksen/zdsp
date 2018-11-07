@@ -250,7 +250,8 @@ public class UI_Achievement : BaseWindowBehaviour
 
         float currentProgress = tierProgressBar.Value / tierProgressBar.Max;
         UIManager.OpenDialog(WindowType.DialogAchievementTier,
-            (window) => window.GetComponent<UI_Achievement_TierDialog>().Init(currentTierData.tierid, currentProgress));
+            (window) => window.GetComponent<UI_Achievement_TierDialog>().Init(currentTierData.tierid, currentProgress, this));
+        ShowAvatar(false);
     }
 
     public void UpdateAvatarModel(int tier)
@@ -267,11 +268,16 @@ public class UI_Achievement : BaseWindowBehaviour
 
     private void OnModelLoaded(GameObject model)
     {
-        float[] camera = StaticNPCRepo.ParseCameraPosInTalk(currentTierData.posinui);
+        float[] camera = StaticNPCRepo.ParseCameraPosInTalk(currentTierData.mainuipos);
         Vector3 pos = model.transform.parent.localPosition;
         model.transform.parent.localPosition = new Vector3(camera[0], camera[1], pos.z);
         model.transform.localRotation = Quaternion.Euler(new Vector3(0, camera[2], 0));
         model.transform.localScale = new Vector3(camera[3], camera[3], camera[3]);
+    }
+
+    public void ShowAvatar(bool value)
+    {
+        modelAvatar.ShowModel(value);
     }
 
     public void OnClickExternalFunctions()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Client.Entities;
+using Zealot.Common;
 using Zealot.Repository;
 
 public class UI_Dialogue : BaseWindowBehaviour
@@ -440,7 +441,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         }
     }
 
-    private void CloseDialog()
+    public void CloseDialog()
     {
         if (GameInfo.gLocalPlayer != null)
         {
@@ -515,8 +516,15 @@ public class UI_Dialogue : BaseWindowBehaviour
     }
 
     //Open  Function
-    public void SelectedFunction(int functiontype, int group)
+    public void SelectedFunction(int functiontype, int param)
     {
-        
+        NPCFunctionType type = (NPCFunctionType)functiontype;
+
+        switch (type)
+        {
+            case NPCFunctionType.Shop:
+                UIManager.OpenWindow(WindowType.ShopSell, (window) => window.GetComponent<UIShop>().RequestShopInfo(param));
+                break;
+        }
     }
 }

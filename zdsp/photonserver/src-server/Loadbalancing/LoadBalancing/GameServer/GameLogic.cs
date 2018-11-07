@@ -683,9 +683,6 @@
             DonateSynStats donateStats = player.DonateStats;
             player.DonateController.InitDonateStats(ref donateStats);
 
-            //-------------------- InteractiveTrigger Stats --------------------//
-            player.InteractiveTriggerController.InitController();
-
             /*********************   Realm Stats   ***************************/
             player.RealmStats.Init(characterData.RealmInventory);
 

@@ -901,21 +901,6 @@ namespace Zealot.Client.Entities
         {
         }
 
-        public void OnPowerUpStatsChanged()
-        {
-            clientPowerUpCtrl.InitFromPowerUpStats(PowerUpStats);
-            
-            GameObject uiPowerUpObj = UIManager.GetWindowGameObject(WindowType.Inventory);
-            if (uiPowerUpObj != null)
-            {
-                UI_CharacterPowerup_Manager uiPowerUp = uiPowerUpObj.GetComponentInChildren<UI_CharacterPowerup_Manager>();
-                if (uiPowerUp != null)
-                {
-                    uiPowerUp.InitFromOther();
-                }
-            }
-        }
-
         public void OnPowerUpStatsCollectionChanged(string field, byte idx, object value)
         {
             clientPowerUpCtrl.PowerUpInventory.powerUpSlots[idx] = (int)value;
@@ -928,6 +913,11 @@ namespace Zealot.Client.Entities
                 {
                     uiPowerUp.InitFromOther();
                 }
+                UI_Inventory uiInventory = uiPowerUpObj.GetComponent<UI_Inventory>();
+                if(uiInventory != null)
+                {
+                    uiInventory.UpdateCurrencyAmount(CurrencyType.Money);
+                }
             }
         }
 
@@ -936,23 +926,8 @@ namespace Zealot.Client.Entities
             clientPowerUpCtrl.InitFromMeridianStats(MeridianStats);
         }
 
-        public void OnEquipmentCraftStatsChanged()
+        public void OnEquipmentCraftStatsLocalObjectChanged()
         {
-            clientEquipmentCraftCtrl.InitFromStats(EquipmentCraftStats);
-
-            GameObject uiEquipCraftObj = UIManager.GetWindowGameObject(WindowType.EquipCraft);
-
-            if (EquipmentCraftStats.finishedCraft && uiEquipCraftObj != null)
-            {
-                uiEquipCraftObj.GetComponent<UI_CharacterEquipmentCraftManager>().AfterCraft();
-                EquipmentCraftStats.finishedCraft = false;
-            }
-        }
-
-        public void OnEquipmentCraftStatsCollectionChanged(string field, byte idx, object value)
-        {
-            clientEquipmentCraftCtrl.EquipmentCraftInventory.EquipmentCrafted = (bool)value;
-
             GameObject uiEquipCraftObj = UIManager.GetWindowGameObject(WindowType.EquipCraft);
 
             if (EquipmentCraftStats.finishedCraft && uiEquipCraftObj != null)
@@ -1376,8 +1351,7 @@ namespace Zealot.Client.Entities
                     break;
                 case LOTYPE.EquipmentCraftStats:
                     EquipmentCraftStats = new EquipmentCraftStats();
-                    EquipmentCraftStats.OnLocalObjectChanged = OnEquipmentCraftStatsChanged;
-                    EquipmentCraftStats.OnCollectionChanged = OnEquipmentCraftStatsCollectionChanged;
+                    EquipmentCraftStats.OnLocalObjectChanged = OnEquipmentCraftStatsLocalObjectChanged;
                     mylocalobj = EquipmentCraftStats;
                     break;
                 case LOTYPE.EquipFusionStats:
@@ -1443,7 +1417,6 @@ namespace Zealot.Client.Entities
                     PowerUpStats = new PowerUpStats();
                     PowerUpStats.powerUpSlots.SetNotifyParent(false);
                     PowerUpStats.OnCollectionChanged = OnPowerUpStatsCollectionChanged;
-                    PowerUpStats.OnLocalObjectChanged = OnPowerUpStatsChanged;
                     mylocalobj = PowerUpStats;
                     break;
                 case LOTYPE.AchievementStats:

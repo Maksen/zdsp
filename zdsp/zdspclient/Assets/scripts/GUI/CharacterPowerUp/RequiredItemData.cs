@@ -10,37 +10,27 @@ public class RequiredItemData : MonoBehaviour
     public Transform  gameIconParent;
 
     public Text requiredAmount;
-
-    int itemID;
-    
-	/// 根據消耗、擁有數量、需要數量做判斷
 	
     public void InitCurrency(CurrencyType type, int invAmount, int reqAmount)
     {
         GameObject gameIconObj = Instantiate(gameIconPrefab);
         gameIconObj.transform.SetParent(gameIconParent, false);
-
-        //GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        //gameIcon.Init(itemId, invAmount);
         requiredAmount.text = reqAmount.ToString();
 
         GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        gameIcon.Init(CurrencyType.Money, invAmount, false, false, false, OnClick);
+        gameIcon.Init(CurrencyType.Money, invAmount, false, false, false, null);
         gameIcon.SetStackCount(invAmount);
         CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
     }
-    
-	/// 根據ID、擁有數量、需要數量做判斷
 	
     public bool InitMaterial(int itemId, int invAmount, int reqAmount)
     {
         GameObject gameIconObj = Instantiate(gameIconPrefab);
         gameIconObj.transform.GetChild(2).GetComponent<Text>().text = invAmount.ToString();
         gameIconObj.transform.SetParent(gameIconParent, false);
-        itemID = itemId;
 
         GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
-        gameIcon.Init(itemId, invAmount, false, false, false, OnClick);
+        gameIcon.Init(itemId, invAmount, false, false, false, () => OnClick(itemId));
         gameIcon.SetFullStackCount(invAmount);
         requiredAmount.text = reqAmount.ToString();
         return CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
@@ -60,10 +50,10 @@ public class RequiredItemData : MonoBehaviour
         }
     }
 
-    public void OnClick()
+    public void OnClick(int id)
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
-        var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)itemID);
+        var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)id);
         UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
             OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), _item);
         });

@@ -82,8 +82,9 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
     private List<GameObject>    _materialIconsList;
     private GameObject          _safeEquipMatIcon;
     private List<GameObject>    _safeMaterialIconList;
-    private List<GameObject>    _inventoryEquipmentList;
-    private List<GameObject>    _selectEquipStatsList;
+    private List<GameObject>    _selectEquipBaseStatsList;
+    private List<GameObject>    _selectEquipExtraStatsList;
+    private List<GameObject>    _selectEquipBuffStatsList;
     
     public override void OnOpenWindow()
     {
@@ -110,7 +111,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         upgradeCostText.text = "0";
         upgradeCostText.color = Color.white;
 
-        ClearSelectEquipStatsList();
+        ClearSelectEquipStatsLists();
     }
 
     public void InitEquipmentUpgradeWithEquipment(int slotId, Equipment equipment)
@@ -138,7 +139,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         upgradeCostText.text = "0";
         upgradeCostText.color = Color.white;
 
-        ClearSelectEquipStatsList();
+        ClearSelectEquipStatsLists();
 
         GenerateSelectedEquipIcon(equipment);
         LoadEquipmentData(equipment);
@@ -245,8 +246,6 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             return;
         }
 
-        ClearInvEquipmentIcons();
-
         List<Equipment> equippedItemList = player.mEquipmentInvData.Slots;
         List<IInventoryItem> bagItemList = player.clientItemInvCtrl.itemInvData.Slots;
         FillInventory(equippedItemList, bagItemList, false);
@@ -270,8 +269,6 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
         ClearSafeMaterialIcons();
         GenerateSafeMaterialIcons(safeMatGenId, safeMatGenCount, safeMatAdvId, safeMatAdvCount, safeGemInvParent);
-
-        ClearInvEquipmentIcons();
 
         List<Equipment> equippedItemList = player.mEquipmentInvData.Slots;
         List<IInventoryItem> bagItemList = player.clientItemInvCtrl.itemInvData.Slots;
@@ -344,7 +341,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 return;
             }
 
-            ClearSelectEquipStatsList();
+            ClearSelectEquipStatsLists();
 
             List<int> buffSEIdList = EquipmentModdingRepo.GetEquipmentUpgradeBuff(equipType, rarity, nextLevel);
 
@@ -353,13 +350,15 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 return;
             }
 
+            GenerateEquipBaseStats(equipToUpgrade.mEquip);
+            GenerateEquipExtraStats(equipToUpgrade.mEquip);
             GenerateEquipUpgBuffStats(buffSEIdList, nextLevel);
 
             confirmSelectEquipBtn.interactable = true;
         }
         else
         {
-            ClearSelectEquipStatsList();
+            ClearSelectEquipStatsLists();
 
             confirmSelectEquipBtn.interactable = false;
         }
@@ -374,30 +373,16 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
             confirmSelectEquipBtn.interactable = true;
 
-            // Equipment Stats
-            selectedEquipText.text = _selectedEquipment.GetEquipmentName();
-
-            EquipmentType equipType = _selectedEquipment.EquipmentJson.equiptype;
-            ItemRarity rarity = _selectedEquipment.EquipmentJson.rarity;
-            int nextLevel = _selectedEquipment.UpgradeLevel + 1;
-
-            EquipmentUpgradeJson upgradeData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, nextLevel);
-
-            if (upgradeData == null)
+            int matId = safeMatSel == 0 ? GameConstantRepo.GetConstantInt("safe_gem_general") : GameConstantRepo.GetConstantInt("safe_gem_advanced");
+            IInventoryItem material = GameRepo.ItemFactory.GetInventoryItem(matId);
+            if(material != null)
             {
-                return;
+                selectedEquipText.text = material.JsonObject.localizedname;
             }
-
-            ClearSelectEquipStatsList();
-
-            List<int> buffSEIdList = EquipmentModdingRepo.GetEquipmentUpgradeBuff(equipType, rarity, nextLevel);
-
-            if (buffSEIdList == null)
+            else
             {
-                return;
+                selectedEquipText.text = "";
             }
-
-            GenerateEquipUpgBuffStats(buffSEIdList, nextLevel);
         }
         else
         {
@@ -439,7 +424,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 return;
             }
 
-            ClearSelectEquipStatsList();
+            ClearSelectEquipStatsLists();
 
             List<int> buffSEIdList = EquipmentModdingRepo.GetEquipmentUpgradeBuff(equipType, rarity, nextLevel);
 
@@ -448,6 +433,8 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 return;
             }
 
+            GenerateEquipBaseStats(equipToUpgrade.mEquip);
+            GenerateEquipExtraStats(equipToUpgrade.mEquip);
             GenerateEquipUpgBuffStats(buffSEIdList, nextLevel);
         }
         else
@@ -655,8 +642,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         ClearSelectedEquipment();
         ClearSafeEquipMatIcon();
         ClearMaterialIcons();
-        ClearSelectEquipStatsList();
-        ClearInvEquipmentIcons();
+        ClearSelectEquipStatsLists();
 
         _slotID                 = -1;
         _safeEquipSlotID        = -1;
@@ -667,7 +653,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         _isEquippedSafe         = false;
         _selectedSafeEquipment  = null;
 
-        rightSideAnimator.Play(_rightSideSlideOut);
+        //rightSideAnimator.Play(_rightSideSlideOut);
     }
 
     private void OpenUpgradeItemStoreDialog(bool isEnoughGenMat, bool isEnoughSafeMat)
@@ -826,8 +812,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         int currentStep = equipment.ReformStep;
         int currentLevel = equipment.UpgradeLevel;
 
-        GameObject newEquipObj = Instantiate(equipIconPrefab);
-        newEquipObj.transform.SetParent(selectEquipIconParent, false);
+        GameObject newEquipObj = ClientUtils.CreateChild(selectEquipIconParent, equipIconPrefab);
 
         GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
         equipIcon.Init(equipment.ItemID, 0, currentStep, currentLevel, false, false, false, OnClickOpenSelectUpgradeEquipment);
@@ -854,8 +839,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 return;
             }
 
-            GameObject newEquipObj = Instantiate(equipIconPrefab);
-            newEquipObj.transform.SetParent(selectSafeEquipIconParent, false);
+            GameObject newEquipObj = ClientUtils.CreateChild(selectSafeEquipIconParent, equipIconPrefab);
             
             GameIcon_Equip equipIcon = newEquipObj.GetComponent<GameIcon_Equip>();
             equipIcon.Init(_selectedEquipment.ItemID, 0, currentStep, currentLevel, false, false, 
@@ -898,8 +882,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             EquipUpgMaterial matData = materialList[i];
             ushort matId = matData.mMat.itemId;
 
-            GameObject newMatObj = Instantiate(matIconPrefab);
-            newMatObj.transform.SetParent(parent, false);
+            GameObject newMatObj = ClientUtils.CreateChild(parent, matIconPrefab);
 
             int invcount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(matId);
 
@@ -942,8 +925,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
 
         _safeMaterialIconList.Add(newSafeMatGenIconObj);
 
-        GameObject newSafeMatAdvIconObj = Instantiate(matIconPrefab);
-        newSafeMatAdvIconObj.transform.SetParent(parent, false);
+        GameObject newSafeMatAdvIconObj = ClientUtils.CreateChild(parent, matIconPrefab);
 
         GameIcon_MaterialConsumable safeMatAdvIcon = newSafeMatAdvIconObj.GetComponent<GameIcon_MaterialConsumable>();
         safeMatAdvIcon.Init(safeMatAdvId, safeMatAdvCount, false, false, true);
@@ -979,62 +961,87 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         }
     }
 
-    //private void GenerateEquipIcons(List<Equipment> equipmentList, Transform parent, bool isSafeUpgrade, bool isEquipped)
-    //{
-    //    for(int i = 0; i < equipmentList.Count; ++i)
-    //    {
-    //        Equipment equipment = equipmentList[i];
-    //        if(equipment == null)
-    //        {
-    //            continue;
-    //        }
+    private void GenerateEquipBaseStats(Equipment equipment)
+    {
+        List<int> baseStatsIdList = ClientUtils.GetIntListFromString(equipment.EquipmentJson.basese, ';');
 
-    //        GameObject newEquipIconObj = Instantiate(equipIconPrefab);
-    //        newEquipIconObj.transform.SetParent(parent, false);
+        if(baseStatsIdList.Count == 0)
+        {
+            return;
+        }
 
-    //        GameIcon_Equip equipIcon = newEquipIconObj.GetComponent<GameIcon_Equip>();
-    //        ModdingEquipment equipToUpgrade = new ModdingEquipment(i, equipment);
-    //        if (!isSafeUpgrade)
-    //        {
-    //            equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
-    //            //equipIcon.SetEquipIconClickCallback(() => {
-    //            //    GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.gameObject.GetComponentInChildren<GameIconCmpt_SelectCheckmark>();
-    //            //    Toggle checkmarkToggle = selectCheckMark.gameObject.GetComponent<Toggle>();
-    //            //    OnClickSelectUpgradeEquipment(checkmarkToggle.isOn, isEquipped, i);
-    //            //});
-    //            GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
-    //            if (selectCheckMark != null)
-    //            {
-    //                Toggle checkmarkToggle = selectCheckMark.GetToggleSelect();
-    //                checkmarkToggle.onValueChanged.AddListener(delegate
-    //                {
-    //                    OnClickSelectUpgradeEquipment(checkmarkToggle.isOn, isEquipped, equipToUpgrade);
-    //                });
-    //            }
-    //        }
-    //        else
-    //        {
-    //            equipIcon.Init(equipment.ItemID, 0, equipment.ReformStep, equipment.UpgradeLevel, false, false, true);
-    //            //equipIcon.SetEquipIconClickCallback(() => {
-    //            //    GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.gameObject.GetComponentInChildren<GameIconCmpt_SelectCheckmark>();
-    //            //    Toggle checkmarkToggle = selectCheckMark.gameObject.GetComponent<Toggle>();
-    //            //    OnClickSelectSafeUpgradeEquipment(checkmarkToggle.isOn, isEquipped, i);
-    //            //});
-    //            GameIconCmpt_SelectCheckmark selectCheckMark = equipIcon.GetToggleSelect();
-    //            if(selectCheckMark != null)
-    //            {
-    //                Toggle checkmarkToggle = selectCheckMark.GetToggleSelect();
-    //                checkmarkToggle.onValueChanged.AddListener(delegate
-    //                {
-    //                    OnClickSelectSafeUpgradeEquipment(checkmarkToggle.isOn, isEquipped, equipToUpgrade);
-    //                });
-    //                checkmarkToggle.group = safeInvToggleGrp;
-    //            }
-    //        }
+        EquipmentType equipType = equipment.EquipmentJson.equiptype;
+        ItemRarity rarity = equipment.EquipmentJson.rarity;
+        int upgradeLevel = equipment.UpgradeLevel;
+        int nextLevel = upgradeLevel + 1;
+        int upgradeLimit = equipment.EquipmentJson.upgradelimit;
 
-    //        _inventoryEquipmentList.Add(newEquipIconObj);
-    //    }
-    //}
+        if(upgradeLimit == -1)
+        {
+            return;
+        }
+
+        for (int i = 0; i < baseStatsIdList.Count; ++i)
+        {
+            int seId = baseStatsIdList[i];
+            SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
+
+            GameObject newStatsLine = ClientUtils.CreateChild(itemStatsParent, upgStatsValueLnPrefab);
+
+            EquipmentUpgradeJson upgradeData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, upgradeLevel);
+            int increase = upgradeData == null ? 0 : (int)(sideeffect.max * upgradeData.increase);
+
+            EquipmentUpgradeStats upgradeStatsObj = newStatsLine.GetComponent<EquipmentUpgradeStats>();
+            if (upgradeStatsObj != null)
+            {
+                upgradeStatsObj.Init(upgradeLevel, upgradeLimit, sideeffect.localizedname, increase);
+            }
+
+            _selectEquipBaseStatsList.Add(newStatsLine);
+        }
+    }
+
+    private void GenerateEquipExtraStats(Equipment equipment)
+    {
+        List<int> extraSEIdList = ClientUtils.GetIntListFromString(equipment.EquipmentJson.extrase, ';');
+
+        for(int i = 0; i < extraSEIdList.Count; ++i)
+        {
+            int extraSEId = extraSEIdList[i];
+            List<int> extraStatsIdList = EquipmentModdingRepo.GetEquipmentExtraSideEffectsList(extraSEId);
+
+            if (extraStatsIdList.Count == 0)
+            {
+                continue;
+            }
+
+            EquipmentType equipType = equipment.EquipmentJson.equiptype;
+            ItemRarity rarity = equipment.EquipmentJson.rarity;
+            int upgradeLevel = equipment.UpgradeLevel;
+            int nextLevel = upgradeLevel + 1;
+            int upgradeLimit = equipment.EquipmentJson.upgradelimit;
+
+
+            for(int j = 0; j < extraStatsIdList.Count; ++j)
+            {
+                int seId = extraStatsIdList[j];
+                SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
+
+                GameObject newStatsLine = ClientUtils.CreateChild(itemStatsParent, upgStatsValueLnPrefab);
+
+                EquipmentUpgradeJson upgradeData = EquipmentModdingRepo.GetEquipmentUpgradeData(equipType, rarity, upgradeLevel);
+                int increase = upgradeData == null ? 0 : (int)(sideeffect.max * upgradeData.increase);
+
+                EquipmentUpgradeStats upgradeStatsObj = newStatsLine.GetComponent<EquipmentUpgradeStats>();
+                if (upgradeStatsObj != null)
+                {
+                    upgradeStatsObj.Init(upgradeLevel, upgradeLimit, sideeffect.localizedname, increase);
+                }
+
+                _selectEquipExtraStatsList.Add(newStatsLine);
+            }
+        }
+    }
 
     private void GenerateEquipUpgBuffStats(List<int> buffSEIdList, int nextLevel)
     {
@@ -1052,8 +1059,7 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
             int seId = buffSEIdList[i];
             SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
 
-            GameObject newStatsLine = Instantiate(upgStatsValueLnPrefab);
-            newStatsLine.transform.SetParent(itemStatsParent, false);
+            GameObject newStatsLine = ClientUtils.CreateChild(itemStatsParent, upgStatsValueLnPrefab);
 
             EquipmentUpgradeStats upgradeStatsObj = newStatsLine.GetComponent<EquipmentUpgradeStats>();
             if(upgradeStatsObj != null)
@@ -1061,12 +1067,12 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
                 upgradeStatsObj.Init(EquipmentUpgradeStatsType.ToGet, nextLevel, sideeffect.localizedname);
             }
 
-            _selectEquipStatsList.Add(newStatsLine);
+            _selectEquipBuffStatsList.Add(newStatsLine);
         }
 
         GameObject newStatsEndLine = Instantiate(upgStatsLinePrefab);
         newStatsEndLine.transform.SetParent(itemStatsParent, false);
-        _selectEquipStatsList.Add(newStatsEndLine);
+        _selectEquipBuffStatsList.Add(newStatsEndLine);
     }
 
     private List<Equipment> GetEquipmentFromPlayerData(PlayerGhost player, Equipment selectedEquipment = null)
@@ -1185,35 +1191,58 @@ public class UI_EquipmentUpgrade : BaseWindowBehaviour
         _safeMaterialIconList.Clear();
     }
 
-    private void ClearInvEquipmentIcons()
+    public void ClearSelectEquipStatsLists()
     {
-        if (_inventoryEquipmentList == null)
-        {
-            _inventoryEquipmentList = new List<GameObject>();
-            return;
-        }
-
-        for (int i = 0; i < _inventoryEquipmentList.Count; ++i)
-        {
-            Destroy(_inventoryEquipmentList[i]);
-            _inventoryEquipmentList[i] = null;
-        }
-        _inventoryEquipmentList.Clear();
+        ClearSelectEquipBaseStatsList();
+        ClearSelectEquipExtraStatsList();
+        ClearSelectEquipBuffStatsList();
     }
 
-    public void ClearSelectEquipStatsList()
+    public void ClearSelectEquipBaseStatsList()
     {
-        if(_selectEquipStatsList == null)
+        if (_selectEquipBaseStatsList == null)
         {
-            _selectEquipStatsList = new List<GameObject>();
+            _selectEquipBaseStatsList = new List<GameObject>();
             return;
         }
 
-        for(int i = 0; i < _selectEquipStatsList.Count; ++i)
+        for (int i = 0; i < _selectEquipBaseStatsList.Count; ++i)
         {
-            Destroy(_selectEquipStatsList[i]);
-            _selectEquipStatsList[i] = null;
+            Destroy(_selectEquipBaseStatsList[i]);
+            _selectEquipBaseStatsList[i] = null;
         }
-        _selectEquipStatsList.Clear();
+        _selectEquipBaseStatsList.Clear();
+    }
+
+    public void ClearSelectEquipExtraStatsList()
+    {
+        if (_selectEquipExtraStatsList == null)
+        {
+            _selectEquipExtraStatsList = new List<GameObject>();
+            return;
+        }
+
+        for (int i = 0; i < _selectEquipExtraStatsList.Count; ++i)
+        {
+            Destroy(_selectEquipExtraStatsList[i]);
+            _selectEquipExtraStatsList[i] = null;
+        }
+        _selectEquipExtraStatsList.Clear();
+    }
+
+    public void ClearSelectEquipBuffStatsList()
+    {
+        if(_selectEquipBuffStatsList == null)
+        {
+            _selectEquipBuffStatsList = new List<GameObject>();
+            return;
+        }
+
+        for(int i = 0; i < _selectEquipBuffStatsList.Count; ++i)
+        {
+            Destroy(_selectEquipBuffStatsList[i]);
+            _selectEquipBuffStatsList[i] = null;
+        }
+        _selectEquipBuffStatsList.Clear();
     }
 }

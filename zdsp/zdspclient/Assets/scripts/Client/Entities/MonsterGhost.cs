@@ -153,7 +153,7 @@ namespace Zealot.Client.Entities
             mArchetype = CombatNPCRepo.GetNPCById(archetypeId);
             //Radius = mArchetype.radius;
 
-            base.Init ();
+            base.Init();
             OnAnimObjLoaded(AssetManager.LoadSceneNPC(mArchetype.modelprefabpath));
 
             HeadLabel.mPlayerLabel.Name = mArchetype.localizedname;

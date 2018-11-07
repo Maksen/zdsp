@@ -49,11 +49,8 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     [SerializeField]
     private Sprite[] SP_PartIcon;
 
-    public bool haveEnoughMaterial;
-    public bool LevelCanPowerUp;
-
-    public UI_CharacterPartToggle CharacterToggle;
-    public UI_CharacterPowerup_Manager mManager;
+    bool haveEnoughMaterial;
+    bool LevelCanPowerUp;
 
     [Space(10)]
     [SerializeField]
@@ -66,7 +63,7 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     [SerializeField]
     private UI_Inventory CS_Inventory;
     PowerUpPartsType nowPartType;
-    public int nowPartTypeCount;
+    int nowPartTypeCount;
 
     [SerializeField]
     private Transform[] selectPartButtonParents;
@@ -91,7 +88,6 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
 
     void OnEnable()
     {
-        mManager = this;
         player = GameInfo.gLocalPlayer;
         for (int i = 0; i < equipIconData.Count; ++i)
         {

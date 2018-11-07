@@ -1029,7 +1029,7 @@ namespace Photon.LoadBalancing.GameServer
             }
             return true;
         }
-        
+
         public void InvSortItem()
         {
             mInvData.ItemInventorySorting();
@@ -1044,9 +1044,9 @@ namespace Photon.LoadBalancing.GameServer
 
             List<IInventoryItem> itemSlots = mInvData.Slots;
             Dictionary<int, int>.KeyCollection SlotIds = items.Keys;
-            foreach (int id in SlotIds)
+            foreach (int idx in SlotIds)
             {
-                player.UpdateInventoryStats(id, itemSlots[id]);
+                player.UpdateInventoryStats(idx, itemSlots[idx]);
             }
         }
 
@@ -1095,8 +1095,8 @@ namespace Photon.LoadBalancing.GameServer
         {
             foreach (KeyValuePair<int, int> slot in items)
             {
-                IInventoryItem oitem = mInvData.Slots[slot.Key];
-                oitem.StackCount += slot.Value;
+                IInventoryItem invItem = mInvData.Slots[slot.Key];
+                invItem.StackCount += slot.Value;
                 //mInvData.SetSlotItem(slot.Key, oitem);
             }
         }
@@ -1422,8 +1422,7 @@ namespace Photon.LoadBalancing.GameServer
                 return new InvRetval() { retCode = InvReturnCode.UseFailed };
 
             InvRetval retval = UseItemInInventory(slotId, 1);
-            slotId = mInvData.GetLeastStackCountSlotIdxByItemId((ushort)itemId);
-            if (slotId == -1)
+            if (mInvData.GetLeastStackCountSlotIdxByItemId((ushort)itemId) == -1)
                 mSlot.mPlayer.UpdateItemHotbar(index, 0);
             return retval;
         }

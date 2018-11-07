@@ -82,14 +82,15 @@ namespace Zealot.Server.Entities
                 mCounter = (mCounter == -1) ? -1 : mCounter - 1;
                 mEntity.mPropertyInfos.counter = mCounter;
                 InteractiveTriggerRule.CompeletedEvent(pid);
-
+                
                 if (mPropertyInfos.isArea && canCount)
                 {
                     OnInteractiveUse(pid, true, player);
                 }
 
-                mEntity.step = (canCount) ? InteractiveTriggerStep.None : InteractiveTriggerStep.CannotUse;
-                mEntity.mPropertyInfos.canTrigger = canCount;
+                bool afterCanCount = CanUseByCount();
+                mEntity.step = (afterCanCount) ? InteractiveTriggerStep.None : InteractiveTriggerStep.CannotUse;
+                mEntity.canTrigger = afterCanCount;
                 BroadcastAllPlayer(mEntity.GetPersistentID());
                 object[] _paramters = { player };
                 mInstance.BroadcastEvent(this, "OnInteractive", _paramters);
@@ -116,7 +117,7 @@ namespace Zealot.Server.Entities
         {
             mActive = true;
             mCounter = mPropertyInfos.counter;
-            mEntity.mPropertyInfos.canTrigger = true;
+            mEntity.canTrigger = true;
             mEntity.step = InteractiveTriggerStep.None;
             BroadcastAllPlayer(mEntity.GetPersistentID());
         }
@@ -124,7 +125,7 @@ namespace Zealot.Server.Entities
 
         private void BroadcastAllPlayer(int pid)
         {
-            GameApplication.BroadcastInteractiveCount(pid, mEntity.mPropertyInfos.canTrigger,
+            GameApplication.BroadcastInteractiveCount(pid, mEntity.canTrigger,
                 InteractiveTriggerRule.CanActiveGameObject(mEntity), (int)mEntity.step);
         }
     }
@@ -133,7 +134,9 @@ namespace Zealot.Server.Entities
     {
         public InteractiveTriggerJson mPropertyInfos;
         public string entityName;
+        public bool canTrigger;
         public InteractiveTriggerStep step = InteractiveTriggerStep.None;
+
 
         public InteractiveGate() : base()
         {
@@ -145,12 +148,19 @@ namespace Zealot.Server.Entities
             mPropertyInfos = interactive.mPropertyInfos;
             mInstance = interactive.mInstance;
             entityName = mPropertyInfos.archetype;
+            canTrigger = true;
+        }
+
+        public void CancelAction()
+        {
+            this.mAction = null;
+            this.mActionCmd = null;
         }
 
         #region Implement abstract methods
         public override void SpawnAtClient(GameClientPeer peer)
         {
-            this.mActionCmd = null;
+            CancelAction();
 
             string path = StaticNPCRepo.GetModelPrefabPathByArchetype(entityName);
             if(path == null || path == "")

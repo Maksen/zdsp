@@ -353,7 +353,7 @@ public class UI_Inventory : BaseWindowBehaviour
 
     private void OnClicked_InitTooltipEquipment(UI_DialogItemDetailToolTip component, int slotId, IInventoryItem item, bool fashionslot)
     {
-        component.InitTooltip(item);
+        component.InitTooltip(item, true);
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
 
         var _equipmentJson = (EquipmentJson)item.JsonObject;
@@ -402,6 +402,7 @@ public class UI_Inventory : BaseWindowBehaviour
                 if (_equipmentJson.upgradelimit > 0)
                     AddUpgrade(_buttons, slotId);
                 AddEquip(_buttons, slotId, item);
+                //TODO: Need to add double equip button if its ring or accessory
                 break;
             case ItemType.DNA:
                 AddDNA(_buttons, item);

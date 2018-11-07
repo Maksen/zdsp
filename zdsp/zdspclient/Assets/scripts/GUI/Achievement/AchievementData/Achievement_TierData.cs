@@ -11,6 +11,7 @@ public class Achievement_TierData : MonoBehaviour
     [SerializeField] Text versionText;
     [SerializeField] Text tierNameText;
     [SerializeField] Text tierDescText;
+    [SerializeField] GameObject canUnlockObj;
 
     private Toggle toggle;
     private Action<int> OnSelectedCallback;
@@ -20,6 +21,7 @@ public class Achievement_TierData : MonoBehaviour
     private void Awake()
     {
         toggle = GetComponent<Toggle>();
+        toggle.onValueChanged.AddListener(OnToggled);
         ColorUtility.TryParseHtmlString(lockedColorHex, out lockedColor);
     }
 
@@ -38,18 +40,10 @@ public class Achievement_TierData : MonoBehaviour
         iconImage.sprite = ClientUtils.LoadIcon(data.iconpath);
     }
 
-    public void SetUnlocked(bool unlocked)
+    public void SetUnlocked(bool unlocked, bool canUnlock)
     {
         iconImage.color = unlocked ? Color.white : lockedColor;
-        toggle.interactable = unlocked;
-    }
-
-    public void EnableToggleCallback(bool value)
-    {
-        if (value)
-            toggle.onValueChanged.AddListener(OnToggled);
-        else
-            toggle.onValueChanged.RemoveListener(OnToggled);
+        canUnlockObj.SetActive(canUnlock);
     }
 
     private void OnToggled(bool isOn)
@@ -63,6 +57,7 @@ public class Achievement_TierData : MonoBehaviour
 
     public void SetToggleOn(bool value)
     {
-        toggle.isOn = value;
+        if (toggle.isOn != value)
+            toggle.isOn = value;
     }
 }

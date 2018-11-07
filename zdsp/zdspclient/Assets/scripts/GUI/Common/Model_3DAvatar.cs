@@ -127,6 +127,12 @@ public class Model_3DAvatar : MonoBehaviour
         modelpath = "";
     }
 
+    public void ShowModel(bool show)
+    {
+        if (model != null)
+            model.SetActive(show);
+    }
+
     public GameObject GetOutfitModel()
     {
         return model;

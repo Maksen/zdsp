@@ -796,13 +796,14 @@
 
         #region Social
         SocialOnOpenFriendsMenu,
-        SocialRaiseRequestByName,
+        SocialRaiseRequest,
         SocialAcceptRequest,
-        //SocialGetFriendList,
-        /*SocialGetBlackList,
-        SocialGetRequestList,
-        SocialGetRecommandList,
-        SocialAddGoodFriend,*/
+        SocialAcceptAllRequest,
+        SocialRejectRequest,
+        SocialRejectAllRequest,
+        SocialAddBlack,
+        SocialRemoveBlack,
+        SocialRemoveGood,
         #endregion
 
         #region Invincible
@@ -922,9 +923,15 @@
         #endregion
 
         #region Social
-        Ret_SocialRaiseRequestByName,
         Ret_SocialOnOpenFriendsMenu,
-        Ret_SocialAcceptRequest
+        Ret_SocialRaiseRequest,
+        Ret_SocialAcceptRequest,
+        Ret_SocialAcceptAllRequest,
+        Ret_SocialRejectRequest,
+        Ret_SocialRejectAllRequest,
+        Ret_SocialAddBlack,
+        Ret_SocialRemoveBlack,
+        Ret_SocialRemoveGood,
         #endregion
     }
 }

@@ -118,6 +118,7 @@ public class CutsceneManager : MonoBehaviour
 
     public void OnStartCutscene(CutsceneEntity cutsceneEntity)
     {
+        GameInfo.gCombat.OnSelectEntity(null);
         UIManager.GetWidget(HUDWidgetType.Joystick).GetComponent<ZDSPJoystick>().SetActive(false);
         isHudVisible = UIManager.UIHud.IsVisible();
         UIManager.UIHud.HideHUD();

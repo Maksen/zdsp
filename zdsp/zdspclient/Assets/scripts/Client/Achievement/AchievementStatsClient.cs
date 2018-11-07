@@ -230,8 +230,8 @@ public class AchievementStatsClient : AchievementStats
 
     public bool CanUnlockLISATier()
     {
-        LISATransformTierJson highestTier = AchievementRepo.GetHighestLISATierInfoByLevel(player.PlayerSynStats.AchievementLevel);
-        return highestTier != null && highestTier.tierid != HighestUnlockedTier;
+        int highestTier = AchievementRepo.GetHighestLISATierByLevel(player.PlayerSynStats.AchievementLevel);
+        return highestTier != HighestUnlockedTier;
     }
 
     public void OnUnlockLISATier()

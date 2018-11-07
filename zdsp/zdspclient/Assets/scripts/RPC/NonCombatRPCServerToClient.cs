@@ -242,19 +242,50 @@ public partial class ClientMain : MonoBehaviour
 
     #region Social
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialOnOpenFriendsMenu)]
-    public void Ret_SocialOnOpenFriendsMenu()
+    public void Ret_SocialOnOpenFriendsMenu(int resultCode)
     {
+        SocialTestTool.DoAction(ctrl => ctrl.OpenSocialMenu_Completed());
     }
-    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequestByName)]
-    public void Ret_SocialRaiseRequestByName(int resultCode)
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequest)]
+    public void Ret_SocialRaiseRequest(int resultCode)
     {
-        Zealot.Common.Entities.Social.SocialResult result = (Zealot.Common.Entities.Social.SocialResult)resultCode;
-
-        Debug.Log("[RPC]Ret_SocialRaiseRequestByName:" + result.ToString());
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRaiseRequest_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptRequest)]
     public void Ret_SocialAcceptRequest(int resultCode)
     {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialAcceptRequest_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptAllRequest)]
+    public void Ret_SocialAcceptAllRequest(int resultCode)
+    {
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRejectRequest)]
+    public void Ret_SocialRejectRequest(int resultCode)
+    {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRejectRequest_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRejectAllRequest)]
+    public void Ret_SocialRejectAllRequest(int resultCode)
+    {
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAddBlack)]
+    public void Ret_SocialAddBlack(int resultCode)
+    {
+    }
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveBlack)]
+    public void Ret_SocialRemoveBlack(int resultCode)
+    {
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveGood)]
+    public void Ret_SocialRemoveGood(int resultCode)
+    {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRemoveGood_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
     #endregion
 }

@@ -214,7 +214,7 @@ namespace Zealot.DBRepository.GM.NPCStore
             //extract transactions from query
             JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
 
-            if((result[0])["transactionhistory"].GetType() == typeof(System.DBNull))
+            if(result == null || result.Count < 1 || (result[0])["transactionhistory"].GetType() == typeof(System.DBNull))
                 return null;
 
             var serialisedstring = (string)((result[0])["transactionhistory"]);

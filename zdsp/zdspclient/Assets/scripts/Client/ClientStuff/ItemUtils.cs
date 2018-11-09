@@ -11,7 +11,7 @@ public static class ItemUtils
             case ItemRarity.Rare: return "#00CCFF";
             case ItemRarity.Epic: return "#FF00FF";
             case ItemRarity.Celestial: return "#FFF47D";
-            case ItemRarity.Legendary: return "#FFFFFF"; //todo use correct color code.
+            case ItemRarity.Legendary: return "#FFFFFF"; //TODO: use correct color code.
             default: return "#FFFFFF";
         }
     }
@@ -28,5 +28,11 @@ public static class ItemUtils
             case ItemRarity.Legendary: return "ile";
             default: return "ico";
         }
+    }
+
+    public static void OpenDialogItemDetailToolTip(IInventoryItem invItem)
+    {
+        UIManager.OpenDialog(WindowType.DialogItemDetail,
+            (window) => window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(invItem));
     }
 }

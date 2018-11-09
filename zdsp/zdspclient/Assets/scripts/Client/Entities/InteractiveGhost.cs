@@ -28,7 +28,7 @@ namespace Zealot.Client.Entities
             {
                 prefabObj = AssetDatabase.LoadAssetAtPath(AssetLoader.GetLoadString("Assets", prefab), typeof(GameObject)) as GameObject;
                 if (prefabObj != null)
-                    SpawnEntity(prefabObj, parent, pos, rota, ScenesModelRepo.GetScenesModelScale(prefabObj.name));
+                    SpawnEntity(prefabObj, parent, pos, rota, ScenesModelRepo.GetScenesModelScaleByPath(prefab));
                 else
                     Debug.LogFormat("Interactive object doesn't found. {0}. {1}.", prefabObj, prefab);
             }

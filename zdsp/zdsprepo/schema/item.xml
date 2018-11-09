@@ -140,7 +140,7 @@
     <element name="QuestItem" inherit="ItemBase" localizeexport="itemid">
       <constant name="itemtype" type="ItemType" value="ItemType.QuestItem"/>
       <property name="delquesttype" type="int" uitext="Delete Quest Type" default="-1"/>
-      <property name="delquestval" type="int" uitext="Delete Quest Value" default="-1"/>
+      <property name="delquestval" type="string" uitext="Delete Quest Value" default="-1"/>
       <property name="addquesttype" type="int" uitext="Add Quest Type" default="-1"/>
       <property name="addquestid" type="int" uitext="Add Quest ID" default="-1"/>
       <property name="addobjid" type="int" uitext="Add Objective ID" default="-1"/>

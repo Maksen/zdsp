@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Common;
-using Zealot.Client.Entities;
 
 public class RequiredItemData : MonoBehaviour
 {
@@ -52,17 +50,8 @@ public class RequiredItemData : MonoBehaviour
 
     public void OnClick(int id)
     {
-        PlayerGhost player = GameInfo.gLocalPlayer;
-        var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)id);
-        UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), _item);
-        });
-    }
-
-    private void OnClicked_InitTooltip(UI_DialogItemDetailToolTip component, IInventoryItem item)
-    {
-        component.InitTooltip(item);
-        List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
-        component.SetButtonCallback(_buttons);
+        var _item = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.GetItemByItemId((ushort)id);
+        if (_item != null)
+            ItemUtils.OpenDialogItemDetailToolTip(_item);
     }
 }

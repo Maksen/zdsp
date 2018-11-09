@@ -68,21 +68,21 @@ GameObject:
   m_Component:
   - component: {fileID: 4282163955067358}
   m_Layer: 8
-  m_Name: Entities_creatlobby_test
+  m_Name: Entities_move_test01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1318838537701342
+--- !u!1 &1348920892178572
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4876211231951412}
-  - component: {fileID: 114200652070004058}
+  - component: {fileID: 4637417031015186}
+  - component: {fileID: 114685218635777316}
   m_Layer: 0
   m_Name: SceneNPCContainer
   m_TagString: Untagged
@@ -118,6 +118,22 @@ GameObject:
   m_Name: MapSize
   m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1398503183852802
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4158901695826612}
+  - component: {fileID: 114176823092858794}
+  m_Layer: 0
+  m_Name: SceneAssetContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -169,22 +185,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1859252154490496
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 4768779297081480}
-  - component: {fileID: 114507356399582878}
-  m_Layer: 0
-  m_Name: SceneAssetContainer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &1965468687120680
 GameObject:
   m_ObjectHideFlags: 0
@@ -217,6 +217,19 @@ Transform:
   m_Father: {fileID: 4282163955067358}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4158901695826612
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1398503183852802}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4282163955067358}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4184732427394540
 Transform:
   m_ObjectHideFlags: 1
@@ -245,8 +258,8 @@ Transform:
   - {fileID: 224904786772948700}
   - {fileID: 4560519034367584}
   - {fileID: 4041905759059310}
-  - {fileID: 4876211231951412}
-  - {fileID: 4768779297081480}
+  - {fileID: 4637417031015186}
+  - {fileID: 4158901695826612}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -302,6 +315,19 @@ Transform:
   m_Father: {fileID: 4282163955067358}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4637417031015186
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1348920892178572}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4282163955067358}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4661101515125618
 Transform:
   m_ObjectHideFlags: 1
@@ -314,32 +340,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4041905759059310}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4768779297081480
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1859252154490496}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4282163955067358}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4876211231951412
-Transform:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1318838537701342}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4282163955067358}
-  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!108 &108787885053743566
 Light:
@@ -377,22 +377,20 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!114 &114200652070004058
+--- !u!114 &114176823092858794
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1318838537701342}
+  m_GameObject: {fileID: 1398503183852802}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91404214dd7a605458bec53a1953bd96, type: 3}
+  m_Script: {fileID: 11500000, guid: 43b4b9ac5199ced4e94684749aae6e76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  assets:
-  - {fileID: 1104423494426198, guid: 4ccb39c560b27b048b9fcbea57a450a9, type: 2}
-  ExportedAssets:
-  - assetPath: Models/Npcs/Prefabs/boss/prefab_b_010_ju_da_wu_gong.prefab
-    asset: {fileID: 1104423494426198, guid: 4ccb39c560b27b048b9fcbea57a450a9, type: 2}
+  mapIcon: {fileID: 0}
+  spriteList: []
+  ExportedAssets: []
 --- !u!114 &114442436643739006
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -404,7 +402,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -520732
+  entityId: -90598
   ShowInMap: 1
   EntityLinks: []
   activeOnStartup: 1
@@ -422,20 +420,6 @@ MonoBehaviour:
   aggressive: 0
   groupattack: 0
   damageEvent: 0
---- !u!114 &114507356399582878
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1859252154490496}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43b4b9ac5199ced4e94684749aae6e76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mapIcon: {fileID: 0}
-  spriteList: []
-  ExportedAssets: []
 --- !u!114 &114548397681249166
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -447,7 +431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -520736
+  entityId: -90602
   ShowInMap: 1
   EntityLinks: []
   activeOnStartup: 1
@@ -476,7 +460,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae7fb4905bda03a46a0ade2133d9ea70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -520700
+  entityId: -90554
   ShowInMap: 1
 --- !u!114 &114678465448803010
 MonoBehaviour:
@@ -489,6 +473,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd2aab46fd273e34b9bff02842f3d3c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114685218635777316
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1348920892178572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91404214dd7a605458bec53a1953bd96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assets:
+  - {fileID: 1104423494426198, guid: 4ccb39c560b27b048b9fcbea57a450a9, type: 2}
+  ExportedAssets:
+  - assetPath: Models/Npcs/Prefabs/boss/prefab_b_010_ju_da_wu_gong.prefab
+    asset: {fileID: 1104423494426198, guid: 4ccb39c560b27b048b9fcbea57a450a9, type: 2}
 --- !u!114 &114709577122772784
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -500,7 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3db1d6e00fa5c1e448d4863791d54675, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -520734
+  entityId: -90600
   ShowInMap: 1
   EntityLinks: []
   activeOnStartup: 1
@@ -529,7 +529,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d26ffa51573e5947977883abe7fb523, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -520698
+  entityId: -90552
   ShowInMap: 0
 --- !u!114 &114848062013826432
 MonoBehaviour:
@@ -542,7 +542,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77e4092260224fd439b3624c3a28d375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityId: -520696
+  entityId: -90550
   ShowInMap: 1
   EntityLinks: []
 --- !u!224 &224281351565869448

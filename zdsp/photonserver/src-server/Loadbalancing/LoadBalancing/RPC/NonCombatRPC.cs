@@ -381,6 +381,19 @@ namespace Zealot.RPC
             ProxyMethod("Ret_SocialRemoveGood", resultCode, target);
         }
 
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseAllTempRequest)]
+        public void Ret_SocialRaiseAllTempRequest(object target)
+        {
+            ProxyMethod("Ret_SocialRaiseAllTempRequest", target);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialClearTemp)]
+        public void Ret_SocialClearTemp(object target)
+        {
+            ProxyMethod("Ret_SocialClearTemp", target);
+        }
+        
+
         #endregion
     }
 }
@@ -1733,7 +1746,19 @@ namespace Photon.LoadBalancing.GameServer
         {
             peer.mSocialController.SocialRemoveGood(friendName);
         }
-        
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseAllTempRequest)]
+        public void SocialRaiseAllTempRequest(GameClientPeer peer)
+        {
+            peer.mSocialController.SocialRaiseAllTempRequest();
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialClearTemp)]
+        public void SocialClearTemp(GameClientPeer peer)
+        {
+            peer.mSocialController.SocialClearTemp();
+        }
+
         #endregion
     }
 }

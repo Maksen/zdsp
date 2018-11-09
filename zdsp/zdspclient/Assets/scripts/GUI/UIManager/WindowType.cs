@@ -81,6 +81,8 @@
     DialogAchievementAbility = 428,
     DialogAchievementFunctions = 429,
     DialogAchievementTier = 430,
+    DialogCollection = 431,
+    DialogCollectionOrigin = 432,
 
     DialogClaimReward = 440,
 

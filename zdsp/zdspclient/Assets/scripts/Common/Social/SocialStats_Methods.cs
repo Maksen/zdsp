@@ -13,6 +13,7 @@ namespace Zealot.Common.Entities
     public partial class SocialStats : AdvancedLocalObject, IStats
     {
         #region Private Fields
+
         #endregion
 
         #region Constructors
@@ -20,22 +21,12 @@ namespace Zealot.Common.Entities
         {
             m_DebugMode = true;
 
-            NotPatchedItem = new string[] { "checkdate" };
             if (!isServer)
             {
                 m_Tag = "SocialStats";
                 data = new SocialData();
                 this.Root = this.data.Root;
             }
-                
-
-            //未來拿掉;removed future (BEGIN)
-            //friendList = new CollectionHandler<object>(0);
-            //friendList.SetParent(this, "friendList");
-
-            //friendRequestList = new CollectionHandler<object>(0);
-            //friendRequestList.SetParent(this, "friendRequestList");
-            //未來拿掉;removed future (END)
         }
         #endregion
 
@@ -122,10 +113,6 @@ namespace Zealot.Common.Entities
         }
         #endregion
 
-        #endregion
-
-        #region Methods
-        
         #endregion
     }
 

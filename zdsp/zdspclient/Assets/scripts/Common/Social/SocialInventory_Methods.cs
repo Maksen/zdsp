@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Zealot.DebugTools;
 using Zealot.Common.Entities;
+using Zealot.Common.Entities.Social;
 using MsgType = Zealot.Common.Datablock.AdvancedLocalObject.MessageType;
 
 using Newtonsoft.Json.Serialization;
@@ -22,11 +23,18 @@ namespace Zealot.Common
 
         public void LoadDataFromJsonString(string data)
         {
-            JToken _root = null;
-            try { _root = JsonConvert.DeserializeObject<JToken>(data); }
+            JObject _root = null;
+            try { _root = JsonConvert.DeserializeObject<JToken>(data) as JObject; }
             catch { };
-            if (_root == null || _root.Type != JTokenType.Object)
+            if (_root == null)
                 _root = new JObject();
+
+            JToken ver;
+            if (!_root.TryGetValue("version", out ver) || ver.Type != JTokenType.Integer || ver.Value<int>() < Social_Schema.VERSION)
+            {
+                _root = AdvancedLocalObject.Validate<Social_Schema>(_root) as JObject;
+            }
+
             root = _root;
 
             this.data = new Entities.Social.SocialData(root);
@@ -35,14 +43,12 @@ namespace Zealot.Common
 
         public string SaveDataToJsonString()
         {
-            string result = null;
-            try { result = JsonConvert.SerializeObject(data.BuildRecords()); }
-            catch { }
+            string result = data.BuildRecordsString();
 
             if (string.IsNullOrEmpty(result))
             {
                 data.OnUpdateNewRoot(new JObject());
-                result = JsonConvert.SerializeObject(data.Root);
+                result = JsonConvert.SerializeObject(data.Root, Formatting.None);
             }
 
             return result;
@@ -53,6 +59,7 @@ namespace Zealot.Common
     {
         public partial class SocialData
         {
+            #region Internal Methods
             public void BeforePacth( MsgType op, string path, object key)
             {
                 if (!doMap)
@@ -72,11 +79,11 @@ namespace Zealot.Common
                             }
                         }, name =>
                         {
-                            if (name == "recommandFriends")
+                            if (name == "tempFriends")
                             {
-                                for (int i = 0; i < recommandFriends.Count; i++)
+                                for (int i = 0; i < tempFriends.Count; i++)
                                 {
-                                    var f = recommandFriends[i];
+                                    var f = tempFriends[i];
                                     allMap.Remove(f.id);
                                     name2id.Remove(f.name);
                                 }
@@ -128,12 +135,12 @@ namespace Zealot.Common
 
                         }, name =>
                         {
-                            if (name == "recommandFriends")
+                            if (name == "tempFriends")
                             {
-                                for (int i = 0; i < recommandFriends.Count; i++)
+                                for (int i = 0; i < tempFriends.Count; i++)
                                 {
-                                    var f = recommandFriends[i];
-                                    allMap.Add(f.id, new IndexInfo(FriendType.Recommand, i));
+                                    var f = tempFriends[i];
+                                    allMap.Add(f.id, new IndexInfo(FriendType.Temp, i));
                                     name2id.Add(f.name, f.id);
                                 }
                             }
@@ -166,8 +173,10 @@ namespace Zealot.Common
                 }
 
             }
+            #endregion
 
-            public bool GetFriendInfo(string name, out SocialFriend info)
+            #region Info Methods
+            public bool findFriendInfo(string name, out SocialFriend info)
             {
                 if (doMap)
                 {
@@ -180,7 +189,7 @@ namespace Zealot.Common
                 }
                 else
                 {
-                    var lists = new SocialFriendList[] {goodFriends,blackFriends,requestFriends,recommandFriends };
+                    var lists = new SocialFriendList[] {goodFriends,blackFriends,requestFriends, tempFriends };
                     for(int j=0;j< lists.Length;j++)
                     {
                         SocialFriendList list = lists[j];
@@ -196,9 +205,7 @@ namespace Zealot.Common
                 return false;
             }
 
-
-            
-            public int GetCount(FriendType type)
+            public int getCount(FriendType type)
             {
                 switch (type)
                 {
@@ -209,32 +216,109 @@ namespace Zealot.Common
                     case FriendType.Request:
                         return requestFriends.Count;
                     default:
-                        return recommandFriends.Count;
+                        return tempFriends.Count;
                 }
             }
-            public int GetAvailableCount(FriendType type)
+
+            public int getAvailableCount(FriendType type)
             {
                 switch (type)
                 {
                     case FriendType.Good:
-                        return SocialStats.MAX_GOOD_FRIENDS - GetCount(type);
+                        return maxCount_good - getCount(type);
                     case FriendType.Black:
-                        return SocialStats.MAX_BLACK_FRIENDS - GetCount(type);
+                        return maxCount_black - getCount(type);
                     case FriendType.Request:
-                        return SocialStats.MAX_REQUEST_FRIENDS - GetCount(type);
+                        return maxCount_request - getCount(type);
                     default:
-                    case FriendType.Recommand:
-                        return SocialStats.MAX_RECOMMAND_COUNT - GetCount(type);
+                    case FriendType.Temp:
+                        return maxCount_temp - getCount(type);
                 }
             }
 
-            public void ClearFriendList(FriendType type)
+            public SocialFriendList getFriends(FriendType type)
             {
-                getFriends(type).Clear();
+                switch (type)
+                {
+                    case FriendType.Good:
+                        return goodFriends;
+                    case FriendType.Black:
+                        return blackFriends;
+                    case FriendType.Request:
+                        return requestFriends;
+                    default:
+                    case FriendType.Temp:
+                        return tempFriends;
+                }
             }
 
-            #region MapMethods
+            public int getFriendMaxCount(FriendType type)
+            {
+                switch (type)
+                {
+                    case FriendType.Good:
+                        return maxCount_good;
+                    case FriendType.Black:
+                        return maxCount_black;
+                    case FriendType.Request:
+                        return maxCount_request;
+                    default:
+                    case FriendType.Temp:
+                        return maxCount_temp;
+                }
+            }
 
+            public int getSystemFriendMaxCount(FriendType type)
+            {
+                switch (type)
+                {
+                    case FriendType.Good:
+                        return SocialInventoryData.SYS_MAX_GOOD_FRIENDS;
+                    case FriendType.Black:
+                        return SocialInventoryData.SYS_MAX_BLACK_FRIENDS;
+                    case FriendType.Request:
+                        return SocialInventoryData.SYS_MAX_REQUEST_FRIENDS;
+                    default:
+                    case FriendType.Temp:
+                        return SocialInventoryData.SYS_MAX_TEMP_COUNT;
+                }
+            }
+
+            public FriendType getFriendType(string name)
+            {
+                switch (name)
+                {
+                    case "goodFriends":
+                        return FriendType.Good;
+                    case "blackFriends":
+                        return FriendType.Black;
+                    case "requestFriends":
+                        return FriendType.Request;
+                    default:
+                    case "tempFriends":
+                        return FriendType.Temp;
+                }
+            }
+
+            public SocialFriendList getFriends(string name)
+            {
+                switch (name)
+                {
+                    default:
+                        return null;
+                    case "goodFriends":
+                        return goodFriends;
+                    case "blackFriends":
+                        return blackFriends;
+                    case "requestFriends":
+                        return requestFriends;
+                    case "tempFriends":
+                        return tempFriends;
+                }
+            }
+            #endregion
+
+            #region MapMethods
             public void BuildNameMap()
             {
                 if (doMap)
@@ -246,12 +330,12 @@ namespace Zealot.Common
                     buildIndexMap(goodFriends, allMap);
                     buildIndexMap(blackFriends, allMap);
                     buildIndexMap(requestFriends, allMap);
-                    buildIndexMap(recommandFriends, allMap);
+                    buildIndexMap(tempFriends, allMap);
 
                     buildName2IdMap(goodFriends, name2id);
                     buildName2IdMap(blackFriends, name2id);
                     buildName2IdMap(requestFriends, name2id);
-                    buildName2IdMap(recommandFriends, name2id);
+                    buildName2IdMap(tempFriends, name2id);
                 }
             }
 
@@ -275,7 +359,6 @@ namespace Zealot.Common
                         map.Add(f.name, f.id);
                 }
             }
-
 
             void removeIndices(SocialFriendList friends, int[] indices)
             {
@@ -314,9 +397,15 @@ namespace Zealot.Common
             }
             #endregion
 
+            #region Operations Methods
+            public void ClearFriendList(FriendType type)
+            {
+                getFriends(type).Clear();
+            }
+
             public SocialResult RemoveFriendByIndices(FriendType type, int[] indices)
             {
-                if (type == FriendType.Recommand)
+                if (type == FriendType.Temp)
                     return SocialResult.InvalidOperation;
 
                 var friends = getFriends(type);
@@ -329,7 +418,7 @@ namespace Zealot.Common
 
             public SocialResult RemoveFriendAt(FriendType type, int index)
             {
-                if (type == FriendType.Recommand)
+                if (type == FriendType.Temp)
                     return SocialResult.InvalidOperation;
 
                 var friends = getFriends(type);
@@ -454,12 +543,12 @@ namespace Zealot.Common
                 //如果達到最大數量
                 if (list.Count >= getFriendMaxCount(type))
                 {
-                    //如果建議名單已滿，則刪除第一個然後加在最尾端
-                    if (type == FriendType.Recommand)
+                    //如果暫時名單已滿，則刪除第一個然後加在最尾端
+                    if (type == FriendType.Temp)
                     {
-                        var first = list.GetFirst();
                         if (doMap)
                         {
+                            var first = list.GetFirst();
                             allMap.Remove(first.id);
                             moveForward(list, 0);
                             name2id.Remove(first.name);
@@ -486,7 +575,7 @@ namespace Zealot.Common
             {
                 if (NeedClearRecommand())
                 {
-                    recommandFriends.Clear();
+                    tempFriends.Clear();
                     if(doMap)
                     {
                         BuildNameMap();
@@ -502,12 +591,15 @@ namespace Zealot.Common
             {
                 DateTime dt, now = DateTime.Now;
                 string _checkdate = checkdate;
-                return (!AdvancedLocalObject.Parse(_checkdate, out dt) || (dt.Year != now.Year || dt.Year != now.Month || dt.Year != now.Day));
+                return (!AdvancedLocalObject.Parse(_checkdate, out dt) || (dt.Year != now.Year || dt.Month != now.Month || dt.Day != now.Day));
             }
+
             void WriteDate()
             {
                 checkdate = DateTime.Now.ToString(AdvancedLocalObject.DateTimeFormat_Default);
             }
+
+            #endregion
 
         }
     }

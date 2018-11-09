@@ -1798,8 +1798,17 @@ public class QuestClientController
                     break;
                 case QuestEventType.Realm:
                     int realmid;
+                    bool realmstatus;
                     int.TryParse(questEvent.para1, out realmid);
-                    RPCFactory.CombatRPC.CreateRealmByID(realmid, false, false, mQuestEventTriggered);
+                    realmstatus = questEvent.para2 == "1" ? true : false;
+                    if (realmstatus)
+                    {
+                        RPCFactory.CombatRPC.CreateRealmByID(realmid, false, false, mQuestEventTriggered);
+                    }
+                    else
+                    {
+                        RPCFactory.CombatRPC.LeaveRealm();
+                    }
                     canstartnextevent = true;
                     break;
             }
@@ -1901,7 +1910,7 @@ public class QuestClientController
                 RPCFactory.NonCombatRPC.CompleteQuest(questData.QuestId, questJson.replyid);
 
                 if (!GameInfo.gCombat.CutsceneManager.IsPlaying())
-                    mPlayer.Bot.ResumeBot();
+                    BotStateController.Instance.Resume();
             }
         }
         else if ((status == QuestStatus.NewObjective || status == QuestStatus.NewQuest) && bInit)
@@ -1919,7 +1928,7 @@ public class QuestClientController
         else
         {
             UIManager.CloseDialog(WindowType.DialogNpcTalk);
-            mPlayer.Bot.ResumeBot();
+            BotStateController.Instance.Resume();
         }
     }
 
@@ -1941,7 +1950,7 @@ public class QuestClientController
             else
             {
                 UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
-                mPlayer.Bot.ResumeBot();
+                BotStateController.Instance.Resume();
             }
         }
     }
@@ -2072,6 +2081,8 @@ public class QuestClientController
         QuestJson questJson = QuestRepo.GetQuestByID(questid);
         if (questJson != null)
         {
+            BotStateController.Instance.Quest();
+
             switch (type)
             {
                 case QuestObjectiveType.Kill:
@@ -2156,7 +2167,6 @@ public class QuestClientController
         else
         {
             mPlayer.Idle();
-            mPlayer.Bot.PauseBot();
             PartyFollowTarget.Pause(false);
 
             if (levelName == targetlevel)
@@ -2164,7 +2174,7 @@ public class QuestClientController
                 if (isCombat)
                 {
                     mPlayer.PathFindToTarget(targetpos, -1, 0, false, false, () => {
-                        mPlayer.Bot.StartCombatQuest(questId, targetId);
+                        BotStateController.Instance.CombatQuest();
                     });
                 }
                 else
@@ -2172,24 +2182,33 @@ public class QuestClientController
             }
             else
             {
-                if (teleport)
+                bool currentmapisworld = RealmRepo.IsWorld(levelName);
+                bool nextmapisworld = RealmRepo.IsWorld(targetlevel);
+                if ((currentmapisworld && !nextmapisworld) || (!currentmapisworld && nextmapisworld))
                 {
-                    GameInfo.mTeleportAction = new QuestTeleportAction(type, targetId, questId, isobjective);
-                    RPCFactory.CombatRPC.OnTeleportToLevel(targetlevel);
+                    UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("qst_targetcannotteleport"));
                 }
                 else
                 {
-                    BotController.TheDijkstra.DoRouter(levelName, targetlevel, out foundtarget);
-                    if (foundtarget)
+                    if (teleport)
                     {
-                        BotController.DestLevel = targetlevel;
-                        BotController.DestMapPos = targetpos;
-                        BotController.DestAction = isCombat ? ReachTargetAction.StartBot : ReachTargetAction.NPC_Interact;
-                        BotController.DestArchtypeID = isCombat ? -1 : targetId;
-                        GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
+                        GameInfo.mTeleportAction = new QuestTeleportAction(type, targetId, questId, isobjective);
+                        RPCFactory.CombatRPC.OnTeleportToLevel(targetlevel);
                     }
                     else
-                        UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
+                    {
+                        BotController.TheDijkstra.DoRouter(levelName, targetlevel, out foundtarget);
+                        if (foundtarget)
+                        {
+                            BotController.DestLevel = targetlevel;
+                            BotController.DestMapPos = targetpos;
+                            BotController.DestAction = isCombat ? ReachTargetAction.StartBot : ReachTargetAction.NPC_Interact;
+                            BotController.DestArchtypeID = isCombat ? -1 : targetId;
+                            GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
+                        }
+                        else
+                            UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
+                    }
                 }
             }
         }

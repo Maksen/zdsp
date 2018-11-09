@@ -28,6 +28,7 @@ public class UI_Achievement : BaseWindowBehaviour
     [SerializeField] UI_ProgressBarC[] achievementTypesProgress;
     [SerializeField] Button claimRewardBtn;
     [SerializeField] UI_Achievement_AchievementDetails uiAchDetails;
+    [SerializeField] UI_Achievement_CollectionDetails uiColDetails;
 
     private AchievementStatsClient achStats;
     private PlayerGhost player;
@@ -87,7 +88,9 @@ public class UI_Achievement : BaseWindowBehaviour
         messageObj.SetActive(true);
         claimRewardBtn.gameObject.SetActive(true);
         dragSpinAvatar.Reset();
+        modelAvatar.Cleanup();
         uiAchDetails.CleanUp();
+        uiColDetails.CleanUp();
         hasRewardFunctionUnlocked = false;
         if (refreshCoroutine != null)
         {

@@ -206,17 +206,8 @@ public class UI_CharacterEquipmentCraftManager : MonoBehaviour
     public void OnClickMaterial()
     {
         var _item = player.clientItemInvCtrl.itemInvData.GetItemByItemId(materialId);
-        UIManager.OpenDialog(WindowType.DialogItemDetail, (window) =>
-        {
-            OnClicked_InitTooltip(window.GetComponent<UI_DialogItemDetailToolTip>(), _item);
-        });
-    }
-
-    private void OnClicked_InitTooltip(UI_DialogItemDetailToolTip component, IInventoryItem item)
-    {
-        component.InitTooltip(item);
-        List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
-        component.SetButtonCallback(_buttons);
+        if (_item != null)
+            ItemUtils.OpenDialogItemDetailToolTip(_item);
     }
 
     public void CraftEquipment()

@@ -24,6 +24,7 @@ namespace Zealot.Repository
         public CollectionType type;
         public int targetId;
         public List<SideEffectJson> storeSEs = new List<SideEffectJson>();
+        public object targetJsonObject;
 
         public CollectionObjective(CollectionObjectiveJson json)
         {
@@ -54,6 +55,26 @@ namespace Zealot.Repository
                             storeSEs.Add(se);
                     }
                 }
+            }
+
+            switch (type)
+            {
+                case CollectionType.Monster:
+                    targetJsonObject = CombatNPCRepo.GetNPCById(targetId);
+                    break;
+                case CollectionType.Fashion:
+                case CollectionType.Relic:
+                case CollectionType.DNA:
+                    targetJsonObject = GameRepo.ItemFactory.GetInventoryItem(targetId);
+                    break;
+                case CollectionType.Hero:
+                    targetJsonObject = HeroRepo.GetHeroById(targetId);
+                    break;
+                case CollectionType.NPC:
+                    targetJsonObject = StaticNPCRepo.GetNPCById(targetId);
+                    break;
+                case CollectionType.Photo:
+                    break;
             }
         }
     }
@@ -478,6 +499,14 @@ namespace Zealot.Repository
                     lisaMsgGroups.Add(entry.Value.directiontype, new LISAMessageGroup());
                 lisaMsgGroups[entry.Value.directiontype].AddToGroup(entry.Value);
             }
+        }
+
+        public static string GetCollectionTypeLockString(CollectionType type)
+        {
+            CollectionCategoryJson json;
+            if (collectionCategories.TryGetValue(type, out json))
+                return json.localizedunlock;
+            return "";
         }
 
         public static BaseAchievementObjective GetObjectiveByTypeAndId(AchievementKind type, int id)

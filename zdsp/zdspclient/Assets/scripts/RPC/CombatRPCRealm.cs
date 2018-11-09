@@ -17,7 +17,6 @@ public partial class ClientMain : MonoBehaviour
         if (mRealmInfo == null)
             return;
 
-        IsRealmInfoReady = true;
         RealmType realmType = mRealmInfo.type;
         switch (realmType)
         {

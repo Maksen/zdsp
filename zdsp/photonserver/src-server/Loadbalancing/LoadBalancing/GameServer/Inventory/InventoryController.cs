@@ -468,7 +468,7 @@ namespace Photon.LoadBalancing.GameServer
         {              
             List<int> seIds = new List<int>();
             string seStr = equipmentJson.basese;
-            if (!string.IsNullOrEmpty(seStr))
+            if (!string.IsNullOrEmpty(seStr) && seStr != "-1")
             {
                 string[] seStrIds = seStr.Split(';');
                 int length = seStrIds.Length;

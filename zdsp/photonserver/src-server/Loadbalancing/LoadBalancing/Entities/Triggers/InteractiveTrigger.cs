@@ -13,7 +13,6 @@ namespace Zealot.Server.Entities
     {
         public InteractiveTriggerJson mPropertyInfos;
         public GameLogic mInstance;
-        private bool mActive = false;
         private int mCounter = 0;
         public InteractiveGate mEntity = null;
 
@@ -31,7 +30,6 @@ namespace Zealot.Server.Entities
 
         public void InstanceStartUp()
         {
-            mActive = mPropertyInfos.activeOnStartup;
             if (mEntity == null)
                 SpawnEntity();
         }
@@ -71,7 +69,9 @@ namespace Zealot.Server.Entities
                 mEntity.ClearAction();
                 if (mPropertyInfos.keyId > 0)
                 {
-                    List<ItemInfo> consumeItem = new List<ItemInfo>() { new ItemInfo { itemId = (ushort)mPropertyInfos.keyId, stackCount = 1 } };
+                    List<ItemInfo> consumeItem = new List<ItemInfo>() {
+                        new ItemInfo { itemId = (ushort)mPropertyInfos.keyId, stackCount = 1 }
+                    };
                     InvRetval result = player.mPlayer.Slot.mInventory.DeductItems(consumeItem, "OnInteractive");
                     if (result.retCode == InvReturnCode.UseFailed)
                     {
@@ -80,7 +80,6 @@ namespace Zealot.Server.Entities
                 }
 
                 mCounter = (mCounter == -1) ? -1 : mCounter - 1;
-                mEntity.mPropertyInfos.counter = mCounter;
                 InteractiveTriggerRule.CompeletedEvent(pid);
                 
                 if (mPropertyInfos.isArea && canCount)
@@ -91,9 +90,13 @@ namespace Zealot.Server.Entities
                 bool afterCanCount = CanUseByCount();
                 mEntity.step = (afterCanCount) ? InteractiveTriggerStep.None : InteractiveTriggerStep.CannotUse;
                 mEntity.canTrigger = afterCanCount;
-                BroadcastAllPlayer(mEntity.GetPersistentID());
-                object[] _paramters = { player };
-                mInstance.BroadcastEvent(this, "OnInteractive", _paramters);
+
+                if (!afterCanCount)
+                {
+                    BroadcastAllPlayer();
+                }
+
+                mInstance.BroadcastEvent(this, "OnInteractive", null);
             }
         }
 
@@ -105,28 +108,31 @@ namespace Zealot.Server.Entities
         #region Triggers
         public void TurnOn(IServerEntity sender, object[] parameters = null)
         {
-            mActive = true;
+            mEntity.mPropertyInfos.activeOnStartup = true;
+            BroadcastAllPlayer();
         }
 
         public void TurnOff(IServerEntity sender, object[] parameters = null)
         {
-            mActive = false;
+            mEntity.mPropertyInfos.activeOnStartup = false;
+            BroadcastAllPlayer();
         }
 
         public void Reset (IServerEntity sender, object[] parameters = null)
         {
-            mActive = true;
             mCounter = mPropertyInfos.counter;
             mEntity.canTrigger = true;
             mEntity.step = InteractiveTriggerStep.None;
-            BroadcastAllPlayer(mEntity.GetPersistentID());
+            BroadcastAllPlayer();
         }
         #endregion
 
-        private void BroadcastAllPlayer(int pid)
+        private void BroadcastAllPlayer()
         {
-            GameApplication.BroadcastInteractiveCount(pid, mEntity.canTrigger,
-                InteractiveTriggerRule.CanActiveGameObject(mEntity), (int)mEntity.step);
+            string canTriggerable = System.Convert.ToInt32(mEntity.canTrigger).ToString();
+            string canActive = System.Convert.ToInt32(InteractiveTriggerRule.CanActiveGameObject(mEntity)).ToString();
+            GameApplication.BroadcastInteractiveCount(mEntity.GetPersistentID().ToString(), canTriggerable,
+                canActive, ((int)mEntity.step).ToString());
         }
     }
 
@@ -137,7 +143,6 @@ namespace Zealot.Server.Entities
         public bool canTrigger;
         public InteractiveTriggerStep step = InteractiveTriggerStep.None;
 
-
         public InteractiveGate() : base()
         {
             this.EntityType = EntityType.InteractiveTrigger;
@@ -147,7 +152,7 @@ namespace Zealot.Server.Entities
         {
             mPropertyInfos = interactive.mPropertyInfos;
             mInstance = interactive.mInstance;
-            entityName = mPropertyInfos.archetype;
+            entityName = mPropertyInfos.npcArchetype;
             canTrigger = true;
         }
 
@@ -162,10 +167,15 @@ namespace Zealot.Server.Entities
         {
             CancelAction();
 
+            if (string.IsNullOrEmpty(entityName))
+                return;
+
             string path = StaticNPCRepo.GetModelPrefabPathByArchetype(entityName);
-            if(path == null || path == "")
+            if(string.IsNullOrEmpty(path))
             {
                 path = ScenesModelRepo.GetScenesModelJson(entityName).modelprefabpath;
+                if (string.IsNullOrEmpty(path))
+                    return;
             }
 
             peer.ZRPC.CombatRPC.SpawnInteractiveEntity(mnPersistentID, path, mPropertyInfos.parentPath,

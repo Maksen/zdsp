@@ -1,3 +1,4 @@
+using Candlelight.UI;
 using ExitGames.Client.Photon;
 using Kopio.JsonContracts;
 using System;
@@ -15,13 +16,12 @@ using Zealot.Common.Datablock;
 using Zealot.Common.Entities;
 using Zealot.Common.RPC;
 using Zealot.Repository;
-using Candlelight.UI;
 
 public enum GameZone
 {
-    Safe,//0
-    Unsafe,//1
-    Invalid	//2
+    Safe,   //0
+    Unsafe, //1
+    Invalid //2
 }
 
 public class PlayerSkillCDState
@@ -184,8 +184,6 @@ public partial class ClientMain : MonoBehaviour
 
         RPCFactory.CombatRPC.OnClientLevelLoaded();
     }
-
-    public bool IsRealmInfoReady { get; set; }
 
     public void InitPlayerCamera(GameObject camera)
     {
@@ -410,27 +408,28 @@ public partial class ClientMain : MonoBehaviour
             while (error.InnerException != null)
                 error = error.InnerException;
 
-            Debug.LogError("UpdateLocalObject " + objtype + ", " + code + ": " + error.ToString() + ", MethodName: " + methodname);
+            Debug.LogErrorFormat("UpdateLocalObject {0}, {1}: {2}, MethodName: {3}", objtype.ToString(), code, error.ToString(), methodname);
         }
     }
 
     //-------------------------------------------------------------------------------------------------------
     //RPC Calls:
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnPlayerEntity)]
-    public void SpawnPlayerEntity(bool isLocal, int ownerid, string playername, int pid, byte gender, RPCPosition rpcpos, RPCDirection rpcdir)
+    public void SpawnPlayerEntity(bool isLocal, int ownerid, string playerName, int pid, byte gender, RPCPosition rpcpos, RPCDirection rpcdir)
     {
         Vector3 pos = rpcpos.ToVector3();
-        Debug.Log("SpawnPlayerEntity owner = " + ownerid + ", playername = " + playername + ", persistentid = " + pid + ",pos = (" + pos.x + ", " + pos.y + "," + pos.z);
+        Debug.LogFormat("SpawnPlayerEntity owner = {0}, playername = {1}, persistentid = {2}, pos = ({3}, {4}, {5})", 
+            ownerid, playerName, pid, pos.x, pos.y, pos.z);
 
         PlayerGhost playerghost = mEntitySystem.SpawnNetEntityGhost<PlayerGhost>(pid);
         playerghost.IsLocal = isLocal;
         playerghost.SetOwnerID(ownerid);
-        playerghost.Init(playername, gender, pos, rpcdir.ToVector3());
+        playerghost.Init(playerName, gender, pos, rpcdir.ToVector3());
 
         //Setup camera and control if this is local playerghost
         if (playerghost.IsLocal)
         {
-            Debug.Log("Spawn local player = " + playername);//please do not remove, is for logging purpose
+            Debug.LogFormat("Spawn local player = {0}", playerName);//please do not remove, is for logging purpose
             GameInfo.gLocalPlayer = playerghost;
             playerghost.Idle();
 
@@ -444,7 +443,7 @@ public partial class ClientMain : MonoBehaviour
 
             mPlayerInput.Init(playerghost);
             mPlayerInput.enabled = true;
-            GameInfo.gLocalPlayer.InitBot(mPlayerInput);
+            GameInfo.gLocalPlayer.InitBot();
 
             if (GameInfo.gDmgLabelPool == null)
             {
@@ -560,17 +559,18 @@ public partial class ClientMain : MonoBehaviour
     private void SpawnClientSpawners()
     {
         ClientSpawnerBase[] spawners = FindObjectsOfType(typeof(ClientSpawnerBase)) as ClientSpawnerBase[];
-        foreach (ClientSpawnerBase spawner in spawners)
-        {
-            spawner.Spawn(mEntitySystem);
-        }
+        int length = spawners.Length;
+        for (int i = 0; i < length; ++i)
+            spawners[i].Spawn(mEntitySystem);
     }
 
     public void HideClientSpawner(string archetype)
     {
         ClientSpawnerBase[] spawners = FindObjectsOfType(typeof(ClientSpawnerBase)) as ClientSpawnerBase[];
-        foreach (ClientSpawnerBase spawner in spawners)
+        int length = spawners.Length;
+        for (int i = 0; i < length; ++i)
         {
+            ClientSpawnerBase spawner = spawners[i];
             if (spawner is StaticNPCSpawner)
             {
                 StaticNPCSpawner staticNPCSpawner = spawner as StaticNPCSpawner;
@@ -858,10 +858,9 @@ public partial class ClientMain : MonoBehaviour
         }
         else
         {
-            IInventoryItem item = GameRepo.ItemFactory.GetItemFromCode(linkInfo.Name, true);
-            if (item == null)
-                return;
-            //ItemUtils.OnViewItem(item);
+            IInventoryItem invItem = GameRepo.ItemFactory.GetItemFromCode(linkInfo.Name, true);
+            if (invItem != null)
+                ItemUtils.OpenDialogItemDetailToolTip(invItem);
         }
     }
 
@@ -1329,7 +1328,7 @@ public partial class ClientMain : MonoBehaviour
         action.SetCompleteCallback(() => 
         {
             localplayer.Idle();
-            localplayer.Bot.FinishCastSkill();
+            Zealot.Bot.BotCastSkillHandler.Instance.FinishCastSkill();
         });
 
         bool canStart = localplayer.PerformAction(action);
@@ -1544,7 +1543,7 @@ public partial class ClientMain : MonoBehaviour
 
     private void AutoSelectNearestEnemy()
     {
-        var nearestTarget = GameInfo.gLocalPlayer.Bot.GetNearestEnemyInRange(10);
+        var nearestTarget = Zealot.Bot.QueryContext.Instance.QueryResult();
         GameInfo.gSelectedEntity = nearestTarget;
     }
 }

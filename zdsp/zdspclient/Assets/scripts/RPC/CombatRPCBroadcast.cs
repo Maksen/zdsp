@@ -125,7 +125,7 @@ public partial class ClientMain : MonoBehaviour
                 MessageBroadcaster(int.Parse(parameters_array[0]) == 1, parameters_array[1]);
                 break;
             case BroadcastMessageType.InteractiveTrigger:
-                BroadcastInteractiveTrigge(int.Parse(parameters_array[0]), bool.Parse(parameters_array[1]), bool.Parse(parameters_array[2]), int.Parse(parameters_array[3]));
+                BroadcastInteractiveTrigge(parameters_array[0], parameters_array[1], parameters_array[2], parameters_array[3]);
                 break;
         }
     }
@@ -396,8 +396,20 @@ public partial class ClientMain : MonoBehaviour
             UIManager.ShowSystemMessage(_message, true);
     }
 
-    private void BroadcastInteractiveTrigge(int pid, bool canUse, bool active, int step)
+    private void BroadcastInteractiveTrigge(string pid, string canUse, string active, string step)
     {
-        GameInfo.gLocalPlayer.InteractiveController.SetEntityStats(pid, canUse, active, step);
+        string[] pidGroup = pid.Split(',');
+        int[] pidArr = Array.ConvertAll(pidGroup, (p => Convert.ToInt32(p)));
+        pidGroup = canUse.Split(',');
+        bool[] canUseArr = Array.ConvertAll(pidGroup, (p => p == "1"));
+        pidGroup = active.Split(',');
+        bool[] activeArr = Array.ConvertAll(pidGroup, (p => p == "1"));
+        pidGroup = step.Split(',');
+        int[] stepArr = Array.ConvertAll(pidGroup, (p => Convert.ToInt32(p)));
+
+        for (int i = 0; i < pidArr.Length; ++i)
+        {
+            GameInfo.gLocalPlayer.InteractiveController.SetEntityStats(pidArr[i], canUseArr[i], activeArr[i], stepArr[i]);
+        }
     }
 }

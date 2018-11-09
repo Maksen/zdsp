@@ -653,8 +653,7 @@ public class CommandManager
             int amt;
             if (int.TryParse(param[0], out amt) && amt >= 0 && amt < 4)
             {
-                Zealot.Bot.BotController.BotMode mode = (Zealot.Bot.BotController.BotMode)amt;
-                GameInfo.gLocalPlayer.Bot.StartBot(mode);
+                GameInfo.gLocalPlayer.Bot.StartBot();
             }
             else
                 PrintToConsole("SetBotMode 0 1 2 3 ");

@@ -9,9 +9,7 @@
     using Photon.LoadBalancing.GameServer.CombatFormula;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Text;
-    using System.Threading.Tasks;
     using UnityEngine;
     using Zealot.Common;
     using Zealot.Common.Datablock;
@@ -694,8 +692,10 @@
 
         public void UnreliableLocalEntityUpdate(GameClientPeer peer)
         {
-            foreach (AttackResult res in mDamageResults)
+            int count = mDamageResults.Count;
+            for (int i = 0; i < count; ++i)
             {
+                AttackResult res = mDamageResults[i];
                 peer.ZRPC.UnreliableCombatRPC.EntityOnDamage(res.TargetPID, 0, res.AttackInfo, res.RealDamage, res.LabelNum, res.Skillid, peer);
             }
             mDamageResults.Clear();

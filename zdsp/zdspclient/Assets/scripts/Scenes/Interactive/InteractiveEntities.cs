@@ -6,6 +6,7 @@ public class InteractiveEntities : MonoBehaviour {
     
     public InteractiveTrigger parentTrigger;
     bool canClick = false;
+    PlayerGhost player;
 
 	void Start () {
         parentTrigger = transform.parent.GetComponent<InteractiveTrigger>();
@@ -17,7 +18,7 @@ public class InteractiveEntities : MonoBehaviour {
 
     public void OnClickEntity()
     {
-        PlayerGhost player = GameInfo.gLocalPlayer;
+        player = GameInfo.gLocalPlayer;
         Vector3 distance = new Vector3(player.Position.x - transform.position.x, 0, player.Position.z - transform.position.z);
         if (distance.sqrMagnitude > 2 * 2)
         {
@@ -34,7 +35,7 @@ public class InteractiveEntities : MonoBehaviour {
         if (canClick && parentTrigger.GetStep() == Zealot.Common.InteractiveTriggerStep.None)
         {
             int entityId = parentTrigger.EntityId;
-            GameInfo.gLocalPlayer.InteractiveController.OnActionEnter(entityId,
+            player.InteractiveController.OnActionEnter(entityId,
                 parentTrigger.interrupt, false, parentTrigger.GetComponent<InteractiveTrigger>());
         }
     }

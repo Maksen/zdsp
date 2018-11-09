@@ -20,4 +20,10 @@ public class EquipmentReformStats : MonoBehaviour
         statsLabel.text = ClientUtils.GetLocalizedReformKai(reformStep);
         statsValue.text = seName;
     }
+
+    public void Init(string seName, int seValue)
+    {
+        statsLabel.text = seName;
+        statsValue.text = seValue.ToString();
+    }
 }

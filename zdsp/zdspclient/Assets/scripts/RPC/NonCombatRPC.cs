@@ -1003,11 +1003,22 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("SocialRemoveBlack", friendName);
     }
 
-
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRemoveGood)]
     public void SocialRemoveGood(string friendName)
     {
         ProxyMethod("SocialRemoveGood", friendName);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseAllTempRequest)]
+    public void SocialRaiseAllTempRequest()
+    {
+        ProxyMethod("SocialRaiseAllTempRequest");
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialClearTemp)]
+    public void SocialClearTemp()
+    {
+        ProxyMethod("SocialClearTemp");
     }
     #endregion
 }

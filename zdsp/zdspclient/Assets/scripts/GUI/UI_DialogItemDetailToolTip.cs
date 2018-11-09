@@ -215,7 +215,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         ClearTTBtn();
         if (buttons != null)
         {
-            for (int index = 0; index < buttons.Count; index++)
+            for (int index = 0; index < buttons.Count; ++index)
                 CreateLeftPanelButton(buttons[index]);
         }
     }
@@ -1247,34 +1247,36 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         if (item.JsonObject.itemtype != ItemType.Equipment || isEquippedItem)
             return;
 
-        Equipment eq2 = item as Equipment;
+        Equipment eqX = item as Equipment;
         //find equipment slot index of preview equipment
-        var eqSlot = GameInfo.gLocalPlayer.mEquipmentInvData.FindAEquipSlotToSwap(eq2);
+        EquipmentSlot eqSlot = GameInfo.gLocalPlayer.mEquipmentInvData.FindAEquipSlotToSwap(eqX);
+        EquipmentSlot eqSlot2 = EquipmentSlot.MAXSLOTS;
         if (eqSlot == EquipmentSlot.MAXSLOTS)
             return;
+        switch (eqSlot)
+        {
+            case EquipmentSlot.Ring1:
+                eqSlot2 = EquipmentSlot.Ring2;
+                break;
+            case EquipmentSlot.Ring2:
+                eqSlot2 = EquipmentSlot.Ring1;
+                break;
+            case EquipmentSlot.Accessory1:
+                eqSlot2 = EquipmentSlot.Accessory2;
+                break;
+            case EquipmentSlot.Accessory2:
+                eqSlot2 = EquipmentSlot.Accessory1;
+                break;
+        }
+        
         //find equipped equipment at equipment slot index
         Equipment eq1 = GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)eqSlot);
         if (eq1 == null)
             return;
-        //find similarity and differences of their base side effect
-        Dictionary<int, SideEffectJson> eq1SeDic;
-        Dictionary<int, SideEffectJson> eq2SeDic;
-        RetrieveSideEffect(eq1.EquipmentJson.basese, out eq1SeDic);
-        RetrieveSideEffect(eq2.EquipmentJson.basese, out eq2SeDic);
-        HashSet<int> commonKeys = new HashSet<int>(eq1SeDic.Keys);
-        commonKeys.IntersectWith(eq2SeDic.Keys);
-        HashSet<int> uncommonKeys = new HashSet<int>(eq1SeDic.Keys);
-        uncommonKeys.UnionWith(eq2SeDic.Keys);
-        uncommonKeys.ExceptWith(commonKeys);
+        Equipment eq2 = GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)eqSlot2);
 
-        List<int> commonKeysLst = commonKeys.ToList();
-        List<SideEffectJson> uncommonEffLst = eq1SeDic.Where(x => uncommonKeys.Contains(x.Key))
-                                              .Concat(eq2SeDic.Where(y => uncommonKeys.Contains(y.Key)))
-                                              .Select(z => z.Value)
-                                              .ToList();
-
-        CompareEquipment_Common(commonKeysLst, eq1SeDic, eq2SeDic);
-        CompareEquipment_Uncommon(uncommonEffLst);
+        CompareEquipment(eq1, eqX);
+        CompareEquipment(eq2, eqX);
 
         //TODO: Need to implement ring or accessory double comparison
 
@@ -1302,6 +1304,39 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             seDic.Add(x, sej);
         }
     }
+    private void CompareEquipment(Equipment eq, Equipment eqX)
+    {
+        if (eq == null || eqX == null)
+            return;
+
+        Text t = null;
+        CreateText(out t);
+        t.gameObject.transform.SetParent(mCompareParent.transform, false);
+        t.text = eq.GetEquipmentName();
+
+        //find similarity and differences of their base side effect
+        Dictionary<int, SideEffectJson> eq1SeDic;
+        Dictionary<int, SideEffectJson> eqXSeDic;
+        RetrieveSideEffect(eq.EquipmentJson.basese, out eq1SeDic);
+        RetrieveSideEffect(eqX.EquipmentJson.basese, out eqXSeDic);
+        HashSet<int> commonKeys = new HashSet<int>(eq1SeDic.Keys);
+        commonKeys.IntersectWith(eqXSeDic.Keys);
+        HashSet<int> uncommonKeys = new HashSet<int>(eq1SeDic.Keys);
+        uncommonKeys.UnionWith(eqXSeDic.Keys);
+        uncommonKeys.ExceptWith(commonKeys);
+
+        List<int> commonKeysLst = commonKeys.ToList();
+        List<SideEffectJson> uncommonEffLst = eq1SeDic.Where(x => uncommonKeys.Contains(x.Key))
+                                              .Concat(eqXSeDic.Where(y => uncommonKeys.Contains(y.Key)))
+                                              .Select(z => z.Value)
+                                              .ToList();
+
+        CompareEquipment_Common(commonKeysLst, eq1SeDic, eqXSeDic);
+        CompareEquipment_Uncommon(uncommonEffLst);
+
+        //Create a line for next equip
+        Instantiate(mTTLinePrefab, mCompareParent.transform);
+    }
     private void CompareEquipment_Common(List<int> keysLst, Dictionary<int, SideEffectJson> effDic, Dictionary<int, SideEffectJson> eff2Dic)
     {
         if (keysLst == null || effDic == null)
@@ -1316,7 +1351,9 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             tcvp.Identifier = effDic[keysLst[i]].description;
             float nMin = eff2Dic[keysLst[i]].min - effDic[keysLst[i]].min;
             float nMax = eff2Dic[keysLst[i]].max - effDic[keysLst[i]].max;
-            tcvp.Value = string.Format("{0} ~ {1}", nMin, nMax);
+            tcvp.Value = string.Format("{0} ~ {1}",
+                                        nMin.ToString("+#####.###;-#####.###;0"),
+                                        nMax.ToString("+#####.###;-#####.###;0"));
         }
     }
     private void CompareEquipment_Uncommon(List<SideEffectJson> effLst)
@@ -1332,9 +1369,11 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             //TODO: Add + - to values
             tcvp.Identifier = effLst[i].description;
             if (effLst[i].min == effLst[i].max)
-                tcvp.Value = effLst[i].min.ToString();
+                tcvp.Value = effLst[i].min.ToString("+#####.###;-#####.###;0");
             else
-                tcvp.Value = string.Format("{0} ~ {1}", effLst[i].min, effLst[i].max);
+                tcvp.Value = string.Format("{0} ~ {1}", 
+                                            effLst[i].min.ToString("+#####.###;-#####.###;0"),
+                                            effLst[i].max.ToString("+#####.###;-#####.###;0"));
         }
     }
 

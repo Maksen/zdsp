@@ -235,6 +235,45 @@ namespace Zealot.Common.Datablock
         #endregion
     }
 
+    public class JsonBuildUtilities
+    {
+        private StringBuilder m_Builder;
+        public JsonBuildUtilities(int capacity)
+        {
+            m_Builder = new StringBuilder(capacity);
+        }
+
+        public string BuildJsonStringSpecificed(JObject obj, string[][] specificedKeyGroups)
+        {
+            bool first = true;
+            m_Builder.Length = 0;
+            m_Builder.Append('{');
+
+            foreach (var group in specificedKeyGroups)
+            {
+                foreach (var key in group)
+                {
+                    JToken ch;
+                    if (!obj.TryGetValue(key, out ch))
+                        continue;
+
+                    if (first)
+                        first = false;
+                    else
+                        m_Builder.Append(',');
+
+                    m_Builder.Append('\"');
+                    m_Builder.Append(key);
+                    m_Builder.Append("\":");
+                    m_Builder.Append(ch.ToString(Formatting.None));
+                }
+            }
+            m_Builder.Append('}');
+
+            return m_Builder.ToString();
+        }
+    }
+
     /// <summary>
     /// AdvancedLocalObject使用的資料
     /// 請創建一個class並繼承此類別，該class的Root代表整塊json
@@ -247,22 +286,26 @@ namespace Zealot.Common.Datablock
         protected string[] m_States;
         protected string[] m_ServerRecords;
 
-        public JToken BuildRecords()
+        private JsonBuildUtilities builder=new JsonBuildUtilities(256);
+
+        public string BuildRecordsString()
         {
-            JObject data = new JObject();
-            if(m_Records!=null)
-                foreach(var item in m_Records)
-                    data.Add(item, m_Root[item].DeepClone());
-
-            if (m_ServerRecords != null)
-                foreach (var item in m_ServerRecords)
-                    data.Add(item, m_Root[item].DeepClone());
-
-            return data;
+            if (m_Root.Type == JTokenType.Object)
+                return builder.BuildJsonStringSpecificed(m_Root as JObject, new string[][] { m_Records, m_ServerRecords });
+            else
+                return m_Root.ToString(Formatting.None);
         }
 
         public void PatchToClient()
         {
+            if (m_Obj == null)
+                return;
+
+            if(m_Obj.Root.Type != JTokenType.Object)
+            {
+                m_Obj.PatchPath(string.Empty);
+                return;
+            }
             if (m_Records != null)
                 foreach (var item in m_Records)
                     m_Obj.PatchKey(item);
@@ -324,7 +367,57 @@ namespace Zealot.Common.Datablock
             return new JObject();
         }
 
-        
+        /// <summary>
+        /// 取得路徑上的值
+        /// </summary>
+        public T GetPathValue<T>(string path)
+        {
+            return m_Root.SelectToken(path).Value<T>();
+        }
+
+
+        /// <summary>
+        /// 設定路徑上的值. 必須要server與client 都有預設此路徑，要不然無法設定給client. 注意路徑無法為空值
+        /// </summary>
+        public void SetPathValue(string path, object value)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                JValue node = m_Root.SelectToken(path) as JValue;
+                if (node != null)
+                {
+                    node.Value = value;
+                    if (m_Obj != null)
+                        m_Obj.PatchUpdateValue(path, value);
+                }
+                else
+                {
+                    DebugTool.Error("[AdvancedLocalObjectDataExtensions] method:'SetPathValue' reason:'node of path is not JValue'");
+                }
+            }
+            else
+                DebugTool.Error("[AdvancedLocalObjectDataExtensions] method:'SetPathValue' reason:'path can't be empty.'");
+        }
+
+        /// <summary>
+        /// 設定路徑上的值. 但不更新給client
+        /// </summary>
+        public void SetPathValueNoPatch(string path, object value)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                JValue node = m_Root.SelectToken(path) as JValue;
+                if (node != null)
+                    node.Value = value;
+                else
+                {
+                    DebugTool.Error("[AdvancedLocalObjectDataExtensions] method:'SetPathValueNoPatch' reason:'node of path is not JValue'");
+                }
+            }
+            else
+                DebugTool.Error("[AdvancedLocalObjectDataExtensions] method:'SetPathValueNoPatch' reason:'path can't be empty.'");
+        }
+
         public T GetValue<T>(string name)
         {
             return m_Root[name].Value<T>();
@@ -574,6 +667,17 @@ namespace Zealot.Common.Datablock
             /// </summary>
             Event = 'e',
         }
+
+        public static JToken Validate<T>(JToken data)
+            where T : class, new()
+        {
+            string json = data.ToString(Formatting.None);
+            T validated = JsonConvert.DeserializeObject<T>(json) as T;
+            if (validated == null)
+                validated = new T();
+            return JsonConvert.DeserializeObject<JToken>(JsonConvert.SerializeObject(validated));
+        }
+
         protected string m_Tag=string.Empty;
         protected bool m_IsServer;
         protected bool m_DebugMode = false;
@@ -678,12 +782,6 @@ namespace Zealot.Common.Datablock
         //public string TimeSpanFormat { get; set; }
 
 
-        /// <summary>
-        /// 當執行PatchFull時，可篩選掉不要傳送的資訊
-        /// </summary>
-        [NotSynced]
-        public string[] NotPatchedItem { get; set; }
-
         public AdvancedLocalObject(LOTYPE type,bool isServer) : base(type)
         {
 
@@ -753,7 +851,7 @@ namespace Zealot.Common.Datablock
         /// </summary>
         public void PatchFull()
         {
-            PatchUpdateValue("", JsonFilter(Root, NotPatchedItem));
+            PatchUpdateValue("", Root);
         }
 
         /// <summary>
@@ -1696,7 +1794,7 @@ namespace Zealot.Common.Datablock
 
         public T GetFirst()
         {
-            return GetNode(array[array.Count - 1]);
+            return GetNode(array[0]);
         }
         public T GetTail()
         {

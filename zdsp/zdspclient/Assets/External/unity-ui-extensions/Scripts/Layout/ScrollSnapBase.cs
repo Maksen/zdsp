@@ -3,6 +3,7 @@
 /// Updated by ddreaper - removed dependency on a custom ScrollRect script. Now implements drag interfaces and standard Scroll Rect.
 
 using System;
+using System.Linq;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -313,9 +314,10 @@ namespace UnityEngine.UI.Extensions
         /// <returns>Closest Page number (zero indexed array value)</returns>
         internal int GetPageforPosition(Vector3 pos)
         {
+            int childcount = ChildObjects.Where(o => o.activeSelf).Count();
             return _isVertical ?
-                (int)Math.Round((_scrollStartPosition - pos.y) / _childSize) :
-                (int)Math.Round((_scrollStartPosition - pos.x) / _childSize);
+                (int)Math.Round((_scrollStartPosition - pos.y) / childcount) :
+                (int)Math.Round((_scrollStartPosition - pos.x) / childcount);
         }
 
         /// <summary>

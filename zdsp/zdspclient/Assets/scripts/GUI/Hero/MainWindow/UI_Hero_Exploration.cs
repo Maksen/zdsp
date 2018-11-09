@@ -335,7 +335,7 @@ public class UI_Hero_Exploration : MonoBehaviour
                 {
                     reqItemIcon.sprite = ClientUtils.LoadIcon(reqItem.JsonObject.iconspritepath);
                     reqItemButton.onClick.RemoveAllListeners();
-                    reqItemButton.onClick.AddListener(() => OnClickShowItemToolTip(reqItem));
+                    reqItemButton.onClick.AddListener(() => ItemUtils.OpenDialogItemDetailToolTip(reqItem));
                 }
                 int bindCount = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId((ushort)bindItemId);
                 int unbindCount = 0;
@@ -355,12 +355,6 @@ public class UI_Hero_Exploration : MonoBehaviour
             claimButton.gameObject.SetActive(true);
             claimButton.interactable = selectedOngoingMap.Completed;
         }
-    }
-
-    private void OnClickShowItemToolTip(IInventoryItem inventoryItem)
-    {
-        UIManager.OpenDialog(WindowType.DialogItemDetail, 
-            (window) => window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(inventoryItem));
     }
 
     private void SetHeroList()

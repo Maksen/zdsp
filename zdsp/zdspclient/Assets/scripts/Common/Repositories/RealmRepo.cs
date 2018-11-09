@@ -133,15 +133,16 @@ namespace Zealot.Repository
             return realmWorldJson;
         }
 
-        public static bool IsWorld(string levelname)
+        public static bool IsWorld(string levelName)
         {
-            return mRealmWorldByName.ContainsKey(levelname);
+            return mRealmWorldByName.ContainsKey(levelName);
         }
 
-        public static bool IsCity(string levelname)
+        public static bool IsCity(string levelName)
         {
-            if (mRealmWorldByName.ContainsKey(levelname))
-                return mRealmWorldByName[levelname].maptype == MapType.City;
+            RealmWorldJson realmWorldJson;
+            if (mRealmWorldByName.TryGetValue(levelName, out realmWorldJson))
+                return realmWorldJson.maptype == MapType.City;
             return false;
         }
 

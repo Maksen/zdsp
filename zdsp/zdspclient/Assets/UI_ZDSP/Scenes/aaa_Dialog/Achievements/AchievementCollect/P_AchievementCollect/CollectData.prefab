@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 222492839433841598}
   - component: {fileID: 114668734959742836}
   - component: {fileID: 114274811591198134}
+  - component: {fileID: 114465734046732136}
   m_Layer: 5
   m_Name: CollectData
   m_TagString: Untagged
@@ -215,6 +216,32 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114465734046732136
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1045896259375104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b63aa4fc47aef8243ba2dcbb2ee9f3ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toggle: {fileID: 114637645673568674}
+  rarityImage: {fileID: 114246661360405658}
+  iconImage: {fileID: 114513930183288318}
+  frameImage: {fileID: 114943984163183696}
+  statusImage: {fileID: 114238505176898400}
+  statusSprites:
+  - {fileID: 21300000, guid: 6e6964b480fdd9c4f816340babb22a35, type: 3}
+  - {fileID: 21300000, guid: 301b9ec876ad61943acf03150b3be96c, type: 3}
+  - {fileID: 21300000, guid: 127a0b28e7f21be4bb10737b5f2cdd14, type: 3}
+  - {fileID: 21300000, guid: cb698fd8cbb3e3a44b7fa4551fafc345, type: 3}
+  frameColorHex:
+  - '#93E8E5FF'
+  - '#D2E893FF'
+  - '#CD76FBFF'
+  - '#FF5C5CFF'
 --- !u!114 &114513930183288318
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -277,7 +304,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 114668734959742836}
   toggleTransition: 1
   graphic: {fileID: 114035942590563822}
   m_Group: {fileID: 0}

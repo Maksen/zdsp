@@ -43,7 +43,8 @@ public class InteractiveController {
     public void SetEntityStats(int pid, bool canUse, bool active, int step)
     {
         InteractiveGhost ghost = GameInfo.gLocalPlayer.EntitySystem.GetEntityByPID(pid) as InteractiveGhost;
-        ghost.entityObj.GetComponent<InteractiveEntities>().RefreshInteractiveStats(canUse, active, step);
+        if(ghost != null)
+            ghost.entityObj.GetComponent<InteractiveEntities>().RefreshInteractiveStats(canUse, active, step);
     }
 
     public static void Init()

@@ -17,17 +17,13 @@ public class UI_MailAttachmentData : MonoBehaviour
     {
     }
 
-    void OnClickedIcon_MailAttachment(IInventoryItem item)
+    void OnClickedIcon_MailAttachment(IInventoryItem invItem)
     {
         //Data are supposed to get from repository
         //string name = "Red Potion";
         //string restrict = "None";
         //string stats = "Recovers 45 hp.\nIncrease max hp by 1.\n";
-
-        UIManager.OpenDialog(WindowType.DialogItemDetail, (GameObject window) =>
-        {
-            window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(item);
-        });
+        ItemUtils.OpenDialogItemDetailToolTip(invItem);
     }
 
     public void SetItem(IInventoryItem item, bool flag=true)

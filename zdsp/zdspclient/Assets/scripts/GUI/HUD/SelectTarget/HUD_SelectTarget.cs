@@ -113,7 +113,7 @@ public class HUD_SelectTarget : MonoBehaviour
 
     private void SetMonsterElement(Element element)
     {
-        Sprite icon = LoadMonsterElementIcon(element);
+        Sprite icon = ClientUtils.LoadMonsterElementIcon(element);
         if (icon != null)
         {
             elementImage.sprite = icon;
@@ -129,36 +129,6 @@ public class HUD_SelectTarget : MonoBehaviour
             weaknessImage.sprite = icon;
             weaknessImage.transform.parent.gameObject.SetActive(true);
         }
-    }
-
-    private Sprite LoadMonsterElementIcon(Element element)
-    {
-        string path = "";
-        switch (element)
-        {
-            case Element.Metal:
-                path = "zzz_test.png";
-                break;
-            case Element.Wood:
-                path = "zzz_test.png";
-                break;
-            case Element.Water:
-                path = "zzz_test.png";
-                break;
-            case Element.Fire:
-                path = "zzz_test.png";
-                break;
-            case Element.Earth:
-                path = "zzz_test.png";
-                break;
-            default:
-                break;
-        }
-
-        if (!string.IsNullOrEmpty(path))
-            return ClientUtils.LoadIcon(string.Format("UI_ZDSP_Icons/Element_Attacks/{0}", path));
-
-        return null;
     }
 
     private Sprite LoadMonsterWeaknessIcon(AttackStyle weakness)

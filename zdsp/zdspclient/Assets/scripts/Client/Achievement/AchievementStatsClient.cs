@@ -240,6 +240,28 @@ public class AchievementStatsClient : AchievementStats
             uiAchieve.UpdateTierProgress();
     }
 
+    public CollectStatus GetCollectionObjectiveStatus(CollectionObjective obj)
+    {
+        CollectionElement elem = GetCollectionById(obj.id);
+        if (elem == null)
+            return CollectStatus.Locked;
+        else
+        {
+            CollectStatus status = CollectStatus.Unlocked;
+            switch (obj.type)
+            {
+                case CollectionType.Fashion:
+                case CollectionType.Relic:
+                    if (elem.Stored)
+                        status = CollectStatus.Stored;
+                    else
+                        status = player.clientItemInvCtrl.itemInvData.HasItem((ushort)obj.targetId) ? CollectStatus.HaveItem : CollectStatus.NoItem;
+                    break;
+            }
+            return status;
+        }
+    }
+
 #if ZEALOT_DEVELOPMENT
     public void ClearCollectionsDict()
     {

@@ -113,12 +113,14 @@ public class UI_CharacterSelection : MonoBehaviour
     {
         if (characterData == null)
         {
+            mSelectedCharacter = null;
             InfoPanel.SetActive(false);
             PlayerAvatar.Cleanup();
             GameInfo.gLobby.PlayCharacterCreationCutscene();
         }
         else if (mSelectedCharacter != characterData || (mSelectedCharacter == characterData && PlayerAvatar.GetOutfitModel() == null))
         {
+            mSelectedCharacter = characterData;
             InfoPanel.SetActive(false);
             UIManager.StartHourglass();
             InfoPanel.SetActive(true);
@@ -126,7 +128,6 @@ public class UI_CharacterSelection : MonoBehaviour
             UpdateCharacterInfo();
             UIManager.StopHourglass();
         }
-        mSelectedCharacter = characterData;
     }
 
     private void LockButton()

@@ -76,7 +76,9 @@ public class UI_EquipmentReform : BaseWindowBehaviour
     private string              _rightSideSlideInReformEnd  = "UPG_RightSlideIn_ReformEnd";
     private GameObject          _selectedEquipmentIcon;
     private List<GameObject>    _inventoryEquipmentList;
-    private List<GameObject>    _selectEquipStatsList;
+    private List<GameObject>    _selectEquipBaseStatsList;
+    private List<GameObject>    _selectEquipExtraStatsList;
+    private List<GameObject>    _selectEquipReformStatsList;
     private List<GameObject>    _reformBagDataList;
     private List<GameObject>    _recycleReturnsList;
 
@@ -120,7 +122,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
         rightSideAnimator.Play(_defaultRightSideState);
 
-        ClearSelectEquipStatsList();
+        ClearSelectEquipStatsLists();
 
         //confirmReformAttributesBtn.gameObject.SetActive(true);
         //confirmReformAttributesBtn.interactable = true;
@@ -151,6 +153,8 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         confirmReformBtn.interactable = false;
         confirmRecycleBtn.gameObject.SetActive(true);
         confirmRecycleBtn.interactable = false;
+
+        OnClickConfirmSelectReformEquipment();
     }
 
     public void InitEquipmentRecycleWithEquipment(int slotId, Equipment equipment)
@@ -166,7 +170,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
         rightSideAnimator.Play(_defaultRightSideState);
 
-        ClearSelectEquipStatsList();
+        ClearSelectEquipStatsLists();
 
         confirmReformAttributesBtn.gameObject.SetActive(true);
         confirmReformAttributesBtn.interactable = false;
@@ -317,38 +321,16 @@ public class UI_EquipmentReform : BaseWindowBehaviour
             _isEquipped = isEquipped;
             _slotID = equipToUpgrade.mSlotID;
 
-            // Equipment Stats
             selectedEquipText.text = _selectedEquipment.GetEquipmentName();
-            
-            string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
 
-            if(reformGrp != "-1" && reformGrp != "#unnamed#")
-            {
-                int currentStep = _selectedEquipment.ReformStep;
-                int nextStep = currentStep + 1;
-
-                if(currentStep > 0)
-                {
-                    List<EquipmentReformGroupJson> reformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, currentStep);
-
-                    if(reformData == null)
-                    {
-                        return;
-                    }
-
-                    ClearSelectEquipStatsList();
-
-                    List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(_selectedEquipment);
-
-                    GenerateEquipRfmStatsObj(reformDataList);
-                }
-            }
+            // Equipment Stats
+            GenerateEquipmentStats(_selectedEquipment);
 
             confirmReformAttributesBtn.interactable = true;
         }
         else
         {
-            ClearSelectEquipStatsList();
+            ClearSelectEquipStatsLists();
 
             confirmReformAttributesBtn.interactable = false;
         }
@@ -376,7 +358,13 @@ public class UI_EquipmentReform : BaseWindowBehaviour
 
             // Right side
             selectedEquipText.text = _selectedEquipment.GetEquipmentName();
-            
+
+            // Equipment Stats
+            ClearSelectEquipStatsLists();
+
+            GenerateEquipBaseStats(equipToUpgrade.mEquip);
+            GenerateEquipExtraStats(equipToUpgrade.mEquip);
+
             string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
 
             if(reformGrp != "-1" && reformGrp != "#unnamed#")
@@ -392,9 +380,6 @@ public class UI_EquipmentReform : BaseWindowBehaviour
                     {
                         return;
                     }
-
-                    // Equipment Stats
-                    ClearSelectEquipStatsList();
 
                     List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(_selectedEquipment);
 
@@ -418,7 +403,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         }
         else
         {
-            ClearSelectEquipStatsList();
+            ClearSelectEquipStatsLists();
 
             confirmRecycleBtn.interactable = false;
         }
@@ -558,7 +543,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         ClearSelectedEquipment();
         selectedEquipText.text = "";
         equipmentReformStatsText.text = "";
-        ClearSelectEquipStatsList();
+        ClearSelectEquipStatsLists();
     }
 
     private void OpenReformItemStoreDialog()
@@ -702,6 +687,100 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         invScrollView.Populate(this, fullEquipmentList, equippedCount, reformInvToggleGrp);
     }
 
+    private void GenerateEquipmentStats(Equipment equipment)
+    {
+        ClearSelectEquipStatsLists();
+
+        GenerateEquipBaseStats(equipment);
+        GenerateEquipExtraStats(equipment);
+
+        string reformGrp = _selectedEquipment.EquipmentJson.evolvegrp;
+
+        if (reformGrp != "-1" && reformGrp != "#unnamed#")
+        {
+            int currentStep = equipment.ReformStep;
+            int nextStep = currentStep + 1;
+
+            if (currentStep > 0)
+            {
+                List<EquipmentReformGroupJson> reformData = EquipmentModdingRepo.GetEquipmentReformDataByGroupStep(reformGrp, currentStep);
+
+                if (reformData == null)
+                {
+                    return;
+                }
+
+                List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(_selectedEquipment);
+
+                GenerateEquipRfmStatsObj(reformDataList);
+            }
+        }
+    }
+
+    private void GenerateEquipBaseStats(Equipment equipment)
+    {
+        List<int> baseStatsIdList = ClientUtils.GetIntListFromString(equipment.EquipmentJson.basese, ';');
+
+        if (baseStatsIdList.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < baseStatsIdList.Count; ++i)
+        {
+            int seId = baseStatsIdList[i];
+            SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
+
+            GameObject newStatsLine = ClientUtils.CreateChild(itemStatsParent, rfmStatsValueLnPrefab);
+
+            EquipmentReformStats reformStatsObj = newStatsLine.GetComponent<EquipmentReformStats>();
+            if (reformStatsObj != null)
+            {
+                reformStatsObj.Init(sideeffect.localizedname, (int)sideeffect.max);
+            }
+
+            _selectEquipBaseStatsList.Add(newStatsLine);
+        }
+    }
+
+    private void GenerateEquipExtraStats(Equipment equipment)
+    {
+        List<int> extraSEIdList = ClientUtils.GetIntListFromString(equipment.EquipmentJson.extrase, ';');
+
+        for (int i = 0; i < extraSEIdList.Count; ++i)
+        {
+            int extraSEId = extraSEIdList[i];
+            List<int> extraStatsIdList = EquipmentModdingRepo.GetEquipmentExtraSideEffectsList(extraSEId);
+
+            if (extraStatsIdList.Count == 0)
+            {
+                continue;
+            }
+
+            EquipmentType equipType = equipment.EquipmentJson.equiptype;
+            ItemRarity rarity = equipment.EquipmentJson.rarity;
+            int upgradeLevel = equipment.UpgradeLevel;
+            int nextLevel = upgradeLevel + 1;
+            int upgradeLimit = equipment.EquipmentJson.upgradelimit;
+
+            for (int j = 0; j < extraStatsIdList.Count; ++j)
+            {
+                int seId = extraStatsIdList[j];
+                SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
+
+                GameObject newStatsLine = ClientUtils.CreateChild(itemStatsParent, rfmStatsValueLnPrefab);
+
+                EquipmentReformStats reformStatsObj = newStatsLine.GetComponent<EquipmentReformStats>();
+                if (reformStatsObj != null)
+                {
+                    reformStatsObj.Init(sideeffect.localizedname, (int)sideeffect.max);
+                }
+
+                _selectEquipExtraStatsList.Add(newStatsLine);
+            }
+        }
+    }
+
     private void GenerateEquipRfmStatsObj(List<EquipReformData> reformDataList)
     {
         if(reformDataList.Count == 0)
@@ -718,8 +797,7 @@ public class UI_EquipmentReform : BaseWindowBehaviour
                 int seId = seIds[j];
                 SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
 
-                GameObject newStatsLine = Instantiate(rfmStatsValueLnPrefab);
-                newStatsLine.transform.SetParent(itemStatsParent, false);
+                GameObject newStatsLine = ClientUtils.CreateChild(itemStatsParent, rfmStatsValueLnPrefab);
 
                 EquipmentReformStats reformStatsObj = newStatsLine.GetComponent<EquipmentReformStats>();
                 if (reformStatsObj != null)
@@ -727,23 +805,70 @@ public class UI_EquipmentReform : BaseWindowBehaviour
                     reformStatsObj.Init(currentStep, sideeffect.localizedname);
                 }
 
-                _selectEquipStatsList.Add(newStatsLine);
+                _selectEquipReformStatsList.Add(newStatsLine);
             }
         }
 
         GameObject newStatsEndLine = Instantiate(rfmStatsLinePrefab);
         newStatsEndLine.transform.SetParent(itemStatsParent, false);
-        _selectEquipStatsList.Add(newStatsEndLine);
+        _selectEquipReformStatsList.Add(newStatsEndLine);
     }
 
     private string GenerateEquipmentStatsString(Equipment reformEquipment)
     {
+        StringBuilder statsStr = new StringBuilder();
+
+        // Base Stats
+        if (reformEquipment.EquipmentJson.basese != "-1")
+        {
+            List<int> baseSEIdList = ClientUtils.GetIntListFromString(reformEquipment.EquipmentJson.basese, ';');
+
+            for (int i = 0; i < baseSEIdList.Count; ++i)
+            {
+                int seId = baseSEIdList[i];
+                SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
+
+                if (sideeffect != null)
+                {
+                    statsStr.AppendFormat("{0}：{1}\n", sideeffect.localizedname, (int)sideeffect.max);
+                }
+            }
+        }
+
+        // Extra Stats
+        if (reformEquipment.EquipmentJson.extrase != "-1")
+        {
+            List<int> extraSEIdList = ClientUtils.GetIntListFromString(reformEquipment.EquipmentJson.extrase, ';');
+
+            for (int i = 0; i < extraSEIdList.Count; ++i)
+            {
+                int extraSEId = extraSEIdList[i];
+                List<int> extraStatsIdList = EquipmentModdingRepo.GetEquipmentExtraSideEffectsList(extraSEId);
+
+                if (extraStatsIdList.Count == 0)
+                {
+                    continue;
+                }
+
+                for (int j = 0; j < extraStatsIdList.Count; ++j)
+                {
+                    int seId = extraStatsIdList[j];
+                    SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(seId);
+
+                    if (sideeffect != null)
+                    {
+                        statsStr.AppendFormat("{0}：{1}\n", sideeffect.localizedname, (int)sideeffect.max);
+                    }
+                }
+            }
+        }
+
+        // Reform Stats
         int reformStep = reformEquipment.ReformStep;
         List<EquipReformData> reformDataList = EquipmentModdingRepo.GetEquipmentReformData(reformEquipment);
 
         if(reformDataList != null)
         {
-            StringBuilder statsStr = new StringBuilder();
             statsStr.Append(FormatSideEffectString(reformDataList));
 
             return statsStr.ToString();
@@ -896,20 +1021,59 @@ public class UI_EquipmentReform : BaseWindowBehaviour
         _inventoryEquipmentList.Clear();
     }
 
-    public void ClearSelectEquipStatsList()
+    public void ClearSelectEquipStatsLists()
     {
-        if (_selectEquipStatsList == null)
+        ClearSelectEquipBaseStatsList();
+        ClearSelectEquipExtraStatsList();
+        ClearSelectEquipReformStatsList();
+    }
+
+    public void ClearSelectEquipBaseStatsList()
+    {
+        if (_selectEquipBaseStatsList == null)
         {
-            _selectEquipStatsList = new List<GameObject>();
+            _selectEquipBaseStatsList = new List<GameObject>();
             return;
         }
 
-        for (int i = 0; i < _selectEquipStatsList.Count; ++i)
+        for (int i = 0; i < _selectEquipBaseStatsList.Count; ++i)
         {
-            Destroy(_selectEquipStatsList[i]);
-            _selectEquipStatsList[i] = null;
+            Destroy(_selectEquipBaseStatsList[i]);
+            _selectEquipBaseStatsList[i] = null;
         }
-        _selectEquipStatsList.Clear();
+        _selectEquipBaseStatsList.Clear();
+    }
+
+    public void ClearSelectEquipExtraStatsList()
+    {
+        if (_selectEquipExtraStatsList == null)
+        {
+            _selectEquipExtraStatsList = new List<GameObject>();
+            return;
+        }
+
+        for (int i = 0; i < _selectEquipExtraStatsList.Count; ++i)
+        {
+            Destroy(_selectEquipExtraStatsList[i]);
+            _selectEquipExtraStatsList[i] = null;
+        }
+        _selectEquipExtraStatsList.Clear();
+    }
+
+    public void ClearSelectEquipReformStatsList()
+    {
+        if (_selectEquipReformStatsList == null)
+        {
+            _selectEquipReformStatsList = new List<GameObject>();
+            return;
+        }
+
+        for (int i = 0; i < _selectEquipReformStatsList.Count; ++i)
+        {
+            Destroy(_selectEquipReformStatsList[i]);
+            _selectEquipReformStatsList[i] = null;
+        }
+        _selectEquipReformStatsList.Clear();
     }
 
     private void ClearReformBagDataList()

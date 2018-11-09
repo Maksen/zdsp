@@ -804,6 +804,8 @@
         SocialAddBlack,
         SocialRemoveBlack,
         SocialRemoveGood,
+        SocialRaiseAllTempRequest,
+        SocialClearTemp,
         #endregion
 
         #region Invincible
@@ -932,6 +934,8 @@
         Ret_SocialAddBlack,
         Ret_SocialRemoveBlack,
         Ret_SocialRemoveGood,
+        Ret_SocialRaiseAllTempRequest,
+        Ret_SocialClearTemp,
         #endregion
     }
 }

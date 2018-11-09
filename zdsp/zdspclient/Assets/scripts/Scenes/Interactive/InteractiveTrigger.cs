@@ -19,8 +19,8 @@ namespace Zealot.Spawners
     public class InteractiveTrigger : ServerEntityWithEvent
     {
         public bool activeOnStartup = true;
-        public string archetype = string.Empty;
-        public GameObject sceneModel = null;
+        public string npcArchetype = string.Empty;
+        public string scenesModelArchetype = string.Empty;
         public int interactiveTime = 1;
         public bool interrupt = false;
         public int counter = 1;
@@ -122,7 +122,7 @@ namespace Zealot.Spawners
         {
             get
             {
-                return new string[] { "On", "Off", "Reset" };
+                return new string[] { "TurnOn", "TurnOff", "Reset" };
             }
         }
 
@@ -144,7 +144,7 @@ namespace Zealot.Spawners
         public void GetJson(InteractiveTriggerJson jsonclass)
         {
             jsonclass.activeOnStartup = activeOnStartup;
-            jsonclass.archetype = (archetype == string.Empty || archetype == null) ? sceneModel.name : archetype;
+            jsonclass.npcArchetype = (npcArchetype == string.Empty || npcArchetype == null) ? scenesModelArchetype : npcArchetype;
             jsonclass.parentPath = GetPathName();
             jsonclass.forward = transform.forward;
             jsonclass.interactiveTime = interactiveTime;
@@ -162,7 +162,6 @@ namespace Zealot.Spawners
             }
             jsonclass.min = min;
             jsonclass.max = max;
-            jsonclass.activeObject = true;
             base.GetJson(jsonclass);
         }
 

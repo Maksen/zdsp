@@ -388,7 +388,7 @@ class SceneNPCTools
             }
             else if(spawnerType == typeof(InteractiveTrigger))
             {
-                string npcPath = ((InteractiveTrigger)spawner).archetype;
+                string npcPath = ((InteractiveTrigger)spawner).npcArchetype;
                 var npcinfo = StaticNPCRepo.GetNPCByArchetype(npcPath);
                 if (npcinfo != null)
                 {
@@ -396,7 +396,7 @@ class SceneNPCTools
                 }
                 else
                 {
-                    npcPath = ((InteractiveTrigger)spawner).sceneModel.name;
+                    npcPath = ((InteractiveTrigger)spawner).scenesModelArchetype;
                     var modelinfo = ScenesModelRepo.GetScenesModelJson(npcPath);
                     if (modelinfo != null)
                         results[modelinfo.modelprefabpath] = typeof(InteractiveTrigger);

@@ -375,7 +375,8 @@ public partial class ClientMain : MonoBehaviour
 
         GameObject skb = UIManager.GetWidget(HUDWidgetType.SkillButtons);
         skb.GetComponent<HUD_Skills>().UpdateSkillButtons(player.Bot.Enabled);
-        player.Bot.UpdateAutoSkillRow();
+        Zealot.Bot.BotAutoSkillHandler.Instance.UpdateAutoSkillRow();
+        
         //string[] auctionInfo = auctionStatus.Split(';');
         //player.CheckAuctionStatus(int.Parse(auctionInfo[0]));
 

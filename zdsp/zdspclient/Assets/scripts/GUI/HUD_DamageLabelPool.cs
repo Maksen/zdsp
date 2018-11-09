@@ -167,6 +167,7 @@ public class HUD_DamageLabelPool : MonoBehaviour
 
             if (emitter != null)
             {
+                emitter.gameObject.SetActive(true);
                 emitter.transform.position = target.Position + new Vector3(0.0f, target.Radius*2, 0.0f);                
 
                 emitter.Emit(value);

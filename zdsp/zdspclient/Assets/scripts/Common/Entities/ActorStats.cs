@@ -2254,12 +2254,6 @@ namespace Zealot.Common.Entities
     /// </summary>
     public partial class SocialStats : AdvancedLocalObject, IStats // Send only to local client
     {
-        public const int MAX_GOOD_FRIENDS = SocialInventoryData.MAX_GOOD_FRIENDS;
-        public const int MAX_BLACK_FRIENDS = SocialInventoryData.MAX_BLACK_FRIENDS;
-        public const int MAX_REQUEST_FRIENDS = SocialInventoryData.MAX_REQUEST_FRIENDS;
-        public const int MAX_RECOMMAND_COUNT = SocialInventoryData.MAX_RECOMMAND_COUNT;
-        public const int MAX_COUNT = SocialInventoryData.MAX_COUNT;
-
         [NotSynced]
         public Social.SocialData data { get; private set; }
 

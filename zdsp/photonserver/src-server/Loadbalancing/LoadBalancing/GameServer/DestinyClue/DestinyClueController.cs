@@ -202,9 +202,6 @@ namespace Photon.LoadBalancing.GameServer
                 mDestinyClues.Add(clueData);
                 SyncDestinyClueStats();
             }
-            
-
-            
         }
 
         private void StartTimeClueTimer()
@@ -314,8 +311,6 @@ namespace Photon.LoadBalancing.GameServer
                 mDestinyClues.Add(clueData);
                 SyncDestinyClueStats();
             }
-
-            SyncDestinyClueStats();
         }
 
         private ClueWeightData GetRandomClue(List<ClueWeightData> weightDatas, int maxweight)
@@ -449,6 +444,11 @@ namespace Photon.LoadBalancing.GameServer
 
         private void DeleteAddClueAfterUpdate()
         {
+            if (mClueForAdd.Count == 0  && mClueForDelete.Count == 0)
+            {
+                return;
+            }
+
             bLocked = true;
             foreach (ActivatedClueData cluedata in mClueForAdd)
             {
@@ -673,7 +673,7 @@ namespace Photon.LoadBalancing.GameServer
                 }
                 SyncUnlockMemoryStats();
                 SyncUnlockCluesStats();
-                if (bLocked)
+                if (!bLocked)
                 {
                     SyncDestinyClueStats();
                 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Zealot.Common.Entities;
@@ -13,26 +12,45 @@ namespace Zealot.Common
     /// </summary>
     public partial class SocialInventoryData: IJsonInventoryData
     {
+        #region CONST VALUE
         /// <summary>
-        /// 最大好友數量
+        /// 系統最大好友數量
         /// </summary>
-        public const int MAX_GOOD_FRIENDS = 50;
+        public const int SYS_MAX_GOOD_FRIENDS = 100;
         /// <summary>
-        /// 最大黑名單數量
+        /// 系統最大黑名單數量
         /// </summary>
-        public const int MAX_BLACK_FRIENDS = 50;
+        public const int SYS_MAX_BLACK_FRIENDS = 100;
         /// <summary>
-        /// 最大請求名單數量
+        /// 系統最大請求名單數量
         /// </summary>
-        public const int MAX_REQUEST_FRIENDS = 50;
+        public const int SYS_MAX_REQUEST_FRIENDS = 100;
         /// <summary>
-        /// 最大請求名單數量
+        /// 系統最大臨時好友數量
         /// </summary>
-        public const int MAX_RECOMMAND_COUNT = 20;
+        public const int SYS_MAX_TEMP_COUNT = 30;
         /// <summary>
-        /// 最大朋友數量(上面三者總數)
+        /// 系統最大朋友數量
         /// </summary>
-        public const int MAX_COUNT = MAX_GOOD_FRIENDS + MAX_BLACK_FRIENDS+ MAX_REQUEST_FRIENDS+ MAX_RECOMMAND_COUNT;
+        public const int SYS_MAX_COUNT = SYS_MAX_GOOD_FRIENDS + SYS_MAX_BLACK_FRIENDS + SYS_MAX_REQUEST_FRIENDS + SYS_MAX_TEMP_COUNT;
+
+        /// <summary>
+        /// 預設最大好友數量
+        /// </summary>
+        public const int DEFALT_MAX_GOOD_FRIENDS = 50;
+        /// <summary>
+        /// 預設最大黑名單數量
+        /// </summary>
+        public const int DEFALT_MAX_BLACK_FRIENDS = 50;
+        /// <summary>
+        /// 預設最大請求名單數量
+        /// </summary>
+        public const int DEFALT_MAX_REQUEST_FRIENDS = 50;
+        /// <summary>
+        /// 預設最大臨時好友數量
+        /// </summary>
+        public const int DEFALT_MAX_TEMP_COUNT = 20;
+        #endregion
 
         [JsonProperty(PropertyName = "root")]
         public JToken root { get; set; }
@@ -72,6 +90,7 @@ namespace Zealot.Common
             Blacked,
             RemoveGoodFriendFirst,
             PlayerCantBeSelf,
+            TargetBlacked,
         }
 
         /// <summary>
@@ -82,9 +101,10 @@ namespace Zealot.Common
             Good,
             Black,
             Request,
-            Recommand
+            Temp
         }
 
+        #region Social Sub Data Types
         public struct SocialFriend
         {
             public readonly JToken node;
@@ -206,26 +226,66 @@ namespace Zealot.Common
             {
             }
         }
+        #endregion
 
         public partial class SocialData : AdvancedLocalObjectData
         {
+            public int version { get { return GetValue<int>("version"); } set { SetValue("version", value); } }
+
+            /// <summary>
+            /// 好友清單
+            /// </summary>
+            public SocialFriendList goodFriends { get; private set; }
+            /// <summary>
+            /// 黑名單
+            /// </summary>
+            public SocialFriendList blackFriends { get; private set; }
+            /// <summary>
+            /// 請求名單
+            /// </summary>
+            public SocialFriendList requestFriends { get; private set; }
+            /// <summary>
+            /// 臨時名單
+            /// </summary>
+            public SocialFriendList tempFriends { get; private set; }
+
+            public int maxCount_good { get { return GetPathValue<int>("maxCount.good"); } set { SetPathValue("maxCount.good", value); } }
+            public int maxCount_black { get { return GetPathValue<int>("maxCount.black"); } set { SetPathValue("maxCount.black", value); } }
+            public int maxCount_request { get { return GetPathValue<int>("maxCount.request"); } set { SetPathValue("maxCount.request", value); } }
+            public int maxCount_temp { get { return GetPathValue<int>("maxCount.temp"); } set { SetPathValue("maxCount.temp", value); } }
+
+            public string checkdate { get { return GetValue<string>("checkdate"); } set { SetValueNoPatch("checkdate", value); } }
+
+            public SocialFriendStateList goodFriendStates { get; private set; }
+
             void initFromRoot(JToken root, AdvancedLocalObject obj)
             {
-                NewIfNotExist(root, "checkdate", () => new JValue(string.Empty));
+                NewIfNotExist(root, "version", () => new JValue(-1));
+
                 goodFriends = new SocialFriendList(FriendType.Good, NewIfNotExist(root, "goodFriends", NewArray), "goodFriends", obj);
                 blackFriends = new SocialFriendList(FriendType.Black, NewIfNotExist(root, "blackFriends", NewArray), "blackFriends", obj);
                 requestFriends = new SocialFriendList(FriendType.Request, NewIfNotExist(root, "requestFriends", NewArray), "requestFriends", obj);
-                recommandFriends = new SocialFriendList(FriendType.Recommand, NewIfNotExist(root, "recommandFriends", NewArray), "recommandFriends", obj);
+                tempFriends = new SocialFriendList(FriendType.Temp, NewIfNotExist(root, "tempFriends", NewArray), "tempFriends", obj);
+
+                JObject count = NewIfNotExist(root, "maxCount", NewObject);
+                NewIfNotExist(count, "good", () => new JValue(SocialInventoryData.DEFALT_MAX_GOOD_FRIENDS));
+                NewIfNotExist(count, "black", () => new JValue(SocialInventoryData.DEFALT_MAX_BLACK_FRIENDS));
+                NewIfNotExist(count, "request", () => new JValue(SocialInventoryData.DEFALT_MAX_REQUEST_FRIENDS));
+                NewIfNotExist(count, "temp", () => new JValue(SocialInventoryData.DEFALT_MAX_TEMP_COUNT));
+
+                NewIfNotExist(root, "checkdate", () => new JValue(string.Empty));
+
                 goodFriendStates = new SocialFriendStateList(NewIfNotExist(root, "goodFriendStates", NewArray), "goodFriendStates", obj);
             }
 
             protected override void OnSetDataUsage()
             {
-                this.m_Records = new string[] { "goodFriends", "blackFriends", "requestFriends", "recommandFriends" };
+                this.m_Records = new string[] {"version", "goodFriends", "blackFriends", "requestFriends", "tempFriends","maxCount" };
                 this.m_ServerRecords = new string[] { "checkdate" };
                 this.m_States = new string[] { "goodFriendStates" };
             }
 
+            #region Constructors
             /// <summary>
             /// 給server端的stats使用，因為整塊資料都與Inventory相同，故使用參考連結方式
             /// </summary>
@@ -255,81 +315,9 @@ namespace Zealot.Common
                 OnUpdateRootValue += () => { initFromRoot(m_Root, null); };
                 UpdateRootValue();
             }
+            #endregion
 
-            public SocialFriendList goodFriends { get; private set; }
-            public SocialFriendList blackFriends { get; private set; }
-            public SocialFriendList requestFriends { get; private set; }
-            public SocialFriendList recommandFriends { get; private set; }
-
-            public SocialFriendStateList goodFriendStates { get; private set; }
-
-            public string checkdate { get { return GetValue<string>("checkdate"); } set { SetValueNoPatch("checkdate", value);  } }
-
-            public SocialFriendList getFriends(FriendType type)
-            {
-                switch (type)
-                {
-                    case FriendType.Good:
-                        return goodFriends;
-                    case FriendType.Black:
-                        return blackFriends;
-                    case FriendType.Request:
-                        return requestFriends;
-                    default:
-                    case FriendType.Recommand:
-                        return recommandFriends;
-                }
-            }
-
-            public int getFriendMaxCount(FriendType type)
-            {
-                switch (type)
-                {
-                    case FriendType.Good:
-                        return SocialStats.MAX_GOOD_FRIENDS;
-                    case FriendType.Black:
-                        return SocialStats.MAX_BLACK_FRIENDS;
-                    case FriendType.Request:
-                        return SocialStats.MAX_REQUEST_FRIENDS;
-                    default:
-                    case FriendType.Recommand:
-                        return SocialStats.MAX_RECOMMAND_COUNT;
-                }
-            }
-
-            public FriendType getFriendType(string name)
-            {
-                switch (name)
-                {
-                    case "goodFriends":
-                        return FriendType.Good;
-                    case "blackFriends":
-                        return FriendType.Black;
-                    case "requestFriends":
-                        return FriendType.Request;
-                    default:
-                    case "recommandFriends":
-                        return FriendType.Recommand;
-                }
-            }
-
-            public SocialFriendList getFriends(string name)
-            {
-                switch (name)
-                {
-                    default:
-                        return null;
-                    case "goodFriends":
-                        return goodFriends;
-                    case "blackFriends":
-                        return blackFriends;
-                    case "requestFriends":
-                        return requestFriends;
-                    case "recommandFriends":
-                        return recommandFriends;
-                }
-            }
-
+            #region Private Fields
             struct IndexInfo
             {
                 public FriendType type;
@@ -344,7 +332,83 @@ namespace Zealot.Common
             private bool doMap=false;
             private Dictionary<string, IndexInfo> allMap;
             private Dictionary<string, string> name2id;
+            #endregion
         }
+
+        #region Schema
+        /// <summary>
+        /// 資料結構描述，用來驗證資料的版本
+        /// </summary>
+        [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+        public class Social_Schema
+        {
+            public const int VERSION = 0;
+            [JsonProperty("version")]
+            public int version { get; set; }
+
+            [JsonProperty("goodFriends")]
+            public List<SocialFriend_Schema> goodFriends { get; set; }
+
+            [JsonProperty("blackFriends")]
+            public List<SocialFriend_Schema> blackFriends { get; set; }
+
+            [JsonProperty("requestFriends")]
+            public List<SocialFriend_Schema> requestFriends { get; set; }
+
+            [JsonProperty("tempFriends")]
+            public List<SocialFriend_Schema> tempFriends { get; set; }
+
+            [JsonProperty("maxCount")]
+            public Social_MaxCount_Schema maxCount { get; set; }
+
+            [JsonProperty("checkdate")]
+            public string checkdate { get; set; }
+
+            public Social_Schema()
+            {
+                version = VERSION;
+                goodFriends = new List<SocialFriend_Schema>();
+                blackFriends = new List<SocialFriend_Schema>();
+                requestFriends = new List<SocialFriend_Schema>();
+                tempFriends = new List<SocialFriend_Schema>();
+                maxCount = new Social_MaxCount_Schema();
+                checkdate = string.Empty;
+            }
+        }
+        [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+        public class SocialFriend_Schema
+        {
+            [JsonProperty("id")]
+            public string id { get; set; }
+            [JsonProperty("name")]
+            public string name { get; set; }
+            public SocialFriend_Schema()
+            {
+                id = string.Empty;
+                name = string.Empty;
+            }
+        }
+        [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+        public class Social_MaxCount_Schema
+        {
+            [JsonProperty("good")]
+            public int good { get; set; }
+            [JsonProperty("black")]
+            public int black { get; set; }
+            [JsonProperty("request")]
+            public int request { get; set; }
+            [JsonProperty("temp")]
+            public int temp { get; set; }
+
+            public Social_MaxCount_Schema()
+            {
+                good = SocialInventoryData.DEFALT_MAX_GOOD_FRIENDS;
+                black = SocialInventoryData.DEFALT_MAX_BLACK_FRIENDS;
+                request = SocialInventoryData.DEFALT_MAX_REQUEST_FRIENDS;
+                temp = SocialInventoryData.DEFALT_MAX_TEMP_COUNT;
+            }
+        }
+        #endregion
     }
 
 

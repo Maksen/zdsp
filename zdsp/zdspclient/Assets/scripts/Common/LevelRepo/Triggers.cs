@@ -75,11 +75,9 @@ namespace Zealot.Entities
     public class InteractiveTriggerJson : ServerEntityWithEventJson
     {
         [DefaultValue(true)]
-        public bool activeObject;
-        [DefaultValue(true)]
         public bool activeOnStartup { get; set; }
         [DefaultValue("")]
-        public string archetype { get; set; }
+        public string npcArchetype { get; set; }
         [DefaultValue("")]
         public string parentPath { get; set; }
         public Vector3 forward { get; set; }

@@ -13,6 +13,7 @@ public class SocialTestTool : MonoBehaviour {
     string OtherPlayerName;
 
     bool waiting = false;
+    bool forceHide;
 
     public static void DoAction( System.Action<SocialTestTool> act)
     {
@@ -25,8 +26,11 @@ public class SocialTestTool : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-		
-	}
+        var asset = Resources.LoadAll<TextAsset>("SocialTestConfig");
+
+        forceHide = (asset == null|| asset.Length==0);
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -43,11 +47,11 @@ public class SocialTestTool : MonoBehaviour {
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
         Debug.Log(player.SocialStats.data.Root.ToString());
-        Debug.LogFormat("[Social] #Count goodFriends:{0} blackFriends:{1} requestFriends:{2} recommandFriends.Count:{3} goodFriendStates.Count:{4} "
+        Debug.LogFormat("[Social] #Count goodFriends:{0} blackFriends:{1} requestFriends:{2} tempFriends.Count:{3} goodFriendStates.Count:{4} "
             , player.SocialStats.data.goodFriends.Count
             , player.SocialStats.data.blackFriends.Count
             , player.SocialStats.data.requestFriends.Count
-            , player.SocialStats.data.recommandFriends.Count
+            , player.SocialStats.data.tempFriends.Count
             , player.SocialStats.data.goodFriendStates.Count);
         waiting = false;
         Debug.Log("[Social] Method:OpenSocialMenu_Completed");
@@ -77,7 +81,6 @@ public class SocialTestTool : MonoBehaviour {
     {
         Debug.Log("[Social] Method:SocialAcceptRequest_Completed "+" Code:" + code.ToString());
         waiting = false;
-
     }
 
     public void SocialRejectRequest(string name)
@@ -104,6 +107,30 @@ public class SocialTestTool : MonoBehaviour {
         waiting = false;
     }
 
+    public void SocialAddBlack(string name)
+    {
+        waiting = true;
+        RPCFactory.NonCombatRPC.SocialAddBlack(name);
+    }
+
+    public void SocialAddBlack_Completed(SocialResult code)
+    {
+        Debug.Log("[Social] Method:SocialAddBlack_Completed " + " Code:" + code.ToString());
+        waiting = false;
+    }
+
+    public void SocialRemoveBlack(string name)
+    {
+        waiting = true;
+        RPCFactory.NonCombatRPC.SocialRemoveBlack(name);
+    }
+
+    public void SocialRemoveBlack_Completed(SocialResult code)
+    {
+        Debug.Log("[Social] Method:SocialRemoveBlack_Completed " + " Code:" + code.ToString());
+        waiting = false;
+    }
+
     public void OpenOtherPlayerMenu(string name)
     {
         input = string.Empty;
@@ -120,6 +147,8 @@ public class SocialTestTool : MonoBehaviour {
     int starty = 200;
     private void OnGUI()
     {
+        if (forceHide)
+            return;
         if (waiting)
         {
             GUI.Label(new Rect(startx, starty,200,30),new GUIContent("Please wait..."));
@@ -172,7 +201,7 @@ public class SocialTestTool : MonoBehaviour {
         offsetx += 140;
         if (GUI.Button(new Rect(offsetx, offsety, 120, 30), new GUIContent("臨時好友")))
         {
-            SocialMenuType = FriendType.Recommand;
+            SocialMenuType = FriendType.Temp;
         }
         offsetx = 20;
         offsety += 40;
@@ -188,7 +217,7 @@ public class SocialTestTool : MonoBehaviour {
         offsetx += 140;
         if (GUI.Button(new Rect(offsetx, offsety, 120, 30), new GUIContent("加入黑名單")))
         {
-
+            SocialAddBlack(input);
         }
 
         if (GUI.Button(new Rect(startx, starty - 30, 100, 30), new GUIContent("關閉社群選單")))
@@ -240,7 +269,7 @@ public class SocialTestTool : MonoBehaviour {
                         offsetx += 90;
                         if (GUI.Button(new Rect(offsetx, offsety, 80, 30), new GUIContent("刪除")))
                         {
-
+                            SocialRemoveBlack(friend.name);
                         }
                         offsety += 40;
                     }
@@ -269,7 +298,7 @@ public class SocialTestTool : MonoBehaviour {
                     }
                 }
                 break;
-            case FriendType.Recommand:
+            case FriendType.Temp:
                 {
                     var friends = player.SocialStats.data.getFriends(SocialMenuType);
                     for (int i = 0; i < friends.Count; i++)
@@ -281,7 +310,7 @@ public class SocialTestTool : MonoBehaviour {
                         offsetx += 70;
                         if (GUI.Button(new Rect(offsetx, offsety, 60, 30), new GUIContent("申請")))
                         {
-
+                            SocialRaiseRequest(friend.name);
                         }
                         offsety += 40;
                     }
@@ -304,7 +333,7 @@ public class SocialTestTool : MonoBehaviour {
         offsety += 40;
         if (GUI.Button(new Rect(offsetx, offsety, 120, 30), new GUIContent("黑名單")))
         {
-
+            SocialAddBlack(OtherPlayerName);
         }
     }
 }

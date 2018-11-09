@@ -951,7 +951,7 @@ namespace Photon.LoadBalancing.GameServer
         #endregion
 
         #region InteractiveTrigger
-        public static void BroadcastInteractiveCount(int pid, bool canUse, bool active, int step)
+        public static void BroadcastInteractiveCount(string pid, string canUse, string active, string step)
         {
             string bind = string.Format("{0};{1};{2};{3}", pid, canUse, active, step);
             Instance.BroadcastMessage(BroadcastMessageType.InteractiveTrigger, bind);

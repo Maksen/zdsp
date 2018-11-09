@@ -7,9 +7,6 @@ public class UI_CustomizeData : MonoBehaviour
     Image Icon;
 
     [SerializeField]
-    Material Mask;
-
-    [SerializeField]
     Sprite DefaultSprite;
 
     private int mPartId;
@@ -22,7 +19,6 @@ public class UI_CustomizeData : MonoBehaviour
         if (iscolor)
         {
             Icon.sprite = DefaultSprite;
-            Icon.material = Mask;
             Color color;
             if (ColorUtility.TryParseHtmlString("#" + iconpath, out color))
             {

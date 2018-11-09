@@ -35,7 +35,6 @@ public class GameIcon_Base : MonoBehaviour
             imgIcon.sprite = sprite;
 
         itemRarity.SetRarity(InventoryItem.ItemSortJson.gameicontype, itemBaseJson.rarity);
-
         newDot.SetActive(isNew);
     }
 
@@ -45,18 +44,16 @@ public class GameIcon_Base : MonoBehaviour
         if (sprite != null)
             imgIcon.sprite = sprite;
 
-        //itemRarity.SetRarity(InventoryItem.ItemSortJson.gameicontype, itemBaseJson.rarity);
-
         newDot.SetActive(isNew);
     }
 
     protected void OnClickShowItemToolTip(int stackCount)
     {
         if (InventoryItem != null)
+        {
             InventoryItem.StackCount = stackCount;
-        UIManager.OpenDialog(WindowType.DialogItemDetail, (window) => {
-            window.GetComponent<UI_DialogItemDetailToolTip>().InitTooltip(InventoryItem);
-        });
+            ItemUtils.OpenDialogItemDetailToolTip(InventoryItem);
+        }
     }
 
     public void SetClickCallback(UnityAction callback)
@@ -66,5 +63,10 @@ public class GameIcon_Base : MonoBehaviour
         onClickIconCallback = callback;
         if (onClickIconCallback != null)
             button.onClick.AddListener(onClickIconCallback);
+    }
+
+    public void SetButtonEnable(bool isEnable)
+    {
+        button.enabled = isEnable;
     }
 }

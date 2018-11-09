@@ -1,4 +1,5 @@
 ﻿using Candlelight.UI;
+using Kopio.JsonContracts;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -20,13 +21,14 @@ public class HUD_Chatroom : MonoBehaviour
     InputField inputfieldChatMessage = null;
     [SerializeField]
     HyperText hypertxtInputfield = null;
+    [SerializeField]
+    ChatroomBagScrollView chatroomBagScrollView = null;
 
     public static List<List<ChatMessage>> chatLog = new List<List<ChatMessage>>(new List<ChatMessage>[6]);
-
     public MessageType CurrentChannelTab { get; private set; }
+    public List<InvDisplayItem> DisplayItemList { get; private set; }
 
     MessageType CurrentChannelToSend = MessageType.System;
-
     Dictionary<int, GameTimer> channelCooldowns;
     List<string> itemCodeList = null;
     
@@ -38,7 +40,7 @@ public class HUD_Chatroom : MonoBehaviour
     bool isEditedOnInputfieldChanged = false;
     string prevInputfieldValue = "";
     TextGenerationSettings txtGenSettingHypertxtInputfield;
-
+  
     // Localized Strings
     string toStr = "對";
 
@@ -57,10 +59,8 @@ public class HUD_Chatroom : MonoBehaviour
         channelCooldowns = new Dictionary<int, GameTimer>();
         for (int i = 1; i < 6; ++i)
             channelCooldowns.Add(i, null);
-    }
 
-    public void Init()
-    {    
+        DisplayItemList = new List<InvDisplayItem>();
     }
 
     void OnEnable()
@@ -76,16 +76,16 @@ public class HUD_Chatroom : MonoBehaviour
         CurrentChannelToSend = MessageType.World;
         chatroomScrollView.InitScrollView(this);
         StartCoroutine(chatroomScrollView.PopulateRows());
+
+        chatroomBagScrollView.InitScrollView(this);
     }
 
     void OnDisable()
     {
+        chatroomBagScrollView.Clear();
+
         GameObject chatroomMini = UIManager.GetWidget(HUDWidgetType.Minichat);
         chatroomMini.GetComponent<Animator>().Play("ChatroomMini_Right");
-    }
-
-    void OnDestroy()
-    {
     }
 
     // Update is called once per frame
@@ -601,6 +601,43 @@ public class HUD_Chatroom : MonoBehaviour
         value = TrimToCharLimitFromStart(value, hyperTxtProcessedTxt, lenLimit);
         hypertxtInputfield.text = value;   
         prevInputfieldValue = value;
+    }
+
+    public void UpdateDisplayItemList()
+    {
+        DisplayItemList.Clear();
+        List<IInventoryItem> invItemList = GameInfo.gLocalPlayer.clientItemInvCtrl.itemInvData.Slots;
+        int itemCount = invItemList.Count;
+        for (int i = 0; i < itemCount; ++i)
+        {
+            IInventoryItem invItem = invItemList[i];
+            if (invItem != null)
+                DisplayItemList.Add(new InvDisplayItem { InvItem = invItem, OriginSlotId = i });
+        }
+    }
+
+    public void RefreshItemInventory()
+    {
+        if (chatroomBagScrollView.gameObject.activeInHierarchy)
+            chatroomBagScrollView.PopulateRows();
+    }
+
+    public void OnClickInventoryItem(IInventoryItem invItem)
+    {
+        if (invItem == null || inputfieldChatMessage == null)
+            return;
+
+        ItemBaseJson itemJson = invItem.JsonObject;
+        StringBuilder sb = new StringBuilder(inputfieldChatMessage.text);
+        sb.Append(" <a name=\"");
+        sb.Append(invItem.GetStrEncodedItemCode(true));
+        sb.Append("\" class=\"");
+        sb.Append(itemJson.rarity.ToString().ToLower());
+        sb.Append("\">[");
+        sb.Append(itemJson.localizedname);
+        sb.Append("]</a>");
+        inputfieldChatMessage.text = sb.ToString();
+        inputfieldChatMessage.caretPosition = inputfieldChatMessage.text.Length;
     }
 
     public void OnClickCloseChatroom()

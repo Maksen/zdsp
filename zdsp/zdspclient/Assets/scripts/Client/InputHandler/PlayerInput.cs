@@ -175,11 +175,12 @@ public class PlayerInput : MonoBehaviour
                             SetMoveIndicator(hits[i].point);
                             mPlayerGhost.ActionInterupted();
                             PartyFollowTarget.Pause();
+                            mPlayerGhost.mBotStateController.Interrupt();
                             mPlayerGhost.PathFindToTarget(hits[i].point, -1, 0, false, false, () =>
                             {
                                 SetMoveIndicator(Vector3.zero);
                                 PartyFollowTarget.Resume();
-                                mPlayerGhost.Bot.ResumeBot(true);
+                                mPlayerGhost.mBotStateController.Resume();
                             });
                         }
                         break;
@@ -232,7 +233,9 @@ public class PlayerInput : MonoBehaviour
                     moveDirection = dir;
                     moveStartPos = mPlayerGhost.Position;
                     mPlayerGhost.ActionInterupted();
-                    mPlayerGhost.Bot.ResumeBot(true);
+
+                    if(currCommand.GetActionType() != ACTIONTYPE.CASTSKILL)
+                        mPlayerGhost.mBotStateController.Interrupt();
                 }
             }
         }
@@ -245,6 +248,7 @@ public class PlayerInput : MonoBehaviour
                 mPlayerGhost.Idle();
                 mPlayerGhost.Bot.ClearRouter();
                 PartyFollowTarget.Resume();
+                mPlayerGhost.mBotStateController.Resume();
             }
         }
 

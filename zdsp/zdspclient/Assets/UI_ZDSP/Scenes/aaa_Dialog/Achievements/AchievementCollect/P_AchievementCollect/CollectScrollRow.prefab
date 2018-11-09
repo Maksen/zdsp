@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 224511988781658690}
   - component: {fileID: 114242654953489128}
   - component: {fileID: 114756260798391982}
-  - component: {fileID: 114971345001706986}
+  - component: {fileID: 114747721179529110}
   m_Layer: 5
   m_Name: CollectScrollRow
   m_TagString: Untagged
@@ -48,6 +48,18 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &114747721179529110
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1399249276581576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bc323a8b9154ba41a3120d9c9335bdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dataPrefab: {fileID: 1045896259375104, guid: b22e8f7d2000ba2459c9a890e5cce927, type: 2}
 --- !u!114 &114756260798391982
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -70,19 +82,6 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
---- !u!114 &114971345001706986
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1399249276581576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af91b07bbcd80fc41a1f1bb426536137, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prefabIconEmptyslot: {fileID: 1710076367994774, guid: 3970c5337cacc204bb1e3d4ce6f5b630,
-    type: 2}
 --- !u!224 &224511988781658690
 RectTransform:
   m_ObjectHideFlags: 1

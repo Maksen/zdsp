@@ -582,6 +582,17 @@ namespace Zealot.Repository
             return skillData.skillgroupJson.targettype;
         }
 
+        public static Threatzone GetSkillThreatzone(int skillid)
+        {
+            if (skillid == 0)
+                return 0;
+
+            SkillData skillData;
+            mSkills.TryGetValue(skillid, out skillData);
+
+            return skillData.skillgroupJson.threatzone;
+        }
+
         //public static SkillData GetSkill(int skillgroupId, int level)
         //{
         //    int sid = -1;

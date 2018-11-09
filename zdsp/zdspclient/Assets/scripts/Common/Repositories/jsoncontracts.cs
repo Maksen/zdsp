@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Zealot.Common
 {
-    public enum CollectionType {Monster = 0, Fashion = 1, Hero = 2, NPC = 3, Photo = 4, Relic = 5, DNA = 6};
+    public enum CollectionType {Monster = 0, Fashion = 1, Hero = 2, NPC = 3, Relic = 4, DNA = 5, Photo = 6};
     public enum CollectionMonsterType {Normal = 0, MiniBoss = 1, BigBoss = 2, DungeonBoss = 3};
     public enum CollectionRegionType {RegionOne = 0, RegionTwo = 1, RegionThree = 2};
     public enum AchievementRewardType {None = 0, Item = 1, Currency = 2, SideEffect = 3};
@@ -1378,7 +1378,7 @@ namespace Kopio.JsonContracts
         public int delquesttype { get; set; } 
         
         [JsonProperty("23")]
-        public int delquestval { get; set; } 
+        public string delquestval { get; set; } 
         
         [JsonProperty("24")]
         public int addquesttype { get; set; } 
@@ -1414,7 +1414,7 @@ namespace Kopio.JsonContracts
             tickermessage = (bool)vals["tickermessage"];
             generateuid = (bool)vals["generateuid"];
             delquesttype = (int)vals["delquesttype"];
-            delquestval = (int)vals["delquestval"];
+            delquestval = (string)vals["delquestval"];
             addquesttype = (int)vals["addquesttype"];
             addquestid = (int)vals["addquestid"];
             addobjid = (int)vals["addobjid"];

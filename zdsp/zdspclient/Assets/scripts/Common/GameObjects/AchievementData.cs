@@ -230,4 +230,24 @@ namespace Zealot.Common
         }
     }
 
+    public class CollectionInfo
+    {
+        public CollectionObjective objective;
+        public CollectStatus status;
+
+        public CollectionInfo(CollectionObjective obj, CollectStatus sts)
+        {
+            objective = obj;
+            status = sts;
+        }
+    }
+
+    public enum CollectStatus : byte
+    {
+        Locked,
+        NoItem,
+        HaveItem,
+        Stored,
+        Unlocked,
+    }
 }

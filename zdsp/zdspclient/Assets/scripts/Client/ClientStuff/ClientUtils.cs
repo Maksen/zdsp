@@ -14,7 +14,8 @@ using Zealot.Repository;
 
 public static class ClientUtils
 {
-    //common color
+    // Common Color
+    public static Color ColorGray = new Color(0f, 0f, 131f / 255f, 1);
     public static Color ColorBrown = new Color(85 / 255f, 59f / 255f, 39f / 255f, 1);
     public static Color ColorDarkGreen = new Color(21f / 255f, 112f / 255f, 51f / 255f, 1);
     public static Color ColorRed = new Color(164f / 255f, 10f / 255f, 10f / 255f, 1);
@@ -113,15 +114,13 @@ public static class ClientUtils
 
     public static GameObject CreateChild(Transform parent, GameObject childPrefab)
     {
-        GameObject child = GameObject.Instantiate(childPrefab) as GameObject;
-        child.transform.SetParent(parent, false);
-        return child;
+        return (childPrefab != null) ? UnityEngine.Object.Instantiate(childPrefab, parent, false) : null;
     }
 
     public static void DestroyChildren(Transform parent)
     {
-        for (int i = parent.childCount - 1; i >= 0; --i)
-            GameObject.Destroy(parent.GetChild(i).gameObject);
+        for (int i = parent.childCount-1; i >= 0; --i)
+            UnityEngine.Object.Destroy(parent.GetChild(i).gameObject);
         parent.DetachChildren();
     }
 
@@ -130,7 +129,7 @@ public static class ClientUtils
         LevelJson lvlJson = LevelRepo.GetInfoByName(sceneName);
         if (lvlJson == null)
         {
-            UIManager.ShowSystemMessage("Debug: Level<" + sceneName + "> is not loaded at client.", true);
+            Debug.LogErrorFormat("CanTeleportToLevel: Level [{0}] is not loaded at client", sceneName);
             return false;
         }
         PlayerGhost player = GameInfo.gLocalPlayer;
@@ -280,12 +279,12 @@ public static class ClientUtils
         AssetLoader.Instance.LoadAsync(assetName, callback);
     }
 
-    public static Sprite LoadItemIcon(int itemid)
+    public static Sprite LoadItemIcon(int itemId)
     {
-        var item = GameRepo.ItemFactory.GetItemById(itemid);
-        if (item == null)
+        ItemBaseJson itemJson = GameRepo.ItemFactory.GetItemById(itemId);
+        if (itemJson == null)
             return null;
-        return LoadIcon(item.iconspritepath);
+        return LoadIcon(itemJson.iconspritepath);
     }
 
     public static Sprite LoadItemQualityIcon(ItemGameIconType gameIconType, ItemRarity rarity)
@@ -330,7 +329,6 @@ public static class ClientUtils
     public static Sprite LoadCurrencyIcon(CurrencyType currencyType)
     {
         string path = "";
-
         switch(currencyType)
         {
             case CurrencyType.Money:
@@ -338,6 +336,30 @@ public static class ClientUtils
                 break;
             case CurrencyType.Gold:
                 path = "UI_ZDSP_Icons/Currency/currency_gold.png";
+                break;
+        }
+        return LoadIcon(path);
+    }
+
+    public static Sprite LoadMonsterElementIcon(Element element)
+    {
+        string path = "";
+        switch (element)
+        {
+            case Element.Metal:
+                path = "UI_ZDSP_Icons/Element_Attacks/zzz_test.png";
+                break;
+            case Element.Wood:
+                path = "UI_ZDSP_Icons/Element_Attacks/zzz_test.png";
+                break;
+            case Element.Water:
+                path = "UI_ZDSP_Icons/Element_Attacks/zzz_test.png";
+                break;
+            case Element.Fire:
+                path = "UI_ZDSP_Icons/Element_Attacks/zzz_test.png";
+                break;
+            case Element.Earth:
+                path = "UI_ZDSP_Icons/Element_Attacks/zzz_test.png";
                 break;
         }
         return LoadIcon(path);
@@ -597,7 +619,6 @@ public static class ClientUtils
             case CharacterBasicStats.NUM_STATS:
                 return "";
         }
-
         return "";
     }
 
@@ -638,7 +659,6 @@ public static class ClientUtils
             case CharacterSecondaryStats.NUM_SECONDARY_STATS:
                 return "";
         }
-
         return "";
     }
 

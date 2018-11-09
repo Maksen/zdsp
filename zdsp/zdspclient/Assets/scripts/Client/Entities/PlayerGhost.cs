@@ -60,8 +60,8 @@ namespace Zealot.Client.Entities
         public BotController Bot { get { return mBotController; } }
         public InteractiveController InteractiveController { get; private set; }
         public SocialController clientSocialController { get; private set; }
-
         public TutorialController m_TutorialController { get; private set; }
+        public BotStateController mBotStateController { get; private set; }
 
         public GameTimer mArenaRewardCD = null;
         public DateTime mArenaLastRewardDT;
@@ -496,7 +496,8 @@ namespace Zealot.Client.Entities
                 return;
 
             hudskill.UpdateSkillButtons(GameSettings.AutoBotEnabled);
-            Bot.UpdateAutoSkillRow();
+            BotAutoSkillHandler.Instance.UpdateAutoSkillRow();
+
             //for(int i = 0; i < 9; ++i)
             //{
             //    SkillData data = SkillRepo.GetSkill((int)SkillStats.SkillInv[i]);
@@ -609,6 +610,10 @@ namespace Zealot.Client.Entities
             GameObject windowObj = UIManager.GetWindowGameObject(WindowType.Inventory);
             if (windowObj.activeInHierarchy)
                 windowObj.GetComponent<UI_Inventory>().RefreshRight(this);
+
+            windowObj = UIManager.GetWidget(HUDWidgetType.Chatroom);
+            if (windowObj.activeInHierarchy)
+                windowObj.GetComponent<HUD_Chatroom>().RefreshItemInventory();
         }
 
         public void OnEquipmentStatsCollectionChanged(string field, byte idx, object value)
@@ -1322,6 +1327,7 @@ namespace Zealot.Client.Entities
                 DonateController = new DonateClientController();
                 m_TutorialController = new TutorialController(this);
                 clientSocialController = new SocialController(this);
+                mBotStateController = BotStateController.Instance;
             }
             mEquipmentInvData = new EquipmentInventoryData();
             mEquipmentInvData.InitDefault();
@@ -1574,8 +1580,6 @@ namespace Zealot.Client.Entities
             clientPowerUpCtrl = new PowerUpController();
             if (clientPowerUpCtrl == null)
                 Debug.LogError("powerUpCtrl is null");
-
-            InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
 
         private void InitEquipmentCraftCtrl()
@@ -1583,8 +1587,6 @@ namespace Zealot.Client.Entities
             clientEquipmentCraftCtrl = new EquipmentCraftController();
             if (clientEquipmentCraftCtrl == null)
                 Debug.LogError("EquipmentCraftCtrl is null");
-
-            InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
 
         private void InitEquipFusionCtrl()
@@ -1592,8 +1594,6 @@ namespace Zealot.Client.Entities
             clientEquipFusionCtrl = new EquipFusionController();
             if (clientEquipFusionCtrl == null)
                 Debug.LogError("clientEquipFusionCtrl is null");
-
-            InventoryStats = new InventoryStats[(int)InventorySlot.MAXSLOTS / (int)InventorySlot.COLLECTION_SIZE];
         }
 
         protected override void PlayStunEffect(bool bplay)
@@ -1687,8 +1687,6 @@ namespace Zealot.Client.Entities
                 {
                     action = delegate {
                         staticnpc.Interact();
-                        if (staticnpc is StaticAreaGhost)
-                            Bot.PauseBot();
                     };
                     range = 2f;
                     targetid = -1;
@@ -1819,9 +1817,9 @@ namespace Zealot.Client.Entities
             return false;
         }
 
-        public void InitBot(PlayerInput input)
+        public void InitBot()
         {
-            mBotController = new BotController(this, input);
+            mBotController = new BotController(this);
         }
 
         public bool CanStartNewBot()
@@ -2261,12 +2259,6 @@ namespace Zealot.Client.Entities
             {
                 QuestController.ActionInterupted();
             }
-
-            if (Bot != null)
-            {
-                if (isDamage)
-                    Bot.Interrupt();
-            }
         }
 
         public IEnumerator PlayCutscene(string name, int delay, int questid)
@@ -2278,7 +2270,7 @@ namespace Zealot.Client.Entities
                 UIManager.OpenCutsceneDialog();
 
                 yield return new WaitForSecondsRealtime(delay);
-                Bot.PauseBot(false);
+                BotStateController.Instance.Cutscene();
                 RPCFactory.NonCombatRPC.ActivateInvincible(true);
                 GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));
             }
@@ -2290,7 +2282,7 @@ namespace Zealot.Client.Entities
 
             if (!UIManager.IsWindowOpen(WindowType.DialogNpcTalk))
             {
-                Bot.ResumeBot();
+                BotStateController.Instance.Resume();
             }
             RPCFactory.NonCombatRPC.ActivateInvincible(false);
         }

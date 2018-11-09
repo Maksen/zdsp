@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Collections.Generic;
 using Zealot.Repository;
 using Zealot.Common.Actions;
 using Zealot.Server.Entities;
+using Zealot.Server.Actions;
 
 using ExitGames.Concurrency.Fibers;
 using Photon.LoadBalancing.GameServer;
@@ -70,7 +72,7 @@ namespace Zealot.Server.Rules
             cmd.entityId = pid;
             cmd.triggerTime = time;
             cmd.isArea = isArea;
-            mEntity.SetAction(cmd);
+            mEntity.PerformAction(new ASInteractiveTrigger(mEntity, cmd));
         }
 
         public static string GetCurrentPlayer()
@@ -116,7 +118,7 @@ namespace Zealot.Server.Rules
         public static void Init(int levelId)
         {
             updateEntity = new List<InteractiveGate>();
-            
+
             if (InteractiveTriggerController.interactiveEntity.ContainsKey(levelId))
             {
                 List<int> entitiesId = InteractiveTriggerController.GetSceneEntities(levelId);
@@ -144,12 +146,13 @@ namespace Zealot.Server.Rules
             DateTime now = DateTime.Now;
             int minUnit = (int)Math.Ceiling((decimal)now.Minute / (decimal)30);
             int nxMin = minUnit * 30;
+            int nxHour = now.Hour;
             if (nxMin == 60)
             {
                 nxMin = 0;
+                ++nxHour;
             }
 
-            int nxHour = (minUnit * 30 == 60) ? now.Hour + 1 : now.Hour;
             if(nxHour == 24)
             {
                 nxHour = 0;
@@ -167,13 +170,35 @@ namespace Zealot.Server.Rules
 
         public static void SetEntiesActive()
         {
+            StringBuilder pidSb = new StringBuilder();
+            StringBuilder triggerSb = new StringBuilder();
+            StringBuilder compareSb = new StringBuilder();
+            StringBuilder stepSb = new StringBuilder();
+
             for (int i = 0; i < updateEntity.Count; ++i)
             {
                 InteractiveGate mEntity = updateEntity[i];
                 bool compare = CanActiveGameObject(mEntity);
-                mEntity.mPropertyInfos.activeObject = compare;
-                GameApplication.BroadcastInteractiveCount(mEntity.GetPersistentID(),
-                    mEntity.canTrigger, compare, (int)mEntity.step);
+                mEntity.mPropertyInfos.activeOnStartup = compare;
+                pidSb.Append(mEntity.GetPersistentID());
+                pidSb.Append(",");
+                triggerSb.Append(Convert.ToInt32(mEntity.canTrigger).ToString());
+                triggerSb.Append(",");
+                compareSb.Append(Convert.ToInt32(compare).ToString());
+                compareSb.Append(",");
+                stepSb.Append(((int)mEntity.step).ToString());
+                stepSb.Append(",");
+            }
+
+            if (updateEntity.Count > 0)
+            {
+                pidSb.Remove(pidSb.Length - 1, 1);
+                triggerSb.Remove(triggerSb.Length - 1, 1);
+                compareSb.Remove(compareSb.Length - 1, 1);
+                stepSb.Remove(stepSb.Length - 1, 1);
+
+                GameApplication.BroadcastInteractiveCount(pidSb.ToString(),
+                triggerSb.ToString(), compareSb.ToString(), stepSb.ToString());
             }
         }
 
@@ -181,7 +206,9 @@ namespace Zealot.Server.Rules
         {
             ScenesModelJson sceneModel = ScenesModelRepo.GetScenesModelJson(mEntity.entityName);
             if (sceneModel == null)
-                return true;
+            {
+                return mEntity.mPropertyInfos.activeOnStartup;
+            }
             
             if (!sceneModel.activeonstartup)
             {
@@ -189,7 +216,9 @@ namespace Zealot.Server.Rules
             }
 
             if (IsOpenTime(sceneModel.npcopentime, sceneModel.npcclosetime) && IsCycleTime(sceneModel.npccycletime))
+            {
                 return true;
+            }
 
             return false;
         }
@@ -257,7 +286,7 @@ namespace Zealot.Server.Rules
             {
                 return true;
             }
-            DateTime now = DateTime.Now;
+            DateTime now = DateTime.Now.AddHours(1);
             List<string> openList = openTime.Split(';').ToList();
             List<string> closeList = closeTime.Split(';').ToList();
 

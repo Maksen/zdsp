@@ -276,10 +276,12 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAddBlack)]
     public void Ret_SocialAddBlack(int resultCode)
     {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialAddBlack_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveBlack)]
     public void Ret_SocialRemoveBlack(int resultCode)
     {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRemoveBlack_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveGood)]
@@ -287,5 +289,18 @@ public partial class ClientMain : MonoBehaviour
     {
         SocialTestTool.DoAction(ctrl => ctrl.SocialRemoveGood_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseAllTempRequest)]
+    public void Ret_SocialRaiseAllTempRequest()
+    {
+        
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialClearTemp)]
+    public void Ret_SocialClearTemp()
+    {
+
+    }
+
     #endregion
 }

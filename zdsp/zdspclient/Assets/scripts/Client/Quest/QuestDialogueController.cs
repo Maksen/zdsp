@@ -182,7 +182,7 @@ public class QuestDialogueController
             UIManager.OpenDialog(WindowType.DialogNpcTalk);
         }
 
-        GameInfo.gLocalPlayer.Bot.PauseBot(false);
+        Zealot.Bot.BotStateController.Instance.NonCombatQuest();
 
         UI_Dialogue uidialogue = UIManager.GetWindowGameObject(WindowType.DialogNpcTalk).GetComponent<UI_Dialogue>();
         if (dialogue.DialogueType == DialogueType.Quest)

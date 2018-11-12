@@ -5,7 +5,8 @@
 
     public class PureDamageNoKillSE : SideEffect
     {                
-        public PureDamageNoKillSE(SideEffectJson sideeffectData) : base(sideeffectData)
+        public PureDamageNoKillSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mDuration = 0; //This sideeffect doesn't support interval. It's once off.
         }

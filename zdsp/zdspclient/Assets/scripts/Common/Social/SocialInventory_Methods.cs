@@ -251,6 +251,21 @@ namespace Zealot.Common
                         return tempFriends;
                 }
             }
+            public SocialFriendStateList getFriendStates(FriendType type)
+            {
+                switch (type)
+                {
+                    case FriendType.Good:
+                        return goodFriendStates;
+                    case FriendType.Black:
+                        return blackFriendStates;
+                    case FriendType.Request:
+                        return requestFriendStates;
+                    default:
+                    case FriendType.Temp:
+                        return tempFriendStates;
+                }
+            }
 
             public int getFriendMaxCount(FriendType type)
             {
@@ -563,7 +578,7 @@ namespace Zealot.Common
                     allMap.Add(charaID, new IndexInfo(type, list.Count));
                     name2id.Add(charaName, charaID);
                 }
-                list.Add(new SocialFriend(type, charaID, charaName));
+                list.Add(new SocialFriend(charaID, charaName));
                 return SocialResult.Success;
             }
 

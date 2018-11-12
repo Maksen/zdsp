@@ -154,7 +154,7 @@ namespace Photon.LoadBalancing.GameServer
             }
            
             bool isPos = SideEffectsUtils.IsSideEffectPositive(sej);
-            SideEffect se = SideEffectFactory.CreateSideEffect(sej);
+            SideEffect se = SideEffectFactory.CreateSideEffect(sej, SEORIGINID.NONE);
             if (pid == -1)
                 se.Apply(peer.mPlayer, peer.mPlayer, isPos);
             else
@@ -687,7 +687,7 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSpawnPersonalMonster)]
-        public void ConsoleSpawnPersonalMonster(string archtype, int population, bool aggressive, int questid, GameClientPeer peer)
+        public void ConsoleSpawnPersonalMonster(string archtype, int population, bool aggressive, GameClientPeer peer)
         {
             foreach(var entry in maMonsterSpawners)
             {
@@ -697,11 +697,6 @@ namespace Photon.LoadBalancing.GameServer
                     ((PersonalMonsterSpawner)entry).SpawnToMeOnly(peer.mPlayer, population, aggressive);
                     break;
                 }
-            }
-
-            if (questid != -1)
-            {
-                peer.QuestController.UpdateQuestEventStatus(questid);
             }
         }
 

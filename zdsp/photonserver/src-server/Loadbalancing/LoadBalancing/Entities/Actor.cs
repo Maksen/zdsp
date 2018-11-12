@@ -329,7 +329,7 @@
 
         // Prototyping test stuff
         protected Dictionary<byte, List<SideEffect>> m_SideEffects;
-        protected Dictionary<byte, HashSet<int>> m_RemovedSE;
+        protected Dictionary<byte, List<int>> m_RemovedSE;
         // proto
 
         //public ControlStats ControlStats;
@@ -354,7 +354,7 @@
             m_EquipmentSE = new Dictionary<int, List<SideEffect>>();
             m_SideEffectList = new Dictionary<int, int>();
             m_SideEffects = new Dictionary<byte, List<SideEffect>>();
-            m_RemovedSE = new Dictionary<byte, HashSet<int>>();
+            m_RemovedSE = new Dictionary<byte, List<int>>();
 
             //ControlStats = new ControlStats();
             finalcombatstats = new LocalSkillStats();
@@ -841,7 +841,7 @@
             //}
             byte type = (byte)SideEffectsUtils.GetEffectHandleType(se.mSideeffectData.effecttype);
             int index = m_SideEffects[type].FindIndex(x => x == se);
-            if (!m_RemovedSE.ContainsKey(type)) m_RemovedSE.Add(type, new HashSet<int>());
+            if (!m_RemovedSE.ContainsKey(type)) m_RemovedSE.Add(type, new List<int>());
             m_RemovedSE[type].Add(index);
 
             RemoveSideEffectFromList(se);
@@ -948,6 +948,8 @@
 
                 foreach(var set in m_RemovedSE)
                 {
+                    set.Value.Sort();
+                    set.Value.Reverse();
                     foreach(int index in set.Value)
                     {
                         m_SideEffects[set.Key].RemoveAt(index);

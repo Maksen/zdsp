@@ -30,8 +30,17 @@ namespace Zealot.Bot
         protected override IEnumerator Start()
         {
             // 開啟掛機前，確認是否有手動選擇的目標
-            if (IsTargetValidAndAlive((ActorGhost)GameInfo.gSelectedEntity)) 
-                SetManualTarget((ActorGhost)GameInfo.gSelectedEntity);
+            var selectedTarget = GameInfo.gSelectedEntity as ActorGhost;
+            if (IsTargetValidAndAlive(selectedTarget))
+            {
+                if (IsMonsterValid(selectedTarget))
+                    SetManualTarget(selectedTarget);
+                else
+                {
+                    selectedTarget = null;
+                    ClearTarget();
+                }
+            }
 
             ActorGhost newTarget = GetFriendlyTarget(); // 針對非Enemy Target Type先進行一次設定
 

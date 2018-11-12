@@ -81,7 +81,7 @@ namespace Photon.LoadBalancing.Entities
                     case EffectType.StatsDefence_CoCritical_Debuff:
                     case EffectType.StatsDefence_Evasion:
                     case EffectType.StatsDefence_Evasion_Debuff:
-                        SideEffect se = SideEffectFactory.CreateSideEffect(sejson, true);
+                        SideEffect se = SideEffectFactory.CreateSideEffect(sejson, SEORIGINID.NONE, -1, true);
                         ((StatsSE)se).AddPassive(this, true);
                         skillpassivelist.Add((StatsSE)se);
                         break;

@@ -5,6 +5,7 @@ using Candlelight.UI;
 using Zealot.Common;
 using Kopio.JsonContracts;
 using Zealot.Repository;
+using System;
 using System.Collections.Generic;
 
 public class UI_OngoingQuestData : MonoBehaviour
@@ -53,8 +54,8 @@ public class UI_OngoingQuestData : MonoBehaviour
     private int mQuestId;
     private QuestType mQuestType;
     private string mQuestMap;
-    private Dictionary<int, long> mMOEndTime;
-    private Dictionary<int, long> mSOEndTime;
+    private Dictionary<int, DateTime> mMOEndTime;
+    private Dictionary<int, DateTime> mSOEndTime;
     private string mDescription;
     private bool bIsUnlockQuest = false;
 
@@ -201,14 +202,6 @@ public class UI_OngoingQuestData : MonoBehaviour
     private IEnumerator EndTmeCD()
     {
         yield return new WaitForSecondsRealtime(1);
-        foreach(KeyValuePair<int, long> entry in mMOEndTime)
-        {
-            mMOEndTime[entry.Key] -= 1000;
-        }
-        foreach (KeyValuePair<int, long> entry in mSOEndTime)
-        {
-            mSOEndTime[entry.Key] -= 1000;
-        }
         UpdateDescrption();
     }
 
@@ -284,5 +277,10 @@ public class UI_OngoingQuestData : MonoBehaviour
                 return GUILocalizationRepo.GetLocalizedString("quest_signboard");
         }
         return "";
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 }

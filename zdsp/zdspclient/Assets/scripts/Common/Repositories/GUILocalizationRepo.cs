@@ -357,6 +357,52 @@ namespace Zealot.Repository
             return timeStr;
         }
 
+        /// <summary>
+        /// 與GetLocalizedSingleUnitTimeString的不同點在於最少時間顯示到0分鐘，不會顯示秒
+        /// </summary>
+        public static string GetLocalizedSingleUnitTimeStringMinute(double totalSeconds)
+        {
+            string timeStr = "";
+
+            int minute = 60;
+            int hour = 3600;
+            int day = 86400;
+
+            TimeSpan t = TimeSpan.FromSeconds(totalSeconds);
+            StringBuilder sb = new StringBuilder();
+
+            // Seconds
+            if (totalSeconds <= minute)
+            {
+                sb.Append("0");
+                sb.Append(localizedTimeMin);
+                timeStr = sb.ToString();
+            }
+            // Minutes
+            else if (totalSeconds <= hour)
+            {
+                sb.Append("{0}");
+                sb.Append(localizedTimeMin);
+                timeStr = string.Format(sb.ToString(), t.Minutes);
+            }
+            // Hours
+            else if (totalSeconds <= day)
+            {
+                sb.Append("{0}");
+                sb.Append(localizedTimeHr);
+                timeStr = string.Format(sb.ToString(), t.Hours);
+            }
+            // Days
+            else
+            {
+                sb.Append("{0}");
+                sb.Append(localizedTimeDay);
+                timeStr = string.Format(sb.ToString(), t.Days);
+            }
+
+            return timeStr;
+        }
+
         public static string GetLocalizedMultiUnitTimeString(double totalSeconds)
         {
             string timeStr = "";

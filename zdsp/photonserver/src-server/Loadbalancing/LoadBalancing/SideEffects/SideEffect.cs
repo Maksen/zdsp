@@ -5,7 +5,7 @@
     using System.Collections.Generic; 
     using Zealot.Common;
     using Zealot.Server.Entities;
-    using Zealot.Repository; 
+    using Zealot.Repository;
 
     public static class SideEffectFactory
     {
@@ -36,7 +36,7 @@
             {EffectType.Stats_HealthRegen, typeof(StatsSE) },
             {EffectType.Stats_MaxMana, typeof(StatsSE) },
             {EffectType.Stats_ManaRegen, typeof(StatsSE) },
-            {EffectType.Stats_EnergyShield, typeof(StatsSE) },
+            {EffectType.Stats_EnergyShield, typeof(StatsSE) }, // Might need a new SE for special behaviour
             {EffectType.Stats_IgnoreArmor, typeof(StatsSE) },
             {EffectType.Stats_ChangeEleToNone, typeof(ToNoneElementalSE) },
             {EffectType.Stats_ChangeEleToMetal, typeof(ToMetalElementalSE) },
@@ -184,12 +184,14 @@
             {EffectType.Enhance_IncSkillAffect, typeof(SideEffect) }
         };
 
+       
+
         public static bool IsSideEffectInstantiatable(SideEffectJson sideeffectData)
         {
             return (EffectTypeToClass.ContainsKey(sideeffectData.effecttype));
         }
 
-        public static SideEffect CreateSideEffect(SideEffectJson sideeffectData, bool isPassive=false)
+        public static SideEffect CreateSideEffect(SideEffectJson sideeffectData, SEORIGINID origin, int originid = -1, bool isPassive=false)
         {
             try
             {
@@ -205,8 +207,10 @@
                     throw new Exception("Sideeffect " + Enum.GetName(typeof(EffectType), effecttype) + " cannot be created because it is not supported yet!");
                 }
 
-                object[] args = new object[1];
+                object[] args = new object[3];
                 args[0] = sideeffectData;
+                args[1] = origin;
+                args[2] = originid;
                 object sideeffect = Activator.CreateInstance(type, args);
 
                 return (SideEffect)sideeffect;
@@ -234,6 +238,8 @@
         public SideEffectJson mSideeffectData;
 
         public Actor mTarget;
+        public SEORIGINID mOrigin;
+        public int mOriginID;
         protected Actor mCaster;        
         protected long mElapsedTime;
         protected long mTotalElapsedTime;
@@ -243,7 +249,7 @@
         protected int Rank;
         protected bool mIsActive;
 
-        public SideEffect(SideEffectJson sideeffectData)
+        public SideEffect(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
         {
             mSideeffectData = sideeffectData;
             mElapsedTime = 0;
@@ -252,6 +258,8 @@
             mDuration = (long)(mSideeffectData.duration * 1000);
             mNeedCaster = true;
             mIsActive = true;
+            mOriginID = originID;
+            mOrigin = origin;
             InitKopioData();
 
             // Debug log

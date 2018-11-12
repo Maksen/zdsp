@@ -423,7 +423,7 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public InvRetval SwapEquipmentFromInventory(int invSlotId)
+        public InvRetval SwapEquipmentFromInventory(int invSlotId, int eqSlotId)
         {
             InvRetval retval = new InvRetval();
             retval.retCode = InvReturnCode.EquipFailed;
@@ -434,7 +434,7 @@ namespace Photon.LoadBalancing.GameServer
             if (equipItem.EquipmentJson.fashionsuit)
                 return retval;
 
-            EquipmentSlot _equipSlot = mEquipInvData.FindAEquipSlotToSwap(equipItem);
+            EquipmentSlot _equipSlot = mEquipInvData.FindAEquipSlotToSwap(equipItem, eqSlotId);
             if (_equipSlot == EquipmentSlot.MAXSLOTS)
                 return retval;
 
@@ -560,7 +560,7 @@ namespace Photon.LoadBalancing.GameServer
             return retval;
         }
 
-        public InvRetval UseItemInInventory(int slotId, int useAmount)
+        public InvRetval UseItemInInventory(int slotId, int useAmount, int eqSlotId = -1)
         {
             InvRetval retval = new InvRetval();
             retval.retCode = InvReturnCode.UseFailed;
@@ -572,7 +572,7 @@ namespace Photon.LoadBalancing.GameServer
             switch (itemJson.itemtype)
             {
                 case ItemType.Equipment:
-                    retval = useAmount == 0 ? SwapFashionFromInventory(slotId) : SwapEquipmentFromInventory(slotId);
+                    retval = useAmount == 0 ? SwapFashionFromInventory(slotId) : SwapEquipmentFromInventory(slotId, eqSlotId);
                     break;
                 default:
                     retval = UseItem(slotId, useAmount);
@@ -621,7 +621,7 @@ namespace Photon.LoadBalancing.GameServer
                             if (SideEffectRepo.mIdMap.ContainsKey(sideffectid))
                             {
                                 var sedata = SideEffectRepo.mIdMap[sideffectid];
-                                var se = SideEffectFactory.CreateSideEffect(sedata);
+                                var se = SideEffectFactory.CreateSideEffect(sedata, SEORIGINID.EITEM, itemJson.itemid);
                                 if (se != null)
                                     se.Apply(mSlot.mPlayer, mSlot.mPlayer, true);
                                 usedSuccess = true;
@@ -706,6 +706,18 @@ namespace Photon.LoadBalancing.GameServer
                     //        usedSuccess = false;
                     //    }
                     //    break;
+                    case ItemType.QuestItem:
+                        QuestItemJson questItemJson = (QuestItemJson)itemJson;
+                        if (mSlot.QuestController.UseQuestItem(questItemJson))
+                        {
+                            usedSuccess = true;
+                        }
+                        else
+                        {
+                            retval.retCode = InvReturnCode.UseFailed;
+                            usedSuccess = false;
+                        }
+                        break;
                 }
                 if (usedSuccess)
                 {

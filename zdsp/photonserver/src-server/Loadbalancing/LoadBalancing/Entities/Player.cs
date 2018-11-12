@@ -262,7 +262,7 @@
             HeroStats = new HeroStatsServer();
             LOStats.Add(LOTYPE.HeroStats, HeroStats);
 
-            //LOStats.Add(LOTYPE.BuffTimeStats, BuffTimeStats);
+            LOStats.Add(LOTYPE.BuffTimeStats, BuffTimeStats);
 
             SocialStats = new SocialStats(true);
             LOStats.Add(LOTYPE.SocialStats, SocialStats);
@@ -2455,7 +2455,6 @@
         #endregion Currency Methods
 
         #region BuffTimeStats Methods
-
         public override int AddSideEffect(SideEffect se, bool positiveEffect)
         {
             int slotid = base.AddSideEffect(se, positiveEffect);
@@ -2467,12 +2466,96 @@
             }
             if (slotid == (byte)SideEffectsUtils.EffectHandleType.Buff) //set buff to local player so that client know the sideeffect on iteslef
             {
-                BuffTimeStats.Positives.Add(se.mSideeffectData.id);
-                //For persistent buffs, the starttime could be negative.
+                // do conditioning
+                // check for debuffs
+                //find dups first
+                long encodehead = 1 << 8;
+                encodehead |= (byte)se.mOrigin;
+
+                long encoded = encodehead << 32;
+                encoded |= (uint)se.mOriginID;
+
+                for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2)
+                {
+                    if (Convert.ToInt64(BuffTimeStats.Buffs[i]) == encoded)
+                    {
+                        BuffTimeStats.Buffs[i + 1] = se.GetTimeRemaining();
+                        return slotid;
+                    }
+
+                    if (Convert.ToInt64(BuffTimeStats.Buffs[i]) == 0)
+                    {
+                        // since empty just insert, no checks
+                        BuffTimeStats.Buffs[i] = encoded;
+                        BuffTimeStats.Buffs[i + 1] = se.GetTimeRemaining();
+                        return slotid;
+                    }
+                }
+
+                for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2)
+                {
+                    UInt64 header = (UInt64)BuffTimeStats.Buffs[i];
+                    if ((header & (1 << 40)) == 1)
+                    {
+                        //is a buff, can remove
+                        if ((i + 2) < BuffTimeStats.EFFECT_BAG)
+                        {
+                            for (int j = i; j < BuffTimeStats.EFFECT_BAG - 2; ++j)
+                            {
+                                BuffTimeStats.Buffs[i] = BuffTimeStats.Buffs[i + 2];
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                BuffTimeStats.Buffs[6] = encoded;
+                BuffTimeStats.Buffs[7] = se.GetTimeRemaining();
             }
+
             else if(slotid == (byte)SideEffectsUtils.EffectHandleType.Debuff)
             {
-                BuffTimeStats.Negatives.Add(se.mSideeffectData.id);
+
+                long encoded = (byte)se.mOrigin << 32;
+                encoded |= (uint)se.mOriginID;
+
+                for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2)
+                {
+                    if (Convert.ToInt64(BuffTimeStats.Buffs[i]) == encoded)
+                    {
+                        BuffTimeStats.Buffs[i + 1] = se.GetTimeRemaining();
+                        return slotid;
+                    }
+
+                    if (Convert.ToInt64(BuffTimeStats.Buffs[i]) == 0)
+                    {
+                        // since empty just insert, no checks
+                        BuffTimeStats.Buffs[i] = encoded;
+                        BuffTimeStats.Buffs[i + 1] = se.GetTimeRemaining();
+                        return slotid;
+                    }
+                }
+
+                // find buffs
+                for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2)
+                {
+                    long header = Convert.ToInt64(BuffTimeStats.Buffs[i]);
+                    if ((header & (1 << 40)) == 1)
+                    {
+                        //is a buff, can remove
+                        if ((i + 2) < BuffTimeStats.EFFECT_BAG)
+                        {
+                            for (int j = i; j < BuffTimeStats.EFFECT_BAG - 2; ++j)
+                            {
+                                BuffTimeStats.Buffs[i] = BuffTimeStats.Buffs[i + 2];
+                            }
+                            break;
+                        }
+                    }
+                }
+                // insert debuffs
+                BuffTimeStats.Buffs[6] = encoded;
+                BuffTimeStats.Buffs[7] = se.GetTimeRemaining();
             }
 
             return slotid;
@@ -2484,14 +2567,48 @@
             if (slotid < 0)
                 return -1;
 
+
+            long encoded = 0;
+
             if (slotid == (byte)SideEffectsUtils.EffectHandleType.Buff)
             {
-                BuffTimeStats.Positives.Remove(se.mSideeffectData.id);
+                long encodehead = 1 << 8;
+                encodehead |= (uint)se.mOrigin;
+
+                encoded = encodehead << 32;
+                encoded |= (uint)se.mOriginID;
             }
             else if (slotid == (byte)SideEffectsUtils.EffectHandleType.Debuff)
             {
-                BuffTimeStats.Negatives.Remove(se.mSideeffectData.id);
+                encoded = (uint)se.mOrigin << 32;
+                encoded |= (uint)se.mOriginID;
             }
+
+            bool isFound = false;
+            int index = 0;
+
+            for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2)
+            {
+                if (Convert.ToInt64(BuffTimeStats.Buffs[i]) == encoded)
+                {
+                    BuffTimeStats.Buffs[i] = BuffTimeStats.Buffs[i + 1] = 0;
+                    if (i < 5)
+                    {
+                        isFound = !isFound;
+                        index = i;
+                    }
+                    break;
+                }
+            }
+
+            if (isFound)
+            {
+                for (int i = index; i < BuffTimeStats.EFFECT_BAG - 2; ++i)
+                {
+                    BuffTimeStats.Buffs[i] = BuffTimeStats.Buffs[i + 2];
+                }
+            }
+
             return slotid;
         }
 
@@ -3130,7 +3247,7 @@
 
             for (int i = 0; i < sideEffects.Count; i++)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(sideEffects[i], true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(sideEffects[i], SEORIGINID.NONE, -1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse == null)
                 {

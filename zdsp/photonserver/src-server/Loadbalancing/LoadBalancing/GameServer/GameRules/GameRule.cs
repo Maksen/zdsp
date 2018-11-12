@@ -575,7 +575,7 @@ namespace Zealot.Server.Rules
             }
             else
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(sej);
+                SideEffect se = SideEffectFactory.CreateSideEffect(sej, SEORIGINID.NONE);
                 se.Apply(target, caster, SideEffectsUtils.IsSideEffectPositive(sej));
             }
         }

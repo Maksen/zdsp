@@ -122,13 +122,21 @@ namespace Zealot.Client.Entities
             _isInLocalCombat = false;
             Radius = CombatUtils.DEFAULT_ACTOR_RADIUS;//todo: make sure this is same as server.
             ControlSE_Status = new Dictionary<string, bool>();
-            for (EffectVisualTypes i = 0; i < EffectVisualTypes.NUM; ++i)
+            for (int i = 1, idx = 0; i < (int)EffectVisualTypes.NUM; i = (1 << (int)++idx))
             {
                 ControlSE_Status.Add(((EffectVisualTypes)i).ToString(), false);
             }
 
+            //ControlSE_Status.Add((EffectVisualTypes.Stun).ToString(), false);
+            //ControlSE_Status.Add((EffectVisualTypes.Fear).ToString(), false);
+            //ControlSE_Status.Add((EffectVisualTypes.Silence).ToString(), false);
+            //ControlSE_Status.Add((EffectVisualTypes.Root).ToString(), false);
+            //ControlSE_Status.Add((EffectVisualTypes.Disarmed).ToString(), false);
+            //ControlSE_Status.Add((EffectVisualTypes.Frozen).ToString(), false);
+            //ControlSE_Status.Add((EffectVisualTypes.Petrify).ToString(), false);
+
             kopioEffectTransitionKeys.Add(EffectVisualTypes.Stun, "");
-            kopioEffectTransitionKeys.Add(EffectVisualTypes.Slow, "");
+            kopioEffectTransitionKeys.Add(EffectVisualTypes.Fear, "");
             kopioEffectTransitionKeys.Add(EffectVisualTypes.Silence, "");
             kopioEffectTransitionKeys.Add(EffectVisualTypes.Root, "");
             kopioEffectTransitionKeys.Add(EffectVisualTypes.Disarmed, "");
@@ -407,7 +415,7 @@ namespace Zealot.Client.Entities
             if (field == "VisualEffectTypes")
             {
                 //Debug.Log(System.Convert.ToString((int)value, 2));
-                for (int se = 0, num = (int)EffectVisualTypes.NUM; se < num; ++se)
+                for (int se = 1, idx = 0; se < (int)EffectVisualTypes.NUM; se = (1 << ++idx))
                 {
                     UpdateControlStatusEffect((EffectVisualTypes)se, (int)value);
                 }

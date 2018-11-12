@@ -21,16 +21,17 @@ namespace Zealot.Common.Entities
     //    Petrify = 64,
     //    NUM
     //}    
+
     public enum EffectVisualTypes
     {
-        Stun,
-        Slow,
-        Silence,
-        Root,
-        Disarmed,
-        Frozen,
-        Petrify,
-        NUM
+        Stun = 1 << 0,
+        Root = 1 << 1,
+        Fear = 1 << 2,
+        Silence = 1 << 3,
+        Disarmed = 1 << 4,
+        Frozen = 1 << 5,
+        Petrify = 1 << 6,
+        NUM = 1 << 7,
     }
 
     public class ActorSynStats : LocalObject // Send to all relevant player
@@ -148,8 +149,8 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("immuneStatus", value); _immune_Status = value; }
         }
 
-        private byte _control_Status;
-        public byte ControlStatus
+        private int _control_Status;
+        public int ControlStatus
         {
             get { return _control_Status; }
             set { OnSetAttribute("controlStatus", value); _control_Status = value; }
@@ -2202,14 +2203,21 @@ namespace Zealot.Common.Entities
     public class BuffTimeStats : LocalObject //send only to local client
     {
         public static readonly int MAX_EFFECTS = 30;
+        /// <summary>
+        /// The Header is Encoded in the following format
+        /// 64bits[[15bit empty][1bit(Buff : 1 / Debuff : 0)][16bit(SEOriginID)][32bits(item id)]]
+        /// </summary>
+        public static readonly int ENCODED = 0; // 16bit -> buff/debuff | 16bit -> origin id | 32bit item id
+        /// <summary>
+        /// Time left
+        /// </summary>
+        public static readonly int TIMESTAMP = 1;
+        public static readonly int EFFECT_BAG = 8;
 
         public BuffTimeStats() : base(LOTYPE.BuffTimeStats)
         {
-            Positives = new CollectionHandler<object>(MAX_EFFECTS);
-            Positives.SetParent(this, "Positives");
-
-            Negatives = new CollectionHandler<object>(MAX_EFFECTS);
-            Negatives.SetParent(this, "Negatives");
+            Buffs = new CollectionHandler<object>(EFFECT_BAG);
+            Buffs.SetParent(this, "Buffs");
 
             Persistents = new CollectionHandler<object>(MAX_EFFECTS);
             Persistents.SetParent(this, "Persistents");
@@ -2221,25 +2229,30 @@ namespace Zealot.Common.Entities
 
         private void Init()
         {
-            Positives.SetNotifyParent(false);
-            Negatives.SetNotifyParent(false);
+            Buffs.SetNotifyParent(false);
             Persistents.SetNotifyParent(false);
             PersistentsDur.SetNotifyParent(false);
+            for(int i = 0; i < EFFECT_BAG; ++i)
+            {
+                Buffs[i] = 0;
+            }
             for (int i = 0; i < MAX_EFFECTS; i++)
             {
-                Positives[i] = 0;
-                Negatives[i] = 0;
                 Persistents[i] = 0;
                 PersistentsDur[i] = 0;
             }
-            Positives.SetNotifyParent(true);
-            Negatives.SetNotifyParent(true);
+            Buffs.SetNotifyParent(true);
             Persistents.SetNotifyParent(true);
             PersistentsDur.SetNotifyParent(true);
         }
 
-        public CollectionHandler<object> Positives { get; set; }
-        public CollectionHandler<object> Negatives { get; set; }
+        /// <summary>
+        /// Collection of 4 Debuff/Buff
+        /// The collection is in the following format :
+        /// Buffs[Encoded Header][Time Left][Encoded Header][Time Left]...
+        /// </summary>
+        public CollectionHandler<object> Buffs { get; set; }
+        //public CollectionHandler<object> Control { get; set; }
         //public CollectionHandler<object> StartTime { get; set; } // For positives only
         //public CollectionHandler<object> Duration { get; set; }
         public CollectionHandler<object> Persistents { get; set; }

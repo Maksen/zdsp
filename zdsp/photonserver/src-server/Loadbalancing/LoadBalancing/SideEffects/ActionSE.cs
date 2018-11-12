@@ -9,7 +9,8 @@
     /// </summary>
     public abstract class ActionSE : SideEffect
     {           
-        public ActionSE(SideEffectJson sideeffectData) : base(sideeffectData)
+        public ActionSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             
         }
@@ -28,7 +29,8 @@
 
     public class KnockUpSE : ActionSE
     {
-        public KnockUpSE(SideEffectJson sideeffectData) : base(sideeffectData)
+        public KnockUpSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
 
         }
@@ -49,7 +51,8 @@
 
     public class KnockBackSE:ActionSE
     {
-        public KnockBackSE(SideEffectJson sideeffectData) : base(sideeffectData)
+        public KnockBackSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
         }
 

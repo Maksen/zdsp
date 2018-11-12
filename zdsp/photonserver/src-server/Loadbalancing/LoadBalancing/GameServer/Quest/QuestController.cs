@@ -7,6 +7,7 @@ using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.Entities;
 using Zealot.Server.Rules;
+using System.Globalization;
 
 namespace Photon.LoadBalancing.GameServer
 {
@@ -28,11 +29,11 @@ namespace Photon.LoadBalancing.GameServer
         public QuestType QuestType { get; set; }
         public int Count { get; set; }
         public Dictionary<int, int> Requirement { get; set; }
-        public long EndTime { get; set; }
+        public DateTime EndTime { get; set; }
         public ObjectiveStatus Status { get; set; }
         public int MainObjectiveId { get; set; }
 
-        public QuestObjectiveData(CurrentQuestData questData, int objectiveid, int ordernum, int count, long endtime, ObjectiveStatus status, int mainobjectiveid = -1)
+        public QuestObjectiveData(CurrentQuestData questData, int objectiveid, int ordernum, int count, DateTime endtime, ObjectiveStatus status, int mainobjectiveid = -1)
         {
             QuestId = questData.QuestId;
             OrderNum = ordernum;
@@ -408,7 +409,7 @@ namespace Photon.LoadBalancing.GameServer
             ObjectiveStatus status = GetObjectiveStatus(progresscount, objectiveid);
             if (status == ObjectiveStatus.Completed)
                 return;
-            long endtime = GetObjectiveEndtime(questData, order);
+            DateTime endtime = GetObjectiveEndtime(questData, objectiveid);
             if (mObjectiveListByObjectiveType[type].ContainsKey(objectiveid))
             {
                 mObjectiveListByObjectiveType[type][objectiveid] = new QuestObjectiveData(questData, objectiveid, order, progresscount, endtime, status);
@@ -425,7 +426,7 @@ namespace Photon.LoadBalancing.GameServer
             ObjectiveStatus status = GetObjectiveStatus(progresscount, subid);
             if (status == ObjectiveStatus.Completed)
                 return;
-            long endtime = GetSubObjectiveEndtime(questData, mainid, order);
+            DateTime endtime = GetSubObjectiveEndtime(questData, mainid, order);
             if (mObjectiveListByObjectiveType[type].ContainsKey(subid))
             {
                 mObjectiveListByObjectiveType[type][subid] = new QuestObjectiveData(questData, subid, order, progresscount, endtime, status, mainid);
@@ -493,25 +494,40 @@ namespace Photon.LoadBalancing.GameServer
             return ObjectiveStatus.Incomplete;
         }
 
-        private long GetObjectiveEndtime(CurrentQuestData questData, int order)
+        private DateTime GetObjectiveEndtime(CurrentQuestData questData, int objectiveid)
         {
-            if (questData.MainObjective.CompleteTime.Contains(order))
+            for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
             {
-                return questData.MainObjective.CompleteTime[order];
+                int objid = questData.MainObjective.ObjectiveIds[i];
+                if (objid == objectiveid)
+                {
+                    if (questData.MainObjective.CompleteTime[i].GetType() == typeof(string) && questData.MainObjective.CompleteTime[i] != "null")
+                    {
+                        return DateTime.ParseExact(questData.MainObjective.CompleteTime[i], "yyyy.MM.dd+HH:mm:ss", CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        return DateTime.MinValue;
+                    }
+                }
             }
-            return 0;
+            return DateTime.MinValue;
         }
 
-        private long GetSubObjectiveEndtime(CurrentQuestData questData, int mainid, int order)
+        private DateTime GetSubObjectiveEndtime(CurrentQuestData questData, int mainid, int objectiveid)
         {
             if (questData.SubObjective.ContainsKey(mainid))
             {
-                if (questData.SubObjective[mainid].CompleteTime.Contains(order))
+                for (int i = 0; i < questData.SubObjective[mainid].ObjectiveIds.Count; i++)
                 {
-                    return questData.SubObjective[mainid].CompleteTime[order];
+                    int objid = questData.MainObjective.ObjectiveIds[i];
+                    if (objid == objectiveid)
+                    {
+                        return DateTime.ParseExact(questData.SubObjective[mainid].CompleteTime[i], "yyyy.MM.dd+HH:mm:ss", CultureInfo.InvariantCulture);
+                    }
                 }
             }
-            return 0;
+            return DateTime.MinValue;
         }
 
         private List<int> GetCompletedList(QuestType questType)
@@ -845,7 +861,7 @@ namespace Photon.LoadBalancing.GameServer
             if (questData.Status == (byte)QuestStatus.Error)
                 return;
 
-            CurrentQuestData newQuestData = QuestRules.StartNewQuest(questData.QuestId, 0, mPlayer.GetSynchronizedTime(), mPlayer);
+            CurrentQuestData newQuestData = QuestRules.StartNewQuest(questData.QuestId, 0, mPlayer);
             DeleteObjectivesData(questData);
             AddNewObjectiveData(newQuestData);
             UpdateQuestData(newQuestData);
@@ -923,7 +939,7 @@ namespace Photon.LoadBalancing.GameServer
                     CurrentQuestData existQuestData = GetQuestDataById(questid);
                     if (canAccept && existQuestData == null)
                     {
-                        CurrentQuestData questData = QuestRules.StartNewQuest(questid, group, mPlayer.GetSynchronizedTime(), mPlayer);
+                        CurrentQuestData questData = QuestRules.StartNewQuest(questid, group, mPlayer);
                         if (questType == QuestType.Destiny)
                         {
                             if (questData.Status == (byte)QuestStatus.NewQuest)
@@ -1083,7 +1099,7 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         objectiveIdForDelete.AddRange(subentry.Value.ObjectiveIds);
                         CurrentObjectiveData objectiveData = subentry.Value;
-                        int result = QuestRules.StartNextSubObjective(subentry.Key, ref objectiveData, mPlayer.GetSynchronizedTime(), mPlayer);
+                        int result = QuestRules.StartNextSubObjective(subentry.Key, ref objectiveData, mPlayer);
                         if (result == 0)
                         {
                             if (!questForDelete.ContainsKey(questdata.QuestId))
@@ -1120,7 +1136,7 @@ namespace Photon.LoadBalancing.GameServer
                     if (QuestRules.IsObjectivesCompleted(questdata.QuestId, questdata.MainObjective.ObjectiveIds, questdata.MainObjective.ProgressCount, mPlayer))
                     {
                         objectiveIdForDelete.AddRange(questdata.MainObjective.ObjectiveIds);
-                        CurrentQuestData newQuestData = QuestRules.StartNextMainObjective(questdata, mPlayer.GetSynchronizedTime(), mPlayer);
+                        CurrentQuestData newQuestData = QuestRules.StartNextMainObjective(questdata, mPlayer);
                         if (newQuestData != null)
                         {
                             if (newQuestData.Status == (byte)QuestStatus.Error)
@@ -1571,7 +1587,7 @@ namespace Photon.LoadBalancing.GameServer
             if (questData != null && questData.SubObjective.Count >= 1)
             {
                 CurrentQuestData newQuestData = null;
-                if (QuestRules.RollBackQuestObjective(mPlayer, mPlayer.GetSynchronizedTime(), questData, ref newQuestData))
+                if (QuestRules.RollBackQuestObjective(mPlayer, questData, ref newQuestData))
                 {
                     if (UpdateObjectiveData)
                     {
@@ -1593,7 +1609,7 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public void ApplyEventSE(int eventid, int questid)
+        public void ApplyEventSE(int eventid)
         {
             QuestEventDetailJson questEvent = QuestRepo.GetQuestEventById(eventid);
             if (questEvent.type == QuestEventType.SideEffect)
@@ -1611,11 +1627,9 @@ namespace Photon.LoadBalancing.GameServer
                     mPlayer.RemoveSideEffect(seid);
                 }
             }
-
-            UpdateQuestEventStatus(questid);
         }
 
-        public void UpdateCompanion(int eventid, int questid)
+        public void UpdateCompanion(int eventid)
         {
             QuestEventDetailJson questEvent = QuestRepo.GetQuestEventById(eventid);
             if (questEvent.type == QuestEventType.Companion)
@@ -1634,8 +1648,6 @@ namespace Photon.LoadBalancing.GameServer
                 }
                 mPlayer.PlayerSynStats.QuestCompanionId = mCompanionId;
             }
-
-            UpdateQuestEventStatus(questid);
         }
 
         public void RemoveCompanionId(int companionid)
@@ -1726,7 +1738,23 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
-        public bool UseResetQuestItem(string param, int type)
+        public bool UseQuestItem(QuestItemJson questItem)
+        {
+            if (questItem.delquesttype != -1 && questItem.delquestval != "-1")
+            {
+                return UseResetQuestItem(questItem.delquestval, questItem.delquesttype);
+            }
+            else if (questItem.addquesttype != -1 && questItem.addquestid != -1)
+            {
+                return UseAddQuestItem(questItem.addquesttype, questItem.addquestid, questItem.addobjid);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool UseResetQuestItem(string param, int type)
         {
             bool result = false;
             string[] values = param.Split(',');
@@ -1792,7 +1820,63 @@ namespace Photon.LoadBalancing.GameServer
             return result;
         }
 
-        //public bool UseAddQuestItem()
+        private bool UseAddQuestItem(int type, int questid, int objectiveid)
+        {
+            bool result = false;
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
+            if (type == 1 && questJson != null)
+            {
+                mUnlockQuestList.Add(questid);
+                AddToTracking(questid);
+                SyncUnlockQuestList();
+                mPlayer.QuestStats.trackingList = QuestRules.SerializedCompletedList(mTrackingList);
+                result = true;
+            }
+            else if (type == 2)
+            {
+                CurrentQuestData questData = GetQuestDataById(questid);
+                if (questData == null)
+                {
+                    QuestType questType = questJson.type;
+                    bool signboardstatus = true;
+                    if (questType == QuestType.Signboard && GetSignboardProgress() >= mSignboardLimit)
+                    {
+                        signboardstatus = false;
+                    }
+
+                    if (CheckEmptySlot(questType) && signboardstatus)
+                    {
+                        CurrentQuestData newquestData = QuestRules.StartNewQuestFromItem(questid, objectiveid, mPlayer);
+                        if (questType == QuestType.Destiny)
+                        {
+                            if (newquestData.Status == (byte)QuestStatus.NewQuest)
+                            {
+                                newquestData.Status = (byte)QuestStatus.DestinyEffect;
+                            }
+                            else if (newquestData.Status == (byte)QuestStatus.NewQuestWithEvent)
+                            {
+                                newquestData.Status = (byte)QuestStatus.DestinyEffectWithEvent;
+                            }
+                        }
+                        AddNewQuest(newquestData);
+                        AddToTracking(questid);
+                        SyncQuestStats();
+                        if (mUnlockQuestList.Contains(questid))
+                        {
+                            mUnlockQuestList.Remove(questid);
+                            SyncUnlockQuestList();
+                        }
+                        if (mPlayer.Slot != null)
+                        {
+                            mPlayer.Slot.ZRPC.NonCombatRPC.Ret_TriggerQuest(questid, true, mPlayer.Slot);
+                        }
+                        result = true;
+                    }
+                }
+            }
+
+            return result;
+        }
 
         #region Development
         public void UpdateQuestProgress(QuestType questType)

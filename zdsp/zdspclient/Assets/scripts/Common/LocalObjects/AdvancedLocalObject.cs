@@ -680,7 +680,7 @@ namespace Zealot.Common.Datablock
 
         protected string m_Tag=string.Empty;
         protected bool m_IsServer;
-        protected bool m_DebugMode = false;
+        protected bool m_DebugMode = false, m_DebugDetailMode=false;
 
 
         private List<MethodInfo> m_RefreshPropList = new List<MethodInfo>();
@@ -711,8 +711,8 @@ namespace Zealot.Common.Datablock
                     NoticeRefreshNode node = (NoticeRefreshNode)m_RefreshPropList[i].Invoke(OnGetRootData(), null);
                     if (node != null)
                     {
-                        if(m_DebugMode)
-                            DebugTool.PrintFormat("[AdvancedLocalObject] method:'RefreshUpdatedNode' section:'m_RefreshList.Add' node.Path:'{0}'", node.Path);
+                        if(m_DebugDetailMode)
+                            DebugTool.PrintFormat("[{0}] method:'RefreshUpdatedNode' section:'m_RefreshList.Add' node.Path:'{1}'",m_Tag, node.Path);
                         m_RefreshList.Add(node.Path, node);
                     }
                     else
@@ -725,8 +725,8 @@ namespace Zealot.Common.Datablock
                 NoticeRefreshNode node;
                 if (m_RefreshList.TryGetValue(path, out node))
                 {
-                    if (m_DebugMode)
-                        DebugTool.PrintFormat("[AdvancedLocalObject] method:'RefreshUpdatedNode' section:'OnRefresh' node.Path:'{0}'", node.Path);
+                    if (m_DebugDetailMode)
+                        DebugTool.PrintFormat("[{0}] method:'RefreshUpdatedNode' section:'OnRefresh' node.Path:'{1}'", m_Tag, node.Path);
                     node.OnRefresh(newNode);
                 }
             }
@@ -1183,10 +1183,10 @@ namespace Zealot.Common.Datablock
                         else if (parent.Type == JTokenType.Object)
                             token.Remove();
                         else
-                            DebugTool.ErrorFormat("[AdvancedLocalObject] msg:'Remove failed' path:'{0}' reason:'parent type is {1}'",path, parent.Type);
+                            DebugTool.ErrorFormat("[{0}] msg:'Remove failed' path:'{1}' reason:'parent type is {2}'", m_Tag, path, parent.Type);
                     }
                     else
-                        DebugTool.ErrorFormat("[AdvancedLocalObject] msg:'Remove failed' path:'{0}' reason:'parent is null'", path);
+                        DebugTool.ErrorFormat("[{0}] msg:'Remove failed' path:'{1}' reason:'parent is null'", m_Tag, path);
                     return;
                 }
 

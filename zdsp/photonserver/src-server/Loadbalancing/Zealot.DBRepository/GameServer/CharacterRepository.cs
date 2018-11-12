@@ -302,6 +302,62 @@ namespace Zealot.DBRepository
             return result;
         }
 
+        /// <summary> Get lite info for social </summary>
+        /// <remarks>
+        /// Calls [Character_GetSocialStateByNames]
+        /// </remarks>
+        public async Task<List<Dictionary<string, object>>> GetSocialStateByNames(List<string> names)
+        {
+            List<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            if (names.Count == 0)
+                return result;
+            DataTable namesDataTable = new DataTable();
+            namesDataTable.Columns.Add("name", typeof(string));
+            for (int i = 0; i < names.Count; ++i)
+            {
+                DataRow row = namesDataTable.NewRow();
+                row["name"] = names[i];
+                namesDataTable.Rows.Add(row);
+            }
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    try
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("Character_GetSocialStateByNames", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+
+                            SqlParameter sqlParam = command.Parameters.AddWithValue("@names", namesDataTable);
+                            sqlParam.SqlDbType = SqlDbType.Structured;
+                            sqlParam.TypeName = "dbo.NamesTableType";
+
+                            using (SqlDataReader reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                            {
+                                while (await reader.ReadAsync().ConfigureAwait(false))
+                                {
+                                    Dictionary<string, object> row = new Dictionary<string, object>();
+                                    for (int index = 0; index < reader.FieldCount; ++index)
+                                    {
+                                        string colname = reader.GetName(index);
+                                        row.Add(colname, reader[colname]);
+                                    }
+                                    result.Add(row);
+                                }
+                            }
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        HandleQueryException(e);
+                    }
+                }
+            }
+            return result;
+        }
+
         public async Task<List<Dictionary<string, object>>> GetAllByCharaIds(IList<string> ids)
         {
             return await GetByCharaIds("All", ids);
@@ -315,7 +371,7 @@ namespace Zealot.DBRepository
         /// <summary>
         /// Get info by list of ids
         /// <remarks>
-        /// Calls [Character_GetSocialByCharaIds]
+        /// Calls [Character_Get{sp_flag}ByCharaIds]
         /// </remarks>
         /// </summary>
         private async Task<List<Dictionary<string, object>>> GetByCharaIds(string sp_flag,IList<string> ids)

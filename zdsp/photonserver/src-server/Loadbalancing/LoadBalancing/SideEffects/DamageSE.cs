@@ -14,7 +14,7 @@
         protected int mExtraDamage;
         protected bool mbBasicAttack;//use this value in combatformula
 
-        public int mSkillid;
+        //public int mSkillid;
         //public SideEffectJson OnTalentHit;
         protected FieldName elementalName;
 
@@ -22,7 +22,9 @@
         protected bool mbIsDot = false;
         public int labelCount = 1;
 
-        public DamageSE(SideEffectJson sideeffectData) : base(sideeffectData) {
+        public DamageSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             if (mSideeffectData.isrelative) {
                 float effectrandom = (float)GameUtils.Random(mSideeffectData.min, mSideeffectData.max);
                 mSkillDmgPercent = mSideeffectData.basicskilldamageperc + effectrandom;
@@ -244,7 +246,7 @@
                 }
             }
             mAttackResult.LabelNum = labelCount;
-            mAttackResult.Skillid = mSkillid;
+            mAttackResult.Skillid = mOriginID;
         }
 
         private void ApplyCritcalSE(ActorStatsType statstype, int val, long dur, bool buff) {

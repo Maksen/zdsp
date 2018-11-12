@@ -120,7 +120,7 @@ public class ItemInventoryController
         return false;
     }
 
-    public bool OnClicked_Equip(int slotId, IInventoryItem item, bool equipFashion)
+    public bool OnClicked_Equip(int slotId, IInventoryItem item, bool equipFashion, int eqSlotIdx)
     {
         IInventoryItem _item = itemInvData.Slots[slotId];
         if (_item.ItemID == item.ItemID)
@@ -134,7 +134,7 @@ public class ItemInventoryController
                     UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("ret_ItemBagFull"));
                     return false;
                 }
-                RPCFactory.CombatRPC.UseItem(slotId, equipFashion ? 0 : 1);
+                RPCFactory.CombatRPC.UseItem(slotId, equipFashion ? 0 : 1, eqSlotIdx);
                 return true;
             }
         }

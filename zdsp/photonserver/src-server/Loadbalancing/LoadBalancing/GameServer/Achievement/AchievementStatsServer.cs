@@ -768,7 +768,7 @@ namespace Photon.LoadBalancing.GameServer
             SideEffectJson sejson = SideEffectRepo.GetSideEffect(seid);
             if (sejson != null)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(sejson, true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(sejson, SEORIGINID.NONE, -1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse != null)
                     pse.AddPassive(player);
@@ -791,7 +791,7 @@ namespace Photon.LoadBalancing.GameServer
             List<SideEffectJson> passiveSEs = levelInfo.sideEffects;
             for (int i = 0; i < passiveSEs.Count; ++i)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE,-1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse != null)
                 {
@@ -814,7 +814,7 @@ namespace Photon.LoadBalancing.GameServer
             List<SideEffectJson> passiveSEs = obj.storeSEs;
             for (int i = 0; i < passiveSEs.Count; ++i)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE,-1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse != null)
                 {

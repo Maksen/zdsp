@@ -585,7 +585,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   widgetType: 3
   ActiveOnStartup: 0
-  toggle: {fileID: 0}
 --- !u!114 &114276654537532488
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -811,6 +810,7 @@ MonoBehaviour:
   _max: 100
   _canExceedMax: 0
   _value: 100
+  _decimal: 0
   barImage: {fileID: 114214199045620516}
   type: 0
   BarText: {fileID: 0}
@@ -1074,8 +1074,13 @@ MonoBehaviour:
   mShield: {fileID: 1180449017943854}
   mBuffPrefab: {fileID: 100732, guid: cba4f19d1f918b045b16b225602b80ba, type: 2}
   mBuffPathList:
-  - UI_ZDSP_Icons/aaa_DefaultTest
-  - UI_ZDSP_Icons/aaa_DefaultTest
+  - {fileID: 21300000, guid: c1601094a5efa884f9d9c9dd0bba6f81, type: 3}
+  - {fileID: 21300000, guid: c1601094a5efa884f9d9c9dd0bba6f81, type: 3}
+  - {fileID: 21300000, guid: c1601094a5efa884f9d9c9dd0bba6f81, type: 3}
+  - {fileID: 21300000, guid: 9d58a578c21a4bb4a88fdef64cce38f1, type: 3}
+  - {fileID: 21300000, guid: c1601094a5efa884f9d9c9dd0bba6f81, type: 3}
+  - {fileID: 21300000, guid: b464b98f5c54dc446b21464586a215ba, type: 3}
+  - {fileID: 21300000, guid: a215e4ce5f23c404ab764d5dc89d9e9a, type: 3}
   mPlayerGradient:
     serializedVersion: 2
     key0: {r: 0.13473184, g: 0.6544118, b: 0.24583581, a: 1}
@@ -1225,7 +1230,6 @@ MonoBehaviour:
   mOtherNameColor: {r: 1, g: 1, b: 1, a: 1}
   mEnemyNameColor: {r: 1, g: 1, b: 1, a: 1}
   mGuildNameColor: {r: 0.9705882, g: 0.5736904, b: 0.07136679, a: 1}
-  mOffset_WorldSpace: {x: 0, y: 0, z: 0}
 --- !u!222 &222018912351660222
 CanvasRenderer:
   m_ObjectHideFlags: 1

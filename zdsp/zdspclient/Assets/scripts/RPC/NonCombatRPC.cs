@@ -304,9 +304,9 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleSpawnPersonalMonster)]
-    public void ConsoleSpawnPersonalMonster(string archtype, int population, bool aggressive = false, int questid = -1)
+    public void ConsoleSpawnPersonalMonster(string archtype, int population, bool aggressive = false)
     {
-        ProxyMethod("ConsoleSpawnPersonalMonster", archtype, population, aggressive, questid);
+        ProxyMethod("ConsoleSpawnPersonalMonster", archtype, population, aggressive);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleUpdateQuestProgress)]
@@ -812,15 +812,15 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]
-    public void ApplyQuestEventBuff(int eventid, int questid)
+    public void ApplyQuestEventBuff(int eventid)
     {
-        ProxyMethod("ApplyQuestEventBuff", eventid, questid);
+        ProxyMethod("ApplyQuestEventBuff", eventid);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventCompanion)]
-    public void ApplyQuestEventCompanion(int eventid, int questid)
+    public void ApplyQuestEventCompanion(int eventid)
     {
-        ProxyMethod("ApplyQuestEventCompanion", eventid, questid);
+        ProxyMethod("ApplyQuestEventCompanion", eventid);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]

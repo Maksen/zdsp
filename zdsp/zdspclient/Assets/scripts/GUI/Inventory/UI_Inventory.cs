@@ -401,7 +401,36 @@ public class UI_Inventory : BaseWindowBehaviour
                     AddEvolve(_buttons, slotId);
                 if (_equipmentJson.upgradelimit > 0)
                     AddUpgrade(_buttons, slotId);
-                AddEquip(_buttons, slotId, item);
+
+                //Add equip buttons according to what the player wears
+                switch (_equipmentJson.partstype)
+                {
+                    case PartsType.Ring:
+                        if (GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Ring1) != null ||
+                            GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Ring2) != null)
+                        {
+                            AddEquipLeft(_buttons, slotId, item);
+                            AddEquipRight(_buttons, slotId, item);
+                        }
+                        else
+                            AddEquip(_buttons, slotId, item);
+                        break;
+                    case PartsType.Accessory:
+                        if (GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Accessory1) == null ||
+                            GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Accessory2) == null)
+                        {
+                            AddEquipLeft(_buttons, slotId, item);
+                            AddEquipRight(_buttons, slotId, item);
+                        }
+                        else
+                            AddEquip(_buttons, slotId, item);
+                        break;
+                    default:
+                        AddEquip(_buttons, slotId, item);
+                        break;
+                }
+
+                
                 //TODO: Need to add double equip button if its ring or accessory
                 break;
             case ItemType.DNA:
@@ -570,7 +599,7 @@ public class UI_Inventory : BaseWindowBehaviour
         buttons.Add(_button);
     }
 
-    private void AddEquip(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
+    private void AddEquip(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item, int eqSlotIdx = -1)
     {
         ItemDetailsButton _button = new ItemDetailsButton();
         _button.name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_Equip");
@@ -595,9 +624,21 @@ public class UI_Inventory : BaseWindowBehaviour
                     return;
                 }
             }
-            GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_Equip(slotId, item, _fashionOn);
+            GameInfo.gLocalPlayer.clientItemInvCtrl.OnClicked_Equip(slotId, item, _fashionOn, eqSlotIdx);
         };
         buttons.Add(_button);
+    }
+
+    private void AddEquipLeft(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
+    {
+        AddEquip(buttons, slotId, item, 0);
+        buttons[buttons.Count - 1].name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_EquipLeft");
+    }
+
+    private void AddEquipRight(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item)
+    {
+        AddEquip(buttons, slotId, item, 1);
+        buttons[buttons.Count - 1].name = GUILocalizationRepo.GetLocalizedString("ItemTooltipButton_EquipRight");
     }
 
     private void AddUnEquip(List<ItemDetailsButton> buttons, int slotId, IInventoryItem item, bool fashionslot)

@@ -786,7 +786,7 @@ namespace Zealot.Common
             return FashionSlots[slotIdx] == null;
         }
 
-        public EquipmentSlot FindAEquipSlotToSwap(Equipment equipitem)
+        public EquipmentSlot FindAEquipSlotToSwap(Equipment equipitem, int equipSlotId = -1)
         {
             switch (equipitem.EquipmentJson.partstype)
             {
@@ -808,11 +808,27 @@ namespace Zealot.Common
                 case PartsType.Boots:
                     return EquipmentSlot.Boots;
                 case PartsType.Ring:
-                    return (Slots[(int)EquipmentSlot.Ring1] != null && Slots[(int)EquipmentSlot.Ring2] == null) ? EquipmentSlot.Ring2 : EquipmentSlot.Ring1;
+                    switch (equipSlotId)
+                    {
+                        default:
+                            return (Slots[(int)EquipmentSlot.Ring1] != null && Slots[(int)EquipmentSlot.Ring2] == null) ? EquipmentSlot.Ring2 : EquipmentSlot.Ring1;
+                        case 0:
+                            return EquipmentSlot.Ring1;
+                        case 1:
+                            return EquipmentSlot.Ring2;
+                    }
                 case PartsType.Jewelry:
                     return EquipmentSlot.Neck;
                 case PartsType.Accessory:
-                    return (Slots[(int)EquipmentSlot.Accessory1] != null && Slots[(int)EquipmentSlot.Accessory2] == null) ? EquipmentSlot.Accessory2 : EquipmentSlot.Accessory1;
+                    switch (equipSlotId)
+                    {
+                        default:
+                            return (Slots[(int)EquipmentSlot.Accessory1] != null && Slots[(int)EquipmentSlot.Accessory2] == null) ? EquipmentSlot.Accessory2 : EquipmentSlot.Accessory1;
+                        case 0:
+                            return EquipmentSlot.Accessory1;
+                        case 1:
+                            return EquipmentSlot.Accessory2;
+                    }
             }
             return EquipmentSlot.MAXSLOTS;
         }

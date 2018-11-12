@@ -892,7 +892,7 @@
         {
             if (SideEffectFactory.IsSideEffectInstantiatable(sideeffect))
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffect);
+                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffect, SEORIGINID.NONE);
                 bool ispos = IsSideEffectPositive(sideeffect);
                 if (sideeffect.delay != 0)
                 {
@@ -910,7 +910,7 @@
         {
             if (SideEffectFactory.IsSideEffectInstantiatable(sideeffect))
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffect);
+                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffect, SEORIGINID.NONE);
                 bool ispos = !IsSideEffectPositive(sideeffect);
                 if (sideeffect.delay != 0)
                 {
@@ -932,7 +932,7 @@
                 SideEffectJson selfse = SideEffectRepo.GetSideEffect(sideEffectIds[i]);
                 if (SideEffectFactory.IsSideEffectInstantiatable(selfse))
                 {
-                    SideEffect se = SideEffectFactory.CreateSideEffect(selfse);
+                    SideEffect se = SideEffectFactory.CreateSideEffect(selfse, SEORIGINID.NONE);
                     se.Apply(caster, caster, isAdd, equipId);
                 }
             }

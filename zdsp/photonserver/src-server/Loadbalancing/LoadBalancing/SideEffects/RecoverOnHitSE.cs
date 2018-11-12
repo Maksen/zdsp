@@ -9,8 +9,8 @@
         private bool mInfiniteHits;
         //private float mProcChance;
 
-        public RecoverOnHitSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public RecoverOnHitSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mHitRemaining = (int)float.Parse(mSideeffectData.parameter);            
             mInfiniteHits = mHitRemaining <= 0;

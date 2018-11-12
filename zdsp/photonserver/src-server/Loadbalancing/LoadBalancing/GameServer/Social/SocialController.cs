@@ -45,6 +45,10 @@ namespace Photon.LoadBalancing.GameServer
         }
         #endregion
 
+        #region Configs
+        const double CONFIG_OpenMenuMinInterval_Seconds = 30;
+        #endregion
+
         #region Constructor
         public SocialController(GameClientPeer peer)
         {
@@ -56,22 +60,30 @@ namespace Photon.LoadBalancing.GameServer
         bool DebugMode = true;
         bool _SocialCheckNotCompletedApi = false;
         private GameClientPeer peer;
+
+        private DateTime lastOpenMenuTime = new DateTime(1950, 1, 1);
+        readonly static FriendType[] m_ListTypes = new FriendType[] { FriendType.Good, FriendType.Black, FriendType.Request, FriendType.Temp };
+
+        static Dictionary<string, SocialFriendState> m_StateCache=new Dictionary<string, SocialFriendState>();
         #endregion
 
         #region Private Methods
-        static void AddID(List<string> ids, SocialFriendList friends)
+        static void AddName(List<string> names, SocialFriendList friends)
         {
             foreach (var item in friends)
-                ids.Add(item.id);
+                names.Add(item.name);
         }
 
-        static void RemoveNotExist(HashSet<string> ids, SocialFriendList friends)
+        static void RemoveNotExist(HashSet<string> ids, HashSet<string> removed, SocialFriendList friends)
         {
             for (int i = friends.Count - 1; i >= 0; i--)
             {
                 var f = friends[i];
                 if (!ids.Contains(f.id))
+                {
+                    removed.Add(f.id);
                     friends.RemoveAt(i);
+                }
             }
         }
 
@@ -228,7 +240,6 @@ namespace Photon.LoadBalancing.GameServer
             });
         }
 
-
         bool checkIsSelf(string friendName, Action<int, GameClientPeer> act)
         {
             if (peer.CharacterData.Name == friendName)
@@ -240,6 +251,145 @@ namespace Photon.LoadBalancing.GameServer
                 return true;
             }
             return false;
+        }
+        static string GetChannelInfo()
+        {
+            JObject json = new JObject();
+            json["cid"]= GameApplication.Instance.clusterPeer.ConnectionId;
+            json["serverid"] = GameApplication.ServerId;
+            return json.ToString(Formatting.None);
+        }
+
+        static SocialFriendState LoadCharaStateFromPeer(GameClientPeer peer)
+        {
+            if(peer==null)
+                return new SocialFriendState(null);
+
+            return new SocialFriendState(
+                name: peer.mPlayer.Name,
+                offlineTime: null,
+                channel: GetChannelInfo(),
+                progressLevel: peer.GetProgressLvl(),
+                guildName: string.Empty,
+                guildIcon: string.Empty
+                );
+        }
+        struct CharaStateInfo
+        {
+            public SocialFriendState state;
+            public string charid;
+        }
+        static async Task<List<CharaStateInfo>> LoadCharaStatesFromDB(List<string> names)
+        {
+            var diclist = await GameApplication.dbRepository.Character.GetSocialStateByNames(names);
+
+            List<CharaStateInfo> results = new List<CharaStateInfo>();
+
+            foreach (var dic in diclist)
+            {
+                string name = (string)dic["charname"];
+                object id = dic["charid"];
+                string sid = null;
+                if (id is Guid)
+                    sid = ((Guid)id).ToString();
+                else if (id is string)
+                    sid = (string)id;
+
+                results.Add(new CharaStateInfo()
+                {
+                    state = new SocialFriendState(
+                        name: name,
+                        offlineTime: GetOfflineTime((DateTime)dic["dtlogout"]),
+                        channel: string.Empty,
+                        progressLevel: (int)dic["progresslevel"],
+                        guildName: string.Empty,
+                        guildIcon: string.Empty),
+                    charid = sid
+                });
+            }
+
+            return results;
+        }
+
+        static async Task<SocialFriendState> LoadCharaStateFromDB(string name)
+        {
+            var dic = await GameApplication.dbRepository.Character.GetByNameAsync(name);
+            object obj;
+
+            //如果找不到該玩家(可能是被刪除了)
+            if (!dic.TryGetValue("charname", out obj))
+            {
+                return new SocialFriendState(null);
+            }
+            return new SocialFriendState(
+                name: name,
+                offlineTime: GetOfflineTime((DateTime)dic["dtlogout"]),
+                channel: string.Empty,
+                progressLevel: (int)dic["progresslevel"],
+                guildName: string.Empty,
+                guildIcon: string.Empty
+                );
+        }
+
+        struct AllInfo
+        {
+            public bool valid;
+            public string id;
+            public SocialFriendState state;
+            public SocialData data;
+        }
+
+        /// <summary>
+        /// 取得離線時間
+        /// </summary>
+        public static string GetOfflineTime(DateTime time)
+        {
+            return Zealot.Repository.GUILocalizationRepo.GetLocalizedSingleUnitTimeStringMinute((DateTime.Now - time).TotalSeconds);
+        }
+
+        //將全部必要資訊全讀避免跑多次db
+        static async Task<AllInfo> LoadAllInfoFromDB(string name)
+        {
+            var dic = await GameApplication.dbRepository.Character.GetByNameAsync(name);
+            object obj;
+
+            //如果找不到該玩家(可能是被刪除了)
+            if (!dic.TryGetValue("charid", out obj))
+            {
+                return new AllInfo();
+            }
+
+            string charid;
+            if (obj is Guid)
+                charid = ((Guid)obj).ToString();
+            else if (obj is string)
+                charid = ((string)obj);
+            else
+                return new AllInfo();
+
+            if (!dic.TryGetValue("friends", out obj))
+            {
+                return new AllInfo();
+            }
+            string jsonStr = (string)obj;
+            JObject json = null;
+            try { json = JsonConvert.DeserializeObject<JToken>(jsonStr) as JObject; } catch { }
+            if (json == null)
+                json = new JObject();
+
+            return new AllInfo()
+            {
+                valid = true,
+                id = charid,
+                data = new SocialData(json),
+                state = new SocialFriendState(
+                    name: name,
+                    offlineTime: GetOfflineTime((DateTime)dic["dtlogout"]),
+                    channel: string.Empty,
+                    progressLevel: (int)dic["progresslevel"],
+                    guildName: string.Empty,
+                    guildIcon: string.Empty)
+            };
         }
 
         static async Task<SocialData> LoadSocialDataFromDB(string name)
@@ -325,60 +475,81 @@ namespace Photon.LoadBalancing.GameServer
         /// </summary>
         public void SocialOnOpenFriendsMenu()
         {
-            if (_SocialCheckNotCompletedApi)
-                throw new NotImplementedException();
+            if ((DateTime.Now - lastOpenMenuTime).TotalSeconds < CONFIG_OpenMenuMinInterval_Seconds)
+            {
+                //避免玩家頻繁開啟選單造成sever負擔過重
+                peer.ZRPC.NonCombatRPC.Ret_SocialOnOpenFriendsMenu((int)SocialResult.Success, peer);
+                return;
+            }
+
             GameApplication.Instance.executionFiber.Enqueue(async () =>
             {
                 var stats = peer.mPlayer.SocialStats;
                 var data = stats.data;
+                
+                HashSet<string> idset = new HashSet<string>();
+                HashSet<string> removedID = new HashSet<string>();
 
-                List<string> ids = new List<string>(
-                    data.goodFriends.Count+ 
-                    data.blackFriends.Count+ 
-                    data.requestFriends.Count+ 
+                //將所有朋友的id彙整成一個大清單
+                List<string> names = new List<string>(
+                    data.goodFriends.Count +
+                    data.blackFriends.Count +
+                    data.requestFriends.Count +
                     data.tempFriends.Count);
-                AddID(ids, data.goodFriends);
-                AddID(ids, data.blackFriends);
-                AddID(ids, data.requestFriends);
-                AddID(ids, data.tempFriends);
+                AddName(names, data.goodFriends);
+                AddName(names, data.blackFriends);
+                AddName(names, data.requestFriends);
+                AddName(names, data.tempFriends);
 
-                //讀取db
-                var chlist = await GameApplication.dbRepository.Character.GetSocialByCharaIds(ids);
-                HashSet<string> set = new HashSet<string>();
-                foreach (var ch in chlist)
-                {
-                    object id= ch["charid"];
+                //從db中取得朋友id是否存在
+                var statesFromDB = await LoadCharaStatesFromDB(names);
 
-                    if (id is Guid)
-                        set.Add(((Guid)id).ToString());
-                    else if (id is string)
-                        set.Add(((string)id));
-                }
+                Dictionary<string, SocialFriendState> states = new Dictionary<string, SocialFriendState>();
 
-                Guid guid;
+                for (int i = 0; i < statesFromDB.Count; i++)
+                    idset.Add(statesFromDB[i].charid);
 
-                RemoveNotExist(set, data.goodFriends);
-                RemoveNotExist(set, data.blackFriends);
-                RemoveNotExist(set, data.requestFriends);
+                //移除不存在的角色
+                RemoveNotExist(idset, removedID, data.goodFriends);
+                RemoveNotExist(idset, removedID, data.blackFriends);
+                RemoveNotExist(idset, removedID, data.requestFriends);
+
                 //如果沒有更新日期，一樣是拿掉被刪除的角色
                 if (data.CheckRecommandList())
-                    RemoveNotExist(set, data.tempFriends);
+                    RemoveNotExist(idset, removedID, data.tempFriends);
 
-                data.goodFriendStates.StopPatch();
-                data.goodFriendStates.Clear();
-                foreach (var item in data.goodFriends)
+                foreach(var item in statesFromDB)
                 {
-                    data.goodFriendStates.Add(new SocialFriendState(
-                        online: GameApplication.Instance.GetCharPeer(item.name) != null
-                        ));
+                    if(!removedID.Contains(item.charid))
+                        states.Add(item.state.name, item.state);
                 }
-                data.goodFriendStates.ResumePatch();
-                data.goodFriendStates.PatchFull();
-
+               
+                foreach (var t in m_ListTypes)
+                {
+                    var friends = data.getFriends(t);
+                    var stateList = data.getFriendStates(t);
+                    stateList.StopPatch();
+                    stateList.Clear();
+                    foreach (var item in friends)
+                    {
+                        SocialFriendState state;
+                        if (states.TryGetValue(item.name, out state))
+                            stateList.Add(state);
+                        else
+                        {
+                            //未知錯誤
+                            stateList.Add(SocialFriendState.NewCharaState(item.name));
+                        }
+                    }
+                    stateList.ResumePatch();
+                    stateList.PatchFull();
+                }
 
             Final:
                 //發送結果
                 peer.ZRPC.NonCombatRPC.Ret_SocialOnOpenFriendsMenu((int)SocialResult.Success, peer);
+
+                lastOpenMenuTime = DateTime.Now;
             });
         }
 
@@ -499,7 +670,6 @@ namespace Photon.LoadBalancing.GameServer
             });
         }
 
-
         /// <summary>
         /// 將玩家從好友名單中移除
         /// </summary>
@@ -565,7 +735,6 @@ namespace Photon.LoadBalancing.GameServer
             });
         }
        
-
         /// <summary>
         /// 發起申請好友請求
         /// </summary>
@@ -712,6 +881,7 @@ namespace Photon.LoadBalancing.GameServer
                 bool doSave = false;
                 var fpeer = GameApplication.Instance.GetCharPeer(friendName);
                 string fid;
+                AllInfo info=new AllInfo();
 
                 //當玩家在線上時
                 if (fpeer != null)
@@ -722,10 +892,10 @@ namespace Photon.LoadBalancing.GameServer
                 //當玩家不在線上時
                 else
                 {
-                    var tp= await LoadSocialDataFromDBWithId(friendName);
-                    fdata = tp.Item1;
-                    fid = tp.Item2;
-                    if (fdata == null)
+                    info= await LoadAllInfoFromDB(friendName);
+                    fdata = info.data;
+                    fid = info.id;
+                    if (!info.valid)
                     {
                         msg = "ret_Social_PlayerNameNotFound";
                         result = SocialResult.PlayerNameNotFound;
@@ -759,7 +929,7 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     //新增對方至我的好友清單
                     data.AddFriend(FriendType.Good, fid, friendName);
-                    data.goodFriendStates.Add(new SocialFriendState(online: fpeer != null));
+                    data.goodFriendStates.Add(fpeer == null ? LoadCharaStateFromPeer(fpeer) : info.state);
 
                     //移除對方發給我的請求
                     data.RemoveFriendAt(FriendType.Request, index);
@@ -784,7 +954,6 @@ namespace Photon.LoadBalancing.GameServer
                 peer.ZRPC.NonCombatRPC.Ret_SocialAcceptRequest((int)result, peer);
             });
         }
-
 
         /// <summary>
         /// 一鍵接受所有申請
@@ -821,6 +990,7 @@ namespace Photon.LoadBalancing.GameServer
                     bool doSave = false;
                     var fpeer = GameApplication.Instance.GetCharPeer(friendName);
                     string fid;
+                    AllInfo info = new AllInfo();
 
                     //當玩家在線上時
                     if (fpeer != null)
@@ -831,9 +1001,9 @@ namespace Photon.LoadBalancing.GameServer
                     //當玩家不在線上時
                     else
                     {
-                        var tp= await LoadSocialDataFromDBWithId(friendName);
-                        fdata = tp.Item1;
-                        fid = tp.Item2;
+                        info = await LoadAllInfoFromDB(friendName);
+                        fdata = info.data;
+                        fid = info.id;
                         if (fdata == null)
                         {
                             requestToRemove.Add(index);
@@ -847,7 +1017,7 @@ namespace Photon.LoadBalancing.GameServer
                     {
                         //新增對方至我的好友清單
                         data.AddFriend(FriendType.Good, fid, friendName);
-                        data.goodFriendStates.Add(new SocialFriendState(online: fpeer != null));
+                        data.goodFriendStates.Add(fpeer == null ? LoadCharaStateFromPeer(fpeer) : info.state);
                         //移除對方發給我的請求(先放到預定清單中)
                         requestToRemove.Add(index);
                         //如果對方有我之前發起的請求，移除它
@@ -930,8 +1100,6 @@ namespace Photon.LoadBalancing.GameServer
 
             });
         }
-
-
 
         /// <summary>
         /// 一鍵全加臨時名單好友

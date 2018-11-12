@@ -12,7 +12,15 @@ using Zealot.Repository;
 public class HUD_Chatroom : MonoBehaviour
 {
     // Editor Linked Gameobjects
-    [Header("Top Section")]
+    [Header("Right Section")]
+    [SerializeField]
+    Transform whisperGroupParentTransform = null;
+    [SerializeField]
+    GameObject gameobjAddChatgroup = null;
+    [SerializeField]
+    GameObject prefabTabButtonWhisperGroup = null;
+
+    [Header("Left Section")]
     [SerializeField]
     ChatroomScrollView chatroomScrollView = null;
 
@@ -83,9 +91,6 @@ public class HUD_Chatroom : MonoBehaviour
     void OnDisable()
     {
         chatroomBagScrollView.Clear();
-
-        GameObject chatroomMini = UIManager.GetWidget(HUDWidgetType.Minichat);
-        chatroomMini.GetComponent<Animator>().Play("ChatroomMini_Right");
     }
 
     // Update is called once per frame
@@ -642,7 +647,7 @@ public class HUD_Chatroom : MonoBehaviour
 
     public void OnClickCloseChatroom()
     {
-        UIManager.SetWidgetActive(HUDWidgetType.Chatroom, false);
+        GameInfo.gCombat.CloseHUDChatroom();
     }
 
     public void OnClickSendChatMessage()

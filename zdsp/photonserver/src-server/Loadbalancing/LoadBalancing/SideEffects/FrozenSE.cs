@@ -2,11 +2,12 @@
 {
     using Kopio.JsonContracts;
     using Zealot.Server.Entities;
+    using Zealot.Common;
 
     class FrozenSE : ControlSE
     {
-        public FrozenSE(SideEffectJson sideeffectData)
-                : base(sideeffectData)
+        public FrozenSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = true;
             mControlSEType = ControlSEType.Freeze | ControlSEType.Stun;

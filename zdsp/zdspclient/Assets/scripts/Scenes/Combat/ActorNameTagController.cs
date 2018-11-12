@@ -41,7 +41,7 @@ public class ActorNameTagController : MonoBehaviour
     void Awake()
     {
         GameCanvas = UIManager.GetHUDGameCanvas();
-        cam = Camera.main;
+        cam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>().mainCamera;
         if (GameCanvas == null)
         {
             Debug.LogError("No canvas found. Check scene settings....");

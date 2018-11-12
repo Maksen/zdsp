@@ -91,22 +91,17 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevelAndPos)]
-        public void OnTeleportToLevelAndPos(string levelName, RPCPosition pos, int questid, GameClientPeer peer)
+        public void OnTeleportToLevelAndPos(string levelName, RPCPosition pos, GameClientPeer peer)
         {
             if (currentlevelname == levelName)
-                peer.mPlayer.Position = pos.ToVector3();
+                OnTeleportToPosInLevel(pos, peer);
             else
                 RealmRules.TeleportToLevelInPos(levelName, pos, false, peer);
-
-            if (questid != -1)
-            {
-                peer.QuestController.UpdateQuestEventStatus(questid);
-            }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevelAndPos)]
         public void OnTeleportToLevelAndPosProxy(object[] args)
         {
-            OnTeleportToLevelAndPos((string)args[0], (RPCPosition)args[1], (int)args[2], (GameClientPeer)args[3]);
+            OnTeleportToLevelAndPos((string)args[0], (RPCPosition)args[1], (GameClientPeer)args[2]);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToPosInLevel)]
@@ -467,10 +462,6 @@ namespace Photon.LoadBalancing.GameServer
         {
             RealmRules.CreateRealmById(realmId, logAI, checkAllReq, peer);
             peer.mPlayer.SetQuestRealmId(questid);
-            if (questid != -1)
-            {
-                peer.QuestController.UpdateQuestEventStatus(questid);
-            }
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.CreateRealmByID)]
         public void CreateRealmByIDProxy(object[] args)
@@ -583,9 +574,9 @@ namespace Photon.LoadBalancing.GameServer
 
         #region Item
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItem)]
-        public void UseItem(int slotId, int amount, GameClientPeer peer)
+        public void UseItem(int slotId, int amount, int eqSlotId, GameClientPeer peer)
         {
-            InvRetval retval = peer.mInventory.UseItemInInventory(slotId, amount);
+            InvRetval retval = peer.mInventory.UseItemInInventory(slotId, amount, eqSlotId);
             if (retval.retCode == InvReturnCode.UseFailed)
                 ZRPC.CombatRPC.Ret_SendSystemMessage("sys_UseItemFailed", "", false, peer);
             else if (retval.retCode == InvReturnCode.MaxCurrency)
@@ -598,7 +589,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItem)]
         public void UseItemProxy(object[] args)
         {
-            UseItem((int)args[0], (int)args[1], (GameClientPeer)args[2]);
+            UseItem((int)args[0], (int)args[1], (int)args[2], (GameClientPeer)args[3]);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SellItem)]

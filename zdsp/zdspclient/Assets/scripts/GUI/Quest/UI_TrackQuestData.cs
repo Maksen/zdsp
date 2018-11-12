@@ -6,6 +6,7 @@ using Zealot.Common;
 using System.Collections.Generic;
 using Zealot.Repository;
 using Kopio.JsonContracts;
+using System;
 using System.Text.RegularExpressions;
 
 public class UI_TrackQuestData : MonoBehaviour
@@ -33,8 +34,8 @@ public class UI_TrackQuestData : MonoBehaviour
 
     private string mDescription;
     private string mLocation;
-    private Dictionary<int, long> mMOEndTime;
-    private Dictionary<int, long> mSOEndTime;
+    private Dictionary<int, DateTime> mMOEndTime;
+    private Dictionary<int, DateTime> mSOEndTime;
     private QuestClientController mQuestController;
     private int mQuestId;
     private bool bUnlockQuest = false;
@@ -57,7 +58,7 @@ public class UI_TrackQuestData : MonoBehaviour
             mLocation = "<size=5>\n</size>地點 ：" + questJson.subname;
             if (mMOEndTime.Count > 0 || mSOEndTime.Count > 0)
             {
-                UpdateDescrption();
+                Description.text = mQuestController.ReplaceEndTime(mDescription, mMOEndTime, mSOEndTime) + mLocation;
             }
             else
             {
@@ -129,14 +130,6 @@ public class UI_TrackQuestData : MonoBehaviour
     private IEnumerator EndTmeCD()
     {
         yield return new WaitForSecondsRealtime(1);
-        foreach (KeyValuePair<int, long> entry in mMOEndTime)
-        {
-            mMOEndTime[entry.Key] -= 1000;
-        }
-        foreach (KeyValuePair<int, long> entry in mSOEndTime)
-        {
-            mSOEndTime[entry.Key] -= 1000;
-        }
         UpdateDescrption();
     }
 
@@ -191,5 +184,18 @@ public class UI_TrackQuestData : MonoBehaviour
     {
         UIManager.StartHourglass();
         RPCFactory.NonCombatRPC.CompleteQuest(mQuestData.QuestId, true);
+    }
+
+    private void OnEnable()
+    {
+        if (gameObject.activeSelf)
+        {
+            StartCoroutine(EndTmeCD());
+        }
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 }

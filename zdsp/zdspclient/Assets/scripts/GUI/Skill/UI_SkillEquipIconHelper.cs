@@ -33,8 +33,8 @@ public class UI_SkillEquipIconHelper : MonoBehaviour {
 
     public void Init(UI_SkillTree parent)
     {
-        m_DataPool = new UI_SkillTree.GameObjectPoolManager(m_PoolSize, this.transform, m_SkillIconPrefab);
-        m_TextPool = new UI_SkillTree.GameObjectPoolManager(m_PoolSize, this.transform, m_SkillIconTextPrefab);
+        m_DataPool = new UI_SkillTree.GameObjectPoolManager(m_PoolSize, parent.transform, m_SkillIconPrefab);
+        m_TextPool = new UI_SkillTree.GameObjectPoolManager(m_PoolSize, parent.transform, m_SkillIconTextPrefab);
         m_Parent = parent;
         m_ButtonCache = new Dictionary<ePanelType, List<Pair<GameObject, GameObject>>>();
         m_EquipList = new List<UI_SkillSelectButton>();
@@ -57,8 +57,8 @@ public class UI_SkillEquipIconHelper : MonoBehaviour {
             skillbutton.AddListener(OnSelect);
             m_EquipList.Add(skillbutton);
 
-            m_ButtonCache[type][i].Item1.transform.SetParent(m_ContentRect.transform);
-            m_ButtonCache[type][i].Item2.transform.SetParent(m_TextContentRect.transform);
+            m_ButtonCache[type][i].Item1.transform.SetParent(m_ContentRect.transform, false);
+            m_ButtonCache[type][i].Item2.transform.SetParent(m_TextContentRect.transform, false);
             m_ButtonCache[type][i].Item1.SetActive(false);
             m_ButtonCache[type][i].Item2.SetActive(false);
         }
@@ -137,7 +137,7 @@ public class UI_SkillEquipIconHelper : MonoBehaviour {
         m_CurrentSelected = (UI_SkillSelectButton)button;
         m_Parent.m_SelectSkillDDL.GenerateSkillList();
         m_Parent.m_SelectSkillDDL.SortList(m_CurrentSelected.m_Skillid);
-        m_Parent.CloseWindows(true);
+        m_Parent.CloseWindows("SkillEquip");
         m_Parent.m_SelectSkillDDL.gameObject.SetActive(true);
         //// the selected one
         //if (button.m_Toggle.isOn)

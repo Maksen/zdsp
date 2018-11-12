@@ -1,9 +1,11 @@
 ﻿using Kopio.JsonContracts;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
 using Zealot.Audio;
@@ -158,24 +160,6 @@ public static class ClientUtils
             return 3500;        
         else
             return 1500;
-    }
-
-    public static void PlayMusic(bool value)
-    {
-        if (value)
-        {
-            GameObject bgm = GameObject.FindGameObjectWithTag("BackgroundMusic");
-            if (bgm != null)
-            {
-                MusicService ms = bgm.GetComponent<MusicService>();
-                if (ms != null)
-                    ms.Play();
-                else
-                    Debug.LogError("BackgroundMusic has no MusicService attached!");
-            }
-        }
-        else
-            Music.Instance.FadeOutMusic(1f);
     }
 
     public static string FormatString(string str, Dictionary<string, string> parameters)
@@ -440,6 +424,24 @@ public static class ClientUtils
         AssetLoader.Instance.LoadAsync(assetName, callback);
     }
 
+    public static void PlayMusic(bool value)
+    {
+        if (value)
+        {
+            GameObject bgm = GameObject.FindGameObjectWithTag("BackgroundMusic");
+            if (bgm != null)
+            {
+                MusicService ms = bgm.GetComponent<MusicService>();
+                if (ms != null)
+                    ms.Play();
+                else
+                    Debug.LogError("BackgroundMusic has no MusicService attached!");
+            }
+        }
+        else
+            Music.Instance.FadeOutMusic(1f);
+    }
+
     public static bool OpenUIWindowByLinkUI(LinkUIType linkUI, string param = "")
     {
         bool canOpen = true;
@@ -522,21 +524,19 @@ public static class ClientUtils
 
     public static string ToTenThousand(long val)
     {
-        if (val< 10000)
+        if (val < 10000)
             return val.ToString();
-        else
-        {
-            float value = (float)val / 10000;
-            string valueStr = string.Format("{0:0.0}", Math.Truncate(value * 10) / 10);
-            return valueStr + GUILocalizationRepo.GetLocalizedString("com_10K");
-        }
+
+        float value = (float)val/10000;
+        return string.Format("{0:0.0}{1}", Math.Truncate(value * 10)/10, 
+            GUILocalizationRepo.GetLocalizedString("com_10K"));
     }
 
     public static GameObject InstantiatePlayer(Gender gender)
     {
         string prefabPath = JobSectRepo.GetGenderInfo(gender).modelpath;
         GameObject prefab = AssetLoader.Instance.Load<GameObject>(prefabPath);
-        return GameObject.Instantiate(prefab);
+        return UnityEngine.Object.Instantiate(prefab);
     }
 
     public static string GetServerNameWithColor(ServerLoad serverload, string serverLine, string gameServer)
@@ -549,6 +549,16 @@ public static class ClientUtils
             case ServerLoad.Full: color = "red"; break;
         }
         return string.Format("<color={0}>{1}：{2}</color>", color, serverLine, gameServer);
+    }
+
+    public static IEnumerator PlayAndWaitForAnimation(Animator animator, string stateName, UnityAction callback = null)
+    {
+        animator.PlayFromStart(stateName);
+        do { yield return null; }
+        while (animator.IsPlaying(stateName));
+
+        if (callback != null)
+            callback.Invoke();
     }
 
     public static List<string> weaponPrefix = new List<string>() { "sword", "blade", "lance", "hammer", "fan", "xbow", "dagger", "sanxian" };
@@ -726,10 +736,7 @@ public static class ClientUtils
             }
 
             if(number == 10)
-            {
-                ++times;
-                return string.Format("{0}", GetRomanDigitTens(times));
-            }
+                return string.Format("{0}", GetRomanDigitTens(++times));
             else
             {
                 return (times > 0) ? string.Format("{0}{1}", GetRomanDigitTens(times), GetRomanDigitSgl(number)) 
@@ -826,7 +833,6 @@ public static class ClientUtils
     public static List<int> GetIntListFromString(string str, char separator)
     {
         List<int> intList = new List<int>();
-
         if (string.IsNullOrEmpty(str) || str == "-1")
         {
             return intList;

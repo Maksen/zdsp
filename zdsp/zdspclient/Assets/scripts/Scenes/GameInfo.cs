@@ -53,6 +53,8 @@ public static class GameInfo
     public static Dictionary<int, List<int>> mNpcQuestStatus = new Dictionary<int, List<int>>();
     public static Dictionary<int, int> mSideEffectQuestStatus = new Dictionary<int, int>();
     public static Dictionary<int, int> mCompanionQuestStatus = new Dictionary<int, int>();
+    public static List<QuestEventDetailJson> mQuestEventList = new List<QuestEventDetailJson>();
+    public static bool mWaitingQuestEvent = false;
 
     public static void OnQuitGame()
     {

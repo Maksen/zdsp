@@ -7,8 +7,8 @@
 
     public class RemoveRandomBuffSE : SideEffect
     {
-        public RemoveRandomBuffSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public RemoveRandomBuffSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -35,8 +35,8 @@
 
     public class RemoveBuffSE : SideEffect
     {
-        public RemoveBuffSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public RemoveBuffSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -70,8 +70,8 @@
 
     public class DotImmuneSE : SideEffect
     {
-        public DotImmuneSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public DotImmuneSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -97,8 +97,8 @@
 
     public class SilenceBuffSE : SideEffect
     {
-        public SilenceBuffSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public SilenceBuffSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -130,8 +130,8 @@
 
     public class DotRemoveSE : SideEffect
     {
-        public DotRemoveSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public DotRemoveSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -152,8 +152,8 @@
     public class ControlImmuneSE : SideEffect
     {
         protected int mParam;
-        public ControlImmuneSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public ControlImmuneSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -230,8 +230,8 @@
     public class RemoveAllImmuneSE : SideEffect
     {
 
-        public RemoveAllImmuneSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public RemoveAllImmuneSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -262,8 +262,8 @@
 
     public class IncreasePlayerSkillCDSE : SideEffect
     {
-        public IncreasePlayerSkillCDSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public IncreasePlayerSkillCDSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
             mSideeffectData.duration = 0;
@@ -290,8 +290,8 @@
     public class BasicAttack_SupressSE : SideEffect
     {
         protected int mAmount = 0;
-        public BasicAttack_SupressSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public BasicAttack_SupressSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -321,8 +321,8 @@
 
     public class MaxEvasionSE:SideEffect
     {
-        public MaxEvasionSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public MaxEvasionSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         } 
@@ -351,8 +351,8 @@
 
     public class MaxCriticalSE : SideEffect
     {
-        public MaxCriticalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public MaxCriticalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -382,8 +382,8 @@
     public class RejSupressSE : SideEffect
     {
 
-        public RejSupressSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public RejSupressSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }

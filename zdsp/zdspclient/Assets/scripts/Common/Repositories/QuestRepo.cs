@@ -465,6 +465,30 @@ namespace Zealot.Repository
             return questRequirementDetailJsonList;
         }
 
+        public static bool GetQuestGroupByObjectiveId(int questid, int objectiveid, out int group, out int seqnum)
+        {
+            group = 0;
+            seqnum = 0;
+            Dictionary<int, Dictionary<int, List<string>>> grouplist = GetQuestObjectiveByQuestId(questid);
+            foreach (KeyValuePair<int, Dictionary<int, List<string>>> seqentry in grouplist)
+            {
+                foreach (KeyValuePair<int, List<string>> objentry in seqentry.Value)
+                {
+                    List<int> objectivelist = objentry.Value.Select(int.Parse).ToList();
+                    foreach(int objid in objectivelist)
+                    {
+                        if (objid == objectiveid)
+                        {
+                            group = seqentry.Key;
+                            seqnum = objentry.Key;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         public static List<int> GetPreviousObjectiveId(int questid, int group, int seqnum)
         {
             Dictionary<int, Dictionary<int, List<string>>> grouplist = GetQuestObjectiveByQuestId(questid);
@@ -690,9 +714,9 @@ namespace Zealot.Repository
             }
         }
 
-        public static long GetObjectiveEndTime(int objectiveid)
+        public static int GetObjectiveEndTime(int objectiveid)
         {
-            return GetQuestObjectiveByID(objectiveid).time * 1000;
+            return GetQuestObjectiveByID(objectiveid).time;
         }
 
         public static List<int> GetUnlockQuest(int level, QuestTriggerType type, int callerid)
@@ -770,17 +794,39 @@ namespace Zealot.Repository
             return questEventDetailJsonList;
         }
 
-        public static QuestEventDetailJson GetQuestEvent(int groupid, EventTimingType timingType, int objectiveid)
+        public static List<QuestEventDetailJson> GetQuestEvents(int groupid, EventTimingType timingType)
         {
             List<QuestEventDetailJson> questEvents = GetQuestEventListById(groupid);
-            foreach(QuestEventDetailJson questevent in questEvents)
+            List<QuestEventDetailJson> result = new List<QuestEventDetailJson>();
+            foreach (QuestEventDetailJson questevent in questEvents)
             {
-                if (questevent.timing == timingType && ((timingType == EventTimingType.CompleteObjective && questevent.objectiveid == objectiveid) || timingType != EventTimingType.CompleteObjective))
+                if (questevent.timing == timingType)
                 {
-                    return questevent;
+                    result.Add(questevent);
                 }
             }
-            return null;
+            return result;
+        }
+
+        public static List<QuestEventDetailJson> GetQuestEvents(EventTimingType timingType, List<int> objectivelist)
+        {
+            List<QuestEventDetailJson> result = new List<QuestEventDetailJson>();
+            foreach(int objectiveid in objectivelist)
+            {
+                QuestObjectiveJson objectiveJson = GetQuestObjectiveByID(objectiveid);
+                if (objectiveJson != null && objectiveJson.eventid > 0)
+                {
+                    List<QuestEventDetailJson> questEvents = GetQuestEventListById(objectiveJson.eventid);
+                    foreach (QuestEventDetailJson questevent in questEvents)
+                    {
+                        if (questevent.timing == timingType && questevent.objectiveid == objectiveid)
+                        {
+                            result.Add(questevent);
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         public static QuestEventDetailJson GetQuestEventById(int eventid)

@@ -108,29 +108,25 @@ namespace Zealot.Common
         public struct SocialFriend
         {
             public readonly JToken node;
-            public readonly FriendType type;
+            public readonly string name;
 
             public string id
             {
                 get { return node["id"].Value<string>(); }
             }
 
-            public string name
-            {
-                get { return node["name"].Value<string>(); }
-            }
-
-            public SocialFriend(JToken node, FriendType type)
+            public SocialFriend(JToken node)
             {
                 this.node = node;
-                this.type = type;
+                this.name = node["name"].Value<string>();
             }
-            public SocialFriend(FriendType type,  string id, string name)
+            public SocialFriend(string id, string name)
             {
                 node = new JObject();
                 node["id"] = new JValue(id);
                 node["name"] = new JValue(name);
-                this.type = type;
+
+                this.name = name;
             }
         }
         
@@ -144,7 +140,7 @@ namespace Zealot.Common
             }
             protected override SocialFriend GetNode(JToken token)
             {
-                return new SocialFriend(token, type);
+                return new SocialFriend(token);
             }
             public SocialFriendList(FriendType type, JArray array, string path, AdvancedLocalObject obj) : base(array, path, obj)
             {
@@ -192,21 +188,70 @@ namespace Zealot.Common
 
         public struct SocialFriendState
         {
-            public readonly JToken node;
+            public const int ID_name = 0;
+            public const int ID_online = 1;
+            public const int ID_offlineTime = 2;
+            public const int ID_channel = 3;
+            public const int ID_progressLevel = 4;
+            public const int ID_guildName = 5;
+            public const int ID_guildIcon = 6;
+
+            public const int FIELDS_COUNT = 7;
+
+            public readonly JArray node;
+            public bool IsValid { get { return node != null; } }
+
             public SocialFriendState(JToken node)
             {
+                this.node = node as JArray;
+            }
+
+            public string name { get { return node[ID_name].Value<string>(); } }
+            public bool online { get { return node[ID_online].Value<bool>(); } }
+            public string offlineTime { get { return node[ID_offlineTime].Value<string>(); } }
+            public string channel { get { return node[ID_channel].Value<string>(); } }
+            public int progressLevel { get { return node[ID_progressLevel].Value<int>(); } }
+            public string guildName { get { return node[ID_guildName].Value<string>(); } }
+            public string guildIcon { get { return node[ID_guildIcon].Value<string>(); } }
+
+            public SocialFriendState(
+                string name,
+                string offlineTime,
+                string channel,
+                int progressLevel,
+                string guildName,
+                string guildIcon)
+            {
+                JArray node = new JArray(new object[FIELDS_COUNT]);
                 this.node = node;
+                node[ID_name] = name;
+                if (offlineTime == null)
+                {
+                    node[ID_online] = true;
+                    node[ID_offlineTime] = string.Empty;
+                }
+                else
+                {
+                    node[ID_online] = false;
+                    node[ID_offlineTime] = offlineTime;
+                }
+
+                node[ID_channel] = channel;
+                node[ID_progressLevel] = progressLevel;
+                node[ID_guildName] = guildName;
+                node[ID_guildIcon] = guildIcon;
             }
 
-            public bool online
+            public static SocialFriendState NewCharaState(string name)
             {
-                get { return node["online"].Value<bool>(); }
-            }
-
-            public SocialFriendState(bool online)
-            {
-                node = new JObject();
-                node["online"] = new JValue(online);
+                return new SocialFriendState(
+                    name: name,
+                    offlineTime: string.Empty,
+                    channel: string.Empty,
+                    progressLevel: 0,
+                    guildName: string.Empty,
+                    guildIcon: string.Empty
+                    );
             }
         }
 
@@ -256,7 +301,11 @@ namespace Zealot.Common
 
             public string checkdate { get { return GetValue<string>("checkdate"); } set { SetValueNoPatch("checkdate", value); } }
 
+            //狀態清單
             public SocialFriendStateList goodFriendStates { get; private set; }
+            public SocialFriendStateList blackFriendStates { get; private set; }
+            public SocialFriendStateList requestFriendStates { get; private set; }
+            public SocialFriendStateList tempFriendStates { get; private set; }
 
             void initFromRoot(JToken root, AdvancedLocalObject obj)
             {
@@ -276,13 +325,16 @@ namespace Zealot.Common
                 NewIfNotExist(root, "checkdate", () => new JValue(string.Empty));
 
                 goodFriendStates = new SocialFriendStateList(NewIfNotExist(root, "goodFriendStates", NewArray), "goodFriendStates", obj);
+                blackFriendStates = new SocialFriendStateList(NewIfNotExist(root, "blackFriendStates", NewArray), "blackFriendStates", obj);
+                requestFriendStates = new SocialFriendStateList(NewIfNotExist(root, "requestFriendStates", NewArray), "requestFriendStates", obj);
+                tempFriendStates = new SocialFriendStateList(NewIfNotExist(root, "tempFriendStates", NewArray), "tempFriendStates", obj);
             }
 
             protected override void OnSetDataUsage()
             {
                 this.m_Records = new string[] {"version", "goodFriends", "blackFriends", "requestFriends", "tempFriends","maxCount" };
                 this.m_ServerRecords = new string[] { "checkdate" };
-                this.m_States = new string[] { "goodFriendStates" };
+                this.m_States = new string[] { "goodFriendStates", "blackFriendStates", "requestFriendStates", "tempFriendStates" };
             }
 
             #region Constructors

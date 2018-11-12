@@ -9,8 +9,8 @@
 
     public class ExpSE : SideEffect
     {
-        public ExpSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public ExpSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }

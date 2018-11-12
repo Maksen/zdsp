@@ -246,6 +246,7 @@ public class UI_SkillExpandUI : MonoBehaviour {
 
     public void CloseUI()
     {
+        OnClosed();
         m_Close.onClick.Invoke();
     }
 }

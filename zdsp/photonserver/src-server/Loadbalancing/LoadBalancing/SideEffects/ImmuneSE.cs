@@ -7,7 +7,9 @@ namespace Zealot.Server.SideEffects {
     public abstract class ImmuneSE : SideEffect {
         protected ImmuneSEType m_ImmumeSEType;
 
-        public ImmuneSE(SideEffectJson sideeffectData) : base(sideeffectData) {
+        public ImmuneSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mNeedCaster = false;
         }
 
@@ -36,7 +38,9 @@ namespace Zealot.Server.SideEffects {
     }
 
     public class ImmuneAllDamageSE : ImmuneSE {
-        public ImmuneAllDamageSE(SideEffectJson sideeffectData) : base(sideeffectData) {
+        public ImmuneAllDamageSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
         }
     }
 }

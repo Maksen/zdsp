@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Client.Entities;
-
 using Zealot.Common.Entities.Social;
+using Zealot.Common.Datablock;
+using System;
+using Zealot.Repository;
 
 public class SocialTestTool : MonoBehaviour {
-    FriendType SocialMenuType= FriendType.Good;
+    FriendType SocialMenuType = FriendType.Good;
     string input;
     string SocialTestMenuType;
 
@@ -14,8 +16,9 @@ public class SocialTestTool : MonoBehaviour {
 
     bool waiting = false;
     bool forceHide;
+    bool debugMode=true,debugDetail = false;
 
-    public static void DoAction( System.Action<SocialTestTool> act)
+    public static void DoAction(System.Action<SocialTestTool> act)
     {
         var testTool = FindObjectOfType<SocialTestTool>();
         if (testTool != null && act != null)
@@ -25,17 +28,45 @@ public class SocialTestTool : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         var asset = Resources.LoadAll<TextAsset>("SocialTestConfig");
 
-        forceHide = (asset == null|| asset.Length==0);
+        forceHide = (asset == null || asset.Length == 0);
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update() {
+
+    }
+
+    
+
+    /// <summary>
+    /// 排序好友名單，依據 [上線] => [等級高] => [加入時間較早] 排序 優先權越高者排越靠近0
+    /// </summary>
+    public static int[] GetSortedIndices(SocialFriendList friends,SocialFriendStateList states)
+    { 
+        int[] indices = new int[ Math.Min( friends.Count, states.Count)];
+
+        for (int i = 0; i < indices.Length; i++)
+            indices[i] = i;
+        Array.Sort(indices, (x, y) =>
+        {
+            SocialFriendState sx = states[x], sy = states[y];
+            int v;
+            v = sy.online.CompareTo(sx.online);
+            if (v != 0)
+                return v;
+            v = sy.progressLevel.CompareTo(sx.progressLevel);
+            if (v != 0)
+                return v;
+            return x.CompareTo(y);
+        });
+
+        return indices;
+    }
+
     public void OpenSocialMenu()
     {
         input = string.Empty;
@@ -46,15 +77,19 @@ public class SocialTestTool : MonoBehaviour {
     public void OpenSocialMenu_Completed()
     {
         PlayerGhost player = GameInfo.gLocalPlayer;
-        Debug.Log(player.SocialStats.data.Root.ToString());
-        Debug.LogFormat("[Social] #Count goodFriends:{0} blackFriends:{1} requestFriends:{2} tempFriends.Count:{3} goodFriendStates.Count:{4} "
-            , player.SocialStats.data.goodFriends.Count
-            , player.SocialStats.data.blackFriends.Count
-            , player.SocialStats.data.requestFriends.Count
-            , player.SocialStats.data.tempFriends.Count
-            , player.SocialStats.data.goodFriendStates.Count);
+        if (debugMode)
+            Debug.Log(player.SocialStats.data.Root.ToString());
+
+        if (debugDetail)
+            Debug.LogFormat("[Social] #Count goodFriends:{0} blackFriends:{1} requestFriends:{2} tempFriends.Count:{3} goodFriendStates.Count:{4} "
+                , player.SocialStats.data.goodFriends.Count
+                , player.SocialStats.data.blackFriends.Count
+                , player.SocialStats.data.requestFriends.Count
+                , player.SocialStats.data.tempFriends.Count
+                , player.SocialStats.data.goodFriendStates.Count);
         waiting = false;
-        Debug.Log("[Social] Method:OpenSocialMenu_Completed");
+        if (debugMode)
+            Debug.Log("[Social] Method:OpenSocialMenu_Completed");
         SocialTestMenuType = "SocialMenu";
     }
 
@@ -66,7 +101,8 @@ public class SocialTestTool : MonoBehaviour {
 
     public void SocialRaiseRequest_Completed(SocialResult code)
     {
-        Debug.Log("[Social] Method:SocialRaiseRequest_Completed " + " Code:" + code.ToString());
+        if (debugMode)
+            Debug.Log("[Social] Method:SocialRaiseRequest_Completed " + " Code:" + code.ToString());
         waiting = false;
 
     }
@@ -79,7 +115,8 @@ public class SocialTestTool : MonoBehaviour {
 
     public void SocialAcceptRequest_Completed(SocialResult code)
     {
-        Debug.Log("[Social] Method:SocialAcceptRequest_Completed "+" Code:" + code.ToString());
+        if (debugMode)
+            Debug.Log("[Social] Method:SocialAcceptRequest_Completed "+" Code:" + code.ToString());
         waiting = false;
     }
 
@@ -91,7 +128,8 @@ public class SocialTestTool : MonoBehaviour {
 
     public void SocialRejectRequest_Completed(SocialResult code)
     {
-        Debug.Log("[Social]: Method:SocialRejectRequest_Completed " + " Code:" + code.ToString());
+        if (debugMode)
+            Debug.Log("[Social]: Method:SocialRejectRequest_Completed " + " Code:" + code.ToString());
         waiting = false;
     }
 
@@ -103,7 +141,8 @@ public class SocialTestTool : MonoBehaviour {
 
     public void SocialRemoveGood_Completed(SocialResult code)
     {
-        Debug.Log("[Social] Method:SocialRemoveGood_Completed " + " Code:" + code.ToString());
+        if (debugMode)
+            Debug.Log("[Social] Method:SocialRemoveGood_Completed " + " Code:" + code.ToString());
         waiting = false;
     }
 
@@ -115,7 +154,8 @@ public class SocialTestTool : MonoBehaviour {
 
     public void SocialAddBlack_Completed(SocialResult code)
     {
-        Debug.Log("[Social] Method:SocialAddBlack_Completed " + " Code:" + code.ToString());
+        if (debugMode)
+            Debug.Log("[Social] Method:SocialAddBlack_Completed " + " Code:" + code.ToString());
         waiting = false;
     }
 
@@ -127,7 +167,8 @@ public class SocialTestTool : MonoBehaviour {
 
     public void SocialRemoveBlack_Completed(SocialResult code)
     {
-        Debug.Log("[Social] Method:SocialRemoveBlack_Completed " + " Code:" + code.ToString());
+        if (debugMode)
+            Debug.Log("[Social] Method:SocialRemoveBlack_Completed " + " Code:" + code.ToString());
         waiting = false;
     }
 
@@ -231,23 +272,31 @@ public class SocialTestTool : MonoBehaviour {
 
         offsety += 40;
 
+        var friends = player.SocialStats.data.getFriends(SocialMenuType);
+        var states = player.SocialStats.data.getFriendStates(SocialMenuType);
+
         switch (SocialMenuType)
         {
             case FriendType.Good:
                 {
-                    var friends = player.SocialStats.data.getFriends(SocialMenuType);
-                    var states = player.SocialStats.data.goodFriendStates;
-                    for (int i = 0; i < friends.Count; i++)
+                    var sortIndices = GetSortedIndices(friends, states);
+
+                    for (int i = 0; i < sortIndices.Length; i++)
                     {
-                        var friend = friends[i];
+                        int index = sortIndices[i];
+                        var friend = friends[index];
 
                         offsetx = 25;
                         GUI.Label(new Rect(offsetx, offsety, 80, 30),new GUIContent(friend.name));
                         offsetx += 90;
-                        if (i < states.Count)
+                        if (index < states.Count)
                         {
-                            GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent(states[i].online?"上線":"離線"));
-                            offsetx += 50;
+                            var state = states[index];
+                            GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent(state.online ? "上線" : state.offlineTime));
+                            offsetx += 40;
+
+                            GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent("lv" + state.progressLevel.ToString()));
+                            offsetx += 40;
                         }
                         if ( GUI.Button(new Rect(offsetx, offsety, 80, 30), new GUIContent("刪除")))
                         {
@@ -259,7 +308,6 @@ public class SocialTestTool : MonoBehaviour {
                 break;
             case FriendType.Black:
                 {
-                    var friends = player.SocialStats.data.getFriends(SocialMenuType);
                     for (int i = 0; i < friends.Count; i++)
                     {
                         var friend = friends[i];
@@ -267,6 +315,14 @@ public class SocialTestTool : MonoBehaviour {
                         offsetx = 25;
                         GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent(friend.name));
                         offsetx += 90;
+
+                        if (i < states.Count)
+                        {
+                            var state = states[i];
+                            GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent("lv" + state.progressLevel.ToString()));
+                            offsetx += 40;
+                        }
+
                         if (GUI.Button(new Rect(offsetx, offsety, 80, 30), new GUIContent("刪除")))
                         {
                             SocialRemoveBlack(friend.name);
@@ -277,7 +333,6 @@ public class SocialTestTool : MonoBehaviour {
                 break;
             case FriendType.Request:
                 {
-                    var friends = player.SocialStats.data.getFriends(SocialMenuType);
                     for (int i = 0; i < friends.Count; i++)
                     {
                         var friend = friends[i];
@@ -285,6 +340,14 @@ public class SocialTestTool : MonoBehaviour {
                         offsetx = 25;
                         GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent(friend.name));
                         offsetx += 70;
+
+                        if (i < states.Count)
+                        {
+                            var state = states[i];
+                            GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent("lv" + state.progressLevel.ToString()));
+                            offsetx += 40;
+                        }
+
                         if (GUI.Button(new Rect(offsetx, offsety, 60, 30), new GUIContent("同意")))
                         {
                             SocialAcceptRequest(friend.name);
@@ -300,7 +363,6 @@ public class SocialTestTool : MonoBehaviour {
                 break;
             case FriendType.Temp:
                 {
-                    var friends = player.SocialStats.data.getFriends(SocialMenuType);
                     for (int i = 0; i < friends.Count; i++)
                     {
                         var friend = friends[i];
@@ -308,6 +370,14 @@ public class SocialTestTool : MonoBehaviour {
                         offsetx = 25;
                         GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent(friend.name));
                         offsetx += 70;
+
+                        if (i < states.Count)
+                        {
+                            var state = states[i];
+                            GUI.Label(new Rect(offsetx, offsety, 80, 30), new GUIContent("lv" + state.progressLevel.ToString()));
+                            offsetx += 40;
+                        }
+
                         if (GUI.Button(new Rect(offsetx, offsety, 60, 30), new GUIContent("申請")))
                         {
                             SocialRaiseRequest(friend.name);

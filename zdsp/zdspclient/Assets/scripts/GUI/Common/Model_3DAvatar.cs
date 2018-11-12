@@ -1,19 +1,18 @@
 ﻿using Kopio.JsonContracts;
-using System;
-using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using Zealot.Common;
 using Zealot.Repository;
 
 public class Model_3DAvatar : MonoBehaviour
 {
     [SerializeField]
-    Transform modelParent;
+    Transform modelParent = null;
 
     GameObject model;
     string modelpath = "";
 
-    public void Change(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, Action<GameObject> afterLoad = null)
+    public void Change(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, UnityAction<GameObject> afterLoad = null)
     {
         string prefabPath = JobSectRepo.GetGenderInfo(gender).modelpath;
         if (model != null && modelpath != prefabPath)
@@ -43,7 +42,7 @@ public class Model_3DAvatar : MonoBehaviour
             afterLoad(model);
     }
 
-    public bool ChangeHero(int heroId, int tier, Action<GameObject> afterLoad = null)
+    public bool ChangeHero(int heroId, int tier, UnityAction<GameObject> afterLoad = null)
     {
         HeroJson heroJson = HeroRepo.GetHeroById(heroId);
         if (heroJson == null)
@@ -85,7 +84,7 @@ public class Model_3DAvatar : MonoBehaviour
         return true;
     }
 
-    public void Change(string prefabPath, Action<GameObject> afterLoad = null)
+    public void Change(string prefabPath, UnityAction<GameObject> afterLoad = null)
     {
         if (model != null && modelpath != prefabPath)
         {
@@ -138,31 +137,19 @@ public class Model_3DAvatar : MonoBehaviour
         return model;
     }
 
-    public void PlayAnimation(string animation)
+    public void PlayAnimation(string animationState)
     {
         if (model != null)
-            model.GetComponent<Animator>().PlayFromStart(animation);
+            model.GetComponent<Animator>().PlayFromStart(animationState);
     }
 
-    public void PlayAnimation(string animation, Action callback)
+    public void PlayAnimation(string animationState, UnityAction callback)
     {
         if (model != null)
-        {
-            model.GetComponent<Animator>().PlayFromStart(animation);
-            StartCoroutine(WaitForAnimation(animation, callback));
-        }
+            StartCoroutine(ClientUtils.PlayAndWaitForAnimation(model.GetComponent<Animator>(), animationState, callback));
     }
 
-    private IEnumerator WaitForAnimation(string animation, Action callback)
-    {
-        do
-        {
-            yield return null;
-        } while (model.GetComponent<Animator>().IsPlaying(animation));
-        callback();
-    }
-
-    public void CreationChange(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, string layername, Action afterLoad = null)
+    public void CreationChange(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, string layername, UnityAction afterLoad = null)
     {
         string prefabPath = JobSectRepo.GetGenderInfo(gender).modelpath;
         if (model != null && modelpath != prefabPath)

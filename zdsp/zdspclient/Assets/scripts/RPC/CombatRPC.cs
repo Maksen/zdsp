@@ -52,9 +52,9 @@ public class CombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevelAndPos)]
-    public void OnTeleportToLevelAndPos(string level, RPCPosition pos, int questid = -1)
+    public void OnTeleportToLevelAndPos(string level, RPCPosition pos)
     {
-        ProxyMethod("OnTeleportToLevelAndPos", level, pos, questid);
+        ProxyMethod("OnTeleportToLevelAndPos", level, pos);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToPosInLevel)]
@@ -181,9 +181,9 @@ public class CombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.UseItem)]
-    public void UseItem(int slotId, int amount)
+    public void UseItem(int slotId, int amount, int eqSlotIdx = -1)
     {
-        ProxyMethod("UseItem", slotId, amount);
+        ProxyMethod("UseItem", slotId, amount, eqSlotIdx);
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.SellItem)]

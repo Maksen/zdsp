@@ -9,8 +9,8 @@
 
     public class WorldExpBonusSE : SideEffect
     {
-        public WorldExpBonusSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public WorldExpBonusSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }

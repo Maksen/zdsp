@@ -534,7 +534,7 @@ public partial class ClientMain : MonoBehaviour
         PlayerGhost player = GameInfo.gLocalPlayer;
         if (player != null && player.IsAlive())
         {
-            CollectionHandler<object> positives = player.BuffTimeStats.Positives;
+            CollectionHandler<object> positives = player.BuffTimeStats.Buffs;
             //CollectionHandler<object> buffStartTime = player.BuffTimeStats.StartTime;
             //CollectionHandler<object> durations = player.BuffTimeStats.Duration;
             long now = mTimers.GetSynchronizedTime();
@@ -643,15 +643,14 @@ public partial class ClientMain : MonoBehaviour
         return true;
     }
 
-    public void OpenHUDChat(UnityAction callback = null)
+    public void OpenHUDChatroom(UnityAction callback = null)
     {
-        GameObject hudChat = UIManager.GetWidget(HUDWidgetType.Chatroom);
-        if (hudChat.activeSelf == false)
+        if (!UIManager.IsWidgetActived(HUDWidgetType.Chatroom))
         {
             var miniChatAnimator = UIManager.GetWidget(HUDWidgetType.Minichat).GetComponent<Animator>();
-            StartCoroutine(WaitForAnimation(miniChatAnimator, "ChatroomMini_Left", () =>
+            StartCoroutine(ClientUtils.PlayAndWaitForAnimation(miniChatAnimator, "ChatroomMini_Left", () =>
             {
-                hudChat.SetActive(true);
+                UIManager.SetWidgetActive(HUDWidgetType.Chatroom, true);
                 UIManager.SetWidgetActive(HUDWidgetType.Minichat, false);
                 GameInfo.ResetJoystick();
 
@@ -659,43 +658,25 @@ public partial class ClientMain : MonoBehaviour
                     callback.Invoke();
             }));
         }
-        else
-        {
-            if (callback != null)
-                callback.Invoke();
-        }
+        else if (callback != null)
+            callback.Invoke();
     }
 
-    public void CloseHUDChat()
+    public void CloseHUDChatroom()
     {
-        GameObject hudChat = UIManager.GetWidget(HUDWidgetType.Chatroom);
-        if (hudChat.activeSelf == true)
+        GameObject hudChatroom = UIManager.GetWidget(HUDWidgetType.Chatroom);
+        if (hudChatroom.activeInHierarchy)
         {
-            Animator animator = hudChat.GetComponent<Animator>();
+            Animator animator = hudChatroom.GetComponent<Animator>();
             if (animator != null)
             {
-                StartCoroutine(WaitForAnimation(animator, "ChatRoom_Close", () =>
+                StartCoroutine(ClientUtils.PlayAndWaitForAnimation(animator, "ChatRoom_Close", () => 
                 {
-                    hudChat.SetActive(false);
                     UIManager.SetWidgetActive(HUDWidgetType.Minichat, true);
-                    var miniChatAnimator = UIManager.GetWidget(HUDWidgetType.Minichat).GetComponent<Animator>();
-                    StartCoroutine(WaitForAnimation(miniChatAnimator, "HUD_MiniChatShow"));
+                    UIManager.SetWidgetActive(HUDWidgetType.Chatroom, false);
                 }));
             }
         }
-    }
-
-    public IEnumerator WaitForAnimation(Animator animator, string stateName, UnityAction callback = null)
-    {
-        animator.PlayFromStart(stateName);
-        do
-        {
-            yield return null;
-        }
-        while (animator.IsPlaying(stateName));
-
-        if (callback != null)
-            callback.Invoke();
     }
 
     public void InspectPlayer(string playername)
@@ -713,7 +694,7 @@ public partial class ClientMain : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(playername))
         {
-            OpenHUDChat(() =>
+            OpenHUDChatroom(() =>
             {
                 GameObject hudChat = UIManager.GetWidget(HUDWidgetType.Chatroom); // Open HUD Chat is not active
                 //if (hudChat != null) // Show player name in textfield

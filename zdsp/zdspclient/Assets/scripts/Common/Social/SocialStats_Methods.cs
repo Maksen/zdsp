@@ -68,13 +68,16 @@ namespace Zealot.Common.Entities
             {
                 case "begin_load":
                     onLoad = true;
-                    DebugTool.Print("[Social]: evnetName:begin_load"+" "+index);
+                    if (m_DebugDetailMode)
+                        DebugTool.Print("[Social]: evnetName:begin_load"+" "+index);
                     break;
                 case "end_load":
-                    DebugTool.Print(Root);
+                    if (m_DebugDetailMode)
+                        DebugTool.Print(Root);
                     data.UpdateRootValue(Root);
                     InitFromRoot();
-                    DebugTool.Print("[Social]: evnetName:end_load" + " " + index);
+                    if (m_DebugDetailMode)
+                        DebugTool.Print("[Social]: evnetName:end_load" + " " + index);
                     onLoad = false;
                     break;
             }
@@ -89,19 +92,9 @@ namespace Zealot.Common.Entities
             if (m_IsServer)
             {
                 this.data = new SocialData(_data.data, this);
-                var mdata = this.data;
                 this.Root = this.data.Root;
 
                 this.PatchEvent(string.Empty, "begin_load", string.Empty);
-                mdata.goodFriendStates.StopPatch();
-                mdata.goodFriendStates.Clear();
-                foreach (var item in mdata.goodFriends)
-                {
-                    mdata.goodFriendStates.Add(new SocialFriendState(
-                        online: false
-                        ));
-                }
-                mdata.goodFriendStates.ResumePatch();
                 this.data.PatchToClient();
                 this.PatchEvent(string.Empty, "end_load", string.Empty);
             }

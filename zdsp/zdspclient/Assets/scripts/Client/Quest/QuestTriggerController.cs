@@ -779,6 +779,7 @@ public class QuestTriggerController
             if (npcid != -1)
             {
                 CheckAvailableQuest(npcid, questid);
+                AddRefreshNPC(npcid);
             }
         }
     }
@@ -794,6 +795,7 @@ public class QuestTriggerController
             if (npcid != -1)
             {
                 CheckAvailableQuest(npcid, questid);
+                AddRefreshNPC(npcid);
             }
         }
     }

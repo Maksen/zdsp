@@ -10,8 +10,8 @@
     public class ExpBonusSE : SideEffect, IPassiveSideEffect
     {
         private float mAmount = 0;
-        public ExpBonusSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public ExpBonusSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }

@@ -364,6 +364,7 @@ namespace Zealot.Client.Entities
                 case "havecontrol":
                 case "havehot":
                     HandleBuffStatus(field, value);
+                    
                     break;
                 case "Level":
                     if (IsLocal)
@@ -867,30 +868,37 @@ namespace Zealot.Client.Entities
             //        HUD_Buff.mybuffInstance.SetBuffAmount(BuffTimeStats);
             //    }
             //}
-#if UNITY_EDITOR
-            string bufflist = "";
-            foreach (int id in BuffTimeStats.Positives)
-            {
-                bufflist += id.ToString() + " ";
-            }
-            bufflist += "\n";
-            foreach (int id in BuffTimeStats.Negatives)
-            {
-                bufflist += id.ToString() + " ";
-            }
-            bufflist += "\n";
-            foreach (int id in BuffTimeStats.Persistents)
-            {
-                bufflist += id.ToString() + " ";
-            }
-            bufflist += "\n";
-            foreach (int dur in BuffTimeStats.PersistentsDur)
-            {
-                bufflist += dur.ToString() + " ";
-            }
-            bufflist += "\n";
 
-            Debug.Log(bufflist);
+            bool isbuff = false;
+            SEORIGINID origin = SEORIGINID.NONE;
+            int originid = 0;
+            for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2) {
+                DecodeBuffTimeStats(ref isbuff, ref origin, ref originid, Convert.ToInt64(BuffTimeStats.Buffs[i]));
+                Debug.Log(string.Format("{0} of type {1} with ID : {2} || Time Left : {3}", isbuff == true ? "Buff" : "Debuff", origin.ToString(), originid, BuffTimeStats.Buffs[i + 1]));
+            }
+
+#if UNITY_EDITOR
+            //string bufflist = "";
+            //foreach (object id in BuffTimeStats.Buffs)
+            //{
+            //    bufflist += id.ToString() + " ";
+            //}
+            //bufflist += "\n";
+            ////foreach (int id in BuffTimeStats.Control)
+            ////{
+            ////    bufflist += id.ToString() + " ";
+            ////}
+            ////bufflist += "\n";
+            //foreach (int id in BuffTimeStats.Persistents)
+            //{
+            //    bufflist += id.ToString() + " ";
+            //}
+            //bufflist += "\n";
+            //foreach (int dur in BuffTimeStats.PersistentsDur)
+            //{
+            //    bufflist += dur.ToString() + " ";
+            //}
+            //bufflist += "\n";
 #endif
         }
 
@@ -1447,6 +1455,14 @@ namespace Zealot.Client.Entities
                     DNAStats.OnLocalObjectChanged = OnDNAStatsChanged;
                     mylocalobj = DNAStats;
                     break;
+                case LOTYPE.BuffTimeStats:
+                    BuffTimeStats = new BuffTimeStats();
+                    BuffTimeStats.Buffs.SetNotifyParent(false);
+                    BuffTimeStats.Persistents.SetNotifyParent(false);
+                    BuffTimeStats.PersistentsDur.SetNotifyParent(false);
+                    BuffTimeStats.OnCollectionChanged = OnBuffTimeStatsChanged;
+                    mylocalobj = BuffTimeStats;
+                    break;
                 // Shared Objects
                 case LOTYPE.PartyStats:
                     PartyStats = new PartyStatsClient();
@@ -1746,7 +1762,7 @@ namespace Zealot.Client.Entities
             //if (LocalCombatStats != null)
             //    return LocalCombatStats.Stun;
             //else
-                return false;
+            return HasControlStatus(EffectVisualTypes.Stun);
         }
 
         public bool IsRooted()
@@ -1786,32 +1802,25 @@ namespace Zealot.Client.Entities
             return !IsStun() && !IsRooted() && !IsFrozen() && !IsGettingHit();
         }
 
-        public bool HasPositiveSE(int otherSEID)
-        {
-            CollectionHandler<object> positives = BuffTimeStats.Positives;
-            for (int i = 0; i < positives.Count; i++)
-            {
-                int seid = (int)positives[i];
+        //public bool HasPositiveSE(int otherSEID)
+        //{
+        //    CollectionHandler<object> positives = BuffTimeStats.Positives;
+        //    for (int i = 0; i < positives.Count; i++)
+        //    {
+        //        int seid = (int)positives[i];
 
-                if (otherSEID == seid)
-                    return true;
-            }
-            return false;
-        }
+        //        if (otherSEID == seid)
+        //            return true;
+        //    }
+        //    return false;
+        //}
 
-        public bool HasSideEffect(int seid)
+        public bool HasSideEffect(int seid) // this will be wrong
         {
-            CollectionHandler<object> positives = BuffTimeStats.Positives;
+            CollectionHandler<object> positives = BuffTimeStats.Buffs;
             for (int i = 0; i < positives.Count; i++)
             {
                 if (seid == (int)positives[i])
-                    return true;
-            }
-
-            CollectionHandler<object> negetives = BuffTimeStats.Negatives;
-            for (int i = 0; i < negetives.Count; i++)
-            {
-                if (seid == (int)negetives[i])
                     return true;
             }
             return false;
@@ -1820,6 +1829,13 @@ namespace Zealot.Client.Entities
         public void InitBot()
         {
             mBotController = new BotController(this);
+        }
+
+        public void DecodeBuffTimeStats(ref bool isBuff, ref SEORIGINID origin, ref int originid, long encoded)
+        {
+            isBuff = (encoded & (((long)1) << 40)) == (((long)1) << 40) ? true : false;
+            origin = (SEORIGINID)((encoded >> 32) & ~(1 << 8));
+            originid = (int)(encoded & ~1);
         }
 
         public bool CanStartNewBot()
@@ -2280,6 +2296,7 @@ namespace Zealot.Client.Entities
         {
             yield return new WaitForSecondsRealtime(delay);
 
+            QuestController.OnCutSceneFinished();
             if (!UIManager.IsWindowOpen(WindowType.DialogNpcTalk))
             {
                 BotStateController.Instance.Resume();

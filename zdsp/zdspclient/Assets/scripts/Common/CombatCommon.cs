@@ -175,6 +175,13 @@
         }
     }
 
+    public enum SEORIGINID : byte
+    {
+        NONE,
+        ESKILL,
+        EITEM,
+    }
+
     public enum Trainingstep
     {
         SpawnedAndTalk,

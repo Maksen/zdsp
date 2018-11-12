@@ -15,8 +15,8 @@ namespace Zealot.Server.SideEffects
         protected bool IsImmune = false;
         protected bool IsRemove = false;
         
-        public ControlSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public ControlSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -142,8 +142,8 @@ namespace Zealot.Server.SideEffects
 
     public class StunSE : ControlSE 
     {
-        public StunSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public StunSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mControlSEType = ControlSEType.Stun;
         }
@@ -225,8 +225,8 @@ namespace Zealot.Server.SideEffects
 
     public class RootSE : ControlSE
     {
-        public RootSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public RootSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mControlSEType = ControlSEType.Root;
         }
@@ -257,8 +257,8 @@ namespace Zealot.Server.SideEffects
 
     public class SilenceSE : ControlSE
     {
-        public SilenceSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public SilenceSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mControlSEType = ControlSEType.Silence;
         }
@@ -362,7 +362,9 @@ namespace Zealot.Server.SideEffects
     //}
 
     public class FearSE : ControlSE {
-        public FearSE(SideEffectJson sideeffectData) : base(sideeffectData) {
+        public FearSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mControlSEType = ControlSEType.Fear;
         }
 
@@ -390,7 +392,9 @@ namespace Zealot.Server.SideEffects
     }
 
     public class TauntSE : ControlSE {
-        public TauntSE(SideEffectJson sideeffectData) : base(sideeffectData) {
+        public TauntSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mControlSEType = ControlSEType.Taunt;
         }
 

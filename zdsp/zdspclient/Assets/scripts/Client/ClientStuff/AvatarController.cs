@@ -1,8 +1,9 @@
 ﻿using Kopio.JsonContracts;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using Zealot.Common;
 using Zealot.Repository;
 
@@ -209,9 +210,9 @@ public class AvatarController : MonoBehaviour
     }
 
     Dictionary<int, bool> mWaitingList = new Dictionary<int, bool>();
-    Action mCallback = null;
+    UnityAction mCallback = null;
 
-    public void InitSelectionAvatar(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, Action callback)
+    public void InitSelectionAvatar(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, int outfit, UnityAction callback)
     {
         List<Equipment> fashionSlots = equipmentInvData.FashionSlots;
         List<Equipment> equipmentSlots = equipmentInvData.Slots;

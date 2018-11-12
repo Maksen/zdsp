@@ -6,6 +6,7 @@ using UnityEngine.UI.Extensions;
 using Zealot.Common;
 using Zealot.Repository;
 using Zealot.Client.Entities;
+using Zealot.Common.Entities;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -196,8 +197,8 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     [SerializeField]
     GameObject mBuffPrefab;
     [SerializeField]
-    List<string> mBuffPathList;
-    Dictionary<BuffEnum, GameObject> mActiveBuffDic = new Dictionary<BuffEnum, GameObject>();
+    List<Sprite> mBuffPathList;
+    Dictionary<EffectVisualTypes, GameObject> mActiveBuffDic = new Dictionary<EffectVisualTypes, GameObject>();
 
     [Header("HP bar gradient")]
     [SerializeField]
@@ -243,14 +244,14 @@ public class HUD_PlayerLabel2 : MonoBehaviour
 
         //Create all buff gameobject icons and hide them
         //Create dict to quick access buff game object icon
-        for (BuffEnum e = BuffEnum.Buff; e < BuffEnum.Max_BuffType; e++)
+        for (EffectVisualTypes e = EffectVisualTypes.Stun; e < EffectVisualTypes.NUM; e++)
         {
             GameObject obj = Instantiate(mBuffPrefab, Vector3.zero, Quaternion.identity) as GameObject;
             obj.transform.SetParent(mBuffParent.transform, false);
             obj.SetActive(false);
 
             Image img = obj.GetComponent<Image>();
-            img.sprite = ClientUtils.LoadIcon(mBuffPathList[(int)e]);
+            img.sprite = mBuffPathList[(int)e];
 
             mActiveBuffDic[e] = obj;
         }
@@ -299,20 +300,20 @@ public class HUD_PlayerLabel2 : MonoBehaviour
 
     }
 
-    public void SetUnsetBuffDebuff(BuffEnum e, int onoff)
+    public void SetUnsetBuffDebuff(EffectVisualTypes e, int onoff)
     {
-        //Buff to remove
-        if (onoff == 0)
-        {
-            mActiveBuffDic[e].SetActive(false);
-            mNumActiveBuff--;
-        }
-        //Buff to add
-        else if (onoff > 0)
-        {
-            mActiveBuffDic[e].SetActive(true);
-            mNumActiveBuff++;
-        }
+        ////Buff to remove
+        //if (onoff == 0)
+        //{
+        //    mActiveBuffDic[e].SetActive(false);
+        //    mNumActiveBuff--;
+        //}
+        ////Buff to add
+        //else if (onoff > 0)
+        //{
+        //    mActiveBuffDic[e].SetActive(true);
+        //    mNumActiveBuff++;
+        //}
     }
     public void SetBuffDebuff(ActorGhost ghost)
     {

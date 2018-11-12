@@ -705,7 +705,7 @@ namespace Photon.LoadBalancing.GameServer
                 List<SideEffectJson> passiveSEs = passiveSkill.skills.mTarget;
                 for (int i = 0; i < passiveSEs.Count; i++)
                 {
-                    SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], true);
+                    SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE,passiveSkill.skillJson.id, true);
                     IPassiveSideEffect pse = se as IPassiveSideEffect;
                     if (pse != null)
                     {
@@ -805,7 +805,7 @@ namespace Photon.LoadBalancing.GameServer
             List<IPassiveSideEffect> passiveSEs = new List<IPassiveSideEffect>();
             foreach (SideEffectJson seJson in bondData.sideeffects.Values)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(seJson, true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(seJson, SEORIGINID.NONE,-1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse != null)
                 {

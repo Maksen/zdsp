@@ -13,8 +13,8 @@
         private float mAffactPerc = 0;
         private bool mIsPostiveBuff;
 
-        public StatsSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public StatsSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }
@@ -196,8 +196,9 @@
     }
 
     public class ToNoneElementalSE : SideEffect {
-        public ToNoneElementalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData) {
+        public ToNoneElementalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        { 
             mNeedCaster = false;
         }
 
@@ -216,8 +217,9 @@
     }
 
     public class ToMetalElementalSE : SideEffect {
-        public ToMetalElementalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData) {
+        public ToMetalElementalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mNeedCaster = false;
         }
 
@@ -236,8 +238,9 @@
     }
 
     public class ToWoodElementalSE : SideEffect {
-        public ToWoodElementalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData) {
+        public ToWoodElementalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mNeedCaster = false;
         }
 
@@ -256,8 +259,9 @@
     }
 
     public class ToEarthElementalSE : SideEffect {
-        public ToEarthElementalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData) {
+        public ToEarthElementalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mNeedCaster = false;
         }
 
@@ -276,8 +280,9 @@
     }
 
     public class ToWaterElementalSE : SideEffect {
-        public ToWaterElementalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData) {
+        public ToWaterElementalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mNeedCaster = false;
         }
 
@@ -296,8 +301,9 @@
     }
 
     public class ToFireElementalSE : SideEffect {
-        public ToFireElementalSE(SideEffectJson sideeffectData)
-            : base(sideeffectData) {
+        public ToFireElementalSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        { 
             mNeedCaster = false;
         }
 

@@ -51753,7 +51753,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1017199288}
-  - component: {fileID: 1017199289}
   m_Layer: 22
   m_Name: GameObject_ChatRoom
   m_TagString: Untagged
@@ -51783,23 +51782,6 @@ RectTransform:
   m_AnchoredPosition: {x: -10, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!95 &1017199289
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1017199287}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4d6a04978527b1b45b5a0bbb165a980b, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1025112128
 GameObject:
   m_ObjectHideFlags: 0
@@ -56820,6 +56802,7 @@ GameObject:
   - component: {fileID: 1133876866}
   - component: {fileID: 1133876869}
   - component: {fileID: 1133876868}
+  - component: {fileID: 1133876870}
   - component: {fileID: 1133876867}
   m_Layer: 22
   m_Name: HUD_Chatroom
@@ -56873,6 +56856,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6956e5d5ecc6366489e9995200c05954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  whisperGroupParentTransform: {fileID: 0}
+  gameobjAddChatgroup: {fileID: 0}
+  prefabTabButtonWhisperGroup: {fileID: 0}
   chatroomScrollView: {fileID: 1569388890}
   inputfieldChatMessage: {fileID: 217467517}
   hypertxtInputfield: {fileID: 154065751}
@@ -56913,6 +56899,23 @@ Canvas:
   m_SortingLayerID: -1413435525
   m_SortingOrder: 3
   m_TargetDisplay: 0
+--- !u!95 &1133876870
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1133876864}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4d6a04978527b1b45b5a0bbb165a980b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!1 &1142953040
 GameObject:
   m_ObjectHideFlags: 0

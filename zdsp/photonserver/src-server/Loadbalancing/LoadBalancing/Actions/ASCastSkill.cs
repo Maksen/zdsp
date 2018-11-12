@@ -228,7 +228,7 @@
                     SideEffectJson selfse = SideEffectRepo.GetSideEffect(sej.id);
                     if (SideEffectFactory.IsSideEffectInstantiatable(selfse))
                     {
-                        SideEffect se = SideEffectFactory.CreateSideEffect(selfse);
+                        SideEffect se = SideEffectFactory.CreateSideEffect(selfse, SEORIGINID.ESKILL, mSkillData.skillJson.id);
                         bool isbuff = SideEffectsUtils.IsSideEffectPositive(selfse);
                         Actor actor = mEntity as Actor;
                         //SetTimer(System.Convert.ToInt64(selfse.delay), delegate { se.Apply(actor, actor, isbuff); }, null);
@@ -252,7 +252,7 @@
             foreach (SideEffectJson sideeffectjson in mSideEffects.mSelf)
             {
                 // proc self
-                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffectjson);
+                SideEffect se = SideEffectFactory.CreateSideEffect(sideeffectjson, SEORIGINID.ESKILL, mSkillData.skillJson.id);
                 se.Apply((Actor)mEntity, (Actor)mEntity, SideEffectsUtils.IsPositiveEffectType(se.mSideeffectData.effecttype));
             }
 
@@ -294,7 +294,7 @@
                                 //sideeffectjson = SkillRepo.GetSideEffectAtLevel(seteffectid, mskillLevel);
                                 sideeffectjson = SideEffectRepo.GetSideEffect(seteffectid);
                             }
-                            se = SideEffectFactory.CreateSideEffect(sideeffectjson);
+                            se = SideEffectFactory.CreateSideEffect(sideeffectjson, SEORIGINID.ESKILL, mSkillData.skillJson.id);
                             se.OnEnhanceBuffAffact(mBUffBonusPerc, mBuffBonus);
                             se.OnEnhanceBuffDuration(mBuffDurationBonusPerc, mBuffDurationBonus);
                             DamageSE dmgse = se as DamageSE;
@@ -305,7 +305,7 @@
                                 //dmgse.OnTalentHit = OnTalentHit;
                                 //dmgse.subskills = mSkillData.subskills;
                                 dmgse.SetSkillDmgCount(mSkillAffact, mSkillAffactPerc, isBasicAttack, feedbackIndex);
-                                dmgse.mSkillid = mSkillData.skillJson.id;
+                                //dmgse.mSkillid = mSkillData.skillJson.id;
                             }
 
                             if (se is RejuvenateSE)

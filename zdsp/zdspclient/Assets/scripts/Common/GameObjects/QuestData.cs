@@ -33,7 +33,7 @@ namespace Zealot.Common
     {
         public List<int> ObjectiveIds { get; set; }
         public int SequenceNum { get; set; }
-        public List<long> CompleteTime { get; set; }
+        public List<string> CompleteTime { get; set; }
         public List<int> ProgressCount { get; set; }
         public Dictionary<int, int> RequirementProgress { get; set; }
 
@@ -41,7 +41,7 @@ namespace Zealot.Common
         {
             ObjectiveIds = new List<int>();
             SequenceNum = -1;
-            CompleteTime = new List<long>();
+            CompleteTime = new List<string>();
             ProgressCount = new List<int>();
             RequirementProgress = new Dictionary<int, int>();
         }
@@ -141,7 +141,7 @@ namespace Zealot.Common
         public int seqNum;
 
         [JsonProperty(PropertyName = "CompleteTime")]
-        public List<long> completeTime;
+        public List<string> completeTime;
 
         [JsonProperty(PropertyName = "ProgressCount")]
         public List<int> progressCount;

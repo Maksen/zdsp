@@ -6,7 +6,9 @@
     using Zealot.Repository;
     using Kopio.JsonContracts;
     public class HeavyStandSE : SideEffect {
-        public HeavyStandSE(SideEffectJson sideeffectData) : base(sideeffectData) {
+        public HeavyStandSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
+        {
             mNeedCaster = true;
         }
         protected override void InitKopioData() {

@@ -3143,6 +3143,9 @@ namespace Kopio.JsonContracts
         [JsonProperty("22")]
         public float weapon_ct { get; set; } 
         
+        [JsonProperty("23")]
+        public bool showweapon { get; set; } 
+        
         public void Load(Dictionary<string, object> vals)
         {
             id = (int)vals["id"];
@@ -3168,6 +3171,7 @@ namespace Kopio.JsonContracts
             priority = (int)vals["priority"];
             weapon_ot = Convert.ToSingle((double)vals["weapon_ot"]);
             weapon_ct = Convert.ToSingle((double)vals["weapon_ct"]);
+            showweapon = (bool)vals["showweapon"];
         }
     }
     
@@ -3202,68 +3206,71 @@ namespace Kopio.JsonContracts
         [JsonProperty("8")]
         public string actioneffect { get; set; } 
         
-        [AssetData("prefab")]
         [JsonProperty("9")]
+        public string groundeffect { get; set; } 
+        
+        [AssetData("prefab")]
+        [JsonProperty("10")]
         public string effectgethit { get; set; } 
         
-        [JsonProperty("10")]
+        [JsonProperty("11")]
         public float offsettime { get; set; } 
         
-        [JsonProperty("11")]
+        [JsonProperty("12")]
         public float skillduration { get; set; } 
         
-        [JsonProperty("12")]
+        [JsonProperty("13")]
         public float effect_dur { get; set; } 
         
-        [JsonProperty("13")]
+        [JsonProperty("14")]
         public float rtfixedduration { get; set; } 
         
-        [JsonProperty("14")]
+        [JsonProperty("15")]
         public float rtvarduration { get; set; } 
         
-        [JsonProperty("15")]
+        [JsonProperty("16")]
         public float radius { get; set; } 
         
-        [JsonProperty("16")]
+        [JsonProperty("17")]
         public float range { get; set; } 
         
-        [JsonProperty("17")]
+        [JsonProperty("18")]
         public int maxtargets { get; set; } 
         
-        [JsonProperty("18")]
+        [JsonProperty("19")]
         public string progressskill { get; set; } 
         
-        [JsonProperty("19")]
+        [JsonProperty("20")]
         public int requiredlv { get; set; } 
         
-        [JsonProperty("20")]
+        [JsonProperty("21")]
         public string requiredclass { get; set; } 
         
-        [JsonProperty("21")]
+        [JsonProperty("22")]
         public int learningsp { get; set; } 
         
-        [JsonProperty("22")]
+        [JsonProperty("23")]
         public int learningcost { get; set; } 
         
-        [JsonProperty("23")]
+        [JsonProperty("24")]
         public int teacheritemid { get; set; } 
         
-        [JsonProperty("24")]
+        [JsonProperty("25")]
         public int teacheritemcount { get; set; } 
         
-        [JsonProperty("25")]
+        [JsonProperty("26")]
         public string repeatse { get; set; } 
         
-        [JsonProperty("26")]
+        [JsonProperty("27")]
         public float repeattime { get; set; } 
         
-        [JsonProperty("27")]
+        [JsonProperty("28")]
         public float chargeduration { get; set; } 
         
-        [JsonProperty("28")]
+        [JsonProperty("29")]
         public string chargeeffect { get; set; } 
         
-        [JsonProperty("29")]
+        [JsonProperty("30")]
         public int labelcount { get; set; } 
         
         public Dictionary<int,SideEffectJson> selfsideeffect = new Dictionary<int,SideEffectJson> ();
@@ -3281,6 +3288,7 @@ namespace Kopio.JsonContracts
             cooldown = Convert.ToSingle((double)vals["cooldown"]);
             globalcd = Convert.ToSingle((double)vals["globalcd"]);
             actioneffect = (string)vals["actioneffect"];
+            groundeffect = (string)vals["groundeffect"];
             effectgethit = (string)vals["effectgethit"];
             offsettime = Convert.ToSingle((double)vals["offsettime"]);
             skillduration = Convert.ToSingle((double)vals["skillduration"]);

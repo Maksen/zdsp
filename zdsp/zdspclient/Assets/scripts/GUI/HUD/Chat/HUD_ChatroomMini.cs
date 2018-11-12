@@ -613,7 +613,6 @@ public class HUD_ChatroomMini : MonoBehaviour
             return;
         }
 
-        UIManager.SetWidgetActive(HUDWidgetType.Chatroom, true);
-        GetComponent<Animator>().Play("ChatroomMini_Left");
+        GameInfo.gCombat.OpenHUDChatroom();
     }
 }

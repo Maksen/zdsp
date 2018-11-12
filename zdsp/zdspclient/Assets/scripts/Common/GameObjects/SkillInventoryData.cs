@@ -50,7 +50,7 @@ namespace Zealot.Common
             AutoSkill = new List<int>(36);
             SkillInvCount = 0;
             equipGroup = autoGroup = 1;
-            EquipSize = 5;
+            EquipSize = 6;
             for (int i = 0; i < 40; ++i)
             {
                 SkillInv.Add(0);

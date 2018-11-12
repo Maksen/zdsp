@@ -134,6 +134,10 @@ public class UI_SkillTree : BaseWindowBehaviour
     public GameObject m_RowPrefab;
     public GameObject m_EquipSkillIconPrefab;
     public GameObject m_SkillPanelContentRect; // Content Panel
+    public GameObject m_JobButtonPrefab;
+
+    [Header("Windows")]
+    public Dictionary<string, UI_SkillTreeWindow> m_Windows = new Dictionary<string, UI_SkillTreeWindow>();
 
     [Header("Connectors")]
     public List<GameObject> m_Connectors;
@@ -228,10 +232,11 @@ public class UI_SkillTree : BaseWindowBehaviour
         // update server on slot groups
         RPCFactory.NonCombatRPC.UpdateEquipSlots(m_EquipSlotGroup, m_AutoSlotGroup);
 
-        m_SelectSkillDDL.OnDeselected();
-        m_SelectSkillDDL.CloseUI();
+        //m_SelectSkillDDL.OnDeselected();
+        //m_SelectSkillDDL.CloseUI();
 
-        CloseWindows();
+        //CloseWindows();
+
         base.OnCloseWindow();
         //clean up
 
@@ -285,14 +290,41 @@ public class UI_SkillTree : BaseWindowBehaviour
         }
 
         m_DisplayType = (JobType)GameInfo.gLocalPlayer.PlayerSynStats.jobsect;
+        bool isFound = false;
         foreach (UI_SkillJobButton job in m_JobButtons)
         {
             if (job.m_Jobtype == m_DisplayType)
             {
-                job.m_Toggle.isOn = true;
+                job.m_Toggle.isOn = isFound = !isFound;
+                m_NewJobSelected = job.m_ID;
                 break;
             }
         }
+        if (!isFound)
+        {
+            // class is new, construct it
+            List<JobType> hist = JobSectRepo.GetJobHistoryToCurrent(m_DisplayType);
+            hist.Reverse();
+            foreach(JobType job in hist)
+            {
+                if (job == m_JobButtons[m_JobButtons.Count - 1].m_Jobtype) continue;
+                GameObject button = GameObject.Instantiate(m_JobButtonPrefab, m_JobPanel.transform);
+                UI_SkillJobButton jobbtn = button.GetComponent<UI_SkillJobButton>();
+                m_JobButtons.Add(jobbtn);
+                jobbtn.Init(job, m_JobButtons.Count - 1);
+                jobbtn.AddListener(OnJobTypeValueChanged);
+                m_NewJobSelected = jobbtn.m_ID;
+            }
+            foreach (UI_SkillJobButton job in m_JobButtons)
+            {
+                if (job.m_Jobtype == m_DisplayType)
+                {
+                    job.m_Toggle.isOn = true;
+                    break;
+                }
+            }
+        }
+        m_DirtyBit |= m_Dirty.JobChange;
     }
 
     public void Initialise()
@@ -302,18 +334,30 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_EmptyButtonPool = new GameObjectPoolManager(10, this.transform, m_EmptyButtonPrefab);
         m_RowPool = new GameObjectPoolManager(3, this.transform, m_RowPrefab);
 
-        foreach (Transform child in m_JobPanel.transform)
+        //foreach (Transform child in m_JobPanel.transform)
+        //{
+        //    m_JobButtons.Add(child.GetComponent<UI_SkillJobButton>());
+        //    UI_SkillJobButton btn = m_JobButtons[m_JobButtons.Count - 1];
+        //    btn.Init(m_JobButtons.Count - 1);
+        //    btn.m_Toggle.onValueChanged.AddListener(delegate
+        //    {
+        //        OnJobTypeValueChanged(btn);
+        //    });
+        //}
+        m_DisplayType = (JobType)GameInfo.gLocalPlayer.PlayerSynStats.jobsect;
+
+        List<JobType> hist = JobSectRepo.GetJobHistoryToCurrent(m_DisplayType);
+        hist.Reverse();
+        foreach(JobType job in hist)
         {
-            m_JobButtons.Add(child.GetComponent<UI_SkillJobButton>());
-            UI_SkillJobButton btn = m_JobButtons[m_JobButtons.Count - 1];
-            btn.Init(m_JobButtons.Count - 1);
-            btn.m_Toggle.onValueChanged.AddListener(delegate
-            {
-                OnJobTypeValueChanged(btn);
-            });
+            GameObject button = GameObject.Instantiate(m_JobButtonPrefab, m_JobPanel.transform);
+            UI_SkillJobButton jobbtn = button.GetComponent<UI_SkillJobButton>();
+            m_JobButtons.Add(jobbtn);
+            jobbtn.Init(job, m_JobButtons.Count - 1);
+            jobbtn.AddListener(OnJobTypeValueChanged);
+            m_NewJobSelected = jobbtn.m_ID;
         }
 
-        m_DisplayType = m_JobButtons[0].m_Jobtype; ; // (JobType)GameInfo.gLocalPlayer.PlayerSynStats.jobsect;//
         foreach (UI_SkillJobButton job in m_JobButtons)
         {
             if (job.m_Jobtype == m_DisplayType)
@@ -322,6 +366,8 @@ public class UI_SkillTree : BaseWindowBehaviour
                 break;
             }
         }
+        m_DirtyBit |= m_Dirty.JobChange;
+
         m_JobTitle.text = JobSectRepo.GetJobLocalizedName(m_DisplayType);
         m_SkillDescriptor.Initialise(this.transform);
         m_SkillDescriptor.CloseUI();
@@ -581,20 +627,40 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_DirtyBit |= m_Dirty.PanelUpdated;
     }
 
+    public void RegisterWindow(string identifier, UI_SkillTreeWindow obj)
+    {
+        m_Windows.Add(identifier, obj);
+    }
+
+    public void CloseWindows(string identifier)
+    {
+        foreach(var window in m_Windows)
+        {
+            if(window.Key.CompareTo(identifier) != 0)
+            {
+                window.Value.CloseWindow();
+            }
+        }
+    }
+
     public void CloseWindows(bool isBottom = false)
     {
-        m_SkillDescriptor.OnClosed();
-        m_SkillDescriptor.CloseUI();
-        m_CurrentActive = null;
-        //m_SelectSkillDDL.CloseUI();
-        m_SelectSkillDDL.gameObject.SetActive(false);
-        m_SpecialSkillPanel.m_SkillDescriptor.gameObject.SetActive(false);
-        m_SpecialSkillPanel.CloseUI();
-        //m_SpecialSkillPanel.gameObject.SetActive(false);
-        //m_EquipSkillPanel.SetActive(false);
+        //m_SkillDescriptor.OnClosed();
+        //m_SkillDescriptor.CloseUI();
+        //m_CurrentActive = null;
+        ////m_SelectSkillDDL.CloseUI();
+        //m_SelectSkillDDL.gameObject.SetActive(false);
+        //m_SpecialSkillPanel.m_SkillDescriptor.gameObject.SetActive(false);
+        //m_SpecialSkillPanel.CloseUI();
+        ////m_SpecialSkillPanel.gameObject.SetActive(false);
+        ////m_EquipSkillPanel.SetActive(false);
 
-        if (!isBottom)
-            m_CloseEquip.onClick.Invoke();
+        //if (!isBottom)
+            //m_CloseEquip.onClick.Invoke();
+
+        m_CurrentActive = null;
+        foreach (var window in m_Windows)
+            window.Value.CloseWindow();
     }
 
     public void CloseWindowsOnSkillSelect()
@@ -625,12 +691,16 @@ public class UI_SkillTree : BaseWindowBehaviour
     {
         m_DirtyBit |= m_Dirty.JobChange;
         if (change.m_Toggle.isOn)
+        {
+            m_JobButtons[m_NewJobSelected].m_Toggle.isOn = false;
             m_NewJobSelected = change.m_ID;
+        }
 
         m_DirtyBit |= m_Dirty.ScrollPanel;
         m_StartPos = m_SkillPanelContentRect.transform.localPosition.x;
         m_FinalPos = 0;
-        m_SkillDescriptor.CloseUI();
+        //m_SkillDescriptor.CloseUI();
+        CloseWindows("SkillEquip");
     }
 
     public void OnSelectSkill(UI_SkillButtonBase button)
@@ -642,6 +712,7 @@ public class UI_SkillTree : BaseWindowBehaviour
             CloseWindowsOnSkillSelect();
             // first select
             m_SkillDescriptor.gameObject.SetActive(true);
+            CloseWindows("SkillUI");
             m_SkillDescriptor.Show((UI_SkillButton)button);
         }
 
@@ -661,7 +732,7 @@ public class UI_SkillTree : BaseWindowBehaviour
         else
         {
             button.m_Toggle.isOn = false;
-            m_SkillDescriptor.OnClosed();
+            //m_SkillDescriptor.OnClosed();
             m_SkillDescriptor.CloseUI();
             m_CurrentActive = null;
         }

@@ -26,6 +26,7 @@
       <property name="priority" type="int" uitext="Auto Skill Priority" default="0" info="Bigger numbers have higher priority"/>
       <property name="weapon_ot" type="float" uitext="Weapon Open Time" default="0"/>
       <property name="weapon_ct" type="float" uitext="Weapon Close Time" defualt="0"/>
+      <property name="showweapon" type="bool" uitext="To hide weapon?" defualt ="false"/>
      
       <!--
       <property name="repeatproc" type="bool" uitext="Repeat proc?" default="false" info="Keep procing after proctime. Repeat proc interval is specified by interval"/>
@@ -60,6 +61,7 @@
       <property name="cooldown" type="float" uitext="Cooldown"/>
       <property name="globalcd" type="float" uitext="Global Cooldown"/>
       <property name="actioneffect" type="string" uitext="Skill Action Effect" info="Effect for the action" default = ""/>
+      <property name="groundeffect" type="string" uitext="Ground Effect" info="Effect for impact" default =""/>
       <property name="effectgethit" type="asset" uitext="Get Hit Effect Path" default="" assettype="prefab"/>
       <property name="offsettime" type="float" uitext="Offset Time" default ="0"/>
       <property name="skillduration" type ="float" uitext="Skill Duration"/>

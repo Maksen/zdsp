@@ -6,6 +6,7 @@ using Zealot.Repository;
 using System.Collections.Generic;
 using System.Collections;
 using Candlelight.UI;
+using System;
 
 public class UI_MainQuest : MonoBehaviour
 {
@@ -54,8 +55,8 @@ public class UI_MainQuest : MonoBehaviour
     private QuestClientController mQuestController;
     private QuestJson mQuestJson;
     private CurrentQuestData mQuestData;
-    private Dictionary<int, long> mMOEndTime;
-    private Dictionary<int, long> mSOEndTime;
+    private Dictionary<int, DateTime> mMOEndTime;
+    private Dictionary<int, DateTime> mSOEndTime;
     private string mDescription;
 
     private void OnEnable()
@@ -179,14 +180,6 @@ public class UI_MainQuest : MonoBehaviour
     private IEnumerator EndTmeCD()
     {
         yield return new WaitForSecondsRealtime(1);
-        foreach (KeyValuePair<int, long> entry in mMOEndTime)
-        {
-            mMOEndTime[entry.Key] -= 1000;
-        }
-        foreach (KeyValuePair<int, long> entry in mSOEndTime)
-        {
-            mSOEndTime[entry.Key] -= 1000;
-        }
         UpdateDescrption();
     }
 
@@ -199,5 +192,10 @@ public class UI_MainQuest : MonoBehaviour
     public void OnClickHyperlink(HyperText hyperText, HyperText.LinkInfo linkInfo)
     {
         mQuestController.ProcessObjectiveHyperLink(linkInfo.Name, mQuestData.QuestId);
+    }
+
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
     }
 }

@@ -55,9 +55,8 @@ namespace Zealot.Server.Rules
             {
                 return success;
             }
-
-            long current = player.GetSynchronizedTime();
-            if (objectiveData.EndTime != 0 && objectiveData.EndTime <= current)
+            
+            if (objectiveData.EndTime != DateTime.MinValue && objectiveData.EndTime <= DateTime.Now)
             {
                 return success;
             }
@@ -230,13 +229,13 @@ namespace Zealot.Server.Rules
         }
         #endregion
 
-        public static CurrentQuestData StartNextMainObjective(CurrentQuestData questData, long currenttime, Player player)
+        public static CurrentQuestData StartNextMainObjective(CurrentQuestData questData, Player player)
         {
             NextObjectiveData objectiveData = QuestRepo.GetNextObjectiveId(questData.QuestId, questData.GroupdId, questData.MainObjective.SequenceNum);
             if (objectiveData.ReturnCode == "End")
             {
                 questData.MainObjective.ProgressCount = new List<int>();
-                questData.MainObjective.CompleteTime = new List<long>();
+                questData.MainObjective.CompleteTime = new List<string>();
                 questData.MainObjective.RequirementProgress = new Dictionary<int, int>();
                 if (QuestRepo.CheckQuestEventByQuestId(questData.QuestId, true))
                 {
@@ -267,7 +266,7 @@ namespace Zealot.Server.Rules
                         questData.MainObjective.RequirementProgress.Add(requirement.Key, requirement.Value);
                     }
                 }
-                questData.MainObjective.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveList, currenttime);
+                questData.MainObjective.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveList);
                 bool eventresult = false;
                 foreach (int objectiveid in objectiveData.ObjectiveList)
                 {
@@ -299,7 +298,7 @@ namespace Zealot.Server.Rules
                                 subobjective.RequirementProgress.Add(requirement.Key, requirement.Value);
                             }
                         }
-                        subobjective.CompleteTime = GetObjectiveEndTime(subobjective.ObjectiveIds, currenttime);
+                        subobjective.CompleteTime = GetObjectiveEndTime(subobjective.ObjectiveIds);
                         questData.SubObjective.Add(id, subobjective);
                     }
                 }
@@ -307,7 +306,7 @@ namespace Zealot.Server.Rules
             return questData;
         }
 
-        public static int StartNextSubObjective(int mainid, ref CurrentObjectiveData objectiveData, long currenttime, Player player)
+        public static int StartNextSubObjective(int mainid, ref CurrentObjectiveData objectiveData, Player player)
         {
             List<int> objectiveids = objectiveData.ObjectiveIds;
             NextObjectiveData newobjectiveData = QuestRepo.GetNextSubObjectiveId(mainid, objectiveData.SequenceNum);
@@ -315,7 +314,7 @@ namespace Zealot.Server.Rules
             {
                 objectiveData.ObjectiveIds = new List<int>();
                 objectiveData.ProgressCount = new List<int>();
-                objectiveData.CompleteTime = new List<long>();
+                objectiveData.CompleteTime = new List<string>();
                 return 2;
             }
             else if (newobjectiveData.ReturnCode == "Error")
@@ -337,7 +336,7 @@ namespace Zealot.Server.Rules
                         objectiveData.RequirementProgress.Add(requirement.Key, requirement.Value);
                     }
                 }
-                objectiveData.CompleteTime = GetObjectiveEndTime(newobjectiveData.ObjectiveList, currenttime);
+                objectiveData.CompleteTime = GetObjectiveEndTime(newobjectiveData.ObjectiveList);
                 bool eventresult = false;
                 foreach (int objectiveid in newobjectiveData.ObjectiveList)
                 {
@@ -409,7 +408,85 @@ namespace Zealot.Server.Rules
             return canAccept;
         }
 
-        public static CurrentQuestData StartNewQuest(int questid, int group, long currentime, Player player)
+        public static CurrentQuestData StartNewQuestFromItem(int questid, int objectiveid, Player player)
+        {
+            QuestJson questJson = QuestRepo.GetQuestByID(questid);
+            if (!questJson.isopen)
+            {
+                return null;
+            }
+
+            int group = -1;
+            int seqnum = -1;
+            bool result = QuestRepo.GetQuestGroupByObjectiveId(questid, objectiveid, out group, out seqnum);
+
+            if (result)
+            {
+                CurrentQuestData questData = new CurrentQuestData(questJson.type);
+                questData.QuestId = questJson.questid;
+
+                questData.MainObjective = new CurrentObjectiveData();
+                questData.GroupdId = group;
+                questData.MainObjective.ObjectiveIds = new List<int>() { objectiveid };
+                questData.MainObjective.SequenceNum = seqnum;
+                questData.MainObjective.ProgressCount = new List<int>(questData.MainObjective.ObjectiveIds.Count);
+                questData.MainObjective.RequirementProgress = new Dictionary<int, int>();
+
+                for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
+                {
+                    questData.MainObjective.ProgressCount.Add(0);
+                    Dictionary<int, int> requirements = GenerateRequirementProgress(questData.MainObjective.ObjectiveIds[i], player);
+                    foreach (KeyValuePair<int, int> requirement in requirements)
+                    {
+                        questData.MainObjective.RequirementProgress.Add(requirement.Key, requirement.Value);
+                    }
+                }
+
+                questData.MainObjective.CompleteTime = GetObjectiveEndTime(questData.MainObjective.ObjectiveIds);
+                if (QuestRepo.CheckQuestEventByQuestId(questid, false))
+                {
+                    questData.Status = (byte)QuestStatus.NewQuestWithEvent;
+                }
+                else
+                {
+                    questData.Status = (byte)QuestStatus.NewQuest;
+                }
+
+                questData.SubObjective = new Dictionary<int, CurrentObjectiveData>();
+                for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
+                {
+                    int id = questData.MainObjective.ObjectiveIds[i];
+                    CurrentObjectiveData objectiveData = new CurrentObjectiveData();
+                    objectiveData.ObjectiveIds = QuestRepo.GetSubObjectiveId(id, 0);
+                    if (objectiveData.ObjectiveIds != null && objectiveData.ObjectiveIds.Count > 0)
+                    {
+                        objectiveData.SequenceNum = 0;
+                        objectiveData.ProgressCount = new List<int>(objectiveData.ObjectiveIds.Count);
+                        objectiveData.RequirementProgress = new Dictionary<int, int>();
+                        for (int j = 0; j < objectiveData.ObjectiveIds.Count; j++)
+                        {
+                            objectiveData.ProgressCount.Add(0);
+                            Dictionary<int, int> requirements = GenerateRequirementProgress(objectiveData.ObjectiveIds[i], player);
+                            foreach (KeyValuePair<int, int> requirement in requirements)
+                            {
+                                if (!objectiveData.RequirementProgress.ContainsKey(requirement.Key))
+                                {
+                                    objectiveData.RequirementProgress.Add(requirement.Key, requirement.Value);
+                                }
+                            }
+                        }
+                        objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds);
+                        questData.SubObjective.Add(id, objectiveData);
+                    }
+                }
+                questData.SubStatus = (byte)QuestStatus.Non;
+                return questData;
+            }
+
+            return null;
+        }
+
+        public static CurrentQuestData StartNewQuest(int questid, int group, Player player)
         {
             QuestJson questJson = QuestRepo.GetQuestByID(questid);
             if (!questJson.isopen)
@@ -435,7 +512,7 @@ namespace Zealot.Server.Rules
                     questData.MainObjective.RequirementProgress.Add(requirement.Key, requirement.Value);
                 }
             }
-            questData.MainObjective.CompleteTime = GetObjectiveEndTime(questData.MainObjective.ObjectiveIds, currentime);
+            questData.MainObjective.CompleteTime = GetObjectiveEndTime(questData.MainObjective.ObjectiveIds);
             if (QuestRepo.CheckQuestEventByQuestId(questid, false))
             {
                 questData.Status = (byte)QuestStatus.NewQuestWithEvent;
@@ -468,7 +545,7 @@ namespace Zealot.Server.Rules
                             }
                         }
                     }
-                    objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds, currentime);
+                    objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds);
                     questData.SubObjective.Add(id, objectiveData);
                 }
             }
@@ -683,25 +760,26 @@ namespace Zealot.Server.Rules
             return 0;
         }
 
-        private static List<long> GetObjectiveEndTime(List<int> objectiveid, long currenttime)
+        private static List<string> GetObjectiveEndTime(List<int> objectivelist)
         {
-            List<long> endtime = new List<long>(objectiveid.Count);
-            for (int i = 0; i < objectiveid.Count; i++)
+            List<string> endtime = new List<string>();
+            foreach (int objectiveid in objectivelist)
             {
-                long time = QuestRepo.GetObjectiveEndTime(objectiveid[i]);
-                if (time > 0)
+                int second = QuestRepo.GetObjectiveEndTime(objectiveid);
+                if (second > 0)
                 {
-                    endtime.Add(currenttime + time);
+                    DateTime completetime = DateTime.Now.AddSeconds(second);
+                    endtime.Add(string.Format("{0:yyyy}.{0:MM}.{0:dd}+{0:HH}:{0:mm}:{0:ss}", completetime));
                 }
                 else
                 {
-                    endtime.Add(0);
+                    endtime.Add("null");
                 }
             }
             return endtime;
         }
 
-        public static bool RollBackQuestObjective(Player player, long currentime, CurrentQuestData questData, ref CurrentQuestData newQuestData)
+        public static bool RollBackQuestObjective(Player player, CurrentQuestData questData, ref CurrentQuestData newQuestData)
         {
             int mainObjectiveId = -1;
             foreach(int objid in questData.MainObjective.ObjectiveIds)
@@ -729,7 +807,7 @@ namespace Zealot.Server.Rules
                             newQuestData.MainObjective.RequirementProgress[requirement.Key] = requirement.Value;
                         }
                     }
-                    newQuestData.MainObjective.CompleteTime = GetObjectiveEndTime(questData.MainObjective.ObjectiveIds, currentime);
+                    newQuestData.MainObjective.CompleteTime = GetObjectiveEndTime(questData.MainObjective.ObjectiveIds);
 
                     int seqnum = QuestRepo.GetSubObjectiveSeqNum(objectiveJson.para1);
                     newQuestData.SubObjective = new Dictionary<int, CurrentObjectiveData>();
@@ -752,7 +830,7 @@ namespace Zealot.Server.Rules
                                     objectiveData.RequirementProgress.Add(requirement.Key, requirement.Value);
                                 }
                             }
-                            objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds, currentime);
+                            objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds);
                             newQuestData.SubObjective.Add(id, objectiveData);
                         }
                     }

@@ -1241,6 +1241,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         if (weeklyUse > -1)
             mWeeklyUseTV.Value = string.Format(localstr, weeklyUse, mItem.JsonObject.weeklyuselimit);
     }
+
+    #region Compare Equipment
     private void InitCompareEquipment(IInventoryItem item, bool isEquippedItem)
     {
         //Do nothing if target item is not equipment
@@ -1278,13 +1280,11 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         CompareEquipment(eq1, eqX);
         CompareEquipment(eq2, eqX);
 
-        //TODO: Need to implement ring or accessory double comparison
-
         mCompareObject.SetActive(true);
     }
-    private void RetrieveSideEffect(string seStr, out Dictionary<int, SideEffectJson> seDic)
+    private void RetrieveSideEffect(string seStr, out Dictionary<int, int> seDic)
     {
-        seDic = new Dictionary<int, SideEffectJson>();
+        seDic = new Dictionary<int, int>();
 
         string[] baseseGrpLst = seStr.Split(';');
         foreach (string s in baseseGrpLst)
@@ -1301,81 +1301,92 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             if (sej == null)
                 continue;
 
-            seDic.Add(x, sej);
+            //If new side effect, add to dictionary
+            //If old side effect, increase sideeffect intensity
+            if (!seDic.ContainsKey(x))
+                seDic.Add(x, 1);
+            else
+                seDic[x] += 1;
         }
     }
-    private void CompareEquipment(Equipment eq, Equipment eqX)
+    private void CompareEquipment(Equipment equippedEQ, Equipment viewEQ)
     {
-        if (eq == null || eqX == null)
+        if (equippedEQ == null || viewEQ == null)
             return;
 
         Text t = null;
         CreateText(out t);
         t.gameObject.transform.SetParent(mCompareParent.transform, false);
-        t.text = eq.GetEquipmentName();
+        t.text = equippedEQ.GetEquipmentName();
 
         //find similarity and differences of their base side effect
-        Dictionary<int, SideEffectJson> eq1SeDic;
-        Dictionary<int, SideEffectJson> eqXSeDic;
-        RetrieveSideEffect(eq.EquipmentJson.basese, out eq1SeDic);
-        RetrieveSideEffect(eqX.EquipmentJson.basese, out eqXSeDic);
-        HashSet<int> commonKeys = new HashSet<int>(eq1SeDic.Keys);
+        Dictionary<int, int> eqSeDic;
+        Dictionary<int, int> eqXSeDic;
+        RetrieveSideEffect(equippedEQ.EquipmentJson.basese, out eqSeDic);
+        RetrieveSideEffect(viewEQ.EquipmentJson.basese, out eqXSeDic);
+        HashSet<int> commonKeys = new HashSet<int>(eqSeDic.Keys);
         commonKeys.IntersectWith(eqXSeDic.Keys);
-        HashSet<int> uncommonKeys = new HashSet<int>(eq1SeDic.Keys);
+        HashSet<int> uncommonKeys = new HashSet<int>(eqSeDic.Keys);
         uncommonKeys.UnionWith(eqXSeDic.Keys);
         uncommonKeys.ExceptWith(commonKeys);
 
         List<int> commonKeysLst = commonKeys.ToList();
-        List<SideEffectJson> uncommonEffLst = eq1SeDic.Where(x => uncommonKeys.Contains(x.Key))
+        //List<int> uncommonEffLst = eqSeDic.Where(x => uncommonKeys.Contains(x.Key))
+        //                                   .Concat(eqXSeDic.Where(y => uncommonKeys.Contains(y.Key)))
+        //                                   .Select(z => z.Value)
+        //                                   .ToList();
+        Dictionary<int, int> uncommonEffDic = eqSeDic.Where(x => uncommonKeys.Contains(x.Key))
                                               .Concat(eqXSeDic.Where(y => uncommonKeys.Contains(y.Key)))
-                                              .Select(z => z.Value)
-                                              .ToList();
+                                              .ToDictionary(x => x.Key, x => x.Value);
 
-        CompareEquipment_Common(commonKeysLst, eq1SeDic, eqXSeDic);
-        CompareEquipment_Uncommon(uncommonEffLst);
+        CompareEquipment_Common(commonKeysLst, eqSeDic, eqXSeDic);
+        CompareEquipment_Uncommon(uncommonEffDic);
 
         //Create a line for next equip
         Instantiate(mTTLinePrefab, mCompareParent.transform);
     }
-    private void CompareEquipment_Common(List<int> keysLst, Dictionary<int, SideEffectJson> effDic, Dictionary<int, SideEffectJson> eff2Dic)
+    private void CompareEquipment_Common(List<int> keysLst, Dictionary<int, int> equippedSeDic, Dictionary<int, int> viewSeDic)
     {
-        if (keysLst == null || effDic == null)
+        if (keysLst == null || equippedSeDic == null)
             return;
 
         for (int i = 0; i < keysLst.Count; ++i)
         {
             GameObject tcvpObj = Instantiate(mTTTextColonValuePrefab, mCompareParent.transform);
             UI_DialogItemDetail_TextValue tcvp = tcvpObj.GetComponent<UI_DialogItemDetail_TextValue>();
+            SideEffectJson effJson = SideEffectRepo.GetSideEffect(keysLst[i]);
 
-            //TODO: Add + - to values
-            tcvp.Identifier = effDic[keysLst[i]].description;
-            float nMin = eff2Dic[keysLst[i]].min - effDic[keysLst[i]].min;
-            float nMax = eff2Dic[keysLst[i]].max - effDic[keysLst[i]].max;
+            //Show difference between equipped item and viewed item stats
+            tcvp.Identifier = effJson.description;
+            float nMin = effJson.min * viewSeDic[keysLst[i]] - effJson.min * equippedSeDic[keysLst[i]];
+            float nMax = effJson.max * viewSeDic[keysLst[i]] - effJson.max * equippedSeDic[keysLst[i]];
             tcvp.Value = string.Format("{0} ~ {1}",
                                         nMin.ToString("+#####.###;-#####.###;0"),
                                         nMax.ToString("+#####.###;-#####.###;0"));
         }
     }
-    private void CompareEquipment_Uncommon(List<SideEffectJson> effLst)
+    private void CompareEquipment_Uncommon(Dictionary<int, int> effDic)
     {
-        if (effLst == null)
+        if (effDic == null)
             return;
 
-        for (int i = 0; i < effLst.Count; ++i)
+        foreach (var pair in effDic)
         {
             GameObject tcvpObj = Instantiate(mTTTextColonValuePrefab, mCompareParent.transform);
             UI_DialogItemDetail_TextValue tcvp = tcvpObj.GetComponent<UI_DialogItemDetail_TextValue>();
+            SideEffectJson effJson = SideEffectRepo.GetSideEffect(pair.Key);
 
-            //TODO: Add + - to values
-            tcvp.Identifier = effLst[i].description;
-            if (effLst[i].min == effLst[i].max)
-                tcvp.Value = effLst[i].min.ToString("+#####.###;-#####.###;0");
+            //Show side effect stats
+            tcvp.Identifier = effJson.description;
+            if (effJson.min == effJson.max)
+                tcvp.Value = (effJson.min * pair.Value).ToString("+#####.###;-#####.###;0");
             else
-                tcvp.Value = string.Format("{0} ~ {1}", 
-                                            effLst[i].min.ToString("+#####.###;-#####.###;0"),
-                                            effLst[i].max.ToString("+#####.###;-#####.###;0"));
+                tcvp.Value = string.Format("{0} ~ {1}",
+                                            (effJson.min * pair.Value).ToString("+#####.###;-#####.###;0"),
+                                            (effJson.max * pair.Value).ToString("+#####.###;-#####.###;0"));
         }
     }
+    #endregion
 
     #region Debug
     private void DebugShowInfo()

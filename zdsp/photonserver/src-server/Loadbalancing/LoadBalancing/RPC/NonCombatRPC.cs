@@ -1623,15 +1623,15 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventBuff)]
-        public void ApplyQuestEventBuff(int eventid, int questid, GameClientPeer peer)
+        public void ApplyQuestEventBuff(int eventid, GameClientPeer peer)
         {
-            peer.QuestController.ApplyEventSE(eventid, questid);
+            peer.QuestController.ApplyEventSE(eventid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventCompanion)]
-        public void ApplyQuestEventCompanion(int eventid, int questid, GameClientPeer peer)
+        public void ApplyQuestEventCompanion(int eventid, GameClientPeer peer)
         {
-            peer.QuestController.UpdateCompanion(eventid, questid);
+            peer.QuestController.UpdateCompanion(eventid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]

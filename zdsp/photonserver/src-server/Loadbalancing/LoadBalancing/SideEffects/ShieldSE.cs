@@ -13,8 +13,8 @@
         private int mDeductAmt = 0;
         private bool mUnLimited = false;
 
-        public ShieldSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public ShieldSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             
             mNeedCaster = false;

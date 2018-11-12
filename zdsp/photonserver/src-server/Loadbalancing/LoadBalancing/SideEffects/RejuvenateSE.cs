@@ -6,9 +6,11 @@
 
     public class RejuvenateSE : SideEffect
     {
-        private int mAmount; 
-        public RejuvenateSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        private int mAmount;
+        private delegate void ComputeFunction();
+        private ComputeFunction fComputeFunc;
+        public RejuvenateSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mAmount = 0;
             mNeedCaster = false;
@@ -73,6 +75,26 @@
             }
 
             mAmount = (int)( mAmount * (1 + mBonusPerc * 0.01f) + mBonusValue);
+        }
+
+        private void ComputeRecoverAmountHealing()
+        {
+            float intel = mTarget.CombatStats.GetField(FieldName.Intelligence) * 20;
+            float hp = mTarget.CombatStats.GetField(FieldName.HealingPoint) - mTarget.CombatStats.GetField(FieldName.HealingPointDebuff);
+            float he = mTarget.CombatStats.GetField(FieldName.HealingEffect) - mTarget.CombatStats.GetField(FieldName.HealingEffectDebuff);
+
+            mAmount = (int)((mSideeffectData.max + intel + hp) * (1 + he * 0.01f));
+            mAmount = (int)(mAmount * (1 + mBonusPerc * 0.01f) + mBonusValue);
+        }
+
+        private void ComputeRecoverAmountPotion()
+        {
+            if (mSideeffectData.isrelative)
+                mAmount = (int)(mSideeffectData.max * 0.01f * (int)mTarget.GetHealthMax());
+            else
+                mAmount = (int)(mSideeffectData.max);
+
+            mAmount = (int)(mAmount * (1 + mBonusPerc * 0.01f) + mBonusValue);
         }
 
         private void ApplyRecovery()

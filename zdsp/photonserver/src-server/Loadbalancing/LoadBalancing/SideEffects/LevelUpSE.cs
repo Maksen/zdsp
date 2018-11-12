@@ -9,8 +9,8 @@
 
     public class LevelUpSE : SideEffect
     {
-        public LevelUpSE(SideEffectJson sideeffectData)
-            : base(sideeffectData)
+        public LevelUpSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
+            : base(sideeffectData, origin, originID)
         {
             mNeedCaster = false;
         }

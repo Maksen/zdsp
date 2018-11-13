@@ -7,4 +7,5 @@ public enum SystemMsgType
     Hourglass = 2,
     PartyMessage = 3,
     EventNotification = 4,
+    Achievement = 5
 }

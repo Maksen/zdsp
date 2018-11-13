@@ -51,14 +51,23 @@ public class SystemMsgManager : MonoBehaviour
 
     public void ShowPartyMessage(string message, Action okCallback, Action timeOutCallback, float duration)
     {
-        if (sysMsgMap.ContainsKey(SystemMsgType.PartyMessage))
-            sysMsgMap[SystemMsgType.PartyMessage].GetComponent<UI_PartyMessage>().ShowPartyMessage(message, okCallback, timeOutCallback, duration);
+        SystemMsgComponent component;
+        if (sysMsgMap.TryGetValue(SystemMsgType.PartyMessage, out component))
+            component.GetComponent<UI_PartyMessage>().ShowPartyMessage(message, okCallback, timeOutCallback, duration);
     }
 
     public void ShowEventNotification(string message)
     {
-        if (sysMsgMap.ContainsKey(SystemMsgType.EventNotification))
-            sysMsgMap[SystemMsgType.EventNotification].GetComponent<UI_EventNotification>().ShowMessage(message);
+        SystemMsgComponent component;
+        if (sysMsgMap.TryGetValue(SystemMsgType.EventNotification, out component))
+            component.GetComponent<UI_EventNotification>().ShowMessage(message);
+    }
+
+    public void ShowAchievementMessage(string message)
+    {
+        SystemMsgComponent component;
+        if (sysMsgMap.TryGetValue(SystemMsgType.Achievement, out component))
+            component.GetComponent<UI_AchievementMessage>().ShowMessage(message);
     }
 
     private void OnDestroy()

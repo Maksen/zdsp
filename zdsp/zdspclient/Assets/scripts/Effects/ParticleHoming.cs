@@ -24,6 +24,8 @@ public class ParticleHoming : MonoBehaviour
     bool mHasTargetPos = false;
     bool mTargetSet = false;
     float mMinDistanceSqr = 1;
+    float mTargetOffset;
+    Quaternion mOriginalLocalRot;
 
     public void Init()
     {
@@ -34,6 +36,8 @@ public class ParticleHoming : MonoBehaviour
         if (bullet == null)
             return;
         mOriginalLocalPos = bullet.localPosition;
+        mOriginalLocalRot = bullet.localRotation;
+        mTargetOffset = bullet.childCount > 0 ? bullet.GetChild(0).localPosition.z : bullet.localPosition.z;
         SetTarget_Editor();
     }
 
@@ -44,6 +48,7 @@ public class ParticleHoming : MonoBehaviour
             return;
         float dt = Time.deltaTime;
         Vector3 _targetPos = GetTargetPos();
+
         if (mTimeLeft <= dt)
         {
             bullet.position = _targetPos;
@@ -60,14 +65,28 @@ public class ParticleHoming : MonoBehaviour
                 //bullet.gameObject.SetActive(false);
             }
             else
-                bullet.position += mDir * dt / mTimeLeft;
+            {
+                Vector3 desiredForward = mDir;
+                desiredForward.y = 0;
+                desiredForward.Normalize();
+
+                float t = dt / mTimeLeft;
+                bullet.forward = Vector3.Slerp(bullet.forward, desiredForward, t);
+                bullet.position += mDir * t;
+            }
         }
         mTimeLeft -= dt;
     }
 
     private Vector3 GetTargetPos()
     {
-        return mTargetEntity == null ? mTargetPos : mTargetEntity.Position;
+        return mTargetEntity == null ? LerpByDistanceFromB(bullet.position, mTargetPos, mTargetOffset) : LerpByDistanceFromB(bullet.position, mTargetEntity.Position, mTargetOffset);
+    }
+
+    private Vector3 LerpByDistanceFromB(Vector3 A, Vector3 B, float x)
+    {
+        Vector3 P = B - x * Vector3.Normalize(B - A);
+        return P;
     }
 
     public void SetTarget(Vector3? targetPos, Entity targetEntity)
@@ -107,6 +126,7 @@ public class ParticleHoming : MonoBehaviour
         if (bullet == null)
             return;
         bullet.localPosition = mOriginalLocalPos;
+        bullet.localRotation = mOriginalLocalRot;
         bullet.gameObject.SetActive(false);
         if (mTargetEntity == null && !mHasTargetPos)
             return;

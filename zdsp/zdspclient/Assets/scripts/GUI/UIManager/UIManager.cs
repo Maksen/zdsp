@@ -119,6 +119,12 @@ public static class UIManager
         if (SystemMsgManager != null)
             SystemMsgManager.ShowEventNotification(message);
     }
+
+    public static void ShowAchievementMessage(string message)
+    {
+        if (SystemMsgManager != null)
+            SystemMsgManager.ShowAchievementMessage(message);
+    }
     #endregion SystemMsgManager
 
     #region Open/Close windows and dialogs

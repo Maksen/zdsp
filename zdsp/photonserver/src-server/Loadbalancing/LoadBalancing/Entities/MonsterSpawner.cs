@@ -61,7 +61,7 @@ namespace Zealot.Server.Entities
             //    monster.SetAIBehaviour(new MonsterEscapeAIBehaviour(monster));
 
             if (mArchetype.broadcast)
-                GameApplication.Instance.BroadcastMessage(BroadcastMessageType.MonsterSpawn, string.Format("{0};{1}", mArchetype.id, mInstance.mCurrentLevelID));
+                GameApplication.Instance.BroadcastMessage(BroadcastMessageType.MonsterSpawn, string.Format("{0};{1}", mArchetype.id, mInstance.mCurrentLevelId));
 
             maChildren.Add(monster);
         }
@@ -112,7 +112,7 @@ namespace Zealot.Server.Entities
             if (mArchetype.broadcast)
             {
                 PlayerSynStats playerSynStats = (attacker as Player).PlayerSynStats;
-                string paramStr = string.Format("{0};{1};{2}", mArchetype.id, mInstance.mCurrentLevelID, attacker.Name);
+                string paramStr = string.Format("{0};{1};{2}", mArchetype.id, mInstance.mCurrentLevelId, attacker.Name);
                 GameApplication.Instance.BroadcastMessage(BroadcastMessageType.MonsterKilled, paramStr);
             }
         }

@@ -13,11 +13,15 @@
     </enum>
 
     <enum name="MonsterCampType">
-      <item key="Hostile" value="0"/>
-      <item key="Friendly" value="1"/>
-      <item key="Camp1" value="2"/>
-      <item key="Camp2" value="3"/>
-      <item key="Camp3" value="4"/>
+      <item key="Friendly" value="0"/>
+      <item key="Hostile1" value="1"/>
+      <item key="Hostile2" value="2"/>
+      <item key="Hostile3" value="3"/>
+      <item key="Hostile4" value="4"/>
+      <item key="Hostile5" value="5"/>
+      <item key="Hostile6" value="6"/>
+      <item key="Hostile7" value="7"/>
+      <item key="Hostile8" value="8"/>
     </enum>
       
     <enum name="BossType">
@@ -59,7 +63,7 @@
       <property name="race" type="Race" uitext="Monster Race"/>
       <property name="element" type="Element" uitext="Element"/>
       <property name="weakness" type="AttackStyle" uitext="AttackStyle Weakness"/>
-      <property name="camp" type="MonsterCampType" uitext="Camp"/>
+      <property name="camp" type="MonsterCampType" uitext="Camp" default="1"/>
       <property name="movespeed" type="float" uitext="Movement Speed" default="15.0"/>
       <property name="attackspeed" type="float" uitext="Attack Speed" default="1.0"/>
       <property name="basicattack" type ="Skill" uitext="Basic Attack Skill" display="name"/>
@@ -112,6 +116,15 @@
       <property name="npcopentime" type="string" uitext="NPC Open Time"/>
       <property name="npcclosetime" type="string" uitext="NPC Close Time"/>
       <property name="interacttype" type="StaticNPCInteractType" uitext="NPC Interact Type"/>   
+    </element>
+
+    <element name="StaticGuide" useexcel="true" collectionkey="archetype">
+      <property name="archetype" type="string" uitext="Archetype" unique="true"/>
+      <property name="localizedname" type="localizedstring" uitext="Name(Localized)"/>
+      <property name="remark" type="string" uitext="Remarks(not exported)" default="" noexport="true"/>
+      <property name="questid" type="string" uitext="Quest Id"/>
+      <property name="activeonstartup" type="bool" uitext="Active On Startup" default="true"/>
+      <property name="interacttype" type="StaticNPCInteractType" uitext="NPC Interact Type" value="StaticNPCInteractType.Auto" default="3"/>
     </element>
       
     <element name="RealmNPCGroup" useexcel="true" collectionkey="name">

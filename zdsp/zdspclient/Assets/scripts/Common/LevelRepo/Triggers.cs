@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.ComponentModel;
 using UnityEngine;
 
@@ -71,25 +72,20 @@ namespace Zealot.Entities
 
         public override string GetServerClassName() { return "RandomTrigger"; }
     }
-
+    
     public class InteractiveTriggerJson : ServerEntityWithEventJson
     {
-        [DefaultValue(true)]
-        public bool activeOnStartup { get; set; }
-        [DefaultValue("")]
         public string npcArchetype { get; set; }
-        [DefaultValue("")]
         public string parentPath { get; set; }
-        public Vector3 forward { get; set; }
         public int interactiveTime { get; set; }
-        public bool interrupt { get; set; }
         public int counter { get; set; }
         public int keyId { get; set; }
-        public bool isArea { get; set; }
-        [DefaultValue(1)]
         public int min { get; set; }
-        [DefaultValue(1)]
         public int max { get; set; }
+        public bool interrupt { get; set; }
+        public bool isArea { get; set; }
+        public bool isArchetypeNpc { get; set; }
+        public bool npcActiveOnStartup { get; set; }
 
         public override string GetServerClassName() { return "InteractiveTrigger"; }
     }

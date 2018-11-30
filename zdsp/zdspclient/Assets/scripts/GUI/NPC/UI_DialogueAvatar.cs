@@ -9,9 +9,9 @@ using Zealot.Repository;
 public class UI_DialogueAvatar : MonoBehaviour
 {
     [SerializeField]
-    Transform AvatarContent = null;
+    Model_3DAvatar playerAvatar = null;
     [SerializeField]
-    Model_3DAvatar PlayerAvatar = null;
+    Transform npcAvatarParent = null;
     [SerializeField]
     Text Name = null;
     [SerializeField]
@@ -41,8 +41,8 @@ public class UI_DialogueAvatar : MonoBehaviour
         if (player == null)
             return;
 
-        PlayerAvatar.Change(player.mEquipmentInvData, player.GetJobSect(), player.mGender, null);
-        mPlayer = PlayerAvatar.GetOutfitModel();
+        playerAvatar.Change(player.mEquipmentInvData, player.GetJobSect(), player.mGender, null);
+        mPlayer = playerAvatar.OutfitModel;
         mPlayer.SetActive(false);
     }
 
@@ -76,12 +76,9 @@ public class UI_DialogueAvatar : MonoBehaviour
             if (mActivatedNpc == npcId)
             {
                 mAvatar = mNpcList[mActivatedNpc];
-                if (npcJson != null)
-                {
-                    NameObj.SetActive(!string.IsNullOrEmpty(npcJson.localizedname));
-                    Name.text = npcJson.localizedname;
-                }
-                SetAvatar(mActivatedNpc);
+                NameObj.SetActive(!string.IsNullOrEmpty(npcJson.localizedname));
+                Name.text = npcJson.localizedname;
+                SetAvatar(npcJson);
             }
         }
     }
@@ -95,6 +92,7 @@ public class UI_DialogueAvatar : MonoBehaviour
             mAvatar.SetActive(false);
         }
 
+        StaticNPCJson npcJson = null;
         if (npcId == 0)
         {
             mAvatar = mPlayer;
@@ -106,38 +104,40 @@ public class UI_DialogueAvatar : MonoBehaviour
             if (mNpcList.ContainsKey(npcId))
                 mAvatar = mNpcList[npcId];
 
-            StaticNPCJson npcJson = StaticNPCRepo.GetNPCById(npcId);
-            if (npcJson != null)
-            {
-                NameObj.SetActive(!string.IsNullOrEmpty(npcJson.localizedname));
-                Name.text = npcJson.localizedname;
-            }
+            npcJson = StaticNPCRepo.GetNPCById(npcId);
+            NameObj.SetActive(!string.IsNullOrEmpty(npcJson.localizedname));
+            Name.text = npcJson.localizedname;
         }
 
         if (mAvatar != null)
-        {
-            SetAvatar(npcId);
-        }
+            SetAvatar(npcJson);
 
         Message.text = CheckReplacementText(message);
     }
 
-    private void SetAvatar(int npcId)
+    private void SetAvatar(StaticNPCJson npcJson)
     {
         mAvatar.SetActive(true);
-        ClientUtils.SetLayerRecursively(mAvatar, AvatarContent.gameObject.layer);
-        mAvatar.transform.SetParent(AvatarContent, false);
+        ClientUtils.SetLayerRecursively(mAvatar, playerAvatar.gameObject.layer);
+
         Animator animator = mAvatar.GetComponent<Animator>();
-        if (animator != null)
+        if (npcJson != null)
         {
-            if (npcId != 0)
+            Transform avatarTransform = mAvatar.transform;
+            avatarTransform.SetParent(npcAvatarParent, false);
+            float[] camera = StaticNPCRepo.ParseCameraPosInTalk(npcJson.cameraposintalk);
+            Vector3 pos = avatarTransform.parent.localPosition;
+            avatarTransform.parent.localPosition = new Vector3(camera[0], camera[1], pos.z);
+            avatarTransform.localRotation = Quaternion.Euler(new Vector3(0, camera[2], 0));
+            avatarTransform.localScale = new Vector3(camera[3], camera[3], camera[3]);
+            if (animator != null)
                 animator.PlayFromStart("standby");
-            else
-            {
-                Equipment weapon = GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Weapon);
-                PartsType weaponType = (weapon != null) ? weapon.EquipmentJson.partstype : PartsType.Blade;
-                animator.PlayFromStart(ClientUtils.GetStandbyAnimationByWeaponType(weaponType));
-            }
+        }
+        else if (animator != null) // Player avatar standby
+        {
+            Equipment weapon = GameInfo.gLocalPlayer.mEquipmentInvData.GetEquipmentBySlotId((int)EquipmentSlot.Weapon);
+            PartsType weaponType = (weapon != null) ? weapon.EquipmentJson.partstype : PartsType.Blade;
+            animator.PlayFromStart(ClientUtils.GetStandbyAnimationByWeaponType(weaponType));
         }
     }
 
@@ -155,7 +155,7 @@ public class UI_DialogueAvatar : MonoBehaviour
     public void DestroyModel()
     {
         if (mPlayer != null)
-            PlayerAvatar.Cleanup();
+            playerAvatar.Cleanup();
 
         if (mNpcList != null)
         {

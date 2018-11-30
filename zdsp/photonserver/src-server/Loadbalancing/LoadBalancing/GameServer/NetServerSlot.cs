@@ -201,6 +201,11 @@ namespace Photon.LoadBalancing.GameServer
         protected bool AddSpawnedObject(BaseNetEntity bne)
         {
             int pid = bne.GetPersistentID();
+            if(pid ==1|| pid == 2 || pid == 3)
+            {
+
+            }
+
             if (!mSpawnedObjects.ContainsKey(pid)) //if not spawned for this slot yet
             {
                 bne.SpawnAtClient(mPeer);
@@ -571,6 +576,7 @@ namespace Photon.LoadBalancing.GameServer
                         {
                             ActionCommand actionCmd = ne.GetActionCmd();
                             si.actionCmd = actionCmd;
+                            System.Diagnostics.Debug.Print(actionCmd.GetActionType().ToString());
                         }
                         si.ComputePriority();
                         if (si.priority > 0)

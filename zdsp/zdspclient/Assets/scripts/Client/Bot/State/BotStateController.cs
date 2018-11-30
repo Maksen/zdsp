@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-
-
-namespace Zealot.Bot
+﻿namespace Zealot.Bot
 {
     public class BotStateController
     {
@@ -22,36 +17,37 @@ namespace Zealot.Bot
         #endregion
 
         private BotStateMachine mBotStateMachine = null;
+        private int mQuestID;
+        private int mTargetID;
 
 
         private BotStateController()
         {
-            Debug.Log("Bot state controller init!!");
             mBotStateMachine = BotStateMachine.Instance;
-            GoToState(BotStateType.Idle);
+            Idle();
         }
 
         public void Start()
         {
-            GoToState(BotStateType.AutoAttack);
+            AutoAttack();
         }
 
         public void Stop()
         {
-            GoToState(BotStateType.Idle);
+            Idle();
         }
 
         public void Interrupt()
         {
-            GoToState(BotStateType.Idle);
+            Idle();
         }
 
         public void Resume()
         {
             if (GameSettings.AutoBotEnabled)
-                GoToState(BotStateType.AutoAttack);
+                AutoAttack();
             else
-                GoToState(BotStateType.Idle);
+                Idle();
         }
 
         public void Update(long dt)
@@ -59,13 +55,40 @@ namespace Zealot.Bot
             mBotStateMachine.OnUpdate(dt);
         }
 
+        public void Combat()
+        {
+            if (GameSettings.AutoBotEnabled)
+            {
+                if (GetCurrentState() != BotStateType.CombatQuest)
+                    AutoAttack();
+            }
+        }
+
+        #region States
+        public void Idle()
+        {
+            GoToState(BotStateType.Idle);
+        }
+
+        public void AutoAttack()
+        {
+            GoToState(BotStateType.AutoAttack);
+        }
+
         public void Quest()
         {
             GoToState(BotStateType.Quest);
         }
 
-        public void CombatQuest()
+        public void CombatQuest(int questID, int targetID)
         {
+            if (!GameSettings.AutoBotEnabled)
+                GameInfo.gLocalPlayer.Bot.StartBot();
+
+            mQuestID = questID;
+            mTargetID = targetID;
+
+            QueryContext.Instance.GetQueryData().SetTargetID(targetID);
             GoToState(BotStateType.CombatQuest);
         }
 
@@ -87,6 +110,20 @@ namespace Zealot.Bot
         private void GoToPrevState()
         {
             mBotStateMachine.GoToPrevState();
+        }
+
+        private BotStateType GetCurrentState()
+        {
+            string currentStateName = mBotStateMachine.GetCurrentStateName();
+            return mBotStateMachine.ConvertStateNameToType(currentStateName);
+        }
+        #endregion
+
+        public bool IsCombatQuestComplete()
+        {
+            if (GameInfo.gLocalPlayer.QuestController.GetObjectiveIdByTargetId(mQuestID, mTargetID) == -1)
+                return true;
+            return false;
         }
     }
 }

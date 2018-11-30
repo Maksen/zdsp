@@ -137,7 +137,6 @@ namespace Zealot.Common.Entities
         public virtual void OnRemove()
         {
         }
-
     }
 
     public interface IRelevanceEntity

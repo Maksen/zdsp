@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Zealot.Common;
 
 namespace Zealot.Bot
 {
-    public class BotStateMachine : StateMachine
+    public class BotStateMachine
     {
         #region Singleton
         private static BotStateMachine instance = null;
@@ -20,18 +17,10 @@ namespace Zealot.Bot
             }
         }
         #endregion
-
-        // State
-        private IdleState mIdleState = null;
-        private AutoAttackState mAutoAttackState = null;
-        private QuestState mQuestState = null;
-        private CombatQuestState mCombatQuestState = null;
-        private NonCombatQuestState mNonCombatQuestState = null;
-        private CutsceneState mCutsceneState = null;
-        //private RealmState mRealmState = null;
-        //private PartyState mPartyState = null;
-
+        
         private string mPrevStateName = "";
+        private Dictionary<string, BotState> states;
+        private BotState currentState;
 
 
         private BotStateMachine()
@@ -41,54 +30,52 @@ namespace Zealot.Bot
 
         private void Initialize()
         {
-            // Create instance
-            mIdleState = new IdleState();
-            mAutoAttackState = new AutoAttackState();
-            mQuestState = new QuestState();
-            mCombatQuestState = new CombatQuestState();
-            mNonCombatQuestState = new NonCombatQuestState();
-            mCutsceneState = new CutsceneState();
-            //mRealmState = new RealmState();
-            //mPartyState = new PartyState();
+            states = new Dictionary<string, BotState>();
 
-            // Add state
-            AddState(mIdleState.State.ToString(), mIdleState.StateBegin, mIdleState.StateEnd);
-            AddState(mAutoAttackState.State.ToString(), mAutoAttackState.StateBegin, mAutoAttackState.StateEnd, mAutoAttackState.StateUpdate);
-            AddState(mQuestState.State.ToString(), mQuestState.StateBegin, mQuestState.StateEnd);
-            AddState(mCombatQuestState.State.ToString(), mCombatQuestState.StateBegin, mCombatQuestState.StateEnd);
-            AddState(mNonCombatQuestState.State.ToString(), mNonCombatQuestState.StateBegin, mNonCombatQuestState.StateEnd);
-            AddState(mCutsceneState.State.ToString(), mCutsceneState.StateBegin, mCutsceneState.StateEnd);
-            //AddState(mRealmState.State.ToString(), mRealmState.StateBegin, mRealmState.StateEnd);
-            //AddState(mPartyState.State.ToString(), mPartyState.StateBegin, mPartyState.StateEnd);
+            AddState<IdleState>();
+            AddState<AutoAttackState>();
+            AddState<QuestState>();
+            AddState<CombatQuestState>();
+            AddState<NonCombatQuestState>();
+            AddState<CutsceneState>();
+            //AddState<PartyState>();
         }
 
-        public override void OnPreLeaveState()
+        protected virtual void AddState<T>() where T : BotState
         {
-            mPrevStateName = currentState.Name;
+            T state = (T)Activator.CreateInstance(typeof(T));
+            states.Add(state.StateType.ToString(), state);
         }
 
-        public override void GotoState(string stateName)
+        public virtual void OnUpdate(long dt)
         {
-            string prevStateName = "undefined";
+            if (currentState != null)
+                currentState.StateUpdate(dt);
+        }
+
+        protected virtual void OnPreLeaveState()
+        {
+            mPrevStateName = currentState.StateType.ToString();
+        }
+
+        public virtual void GotoState(string stateName)
+        {
             if (currentState == null)
             {
-                currentState = states[stateName];
-                currentState.OnEnterStateDel(prevStateName);
-
+                EnterNewState(stateName);
                 return;
             }
 
-            if (stateName == currentState.Name)
+            if (IsSameAsCurrentState(stateName))
                 return;
 
-            OnPreLeaveState();
+            LeaveState();
+            EnterNewState(stateName);
+        }
 
-            prevStateName = currentState.Name;
-            if (currentState.OnLeaveStateDel != null)
-                currentState.OnLeaveStateDel();
-
-            currentState = states[stateName];
-            currentState.OnEnterStateDel(prevStateName);
+        public string GetCurrentStateName()
+        {
+            return currentState.StateType.ToString();
         }
 
         public void GoToPrevState()
@@ -97,10 +84,27 @@ namespace Zealot.Bot
                 GotoState(mPrevStateName);
         }
 
-        private BotStateType ConvertStateNameToType(string stateName)
+        public BotStateType ConvertStateNameToType(string stateName)
         {
-            BotStateType botStateType = (BotStateType)Enum.Parse(typeof(BotStateType), stateName);
+            BotStateType botStateType = (BotStateType)Enum.Parse(typeof(BotStateType), stateName, true);
             return botStateType;
+        }
+
+        private bool IsSameAsCurrentState(string stateName)
+        {
+            return (stateName == currentState.StateType.ToString());
+        }
+
+        private void EnterNewState(string stateName)
+        {
+            currentState = states[stateName];
+            currentState.StateBegin();
+        }
+
+        private void LeaveState()
+        {
+            OnPreLeaveState();
+            currentState.StateEnd();
         }
     }
 }

@@ -12,7 +12,7 @@ public class UI_Hero_TotalBuffPanel : MonoBehaviour
     [SerializeField] GameObject dataPrefab;
     [SerializeField] ScrollRect scrollRect;
 
-    private Dictionary<EffectType, ValuePair<float, float>> buffMap = new Dictionary<EffectType, ValuePair<float, float>>();
+    private Dictionary<EffectType, ValuePair<float, float>> buffsMap = new Dictionary<EffectType, ValuePair<float, float>>();
 
     public void Init()
     {
@@ -28,33 +28,12 @@ public class UI_Hero_TotalBuffPanel : MonoBehaviour
             {
                 foreach (SideEffectJson se in highestLevelData.sideeffects.Values)
                 {
-                    AddToBuffMap(se);
+                    SideEffectUtils.AddToBuffDict(buffsMap, se);
                 }
             }
         }
 
         PopulateList();
-    }
-
-    private void AddToBuffMap(SideEffectJson se)
-    {
-        if (se == null)
-            return;
-
-        if (buffMap.ContainsKey(se.effecttype))
-        {
-            if (se.isrelative)
-                buffMap[se.effecttype].Item2 += se.max;
-            else
-                buffMap[se.effecttype].Item1 += se.max;
-        }
-        else
-        {
-            if (se.isrelative)
-                buffMap.Add(se.effecttype, new ValuePair<float, float>(0, se.max));
-            else
-                buffMap.Add(se.effecttype, new ValuePair<float, float>(se.max, 0));
-        }
     }
 
     private void PopulateList()
@@ -67,7 +46,7 @@ public class UI_Hero_TotalBuffPanel : MonoBehaviour
             {
                 EffectType effectType = currentGrp[j];
                 ValuePair<float, float> pair;
-                if (buffMap.TryGetValue(effectType, out pair))
+                if (buffsMap.TryGetValue(effectType, out pair))
                 {
                     if (pair.Item1 > 0)
                     {
@@ -89,7 +68,7 @@ public class UI_Hero_TotalBuffPanel : MonoBehaviour
 
     public void Clear()
     {
-        buffMap.Clear();
+        buffsMap.Clear();
         ClientUtils.DestroyChildren(dataParent);
         scrollRect.verticalNormalizedPosition = 1f;
     }

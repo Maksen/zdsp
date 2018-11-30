@@ -38,16 +38,14 @@ namespace Zealot.Bot
         }
 
         public static readonly float ATTACK_RANGE = 3.0f;
-        private static readonly long BotUpdateFreq = 250;//update every 100 msec
         public static readonly float MaxQueryRadius = 12.0f; //should be < selectedentity removal radius  , in server logic, 10 is the reverant query dist, 20 is the dist only update action and snapshot
 
-        private HUD_Skills mHUDSkills;
-        private PlayerGhost mLocalPlayer;
+        private HUD_Skills mHUDSkills = null;
+        private PlayerGhost mLocalPlayer = null;
         private BotStateController mBotStateController = null;
         public Vector3 CurrentScreenCenterPos;
-
         private bool mEnabled;
-        public bool Enabled { get { return mEnabled; } }
+
 
         public BotController(PlayerGhost playerGhost)
         {
@@ -60,6 +58,9 @@ namespace Zealot.Bot
 
         public void StartBot()
         {
+            if (mEnabled)
+                return;
+
             mEnabled = true;
             GameSettings.AutoBotEnabled = true;
             mHUDSkills.OnBotStart();
@@ -76,6 +77,14 @@ namespace Zealot.Bot
             mHUDSkills.OnBotStop();
             mSeekingPosition = Vector3.zero;
             mBotStateController.Stop();
+        }
+
+        public void Update(long deltaTime)
+        {
+            if (!mEnabled)
+                return;
+
+            mBotStateController.Update(deltaTime);
         }
 
         private Vector3 mSeekingPosition = Vector3.zero;
@@ -117,7 +126,6 @@ namespace Zealot.Bot
         /// this is for cross map pathfinding in the world map.  it is called when a world map is loaded. 
         /// not supposed to be called from Realm. 
         /// the path router info is saved in the  TheDijkstra.LastRouterByPortal
-        /// 
         /// </summary>
         public void SeekingWithRouter()
         {
@@ -129,7 +137,6 @@ namespace Zealot.Bot
             }
             else if (IsNotTheLastLevel())
             {
-                RemoveNextLevel(levelname);
                 MoveToPortal(levelname);
             }
         }
@@ -147,6 +154,7 @@ namespace Zealot.Bot
         private void MoveToPortal(string levelName)
         {
             string str = TheDijkstra.LastRouterByPortal[levelName];// Disctionary<levelname, portalname>
+            RemoveNextLevel(levelName);
             PortalEntryData portalEntryData = PortalInfos.mEntries[str];
             if (portalEntryData != null)
             {
@@ -178,29 +186,13 @@ namespace Zealot.Bot
                     PartyFollowTarget.Resume(true);
                     break;
                 default:
-                    //mLocalPlayer.PathFindToTarget(DestMapPos, -1, 0, false, false, null);
+                    mLocalPlayer.PathFindToTarget(DestMapPos, -1, 0, false, false, null);
                     break;
             }
 
             ClearRouter(); //Reset the Router info
         }
         #endregion
-
-        public void Update(long deltaTime)
-        {
-            if (!mEnabled)
-                return;
-
-            mBotStateController.Update(deltaTime);
-        }
-
-        private bool IsInRealm()
-        {
-            return GameInfo.mRealmInfo.type == RealmType.Dungeon;
-            //|| GameInfo.mRealmInfo.type == RealmType.ActivityWorldBoss
-            //|| GameInfo.mRealmInfo.type == RealmType.ActivityGuildSMBoss
-            //|| GameInfo.mRealmInfo.type == RealmType.EliteMap;
-        }
 
         /// <summary>
         /// A helper function to automatically select the next target.
@@ -231,7 +223,8 @@ namespace Zealot.Bot
                     return true;
                 }
                 else
-                {   //Bot initiate attack against other players based on pvp rules when not in questing mode
+                {
+                    //Bot initiate attack against other players based on pvp rules when not in questing mode
                     PlayerGhost otherPlayer = queriedEntity as PlayerGhost;
                     if (otherPlayer != null && otherPlayer.IsAlive() && CombatUtils.IsValidEnemyTarget(mLocalPlayer, otherPlayer))
                     {
@@ -242,24 +235,6 @@ namespace Zealot.Bot
             });
 
             return target as ActorGhost;
-        }
-
-        /// <summary>
-        /// a client helper function to face the nearest target.
-        /// </summary>
-        /// <returns></returns>
-        public int FaceNearTarget()
-        {
-            ActorGhost ghost = QueryForNonSpecificTarget(MaxQueryRadius, true, new int[] { mLocalPlayer.ID });
-            if (ghost != null)
-            {
-                Vector3 direction = ghost.Position - mLocalPlayer.Position;
-                direction.y = 0f;
-                direction.Normalize();
-                mLocalPlayer.Forward = direction;
-                return ghost.GetPersistentID();
-            }
-            return 0;
         }
     }
 }

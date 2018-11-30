@@ -1,9 +1,9 @@
-﻿using UnityEngine;
+﻿using Photon.LoadBalancing.GameServer;
+using UnityEngine;
 using Zealot.Entities;
 using Zealot.Common.Entities;
 using Zealot.Repository;
 using Zealot.Server.AI;
-using Photon.LoadBalancing.GameServer;
 
 namespace Zealot.Server.Entities
 {
@@ -18,7 +18,7 @@ namespace Zealot.Server.Entities
         {
             mGoblinSpawnerJson = info;
             mArchetype = CombatNPCRepo.GetNPCByArchetype(info.archetype);
-            LevelInfo linfo = LevelReader.GetLevel(mInstance.currentlevelname);
+            LevelInfo linfo = LevelReader.GetLevel(mInstance.mCurrentLevelName);
             mPath = linfo.mEntities["PathStraightJson"][mGoblinSpawnerJson.path] as PathStraightJson;
         }
 

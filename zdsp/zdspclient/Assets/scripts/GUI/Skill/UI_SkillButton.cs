@@ -66,26 +66,16 @@ public class UI_SkillButton : UI_SkillButtonBase {
 
         m_IconFrame.sprite = border;
 
+
+
         //check current player skill
         if (GameInfo.gLocalPlayer != null)
         {
-            Zealot.Common.Datablock.CollectionHandler<object> skills = GameInfo.gLocalPlayer.SkillStats.SkillInv;
-            //if (skills.ContainsKey(m_ID))
-            //{
-            //    m_SkillData = SkillRepo.GetSkill(skills[m_ID]);
-            //    m_SkillLevel = m_SkillData.skillJson.level;
-            //}
-            for(int i = 0; i < skills.Count; i += 2)
+            Dictionary<int, int> skills = GameInfo.gLocalPlayer.mSkillInventory;
+            if (skills.ContainsKey(m_skgID))
             {
-                if((int)skills[i] == 0)
-                {
-                    break;
-                }
-                if((int)skills[i] == m_skgID)
-                {
-                    m_SkillData = SkillRepo.GetSkill((int)skills[i + 1]);
-                    m_SkillLevel = m_SkillData.skillJson.level;
-                }
+                m_SkillData = SkillRepo.GetSkill(skills[m_skgID]);
+                m_SkillLevel = m_SkillData.skillJson.level;
             }
         }
         m_Skillid = m_SkillData.skillJson.id;

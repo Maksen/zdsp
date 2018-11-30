@@ -12,6 +12,7 @@ public class EquipmentCraftData : MonoBehaviour {
 
     public void Init(Sprite icon, string name)
     {
+        myToggle = GetComponent<Toggle>();
         equipIcon.sprite = icon;
         equipName.text = name;
     }

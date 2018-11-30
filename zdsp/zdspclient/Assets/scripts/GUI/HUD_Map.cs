@@ -54,6 +54,8 @@ public class HUD_Map : MonoBehaviour
     GameObject mPartyGO;
     [SerializeField]
     GameObject mPlayerGO;
+    [SerializeField]
+    GameObject mMapGO; //only holds pathfind icons
     #endregion
     #region +++ Prefab +++
     [Header("Prefab")]
@@ -104,7 +106,25 @@ public class HUD_Map : MonoBehaviour
     Sprite mIconShop;
     [SerializeField]
     Sprite mIconTeleport;
+    #endregion
 
+    #region MapClick
+    [Header("MapClick/Pathfind")]
+    [SerializeField]
+    LineRenderer mDestinationPathLine;
+    [SerializeField]
+    Image mMapDestination;
+    [SerializeField]
+    TrailRenderer mPathFindTrail;
+    [SerializeField]
+    [Range(1f, 10f)]
+    float mMapDestinationRotateSpeed = 1f;
+    [Range(50f, 500f)]
+    [SerializeField]
+    float mTrailSpd = 1;
+    [SerializeField]
+    float mTrailTime = 0.2f;
+    int mWPIdx;
     #endregion
 
     MapInfoJson mMapInfo = null;
@@ -116,6 +136,7 @@ public class HUD_Map : MonoBehaviour
     List<Image> mQuestNPCIconLst = new List<Image>();
     List<Image> mShopNPCIconLst = new List<Image>();
     string mLevelName;
+    List<Vector3> mPathFindWPLst = new List<Vector3>();
 
     Coroutine mMapCloseCoroutine = null;
     Coroutine mMapUpdateCoroutine = null;
@@ -154,6 +175,35 @@ public class HUD_Map : MonoBehaviour
             Transform t = GameInfo.gLocalPlayer.AnimObj.transform;
             mPlayerIconLst[0].transform.localEulerAngles = new Vector3(0f, 0f, -t.localEulerAngles.y);
             SetIconPos(mPlayerIconLst[0], HUD_MapController.ScalePos_WorldToMap(t.position));
+        }
+
+        if (mMapGO.GetActive())
+        {
+            mMapDestination.transform.Rotate(new Vector3(0f, 0f, 1f), mMapDestinationRotateSpeed);
+
+            //Animate trail renderer obj to tranverse through the waypoints
+            //Slowly move from mPathFindWPLst[0] to mPathFindWPLst[Count-1]
+            if (mWPIdx < mPathFindWPLst.Count)
+            {
+                float dtspd = mTrailSpd * Time.deltaTime;
+                mPathFindTrail.time = mTrailTime;
+                mPathFindTrail.transform.localPosition = Vector3.MoveTowards(mPathFindTrail.transform.localPosition,
+                                                                             mPathFindWPLst[mWPIdx],
+                                                                             dtspd);
+                Vector3 vec = mPathFindWPLst[mWPIdx] - mPathFindTrail.transform.localPosition;
+                if (vec.sqrMagnitude < 1f)
+                    mWPIdx++;
+            }
+            else
+            {
+                mWPIdx = 0;
+                mPathFindTrail.time = 0.0001f;
+                mPathFindTrail.transform.localPosition = mPathFindWPLst[0];
+            }
+            //ParticleSystem.EmitParams mEmitParam = new ParticleSystem.EmitParams();
+            //mEmitParam.position = new Vector3(mPSPosX, 0f, 0f);
+            //mEmitParam.velocity = mPSVel;
+            //mPathFindPS.Emit(mEmitParam, mPSEmitAmt);
         }
     }
 
@@ -495,33 +545,33 @@ public class HUD_Map : MonoBehaviour
             case QuestType.Destiny:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.DESTINYQUEST, img);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_DESTINYQUEST, img);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_DESTINYQUEST, img);
                 break;
             case QuestType.Main:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.MAINQUEST, img);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_MAINQUEST, img);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_MAINQUEST, img);
                 break;
             case QuestType.Sub:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.DAILYQUEST, img);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_DAILYQUEST, img);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_DAILYQUEST, img);
                 break;
             case QuestType.Event:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.SIDEQUEST, img);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_SIDEQUEST, img);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_SIDEQUEST, img);
                 break;
         }
@@ -763,21 +813,40 @@ public class HUD_Map : MonoBehaviour
 
     public void OnMapClick(Vector2 pos)
     {
+        //Turn on Map click parent
+        mMapGO.SetActive(true);
+        mMapDestination.gameObject.transform.localPosition = pos; //Set map destination icon pos
+
         NormalizeMapCoordinates(ref pos);
         Vector3 mapPos = new Vector3(pos.x, 0f, pos.y);
         OnMapClick(mapPos);
     }
     public void OnMapClick(Vector3 pos)
     {
-        //pos.x = pos.x / mImgMap.rectTransform.rect.width * HUD_MapController.mMap.texture.width * 0.5f;
-        //pos.z = pos.z / mImgMap.rectTransform.rect.height * HUD_MapController.mMap.texture.height * 0.5f;
-
-        //SetIconPos(mPlayerIconLst[0], pos);
         Vector3 worldPos = HUD_MapController.ScalePos_MapToWorld(pos);
-        GameInfo.gLocalPlayer.PathFindToTarget(worldPos, -1, 0f, false, false, null);
+        GameInfo.gLocalPlayer.PathFindToTarget(worldPos, -1, 0f, false, false, OnMapClickReachDestination);
 
-        Debug.Log(string.Format("Map Vec2 pos: {0}, {1}", pos.x, pos.z));
-        Debug.Log(string.Format("Map Vec3 pos: {0}, {1}, {2}", worldPos.x, worldPos.y, worldPos.z));
+        //Drawing path that the player will take on the map
+        List<Vector3> wpLst = PathFinder.GetWayPoints();
+        if (wpLst == null || wpLst.Count == 0)
+            return;
+        mPathFindWPLst.Clear();
+        for (int i = 0; i < wpLst.Count; ++i)
+        {
+            Vector3 mappos = HUD_MapController.ScalePos_WorldToMap(wpLst[i]);
+            ScaleMapCoordinates(ref mappos);
+            mappos.z = -1;
+            mPathFindWPLst.Add(mappos);
+        }
+        //mDestinationPathLine.positionCount = mPathFindWPLst.Count;
+        //mDestinationPathLine.SetPositions(mPathFindWPLst.ToArray());
+
+        //Set trail renderer to follow mPathFindWPLst
+        mPathFindTrail.transform.localPosition = mPathFindWPLst[0];
+        mWPIdx = 0;
+
+        //Debug.Log(string.Format("Map Vec2 pos: {0}, {1}", pos.x, pos.z));
+        //Debug.Log(string.Format("Map Vec3 pos: {0}, {1}, {2}", worldPos.x, worldPos.y, worldPos.z));
     }
     public void OnMapExpanderClick(Vector3 pos)
     {
@@ -796,6 +865,13 @@ public class HUD_Map : MonoBehaviour
             //if (mMapCloseCoroutine == null)
             //    StartCoroutine(MapCloseCouroutine());
         }
+    }
+    private void OnMapClickReachDestination()
+    {
+        mDestinationPathLine.positionCount = 0;
+        mPathFindWPLst.Clear();
+
+        mMapGO.SetActive(false);
     }
 
     public enum IconType
@@ -822,6 +898,8 @@ public class HUD_Map : MonoBehaviour
         SHOP,
         REVIVE,
         TELEPORT,
+
+        MAPDESTINATION,
 
         EMPTY,
     }

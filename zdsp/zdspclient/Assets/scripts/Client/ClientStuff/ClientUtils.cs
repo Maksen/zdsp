@@ -17,7 +17,7 @@ using Zealot.Repository;
 public static class ClientUtils
 {
     // Common Color
-    public static Color ColorGray = new Color(0f, 0f, 131f / 255f, 1);
+    public static Color ColorGray = new Color(131f / 255f, 131f / 255f, 131f / 255f, 1);
     public static Color ColorBrown = new Color(85 / 255f, 59f / 255f, 39f / 255f, 1);
     public static Color ColorDarkGreen = new Color(21f / 255f, 112f / 255f, 51f / 255f, 1);
     public static Color ColorRed = new Color(164f / 255f, 10f / 255f, 10f / 255f, 1);
@@ -310,16 +310,93 @@ public static class ClientUtils
         return LoadIcon(path);
     }
 
+    public static void LoadJobIconAsync(JobType jobType, Action<Sprite> callback)
+    {
+        string path = "";
+        switch (jobType)
+        {
+            case JobType.Newbie:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_newbie.png"; break;
+            case JobType.Warrior:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_warrior.png"; break;
+            case JobType.Soldier:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_soldier.png"; break;
+            case JobType.Tactician:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_tactician.png"; break;
+            case JobType.Killer:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_killer.png"; break;
+            case JobType.Samurai:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_samurai.png"; break;
+            case JobType.Swordsman:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_swordsman.png"; break;
+            case JobType.Lieutenant:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_lieutenant.png"; break;
+            case JobType.SpecialForce:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_specialforce.png"; break;
+            case JobType.Alchemist:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_alchemist.png"; break;
+            case JobType.QigongMaster:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_qigongmaster.png"; break;
+            case JobType.Assassin:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_assassin.png"; break;
+            case JobType.Shadow:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_shadow.png"; break;
+            case JobType.BladeMaster:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_blademaster.png"; break;
+            case JobType.SwordMaster:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_swordmaster.png"; break;
+            case JobType.General:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_general.png"; break;
+            case JobType.Commando:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_commando.png"; break;
+            case JobType.Strategist:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_strategist.png"; break;
+            case JobType.Schemer:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_schemer.png"; break;
+            case JobType.Executioner:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_executioner.png"; break;
+            case JobType.Slaughter:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_slaughter.png"; break;
+            default:
+                path = "UI_ZDSP_AsyncIcons/HeroJobIcon/inv_newbie.png"; break;
+        }
+        LoadIconAsync(path, callback);
+    }
+
     public static Sprite LoadCurrencyIcon(CurrencyType currencyType)
     {
         string path = "";
-        switch(currencyType)
+
+        switch (currencyType)
         {
+            case CurrencyType.None:
+                break;
             case CurrencyType.Money:
                 path = "UI_ZDSP_Icons/Currency/currency_coin.png";
                 break;
+            case CurrencyType.GuildContribution:
+                break;
+            case CurrencyType.GuildGold:
+                break;
             case CurrencyType.Gold:
                 path = "UI_ZDSP_Icons/Currency/currency_gold.png";
+                break;
+            case CurrencyType.LockGold:
+                break;
+            case CurrencyType.LotteryTicket:
+                break;
+            case CurrencyType.HonorValue:
+                break;
+            case CurrencyType.BattleCoin:
+                break;
+            case CurrencyType.Exp:
+                break;
+            case CurrencyType.AExp:
+                path = "UI_ZDSP_Icons/Achievement/Reward_EXP.png";
+                break;
+            case CurrencyType.JExp:
+                break;
+            case CurrencyType.DonateContribution:
                 break;
         }
         return LoadIcon(path);
@@ -347,53 +424,6 @@ public static class ClientUtils
                 break;
         }
         return LoadIcon(path);
-    }
-
-    public static string GetCurrencyLocalizedName(CurrencyType currencyType)
-    {
-        string guiname = "";
-        switch (currencyType)
-        {
-            case CurrencyType.None:
-                break;
-            case CurrencyType.Money:
-                guiname = "currency_Money";
-                break;
-            case CurrencyType.GuildContribution:
-                guiname = "currency_GuildContribution";
-                break;
-            case CurrencyType.GuildGold:
-                guiname = "currency_GuildGold";
-                break;
-            case CurrencyType.Gold:
-                guiname = "currency_Gold";
-                break;
-            case CurrencyType.LockGold:
-                guiname = "currency_LockGold";
-                break;
-            case CurrencyType.LotteryTicket:
-                guiname = "currency_LotteryTicket";
-                break;
-            case CurrencyType.HonorValue:
-                guiname = "currency_Honor";
-                break;
-            case CurrencyType.BattleCoin:
-                guiname = "currency_BattleCoin";
-                break;
-            case CurrencyType.Exp:
-                guiname = "currency_Exp";
-                break;
-            case CurrencyType.AExp:
-                guiname = "com_aexp";
-                break;
-            case CurrencyType.JExp:
-                guiname = "currency_JExp";
-                break;
-            case CurrencyType.DonateContribution:
-                guiname = "currency_DonateContribution";
-                break;
-        }
-        return GUILocalizationRepo.GetLocalizedString(guiname);
     }
 
     public static VideoClip LoadVideo(string assetName)
@@ -610,6 +640,128 @@ public static class ClientUtils
             default:
                 return "blade_nmstandby";
         }
+    }
+
+    public static string GetLocalizedCurrencyName(CurrencyType currencyType)
+    {
+        string guiname = "";
+        switch (currencyType)
+        {
+            case CurrencyType.None:
+                break;
+            case CurrencyType.Money:
+                guiname = "currency_Money";
+                break;
+            case CurrencyType.GuildContribution:
+                guiname = "currency_GuildContribution";
+                break;
+            case CurrencyType.GuildGold:
+                guiname = "currency_GuildGold";
+                break;
+            case CurrencyType.Gold:
+                guiname = "currency_Gold";
+                break;
+            case CurrencyType.LockGold:
+                guiname = "currency_LockGold";
+                break;
+            case CurrencyType.LotteryTicket:
+                guiname = "currency_LotteryTicket";
+                break;
+            case CurrencyType.HonorValue:
+                guiname = "currency_Honor";
+                break;
+            case CurrencyType.BattleCoin:
+                guiname = "currency_BattleCoin";
+                break;
+            case CurrencyType.Exp:
+                guiname = "currency_Exp";
+                break;
+            case CurrencyType.AExp:
+                guiname = "com_aexp";
+                break;
+            case CurrencyType.JExp:
+                guiname = "currency_JExp";
+                break;
+            case CurrencyType.DonateContribution:
+                guiname = "currency_DonateContribution";
+                break;
+        }
+        return GUILocalizationRepo.GetLocalizedString(guiname);
+    }
+
+    public static string GetLocalizedElement(Element element)
+    {
+        string name = "";
+        switch (element)
+        {
+            case Element.None:
+                name = "com_ele_none";
+                break;
+            case Element.Metal:
+                name = "com_ele_metal";
+                break;
+            case Element.Wood:
+                name = "com_ele_wood";
+                break;
+            case Element.Earth:
+                name = "com_ele_earth";
+                break;
+            case Element.Water:
+                name = "com_ele_water";
+                break;
+            case Element.Fire:
+                name = "com_ele_fire";
+                break;
+        }
+        return GUILocalizationRepo.GetLocalizedString(name);
+    }
+
+    public static string GetLocalizedAttackStyle(AttackStyle style)
+    {
+        string name = "";
+        switch (style)
+        {
+            case AttackStyle.Slice:
+                name = "com_style_slice";
+                break;
+            case AttackStyle.Pierce:
+                name = "com_style_pierce";
+                break;
+            case AttackStyle.Smash:
+                name = "com_style_smash";
+                break;
+            case AttackStyle.God:
+                name = "com_style_god";
+                break;
+            case AttackStyle.Normal:
+                name = "com_style_normal";
+                break;
+        }
+        return GUILocalizationRepo.GetLocalizedString(name);
+    }
+
+    public static string GetLocalizedRace(Race race)
+    {
+        string name = "";
+        switch (race)
+        {
+            case Race.Human:
+                name = "com_race_human";
+                break;
+            case Race.Zombie:
+                name = "com_race_zombie";
+                break;
+            case Race.Vampire:
+                name = "com_race_vampire";
+                break;
+            case Race.Animal:
+                name = "com_race_animal";
+                break;
+            case Race.Plant:
+                name = "com_race_plant";
+                break;
+        }
+        return GUILocalizationRepo.GetLocalizedString(name);
     }
 
     public static string GetLocalizedStatsName(CharacterBasicStats e)

@@ -57,13 +57,7 @@ namespace Zealot.Server.Entities
         {
             if (mMissionCompleted)
                 return;
-
-            mMissionCompleted = true;
-            mCountDownOnMissionCompleted = 1;
-            if (timer != null)
-                mInstance.StopTimer(timer);
-            foreach (var entry in mInstance.maMonsterSpawners)
-                entry.DestoryAll();
+            base.OnMissionCompleted(success, false);
 
             GameClientPeer peer = mPlayer.Slot;
             if (peer != null)
@@ -71,8 +65,7 @@ namespace Zealot.Server.Entities
                 peer.CharacterData.IsTutorialRealmDone = true;
                 peer.mCanSaveDB = true;
             }
-
-            RealmEnd();
+            
         }
 
         #region Triggers

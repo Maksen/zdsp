@@ -41,15 +41,11 @@ public class ActorNameTagController : MonoBehaviour
     void Awake()
     {
         GameCanvas = UIManager.GetHUDGameCanvas();
-        cam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>().mainCamera;
         if (GameCanvas == null)
-        {
             Debug.LogError("No canvas found. Check scene settings....");
-        }
-        else if (cam == null)
-        {
+        cam = GameInfo.gCombat.PlayerCamera.GetComponent<ZDSPCamera>().mainCamera;
+        if (cam == null)
             Debug.LogError("No UI camera found. Check scene settings....");
-        }
     }
 
     public void OnDestroy()
@@ -87,8 +83,6 @@ public class ActorNameTagController : MonoBehaviour
             {
                 mPlayerLabelObj.transform.SetParent(playerlabelParent.transform, false);
                 mPlayerLabelObj.transform.SetAsLastSibling();
-                mPlayerLabelObj.transform.localPosition = new Vector3(0, 0, 0);
-                //mPlayerLabelObj.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
 
                 mPlayerLabel = mPlayerLabelObj.GetComponent<HUD_PlayerLabel2>();
                 mPlayerLabel.CanvasPosFunc = getCanvasPosition;
@@ -123,7 +117,6 @@ public class ActorNameTagController : MonoBehaviour
             mNpcLabelObj = Instantiate(UIManager.UIHierarchy.NpcLabelPrefab, Vector3.zero, Quaternion.identity) as GameObject;
             mNpcLabelObj.transform.SetParent(npclabelParent.transform, false);
             mNpcLabelObj.transform.SetAsLastSibling();
-            mNpcLabelObj.transform.localPosition = Vector3.zero;
 
             mNpcLabel = mNpcLabelObj.GetComponent<HUD_NpcLabel>();
             mNpcLabel.CanvasPosFunc = getCanvasPosition;
@@ -163,8 +156,8 @@ public class ActorNameTagController : MonoBehaviour
         bool isPartyMember = GameInfo.gLocalPlayer.IsInParty() && GameInfo.gLocalPlayer.PartyStats.IsMember(pg.Name);
         switch (GameInfo.mRealmInfo.type)
         {
-            case RealmType.Dungeon:
             case RealmType.World:
+            case RealmType.Dungeon:         
                 if (isPartyMember)
                 {
                     mPlayerLabel.SetPartyMember();
@@ -194,9 +187,9 @@ public class ActorNameTagController : MonoBehaviour
         bool isEnemy = CombatUtils.IsEnemy(GameInfo.gLocalPlayer, mg);
         switch (GameInfo.mRealmInfo.type)
         {
-            case RealmType.Dungeon:
-            //case RealmType.RealmTutorial:
             case RealmType.World:
+            case RealmType.Dungeon:
+            case RealmType.Tutorial:            
                 switch (mg.mArchetype.monstertype)
                 {
                     case MonsterType.Normal:

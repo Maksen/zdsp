@@ -15,6 +15,7 @@ namespace Photon.LoadBalancing.GameServer
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using UnityEngine;
     using ItemMall;
@@ -49,7 +50,8 @@ namespace Photon.LoadBalancing.GameServer
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
         private readonly GameApplication application;
-
+        private SemaphoreSlim disconnectBlock;//目前無作用，如果未來使用另外一條Queue時可能會使用到
+        private int disconnectBlockCount;
         #endregion
 
         #region Constructors and Destructors
@@ -70,12 +72,13 @@ namespace Photon.LoadBalancing.GameServer
             IsPeerDisconnect = false;
             IsExitToLobby = false;
             ZRPC = new ZRPC();
+            disconnectBlock = new SemaphoreSlim(0);
+            disconnectBlockCount = 0;
         }
 
         #endregion
 
         #region Properties
-
         private bool IsPeerDisconnect { get; set; }
         private bool IsExitToLobby { get; set; }
         private string TransferRoom_TargetRoomGuid { get; set; }
@@ -99,6 +102,15 @@ namespace Photon.LoadBalancing.GameServer
 
         #region Public Methods
 
+        public void BlockDisconnect()
+        {
+            disconnectBlockCount++;
+        }
+        public void ReleaseDisconnect()
+        {
+            disconnectBlock.Release();
+        }
+
         public override string ToString()
         {
             return string.Format(
@@ -120,25 +132,25 @@ namespace Photon.LoadBalancing.GameServer
         {
             if (TransferRoom_TargetRoomGuid == roomGuid || (RoomReference != null && RoomReference.Room.Name == levelName))
             {
-                log.InfoFormat("TransferRoom same room {0} - {1} - {2} - {3}", mChar, levelName, roomGuid, ConnectionId);
+                log.InfoFormat("TransferRoom: Same room {0} - {1} - {2} - {3}", mChar, levelName, roomGuid, ConnectionId);
                 return;
             }
-            HandleJoinGameOperation(roomGuid, levelName);
             mSpawnPos = Vector3.zero;
             mSpawnForward = Vector3.forward;
             mInspectMode = false;
+            HandleJoinGameOperation(roomGuid, levelName);     
         }
 
         public string CreateRealm(int realmId, string levelName, bool logAI = false)
         {
             if (RoomReference == null)
             {
-                log.InfoFormat("CreateRealm No RoomReference {0} - {1} - {2} - {3}", mChar, levelName, realmId, ConnectionId);
+                log.InfoFormat("CreateRealm: No RoomReference {0} - {1} - {2} - {3}", mChar, levelName, realmId, ConnectionId);
                 return "";
             }
             else if (RoomReference.Room.Name == levelName)
             {
-                log.InfoFormat("CreateRealm same room {0} - {1} - {2} - {3}", mChar, levelName, realmId, ConnectionId);
+                log.InfoFormat("CreateRealm: Same room {0} - {1} - {2} - {3}", mChar, levelName, realmId, ConnectionId);
                 return "";
             }
             mSpawnPos = Vector3.zero;
@@ -151,13 +163,10 @@ namespace Photon.LoadBalancing.GameServer
         {
             if (mPlayer == null || !IsJoinedRoom)
                 return;
-            else if (mPlayer.mInstance.IsDoingTutorialRealm())
-            {
-                TransferToRealmWorld("handan_field");
+            else if (mPlayer.mInstance.IsDoingTutorialRealm() && TransferToRealmWorld("handan_field"))
                 return;
-            }
 
-            TransferToCity(mPlayer.PlayerSynStats.Level);
+            TransferToLastWorld(mPlayer.GetAccumulatedLevel());
             mPlayer.SetQuestRealmId(-1);
         }
 
@@ -170,24 +179,48 @@ namespace Photon.LoadBalancing.GameServer
 
         public bool TransferToRealmWorld(string levelName)
         {
+            // Fail if level name is realm world/same level
             RealmWorldJson realmWorldJson = RealmRepo.GetWorldByName(levelName);
-            if (realmWorldJson != null) // Check if level name is realm world
-            {
-                int realmId = realmWorldJson.id;
-                string roomGuid = application.GameCache.TryGetRealmRoomGuid(realmId, realmWorldJson.maxplayer);
-                if (!string.IsNullOrEmpty(roomGuid))
-                    TransferRoom(roomGuid, levelName);
-                else
-                    CreateRealm(realmId, levelName);
+            if (realmWorldJson == null || levelName == this.RoomReference.Room.Name) 
+                return false;
 
+            int realmId = realmWorldJson.id;
+            string roomGuid = application.GameCache.TryGetRealmRoomGuid(realmId, realmWorldJson.maxplayer);
+            if (!string.IsNullOrEmpty(roomGuid))
+                TransferRoom(roomGuid, levelName);
+            else
+                CreateRealm(realmId, levelName);
+            return true;
+        }
+
+        public bool TransferToLastWorld(int progressLvl)
+        {
+            string currentLevelName = this.RoomReference.Room.Name;
+            LevelJson levelInfo = LevelRepo.GetInfoById(characterData.LastWorldId);
+            if (levelInfo != null && currentLevelName != levelInfo.unityscene && 
+                TransferToRealmWorld(levelInfo.unityscene))
+            {
+                float[] lastPos = characterData.LastWorldPos;
+                float[] lastForward = characterData.LastDirection;
+                mSpawnPos = new Vector3(lastPos[0], lastPos[1], lastPos[2]);
+                mSpawnForward = new Vector3(lastForward[0], 0, lastForward[2]);
                 return true;
+            }
+            else
+            {
+                string cityName = RealmRepo.GetCity(progressLvl);
+                if (cityName != currentLevelName)
+                {
+                    TransferToRealmWorld(cityName);
+                    return true;
+                }
             }
             return false;
         }
 
-        public void TransferToCity(int progresslvl)
+        public void TransferToCity(int progressLvl)
         {
-            TransferToRealmWorld(RealmRepo.GetCity(progresslvl));
+            TransferToRealmWorld(RealmRepo.GetCity(progressLvl));
         }
 
         public void ExitGame()
@@ -207,14 +240,15 @@ namespace Photon.LoadBalancing.GameServer
             else
             {
                 if (IsExitToLobby)
-                {
                     ClearChar();
-                }
+
                 Room room;
-                application.GameCache.TryGetRoomWithoutReference(TransferRoom_TargetRoomGuid, out room);
-                //System.Diagnostics.Debug.WriteLine("Enqueue " + room.Name);
-                //log.InfoFormat("PlayerRemoved {0} Enqueue - {1}", mChar, room.Name);
-                ((Game)room).OnJoinRoom(this);
+                if (application.GameCache.TryGetRoomWithoutReference(TransferRoom_TargetRoomGuid, out room))
+                {
+                    ((Game)room).OnJoinRoom(this);
+                    //System.Diagnostics.Debug.WriteLine("Enqueue " + room.Name);
+                    //log.InfoFormat("PlayerRemoved {0} Enqueue - {1}", mChar, room.Name);
+                }
             }
         }
 
@@ -287,13 +321,21 @@ namespace Photon.LoadBalancing.GameServer
             {
                 GameCounters.ExecutionFiberQueue.Decrement();
                 IsPeerDisconnect = true;
+
+#if false//如果未來使用另外一條Queue時可能會加入
+                while (disconnectBlockCount > 0)
+                    await disconnectBlock.WaitAsync();
+#endif
+
                 if (RoomReference != null)
                 {
                     RoomReference.removeDueDc = true;
                     RemoveFromGame();
                 }
                 else
+                {
                     disconnectPeer();
+                }
             });
         }
 
@@ -526,7 +568,15 @@ namespace Photon.LoadBalancing.GameServer
         public EquipFusionController mEquipFusionController;
         public QuestController QuestController { get; private set; }
         public DestinyClueController DestinyClueController { get; private set; }
-        public InteractiveTriggerController InteractiveTriggerController { get; private set; }
+
+        public async Task InitSocialDataFromDB(string charName)
+        {
+            var dbdata = await GameApplication.dbRepository.Character.GetSocialByName(charName);
+            mSocialController = new SocialController(this);
+            mSocialInventory = new SocialInventoryData();
+
+            mSocialInventory.LoadDataFromJsonString((string)dbdata["friends"]);
+        }
 
         #region CharacterData
         public void SetChar(string charName) // Set char and charinfo.
@@ -556,8 +606,6 @@ namespace Photon.LoadBalancing.GameServer
                             mEquipFusionController = new EquipFusionController(this);
                             QuestController = new QuestController(this);
                             DestinyClueController = new DestinyClueController(this);
-                            InteractiveTriggerController = new InteractiveTriggerController();
-                            InteractiveTriggerController.LoadSceneData();
                             mDTMute = (DateTime)charinfo["dtmute"];
                             LadderRules.OnPlayerOnline(charName, (string)charinfo["arenareport"]);
 
@@ -567,9 +615,6 @@ namespace Photon.LoadBalancing.GameServer
                             Task task = InitAchievementInventory();
 
                             #region Social
-                            mSocialController = new SocialController(this);
-                            mSocialInventory = new SocialInventoryData();
-                            mSocialInventory.LoadDataFromJsonString((string)charinfo["friends"]);
                             #region Old Code
                             //var ignoreAwait = InitSocialInventory((string)charinfo["friends"], (string)charinfo["friendrequests"]);
                             #endregion
@@ -633,7 +678,7 @@ namespace Photon.LoadBalancing.GameServer
                 // Save logout time                   
                 GuildRules.OnCharacterLogout(characterData, logoutDT);
                 PartyRules.OnCharacterOffline(mChar);
-                SaveCharacter();
+                SaveCharacter(false);
                 application.RemoveCharPeer(mChar, this);
                 log.InfoFormat("ClearChar {0}", mChar);
                 mChar = "";
@@ -650,13 +695,18 @@ namespace Photon.LoadBalancing.GameServer
                 mPlayer.ForceSaveCharacter();
         }
 
-        public void SaveCharacter()
+        public void SaveCharacter(bool timeUpSave)
         {
             if (!mCanSaveDB)
                 return;
             mLastSaveCharacterDT = DateTime.Now;
             LogLogin(false);
             var saved = SaveUserAndCharacterData();
+            if (mSocialInventory != null)
+            {
+                string charname = this.CharacterData.Name;
+                var task = SocialController.Social_SaveSocialDataToDB(mSocialInventory.data, charname);
+            }
         }
 
         public void SaveCharacterForRemoveCharacter(string charid, string charname, CharacterData characterData)
@@ -716,8 +766,8 @@ namespace Photon.LoadBalancing.GameServer
                                                                         0, 0,
                                                                         0, 0,
                                                                         new DateTime(characterData.LeaveGuildCDEndTick),
-                                                                        mSocialInventory.SaveDataToJsonString()/*SocialInvToString(mSocialInventory.friendList)*/,//social社群資料欄位
-                                                                        string.Empty/*SocialInvToString(mSocialInventory.friendRequestList)*/,//沒用到的資料庫欄位，舊版friendRequestList使用
+                                                                        //friends,
+                                                                        //friendrequests,
                                                                         characterData.FirstBuyFlag, characterData.FirstBuyCollected,
                                                                         GameSetting.Serialize(),
                                                                         serializedData, loginDT, logoutDT);
@@ -2830,7 +2880,7 @@ namespace Photon.LoadBalancing.GameServer
             int currPartLevel = characterData.PowerUpInventory.powerUpSlots[part];
             int nextPartLevel = currPartLevel + 1;
 
-            int playerLevel = mPlayer.PlayerSynStats.Level;
+            int playerLevel = mPlayer.GetAccumulatedLevel();
             if(nextPartLevel > playerLevel)
             {
                 ZRPC.CombatRPC.Ret_SendSystemMessageId(GUILocalizationRepo.GetSysMsgIdByName("ret_PowerUp_MaxLevelReached"), "", false, mPlayer.Slot);
@@ -2863,31 +2913,31 @@ namespace Photon.LoadBalancing.GameServer
             mPlayer.PowerUpStats.powerUpSlots[part] = nextPartLevel;
         }
 
-        public void OnMeridianLevelUp(int type)
+        public void OnMeridianUp(int type)
         {
             int currTypeLevel = characterData.PowerUpInventory.meridianLevelSlots[type];
             int currTypeExp = characterData.PowerUpInventory.meridianExpSlots[type];
             int currCurrency = mPlayer.SecondaryStats.Money;
-            MeridianUnlockListJson unlockData = PowerUpRepo.GetMeridianUnlockByTypesLevel(type, currTypeLevel);
-            MeridianExpListJson expData = PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeExp);
 
-            if(currTypeExp < expData.exp)
+            MeridianExpListJson expData = PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeLevel);
+            int reqExp = (currTypeLevel == 0) ? 0 : expData.exp;
+            int expPercent = (reqExp == 0) ? 1 : currTypeExp / reqExp;
+            int reqCurrency = (expPercent == 1) ? PowerUpRepo.GetMeridianUnlockByTypesLevel(type, currTypeLevel).currency : 
+                PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeLevel).currency;
+
+            MeridianExpListJson nextData = PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeLevel + 1);
+            if (nextData == null)
             {
                 return;
             }
 
-            MeridianUnlockListJson unlockNextData = PowerUpRepo.GetMeridianUnlockByTypesLevel(type, currTypeLevel + 1);
-            if (unlockNextData == null)
+            if(currCurrency < reqCurrency)
             {
                 return;
             }
 
-            if(currCurrency < unlockData.currency)
-            {
-                return;
-            }
-
-            List<ItemInfo> useMatList = PowerUpRepo.GetMeridianUnlockMaterial(type, currTypeLevel);
+            List<ItemInfo> useMatList = (expPercent == 1) ? PowerUpRepo.GetMeridianUnlockMaterial(type, currTypeLevel) :
+                PowerUpRepo.GetMeridianExpMaterial(type, currTypeLevel);
             InvRetval result = mInventory.DeductItems(useMatList, "MeridianLevelUp");
             if (result.retCode == InvReturnCode.UseFailed)
             {
@@ -2895,44 +2945,32 @@ namespace Photon.LoadBalancing.GameServer
                 return;
             }
 
-            characterData.PowerUpInventory.meridianLevelSlots[type] = currTypeLevel + 1;
-            characterData.PowerUpInventory.meridianExpSlots[type] = 0;
-            mPlayer.MeridianStats.meridianLevelSlots[type] = currTypeLevel + 1;
-            mPlayer.MeridianStats.meridianExpSlots[type] = 0;
-        }
-
-        public void OnMeridianExpUp(int type)
-        {
-            int currTypeLevel = characterData.PowerUpInventory.meridianLevelSlots[type];
-            int currTypeExp = characterData.PowerUpInventory.meridianExpSlots[type];
-            int currCurrency = mPlayer.SecondaryStats.Money;
-            MeridianExpListJson expData = PowerUpRepo.GetMeridianExpByTypesLevel(type, currTypeExp);
-
-            if(expData == null)
+            if (expPercent == 1)
             {
-                return;
+                if (currTypeExp < reqExp)
+                {
+                    return;
+                }
+
+                characterData.PowerUpInventory.meridianLevelSlots[type] = currTypeLevel + 1;
+                characterData.PowerUpInventory.meridianExpSlots[type] = 0;
+                mPlayer.MeridianStats.meridianLevelSlots[type] = currTypeLevel + 1;
+                mPlayer.MeridianStats.meridianExpSlots[type] = 0;
             }
-            
-            if (currTypeExp >= expData.exp)
+            else
             {
-                return;
-            }
-
-            if(currCurrency < expData.currency)
-            {
-                return;
-            }
-
-            int ctr = PowerUpRepo.MeridianCriticalExp(type, currTypeLevel);
-            int expGain = mPowerUpController.GetExp() * ctr;
-            if(currTypeExp + expGain > expData.exp)
-            {
-                characterData.PowerUpInventory.meridianExpSlots[type] = expData.exp;
-                mPlayer.MeridianStats.meridianExpSlots[type] = expData.exp;
-            } else
-            {
-                characterData.PowerUpInventory.meridianExpSlots[type] += expGain;
-                mPlayer.MeridianStats.meridianExpSlots[type] = characterData.PowerUpInventory.meridianExpSlots[type];
+                int ctr = PowerUpRepo.MeridianCriticalExp(type, currTypeLevel);
+                int expGain = mPowerUpController.GetExp() * ctr;
+                if (currTypeExp + expGain > reqExp)
+                {
+                    characterData.PowerUpInventory.meridianExpSlots[type] = reqExp;
+                    mPlayer.MeridianStats.meridianExpSlots[type] = reqExp;
+                }
+                else
+                {
+                    characterData.PowerUpInventory.meridianExpSlots[type] += expGain;
+                    mPlayer.MeridianStats.meridianExpSlots[type] = characterData.PowerUpInventory.meridianExpSlots[type];
+                }
             }
         }
         #endregion
@@ -3275,4 +3313,5 @@ namespace Photon.LoadBalancing.GameServer
             this.serverid = serverid;
         }
     }
+
 }

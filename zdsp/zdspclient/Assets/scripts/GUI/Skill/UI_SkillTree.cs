@@ -236,17 +236,17 @@ public class UI_SkillTree : BaseWindowBehaviour
         //m_SelectSkillDDL.CloseUI();
 
         //CloseWindows();
-
+        CloseWindows();
         base.OnCloseWindow();
         //clean up
 
-        m_SkillDescriptor.OnClosed();
-        m_CurrentActive = null;
-        m_SkillDescriptor.gameObject.SetActive(false);
-        m_SpecialSkillPanel.gameObject.SetActive(false);
+        //m_SkillDescriptor.OnClosed();
+        //m_CurrentActive = null;
+        //m_SkillDescriptor.gameObject.SetActive(false);
+        //m_SpecialSkillPanel.gameObject.SetActive(false);
         
         //m_CloseEquip.gameObject.SetActive(false);
-        m_ScrollPanel.SetActive(false);
+        //m_ScrollPanel.SetActive(false);
     }
 
     public override void OnOpenWindow()
@@ -333,6 +333,7 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_ButtonPool = new GameObjectPoolManager(10, this.transform, m_ButtonPrefab);
         m_EmptyButtonPool = new GameObjectPoolManager(10, this.transform, m_EmptyButtonPrefab);
         m_RowPool = new GameObjectPoolManager(3, this.transform, m_RowPrefab);
+        RPCFactory.NonCombatRPC.RequestSkillInventory();
 
         //foreach (Transform child in m_JobPanel.transform)
         //{
@@ -379,8 +380,8 @@ public class UI_SkillTree : BaseWindowBehaviour
         m_ScrollPanelGroup.Value = m_EquipSlotGroup;
 
         m_EquipIconHelper.Init(this);
-        m_EquipIconHelper.CreateSkillEquipPanel(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill, m_EquippableSize);
-        m_EquipIconHelper.CreateSkillEquipPanel(UI_SkillEquipIconHelper.ePanelType.eAutoSkill, m_EquippableSize);
+        m_EquipIconHelper.CreateSkillEquipPanel(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill, GameInfo.gLocalPlayer.SkillStats.EquipSize);
+        m_EquipIconHelper.CreateSkillEquipPanel(UI_SkillEquipIconHelper.ePanelType.eAutoSkill, GameInfo.gLocalPlayer.SkillStats.UnlockedAutoSize);
         //m_EquipIconHelper.DisplayPanelOption(UI_SkillEquipIconHelper.ePanelType.ePlayerSkill);
         //for (int i = 0; i < m_EquippableSize; ++i)
         //{
@@ -645,19 +646,6 @@ public class UI_SkillTree : BaseWindowBehaviour
 
     public void CloseWindows(bool isBottom = false)
     {
-        //m_SkillDescriptor.OnClosed();
-        //m_SkillDescriptor.CloseUI();
-        //m_CurrentActive = null;
-        ////m_SelectSkillDDL.CloseUI();
-        //m_SelectSkillDDL.gameObject.SetActive(false);
-        //m_SpecialSkillPanel.m_SkillDescriptor.gameObject.SetActive(false);
-        //m_SpecialSkillPanel.CloseUI();
-        ////m_SpecialSkillPanel.gameObject.SetActive(false);
-        ////m_EquipSkillPanel.SetActive(false);
-
-        //if (!isBottom)
-            //m_CloseEquip.onClick.Invoke();
-
         m_CurrentActive = null;
         foreach (var window in m_Windows)
             window.Value.CloseWindow();

@@ -176,17 +176,20 @@ namespace Zealot.Entities
     {
         public static Dictionary<string, Dictionary<string, List<Vector3>>> mMonsterLocationMap;
         public static Dictionary<string, Dictionary<string, List<Vector3>>> mStaticNPCLocationMap;
+        public static Dictionary<string, Dictionary<string, List<Vector3>>> mStaticGuideLocationMap;
 
         static NPCPosMap()
         {
             mMonsterLocationMap = new Dictionary<string, Dictionary<string, List<Vector3>>>();
             mStaticNPCLocationMap = new Dictionary<string, Dictionary<string, List<Vector3>>>();
+            mStaticGuideLocationMap = new Dictionary<string, Dictionary<string, List<Vector3>>>();
         }
 
         public static void Clear()
         {
             mMonsterLocationMap.Clear();
             mStaticNPCLocationMap.Clear();
+            mStaticGuideLocationMap.Clear();
         }
 
         public static Vector3 GetRandomSpawnerPosition(string lvl, string archetype)
@@ -224,6 +227,21 @@ namespace Zealot.Entities
                     mMonsterLocationMap[archetype][level].Add(value.position);
                 }
             }
+            Dictionary<int, ServerEntityJson> personalMonsterSpawners;
+            if (info.mEntities.TryGetValue("PersonalMonsterSpawnerJson", out personalMonsterSpawners))
+            {
+                foreach (PersonalMonsterSpawnerJson value in personalMonsterSpawners.Values)
+                {
+                    string archetype = value.archetype;
+                    if (string.IsNullOrEmpty(archetype))
+                        continue;
+                    if (!mMonsterLocationMap.ContainsKey(archetype))
+                        mMonsterLocationMap.Add(archetype, new Dictionary<string, List<Vector3>>());
+                    if (!mMonsterLocationMap[archetype].ContainsKey(level))
+                        mMonsterLocationMap[archetype].Add(level, new List<Vector3>());
+                    mMonsterLocationMap[archetype][level].Add(value.position);
+                }
+            }
             Dictionary<int, ServerEntityJson> staticNPCSpawners;
             if (info.mEntities.TryGetValue("StaticClientNPCSpawnerJson", out staticNPCSpawners))
             {
@@ -237,6 +255,21 @@ namespace Zealot.Entities
                     if (!mStaticNPCLocationMap[archetype].ContainsKey(level))
                         mStaticNPCLocationMap[archetype].Add(level, new List<Vector3>());
                     mStaticNPCLocationMap[archetype][level].Add(value.position);
+                }
+            }
+            Dictionary<int, ServerEntityJson> staticGuideSpawners;
+            if (info.mEntities.TryGetValue("StaticClientGuideSpawnerJson", out staticGuideSpawners))
+            {
+                foreach (StaticClientGuideSpawnerJson value in staticGuideSpawners.Values)
+                {
+                    string archetype = value.archetype;
+                    if (string.IsNullOrEmpty(archetype))
+                        continue;
+                    if (!mStaticGuideLocationMap.ContainsKey(archetype))
+                        mStaticGuideLocationMap.Add(archetype, new Dictionary<string, List<Vector3>>());
+                    if (!mStaticGuideLocationMap[archetype].ContainsKey(level))
+                        mStaticGuideLocationMap[archetype].Add(level, new List<Vector3>());
+                    mStaticGuideLocationMap[archetype][level].Add(value.position);
                 }
             }
         }
@@ -272,6 +305,11 @@ namespace Zealot.Entities
         public static bool FindNearestStaticNPC(string archetype, string myLevel, Vector3 myPos, ref string level, ref Vector3 pos)
         {
             return FindNearest(mStaticNPCLocationMap, archetype, myLevel, myPos, ref level, ref pos);
+        }
+
+        public static bool FindNearestStaticGuide(string archetype, string myLevel, Vector3 myPos, ref string level, ref Vector3 pos)
+        {
+            return FindNearest(mStaticGuideLocationMap, archetype, myLevel, myPos, ref level, ref pos);
         }
 
         private static Vector3 FindNearestPos(List<Vector3> positions, Vector3 myPos)

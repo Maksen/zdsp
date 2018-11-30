@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Collections.Generic;
+using Zealot.Common;
 using Zealot.Repository;
-using Zealot.Common.Actions;
 using Zealot.Server.Entities;
-using Zealot.Server.Actions;
 
+using Kopio.JsonContracts;
 using ExitGames.Concurrency.Fibers;
 using Photon.LoadBalancing.GameServer;
-using Kopio.JsonContracts;
 
 namespace Zealot.Server.Rules
 {
@@ -17,95 +15,128 @@ namespace Zealot.Server.Rules
     {
         private static readonly PoolFiber executionFiber;
         private static Dictionary<int, List<string>> partyUsed = new Dictionary<int, List<string>>();
-        public static Dictionary<int, InteractiveGate> interactiveEntity = new Dictionary<int, InteractiveGate>();
-        static List<InteractiveGate> updateEntity = new List<InteractiveGate>();
-
-        static bool isSchedule = false;
+        private static Dictionary<int, string> partyProgresser = new Dictionary<int, string>();
+        private static List<InteractiveGate> allEntity = new List<InteractiveGate>();
 
         static InteractiveTriggerRule()
         {
             executionFiber = GameApplication.Instance.executionFiber;
         }
-        
+
         #region InteractiveTriggerEvent
-        public static void UseInteractiveTrigger(int pid, string playerName, InteractiveGate mEntity, 
-            int time, bool isArea)
+        public static void UseInteractiveTrigger(int pid, bool isArea, string name, InteractiveGate mEntity, Player peer)
         {
             executionFiber.Enqueue(() =>
             {
-                if (!isArea)
+                int keyId = mEntity.mPropertyInfos.keyId;
+                if (keyId != 0)
                 {
-                    if(mEntity.step == Common.InteractiveTriggerStep.None)
+                    if (!peer.Slot.mInventory.HasItem((ushort)keyId, 1))
                     {
-                        SetAction(pid, time, isArea, mEntity);
-                        mEntity.step = Common.InteractiveTriggerStep.OnProgress;
+                        return;
                     }
-                    return;
                 }
 
-                if (!partyUsed.ContainsKey(pid))
+                if (isArea)
                 {
-                    partyUsed.Add(pid, new List<string>() { playerName });
-                } else
-                {
-                    if(!partyUsed[pid].Exists(x => x == playerName))
-                        partyUsed[pid].Add(playerName);
-                }
+                    if (!partyUsed.ContainsKey(pid))
+                    {
+                        partyUsed.Add(pid, new List<string>());
+                    }
 
-                int playerCount = partyUsed.Count;
-                if (CanPartyUse(mEntity.mPropertyInfos.min, mEntity.mPropertyInfos.max, playerCount))
-                {
-                    SetAction(pid, time, isArea, mEntity);
-                    mEntity.step = Common.InteractiveTriggerStep.OnProgress;
+                    if(!partyUsed[pid].Exists(x => x == name))
+                    {
+                        partyUsed[pid].Add(name);
+                    }
+
+                    if (CanPartyUse(pid, mEntity))
+                    {
+                        if (mEntity.step != InteractiveTriggerStep.OnProgress)
+                        {
+                            mEntity.SetEntityStep((int)InteractiveTriggerStep.OnProgress, name);
+                            if (!partyProgresser.ContainsKey(pid))
+                                partyProgresser.Add(pid, name);
+                            else
+                                partyProgresser[pid] = name;
+                        }
+                    }
+                    else
+                    {
+                        mEntity.SetEntityStep((int)InteractiveTriggerStep.OnTrigger);
+                    }
                 }
                 else
                 {
-                    mEntity.CancelAction();
-                    mEntity.step = Common.InteractiveTriggerStep.OnTrigger;
+                    if (!mEntity.isUsing && mEntity.GetEntityCanUse())
+                    {
+                        mEntity.SetEntityStep((int)InteractiveTriggerStep.OnProgress, name);
+                        mEntity.isUsing = true;
+                    }
                 }
             });
         }
 
-        static void SetAction(int pid, int time, bool isArea, InteractiveGate mEntity)
-        {
-            InteractiveTriggerCommand cmd = new InteractiveTriggerCommand();
-            cmd.entityId = pid;
-            cmd.triggerTime = time;
-            cmd.isArea = isArea;
-            mEntity.PerformAction(new ASInteractiveTrigger(mEntity, cmd));
-        }
-
-        public static string GetCurrentPlayer()
-        {
-            string playerName = string.Empty;
-            return playerName;
-        }
-
-        public static void InterruptedEvent(int pid, string playerName, InteractiveGate mEntity, bool isArea)
+        public static void LeaveInteractiveTrigger(int pid, bool isArea, string name, InteractiveGate mEntity)
         {
             executionFiber.Enqueue(() =>
             {
                 if (isArea)
                 {
-                    if (partyUsed.ContainsKey(pid))
+                    if (partyUsed[pid].Exists(x => x == name))
                     {
-                        partyUsed[pid].Remove(playerName);
+                        partyUsed[pid].Remove(name);
+                    }
+
+                    if(partyProgresser.Count == 0)
+                    {
+                        return;
+                    }
+
+                    bool changeProgressPlayer = false;
+                    if(!string.IsNullOrEmpty(partyProgresser[pid]))
+                    {
+                        changeProgressPlayer = name == partyProgresser[pid];
+                    }
+                    if (changeProgressPlayer && partyUsed[pid].Count > 0)
+                    {
+                        partyProgresser[pid] = partyUsed[pid][partyUsed.Count - 1];
+                    }
+
+                    if (CanPartyUse(pid, mEntity))
+                    {
+                        mEntity.SetEntityStep((int)InteractiveTriggerStep.OnProgress, partyProgresser[pid]);
+                    }
+                    else
+                    {
+                        mEntity.SetEntityStep((int)InteractiveTriggerStep.None);
                     }
                 }
-                mEntity.step = Common.InteractiveTriggerStep.None;
-                mEntity.CancelAction();
+                else
+                {
+                    mEntity.SetEntityStep((int)InteractiveTriggerStep.None);
+                    mEntity.isUsing = false;
+                }
             });
         }
 
-        public static void CompeletedEvent(int pid)
+        public static void CompeletedInteradtiveTrigger(int pid, bool isArea, InteractiveGate mEntity)
         {
             executionFiber.Enqueue(() =>
             {
-                if (partyUsed.ContainsKey(pid))
+                if (isArea)
                 {
-                    partyUsed.Remove(pid);
+                    partyProgresser.Remove(pid);
+                }
+                else
+                {
+                    mEntity.isUsing = false;
                 }
             });
+        }
+        
+        private static bool CanPartyUse(int pid, InteractiveGate mEntity)
+        {
+            return partyUsed[pid].Count >= mEntity.mPropertyInfos.min && partyUsed[pid].Count <= mEntity.mPropertyInfos.max;
         }
 
         static bool CanPartyUse(int min, int max, int now)
@@ -114,29 +145,14 @@ namespace Zealot.Server.Rules
         }
         #endregion
         
-        #region Update Entity Active Per 30 Minutes
-        public static void Init(int levelId)
+        #region Update Entity Active
+        public static void Init()
         {
-            updateEntity = new List<InteractiveGate>();
-
-            if (InteractiveTriggerController.interactiveEntity.ContainsKey(levelId))
-            {
-                List<int> entitiesId = InteractiveTriggerController.GetSceneEntities(levelId);
-                for (int i = 0; i < entitiesId.Count; ++i)
-                {
-                    updateEntity.Add(interactiveEntity[entitiesId[i]]);
-                }
-                SetEntiesActive();
-            }
-
-            if (!isSchedule)
-            {
-                CallFiberSchedule();
-                isSchedule = true;
-            }
+            SetEntiesActive();
+            StartRepeatRefresh();
         }
 
-        static void CallFiberSchedule()
+        static void StartRepeatRefresh()
         {
             executionFiber.ScheduleOnInterval(SetEntiesActive, GetDurationTime(), 1800000);
         }
@@ -170,36 +186,23 @@ namespace Zealot.Server.Rules
 
         public static void SetEntiesActive()
         {
-            StringBuilder pidSb = new StringBuilder();
-            StringBuilder triggerSb = new StringBuilder();
-            StringBuilder compareSb = new StringBuilder();
-            StringBuilder stepSb = new StringBuilder();
-
-            for (int i = 0; i < updateEntity.Count; ++i)
+            for (int i = 0; i < allEntity.Count; ++i)
             {
-                InteractiveGate mEntity = updateEntity[i];
-                bool compare = CanActiveGameObject(mEntity);
-                mEntity.mPropertyInfos.activeOnStartup = compare;
-                pidSb.Append(mEntity.GetPersistentID());
-                pidSb.Append(",");
-                triggerSb.Append(Convert.ToInt32(mEntity.canTrigger).ToString());
-                triggerSb.Append(",");
-                compareSb.Append(Convert.ToInt32(compare).ToString());
-                compareSb.Append(",");
-                stepSb.Append(((int)mEntity.step).ToString());
-                stepSb.Append(",");
+                if (CanActiveGameObject(allEntity[i]))
+                {
+                    allEntity[i].SetEntityStep((allEntity[i].count != 0) ?
+                        (int)InteractiveTriggerStep.None : (int)InteractiveTriggerStep.CannotUse);
+                }
+                else
+                {
+                    allEntity[i].SetEntityStep((int)InteractiveTriggerStep.InActive);
+                }
             }
+        }
 
-            if (updateEntity.Count > 0)
-            {
-                pidSb.Remove(pidSb.Length - 1, 1);
-                triggerSb.Remove(triggerSb.Length - 1, 1);
-                compareSb.Remove(compareSb.Length - 1, 1);
-                stepSb.Remove(stepSb.Length - 1, 1);
-
-                GameApplication.BroadcastInteractiveCount(pidSb.ToString(),
-                triggerSb.ToString(), compareSb.ToString(), stepSb.ToString());
-            }
+        public static void AddEntityList(InteractiveGate mEntity)
+        {
+            allEntity.Add(mEntity);
         }
 
         public static bool CanActiveGameObject(InteractiveGate mEntity)
@@ -207,7 +210,7 @@ namespace Zealot.Server.Rules
             ScenesModelJson sceneModel = ScenesModelRepo.GetScenesModelJson(mEntity.entityName);
             if (sceneModel == null)
             {
-                return mEntity.mPropertyInfos.activeOnStartup;
+                return mEntity.GetEntityActive();
             }
             
             if (!sceneModel.activeonstartup)
@@ -286,7 +289,7 @@ namespace Zealot.Server.Rules
             {
                 return true;
             }
-            DateTime now = DateTime.Now.AddHours(1);
+            DateTime now = DateTime.Now;
             List<string> openList = openTime.Split(';').ToList();
             List<string> closeList = closeTime.Split(';').ToList();
 

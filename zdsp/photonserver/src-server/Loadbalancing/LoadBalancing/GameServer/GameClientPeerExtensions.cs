@@ -42,15 +42,7 @@ namespace Photon.LoadBalancing.GameServer.Extensions
         /// <summary>
         /// 送系統訊息，如果要暫時註冊請參考，放上去時會自動變成以註冊的為主，請移至本函式定義看範例
         /// </summary>
-        public static void SendSystemMessage(this GameClientPeer peer, string msgName, bool addToChatLog, string args)
-        {
-            SendSystemMessage(peer, msgName, addToChatLog, GameUtils.FormatString(args));
-        }
-
-        /// <summary>
-        /// 送系統訊息，如果要暫時註冊請參考，放上去時會自動變成以註冊的為主，請移至本函式定義看範例
-        /// </summary>
-        public static void SendSystemMessage(this GameClientPeer peer, string msgName, bool addToChatLog, Dictionary<string, string> args = null)
+        public static void SendSystemMessage(this GameClientPeer peer, string msgName, bool addToChatLog, string args = "")
         {
             if (m_UnRegisteredSysMsg == null)
                 m_UnRegisteredSysMsg = CreateUnRegisteredSysMsg();
@@ -61,21 +53,13 @@ namespace Photon.LoadBalancing.GameServer.Extensions
             {
                 string msg;
                 if (m_UnRegisteredSysMsg.TryGetValue(msgName, out msg))
-                {
-                    if (args != null)
-                        msg = GameUtils.FormatByName(msg, args);
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage(msg, string.Empty, false, peer);
-
-                }
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage(GameUtils.FormatArgs(msg, args), string.Empty, false, peer);
                 else
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage(string.Format("#{0}", msgName), string.Empty, false, peer);
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage(string.Format("[unknown]{0}", msgName), string.Empty, false, peer);
             }
             else
             {
-                if(args!=null)
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage(Zealot.Repository.GUILocalizationRepo.GetLocalizedSysMsgById(id, args), string.Empty, false, peer);
-                else
-                    peer.ZRPC.CombatRPC.Ret_SendSystemMessageId(id, string.Empty, false, peer);
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessageId(id, args, false, peer);
             }
         }
 

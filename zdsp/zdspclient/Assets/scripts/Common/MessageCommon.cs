@@ -38,7 +38,6 @@ namespace Zealot.Common
         GainExperience,
         MessageBroadcaster,
         DonationRefresh,
-        InteractiveTrigger,
     }
 
     public class ChatMessage

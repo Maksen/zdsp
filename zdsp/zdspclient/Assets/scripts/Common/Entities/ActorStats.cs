@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Text;
 using System.ComponentModel;
 using Zealot.Common.Datablock;
 using Zealot.Repository;
-using Newtonsoft.Json;
 
 namespace Zealot.Common.Entities
 {
@@ -21,7 +20,6 @@ namespace Zealot.Common.Entities
     //    Petrify = 64,
     //    NUM
     //}    
-
     public enum EffectVisualTypes
     {
         Stun = 1 << 0,
@@ -31,7 +29,7 @@ namespace Zealot.Common.Entities
         Disarmed = 1 << 4,
         Frozen = 1 << 5,
         Petrify = 1 << 6,
-        NUM = 1 << 7,
+        NUM = 1 << 7
     }
 
     public class ActorSynStats : LocalObject // Send to all relevant player
@@ -262,7 +260,7 @@ namespace Zealot.Common.Entities
         }
     }
 
-    public class PlayerSynStats : ActorSynStats //send to all relavant player
+    public class PlayerSynStats : ActorSynStats // Send to all relavant player
     {
         public PlayerSynStats() : base(LOTYPE.PlayerSynStats)
         {
@@ -274,7 +272,7 @@ namespace Zealot.Common.Entities
             _portraitID = 1;
             _Gender = 0;
             _Party = 0;
-            _QuestCompanionId = -1;
+            _QuestCompanionId = "";
             _achievementLevel = 1;
             _tutorialStatus = 0;
 
@@ -343,8 +341,8 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("MountID", value); _MountID = value; }
         }
 
-        private int _QuestCompanionId;
-        public int QuestCompanionId
+        private string _QuestCompanionId;
+        public string QuestCompanionId
         {
             get { return _QuestCompanionId; }
             set { OnSetAttribute("QuestCompanionId", value); _QuestCompanionId = value; }
@@ -370,7 +368,7 @@ namespace Zealot.Common.Entities
     {
         public NPCSynStats() : base(LOTYPE.NPCSynStats)
         {
-            Team = -100;
+            Team = -2;
         }
     }
 
@@ -403,6 +401,296 @@ namespace Zealot.Common.Entities
         {
             get { return _summoning; }
             set { OnSetAttribute("Summoning", value); _summoning = value; }
+        }
+    }
+
+    public class SecondaryStats : LocalObject // Send to local player
+    {
+        private int _experience;
+        private int _jobexperience;
+        private int _realmscore;
+
+        private int _achievementExp;
+
+        private int _money;
+        private int _gold;
+        private int _bindgold;
+        private int _lotterypoints;
+        private int _honor;
+        private int _contribute;
+        private int _battlecoin;
+
+        private int _UnlockedSlotCount;
+        private int _guildId;
+        private byte _guildRank;
+        private string _guildShopBuyCount;
+        private int _guildSMBossEntry;
+        private int _guildSMBossExtraEntry;
+        private long _guildLeaveGuildCDEnd;
+        private byte _guildDreamHouseUsed;
+        private string _guildDreamHouseCollected;
+        private bool _guildDonateDot;
+        private long _lastFreeLotteryRoll;
+        private int _FreeReviveOnSpot;
+        private long _RandomBoxTimeTick;
+        private int _costbuffid;
+        private int _costbuffgold;
+        private byte _CurrencyExchangeTime;
+        private int _UnlockWorldBossLevel;
+        private int _tutorialreddot;
+        private int _BattleTime;
+
+        public SecondaryStats() : base(LOTYPE.SecondaryStats)
+        {
+            _experience = 0;
+            _jobexperience = 0;
+            _realmscore = 0;
+            _achievementExp = 0;
+
+            // Currency Start
+            _money = 0;
+            _gold = 0;
+            _bindgold = 0;
+
+            _lotterypoints = 0;
+            _honor = 0;
+            _contribute = 0;
+            _battlecoin = 0;
+            _BattleTime = 0;
+            // Currency End
+
+            _UnlockedSlotCount = 30;
+
+            // Guild
+            _guildId = 0;
+            _guildRank = 0;
+            _guildShopBuyCount = "";
+            _guildSMBossEntry = 0;
+            _guildSMBossExtraEntry = 0;
+            _guildLeaveGuildCDEnd = 0;
+            _guildDreamHouseUsed = 0;
+            _guildDreamHouseCollected = "";
+            _guildDonateDot = false;
+
+            // Lottery
+            _lastFreeLotteryRoll = long.MaxValue;
+
+            _FreeReviveOnSpot = 0;
+
+            _RandomBoxTimeTick = 0;
+            _costbuffid = 0;
+            _costbuffgold = 0;
+
+            _CurrencyExchangeTime = 0;
+
+            _UnlockWorldBossLevel = 0;
+            _tutorialreddot = 0;
+        }
+
+        public int experience
+        {
+            get { return _experience; }
+            set { OnSetAttribute("experience", value); _experience = value; }
+        }
+
+        public int jobexperience
+        {
+            get { return _jobexperience; }
+            set { OnSetAttribute("jobexperience", value); _jobexperience = value; }
+        }
+
+        public int realmscore
+        {
+            get { return _realmscore; }
+            set { OnSetAttribute("realmscore", value); _realmscore = value; }
+        }
+
+        public int AchievementExp
+        {
+            get { return _achievementExp; }
+            set { OnSetAttribute("AchievementExp", value); _achievementExp = value; }
+        }
+
+        public int Money
+        {
+            get { return _money; }
+            set { OnSetAttribute("Money", value); _money = value; }
+        }
+
+        // this is the currency top up from the appstore
+        public int Gold
+        {
+            get { return _gold; }
+            set { OnSetAttribute("Gold", value); _gold = value; }
+        }
+
+        public int bindgold
+        {
+            get { return _bindgold; }
+            set { OnSetAttribute("bindgold", value); _bindgold = value; }
+        }
+
+        public int lotterypoints // Special points awarded when spending unbound diamond
+        {
+            get { return _lotterypoints; }
+            set { OnSetAttribute("lotterypoints", value); _lotterypoints = value; }
+        }
+
+        public int honor
+        {
+            get { return _honor; }
+            set { OnSetAttribute("honor", value); _honor = value; }
+        }
+
+        public int contribute
+        {
+            get { return _contribute; }
+            set { OnSetAttribute("contribute", value); _contribute = value; }
+        }
+
+        public int battlecoin
+        {
+            get { return _battlecoin; }
+            set { OnSetAttribute("battlecoin", value); _battlecoin = value; }
+        }
+
+        public int BattleTime
+        {
+            get { return _BattleTime; }
+            set { OnSetAttribute("BattleTime", value); _BattleTime = value; }
+        }
+
+        public int UnlockedSlotCount
+        {
+            get { return _UnlockedSlotCount; }
+            set { this.OnSetAttribute("UnlockedSlotCount", value); _UnlockedSlotCount = value; }
+        }
+
+        // Guild
+        public int guildId
+        {
+            get { return _guildId; }
+            set { OnSetAttribute("guildId", value); _guildId = value; }
+        }
+
+        public byte guildRank
+        {
+            get { return _guildRank; }
+            set { OnSetAttribute("guildRank", value); _guildRank = value; }
+        }
+
+        public string guildShopBuyCount
+        {
+            get { return _guildShopBuyCount; }
+            set { OnSetAttribute("guildShopBuyCount", value); _guildShopBuyCount = value; }
+        }
+
+        public int GuildSMBossEntry
+        {
+            get { return _guildSMBossEntry; }
+            set { OnSetAttribute("GuildSMBossEntry", value); _guildSMBossEntry = value; }
+        }
+
+        public int GuildSMBossExtraEntry
+        {
+            get { return _guildSMBossExtraEntry; }
+            set { OnSetAttribute("GuildSMBossExtraEntry", value); _guildSMBossExtraEntry = value; }
+        }
+
+        public long guildLeaveGuildCDEnd
+        {
+            get { return _guildLeaveGuildCDEnd; }
+            set { OnSetAttribute("guildLeaveGuildCDEnd", value); _guildLeaveGuildCDEnd = value; }
+        }
+
+        public byte GuildDreamHouseUsed
+        {
+            get { return _guildDreamHouseUsed; }
+            set { OnSetAttribute("GuildDreamHouseUsed", value); _guildDreamHouseUsed = value; }
+        }
+
+        public string GuildDreamHouseCollected
+        {
+            get { return _guildDreamHouseCollected; }
+            set { OnSetAttribute("GuildDreamHouseCollected", value); _guildDreamHouseCollected = value; }
+        }
+
+        public bool guildDonateDot
+        {
+            get { return _guildDonateDot; }
+            set { OnSetAttribute("guildDonateDot", value); _guildDonateDot = value; }
+        }
+
+        // Lottery
+        public long lastFreeLotteryRoll
+        {
+            get { return _lastFreeLotteryRoll; }
+            set { OnSetAttribute("lastFreeLotteryRoll", value); _lastFreeLotteryRoll = value; }
+        }
+
+        public int FreeReviveOnSpot
+        {
+            get { return _FreeReviveOnSpot; }
+            set { OnSetAttribute("FreeReviveOnSpot", value); _FreeReviveOnSpot = value; }
+        }
+
+        public long RandomBoxTimeTick
+        {
+            get { return _RandomBoxTimeTick; }
+            set { OnSetAttribute("RandomBoxTS", value); _RandomBoxTimeTick = value; }
+        }
+
+        public int costbuffid
+        {
+            get { return _costbuffid; }
+            set { OnSetAttribute("costbuffid", value); _costbuffid = value; }
+        }
+
+        public int costbuffgold
+        {
+            get { return _costbuffgold; }
+            set { OnSetAttribute("costbuffgold", value); _costbuffgold = value; }
+        }
+
+        public byte CurrencyExchangeTime
+        {
+            get { return _CurrencyExchangeTime; }
+            set { OnSetAttribute("CurrencyExchangeTime", value); _CurrencyExchangeTime = value; }
+        }
+
+        public int UnlockWorldBossLevel
+        {
+            get { return _UnlockWorldBossLevel; }
+            set { OnSetAttribute("UnlockWBLv", value); _UnlockWorldBossLevel = value; }
+        }
+
+        public int tutorialreddot
+        {
+            get { return _tutorialreddot; }
+            set { OnSetAttribute("tutorialreddot", value); _tutorialreddot = value; }
+        }
+
+        public void ResetOnNewDay(CharacterData characterData)
+        {
+            GuildSMBossEntry = characterData.GuildSMBossEntry;
+            CurrencyExchangeTime = characterData.CurrencyExchangeTime;
+            GuildDreamHouseUsed = characterData.GuildDreamHouseUsed;
+            GuildDreamHouseCollected = characterData.GuildDreamHouseCollected;
+            FreeReviveOnSpot = characterData.FreeReviveOnSpot;
+            BattleTime = characterData.BattleTime;
+        }
+
+        public bool IsGoldEnough(int value, bool useBind = true)
+        {
+            if (useBind)
+                return bindgold >= value - Gold;
+            else
+                return Gold >= value;
+        }
+
+        public long GetGoldWithBind()
+        {
+            return ((long)bindgold + Gold);
         }
     }
 
@@ -959,7 +1247,7 @@ namespace Zealot.Common.Entities
     }
 
     /// <summary>
-    /// sync to local player only
+    /// Sync to local player only
     /// </summary>
     public class LocalSkillPassiveStats : LocalObject //only to 1 player client
     {
@@ -989,7 +1277,6 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("Accuracy", value); _Accuracy = value; }
         }
 
-
         private int _Armor;
         public int Armor
         {
@@ -997,14 +1284,12 @@ namespace Zealot.Common.Entities
             set { OnSetAttribute("Armor", value); _Armor = value; }
         }
 
-
         private int _Evasion;
         public int Evasion
         {
             get { return _Evasion; }
             set { OnSetAttribute("Evasion", value); _Evasion = value; }
         }
-
 
         private int _Attack;
         public int Attack
@@ -1042,294 +1327,264 @@ namespace Zealot.Common.Entities
         }
     }
 
-    public class SecondaryStats : LocalObject //send to local player
+    public class SkillSynStats : LocalObject
     {
-        private int _experience;
-        private int _jobexperience;
-        private int _realmscore;
+        //public static readonly int MAX_SIDEEFFECT = 10;
+        //public static readonly int MAX_SKILLCOUNT = 40;
+        public static readonly int MAX_EQUIPPED = 36;
+        public static readonly int MAX_AUTO = 42;
+        private int _basicAttack1SId;
+        //private int _basicAttack2SId;
+        //private int _basicAttack3SId;
 
-        private int _achievementExp;
+        private int _jobSkillAttackSId;
+        //private int _SkillInvCount;
+        private int _equipGroup;
+        private int _autoGroup;
+        private int _equipSize;
+        private int _autoSize;
+        private int _unlockedAutoSize;
 
-        private int _money;
-        private int _gold;
-        private int _bindgold;
-        private int _lotterypoints;
-        private int _honor;
-        private int _contribute;
-        private int _battlecoin;
+        /// <summary>
+        /// How to use equip skills and Auto skills collection
+        /// index -> [slot + ((Slot Group - 1) * number of slots)]
+        /// Warning : Slot Group is required to start with 0, thus the - 1
+        /// </summary>
+        public CollectionHandler<object> EquippedSkill { get; set; }
+        public CollectionHandler<object> AutoSkill { get; set; }
+        //public CollectionHandler<object> SkillInv { get; set; }
 
-        private int _UnlockedSlotCount;
-        private int _guildId;
-        private byte _guildRank;
-        private string _guildShopBuyCount;
-        private int _guildSMBossEntry;
-        private int _guildSMBossExtraEntry;
-        private long _guildLeaveGuildCDEnd;
-        private byte _guildDreamHouseUsed;
-        private string _guildDreamHouseCollected;
-        private bool _guildDonateDot;
-        private long _lastFreeLotteryRoll;
-        private int _FreeReviveOnSpot;
-        private long _RandomBoxTimeTick;
-        private int _costbuffid;
-        private int _costbuffgold;
-        private byte _CurrencyExchangeTime;
-        private int _UnlockWorldBossLevel;
-        private int _tutorialreddot;
-        private int _BattleTime;
-        
+        //public Dictionary<int, int> SkillGroupIndex { get; set; }
 
-        public SecondaryStats() : base(LOTYPE.SecondaryStats)
+        public SkillSynStats() : base(LOTYPE.SkillStats)
         {
-            _experience = 0;
-            _jobexperience = 0;
-            _realmscore = 0;
-            _achievementExp = 0;
+            _basicAttack1SId = 0;
+            //_basicAttack2SId = 0;
+            //_basicAttack3SId = 0;
+            //_basicAttack4SId = 0;
+            //_basicAttack5SId = 0;
 
-        // Currency start
-            _money = 0;
-            _gold = 0;
-            _bindgold = 0;
+            _jobSkillAttackSId = 0;
+            //_SkillInvCount = 0;
+            _equipGroup = 1;
+            _autoGroup = 1;
+            _equipSize = 0;
+            _autoSize = 0;
+            _unlockedAutoSize = 0;
+            //_RedHeroCardSkillAttackSId = 0;
+            //_GreenHeroSkillAttackSId = 0;
+            //_BlueHeroSkillAttackSId = 0;
 
-            _lotterypoints = 0;
-            _honor = 0;
-            _contribute = 0;
-            _battlecoin = 0;
-            _BattleTime = 0;
-            // currency end
+            //SkillInv = new CollectionHandler<object>(MAX_SKILLCOUNT);
+            //SkillInv.SetParent(this, "SkillInv");
+            //SkillInv.SetNotifyParent(false);
+            //for (int i = 0; i < SkillInv.Count; ++i)
+            //{
+            //    SkillInv[i] = 0;
+            //}
+            //SkillInv.SetNotifyParent(true);
+            EquippedSkill = new CollectionHandler<object>(36);
+            EquippedSkill.SetParent(this, "EquippedSkill");
+            EquippedSkill.SetNotifyParent(false);
+            for (int i = 0; i < MAX_EQUIPPED; ++i)
+            {
+                EquippedSkill[i] = 0;
+            }
+            EquippedSkill.SetNotifyParent(true);
 
-            _UnlockedSlotCount = 30;
+            AutoSkill = new CollectionHandler<object>(42);
+            AutoSkill.SetParent(this, "AutoSkill");
+            AutoSkill.SetNotifyParent(false);
+            for (int i = 0; i < MAX_AUTO; ++i)
+            {
+                AutoSkill[i] = 0;
+            }
+            AutoSkill.SetNotifyParent(true);
 
-            // Guild
-            _guildId = 0;
-            _guildRank = 0;
-            _guildShopBuyCount = "";
-            _guildSMBossEntry = 0;
-            _guildSMBossExtraEntry = 0;
-            _guildLeaveGuildCDEnd = 0;
-            _guildDreamHouseUsed = 0;
-            _guildDreamHouseCollected = "";
-            _guildDonateDot = false;
-
-            // Lottery
-            _lastFreeLotteryRoll = long.MaxValue;
-
-            _FreeReviveOnSpot = 0;
-
-            _RandomBoxTimeTick = 0;
-            _costbuffid = 0;
-            _costbuffgold = 0;
-
-            _CurrencyExchangeTime = 0;
-
-            _UnlockWorldBossLevel = 0;
-            _tutorialreddot = 0;
+            //SkillGroupIndex = new Dictionary<int, int>();
         }
 
-        public int experience
+        public void Init(SkillInventoryData sid)
         {
-            get { return _experience; }
-            set { OnSetAttribute("experience", value); _experience = value; }
+            // Init basicattack skill id from inventory;
+            basicAttack1SId = sid.basicAttack1SId;
+            //basicAttack2SId = sid.basicAttack2SId;
+            //basicAttack3SId = sid.basicAttack3SId;
+
+            _equipGroup = sid.equipGroup;
+            _autoGroup = sid.autoGroup;
+            _equipSize = sid.EquipSize;
+            _autoSize = sid.AutoSize;
+            _unlockedAutoSize = sid.UnlockedAutoSize;
+
+            for (int i = 0; i < sid.EquippedSkill.Count; ++i)
+            {
+                EquippedSkill[i] = sid.EquippedSkill[i];
+            }
+
+            for (int i = 0; i < sid.AutoSkill.Count; ++i)
+            {
+                AutoSkill[i] = sid.AutoSkill[i];
+            }
+
+            //for(int i = 0; i < sid.SkillInv.Count; ++i)
+            //{
+            //    SkillInv[i] = sid.SkillInv[i];
+            //    if (sid.SkillInv[i] != 0 && i % 2 == 0)
+            //        SkillGroupIndex[sid.SkillInv[i]] = i;
+            //}
         }
 
-        public int jobexperience
+        public override void SetDirty()
         {
-            get { return _jobexperience; }
-            set { OnSetAttribute("jobexperience", value); _jobexperience = value; }
+            base.SetDirty();
         }
 
-        public int realmscore
+        public int basicAttack1SId
         {
-            get { return _realmscore; }
-            set { OnSetAttribute("realmscore", value); _realmscore = value; }
+            get { return _basicAttack1SId; }
+            set { OnSetAttribute("basicAttack1SId", value); _basicAttack1SId = value; }
         }
 
-        public int AchievementExp
+        //public int basicAttack2SId
+        //{
+        //    get { return _basicAttack2SId; }
+        //    set { OnSetAttribute("basicAttack2SId", value); _basicAttack2SId = value; }
+        //}
+
+        //public int basicAttack3SId
+        //{
+        //    get { return _basicAttack3SId; }
+        //    set { OnSetAttribute("basicAttack3SId", value); _basicAttack3SId = value; }
+        //}
+
+        //public int basicAttack4SId
+        //{
+        //    get { return _basicAttack4SId; }
+        //    set { this.OnSetAttribute("basicAttack4SId", value); _basicAttack4SId = value; }
+        //}
+        //public int basicAttack5SId
+        //{
+        //    get { return _basicAttack5SId; }
+        //    set { this.OnSetAttribute("basicAttack5SId", value); _basicAttack5SId = value; }
+        //}
+
+        public int JobskillAttackSId
         {
-            get { return _achievementExp; }
-            set { OnSetAttribute("AchievementExp", value); _achievementExp = value; }
+            get { return _jobSkillAttackSId; }
+            set { OnSetAttribute("JobskillAttackSId", value); _jobSkillAttackSId = value; }
         }
 
-        public int Money
+        //public int SkillInvCount
+        //{
+        //    get { return _SkillInvCount; }
+        //    set { OnSetAttribute("SkillInvCount", value); _SkillInvCount = value; }
+        //}
+
+        public int EquipGroup
         {
-            get { return _money; }
-            set { OnSetAttribute("Money", value); _money = value; }
+            get { return _equipGroup; }
+            set { OnSetAttribute("EquipGroup", value); _equipGroup = value; }
+        }
+        public int AutoGroup
+        {
+            get { return _autoGroup; }
+            set { OnSetAttribute("AutoGroup", value); _autoGroup = value; }
+        }
+        public int EquipSize
+        {
+            get { return _equipSize; }
+            set { OnSetAttribute("EquipSize", value); _equipSize = value; }
         }
 
-        // this is the currency top up from the appstore
-        public int Gold
+        public int AutoSize
         {
-            get { return _gold; }
-            set { OnSetAttribute("Gold", value); _gold = value; }
+            get { return _autoSize; }
+            set { OnSetAttribute("AutoSize", value); _autoSize = value; }
         }
 
-        public int bindgold
+        public int UnlockedAutoSize
         {
-            get { return _bindgold; }
-            set { OnSetAttribute("bindgold", value); _bindgold = value; }
+            get { return _unlockedAutoSize; }
+            set { OnSetAttribute("UnlockedAutoSize", value); _unlockedAutoSize = value; }
+        }
+    }
+
+    public class BuffTimeStats : LocalObject // Send only to local client
+    {
+        public static readonly int MAX_EFFECTS = 30;
+        /// <summary>
+        /// The Header is Encoded in the following format
+        /// 64bits[[15bit empty][1bit(Buff : 1 / Debuff : 0)][16bit(SEOriginID)][32bits(item id)]]
+        /// </summary>
+        public static readonly int ENCODED = 0; // 16bit -> buff/debuff | 16bit -> origin id | 32bit item id
+        /// <summary>
+        /// Time left
+        /// </summary>
+        public static readonly int TIMESTAMP = 1;
+        public static readonly int EFFECT_BAG = 8;
+
+        public BuffTimeStats() : base(LOTYPE.BuffTimeStats)
+        {
+            Buffs = new CollectionHandler<object>(EFFECT_BAG);
+            Buffs.SetParent(this, "Buffs");
+
+            Persistents = new CollectionHandler<object>(MAX_EFFECTS);
+            Persistents.SetParent(this, "Persistents");
+
+            PersistentsDur = new CollectionHandler<object>(MAX_EFFECTS);
+            PersistentsDur.SetParent(this, "PersistentsDur");
+            Init();
         }
 
-        public int lotterypoints // Special points awarded when spending unbound diamond
+        private void Init()
         {
-            get { return _lotterypoints; }
-            set { OnSetAttribute("lotterypoints", value); _lotterypoints = value; }
+            Buffs.SetNotifyParent(false);
+            Persistents.SetNotifyParent(false);
+            PersistentsDur.SetNotifyParent(false);
+            for (int i = 0; i < EFFECT_BAG; ++i)
+            {
+                Buffs[i] = 0;
+            }
+            for (int i = 0; i < MAX_EFFECTS; i++)
+            {
+                Persistents[i] = 0;
+                PersistentsDur[i] = 0;
+            }
+            Buffs.SetNotifyParent(true);
+            Persistents.SetNotifyParent(true);
+            PersistentsDur.SetNotifyParent(true);
         }
 
-        public int honor
+        /// <summary>
+        /// Collection of 4 Debuff/Buff
+        /// The collection is in the following format :
+        /// Buffs[Encoded Header][Time Left][Encoded Header][Time Left]...
+        /// </summary>
+        public CollectionHandler<object> Buffs { get; set; }
+        //public CollectionHandler<object> Control { get; set; }
+        //public CollectionHandler<object> StartTime { get; set; } // For positives only
+        //public CollectionHandler<object> Duration { get; set; }
+        public CollectionHandler<object> Persistents { get; set; }
+        public CollectionHandler<object> PersistentsDur { get; set; }
+    }
+
+    /// <summary>
+    /// All static object local object should inherit from this class:
+    /// </summary>
+    public class StaticObjectStat : LocalObject
+    {
+        private byte _State;
+
+        public StaticObjectStat(LOTYPE lotype) : base(lotype)
         {
-            get { return _honor; }
-            set { OnSetAttribute("honor", value); _honor = value; }
+            _State = 0;
         }
 
-        public int contribute
+        public byte State
         {
-            get { return _contribute; }
-            set { OnSetAttribute("contribute", value); _contribute = value; }
-        }
-
-        public int battlecoin
-        {
-            get { return _battlecoin; }
-            set { OnSetAttribute("battlecoin", value); _battlecoin = value; }
-        }
-
-        public int BattleTime 
-        {
-            get { return _BattleTime; }
-            set { OnSetAttribute("BattleTime", value); _BattleTime = value; }
-        }
-
-        public int UnlockedSlotCount
-        {
-            get { return _UnlockedSlotCount; }
-            set { this.OnSetAttribute("UnlockedSlotCount", value); _UnlockedSlotCount = value; }
-        }
-
-        // Guild
-        public int guildId
-        {
-            get { return _guildId; }
-            set { OnSetAttribute("guildId", value); _guildId = value; }
-        }
-
-        public byte guildRank
-        {
-            get { return _guildRank; }
-            set { OnSetAttribute("guildRank", value); _guildRank = value; }
-        }
-
-        public string guildShopBuyCount
-        {
-            get { return _guildShopBuyCount; }
-            set { OnSetAttribute("guildShopBuyCount", value); _guildShopBuyCount = value; }
-        }
-
-        public int GuildSMBossEntry
-        {
-            get { return _guildSMBossEntry; }
-            set { OnSetAttribute("GuildSMBossEntry", value); _guildSMBossEntry = value; }
-        }
-
-        public int GuildSMBossExtraEntry
-        {
-            get { return _guildSMBossExtraEntry; }
-            set { OnSetAttribute("GuildSMBossExtraEntry", value); _guildSMBossExtraEntry = value; }
-        }
-
-        public long guildLeaveGuildCDEnd
-        {
-            get { return _guildLeaveGuildCDEnd; }
-            set { OnSetAttribute("guildLeaveGuildCDEnd", value); _guildLeaveGuildCDEnd = value; }
-        }
-
-        public byte GuildDreamHouseUsed
-        {
-            get { return _guildDreamHouseUsed; }
-            set { OnSetAttribute("GuildDreamHouseUsed", value); _guildDreamHouseUsed = value; }
-        }
-
-        public string GuildDreamHouseCollected
-        {
-            get { return _guildDreamHouseCollected; }
-            set { OnSetAttribute("GuildDreamHouseCollected", value); _guildDreamHouseCollected = value; }
-        }
-
-        public bool guildDonateDot
-        {
-            get { return _guildDonateDot; }
-            set { OnSetAttribute("guildDonateDot", value); _guildDonateDot = value; }
-        }
-
-        // Lottery
-        public long lastFreeLotteryRoll
-        {
-            get { return _lastFreeLotteryRoll; }
-            set { OnSetAttribute("lastFreeLotteryRoll", value); _lastFreeLotteryRoll = value; }
-        }
-
-        public int FreeReviveOnSpot
-        {
-            get { return _FreeReviveOnSpot; }
-            set { OnSetAttribute("FreeReviveOnSpot", value); _FreeReviveOnSpot = value; }
-        }
-
-        public long RandomBoxTimeTick
-        {
-            get { return _RandomBoxTimeTick; }
-            set { OnSetAttribute("RandomBoxTS", value); _RandomBoxTimeTick = value; }
-        }
-
-        public int costbuffid
-        {
-            get { return _costbuffid; }
-            set { OnSetAttribute("costbuffid", value); _costbuffid = value; }
-        }
-
-        public int costbuffgold
-        {
-            get { return _costbuffgold; }
-            set { OnSetAttribute("costbuffgold", value); _costbuffgold = value; }
-        }
-
-        public byte CurrencyExchangeTime
-        {
-            get { return _CurrencyExchangeTime; }
-            set { OnSetAttribute("CurrencyExchangeTime", value); _CurrencyExchangeTime = value; }
-        }
-
-        public int UnlockWorldBossLevel
-        {
-            get { return _UnlockWorldBossLevel; }
-            set { OnSetAttribute("UnlockWBLv", value); _UnlockWorldBossLevel = value; }
-        }
-
-        public int tutorialreddot
-        {
-            get { return _tutorialreddot; }
-            set { OnSetAttribute("tutorialreddot", value); _tutorialreddot = value; }
-        }
-
-        public void ResetOnNewDay(CharacterData characterData)
-        {
-            GuildSMBossEntry = characterData.GuildSMBossEntry;
-            CurrencyExchangeTime = characterData.CurrencyExchangeTime;
-            GuildDreamHouseUsed = characterData.GuildDreamHouseUsed;
-            GuildDreamHouseCollected = characterData.GuildDreamHouseCollected;
-            FreeReviveOnSpot = characterData.FreeReviveOnSpot;
-            BattleTime = characterData.BattleTime;
-        }
-
-        public bool IsGoldEnough(int value, bool useBind = true)
-        {
-            if (useBind)
-                return bindgold >= value - Gold;
-            else
-                return Gold >= value;
-        }
-
-        public long GetGoldWithBind()
-        {
-            return ((long)bindgold + Gold);
+            get { return _State; }
+            set { OnSetAttribute("State", value); _State = value; }
         }
     }
 
@@ -1381,7 +1636,7 @@ namespace Zealot.Common.Entities
 
         public CollectionHandler<object> ItemHotbar { get; set; }
 
-        public void InitItemHotbarFromString(string str)
+        public void Init(string str)
         {
             if (!string.IsNullOrEmpty(str))
             {
@@ -1501,12 +1756,6 @@ namespace Zealot.Common.Entities
         {
             return JsonConvert.DeserializeObject<Dictionary<int, bool>>(_portraitDataInfoString);
         }
-    }
-
-    public class Avatar
-    {
-        public int archetypeId = 0;
-        public string modelPrefab = "";
     }
 
     #region Quest
@@ -2020,247 +2269,55 @@ namespace Zealot.Common.Entities
     }
     #endregion
 
-    public class SkillSynStats : LocalObject
-    {
-        //public static readonly int MAX_SIDEEFFECT = 10;
-        public static readonly int MAX_SKILLCOUNT = 40;
-        public static readonly int MAX_EQUIPPED = 36;
-        private int _basicAttack1SId;
-        private int _basicAttack2SId;
-        private int _basicAttack3SId;
-
-        private int _jobSkillAttackSId;
-        private int _SkillInvCount;
-        private int _equipGroup;
-        private int _autoGroup;
-        private int _equipSize;
-        
-        /// <summary>
-        /// How to use equip skills and Auto skills collection
-        /// index -> [slot + ((Slot Group - 1) * number of slots)]
-        /// Warning : Slot Group is required to start with 0, thus the - 1
-        /// </summary>
-        public CollectionHandler<object> EquippedSkill { get; set; }
-        public CollectionHandler<object> AutoSkill { get; set; }
-        public CollectionHandler<object> SkillInv { get; set; }
-
-        public Dictionary<int, int> SkillGroupIndex { get; set; }
-
-        public SkillSynStats() : base(LOTYPE.SkillStats)
-        {
-            _basicAttack1SId = 0;
-            _basicAttack2SId = 0;
-            _basicAttack3SId = 0;
-            //_basicAttack4SId = 0;
-            //_basicAttack5SId = 0;
-
-            _jobSkillAttackSId = 0;
-            _SkillInvCount = 0;
-            _equipGroup = 0;
-            _autoGroup = 0;
-            _equipSize = 0;
-            //_RedHeroCardSkillAttackSId = 0;
-            //_GreenHeroSkillAttackSId = 0;
-            //_BlueHeroSkillAttackSId = 0;
-
-            SkillInv = new CollectionHandler<object>(MAX_SKILLCOUNT);
-            SkillInv.SetParent(this, "SkillInv");
-            SkillInv.SetNotifyParent(false);
-            for (int i = 0; i < SkillInv.Count; ++i)
-            {
-                SkillInv[i] = 0;
-            }
-            SkillInv.SetNotifyParent(true);
-            EquippedSkill = new CollectionHandler<object>(MAX_EQUIPPED);
-            EquippedSkill.SetParent(this, "EquippedSkill");
-            EquippedSkill.SetNotifyParent(false);
-            for (int i = 0; i < 36; ++i)
-            {
-                EquippedSkill[i] = 0;
-            }
-            EquippedSkill.SetNotifyParent(true);
-
-            AutoSkill = new CollectionHandler<object>(MAX_EQUIPPED);
-            AutoSkill.SetParent(this, "AutoSkill");
-            AutoSkill.SetNotifyParent(false);
-            for (int i = 0; i < 36; ++i)
-            {
-                AutoSkill[i] = 0;
-            }
-            AutoSkill.SetNotifyParent(true);
-
-            SkillGroupIndex = new Dictionary<int, int>();
-        }
-
-        public void CopyFromInvData(SkillInventoryData sid)
-        {
-
-            // Init basicattack skill id from inventory;
-            basicAttack1SId = sid.basicAttack1SId;
-            //basicAttack2SId = sid.basicAttack2SId;
-            //basicAttack3SId = sid.basicAttack3SId;
-
-
-            _SkillInvCount = sid.SkillInvCount;
-            _equipGroup = sid.equipGroup;
-            _autoGroup = sid.autoGroup;
-            _equipSize = sid.EquipSize;
-
-            for (int i = 0; i < sid.EquippedSkill.Count; ++i)
-            {
-                EquippedSkill[i] = sid.EquippedSkill[i];
-                AutoSkill[i] = sid.AutoSkill[i];
-            }
-
-            for(int i = 0; i < sid.SkillInv.Count; ++i)
-            {
-                SkillInv[i] = sid.SkillInv[i];
-                if (sid.SkillInv[i] != 0 && i % 2 == 0)
-                    SkillGroupIndex[sid.SkillInv[i]] = i;
-            }
-        }
-
-        public override void SetDirty()
-        {
-            base.SetDirty();
-        }
-
-        public int basicAttack1SId
-        {
-            get { return _basicAttack1SId; }
-            set { OnSetAttribute("basicAttack1SId", value); _basicAttack1SId = value; }
-        }
-
-        public int basicAttack2SId
-        {
-            get { return _basicAttack2SId; }
-            set { OnSetAttribute("basicAttack2SId", value); _basicAttack2SId = value; }
-        }
-
-        public int basicAttack3SId
-        {
-            get { return _basicAttack3SId; }
-            set { OnSetAttribute("basicAttack3SId", value); _basicAttack3SId = value; }
-        }
-
-        //public int basicAttack4SId
-        //{
-        //    get { return _basicAttack4SId; }
-        //    set { this.OnSetAttribute("basicAttack4SId", value); _basicAttack4SId = value; }
-        //}
-        //public int basicAttack5SId
-        //{
-        //    get { return _basicAttack5SId; }
-        //    set { this.OnSetAttribute("basicAttack5SId", value); _basicAttack5SId = value; }
-        //}
-
-        public int JobskillAttackSId
-        {
-            get { return _jobSkillAttackSId; }
-            set { OnSetAttribute("JobskillAttackSId", value); _jobSkillAttackSId = value; }
-        }
-
-        public int SkillInvCount
-        {
-            get { return _SkillInvCount; }
-            set { OnSetAttribute("SkillInvCount", value); _SkillInvCount = value; }
-        }
-
-        public int EquipGroup
-        {
-            get { return _equipGroup; }
-            set { OnSetAttribute("EquipGroup", value); _equipGroup = value; }
-        }
-        public int AutoGroup
-        {
-            get { return _autoGroup; }
-            set { OnSetAttribute("AutoGroup", value); _autoGroup = value; }
-        }
-        public int EquipSize
-        {
-            get { return _equipSize; }
-            set { OnSetAttribute("EquipSize", value); _equipSize = value; }
-        }
-    }
-
-    //All static object local object should inherit from this class:
-    public class StaticObjectStat : LocalObject
-    {
-        private byte _State;
-
-        public StaticObjectStat(LOTYPE lotype) : base(lotype)
-        {
-            _State = 0;
-        }
-
-        public byte State
-        {
-            get { return _State; }
-            set { OnSetAttribute("State", value); _State = value; }
-        }
-    }
-
-    public class BuffTimeStats : LocalObject //send only to local client
-    {
-        public static readonly int MAX_EFFECTS = 30;
-        /// <summary>
-        /// The Header is Encoded in the following format
-        /// 64bits[[15bit empty][1bit(Buff : 1 / Debuff : 0)][16bit(SEOriginID)][32bits(item id)]]
-        /// </summary>
-        public static readonly int ENCODED = 0; // 16bit -> buff/debuff | 16bit -> origin id | 32bit item id
-        /// <summary>
-        /// Time left
-        /// </summary>
-        public static readonly int TIMESTAMP = 1;
-        public static readonly int EFFECT_BAG = 8;
-
-        public BuffTimeStats() : base(LOTYPE.BuffTimeStats)
-        {
-            Buffs = new CollectionHandler<object>(EFFECT_BAG);
-            Buffs.SetParent(this, "Buffs");
-
-            Persistents = new CollectionHandler<object>(MAX_EFFECTS);
-            Persistents.SetParent(this, "Persistents");
-
-            PersistentsDur = new CollectionHandler<object>(MAX_EFFECTS);
-            PersistentsDur.SetParent(this, "PersistentsDur");
-            Init();
-        }
-
-        private void Init()
-        {
-            Buffs.SetNotifyParent(false);
-            Persistents.SetNotifyParent(false);
-            PersistentsDur.SetNotifyParent(false);
-            for(int i = 0; i < EFFECT_BAG; ++i)
-            {
-                Buffs[i] = 0;
-            }
-            for (int i = 0; i < MAX_EFFECTS; i++)
-            {
-                Persistents[i] = 0;
-                PersistentsDur[i] = 0;
-            }
-            Buffs.SetNotifyParent(true);
-            Persistents.SetNotifyParent(true);
-            PersistentsDur.SetNotifyParent(true);
-        }
-
-        /// <summary>
-        /// Collection of 4 Debuff/Buff
-        /// The collection is in the following format :
-        /// Buffs[Encoded Header][Time Left][Encoded Header][Time Left]...
-        /// </summary>
-        public CollectionHandler<object> Buffs { get; set; }
-        //public CollectionHandler<object> Control { get; set; }
-        //public CollectionHandler<object> StartTime { get; set; } // For positives only
-        //public CollectionHandler<object> Duration { get; set; }
-        public CollectionHandler<object> Persistents { get; set; }
-        public CollectionHandler<object> PersistentsDur { get; set; }
-
-    }
-
     #region Social
+
+    /*public class ChatInfo
+    {
+        public string Name;
+        public int LocalObjIdx;
+    }
+
+    public class ChatStats : LocalObject
+    {
+        public static readonly int MAX_WHISPER = 10;
+        public static readonly int MAX_GROUPMEMBER = 20;
+
+        public ChatStats() : base(LOTYPE.ChatStats)
+        {
+            WhisperList = new CollectionHandler<object>(MAX_WHISPER);
+            WhisperList.SetParent(this, "WhisperList");
+            MyGroupMembers = new CollectionHandler<object>(MAX_GROUPMEMBER);
+            MyGroupMembers.SetParent(this, "MyGroupMembers");
+            OtherGroupMembers = new CollectionHandler<object>(MAX_GROUPMEMBER);
+            OtherGroupMembers.SetParent(this, "OtherGroupMembers");
+        }
+
+        public CollectionHandler<object> WhisperList { get; set; }
+        public CollectionHandler<object> MyGroupMembers { get; set; }
+        public CollectionHandler<object> OtherGroupMembers { get; set; }
+
+        public void Init(ChatInventoryData chatInvData)
+        {
+            //List<string> list = chatInvData.Whispers.PlayerNames;
+            //int count = MAX_WHISPER;
+            //for (int i = 0; i < count; ++i)
+            //    WhisperList[i] = list[i];
+
+            //list = chatInvData.MyChatGroup.PlayerNames;
+            //count = MAX_GROUPMEMBER;
+            //for (int i = 0; i < count; ++i)
+            //    MyGroupMembers[i] = list[i];
+
+            //list = chatInvData.OtherChatGroup.PlayerNames;
+            //count = MAX_GROUPMEMBER;
+            //for (int i = 0; i < count; ++i)
+            //    OtherGroupMembers[i] = list[i];
+        }
+
+        public void AddToWhisperList(string playerName)
+        {
+        }
+    }*/
 
     /// <summary>
     /// 社群資料for zdsp
@@ -2282,9 +2339,8 @@ namespace Zealot.Common.Entities
         //public int GetAvailableSlotFriends() { return GetAvailableSlot(FriendType.Good); }
         //public int GetAvailableSlotRequests() { return GetAvailableSlot(FriendType.Good); }
         #endregion
-
-
     }
+
     #endregion
 
     #region Lottery
@@ -2889,24 +2945,12 @@ namespace Zealot.Common.Entities
 
     public class PowerUpStats : LocalObject
     {
-        // Method #1
-        private string _powerUpLvl;
-
-        // Method #2
         public CollectionHandler<object> powerUpSlots { get; set; }
 
         public PowerUpStats() : base(LOTYPE.PowerUpStats)
         {
-            _powerUpLvl = "0";
-
             powerUpSlots = new CollectionHandler<object>(PowerUpInventoryData.MAX_POWERUPSLOTS);
             powerUpSlots.SetParent(this, "powerUpSlots");
-        }
-
-        public string powerUpLvl
-        {
-            get { return _powerUpLvl; }
-            set { OnSetAttribute("powerUpLvl", value); _powerUpLvl = value; }
         }
     }
 
@@ -2985,6 +3029,40 @@ namespace Zealot.Common.Entities
         {
             get { return _FusionData; }
             set { OnSetAttribute("FusionData", value); _FusionData = value; }
+        }
+    }
+    #endregion
+
+    #region InteractiveTrigger
+    public class InteractiveTriggerSynStats : StaticObjectStat
+    {
+        private int _entityId;
+        private int _step;
+        private string _playerName;
+
+        public InteractiveTriggerSynStats() : base(LOTYPE.InteractiveTriggerSynStats)
+        {
+            _entityId = 0;
+            _step = 0;
+            _playerName = string.Empty;
+        }
+
+        public int entityId
+        {
+            get { return _entityId; }
+            set { OnSetAttribute("entityId", value); _entityId = value; }
+        }
+
+        public int step
+        {
+            get { return _step; }
+            set { OnSetAttribute("step", value); _step = value; }
+        }
+
+        public string playerName
+        {
+            get { return _playerName; }
+            set { OnSetAttribute("playerName", value); _playerName = value; }
         }
     }
     #endregion

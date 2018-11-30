@@ -120,23 +120,6 @@ namespace Zealot.Common
         }
     }
 
-    // client use
-    public struct AchievementReward
-    {
-        public AchievementRewardType rewardType;
-        public int rewardId;
-        public float rewardCount;
-        public string iconPath;
-
-        public AchievementReward(AchievementRewardType type, int id, float count, string path)
-        {
-            rewardType = type;
-            rewardId = id;
-            rewardCount = count;
-            iconPath = path;
-        }
-    }
-
     public class AchievementRecord
     {
         public int Id { get; set; }
@@ -249,5 +232,33 @@ namespace Zealot.Common
         HaveItem,
         Stored,
         Unlocked,
+    }
+
+    public class AchievementRewardInfo
+    {
+        public AchievementRewardClaim rewardClaim;
+        public bool claimed;
+
+        public AchievementRewardInfo(AchievementRewardClaim reward, bool claim)
+        {
+            rewardClaim = reward;
+            claimed = claim;
+        }
+    }
+
+    public class CollatedAchievementReward
+    {
+        public AchievementRewardType rewardType;
+        public int rewardId;
+        public float rewardCount;
+        public string iconPath;
+
+        public CollatedAchievementReward(AchievementRewardType type, int id, float count, string path)
+        {
+            rewardType = type;
+            rewardId = id;
+            rewardCount = count;
+            iconPath = path;
+        }
     }
 }

@@ -204,6 +204,14 @@ namespace Photon.LoadBalancing.GameServer
         {
             LadderRules.ResetPlayerRank(player);
             peer.ZRPC.GameToMasterRPC.GMResultBool(seesionid, true, peer);
-        }        
+        }
+
+
+        //[RPCMethod(RPCCategory.MasterToGame, (byte)MasterToGameRPCMethods.Ret_GetServerList)]
+        //public void Ret_GetServerList(string info, OutgoingGameToMasterPeer peer)
+        //{
+        //    SocialController.serverInfo = Newtonsoft.Json.JsonConvert.DeserializeObject< Newtonsoft.Json.Linq.JToken>(info);
+        //    SocialController.signal.Release();
+        //}
     }
 }

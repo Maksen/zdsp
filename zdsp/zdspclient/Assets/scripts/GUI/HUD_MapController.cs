@@ -54,16 +54,16 @@ public class StaticMapIconGameObjectPair
     }
     public bool hasQuestAvailable()
     {
-        return GameInfo.gLocalPlayer.QuestController.IsQuestAvailable(npc.ActiveQuest);
+        return GameInfo.gLocalPlayer.QuestController.IsQuestAvailable(npc.ActiveQuest) && QuestRepo.GetQuestPromptAccept(npc.ActiveQuest);
     }
     public bool hasQuestOngoing()
     {
         QuestType type = QuestRepo.GetQuestTypeByQuestId(npc.ActiveQuest);
-        return GameInfo.gLocalPlayer.QuestController.IsQuestOngoing(type, npc.ActiveQuest);
+        return GameInfo.gLocalPlayer.QuestController.IsQuestOngoing(type, npc.ActiveQuest) && QuestRepo.GetQuestPromptObjective(npc.ActiveQuest);
     }
     public bool hasQuestToSubmit()
     {
-        return GameInfo.gLocalPlayer.QuestController.IsQuestCanSubmit(npc.ActiveQuest);
+        return GameInfo.gLocalPlayer.QuestController.IsQuestCanSubmit(npc.ActiveQuest) && QuestRepo.GetQuestPromptObjective(npc.ActiveQuest);
     }
     public bool hasQuestCompleted()
     {
@@ -355,7 +355,7 @@ public static class HUD_MapController
         for (int i = 0; i < mShopNPCPosLst.Count; ++i)
         {
             if (mShopNPCPosLst[i].hasQuest())
-                mQuestNPCPosLst.Add(mQuestNPCPosLst[i]);
+                mQuestNPCPosLst.Add(mShopNPCPosLst[i]);
         }
         mShopNPCPosLst.RemoveAll(npc => npc.hasQuest());
 

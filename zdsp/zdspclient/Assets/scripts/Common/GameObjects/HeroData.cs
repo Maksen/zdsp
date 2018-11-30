@@ -271,10 +271,11 @@ namespace Zealot.Common
             if (growthData != null)
             {
                 if (CombatStats == null)
-                    CombatStats = new PlayerCombatStats();
+                    CombatStats = new HeroCombatStats();
 
-                PlayerCombatStats combatStats = (PlayerCombatStats)CombatStats;
+                HeroCombatStats combatStats = (HeroCombatStats)CombatStats;
                 combatStats.SuppressComputeAll = true;
+                combatStats.SetField(FieldName.ExpBonus, Level); // ExpBonus is used as Level placeholder
                 CombatStats.SetField(FieldName.WeaponAttackBase, HeroJson.weaponattack);
                 CombatStats.SetField(FieldName.StrengthBase, growthData.strength);
                 CombatStats.SetField(FieldName.DexterityBase, growthData.dexterity);

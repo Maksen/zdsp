@@ -87,8 +87,6 @@
       <property name="summonduration" type="float" uitext="Summon Duration"/>
       <property name="summoneffect" type="asset" uitext="Summon Effect Path" default="" assettype="prefab"/>
       <property name="unlockshow" type="asset" uitext="Unlock Show Path" default="" assettype="prefab"/>
-      <property name="lookbackshow" type="string" uitext="Look Back Show Name" default=""/>
-      <property name="exploreaction" type="string" uitext="Explore Action Name" default=""/>
       <property name="randomitemid" type="string" uitext="Random Change Item ID" default="" info="bind;unbind"/>
       <property name="portraitpath" type="asset" uitext="Portrait Path" default="" assettype="sprite"/>
       <property name="smallportraitpath" type="asset" uitext="Small Portrait Path" default="" assettype="sprite"/>
@@ -192,6 +190,8 @@
       <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
       <property name="rewardgroupid" type="int" uitext="Reward Group ID"/>
       <property name="lootlinkid" type="int" uitext="LootLink ID"/>
+      <property name="monstertype" type="MonsterType" uitext="Monster Type"/>
+      <property name="level" type="int" uitext="Monster Level" default="1"/>
     </element>
 
     <element name="TerrainEfficiency" useexcel="true">

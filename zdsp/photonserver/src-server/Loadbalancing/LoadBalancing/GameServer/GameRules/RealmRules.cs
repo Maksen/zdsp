@@ -93,57 +93,56 @@ namespace Zealot.Server.Rules
         public static RealmRetCode TeleportToLevelInPos(string levelName, RPCPosition pos, bool deductGold, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
-            if (player != null && !player.Destroyed)
+            if (player == null || !player.IsAlive())
+                return RealmRetCode.RealmEnterFailed;
+
+            RealmWorldJson realmWorldJson = RealmRepo.GetWorldByName(levelName);
+            if (realmWorldJson == null) // Check if level name is realm world
+                return RealmRetCode.RealmEnterFailed;
+ 
+            int reqLvl = realmWorldJson.reqlvl;
+            if (reqLvl > player.GetAccumulatedLevel())
             {
-                RealmWorldJson realmWorldJson = RealmRepo.GetWorldByName(levelName);
-                if (realmWorldJson != null) // Check if level name is realm world
+                string param = string.Format("level;{0}", player.GetLocalizedProgressLevelMin(reqLvl));
+                peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_map_FailLvl", param, false, peer);
+                return RealmRetCode.RealmRequiredlvl;
+            }
+
+            if (deductGold)
+            {
+                int amt = (realmWorldJson.sequence - 1) * 1000 + 2000;
+                if (amt < 0) amt = 0;
+                if (!player.IsCurrencySufficient(CurrencyType.Gold, amt))
                 {
-                    int reqLvl = realmWorldJson.reqlvl;
-                    if (reqLvl > player.GetAccumulatedLevel())
-                    {
-                        string param = string.Format("level;{0}", player.GetLocalizedProgressLevelMin(reqLvl));
-                        peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_map_FailLvl", param, false, peer);
-                        return RealmRetCode.RealmRequiredlvl;
-                    }
+                    peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_map_FailGold", "", false, peer);
+                    return RealmRetCode.RealmGoldNotEnough;
+                }
+                else
+                    player.DeductGold(amt, true, true, "Teleport");
+            }
 
-                    if (deductGold)
-                    {
-                        int amt = (realmWorldJson.sequence - 1) * 1000 + 2000;
-                        if (amt < 0) amt = 0;
-                        if (!player.IsCurrencySufficient(CurrencyType.Gold, amt))
-                        {
-                            peer.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_map_FailGold", "", false, peer);
-                            return RealmRetCode.RealmGoldNotEnough;
-                        }
-                        else
-                            player.DeductGold(amt, true, true, "Teleport");
-                    }
-
-                    if (levelName == player.mInstance.currentlevelname)
-                    {
-                        if (pos != null)
-                            peer.ZRPC.CombatRPC.TeleportSetPos(pos, peer);
-                        else
-                        {
-                            player.mInstance.SetSpawnPos(player);
-                            peer.ZRPC.CombatRPC.TeleportSetPos(player.Position.ToRPCPosition(), peer);
-                        }
-                    }
-                    else
-                    {
-                        int realmId = realmWorldJson.id;
-                        string roomGuid = GameApplication.Instance.GameCache.TryGetRealmRoomGuid(realmId, realmWorldJson.maxplayer);
-                        if (!string.IsNullOrEmpty(roomGuid))
-                            peer.TransferRoom(roomGuid, levelName);
-                        else
-                            peer.CreateRealm(realmId, levelName);
-                        if (pos != null)
-                            peer.mSpawnPos = pos.ToVector3();
-                    }
-                    return RealmRetCode.RealmEnterSuccess;
+            if (levelName == player.mInstance.mCurrentLevelName)
+            {
+                if (pos != null)
+                    peer.ZRPC.CombatRPC.TeleportSetPos(pos, peer);
+                else
+                {
+                    player.mInstance.SetPlayerPosToSpawnPos(player);
+                    peer.ZRPC.CombatRPC.TeleportSetPos(player.Position.ToRPCPosition(), peer);
                 }
             }
-            return RealmRetCode.RealmEnterFailed;
+            else
+            {
+                int realmId = realmWorldJson.id;
+                string roomGuid = GameApplication.Instance.GameCache.TryGetRealmRoomGuid(realmId, realmWorldJson.maxplayer);
+                if (!string.IsNullOrEmpty(roomGuid))
+                    peer.TransferRoom(roomGuid, levelName);
+                else
+                    peer.CreateRealm(realmId, levelName);
+                if (pos != null)
+                    peer.mSpawnPos = pos.ToVector3();
+            }
+            return RealmRetCode.RealmEnterSuccess;
         }
 
         public static string CreateRealmById(int realmId, bool logAI, bool checkAll, GameClientPeer peer)
@@ -599,7 +598,7 @@ namespace Zealot.Server.Rules
         public static bool CheckRealmRequirement(RealmJson realm, Player playerToCheck, GameClientPeer peerToInform, bool checkAll)
         {
             bool samePlayer = playerToCheck.Slot == peerToInform;
-            if (!playerToCheck.mInstance.IsWorld())
+            if (!playerToCheck.IsInWorld)
             {
                 if (samePlayer)
                     peerToInform.ZRPC.CombatRPC.Ret_SendSystemMessage("ret_Dun_InRealm", "", false, peerToInform);

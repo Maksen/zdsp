@@ -1,21 +1,28 @@
 ﻿using Kopio.JsonContracts;
 using UnityEngine;
+using UnityEngine.UI;
 using Zealot.Repository;
 
 public class UI_Achievement_CollectionOriginDialog : BaseWindowBehaviour
 {
     [SerializeField] Transform dataParent;
     [SerializeField] GameObject dataPrefab;
+    [SerializeField] ScrollRect scrollRect;
 
     public void Init(string originStr)
     {
-        int originId;
-        ItemOriginJson itemOriginJson;
+        if (originStr == "-1")
+            return;
         string[] origins = originStr.Split(';');
         for (int i = 0; i < origins.Length; ++i)
         {
-            if (int.TryParse(origins[i], out originId) && GameRepo.ItemFactory.ItemOriginTable.TryGetValue(originId, out itemOriginJson))
-                InitOriginData(itemOriginJson);
+            int originId;
+            if (int.TryParse(origins[i], out originId))
+            {
+                ItemOriginJson itemOriginJson = GameRepo.ItemFactory.GetItemOriginById(originId);
+                if (itemOriginJson != null)
+                    InitOriginData(itemOriginJson);
+            }
         }
     }
 
@@ -24,6 +31,8 @@ public class UI_Achievement_CollectionOriginDialog : BaseWindowBehaviour
         string[] paramArr = json.param.Split(';');
         for (int i = 0; i < paramArr.Length; i++)
         {
+            if (json.origintype == Zealot.Common.ItemOriginType.Auction)  // todo: jm to confirm when have auction
+                continue;
             GameObject go = ClientUtils.CreateChild(dataParent, dataPrefab);
             go.GetComponent<Achievement_ItemOriginData>().Init(json.origintype, paramArr[i]);
         }
@@ -33,5 +42,6 @@ public class UI_Achievement_CollectionOriginDialog : BaseWindowBehaviour
     {
         base.OnCloseWindow();
         ClientUtils.DestroyChildren(dataParent);
+        scrollRect.verticalNormalizedPosition = 1f;
     }
 }

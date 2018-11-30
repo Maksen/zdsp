@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Zealot.Common;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Photon.LoadBalancing.MasterServer
 {
@@ -128,6 +130,28 @@ namespace Photon.LoadBalancing.MasterServer
                 var task = MasterApplication.Instance.ServerLineSelectAllAsync();
             }
         }
+
+        public string GetServerListJson()
+        {
+            JObject json = new JObject();
+            json["serverLines"] = JToken.FromObject(this.ServerLineList.list);
+            JArray servers = new JArray();
+
+            json["gameServers"] = servers;
+            byte gameserver = (byte)GameServerType.Game;
+            foreach (var kvp in GameServersByServerId)
+            {
+                JArray item = new JArray();
+                var config = kvp.Value.Serverconfig;
+                if (config.servertype == gameserver)
+                {
+                    item.Add(JObject.FromObject(config));
+                    item.Add(config.GetServerLoad(config.onlinePlayers).ToString());
+                }
+            }
+            return json.ToString( Formatting.None);
+        }
+
 
         public string GetSerializedServer()
         {

@@ -187,10 +187,22 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("ConsoleGetCollection", objtype, target);
     }
 
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetCollectionById)]
+    public void ConsoleGetCollectionById(int id)
+    {
+        ProxyMethod("ConsoleGetCollectionById", id);
+    }
+
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAchievement)]
     public void ConsoleGetAchievement(string objtype, string target, int count, bool increment)
     {
         ProxyMethod("ConsoleGetAchievement", objtype, target, count, increment);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAchievementById)]
+    public void ConsoleGetAchievementById(int id)
+    {
+        ProxyMethod("ConsoleGetAchievementById", id);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleClearAchievementRewards)]
@@ -818,15 +830,21 @@ public partial class NonCombatRPC : RPCBase
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventCompanion)]
-    public void ApplyQuestEventCompanion(int eventid)
+    public void ApplyQuestEventCompanion(int eventid, int questid)
     {
-        ProxyMethod("ApplyQuestEventCompanion", eventid);
+        ProxyMethod("ApplyQuestEventCompanion", eventid, questid);
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]
     public void ResetQuestEventCompanion(int companionid)
     {
         ProxyMethod("ResetQuestEventCompanion", companionid);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.GuidePointReached)]
+    public void GuidePointReached(int questid, int guideid)
+    {
+        ProxyMethod("GuidePointReached", questid, guideid);
     }
     #endregion
 
@@ -874,6 +892,12 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("UpdateEquipSlots", equip, auto);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RequestSkillInventory)]
+    public void RequestSkillInventory()
+    {
+        ProxyMethod("RequestSkillInventory");
+    }
     #endregion
 
     #region PowerUp
@@ -883,16 +907,10 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("PowerUp", part);
     }
 
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianLevelUp)]
-    public void MeridianLevelUp(int type)
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianUp)]
+    public void MeridianUp(int type)
     {
-        ProxyMethod("MeridianLevelUp", type);
-    }
-
-    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianExpUp)]
-    public void MeridianExpUp(int type)
-    {
-        ProxyMethod("MeridianExpUp", type);
+        ProxyMethod("MeridianUp", type);
     }
     #endregion
 
@@ -963,9 +981,9 @@ public partial class NonCombatRPC : RPCBase
         ProxyMethod("SocialOnOpenFriendsMenu");
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequest)]
-    public void SocialRaiseRequest(string friendName)
+    public void SocialRaiseRequest(string friendName,bool fromTemp)
     {
-        ProxyMethod("SocialRaiseRequest", friendName);
+        ProxyMethod("SocialRaiseRequest", friendName, fromTemp);
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptRequest)]
     public void SocialAcceptRequest(string friendName)
@@ -1020,5 +1038,25 @@ public partial class NonCombatRPC : RPCBase
     {
         ProxyMethod("SocialClearTemp");
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialTest_AddTempFriendsSingle)]
+    public void SocialTest_AddTempFriendsSingle(string name)
+    {
+        ProxyMethod("SocialTest_AddTempFriendsSingle", name);
+    }
+
+#if ZEALOT_DEVELOPMENT
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DebugFixTool)]
+    public void DebugFixTool(string userid, string charname, string db_column, string path, string key, string value, bool forceReset)
+    {
+        ProxyMethod("DebugFixTool", userid, charname, db_column, path, key, value, forceReset);
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DebugSelectTool)]
+    public void DebugSelectTool(string userid, string charname, string db_column, string path,string key)
+    {
+        ProxyMethod("DebugSelectTool", userid, charname, db_column, path, key);
+    }
+#endif
     #endregion
 }

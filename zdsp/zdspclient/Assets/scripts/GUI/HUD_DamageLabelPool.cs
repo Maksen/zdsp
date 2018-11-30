@@ -148,9 +148,18 @@ public class HUD_DamageLabelPool : MonoBehaviour
             {
                 emitter = DamageLabelParticles.instance.Critical;
             }
-            else if (damage.ar.IsEvasion || (value == "b"))
+            else if (damage.ar.IsEvasion)
             {
-                emitter = DamageLabelParticles.instance.Dodge;
+                if (target.IsMonster())
+                {
+                    emitter = DamageLabelParticles.instance.Dodge;
+                    value = "b";
+                }
+                else
+                {
+                    emitter = DamageLabelParticles.instance.Miss;
+                    value = "a";
+                }
             }
             else if (damage.ar.IsHeal)
             {
@@ -162,7 +171,12 @@ public class HUD_DamageLabelPool : MonoBehaviour
             }
             else 
             {
-                emitter = DamageLabelParticles.instance.NormalDamage_E;
+                if (target.EntityType == EntityType.Player || target.EntityType == EntityType.PlayerGhost || target.EntityType == EntityType.AIPlayer)
+                {
+                    emitter = DamageLabelParticles.instance.NormalDamage_E;
+                }
+                else
+                    emitter = DamageLabelParticles.instance.NormalDamage_F;
             }
 
             if (emitter != null)

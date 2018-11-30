@@ -20,6 +20,7 @@ public class DialogueSequenceData
     public bool CompletedAllQuest;
     public List<int> QuestList;
     public Dictionary<int, int> FunctionList;
+    public List<int> LockedList;
     public DialogueType DialogueType;
 
     public DialogueSequenceData(StaticNPCGhost npc, int talkid, int questid, bool ongoing)
@@ -34,31 +35,7 @@ public class DialogueSequenceData
         DialogueType = DialogueType.Quest;
     }
 
-    public DialogueSequenceData(StaticNPCGhost npc, List<int> questlist)
-    {
-        QuestId = -1;
-        TalkId = -1;
-        NPCGhost = npc;
-        IsOngoingQuest = false;
-        CompletedAllQuest = false;
-        QuestList = questlist;
-        FunctionList = null;
-        DialogueType = DialogueType.QuestSelection;
-    }
-
-    public DialogueSequenceData(StaticNPCGhost npc, Dictionary<int, int> functionlist)
-    {
-        QuestId = -1;
-        TalkId = -1;
-        NPCGhost = npc;
-        IsOngoingQuest = false;
-        CompletedAllQuest = false;
-        QuestList = null;
-        FunctionList = functionlist;
-        DialogueType = DialogueType.FunctionSelection;
-    }
-
-    public DialogueSequenceData(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist)
+    public DialogueSequenceData(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist, List<int> lockedlist)
     {
         QuestId = -1;
         TalkId = -1;
@@ -67,6 +44,7 @@ public class DialogueSequenceData
         CompletedAllQuest = false;
         QuestList = questlist;
         FunctionList = functionlist;
+        LockedList = lockedlist;
         DialogueType = DialogueType.Selection;
     }
 
@@ -112,23 +90,9 @@ public class QuestDialogueController
         ShowDialogue();
     }
 
-    public void OpenQuestFunctionDialogue(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist)
+    public void OpenSelectionDialogue(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist, List<int> lockedlist)
     {
-        DialogueSequenceData dialogue = new DialogueSequenceData(npc, questlist);
-        mDialogueData.Add(dialogue);
-        ShowDialogue();
-    }
-
-    public void OpenQuestSelectionDialogue(StaticNPCGhost npc, List<int> questlist)
-    {
-        DialogueSequenceData dialogue = new DialogueSequenceData(npc, questlist);
-        mDialogueData.Add(dialogue);
-        ShowDialogue();
-    }
-
-    public void OpenFunctionSelectionDialogue(StaticNPCGhost npc, Dictionary<int, int> functionlist)
-    {
-        DialogueSequenceData dialogue = new DialogueSequenceData(npc, functionlist);
+        DialogueSequenceData dialogue = new DialogueSequenceData(npc, questlist, functionlist, lockedlist);
         mDialogueData.Add(dialogue);
         ShowDialogue();
     }
@@ -191,15 +155,7 @@ public class QuestDialogueController
         }
         else if (dialogue.DialogueType == DialogueType.Selection)
         {
-            uidialogue.InitSelectionDialogue(dialogue.NPCGhost, dialogue.QuestList, dialogue.FunctionList);
-        }
-        else if (dialogue.DialogueType == DialogueType.QuestSelection)
-        {
-            uidialogue.InitQuestSelectionDialogue(dialogue.NPCGhost, dialogue.QuestList);
-        }
-        else if (dialogue.DialogueType == DialogueType.FunctionSelection)
-        {
-            uidialogue.InitFunctionSelectionDialogue(dialogue.NPCGhost, dialogue.FunctionList);
+            uidialogue.InitSelectionDialogue(dialogue.NPCGhost, dialogue.QuestList, dialogue.FunctionList, dialogue.LockedList);
         }
         else if (dialogue.DialogueType == DialogueType.Common)
         {

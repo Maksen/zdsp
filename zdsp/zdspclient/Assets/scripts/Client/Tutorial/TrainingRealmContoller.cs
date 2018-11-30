@@ -203,7 +203,7 @@ public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
         {
             EntityTimers.SetTimer(1000, (object obj) => {
                 
-                GameInfo.gCombat.CutsceneManager.PlayQuestCutscene("cutscene1");
+                CutsceneManager.instance.PlayQuestCutscene("cutscene1");
             }, null);
         }
         else if(mystep == Trainingstep.EncounterBoss) //dummy step which waiting for boss entcounter
@@ -242,7 +242,7 @@ public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
             //skill cast is 1 second. so give 2s for delay
             EntityTimers.SetTimer(2000, (object obj) => {
                 
-                GameInfo.gCombat.CutsceneManager.PlayQuestCutscene("cutscene2");
+                CutsceneManager.instance.PlayQuestCutscene("cutscene2");
             }, null);
         }
         else if (mystep == Trainingstep.ShowRGB)
@@ -259,7 +259,7 @@ public class TrainingRealmContoller: LevelMonoSingleton<TrainingRealmContoller>
         {
             //RGB skilldone and waiting for boss hp below 10%
             
-             GameInfo.gCombat.CutsceneManager.PlayQuestCutscene("cutscene3"); 
+             CutsceneManager.instance.PlayQuestCutscene("cutscene3"); 
         }
         else if(mystep == Trainingstep.Finished)
         {

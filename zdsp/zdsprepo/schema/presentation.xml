@@ -2,7 +2,7 @@
 <magicalarea51>
   <presentation>
     <menu>
-      <category uitext="Item">   
+      <category uitext="Item">
         <option uitext="LinkUI" datasource="LinkUI"/>
         <option uitext="Item Origin" datasource="ItemOrigin"/>
         <option uitext="Item Sort" datasource="ItemSort"/>
@@ -132,6 +132,7 @@
       <category uitext="NPC">
         <option uitext="CombatNPC" datasource="CombatNPC"/>
         <option uitext="StaticNPC" datasource="StaticNPC"/>
+        <option uitext="StaticGuide" datasource="StaticGuide"/>
         <option uitext="RealmNPCGroup" datasource="RealmNPCGroup"/>
         <option uitext="BossAI" datasource="BossAI"/>
         <option uitext="SpecialBoss" datasource="SpecialBoss"/>
@@ -147,7 +148,7 @@
       </category>
 
       <category uitext="WordFilter">
-        <option uitext="WordFilter" datasource="DisableWord"/>
+        <option uitext="WordFilter" datasource="WordFilter"/>
       </category>
 
       <category uitext="GUI Localization">
@@ -196,7 +197,7 @@
         <option uitext="Terrain Efficiency Chart" datasource="TerrainEfficiency"/>
         <option uitext="Terrain Type" datasource="Terrain"/>
       </category>
-      
+
       <category uitext="Guild">
         <option uitext="Constant" datasource="GuildConstant"/>
         <option uitext="Guild SMBoss" datasource="GuildSMBoss"/>

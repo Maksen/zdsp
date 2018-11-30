@@ -1,11 +1,12 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using Zealot.Common;
-using System;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using Zealot.Common;
 
-public class AchievementRewardsScrollView : MonoBehaviour
+public class AchievementRewardsScrollView : MonoBehaviour, IBeginDragHandler
 {
     [SerializeField] int paddingRows = 2;
     [SerializeField] GameObject dataPrefab;
@@ -18,6 +19,7 @@ public class AchievementRewardsScrollView : MonoBehaviour
 
     //scroll rect properties
     private int maxRows;
+
     private float visibleHeight;
     private int numRowsAvailable;
     private int numRowsVisible;
@@ -33,7 +35,14 @@ public class AchievementRewardsScrollView : MonoBehaviour
     private int currentFirstRow;
     private bool initialized = false;
 
-    private List<AchievementRewardClaim> dataList;
+    private List<AchievementRewardInfo> dataList;
+    private UI_Achievement_RewardsDialog parent;
+
+    private int playEfxCount = 0;
+    private bool CanDrag
+    {
+        get { return playEfxCount == 0; }
+    }
 
     public void Clear()
     {
@@ -69,26 +78,13 @@ public class AchievementRewardsScrollView : MonoBehaviour
     void OnDisable()
     {
         initialized = false;
+        playEfxCount = 0;
     }
 
-    void OnDestroy()
+    public void InitScrollView(UI_Achievement_RewardsDialog myParent)
     {
-        dataPrefab = null;
-        scrollRect = null;
-        contentTransform = null;
-        verticalLayout = null;
+        parent = myParent;
 
-        contentRowList = null;
-        emptyRowList = null;
-    }
-
-    private void Awake()
-    {
-        InitScrollView();
-    }
-
-    public void InitScrollView()
-    {
         currentTopIndex = 0;
         currentFirstRow = 1;
 
@@ -103,51 +99,9 @@ public class AchievementRewardsScrollView : MonoBehaviour
         scrollRect.onValueChanged.AddListener(OnUpdateScroll);
     }
 
-    public void Populate(List<AchievementRewardClaim> rewardList)
+    public void GoToTop()
     {
-        Clear();
-
-        currentTopIndex = 0;
-        currentFirstRow = 1;
         scrollRect.verticalNormalizedPosition = 1;
-
-        int maxrows = rewardList.Count;
-        InitRows(maxrows);
-        dataList = rewardList;
-
-        for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
-        {
-            var currentRow = contentRowList[i];
-            Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
-            AchievementRewardClaim info = dataList[j];
-            achData.Init(info);
-        }
-
-        if (!initialized)
-            StartCoroutine(WaitForFrame());
-    }
-
-    IEnumerator WaitForFrame()
-    {
-        yield return null;
-        scrollRect.verticalNormalizedPosition = 1;
-        initialized = true;
-    }
-
-    public void Refresh()
-    {
-        Clear();
-
-        int maxrows = dataList.Count;
-        InitRows(maxrows);
-
-        for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
-        {
-            var currentRow = contentRowList[i];
-            Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
-            AchievementRewardClaim info = dataList[j];
-            achData.Init(info);
-        }
     }
 
     public void InitRows(int maxrows)
@@ -165,7 +119,7 @@ public class AchievementRewardsScrollView : MonoBehaviour
         numRowsAvailable = maxRows >= paddedRows ? paddedRows : maxRows;
 
         //create empty rows
-        for (int i = 1; i <= maxRows; i++)
+        for (int i = 0; i < maxRows; ++i)
         {
             var emptyRow = new GameObject("row " + i);
             RectTransform rectTransform = emptyRow.AddComponent<RectTransform>();
@@ -196,7 +150,7 @@ public class AchievementRewardsScrollView : MonoBehaviour
         }
 
         //create content row
-        for (int i = currentTopIndex; i < currentTopIndex + numRowsAvailable; i++)
+        for (int i = currentTopIndex; i < currentTopIndex + numRowsAvailable; ++i)
         {
             var contentRow = Instantiate(dataPrefab);
 
@@ -209,7 +163,81 @@ public class AchievementRewardsScrollView : MonoBehaviour
         }
     }
 
-    void OnUpdateScroll(Vector2 scrollpos)
+    public void Populate(List<AchievementRewardInfo> rewardList)
+    {
+        Clear();
+
+        currentTopIndex = 0;
+        currentFirstRow = 1;
+        scrollRect.verticalNormalizedPosition = 1;
+
+        int maxrows = rewardList.Count;
+        InitRows(maxrows);
+        dataList = rewardList;
+
+        for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
+        {
+            var currentRow = contentRowList[i];
+            Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
+            AchievementRewardInfo info = dataList[j];
+            achData.Init(info, parent, this);
+        }
+
+        if (!initialized)
+            StartCoroutine(WaitForFrame());
+    }
+
+    IEnumerator WaitForFrame()
+    {
+        yield return null;
+        scrollRect.verticalNormalizedPosition = 1;
+        initialized = true;
+    }
+
+    public void Refresh(int dataIndex)
+    {
+        for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
+        {
+            if (j == dataIndex)
+            {
+                var currentRow = contentRowList[i];
+                Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
+                AchievementRewardInfo info = dataList[j];
+                achData.UpdateDataAndPlayEfx(info);
+                ++playEfxCount;
+                break;
+            }
+        }
+    }
+
+    public void RefreshAll()
+    {
+        for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
+        {
+            var currentRow = contentRowList[i];
+            Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
+            AchievementRewardInfo info = dataList[j];
+            achData.UpdateData(info);
+        }
+    }
+
+    public void PlayEfx(int dataIndex)
+    {
+        for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
+        {
+            if (j == dataIndex)
+            {
+                var currentRow = contentRowList[i];
+                Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
+                AchievementRewardInfo info = dataList[j];
+                achData.PlayClaimEfx();
+                ++playEfxCount;
+                break;
+            }
+        }
+    }
+
+    private void OnUpdateScroll(Vector2 scrollpos)
     {
         float posY = contentTransform.localPosition.y;
 
@@ -221,6 +249,9 @@ public class AchievementRewardsScrollView : MonoBehaviour
 
         if (currentFirstRow != newFirst)
         {
+            //print("newFirst: " + newFirst);
+            //print("newLast: " + newLast);
+
             if (scrollUp && newFirst > 1 && newLast < maxRows && (currentTopIndex + numRowsAvailable) < emptyRowList.Count)
             {
                 int diff = newFirst - currentFirstRow;
@@ -240,6 +271,7 @@ public class AchievementRewardsScrollView : MonoBehaviour
                     RefreshNewRow(contentRow, newIndex);
 
                     currentTopIndex++;
+                    //print("currentTopIndex: " + currentTopIndex);
                 }
             }
             else if (!scrollUp && newLast < maxRows - 1 && currentTopIndex > 0)
@@ -260,6 +292,7 @@ public class AchievementRewardsScrollView : MonoBehaviour
                     contentRow.transform.SetParent(emptyRow.transform, false);
 
                     currentTopIndex--;
+                    //print("currentTopIndex: " + currentTopIndex);
                 }
             }
 
@@ -271,8 +304,8 @@ public class AchievementRewardsScrollView : MonoBehaviour
 
     private int TopRowSeen(float posY)
     {
-        var hiddenGrids = Math.Floor(posY / cellHeight);
-        return (int)hiddenGrids + 1;
+        int hiddenGrids = Mathf.FloorToInt(posY / cellHeight);
+        return hiddenGrids + 1;
     }
 
     private void RefreshNewRow(GameObject newRow, int newIndex)
@@ -281,7 +314,101 @@ public class AchievementRewardsScrollView : MonoBehaviour
             return;
 
         Achievement_RewardData achData = newRow.GetComponent<Achievement_RewardData>();
-        AchievementRewardClaim info = dataList[newIndex];
-        achData.Init(info);
+        AchievementRewardInfo info = dataList[newIndex];
+        achData.Init(info, parent, this);
+    }
+
+    public void RemoveData(AchievementRewardInfo achReward)
+    {
+        for (int i = 0; i < numRowsAvailable; ++i)
+        {
+            var currentRow = contentRowList[i];
+            Achievement_RewardData achData = currentRow.GetComponent<Achievement_RewardData>();
+            AchievementRewardInfo info = achData.GetRewardInfo();
+            if (achReward.rewardClaim.ClaimType == info.rewardClaim.ClaimType && achReward.rewardClaim.Id == info.rewardClaim.Id)
+            {
+                RemoveContentRow(i);
+                --playEfxCount;
+                break;
+            }
+        }
+    }
+
+    private void RemoveContentRow(int rowIndex)
+    {
+        //print("startIndex: " + startIndex);
+        if (numRowsAvailable == maxRows)  // no empty rows
+        {
+            var contentRow = contentRowList[rowIndex];
+            contentRowList.RemoveAt(rowIndex);
+            Destroy(contentRow);
+
+            var emptyRow = emptyRowList[rowIndex];
+            emptyRowList.RemoveAt(rowIndex);
+            Destroy(emptyRow);
+
+            numRowsAvailable--;
+            maxRows--;
+
+            dataList.RemoveAt(rowIndex);
+        }
+        else
+        {
+            int lastRowIndex = currentTopIndex + numRowsAvailable;
+            //print("lastRowIndex: " + lastRowIndex);
+            if (lastRowIndex < emptyRowList.Count)  // still have empty row at the bottom
+            {
+                // move content row at startindex to bottom empty row and refresh the row
+                GameObject contentRowToMove = contentRowList[rowIndex];
+                contentRowList.RemoveAt(rowIndex);
+                contentRowList.Add(contentRowToMove);
+
+                GameObject moveToEmptyRow = emptyRowList[lastRowIndex];
+                contentRowToMove.transform.SetParent(moveToEmptyRow.transform, false);
+
+                RefreshNewRow(contentRowToMove, lastRowIndex);
+
+                // destroy emptied row
+                int emptyRowIndex = currentTopIndex + rowIndex;
+                GameObject emptiedOutRow = emptyRowList[emptyRowIndex];
+                emptyRowList.RemoveAt(emptyRowIndex);
+                Destroy(emptiedOutRow);
+
+                maxRows--;
+
+                dataList.RemoveAt(emptyRowIndex);
+            }
+            else if (currentTopIndex > 0)// have empty row at the top
+            {
+                // move content row at startindex to top empty row and refresh the row
+                GameObject contentRowToMove = contentRowList[rowIndex];
+                contentRowList.RemoveAt(rowIndex);
+                contentRowList.Insert(0, contentRowToMove);
+
+                int newTopIndex = currentTopIndex - 1;
+                GameObject moveToEmptyRow = emptyRowList[newTopIndex];
+                contentRowToMove.transform.SetParent(moveToEmptyRow.transform, false);
+
+                RefreshNewRow(contentRowToMove, newTopIndex);
+
+                // destroy emptied row
+                int emptyRowIndex = currentTopIndex + rowIndex;
+                GameObject emptiedOutRow = emptyRowList[emptyRowIndex];
+                emptyRowList.RemoveAt(emptyRowIndex);
+                Destroy(emptiedOutRow);
+
+                maxRows--;
+                dataList.RemoveAt(emptyRowIndex);
+                currentTopIndex--;
+            }
+        }
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (!CanDrag)
+        {
+            eventData.pointerDrag = null;
+        }
     }
 }

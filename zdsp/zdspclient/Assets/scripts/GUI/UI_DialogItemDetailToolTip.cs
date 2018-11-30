@@ -48,7 +48,6 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     [Header("Left Panel Btn Prefab")]
     [SerializeField]
     GameObject mLPBtnPrefab;
-
     [SerializeField]
     List<Sprite> mButtonSprites;
 
@@ -189,7 +188,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 InitTT_MercenaryItem(item);
                 break;
             case ItemType.InstanceItem:
-                InitTT_InstanceItem(item);             
+                InitTT_InstanceItem(item);
                 break;
             case ItemType.ElementalStone:
                 InitTT_ElementalStone(item);
@@ -235,19 +234,11 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     }
     public void View3D(bool toggle)
     {
-        Equipment eq = mItem as Equipment;
         if (is3DViewable(mItem))
         {
-
-            //If first time opening dialog
-            //if (m3DAvatar.GetOutfitModel() == null && toggle)
-            if (toggle)
-            {
-                PlayerGhost pg = GameInfo.gLocalPlayer;
-                m3DAvatar.Change(pg.mEquipmentInvData, (JobType)pg.PlayerSynStats.jobsect, pg.mGender);
-                Toggle3DViewEquipment();
-            }
             m3DView.SetActive(toggle);
+            if (toggle)
+                Toggle3DViewEquipment();
         }
     }
     public void Location(bool toggle)
@@ -340,7 +331,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         if (int.TryParse(pf.PotionFoodJson.seid, out sideEffectID))
         {
             SideEffectJson sej = SideEffectRepo.GetSideEffect(sideEffectID);
-            sideeffectTxt.text = sej.description;
+            sideeffectTxt.text = ClientUtils.ParseStringToken(sej.description, SideEffectRepo.Tokenizer, pf.PotionFoodJson.seid);
         }
         else
         {
@@ -651,7 +642,8 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 break;
             }
 
-            txtStats.text += SideEffectRepo.GetSideEffect(x).description;
+            SideEffectJson se = SideEffectRepo.GetSideEffect(x);
+            txtStats.text += ClientUtils.ParseStringToken(se.description, SideEffectRepo.Tokenizer, se.id);
         }
         mNormalStatsLst.Add(txtStats.gameObject);
         mNormalStatsLst.Add(CreateLineNoParent());
@@ -680,7 +672,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             txtStats.text = GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineEffect");
             mNormalStatsLst.Add(txtStats.gameObject);
             CreateTextColonValue(out txtValStats);
-            txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineEffect2"), eq.UpgradeLevel+7, eq.EquipmentJson.upgradelimit);
+            txtValStats.Identifier = string.Format(GUILocalizationRepo.GetLocalizedString("ItemTooltip_RefineEffect2"), eq.UpgradeLevel, eq.EquipmentJson.upgradelimit);
             txtValStats.Value = upgIncrease.ToString();
             mNormalStatsLst.Add(txtValStats.gameObject);
             mNormalStatsLst.Add(CreateLineNoParent());
@@ -744,14 +736,14 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                     if (x == -1)
                         continue;
 
-                    reformDesc += SideEffectRepo.GetSideEffect(x).description;
+                    SideEffectJson seJson = SideEffectRepo.GetSideEffect(x);
+                    reformDesc += ClientUtils.ParseStringToken(seJson.description, SideEffectRepo.Tokenizer, x);
                 }
                 txtValStats.Value = reformDesc;
                 mNormalStatsLst.Add(txtValStats.gameObject);
             }
             mNormalStatsLst.Add(CreateLineNoParent());
         }
-
 
         //Common - can storage
         mNormalStatsLst.Add(cTT.storable.gameObject);
@@ -773,6 +765,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
 
         //*** Extra Sideeffect Stats ***
         CreateText(out txtStats);
+        txtStats.text = "";
         string[] extraSeLst = eq.EquipmentJson.extrase.Split(';');
         foreach (string s in extraSeLst)
         {
@@ -783,14 +776,19 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 Debug.LogError(errstr);
                 continue;
             }
+
             if (x < 0) //hide if id == -1 or negative
             {
                 txtStats.text = "";
+                mExtraEffectTog.gameObject.SetActive(false);
                 break;
             }
 
             //Loop all sideeffect in the sideeffect grp, get their description in SDG
-            txtStats.text += SideEffectRepo.GetSideEffect(x);
+            ExtraSideEffectJson seJson = EquipmentModdingRepo.GetEquipmentExtraSideEffect(x);
+            txtStats.text += ClientUtils.ParseStringToken(seJson.description, SideEffectRepo.Tokenizer, x);
+            //txtStats.text += SideEffectRepo.GetSideEffect(x);
+            mExtraEffectTog.gameObject.SetActive(true);
         }
         mExtraSideEffectLst.Add(txtStats.gameObject);
         mExtraSideEffectLst.Add(CreateLineNoParent());
@@ -1180,14 +1178,9 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
     {
         //Change avatar's model according to what the item is
         //Take off all bathrobe equip if looking at regular equip while in bathrobe
-        //
         PlayerGhost pg = GameInfo.gLocalPlayer;
-        GameObject avaObj = m3DAvatar.GetOutfitModel();
-        AvatarController ac = avaObj.GetComponent<AvatarController>();
-        EquipmentInventoryData equipmentInvData = pg.mEquipmentInvData.CloneJson();
-        List<int> appearance = pg.mEquipmentInvData.AppearanceSlots;
+        EquipmentInventoryData equipmentInvData = pg.mEquipmentInvData.CloneJsonWithItemConverter();
         Equipment eq = mItem as Equipment;
-
         switch (eq.EquipmentJson.partstype)
         {
             case PartsType.Sword:
@@ -1216,8 +1209,9 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
                 break;
         }
 
-        ac.InitAvatar(equipmentInvData, pg.GetJobSect(), pg.mGender);
+        m3DAvatar.Change(equipmentInvData, pg.GetJobSect(), pg.mGender);
     }
+
     private bool is3DViewable(IInventoryItem item)
     {
         if (item.JsonObject.itemtype != ItemType.Equipment)
@@ -1226,20 +1220,22 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
         Equipment eq = item as Equipment;
         return (eq.EquipmentJson.equiptype == EquipmentType.Weapon || eq.EquipmentJson.fashionsuit == true);
     }
+
     public void SetDailyWeeklyLimit(int itemID, int dailyGet, int dailyUse, int weeklyGet, int weeklyUse)
     {
-        if (mItem.JsonObject.itemid != itemID)
+        ItemBaseJson itemJson = mItem.JsonObject;
+        if (itemJson.itemid != itemID)
             return;
 
         string localstr = GUILocalizationRepo.GetLocalizedString("ItemTooltip_UseGetLimit");
         if (dailyGet > -1)
-            mDailyGetTV.Value = string.Format(localstr, dailyGet, mItem.JsonObject.dailygetlimit);
+            mDailyGetTV.Value = string.Format(localstr, dailyGet, itemJson.dailygetlimit);
         if (dailyUse > -1)
-            mDailyUseTV.Value = string.Format(localstr, dailyUse, mItem.JsonObject.dailyuselimit);
+            mDailyUseTV.Value = string.Format(localstr, dailyUse, itemJson.dailyuselimit);
         if (weeklyGet > -1)
-            mWeeklyGetTV.Value = string.Format(localstr, weeklyGet, mItem.JsonObject.weeklygetlimit);
+            mWeeklyGetTV.Value = string.Format(localstr, weeklyGet, itemJson.weeklygetlimit);
         if (weeklyUse > -1)
-            mWeeklyUseTV.Value = string.Format(localstr, weeklyUse, mItem.JsonObject.weeklyuselimit);
+            mWeeklyUseTV.Value = string.Format(localstr, weeklyUse, itemJson.weeklyuselimit);
     }
 
     #region Compare Equipment
@@ -1357,7 +1353,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             SideEffectJson effJson = SideEffectRepo.GetSideEffect(keysLst[i]);
 
             //Show difference between equipped item and viewed item stats
-            tcvp.Identifier = effJson.description;
+            tcvp.Identifier = effJson.localizedname;
             float nMin = effJson.min * viewSeDic[keysLst[i]] - effJson.min * equippedSeDic[keysLst[i]];
             float nMax = effJson.max * viewSeDic[keysLst[i]] - effJson.max * equippedSeDic[keysLst[i]];
             tcvp.Value = string.Format("{0} ~ {1}",
@@ -1377,7 +1373,7 @@ public class UI_DialogItemDetailToolTip : MonoBehaviour
             SideEffectJson effJson = SideEffectRepo.GetSideEffect(pair.Key);
 
             //Show side effect stats
-            tcvp.Identifier = effJson.description;
+            tcvp.Identifier = effJson.localizedname;
             if (effJson.min == effJson.max)
                 tcvp.Value = (effJson.min * pair.Value).ToString("+#####.###;-#####.###;0");
             else

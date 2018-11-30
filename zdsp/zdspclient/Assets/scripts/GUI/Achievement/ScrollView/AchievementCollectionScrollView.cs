@@ -71,7 +71,7 @@ public class AchievementCollectionScrollView : MonoBehaviour
         OnClickDataCallback = callback;
     }
 
-    public void Populate(List<CollectionInfo> collectionList, int selectIdx = 0)
+    public void Populate(List<CollectionInfo> collectionList, int selected)
     {
         Clear();
 
@@ -82,7 +82,6 @@ public class AchievementCollectionScrollView : MonoBehaviour
         int maxrows = Mathf.CeilToInt((float)collectionList.Count / cellsPerRow);
         InitRows(maxrows);
         dataList = collectionList;
-        selectedIndex = selectIdx;
 
         for (int i = 0, j = currentTopIndex; i < numRowsAvailable; ++i, ++j)
         {
@@ -98,7 +97,9 @@ public class AchievementCollectionScrollView : MonoBehaviour
                     break;
 
                 CollectionInfo info = dataList[realIdx];
-                rowData.AddData(info, OnClickDataCallback, realIdx == selectIdx);
+                rowData.AddData(info, OnClickDataCallback);
+                if (realIdx == selected)
+                    rowData.GetComponent<Achievement_CollectionRowData>().SelectChild(c);
             }
         }
 
@@ -250,7 +251,9 @@ public class AchievementCollectionScrollView : MonoBehaviour
                 break;
 
             CollectionInfo info = dataList[realIdx];
-            newRow.GetComponent<Achievement_CollectionRowData>().AddData(info, OnClickDataCallback, realIdx == selectedIndex);
+            newRow.GetComponent<Achievement_CollectionRowData>().AddData(info, OnClickDataCallback);
+            if (realIdx == selectedIndex)
+                newRow.GetComponent<Achievement_CollectionRowData>().SelectChild(i);
         }
     }
 

@@ -1,9 +1,5 @@
-﻿using System.Text;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using Zealot.Common.Datablock;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Zealot.DebugTools;
 using Zealot.Common.Entities.Social;
 
@@ -12,6 +8,9 @@ namespace Zealot.Common.Entities
 {
     public partial class SocialStats : AdvancedLocalObject, IStats
     {
+        [NotSynced]
+        public bool StatsLoaded { get; private set; }
+
         #region Private Fields
 
         #endregion
@@ -20,6 +19,7 @@ namespace Zealot.Common.Entities
         public SocialStats(bool isServer) : base(LOTYPE.SocialStats, isServer)
         {
             m_DebugMode = true;
+            StatsLoaded = false;
 
             if (!isServer)
             {
@@ -87,22 +87,29 @@ namespace Zealot.Common.Entities
         #region IStats
         public void LoadFromInventoryData(IInventoryData data)
         {
-            SocialInventoryData _data = data as SocialInventoryData;
-
-            if (m_IsServer)
+            GameUtils.CatchException(SocialData.Debug, () =>
             {
-                this.data = new SocialData(_data.data, this);
-                this.Root = this.data.Root;
+                SocialInventoryData _data = data as SocialInventoryData;
 
-                this.PatchEvent(string.Empty, "begin_load", string.Empty);
-                this.data.PatchToClient();
-                this.PatchEvent(string.Empty, "end_load", string.Empty);
-            }
+                if (m_IsServer)
+                {
+                    this.data = new SocialData(_data.data, this);
+                    this.Root = this.data.Root;
+
+                    this.PatchEvent(string.Empty, "begin_load", string.Empty);
+                    this.data.PatchToClient();
+                    this.PatchEvent(string.Empty, "end_load", string.Empty);
+                }
+            });
+            StatsLoaded = true;
         }
 
         public void SaveToInventoryData(IInventoryData data)
         {
-            SocialInventoryData _data = data as SocialInventoryData;
+            GameUtils.CatchException(SocialData.Debug, () =>
+            {
+                SocialInventoryData _data = data as SocialInventoryData;
+            });
         }
         #endregion
 
@@ -231,8 +238,4 @@ namespace Zealot.Common.Entities
     //    }
     //}
     #endregion
-
-
-
-
 }

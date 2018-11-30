@@ -20,7 +20,6 @@ namespace Zealot.Server.Entities
             if (!IsCorrectController())
                 return;
             mDungeonInfo = (DungeonJson)mRealmInfo;
-            //mCountDownOnMissionCompleted = 30;
         }
 
         public override bool IsCorrectController()
@@ -30,7 +29,7 @@ namespace Zealot.Server.Entities
 
         public override bool CanReconnect()
         {
-            return mRealmState != RealmState.Ended && !mMissionCompleted;
+            return mDungeonInfo.reconnect && mRealmState != RealmState.Ended && !mMissionCompleted;
         }
 
         public override void InstanceStartUp()

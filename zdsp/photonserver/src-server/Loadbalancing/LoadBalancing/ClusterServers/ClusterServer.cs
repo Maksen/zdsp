@@ -148,6 +148,22 @@ namespace Photon.LoadBalancing.ClusterServer
             GameServersByServerId.TryGetValue(serverid, out peer);
             return peer;
         }
+
+        
+        public int GetServerId(int serverLine, string serverName)
+        {
+            Dictionary<int, IncomingGameServerPeer> servers;
+            if (GameServersByLine.TryGetValue(serverLine, out servers))
+            {
+                foreach (var item in servers.Values)
+                {
+                    if (item.Serverconfig.servername == serverName)
+                        return item.ServerId;
+                }
+            }
+            return -1;
+        }
+
         #endregion
     }
 }

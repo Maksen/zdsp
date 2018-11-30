@@ -17,6 +17,7 @@ namespace Zealot.Server.AI
         protected static readonly ILogger log = LogManager.GetCurrentClassLogger();
         protected Actor mActor;
         protected Vector3 mSpawnPos;
+
         public BaseAIBehaviour(Actor actor)
         {
             mActor = actor;
@@ -249,7 +250,7 @@ namespace Zealot.Server.AI
 
         protected bool mHasMoved;
 
-        public MonsterAIBehaviour(Monster monster):base(monster)
+        public MonsterAIBehaviour(Monster monster) : base(monster)
         {            
             AddState("Roam", OnRoamEnter, OnRoamLeave, OnRoamUpdate);
 
@@ -275,7 +276,7 @@ namespace Zealot.Server.AI
                 {                    
                     mSkillGCDEnd = 0;                 
                     mSkillCDEnd = new long[totalSkills];
-                    for (int i =0;i<totalSkills;i++)
+                    for (int i = 0; i < totalSkills; ++i)
                     {                        
                         mSkillCDEnd[i] = 0;
                     }
@@ -319,8 +320,7 @@ namespace Zealot.Server.AI
         }
         
         protected override void OnIdleUpdate(long dt)
-        {
-            
+        {       
             if (mMonster.IsAggressive())
             {
                 Actor threat = ThreatScan(2); //scan once every 2 updates
@@ -429,7 +429,6 @@ namespace Zealot.Server.AI
         }
         #endregion
 
-
         protected Actor ThreatScan(int tickcount)
         {
             Actor threat = null;
@@ -438,7 +437,7 @@ namespace Zealot.Server.AI
                 threat = mMonster.QueryForThreat();
                 mThreatScanCount = 0;
             }
-            mThreatScanCount++;
+            ++mThreatScanCount;
             return threat;
         }
 
@@ -449,7 +448,7 @@ namespace Zealot.Server.AI
 
         protected bool IsInCombatRadius(Vector3 pos)
         {
-            return GameUtils.InRange(mSpawner.GetPos(), pos, mSpawner.GetCombatRadius()+ 3.0f);
+            return GameUtils.InRange(mSpawner.GetPos(), pos, mSpawner.GetCombatRadius() + 3.0f);
         }
 
         protected void ResetSkillToExecute()
@@ -464,7 +463,7 @@ namespace Zealot.Server.AI
             bool hasSkill = false;
             SkillData skilldata = null;
             
-            if (mSkillConditions != null && !mMonster.HasControlStatus(ControlSEType.Silence))
+            if (mSkillConditions != null && !mMonster.HasControlStatus(ControlSEType.Silence) && !mMonster.IsGettingHit())
             {
                 long now = mMonster.EntitySystem.Timers.GetSynchronizedTime();
                 if (now >= mSkillGCDEnd) //global cooldown
@@ -486,7 +485,7 @@ namespace Zealot.Server.AI
                             hasSkill = true;
                             break;
                         }
-                        index++;
+                        ++index;
                     }
                 }
             }
@@ -546,8 +545,7 @@ namespace Zealot.Server.AI
                 mMonster.ApproachTarget(mTarget.GetPersistentID(), mSkillRange - 0.5f); //-0.5f so that it does not toggle at bordercase
         }
         //todo:how AIBehaviour work together with knockedback
-       
-        
+           
         protected bool IsOverlapping()
         {
             Dictionary<int, Actor> attackers = mTarget.GetNPCAttackers();
@@ -572,7 +570,7 @@ namespace Zealot.Server.AI
                         break;
                     }
                 }
-                count++;
+                ++count;
                 if (count > 8)
                 {
                     overlap = false;
@@ -596,7 +594,6 @@ namespace Zealot.Server.AI
 
             return true;
         }
-
 
         #region Combat State        
         protected override void OnCombatApproachEnter(string prevstate)
@@ -655,7 +652,6 @@ namespace Zealot.Server.AI
         }
 
         #endregion
-
 
         #region CombatExecute State
         protected override void OnCombatExecuteEnter(string prevstate)
@@ -978,7 +974,7 @@ namespace Zealot.Server.AI
             bool shouldSwitchToPlayer = false; 
             if (mActor.IsMonster())//monster can switch from monster target to player target.
             {
-                if (mTarget!= null && mTarget.IsMonster() && attackerActor.IsPlayer())
+                if (mTarget != null && mTarget.IsMonster() && attackerActor.IsPlayer())
                 {
                     shouldSwitchToPlayer = true;
                 }
@@ -994,8 +990,7 @@ namespace Zealot.Server.AI
                 GotoState("CombatApproach");
             return true;
         }
-
-        
+      
         public override void OnAttacked(IActor attacker, int aggro) //Only boss will attack target that is top of its aggro list
         {
             if (mGroupAggro)
@@ -1005,8 +1000,7 @@ namespace Zealot.Server.AI
                     mSpawner.GroupAggro(mActor.GetPersistentID(), attacker);//call other monster to check if they attack also.
             } 
             if (!OnNormalAIAttacked(attacker, aggro))
-            return;
-            
+                return;          
         }
 
         public override void OnGroupAggro(IActor attacker, int aggro)
@@ -1036,11 +1030,8 @@ namespace Zealot.Server.AI
         private bool mNextShortTermPosIsWaypoint;
         private long mPauseElapsed;
 
-        public GoblinAIBehaviour(Monster monster)
-            : base(monster)
+        public GoblinAIBehaviour(Monster monster) : base(monster)
         {
-            
-
             mMonster = monster;
             mSpawner = (GoblinSpawner)monster.mSp;
             mPath = mSpawner.mPath;
@@ -1110,7 +1101,7 @@ namespace Zealot.Server.AI
                 {                    
                     if (mNextShortTermPosIsWaypoint)
                     {   //Check if waypoint is reached before incrementing
-                        mNextNode++;                        
+                        ++mNextNode;                        
                         if (mNextNode >= mPath.nodes.Length)
                         {
                             mSpawner.OnPathCompleted(mMonster);

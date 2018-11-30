@@ -18,7 +18,7 @@ namespace Zealot.Spawners
     [AddComponentMenu("Spawners at Server/InteractiveTrigger")]
     public class InteractiveTrigger : ServerEntityWithEvent
     {
-        public bool activeOnStartup = true;
+        public bool npcActiveOnStartup = true;
         public string npcArchetype = string.Empty;
         public string scenesModelArchetype = string.Empty;
         public int interactiveTime = 1;
@@ -28,22 +28,36 @@ namespace Zealot.Spawners
         public InteractiveType interactiveType = InteractiveType.Area;
         public int min = 1;
         public int max = 1;
-        
-        private InteractiveTriggerStep stepStats = InteractiveTriggerStep.None;
-        private InteractiveUpdater updater = null;
 
-        private void Start()
+        private bool isUsing = false;
+        private bool canUse = true;
+        private InteractiveUpdater updater = null;
+        private Collider mCollider;
+
+        public void Init()
         {
             if (interactiveType == InteractiveType.Target)
             {
-                if(gameObject.GetComponent<Collider>() != null)
+                if (gameObject.GetComponent<Collider>() != null)
+                {
                     gameObject.GetComponent<Collider>().enabled = false;
+                }
             }
             else
             {
-                updater = gameObject.AddComponent<InteractiveUpdater>();
+                if (gameObject.GetComponent<InteractiveUpdater>() == null)
+                {
+                    updater = gameObject.AddComponent<InteractiveUpdater>();
+                }
+                else
+                {
+                    updater = gameObject.GetComponent<InteractiveUpdater>();
+                }
+
                 updater.enabled = false;
             }
+
+            mCollider = gameObject.GetComponent<Collider>();
         }
 
         public void OnDrawGizmosSelected()
@@ -56,7 +70,7 @@ namespace Zealot.Spawners
         #region InteracitveTriggerEvent
         private void OnTriggerEnter(Collider other)
         {
-            if (stepStats == InteractiveTriggerStep.CannotUse)
+            if (!canUse)
                 return;
 
             if (other.CompareTag("LocalPlayer"))
@@ -78,36 +92,27 @@ namespace Zealot.Spawners
         #endregion
 
         #region InteracitveTriggerFunction
-        public void Init(bool canUse, bool active, int step)
+        public bool GetUsing()
+        {
+            return isUsing;
+        }
+
+        public void SetActive(bool active)
         {
             gameObject.SetActive(active);
-            SetStep((!active || !canUse) ? InteractiveTriggerStep.CannotUse : (InteractiveTriggerStep)step);
         }
 
-        public bool CanUse()
+        public void SetUsing(bool mIsUsing)
         {
-            return stepStats != InteractiveTriggerStep.CannotUse;
+            isUsing = mIsUsing;
         }
 
-        public InteractiveTriggerStep GetStep()
+        public void SetCanUse(bool mCanUse)
         {
-            return stepStats;
-        }
-
-        public void SetStep(InteractiveTriggerStep step)
-        {
-            stepStats = step;
-        }
-
-        public void InterruptAction()
-        {
-            if (interactiveType == InteractiveType.Target)
+            canUse = mCanUse;
+            if(mCollider != null)
             {
-                SetStep(InteractiveTriggerStep.None);
-            }
-            else
-            {
-                SetStep(InteractiveTriggerStep.OnTrigger);
+                mCollider.enabled = mCanUse;
             }
         }
 
@@ -143,10 +148,18 @@ namespace Zealot.Spawners
 
         public void GetJson(InteractiveTriggerJson jsonclass)
         {
-            jsonclass.activeOnStartup = activeOnStartup;
-            jsonclass.npcArchetype = (npcArchetype == string.Empty || npcArchetype == null) ? scenesModelArchetype : npcArchetype;
+            jsonclass.npcActiveOnStartup = npcActiveOnStartup;
+            if (string.IsNullOrEmpty(npcArchetype))
+            {
+                jsonclass.npcArchetype = scenesModelArchetype;
+                jsonclass.isArchetypeNpc = false;
+            }
+            else
+            {
+                jsonclass.npcArchetype = npcArchetype;
+                jsonclass.isArchetypeNpc = true;
+            }
             jsonclass.parentPath = GetPathName();
-            jsonclass.forward = transform.forward;
             jsonclass.interactiveTime = interactiveTime;
             jsonclass.interrupt = interrupt;
             jsonclass.counter = (counter == 0) ? 1 : counter;

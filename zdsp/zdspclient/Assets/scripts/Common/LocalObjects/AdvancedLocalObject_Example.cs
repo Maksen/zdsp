@@ -84,7 +84,7 @@ namespace Zealot.Common.Entities.Examples
             JToken ver;
             //驗證資料，將不要的舊版資料刪除(可以用版本欄位判斷是否需要驗證，因為驗證會消耗效能)
             if (!root.TryGetValue("version", out ver) || ver.Type != JTokenType.Integer || ver.Value<int>() < Example_Schema.VERSION)
-                Root = AdvancedLocalObject.Validate<Example_Schema>(root);
+                Root = GameUtils.Validate<Example_Schema>(root);
             else
                 Root = root;
 

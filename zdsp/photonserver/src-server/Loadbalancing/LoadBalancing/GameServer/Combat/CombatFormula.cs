@@ -574,7 +574,7 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
         }
 
         public static bool IsEvade(IActor attacker, IActor defender) {
-            float rate = attacker.CombatStats.GetField(FieldName.Accuracy) - defender.CombatStats.GetField(FieldName.Evasion); 
+            float rate = (attacker.CombatStats.GetField(FieldName.Accuracy) + Zealot.Repository.GameConstantRepo.GetConstantInt("SkillAccuracy")) * (1 + attacker.CombatStats.GetField(FieldName.AccuracyPercBonus) * 0.01f) - defender.CombatStats.GetField(FieldName.Evasion);
             rate = Math.Min(Math.Max(5f, rate), 100f);
 
             float roll = (float)GameUtils.GetRandomGenerator().NextDouble() * 100f;
@@ -861,7 +861,8 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
             CombatEvaluator(isBasicAttack, res, package);
 
             root.Update();
-            res.RealDamage = (int)Math.Round(root.result) + extradamage;
+            double total = root.result + extradamage;
+            res.RealDamage = int.MaxValue < total ? int.MaxValue : (int)total;
             
             Debug.Log(package.target, "Damage total : " + res.RealDamage.ToString());
             return res;
@@ -1159,9 +1160,9 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
                     case Element.Earth:
                     case Element.Water:
                     case Element.Fire:
-                        // 金/木/土/水/火屬性攻擊方最終基礎傷害 = ( ( 攻擊方基礎傷害 * 弱點修正係數 * 防禦方防禦減傷％ ) + 攻擊方保證傷害 ) - 防禦方五行減值減傷
-                        dmg = ((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
-                                         + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2;
+                        // 金/木/土/水/火屬性攻擊方最終基礎傷害 = ( ( ( 攻擊方基礎傷害 * 弱點修正係數 * 防禦方防禦減傷％ ) + 攻擊方保證傷害 ) - 防禦方五行減值減傷)  * 五行屬性倍率
+                        dmg = (((basicAtk * (1.0f + weakness) * (1.0f - info.defender.CombatStats.GetField(FieldName.IgnoreArmor)))
+                                         + cfmDamage) - (info.defender.CombatStats.GetField(FieldName.Intelligence)) * 2) * Zealot.Repository.ElementalChartRepo.ElementChartQuery(info.basicsInfo.elementInfo.attacker, info.basicsInfo.elementInfo.defender);
                         break;
                 }
 

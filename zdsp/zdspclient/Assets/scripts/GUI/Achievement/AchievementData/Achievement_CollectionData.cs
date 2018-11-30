@@ -26,13 +26,12 @@ public class Achievement_CollectionData : MonoBehaviour
             ColorUtility.TryParseHtmlString(frameColorHex[i], out frameColors[i]);
     }
 
-    public void Init(CollectionInfo info, UnityAction<bool, CollectionObjective> callback, bool selected = false)
+    public void Init(CollectionInfo info, UnityAction<bool, CollectionObjective> callback)
     {
         collectionInfo = info;
         SetCollectionData(info.objective);
         SetStatus(info.status);
         SetOnClickCallback(callback);
-        SetToggleOn(selected);
     }
 
     public void UpdateData(CollectionInfo info)
@@ -190,8 +189,9 @@ public class Achievement_CollectionData : MonoBehaviour
 
     public void Clear()
     {
-        toggle.onValueChanged.RemoveAllListeners();
+        toggle.group.allowSwitchOff = true;
         toggle.isOn = false;
+        toggle.group.allowSwitchOff = false;
         collectionInfo = null;
     }
 }

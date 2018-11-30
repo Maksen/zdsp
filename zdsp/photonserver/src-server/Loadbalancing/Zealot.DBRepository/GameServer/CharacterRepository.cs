@@ -512,7 +512,7 @@ namespace Zealot.DBRepository
         public async Task<bool> SaveCharacterAndUserAsync(string charid, long experience, int progresslvl,
             int combatscore, int portraitid, int money, int gold, int bindgold, int guildid, byte guildrank,
             byte vipLvl, int fundtoday, long fundtotal, int factionkill, int factiondeath, short petcollected, int petscore,
-            short herocollected, int heroscore, DateTime guildcdenddt, string friends, string friendrequests,
+            short herocollected, int heroscore, DateTime guildcdenddt, /*string friends, string friendrequests,*/
             int firstbuyflag, int firstbuycollected, string gameSetting,
             string characterdata, DateTime dtlogin, DateTime dtlogout)
         {
@@ -557,8 +557,8 @@ namespace Zealot.DBRepository
                                 command.Parameters.AddWithValue("@guildcdenddt", guildcdenddt);
                             else
                                 command.Parameters.AddWithValue("@guildcdenddt", DBNull.Value);
-                            command.Parameters.AddWithValue("@friends", friends);
-                            command.Parameters.AddWithValue("@friendrequests", friendrequests);  
+                            //command.Parameters.AddWithValue("@friends", friends);
+                            //command.Parameters.AddWithValue("@friendrequests", friendrequests);
                             command.Parameters.AddWithValue("@gamesetting", gameSetting);
                             command.Parameters.AddWithValue("@characterdata", characterdata); 
                             command.Parameters.AddWithValue("@dtlogout", dtlogout);
@@ -847,7 +847,60 @@ namespace Zealot.DBRepository
             return false;
         }
 
-        public async Task<bool> UpdateSocialList(string charname, string socialListInfo, bool isRequest)
+        /// <summary>
+        /// Update multiple rows of friends
+        /// </summary>
+        /// <remarks>
+        /// Calls [Character_UpdateMultipleSocialList]
+        /// </remarks>
+        public async Task<bool> UpdateMultipleSocialList(List<string> names,List<string> multiple_friends)
+        {
+            if (names.Count == 0)
+                return true;
+            if (names.Count != multiple_friends.Count)
+                return false;
+
+            DataTable namesDataTable = new DataTable();
+            namesDataTable.Columns.Add("charname", typeof(string));
+            namesDataTable.Columns.Add("jsonstr", typeof(string));
+            for (int i = 0; i < names.Count; ++i)
+            {
+                DataRow row = namesDataTable.NewRow();
+                row["charname"] = names[i];
+                row["jsonstr"] = multiple_friends[i];
+                namesDataTable.Rows.Add(row);
+            }
+            if (isConnected)
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstring))
+                {
+                    try
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("Character_UpdateMultipleSocialList", connection))
+                        {
+                            command.CommandType = CommandType.StoredProcedure;
+
+                            SqlParameter sqlParam = command.Parameters.AddWithValue("@namejsonlist", namesDataTable);
+                            sqlParam.SqlDbType = SqlDbType.Structured;
+                            sqlParam.TypeName = "dbo.NameJsonTableType";
+
+                            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+
+                            return true;
+                        }
+                    }
+                    catch (SqlException e)
+                    {
+                        HandleQueryException(e);
+                    }
+                }
+            }
+            return false;
+        }
+        
+
+        public async Task<bool> UpdateSocialList(string charname, string socialListInfo, bool isRequest=false)
         {
             if (isConnected)
             {

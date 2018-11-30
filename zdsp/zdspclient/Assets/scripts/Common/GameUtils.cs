@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using Zealot.Repository;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 //using ExitGames.Logging;
 
 namespace Zealot.Common
@@ -560,10 +562,15 @@ namespace Zealot.Common
             System.Diagnostics.Debug.WriteLine(message);
         }
 
+        public static string FormatArgs(string format, string args)
+        {
+            return FormatArgs(format, FormatString(args));
+        }
+
         /// <summary>
         /// better ver. of string FormatString(string str, Dictionary&lt;string,string&gt; parameters) when args count is large
         /// </summary>
-        public static string FormatByName(string format, Dictionary<string, string> args,int capcityIncrease=32)
+        public static string FormatArgs(string format, Dictionary<string, string> args,int capcityIncrease=32)
         {
             if (args.Count < 5)
                 return FormatString(format, args);
@@ -1036,6 +1043,252 @@ namespace Zealot.Common
             }
             return false;
         }
+
+
+        static void Validate_DefaultErrorHandle(object sender, ErrorEventArgs args)
+        {
+            args.ErrorContext.Handled = true;
+        }
+
+        public static JToken Validate<T>(JToken data, Action<JToken, ErrorEventArgs> errorHandle = null)
+            where T : class, new()
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            if (errorHandle == null)
+                errorHandle = Validate_DefaultErrorHandle;
+            else
+                settings.Error = (o, a) => errorHandle(data, a);
+            string json = data.ToString(Formatting.None);
+            T validated = JsonConvert.DeserializeObject<T>(json, settings) as T;
+            if (validated == null)
+                validated = new T();
+            return JsonConvert.DeserializeObject<JToken>(JsonConvert.SerializeObject(validated));
+        }
+
+        public static T UncheckDeserializeObject<T>(string data, JsonSerializerSettings settings=null)
+            where T : class, new()
+        {
+            if(settings==null)
+                settings = new JsonSerializerSettings();
+            if (settings.Error == null)
+                settings.Error = (o, a) => a.ErrorContext.Handled = true;
+            T deserialized = JsonConvert.DeserializeObject<T>(data, settings) as T;
+            if (deserialized == null)
+                deserialized = new T();
+            return deserialized;
+        }
+
+        public static bool ValidHexChar(char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
+
+        public static bool ValidGuidString(string guid)
+        {
+            if (guid == null)
+                return false;
+            if (guid.Length != 36)
+                return false;
+            if (guid[8] != '-' || guid[13] != '-' || guid[18] != '-' || guid[23] != '-')
+                return false;
+            for (int i = 0; i < 8; i++)
+                if (!ValidHexChar(guid[i])) return false;
+            for (int i = 9; i < 13; i++)
+                if (!ValidHexChar(guid[i])) return false;
+            for (int i = 14; i < 18; i++)
+                if (!ValidHexChar(guid[i])) return false;
+            for (int i = 19; i < 23; i++)
+                if (!ValidHexChar(guid[i])) return false;
+            for (int i = 24; i < 36; i++)
+                if (!ValidHexChar(guid[i])) return false;
+            return true;
+        }
+
+        public static string GuidStringToCompressedString(string guid)
+        {
+            if (!ValidGuidString(guid))
+                return guid;
+            Guid _guid=new Guid(guid);
+            return GuidToCompressedString(_guid);
+        }
+
+        public static string GuidToCompressedString(Guid guid)
+        {
+            return Convert.ToBase64String(guid.ToByteArray()).TrimEnd('=');
+        }
+
+        public static string CompressedStringToGuidString(string guidCompressed)
+        {
+            Guid guid;
+            if (CompressedStringToGuid(guidCompressed, out guid))
+                return guid.ToString();
+            else
+                return guidCompressed;
+        }
+
+        public static bool CompressedStringToGuid(string guidCompressed,out Guid guid)
+        {
+            if (guidCompressed.Length != 22)
+            {
+                guid = Guid.Empty;
+                return false;
+            }
+            guid = new Guid(Convert.FromBase64String(guidCompressed + "=="));
+            return true;
+        }
+
+        public static void SetSafely(this JArray array, int index, JToken value)
+        {
+            int c = array.Count;
+
+            if (index == c)
+                array.Add(value);
+            else if (index < c)
+                array[index] = value;
+            else
+            {
+                while (index > c)
+                {
+                    array.Add(null);
+                    ++c;
+                }
+            }
+        }
+
+        public static void CatchException(bool debug,Action action,Action<Exception> onException=null)
+        {
+            if (debug)
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception ex)
+                {
+                    if(onException!=null)
+                        onException(ex);
+                    else
+                        DebugTools.DebugTool.Error(ex.Message + "\n" + ex.StackTrace);
+                }
+            }
+            else
+                action();
+        }
+
+        public static T CatchException<T>(bool debug, Func<T> action, Func<T> onExceptionValue, Action<Exception> onException = null)
+        {
+            if (debug)
+            {
+                try
+                {
+                    return action();
+                }
+                catch (Exception ex)
+                {
+                    if (onException != null)
+                        onException(ex);
+                    else
+                        DebugTools.DebugTool.Error(ex.Message + "\n" + ex.StackTrace);
+
+                    return onExceptionValue();
+                }
+            }
+            else
+                return action();
+        }
+
+        public static bool TryGetEnum<T>(object o, out T value, bool ignoreCase)
+           where T : struct
+        {
+            if (o is T)
+            {
+                value = (T)o;
+                return true;
+            }
+            if (o == null)
+            {
+                value = default(T);
+                return false;
+            }
+            string s = o.ToString();
+
+
+#if (UNITY_5_3_OR_NEWER)&&(!NET_4_6)
+            try
+            {
+                o = Enum.Parse(typeof(T), s, ignoreCase);
+            }
+            catch
+            {
+                value = default(T);
+                return false;
+            }
+            if (o is T)
+            {
+                value = (T)o;
+                return true;
+            }
+            value = default(T);
+            return false;
+#else
+            return Enum.TryParse(s, ignoreCase, out value);
+#endif
+        }
+
+        /// <summary>
+        /// convert data without throw exceptions
+        /// </summary>
+        public static bool TryConvertValue<T>(object o, out T value, bool required = true)
+        {
+            if (o is T)
+            {
+                value = (T)o;
+                return true;
+            }
+            if (o == null)
+            {
+                value = default(T);
+                return !required;
+            }
+            string s;
+            IFormattable f = o as IFormattable;
+            if (f != null)
+                s = f.ToString(null, System.Globalization.CultureInfo.InvariantCulture);
+            else
+                s = o.ToString();
+            if (typeof(T) == typeof(string))
+            {
+                value = (T)(object)s;
+                return true;
+            }
+
+            TryParseDelegate<T> parse = m_TryGetValue_TryParse[(int)Type.GetTypeCode(typeof(T))] as TryParseDelegate<T>;
+            if (parse != null && parse(s, out value))
+                return true;
+            value = default(T);
+            return false;
+        }
+
+        delegate bool TryParseDelegate<T>(string s, out T rlt);
+        static Delegate[] m_TryGetValue_TryParse = CreateDelegateTable();
+
+        static Delegate[] CreateDelegateTable()
+        {
+            Delegate[] rlt = new Delegate[20];
+            rlt[(int)TypeCode.Boolean] = new TryParseDelegate<Boolean>(System.Boolean.TryParse);
+            rlt[(int)TypeCode.Char] = new TryParseDelegate<Char>(System.Char.TryParse);
+            rlt[(int)TypeCode.SByte] = new TryParseDelegate<SByte>(System.SByte.TryParse);
+            rlt[(int)TypeCode.Byte] = new TryParseDelegate<Byte>(System.Byte.TryParse);
+            rlt[(int)TypeCode.Int16] = new TryParseDelegate<Int16>(System.Int16.TryParse);
+            rlt[(int)TypeCode.UInt16] = new TryParseDelegate<UInt16>(System.UInt16.TryParse);
+            rlt[(int)TypeCode.Int32] = new TryParseDelegate<Int32>(System.Int32.TryParse);
+            rlt[(int)TypeCode.UInt32] = new TryParseDelegate<UInt32>(System.UInt32.TryParse);
+            rlt[(int)TypeCode.Int64] = new TryParseDelegate<Int64>(System.Int64.TryParse);
+            rlt[(int)TypeCode.UInt64] = new TryParseDelegate<UInt64>(System.UInt64.TryParse);
+            rlt[(int)TypeCode.Single] = new TryParseDelegate<Single>(System.Single.TryParse);
+            rlt[(int)TypeCode.Double] = new TryParseDelegate<Double>(System.Double.TryParse);
+            rlt[(int)TypeCode.Decimal] = new TryParseDelegate<Decimal>(System.Decimal.TryParse);
+            rlt[(int)TypeCode.DateTime] = new TryParseDelegate<DateTime>(DateTime.TryParse);
+            return rlt;
+        }
+
     }
 
     public static class JsonConvertDefaultSetting

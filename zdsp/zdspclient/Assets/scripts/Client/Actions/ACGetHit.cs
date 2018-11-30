@@ -17,13 +17,19 @@ namespace Zealot.Client.Actions
         protected override void OnActiveEnter(string prevstate)
         {
             ActorGhost ghost = (ActorGhost)mEntity;
-            ghost.PlayEffect("", mSkillData.skillJson.name + "_gethit");
+            //UnityEngine.Debug.Log("Gethit " + ghost.Name);
 
             if (ghost.IsMonster())
-                ((MonsterGhost)ghost).Flash(); //flash on monster
+            {
+                //((MonsterGhost)ghost).Flash(); //flash on monster
+                GotoState("Completed");
+                return;
+            }
 
+            ghost.PlayEffect("", mSkillData.skillJson.name + "_gethit");
             if (!ghost.PlayerStats.HeavyStand)
             {
+
                 ghost.StartHitted(200);
                 SetTimer(200, OnActiveTimeUp, null);
             }
@@ -56,12 +62,20 @@ namespace Zealot.Client.Actions
         {
         }
 
+        public override void Start()
+        {
+            base.Start();
+            ActorGhost ghost = (ActorGhost)mEntity;
+            ghost.SetAction(mdbCommand);
+        }
+
         protected override void OnActiveEnter(string prevstate)
         {
             base.OnActiveEnter(prevstate);
 
-            ActorGhost ghost = (ActorGhost)mEntity;
-            ghost.SetActionDontSend(mdbCommand);
+            //ActorGhost ghost = (ActorGhost)mEntity;
+            //ghost.SetActionDontSend(mdbCommand);
+            
         }
     }
 

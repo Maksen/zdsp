@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Kopio.JsonContracts;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
@@ -28,12 +28,26 @@ public class PowerUpController
     public PowerUpJson GetPowerUpJson (PartsType part)
     {
         int type = PowerUpRepo.PartsTypeValue((int)part);
-        int level = PowerUpInventory.powerUpSlots[type];
-        return PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)type, level);
+        if (type != -1)
+        {
+            int level = PowerUpInventory.powerUpSlots[type];
+            return PowerUpRepo.GetPowerUpByPartsLevel((PowerUpPartsType)type, level);
+        }
+        return null;
     }
     #endregion
 
     #region MeridianPowerUp
+    public List<int> GetAllMeridianLevelAll()
+    {
+        return PowerUpInventory.meridianLevelSlots;
+    }
+
+    public List<int> GetAllMeridianExpAll()
+    {
+        return PowerUpInventory.meridianExpSlots;
+    }
+
     public int GetMeridianLevel (int type)
     {
         return PowerUpInventory.meridianLevelSlots[type];
@@ -51,30 +65,7 @@ public class PowerUpController
 
     public MeridianExpListJson GetMeridianExpJson(int type)
     {
-        return PowerUpRepo.GetMeridianExpByTypesLevel(type, GetMeridianExp(type));
-    }
-
-    public List<MeridianUnlockListJson> GetMeridianUnlockList ()
-    {
-        List<MeridianUnlockListJson> lis = new List<MeridianUnlockListJson>();
-        for (int i = 0; i < PowerUpInventoryData.MAX_MERIDIANLEVELSLOTS; ++i)
-        {
-            lis.Add(GetMeridianUnlockJson(i));
-        }
-        return lis;
-    }
-
-    public List<MeridianExpListJson> GetMeridianExpList ()
-    {
-        List<MeridianExpListJson> lis = new List<MeridianExpListJson>();
-        for (int i = 0; i < PowerUpInventoryData.MAX_MERIDIANLEVELSLOTS; ++i)
-        {
-            if(PowerUpInventory.meridianLevelSlots[i] == 0)
-                lis.Add(null);
-            else
-                lis.Add(GetMeridianExpJson(i));
-        }
-        return lis;
+        return PowerUpRepo.GetMeridianExpByTypesLevel(type, GetMeridianLevel(type));
     }
 
     public List<ItemInfo> GetMeridianUnlockMaterial (int type)
@@ -84,7 +75,7 @@ public class PowerUpController
 
     public List<ItemInfo> GetMeridianExpMaterial (int type)
     {
-        return PowerUpRepo.GetMeridianExpMaterial(type, GetMeridianExp(type));
+        return PowerUpRepo.GetMeridianExpMaterial(type, GetMeridianLevel(type));
     }
     #endregion
     

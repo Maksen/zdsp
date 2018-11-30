@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using Zealot.Common;
 
 public static class ObjectClone
 {
@@ -23,5 +24,20 @@ public static class ObjectClone
         // without ObjectCreationHandling.Replace default constructor values will be added to result
         var deserializeSettings = new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace };
         return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source), deserializeSettings);
+    }
+
+    /// <summary>
+    /// Use this to perform deep copy of the object if the object contains any IInventoryItem
+    /// </summary>
+    public static T CloneJsonWithItemConverter<T>(this T source)
+    {
+        if (Object.ReferenceEquals(source, null))
+        {
+            return default(T);
+        }
+
+        var deserializeSettings = new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace };
+        deserializeSettings.Converters.Add(new ClientInventoryItemConverter());
+        return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source, deserializeSettings), deserializeSettings);
     }
 }

@@ -10,7 +10,10 @@ public class UI_ChartToggleData : MonoBehaviour
     GameObject Ongoing;
 
     [SerializeField]
-    GameObject Active;
+    GameObject Completed;
+
+    [SerializeField]
+    GameObject Selected;
 
     [SerializeField]
     Text Description;
@@ -40,7 +43,8 @@ public class UI_ChartToggleData : MonoBehaviour
         mParent = parent;
         mDestinyId = destinydata.id;
         Ongoing.SetActive(GameInfo.gLocalPlayer.QuestController.IsQuestOngoing(QuestType.Destiny, destinydata.questid));
-        Active.SetActive(parent.GetSelectedDestinyId() == destinydata.destinyid);
+        Completed.SetActive(GameInfo.gLocalPlayer.QuestController.IsAdventureLocked(destinydata.questid));
+        Selected.SetActive(parent.GetSelectedDestinyId() == destinydata.destinyid);
         QuestJson questJson = QuestRepo.GetQuestByID(destinydata.questid);
         Description.text = questJson.questname;
     }
@@ -67,7 +71,7 @@ public class UI_ChartToggleData : MonoBehaviour
 
     public void OnClickedChartData()
     {
-        Active.SetActive(GetComponent<Toggle>().isOn ? true : false);
+        Selected.SetActive(GetComponent<Toggle>().isOn ? true : false);
         mParent.OnDestinyChanged(GetComponent<Toggle>().isOn ? mDestinyId : -1);
     }
 }

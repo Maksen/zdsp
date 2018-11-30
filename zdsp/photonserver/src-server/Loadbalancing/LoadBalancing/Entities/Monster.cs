@@ -45,6 +45,8 @@ namespace Zealot.Server.Entities
         public List<KeyValuePair<string, long>> mPartyScoreRank; //party score rank for bigboss, key is leader name or player self.
         private uint mOnAttackedTick = 0;
 
+        private BuffTimeStats mBuffTimeStats;
+
         public bool LogAI { get
             {
                 return true;
@@ -64,6 +66,8 @@ namespace Zealot.Server.Entities
             mPlayerDamageRank = new List<KeyValuePair<string, int>>();
             mPlayerScore = new Dictionary<string, BigBossScoreRecord>();
             mPartyScoreRank = new List<KeyValuePair<string, long>>();
+
+            mBuffTimeStats = new BuffTimeStats();
         }
 
         #region Implement abstract methods
@@ -120,7 +124,8 @@ namespace Zealot.Server.Entities
             this.Name = mArchetype.localizedname;
             var sp = spawner.mPropertyInfos;            
             PlayerStats.Alive = true;
-            PlayerStats.Team = -100; //default not same as pc
+            //PlayerStats.Team = -100; //default not same as pc
+            PlayerStats.Team = -1 - (int)mArchetype.camp;
             PlayerStats.MoveSpeed = mArchetype.movespeed;
             PlayerStats.Level = mArchetype.level;
             mSpawnPos = sp.position;
@@ -192,6 +197,12 @@ namespace Zealot.Server.Entities
             }
         }
 
+        public override void UpdateLocalObject(GameClientPeer peer)
+        {
+            if (mBuffTimeStats.IsDirty())
+                peer.ZRPC.LocalObjectRPC.UpdateLocalObject((byte)Common.Datablock.LOCATEGORY.LocalPlayerStats, GetPersistentID(), mBuffTimeStats, peer);
+        }
+
         public override float GetExDamage()
         {
             //return mArchetype.exdamage;
@@ -261,8 +272,8 @@ namespace Zealot.Server.Entities
             else
                 return EntitySystem.QueryForClosestEntityInSphere(this.Position, aggroRadius, (queriedEntity) =>
                 {                        
-                        IActor target = queriedEntity as IActor;
-                        return (target != null && CombatUtils.IsValidEnemyTarget(this, target));
+                    IActor target = queriedEntity as IActor;
+                    return (target != null && CombatUtils.IsValidEnemyTarget(this, target));
                 }) as Actor;
             return null;
         }
@@ -311,9 +322,12 @@ namespace Zealot.Server.Entities
                 killer = attacker as Player;                   
             else if (ne.IsHero())
                 killer = (attacker as HeroEntity).Owner;  //set the hero's owner as the killer
-            HandleLoot(killer);
-            UpdateMonsterKillAchievement(killer);
-            mSp.OnChildDead(this, killer);
+            if (killer != null)
+            {
+                HandleLoot(killer);
+                UpdateMonsterKillAchievement(killer);
+            }
+            mSp.OnChildDead(this, attacker);
             mSp = null;
         }
 

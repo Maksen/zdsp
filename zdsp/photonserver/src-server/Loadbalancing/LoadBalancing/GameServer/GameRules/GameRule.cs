@@ -19,7 +19,7 @@ namespace Zealot.Server.Rules
         public static void TeleportToPortalExit(Player player, string exitName)
         {
             GameClientPeer peer = player.Slot;
-            string currentlevelname = player.mInstance.currentlevelname;
+            string currentlevelname = player.mInstance.mCurrentLevelName;
             int myProgressLvl = player.GetAccumulatedLevel();
             string[] exitNames = exitName.Split(';');
             int numOfExits = exitNames.Length;
@@ -47,7 +47,10 @@ namespace Zealot.Server.Rules
                 LocationData mPortalExitData = validExits[index];
                 peer.mPortalExit = mPortalExitData;
                 if (mPortalExitData.mLevel == currentlevelname)
+                {
                     peer.ZRPC.CombatRPC.TeleportSetPosDirection(mPortalExitData.mPosition.ToRPCPosition(), mPortalExitData.mForward.ToRPCDirection(), peer);
+                    player.HeroStats.TeleportSpawnedHeroPosDirection(mPortalExitData.mPosition, mPortalExitData.mForward, player);
+                }
                 else
                 {
                     string targetLevelName = mPortalExitData.mLevel;
@@ -589,12 +592,13 @@ namespace Zealot.Server.Rules
 
         #region New Character Data
         /// <summary>
-        /// Creates and instantiates default character data according to <paramref name="tutorialDone"/>
+        /// Creates and instantiates default character data according to <paramref name="isTutorialDone"/>
         /// </summary>
         /// <returns>Default Character Data</returns>
         public static CharacterData NewCharacterData(bool isTutorialDone, string charName, byte gender, int hairstyle, int haircolor, int makeup, int skincolor)
         {
             NewCharInfo newCharInfo = GameConstantRepo.mNewCharInfo;
+            float[] newCharPos = newCharInfo.Pos;
             CharacterData newCharData = new CharacterData
             {
                 IsTutorialRealmDone = isTutorialDone,
@@ -605,11 +609,12 @@ namespace Zealot.Server.Rules
                 Health = -1,
                 Mana = -1,
                 portraitID = 1,
-                lastlevelid = newCharInfo.levelId,
-                lastpos = newCharInfo.pos,
-                lastdirection = newCharInfo.dir,
+                LastLevelId = newCharInfo.LevelId,
+                LastWorldId = newCharInfo.LevelId,
+                LastLevelPos = new float[] { newCharPos[0], newCharPos[1], newCharPos[2] },
+                LastWorldPos = new float[] { newCharPos[0], newCharPos[1], newCharPos[2] },
+                LastDirection = new float[] { newCharInfo.Dir[0], newCharInfo.Dir[1], newCharInfo.Dir[2], },
                 BotSetting = "",
-                CurrencyExchangeTime = 0,
             };
             newCharData.InitDefault(JobType.Newbie);
             SetCharacterAppearance(newCharData.EquipmentInventory, hairstyle, haircolor, makeup, skincolor);
@@ -706,8 +711,7 @@ namespace Zealot.Server.Rules
             skillinv.EquippedSkill[0] = SkillRepo.GetGenderWeaponBasicAttackData(e.EquipmentJson.partstype, 1, genderStr).skillJson.id;
             skillinv.AutoSkill[1] = SkillRepo.GetSkill(51).skillJson.id;
             skillinv.EquippedSkill[1] = SkillRepo.GetSkill(51).skillJson.id;
-            skillinv.SkillInv[0] = 55;
-            skillinv.SkillInv[1] = 51;
+            skillinv.AddSkillToBag(55, 51);
 
         }
 

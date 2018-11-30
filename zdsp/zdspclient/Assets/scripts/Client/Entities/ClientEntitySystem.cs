@@ -543,6 +543,20 @@ namespace Zealot.Common.Entities
             return null;
         }
 
+        public StaticGuideGhost GetQuestGuide(int archetypeid)
+        {
+            foreach (KeyValuePair<int, Entity> entity in mEntities)
+            {
+                if (entity.Value.GetType() == typeof(StaticGuideGhost))
+                {
+                    StaticGuideGhost guidenpc = entity.Value as StaticGuideGhost;
+                    if (guidenpc.mArchetypeId == archetypeid)
+                        return guidenpc;
+                }
+            }
+            return null;
+        }
+
         public StaticClientNPCAlwaysShow GetStaticClientNPC(int archetypeid)
         {
             foreach (KeyValuePair<int, Entity> entity in mEntities)

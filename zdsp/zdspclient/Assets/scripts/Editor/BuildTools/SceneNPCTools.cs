@@ -66,6 +66,7 @@ class SceneNPCTools
         CombatNPCRepo.Init(gamedb);
         StaticNPCRepo.Init(gamedb);
         RealmNPCGroupRepo.Init(gamedb);
+        ScenesModelRepo.Init(gamedb);
         
         #region Add Containers
         //add scene npc container

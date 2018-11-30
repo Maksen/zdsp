@@ -14,6 +14,7 @@ namespace Zealot.Client.Entities
     public class MonsterGhost : ActorGhost
     {
         public CombatNPCJson mArchetype;
+        private BuffTimeStats mBuffTimeStats;
         
         private SkinnedMeshRenderer mRenderer;
         private Flash mFlashEffect;
@@ -70,9 +71,9 @@ namespace Zealot.Client.Entities
                 //    }
                 //    HeadLabel.mPlayerLabel.SetBuffDebuff(this);
                 //    break;
-                case RealmType.Dungeon:
-                //case RealmType.RealmTutorial:
                 case RealmType.World:
+                case RealmType.Dungeon:
+                case RealmType.Tutorial:
                     switch (mArchetype.monstertype)
                     {
                         case MonsterType.Normal:
@@ -134,6 +135,11 @@ namespace Zealot.Client.Entities
             }
             else
                 HandleBuffStatus(field, value);
+        }
+
+        private void OnBuffTimeStatsChanged(string field, object value, object oldvalue)
+        {
+
         }
 
         private void EnsureDyingAction()
@@ -322,7 +328,13 @@ namespace Zealot.Client.Entities
                 PlayerStats.OnValueChanged = this.OnValueChanged;
                 PlayerStats.OnNewlyAdded = OnNewlyAdded;
                 mylocalobj = PlayerStats;
-            }           
+            }
+            else if(objtype == LOTYPE.BuffTimeStats)
+            {
+                this.mBuffTimeStats = new BuffTimeStats();
+                mBuffTimeStats.OnValueChanged = this.OnBuffTimeStatsChanged;
+                mylocalobj = mBuffTimeStats;
+            }       
             else
                 return;
 

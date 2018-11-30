@@ -9,9 +9,7 @@
 
     public class ShieldSE : SideEffect
     { 
-        private int mTotalAmount = 0;
-        private int mDeductAmt = 0;
-        private bool mUnLimited = false;
+        private float mTotalAmount = 0;
 
         public ShieldSE(SideEffectJson sideeffectData, SEORIGINID origin, int originID)
             : base(sideeffectData, origin, originID)
@@ -23,9 +21,15 @@
 
         protected override bool OnApply(int equipid = -1)
         {
-            mUnLimited = float.Parse(mSideeffectData.parameter) <= 0; //minus value means unlimited amount
-            mTotalAmount = (int)float.Parse(mSideeffectData.parameter);//value update in skillcombo.
-            mDeductAmt = (int) mSideeffectData.max;
+            if (mSideeffectData.isrelative)
+            {
+                mTotalAmount = mTarget.GetHealthMax() * mSideeffectData.max * 0.01f;
+            }
+            else
+            {
+                mTotalAmount = mSideeffectData.max;
+            }
+
             if (base.OnApply(equipid))
             {  
                 if (IsDurationalSE())
@@ -51,28 +55,15 @@
         public int OnAttacked(int dmg)
         {
             //System.Diagnostics.Debug.WriteLine("your message here"); 
-            int amount = 0; 
-            amount = (int)(0.01f * mDeductAmt * dmg);
-            amount = dmg - amount; //the damage after deduction.
-            if (!mUnLimited) 
+            mTotalAmount -= dmg;
+
+            if(mTotalAmount <= 0)
             {
-                if (amount < mTotalAmount)
-                {
-                    mTotalAmount -= amount;
-                    amount = 0;
-                }
-                else
-                {
-                    amount = amount - mTotalAmount;
-                    mTotalAmount = 0;
-                    Stop();
-                }
+                Stop();
+                return (int)Math.Abs(mTotalAmount);
             }
-            if (mUnLimited && mDeductAmt == 0)//this case is strange
-            {
-                amount = 0; 
-            }
-            return amount;
+            
+            return 0;
         }
 
         public override bool IsBuff()

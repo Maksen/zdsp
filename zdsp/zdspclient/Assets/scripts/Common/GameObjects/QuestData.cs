@@ -27,6 +27,7 @@ namespace Zealot.Common
         Realm = 2,
         Interact = 3,
         Empty = 4,
+        Guide = 5,
     }
 
     public class CurrentObjectiveData
@@ -268,6 +269,9 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "CompanionId")]
         public int CompanionId { get; set; }
 
+        [JsonProperty(PropertyName = "CompanionQuestId")]
+        public int CompanionQuestId { get; set; }
+
         [JsonProperty(PropertyName = "RealmQuestId")]
         public int RealmQuestId { get; set; }
 
@@ -298,6 +302,7 @@ namespace Zealot.Common
             UnlockQuest = "";
             UnlockSignboard = "";
             CompanionId = -1;
+            CompanionQuestId = -1;
         }
 
         public bool IsDefaultData()

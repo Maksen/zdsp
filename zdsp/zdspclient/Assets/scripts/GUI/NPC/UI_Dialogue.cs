@@ -26,6 +26,7 @@ public class UI_Dialogue : BaseWindowBehaviour
     private List<GameObject> mSelectionObjects;
     private List<int> mQuestList;
     private Dictionary<int, int> mFunctionList;
+    private List<int> mLockedList;
     private StaticNPCJson mNPCJson;
     private bool mCompletedAllQuest;
     private int mNPCId;
@@ -41,6 +42,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         Selection,
         QuestSelection,
         FunctionSelection,
+        LockedQuest,
     }
 
     private int mSelectedQuestId = -1;
@@ -80,7 +82,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         UpdateDialog();
     }
 
-    public void InitSelectionDialogue(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist)
+    public void InitSelectionDialogue(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist, List<int> lockedlist)
     {
         mQuestNPC = npc;
         mSelectionObjects = new List<GameObject>();
@@ -90,52 +92,11 @@ public class UI_Dialogue : BaseWindowBehaviour
         mStep = 0;
         mQuestList = questlist;
         mFunctionList = functionlist;
+        mLockedList = lockedlist;
         mNPCId = npc.mArchetypeId;
         mQuestId = -1;
         mOngoingQuest = false;
         mDialogueAction = DialogueAction.Selection;
-        mQuestionTalkId = -1;
-        mTotalStep = 1;
-        NPCSide.SpawnNPC(GetAllCallerId());
-
-        UpdateDialog();
-    }
-
-    public void InitQuestSelectionDialogue(StaticNPCGhost npc, List<int> questlist)
-    {
-        mQuestNPC = npc;
-        mSelectionObjects = new List<GameObject>();
-        mTalkJson = null;
-        mNPCJson = npc.mArchetype;
-        mCompletedAllQuest = false;
-        mStep = 0;
-        mQuestList = questlist;
-        mFunctionList = null;
-        mNPCId = npc.mArchetypeId;
-        mQuestId = -1;
-        mOngoingQuest = false;
-        mDialogueAction = DialogueAction.QuestSelection;
-        mQuestionTalkId = -1;
-        mTotalStep = 1;
-        NPCSide.SpawnNPC(GetAllCallerId());
-
-        UpdateDialog();
-    }
-
-    public void InitFunctionSelectionDialogue(StaticNPCGhost npc, Dictionary<int, int> functionlist)
-    {
-        mQuestNPC = npc;
-        mSelectionObjects = new List<GameObject>();
-        mTalkJson = null;
-        mNPCJson = npc.mArchetype;
-        mCompletedAllQuest = false;
-        mStep = 0;
-        mQuestList = null;
-        mFunctionList = functionlist;
-        mNPCId = npc.mArchetypeId;
-        mQuestId = -1;
-        mOngoingQuest = false;
-        mDialogueAction = DialogueAction.FunctionSelection;
         mQuestionTalkId = -1;
         mTotalStep = 1;
         NPCSide.SpawnNPC(GetAllCallerId());
@@ -153,6 +114,7 @@ public class UI_Dialogue : BaseWindowBehaviour
         mStep = 0;
         mQuestList = null;
         mFunctionList = null;
+        mLockedList = null;
         mNPCId = npc.mArchetypeId;
         mQuestId = -1;
         mOngoingQuest = false;
@@ -209,25 +171,39 @@ public class UI_Dialogue : BaseWindowBehaviour
         }
         else
         {
-            if (mFunctionList != null)
+            if (mDialogueAction == DialogueAction.Selection)
             {
-                foreach (KeyValuePair<int, int> function in mFunctionList)
+                if (mFunctionList != null)
                 {
-                    GameObject obj = Instantiate(SelectionObject);
-                    obj.GetComponent<UI_DialogueSelection>().Init(this, function.Key, function.Value);
-                    obj.transform.SetParent(SelectionContent, false);
-                    mSelectionObjects.Add(obj);
+                    foreach (KeyValuePair<int, int> function in mFunctionList)
+                    {
+                        GameObject obj = Instantiate(SelectionObject);
+                        obj.GetComponent<UI_DialogueSelection>().Init(this, function.Key, function.Value);
+                        obj.transform.SetParent(SelectionContent, false);
+                        mSelectionObjects.Add(obj);
+                    }
                 }
-            }
 
-            if (mQuestList != null)
-            {
-                foreach (int questid in mQuestList)
+                if (mQuestList != null)
                 {
-                    GameObject obj = Instantiate(SelectionObject);
-                    obj.GetComponent<UI_DialogueSelection>().Init(this, questid);
-                    obj.transform.SetParent(SelectionContent, false);
-                    mSelectionObjects.Add(obj);
+                    foreach (int questid in mQuestList)
+                    {
+                        GameObject obj = Instantiate(SelectionObject);
+                        obj.GetComponent<UI_DialogueSelection>().Init(this, questid);
+                        obj.transform.SetParent(SelectionContent, false);
+                        mSelectionObjects.Add(obj);
+                    }
+                }
+
+                if (mLockedList != null)
+                {
+                    foreach (int questid in mLockedList)
+                    {
+                        GameObject obj = Instantiate(SelectionObject);
+                        obj.GetComponent<UI_DialogueSelection>().Init(this, questid);
+                        obj.transform.SetParent(SelectionContent, false);
+                        mSelectionObjects.Add(obj);
+                    }
                 }
             }
         }
@@ -262,6 +238,10 @@ public class UI_Dialogue : BaseWindowBehaviour
             if (mCompletedAllQuest && !string.IsNullOrEmpty(mNPCJson.talktextalt))
             {
                 return mNPCJson.talktextalt;
+            }
+            else if (mDialogueAction == DialogueAction.LockedQuest)
+            {
+                return GameInfo.gLocalPlayer.QuestController.GetRequirementText(mSelectedQuestId);
             }
             else
             {
@@ -458,25 +438,42 @@ public class UI_Dialogue : BaseWindowBehaviour
             mSelectedQuestGroup = 0;
             mQuestList = null;
             mOngoingQuest = false;
-            mDialogueAction = DialogueAction.TriggerQuest;
             QuestClientController questController = GameInfo.gLocalPlayer.QuestController;
-            int talkid = questController.GetTalkId(mQuestId, mNPCId);
-            mTalkJson = QuestRepo.GetQuestTalkByID(talkid);
-            if (mTalkJson != null)
+            QuestRequirementStatus requirementStatus = questController.GetQuestRequirementStatus(mSelectedQuestId);
+            if (requirementStatus == QuestRequirementStatus.Completed)
             {
+                mDialogueAction = DialogueAction.TriggerQuest;
+                int talkid = questController.GetTalkId(mQuestId, mNPCId);
+                mTalkJson = QuestRepo.GetQuestTalkByID(talkid);
+                if (mTalkJson != null)
+                {
+                    mStep = 0;
+                    mTotalStep = mTalkJson.steps;
+                    NPCSide.SpawnNPC(GetAllCallerId());
+                    NPCSide.SpawnPlayer();
+                    ClearSelection();
+                    if (mStep < mTotalStep)
+                    {
+                        UpdateDialog();
+                    }
+                }
+                else
+                {
+                    StartQuest();
+                }
+            }
+            else
+            {
+                mDialogueAction = DialogueAction.LockedQuest;
+                mTalkJson = null;
                 mStep = 0;
-                mTotalStep = mTalkJson.steps;
-                NPCSide.SpawnNPC(GetAllCallerId());
+                mTotalStep = 1;
                 NPCSide.SpawnPlayer();
                 ClearSelection();
                 if (mStep < mTotalStep)
                 {
                     UpdateDialog();
                 }
-            }
-            else
-            {
-                StartQuest();
             }
         }
     }

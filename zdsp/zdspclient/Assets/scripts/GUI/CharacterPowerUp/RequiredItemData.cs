@@ -9,7 +9,7 @@ public class RequiredItemData : MonoBehaviour
 
     public Text requiredAmount;
 	
-    public void InitCurrency(CurrencyType type, int invAmount, int reqAmount)
+    public bool InitCurrency(CurrencyType type, int invAmount, int reqAmount)
     {
         GameObject gameIconObj = Instantiate(gameIconPrefab);
         gameIconObj.transform.SetParent(gameIconParent, false);
@@ -18,7 +18,7 @@ public class RequiredItemData : MonoBehaviour
         GameIcon_MaterialConsumable gameIcon = gameIconObj.GetComponent<GameIcon_MaterialConsumable>();
         gameIcon.Init(CurrencyType.Money, invAmount, false, false, false, null);
         gameIcon.SetStackCount(invAmount);
-        CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
+        return CompareMaterial(gameIconObj.transform.GetChild(2).GetComponent<Text>(), invAmount, reqAmount);
     }
 	
     public bool InitMaterial(int itemId, int invAmount, int reqAmount)

@@ -61,10 +61,11 @@ namespace Zealot.Client.Entities
         public InteractiveController InteractiveController { get; private set; }
         public SocialController clientSocialController { get; private set; }
         public TutorialController m_TutorialController { get; private set; }
-        public BotStateController mBotStateController { get; private set; }
 
         public GameTimer mArenaRewardCD = null;
         public DateTime mArenaLastRewardDT;
+
+        public Dictionary<int, int> mSkillInventory;
 
         /// <summary>
         /// Use for non local player only
@@ -281,10 +282,6 @@ namespace Zealot.Client.Entities
                 case "bindgold":
                 case "Gold":
                     break;
-                case "AchievementExp":
-                    if (AchievementStats != null)
-                        AchievementStats.OnUpdateAchievementExp();
-                    break;
                 case "guildId":
                     if ((int)value == 0 && (int)oldvalue > 0)
                     {
@@ -488,7 +485,7 @@ namespace Zealot.Client.Entities
 
         public void OnSkillLocalObjectChanged()
         {
-            //Debug.Log("new skilllocal object " + SkillStats.ToString());
+            Debug.Log("new skilllocal object " + SkillStats.ToString());
             GameObject widget = UIManager.GetWidget(HUDWidgetType.SkillButtons);
             if (widget == null)
                 return;
@@ -525,6 +522,11 @@ namespace Zealot.Client.Entities
             //        hudskill.SetSkillImage(i, null);
             //    }
             //}
+        }
+
+        public void OnSkillStatsCollectionChanged(string field, byte idx, object value)
+        {
+
         }
 
         public void OnSkillStatsChanged(string field, object value, object oldvalue)
@@ -853,29 +855,15 @@ namespace Zealot.Client.Entities
 
         public void OnBuffTimeStatsChanged(string field, byte idx, object value)//value is the side effect id
         {
-            //if (field == "Positives")
-            //{
-            //    SideEffectJson dupSideEffect = SideEffectRepo.GetSideEffect((int)value);
-            //    if (dupSideEffect != null)
-            //    {
-            //        //if (string.IsNullOrEmpty(dupSideEffect.icon) == false)//this check for all the side effect that do not contain icon
-            //        {
-            //            HUD_Buff.mybuffInstance.SetBuffAmount(BuffTimeStats);
-            //        }
-            //    }
-            //    else//the side effect duration time out
-            //    {
-            //        HUD_Buff.mybuffInstance.SetBuffAmount(BuffTimeStats);
-            //    }
+            //bool isbuff = false;
+            //SEORIGINID origin = SEORIGINID.NONE;
+            //int originid = 0;
+            //for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2) {
+            //    DecodeBuffTimeStats(ref isbuff, ref origin, ref originid, Convert.ToInt64(BuffTimeStats.Buffs[i]));
+            //    Debug.Log(string.Format("{0} of type {1} with ID : {2} || Time Left : {3}", isbuff == true ? "Buff" : "Debuff", origin.ToString(), originid, BuffTimeStats.Buffs[i + 1]));
             //}
 
-            bool isbuff = false;
-            SEORIGINID origin = SEORIGINID.NONE;
-            int originid = 0;
-            for (int i = 0; i < BuffTimeStats.EFFECT_BAG; i += 2) {
-                DecodeBuffTimeStats(ref isbuff, ref origin, ref originid, Convert.ToInt64(BuffTimeStats.Buffs[i]));
-                Debug.Log(string.Format("{0} of type {1} with ID : {2} || Time Left : {3}", isbuff == true ? "Buff" : "Debuff", origin.ToString(), originid, BuffTimeStats.Buffs[i + 1]));
-            }
+            HeadLabel.mPlayerLabel.SetUnsetBuffDebuff(BuffTimeStats.Buffs);
 
 #if UNITY_EDITOR
             //string bufflist = "";
@@ -924,7 +912,7 @@ namespace Zealot.Client.Entities
                 UI_CharacterPowerup_Manager uiPowerUp = uiPowerUpObj.GetComponentInChildren<UI_CharacterPowerup_Manager>();
                 if(uiPowerUp != null)
                 {
-                    uiPowerUp.InitFromOther();
+                    uiPowerUp.Refresh();
                 }
                 UI_Inventory uiInventory = uiPowerUpObj.GetComponent<UI_Inventory>();
                 if(uiInventory != null)
@@ -934,9 +922,26 @@ namespace Zealot.Client.Entities
             }
         }
 
-        public void OnMeridianStatsChanged()
+        public void OnMeridianStatsCollectionChanged(string field, byte idx, object value)
         {
-            clientPowerUpCtrl.InitFromMeridianStats(MeridianStats);
+            if (field == "meridianLevelSlots")
+            {
+                clientPowerUpCtrl.PowerUpInventory.meridianLevelSlots[idx] = (int)value;
+            }
+            else if (field == "meridianExpSlots")
+            {
+                clientPowerUpCtrl.PowerUpInventory.meridianExpSlots[idx] = (int)value;
+                GameObject uiMeridianObj = UIManager.GetWindowGameObject(WindowType.Meridian);
+                if (uiMeridianObj != null)
+                {
+                    uiMeridianObj.GetComponent<UI_CharacterMeridian_Manager>().SetMeridianObjSlot(idx);
+                }
+            }
+            else
+            {
+                string errorString = string.Format("Error : p{0}q", field);
+                UIManager.SystemMsgManager.ShowSystemMessage(errorString, true);
+            }
         }
 
         public void OnEquipmentCraftStatsLocalObjectChanged()
@@ -952,9 +957,11 @@ namespace Zealot.Client.Entities
 
         public void OnEquipFusionStatsChanged()
         {
+            GameObject uiEquipFusionObj;
             if (EquipFusionStats.FinishedFusion)
             {
-                UI_CharacterEquipFusionManager.RefreshFusion();
+                uiEquipFusionObj = UIManager.GetWindowGameObject(WindowType.EquipFusion);
+                uiEquipFusionObj.GetComponent<UI_CharacterEquipFusionManager>().RefreshFusion();
                 EquipFusionStats.FinishedFusion = false;
             }
 
@@ -962,7 +969,7 @@ namespace Zealot.Client.Entities
 
             if (data == null) { return; }
 
-            GameObject uiEquipFusionObj = UIManager.GetWindowGameObject(WindowType.DialogEquipFusion);
+            uiEquipFusionObj = UIManager.GetWindowGameObject(WindowType.DialogEquipFusion);
 
             if (data != string.Empty)
             {
@@ -1106,6 +1113,9 @@ namespace Zealot.Client.Entities
         #region Achievement
         public void OnAchievementStatsCollectionChanged(string field, byte idx, object value)
         {
+            if (AchievementStats.IsNewlyAdded)
+                return;
+
             switch (field)
             {
                 case "Collections":
@@ -1335,7 +1345,7 @@ namespace Zealot.Client.Entities
                 DonateController = new DonateClientController();
                 m_TutorialController = new TutorialController(this);
                 clientSocialController = new SocialController(this);
-                mBotStateController = BotStateController.Instance;
+                mSkillInventory = new Dictionary<int, int>();
             }
             mEquipmentInvData = new EquipmentInventoryData();
             mEquipmentInvData.InitDefault();
@@ -1346,6 +1356,7 @@ namespace Zealot.Client.Entities
         public override void AddLocalObject(LOTYPE objtype, LocalObject obj)
         {
             LocalObject mylocalobj = null;
+            Debug.Log(objtype.ToString());
             switch (objtype)
             {
                 case LOTYPE.PlayerSynStats:
@@ -1387,6 +1398,7 @@ namespace Zealot.Client.Entities
                 case LOTYPE.SkillStats:
                     SkillStats = new SkillSynStats();
                     SkillStats.OnLocalObjectChanged = OnSkillLocalObjectChanged;
+                    SkillStats.OnCollectionChanged = OnSkillStatsCollectionChanged;
                     SkillStats.OnValueChanged = OnSkillStatsChanged;
                     mylocalobj = SkillStats;
                     break;
@@ -1444,7 +1456,7 @@ namespace Zealot.Client.Entities
                     MeridianStats = new MeridianStats();
                     MeridianStats.meridianLevelSlots.SetNotifyParent(false);
                     MeridianStats.meridianExpSlots.SetNotifyParent(false);
-                    MeridianStats.OnLocalObjectChanged = OnMeridianStatsChanged;
+                    MeridianStats.OnCollectionChanged = OnMeridianStatsCollectionChanged;
                     mylocalobj = MeridianStats;
                     break;
                 case LOTYPE.DNAStats:
@@ -1722,6 +1734,12 @@ namespace Zealot.Client.Entities
                 {
                     GameInfo.gCombat.ApproachAndCastSkill(skillid, targetid, pos);
                 };
+            }
+            else if (actiontype == CallBackAction.None)
+            {
+                action = null;
+                range = 2f;
+                targetid = -1;
             }
 
             PathFindToTarget(pos, targetid, range, true, false, action);
@@ -2279,7 +2297,7 @@ namespace Zealot.Client.Entities
 
         public IEnumerator PlayCutscene(string name, int delay, int questid)
         {
-            if (GameInfo.gCombat.CutsceneManager.IsCutsceneReady(name))
+            if (CutsceneManager.instance.IsCutsceneReady(name))
             {
                 ForceIdle();
                 UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
@@ -2288,7 +2306,11 @@ namespace Zealot.Client.Entities
                 yield return new WaitForSecondsRealtime(delay);
                 BotStateController.Instance.Cutscene();
                 RPCFactory.NonCombatRPC.ActivateInvincible(true);
-                GameInfo.gCombat.CutsceneManager.PlayCutscene(name, () => StartNextQuestEvent(questid));
+                CutsceneManager.instance.PlayCutscene(name, () => StartNextQuestEvent(questid));
+            }
+            else
+            {
+                QuestController.OnCutSceneFinished();
             }
         }
 
@@ -2319,33 +2341,40 @@ namespace Zealot.Client.Entities
 
         public void UpdatePlayerCompanion()
         {
-            StaticNPCJson staticNPC = StaticNPCRepo.GetNPCById(PlayerSynStats.QuestCompanionId);
-            if (staticNPC != null)
+            if (QuestController != null)
             {
-                if (mCompanionGhost != null && mCompanionGhost.GetNpcId() != staticNPC.id)
+                QuestController.UpdateCompanionData(PlayerSynStats.QuestCompanionId);
+            }
+            foreach(KeyValuePair<int, int> entry in GameInfo.mCompanionQuestStatus)
+            {
+                StaticNPCJson staticNPC = StaticNPCRepo.GetNPCById(entry.Value);
+                if (staticNPC != null)
                 {
-                    EntitySystem.RemoveEntityByID(mCompanionGhost.ID);
-                    mCompanionGhost = null;
-                }
+                    if (mCompanionGhost != null && mCompanionGhost.GetNpcId() != staticNPC.id)
+                    {
+                        EntitySystem.RemoveEntityByID(mCompanionGhost.ID);
+                        mCompanionGhost = null;
+                    }
 
-                Vector3 pos = mPos + ((mForward * -1) * 1.5f);
-                if (mCompanionGhost == null)
-                {
-                    mCompanionGhost = EntitySystem.SpawnEntity<CompanionGhost>();
-                    mCompanionGhost.Init(staticNPC, pos, mForward, this);
+                    Vector3 pos = mPos + ((mForward * -1) * 1.5f);
+                    if (mCompanionGhost == null)
+                    {
+                        mCompanionGhost = EntitySystem.SpawnEntity<CompanionGhost>();
+                        mCompanionGhost.Init(staticNPC, pos, mForward, this);
+                    }
+                    else
+                    {
+                        mCompanionGhost.UpdatePosition(pos, mForward);
+                    }
                 }
                 else
                 {
-                    mCompanionGhost.UpdatePosition(pos, mForward);
+                    if (mCompanionGhost != null)
+                    {
+                        EntitySystem.RemoveEntityByID(mCompanionGhost.ID);
+                    }
+                    mCompanionGhost = null;
                 }
-            }
-            else
-            {
-                if (mCompanionGhost != null)
-                {
-                    EntitySystem.RemoveEntityByID(mCompanionGhost.ID);
-                }
-                mCompanionGhost = null;
             }
         }
 

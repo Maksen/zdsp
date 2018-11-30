@@ -368,21 +368,16 @@
 
         protected void AcquireTargets()
         {
-            if (isBasicAttack || !string.IsNullOrEmpty(((BaseNetEntity)mEntity).mSummoner))
-            {
-                mLastQueryResult = new List<IActor>() { mTarget };
-                return;
-            }
             if (mLastQueriedTime > 0)
                 return;
             mLastQueriedTime = 500;
             List<IActor> results;
             Player myPlayer = mEntity as Player;
-
             if (myPlayer != null)
-                results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mSkillData, mTargetPos, myPlayer.mInstance.GetSpawnedObjectsByPeer(myPlayer.Slot));
+                results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mTargetPos, mSkillData, myPlayer.mInstance.GetSpawnedObjectsByPeer(myPlayer.Slot));
             else
-                results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mSkillData, mTargetPos);
+                results = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mTargetPos, mSkillData);
+
             //handle for player basic attack dash to target. as the client dash distance is far enough to reach any target in view
             if ((bDashed && mEntity.IsPlayer() && mTarget != null && !results.Contains((IActor)mTarget)))
             {
@@ -399,10 +394,6 @@
                     Actor entity = actor as Actor;
                     if ((HitType)mSkillData.skillgroupJson.hittype == HitType.Definite || mSkillData.skillgroupJson.targettype != TargetType.Enemy)
                         mLastQueryResult.Add(actor);//only enemy targeting skill have evasion
-                    else if (entity.IsMonster() && !((Monster)entity).HasEvasion())
-                    {
-                        mLastQueryResult.Add(actor);//monster which canbeknockback no evasion
-                    }
                     else if (CombatFormula.IsEvade((Actor)mEntity, (Actor)actor))
                     {
                         mLastQueryEvasionResult.Add(actor);

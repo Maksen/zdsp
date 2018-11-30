@@ -66,22 +66,14 @@ public partial class ClientMain : MonoBehaviour
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnInteractiveEntity)]
-    public void SpawnInteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota)
+    public void SpawnInteractiveEntity(int pid, string prefab, string parent, bool isNpc, RPCPosition pos)
     {
-        Vector3 position = pos.ToVector3();
-        Vector3 rotation = rota.ToVector3();
         InteractiveGhost ghost = mEntitySystem.SpawnNetEntityGhost<InteractiveGhost>(pid);
-        ghost.IsLocal = false;
-        ghost.Init(prefab, parent, position, rotation);
-        ghost.SetOwnerID(0);
-    }
 
-    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveTrigger)]
-    public void InteractiveTrigger(int pid, bool canUse, int step, bool active)
-    {
-        InteractiveGhost ghost = mEntitySystem.GetEntityByPID(pid) as InteractiveGhost;
-        InteractiveEntities mEntity = ghost.entityObj.GetComponent<InteractiveEntities>();
-        mEntity.RefreshInteractiveStats(canUse, active, step);
+        Vector3 position = pos.ToVector3();
+        ghost.IsLocal = false;
+        ghost.Init(pid, prefab, parent, isNpc, position);
+        ghost.SetOwnerID(0);
     }
 
     IEnumerator ReturnToStandby(int pid, float duration)
@@ -262,7 +254,15 @@ public partial class ClientMain : MonoBehaviour
     }
     #endregion
 
-    #region Hero
+    #region Achievement
+    [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_ClaimAchievementReward)]
+    public void Ret_ClaimAchievementReward(string claimedReward)
+    {
+        PlayerGhost player = GameInfo.gLocalPlayer;
+        if (player != null)
+            player.AchievementStats.OnClaimReward(claimedReward);
+    }
+
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_ClaimAllAchievementRewards)]
     public void Ret_ClaimAllAchievementRewards(string claimedRewards)
     {
@@ -332,7 +332,7 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.Combat, (byte) ServerCombatRPCMethods.BroadcastCutScene)]
     public void BroadcastCutScene(int cutscene)
     {
-        GameInfo.gCombat.CutsceneManager.PlayEventCutscene(cutscene);
+        CutsceneManager.instance.PlayEventCutscene(cutscene);
     }
 
     //[RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.ProceedToTarget)]
@@ -374,7 +374,7 @@ public partial class ClientMain : MonoBehaviour
         }
 
         GameObject skb = UIManager.GetWidget(HUDWidgetType.SkillButtons);
-        skb.GetComponent<HUD_Skills>().UpdateSkillButtons(player.Bot.Enabled);
+        skb.GetComponent<HUD_Skills>().UpdateSkillButtons(GameSettings.AutoBotEnabled);
         Zealot.Bot.BotAutoSkillHandler.Instance.UpdateAutoSkillRow();
         
         //string[] auctionInfo = auctionStatus.Split(';');

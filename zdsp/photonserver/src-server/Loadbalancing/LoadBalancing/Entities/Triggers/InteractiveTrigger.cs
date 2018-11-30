@@ -1,8 +1,8 @@
 ﻿using Photon.LoadBalancing.GameServer;
 using System.Collections.Generic;
 using Zealot.Entities;
-using Zealot.Repository;
 using Zealot.Common;
+using Zealot.Common.Datablock;
 using Zealot.Common.Entities;
 using Zealot.Common.RPC;
 using Zealot.Server.Rules;
@@ -13,14 +13,15 @@ namespace Zealot.Server.Entities
     {
         public InteractiveTriggerJson mPropertyInfos;
         public GameLogic mInstance;
-        private int mCounter = 0;
-        public InteractiveGate mEntity = null;
+
+        private InteractiveGate mEntity = null;
+        private bool isArea;
 
         public InteractiveTrigger(InteractiveTriggerJson info, GameLogic instance)
         {
             mPropertyInfos = info;
             mInstance = instance;
-            mCounter = info.counter;
+            isArea = info.isArea;
         }
 
         public ServerEntityJson GetPropertyInfos()
@@ -30,7 +31,7 @@ namespace Zealot.Server.Entities
 
         public void InstanceStartUp()
         {
-            if (mEntity == null)
+            if (mEntity == null && !string.IsNullOrEmpty(mPropertyInfos.npcArchetype))
                 SpawnEntity();
         }
 
@@ -39,148 +40,194 @@ namespace Zealot.Server.Entities
             InteractiveGate entity = mInstance.mEntitySystem.SpawnNetEntity<InteractiveGate>();
             mInstance.mEntitySystem.AddAlwaysShow(entity);
             entity.Position = mPropertyInfos.position;
-            entity.Forward = mPropertyInfos.forward;
             entity.Init(this);
             mEntity = entity;
-
-            InteractiveTriggerController.AddEntityToPid(mEntity);
         }
 
-        public void OnInteractiveUse(int pid, bool enter, GameClientPeer player)
+        public void OnInteractiveUse(int pid, bool enter, Player peer)
         {
+            string name = peer.Name;
             if (enter)
             {
                 if(CanUseByCount())
-                    InteractiveTriggerRule.UseInteractiveTrigger(pid, player.mPlayer.Name,
-                        mEntity, mPropertyInfos.interactiveTime, mPropertyInfos.isArea);
+                    InteractiveTriggerRule.UseInteractiveTrigger(pid, isArea, name, mEntity, peer);
             }
             else
             {
-                InteractiveTriggerRule.InterruptedEvent(pid, player.mPlayer.Name, mEntity, mPropertyInfos.isArea);
+                InteractiveTriggerRule.LeaveInteractiveTrigger(pid, isArea, name, mEntity);
             }
         }
 
-        public void OnInteractive(int pid, GameClientPeer player)
+        public void OnInteractive(int pid, Player peer)
         {
             bool canCount = CanUseByCount();
             
             if (canCount)
             {
-                mEntity.ClearAction();
                 if (mPropertyInfos.keyId > 0)
                 {
                     List<ItemInfo> consumeItem = new List<ItemInfo>() {
                         new ItemInfo { itemId = (ushort)mPropertyInfos.keyId, stackCount = 1 }
                     };
-                    InvRetval result = player.mPlayer.Slot.mInventory.DeductItems(consumeItem, "OnInteractive");
+                    InvRetval result = peer.Slot.mInventory.DeductItems(consumeItem, "OnInteractive");
                     if (result.retCode == InvReturnCode.UseFailed)
                     {
                         return;
                     }
                 }
-
-                mCounter = (mCounter == -1) ? -1 : mCounter - 1;
-                InteractiveTriggerRule.CompeletedEvent(pid);
+                mEntity.count = (mEntity.count == -1) ? -1 : mEntity.count - 1;
+                InteractiveTriggerRule.CompeletedInteradtiveTrigger(pid, isArea, mEntity);
                 
-                if (mPropertyInfos.isArea && canCount)
+                if (CanUseByCount())
                 {
-                    OnInteractiveUse(pid, true, player);
+                    if (isArea)
+                    {
+                        OnInteractiveUse(pid, true, peer);
+                    }
+                    mEntity.SetEntityStep((int)InteractiveTriggerStep.None);
+                }
+                else
+                {
+                    mEntity.SetEntityStep((int)InteractiveTriggerStep.CannotUse);
                 }
 
-                bool afterCanCount = CanUseByCount();
-                mEntity.step = (afterCanCount) ? InteractiveTriggerStep.None : InteractiveTriggerStep.CannotUse;
-                mEntity.canTrigger = afterCanCount;
-
-                if (!afterCanCount)
-                {
-                    BroadcastAllPlayer();
-                }
-
-                mInstance.BroadcastEvent(this, "OnInteractive", null);
+                object[] _paramters = { peer };
+                mInstance.BroadcastEvent(this, "OnInteractive", _paramters);
             }
         }
 
         private bool CanUseByCount()
         {
-            return mCounter > 0 || mCounter == -1;
+            return mEntity.count > 0 || mEntity.count == -1;
         }
 
         #region Triggers
         public void TurnOn(IServerEntity sender, object[] parameters = null)
         {
-            mEntity.mPropertyInfos.activeOnStartup = true;
-            BroadcastAllPlayer();
+            mEntity.ForceSetEntityActive(true);
         }
 
         public void TurnOff(IServerEntity sender, object[] parameters = null)
         {
-            mEntity.mPropertyInfos.activeOnStartup = false;
-            BroadcastAllPlayer();
+            mEntity.ForceSetEntityActive(false);
         }
 
         public void Reset (IServerEntity sender, object[] parameters = null)
         {
-            mCounter = mPropertyInfos.counter;
-            mEntity.canTrigger = true;
-            mEntity.step = InteractiveTriggerStep.None;
-            BroadcastAllPlayer();
+            mEntity.count = mPropertyInfos.counter;
+            mEntity.ForceSetEntityActive(true);
         }
         #endregion
-
-        private void BroadcastAllPlayer()
-        {
-            string canTriggerable = System.Convert.ToInt32(mEntity.canTrigger).ToString();
-            string canActive = System.Convert.ToInt32(InteractiveTriggerRule.CanActiveGameObject(mEntity)).ToString();
-            GameApplication.BroadcastInteractiveCount(mEntity.GetPersistentID().ToString(), canTriggerable,
-                canActive, ((int)mEntity.step).ToString());
-        }
     }
 
     public class InteractiveGate : NetEntity
     {
         public InteractiveTriggerJson mPropertyInfos;
         public string entityName;
-        public bool canTrigger;
-        public InteractiveTriggerStep step = InteractiveTriggerStep.None;
+        public int count;
+        public bool isUsing;
+        public bool canUse = true;
+        public InteractiveTriggerStep step;
+
+        private bool isArea;
+        private InteractiveTriggerSynStats mdbInteractiveTriggerStats;
 
         public InteractiveGate() : base()
         {
             this.EntityType = EntityType.InteractiveTrigger;
+            mdbInteractiveTriggerStats = new InteractiveTriggerSynStats();
         }
 
         public void Init(InteractiveTrigger interactive)
         {
-            mPropertyInfos = interactive.mPropertyInfos;
             mInstance = interactive.mInstance;
+            mPropertyInfos = interactive.mPropertyInfos;
             entityName = mPropertyInfos.npcArchetype;
-            canTrigger = true;
-        }
+            count = interactive.mPropertyInfos.counter;
+            step = InteractiveTriggerStep.None;
 
-        public void CancelAction()
-        {
-            this.mAction = null;
-            this.mActionCmd = null;
+            isArea = interactive.mPropertyInfos.isArea;
+            mdbInteractiveTriggerStats.entityId = this.GetPersistentID();
+            mdbInteractiveTriggerStats.step = (interactive.mPropertyInfos.npcActiveOnStartup) ?
+                (int)InteractiveTriggerStep.None : (int)InteractiveTriggerStep.InActive;
+            InteractiveTriggerRule.AddEntityList(this);
         }
 
         #region Implement abstract methods
         public override void SpawnAtClient(GameClientPeer peer)
         {
-            CancelAction();
+            peer.ZRPC.CombatRPC.SpawnInteractiveEntity(mnPersistentID, entityName, mPropertyInfos.parentPath,
+                     mPropertyInfos.isArchetypeNpc, Position.ToRPCPosition(), peer);
 
-            if (string.IsNullOrEmpty(entityName))
-                return;
-
-            string path = StaticNPCRepo.GetModelPrefabPathByArchetype(entityName);
-            if(string.IsNullOrEmpty(path))
-            {
-                path = ScenesModelRepo.GetScenesModelJson(entityName).modelprefabpath;
-                if (string.IsNullOrEmpty(path))
-                    return;
-            }
-
-            peer.ZRPC.CombatRPC.SpawnInteractiveEntity(mnPersistentID, path, mPropertyInfos.parentPath,
-                Position.ToRPCPosition(), Forward.ToRPCDirection(), peer);
+            AddLocalObject(peer);
+            SetEntityStep((int)step);
         }
         #endregion
+
+        public override void UpdateEntitySyncStats(GameClientPeer peer)
+        {
+            if (mdbInteractiveTriggerStats.IsDirty())
+            {
+                peer.ZRPC.LocalObjectRPC.UpdateLocalObject((byte)LOCATEGORY.EntitySyncStats, GetPersistentID(), mdbInteractiveTriggerStats, peer);
+            }
+        }
+
+        public override void ResetSyncStats()
+        {
+            if (mdbInteractiveTriggerStats.IsDirty())
+            {
+                mdbInteractiveTriggerStats.Reset();
+            }
+        }
+
+        public bool GetEntityCanUse()
+        {
+            return mdbInteractiveTriggerStats.step != (int)InteractiveTriggerStep.CannotUse;
+        }
+
+        public bool GetEntityActive()
+        {
+            return mdbInteractiveTriggerStats.step != (int)InteractiveTriggerStep.InActive;
+        }
+
+        public void SetEntityActive(bool active)
+        {
+            mdbInteractiveTriggerStats.step = GetStep(active);
+            mdbInteractiveTriggerStats.SetDirty();
+        }
+
+        private int GetStep(bool active)
+        {
+            if (active)
+            {
+                bool canActiveWithTime = InteractiveTriggerRule.CanActiveGameObject(this);
+                if (!canActiveWithTime)
+                {
+                    step = InteractiveTriggerStep.InActive;
+                    return (int)step;
+                }
+                step = (canUse) ? InteractiveTriggerStep.None : InteractiveTriggerStep.CannotUse;
+            }
+            else
+            {
+                step = InteractiveTriggerStep.InActive;
+            }
+
+            return (int)step;
+        }
+
+        public void ForceSetEntityActive(bool active)
+        {
+            mdbInteractiveTriggerStats.step = (active) ? (int)InteractiveTriggerStep.None : (int)InteractiveTriggerStep.InActive;
+            SetEntityActive(active);
+        }
+
+        public void SetEntityStep(int triggerStats, string name = "")
+        {
+            step = (InteractiveTriggerStep)triggerStats;
+            mdbInteractiveTriggerStats.step = triggerStats;
+            mdbInteractiveTriggerStats.playerName = name;
+            mdbInteractiveTriggerStats.SetDirty();
+        }
     }
 }

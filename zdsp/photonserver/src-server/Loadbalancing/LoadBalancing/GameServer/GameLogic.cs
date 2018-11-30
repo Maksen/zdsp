@@ -14,8 +14,8 @@
     using Zealot.Common.Actions;
     using Zealot.Common.Entities;
     using Zealot.Common.RPC;
+    using Zealot.Server.Actions;
     using Zealot.Server.Entities;
-    using Zealot.Server.Actions;   
     using Zealot.Server.Counters;
     using Zealot.Server.Rules;
     using Zealot.RPC;
@@ -56,9 +56,10 @@
         public List<MonsterSpawnerBase> maMonsterSpawners;
         public RealmController mRealmController;
         public Game mRoom;
-        public string currentlevelname;
+        public int mCurrentLevelId = 0;
+        public string mCurrentLevelName;
+        public bool mIsWorld = false;
         public bool mIsCity = false;
-        public int mCurrentLevelID = 0;
         public RealmPVPType mRealmPVPType = RealmPVPType.Peace;
 
         private int mCurrRoamsInFrame;
@@ -77,12 +78,11 @@
         public static void InitRPCProxyAttribs()
         {
             RPCMethods = typeof(GameLogic).GetMethods();
-            MethodRPCProxyAttribs = new RPCMethodProxyAttribute[RPCMethods.Length];
-            int i = 0;
-            foreach (MethodInfo methodinfo in RPCMethods)
+            int length = RPCMethods.Length;
+            MethodRPCProxyAttribs = new RPCMethodProxyAttribute[length];
+            for (int i = 0; i < length; ++i)
             {
-                MethodRPCProxyAttribs[i] = (RPCMethodProxyAttribute)methodinfo.GetCustomAttribute(typeof(RPCMethodProxyAttribute));    //This is very expensive. Avoid after setup.
-                i++;
+                MethodRPCProxyAttribs[i] = (RPCMethodProxyAttribute)RPCMethods[i].GetCustomAttribute(typeof(RPCMethodProxyAttribute)); //This is very expensive. Avoid after setup.
             }
         }
 
@@ -119,24 +119,26 @@
             GameCounters.TotalRealms.Decrement();
         }
 
-        public void Startup(string levelname)
+        public void Startup(string levelName)
         {
             executionFiber = mRoom.ExecutionFiber;
 
             Connections = new Dictionary<HivePeer, NetServerSlot>();
             mTimers.PrepareTickForNetworkEvents();
-            //Start from 1 so that level initialization that creates entities(monsters), will have lastactionchanged set from 1 onwards and their actions will be broadcast in the first mainloop
+            //Start from 1 so that level initialization that creates entities(monsters), 
+            //will have lastactionchanged set from 1 onwards and their actions will be broadcast in the first mainloop
 
-            currentlevelname = levelname;
-            mIsCity = RealmRepo.IsCity(currentlevelname);
-            if (levelname != "lobby")
+            mCurrentLevelName = levelName;
+            mIsWorld = RealmRepo.IsWorld(levelName);
+            mIsCity = RealmRepo.IsCity(levelName);
+            if (levelName != "lobby")
             {                
-                InitLevel(levelname);
-                LevelJson info = LevelRepo.GetInfoByName(currentlevelname);
+                InitLevel(levelName);
+                LevelJson info = LevelRepo.GetInfoByName(levelName);
                 if (info != null)
-                    mCurrentLevelID = info.id;
+                    mCurrentLevelId = info.id;
                 else
-                    log.WarnFormat("Cannot find such level {0} in levelrepo", levelname);
+                    log.WarnFormat("Cannot find such level {0} in LevelRepo", levelName);
             }
 
             //executionFiber.ScheduleOnInterval(delegate()
@@ -151,14 +153,7 @@
             mRoom = null;
         }
 
-        public bool IsWorld()
-        {
-            if (currentlevelname != "lobby")
-                return mRealmController == null || mRealmController.IsWorld();           
-            return false;
-        }
-
-        //this first parameter is the sender
+        //The first parameter is the sender
         public void BroadcastEvent(IServerEntity sender, string eventName, object[] parameters = null)
         {
             Dictionary<string, List<EntityLinkServer>> event_Links_dict = ((ServerEntityWithEventJson)sender.GetPropertyInfos()).EntityLinks_Server;
@@ -184,29 +179,27 @@
         {
             Player myPlayer = peer.mPlayer;
             int playerPID = myPlayer == null ? - 1 : myPlayer.GetPersistentID();
-            log.InfoFormat("[{0}]: RemovePlayer {1} ({2}) {3}", ID, peer.ConnectionId, playerPID, currentlevelname);
+            log.InfoFormat("[{0}]: RemovePlayer {1} ({2}) {3}", ID, peer.ConnectionId, playerPID, mCurrentLevelName);
 
             // Schedule peer to be removed from PeerList on the main thread
             // because now player doesn't control any entity, so we use this
             if (myPlayer != null)
             {
                 if (mRealmController != null)
-                {
                     mRealmController.OnPlayerExit(myPlayer);
-                }
 
                 myPlayer.SaveToCharacterData(true);
                 GameCounters.TotalPlayers.Decrement();
                 mEntitySystem.RemoveEntityByPID(playerPID, true);
 
-                List<IBaseNetEntity> list = mEntitySystem.GetNetEntitiesByOwner(playerPID);
-                foreach (IBaseNetEntity ne in list)
+                List<IBaseNetEntity> neList = mEntitySystem.GetNetEntitiesByOwner(playerPID);
+                int count = neList.Count;
+                for (int i = 0; i < count; ++i)
                 {
-                    int pid = ne.GetPersistentID();
+                    int pid = neList[i].GetPersistentID();
                     mEntitySystem.RemoveEntityByPID(pid);
                 }
             }
-
             // Old Code
             //if (playerPID != -1)
             //{
@@ -479,7 +472,7 @@
             return false;
         }      
   
-        public void SetSpawnPos(Player player)
+        public void SetPlayerPosToSpawnPos(Player player)
         {
             if (mRealmController != null)
                 mRealmController.SetSpawnPos(player);
@@ -508,7 +501,7 @@
 
             DateTime now = DateTime.Now;
             string playername = peer.mChar;
-            log.DebugFormat("OnClientLevelLoaded: charname = {0}, {1}, {2}", playername, peer.ConnectionId, currentlevelname);
+            log.DebugFormat("OnClientLevelLoaded: charname = {0}, {1}, {2}", playername, peer.ConnectionId, mCurrentLevelName);
             peer.ResetExitGame();
             NetServerSlot slot = new NetServerSlot(peer, mEntitySystem, mRealmPVPType, mIsCity);
             Connections.Add(peer, slot);
@@ -560,13 +553,13 @@
             //lcs.CoCritical;
             //lcs.CriticalDamage;
 
-            lcs.Strength = characterData.CharInfoData.Str;
-            lcs.Agility = characterData.CharInfoData.Agi;
-            lcs.Dexterity = characterData.CharInfoData.Dex;
-            lcs.Constitution = characterData.CharInfoData.Con;
-            lcs.Intelligence = characterData.CharInfoData.Int;
-            lcs.StatsPoint = characterData.CharInfoData.StatPoint;
-            lcs.SkillPoints = 500;
+            //lcs.Strength = characterData.CharInfoData.Str;
+            //lcs.Agility = characterData.CharInfoData.Agi;
+            //lcs.Dexterity = characterData.CharInfoData.Dex;
+            //lcs.Constitution = characterData.CharInfoData.Con;
+            //lcs.Intelligence = characterData.CharInfoData.Int;
+            //lcs.StatsPoint = characterData.CharInfoData.StatPoint;
+            //lcs.SkillPoints = characterData.CharInfoData.StatPoint;
 
             //lcs.SmashDamage;
             //lcs.SliceDamage;
@@ -675,7 +668,7 @@
             peer.QuestController.InitFromData(characterData, player);
             QuestSynStats questStats = player.QuestStats;
             peer.QuestController.InitQuestStats(ref questStats);
-            player.PlayerSynStats.QuestCompanionId = peer.QuestController.GetQuestCompanionId();
+            player.PlayerSynStats.QuestCompanionId = peer.QuestController.GetQuestCompanionData();
 
             //-------------------- Donate Stats --------------------//
             DonateInventoryData donateInventory = characterData.DonateInventory;
@@ -688,7 +681,7 @@
 
             /*********************   Items/Equipments   ***************************/
             player.InitInventoryStats(peer.mInventory.mInvData);
-            player.InitItemHotbar(characterData.ItemHotBarData);
+            player.ItemHotbarStats.Init(characterData.ItemHotBarData);
             EquipmentInventoryData eqInvData = characterData.EquipmentInventory;
             if (!IsDoingTutorialRealm())
             {
@@ -707,11 +700,11 @@
 
             /*********************   CombatStats   ***************************/
             PlayerCombatStats combatStats = new PlayerCombatStats();
-            JobsectJson jobsect = JobSectRepo.GetJobByType((JobType)characterData.JobSect);
+            
             IActor playerActor = player as IActor;
             combatStats.SetPlayerLocalAndSyncStats(localCombatStats, playerStats, playerActor);
             combatStats.SuppressComputeAll = true;
-            Player.SetPlayerStats(playerStats.jobsect, playerStats.Level, combatStats);
+            Player.SetPlayerStats(playerStats.jobsect, playerStats.Level, combatStats, characterData.CharInfoData);
             player.CombatStats = combatStats;
 
             for (int i = 0; i < (int)EquipmentSlot.MAXSLOTS; ++i)
@@ -733,8 +726,10 @@
             player.SkillPassiveStats = new SkillPassiveCombatStats(player.EntitySystem.Timers, player);
 
             /*********************   SkillSynStats   *********************/
-            SkillSynStats SkillStats = player.SkillStats;
-            SkillStats.CopyFromInvData(characterData.SkillInventory);
+            player.SkillStats.Init(characterData.SkillInventory);
+
+            /*********************   ChatStats   *********************/
+            //player.ChatStats.Init(characterData.ChatInventory);
 
             /*********************   SocialStats   *********************/
             //SocialStats socialStats = player.SocialStats;
@@ -836,7 +831,7 @@
 
             Vector3 spawnPos = peer.mSpawnPos;
             if (spawnPos.Equals(Vector3.zero))
-                SetSpawnPos(player);
+                SetPlayerPosToSpawnPos(player);
             else
             {
                 player.Position = spawnPos;
@@ -844,11 +839,11 @@
             }
             peer.mSpawnPos = Vector3.zero;
             peer.mSpawnForward = Vector3.forward;
+
             player.PlayerStats.MoveSpeed = 6;
             mEntitySystem.RegisterPlayerName(player.Name, player);
-            slot.SetLocalEntity(player); // Set player local objects
+            slot.SetLocalEntity(player); // Set player Local Objects
             player.ResetSyncStats();
-
             if (characterData.NewDayDts < DateTime.Today)
                 player.NewDay();
 
@@ -876,7 +871,7 @@
             //peer.ZRPC.CombatRPC.InitGameSetting(peer.GameSetting.Serialize(), characterData.BotSetting, peer);
 
             // Call this only when player last scene was lobby or yongheng (aka just log in) and current scene is not yongheng 
-            if (peer.mPrevRoomName == "lobby" && player.mInstance.currentlevelname != "yongheng")
+            if (peer.mPrevRoomName == "lobby" && player.mInstance.mCurrentLevelName != "yongheng")
             {
                 // On login
                 //executionFiber.Enqueue(async () => await Mail.MailManager.Instance.ClientInit(peer));
@@ -904,6 +899,13 @@
             if (mRealmController != null)
                 mRealmController.OnPlayerEnter(player);
 
+            foreach (var item in characterData.SkillInventory.m_SkillInventory)
+            {
+                peer.mPlayer.mSkillRecord.Add(item.Key, item.Value);
+            }
+            string inv = Newtonsoft.Json.JsonConvert.SerializeObject(peer.mPlayer.mSkillRecord);
+            peer.ZRPC.NonCombatRPC.Ret_SkillInventory(inv, peer);
+
             peer.ZRPC.CombatRPC.SendInfoOnPlayerSpawner(GameApplication.Instance.mServerStartUpTicks, now.Ticks, 0, 0,
                 player.InspectMode, peer.GetCharId(), peer);
             //peer.ZRPC.NonCombatRPC.ItemMallGetIsUIOn(ItemMall.ItemMallManager.Instance.isLimitedItemUIOnOff, peer);
@@ -915,7 +917,7 @@
 
             //peer.mInventory.SyncEquipmentRequirement();
 
-            // Sideeffect inventrory. 
+            // SideEffect Inventory
             player.ResumeSideEffects(characterData.SideEffectInventory);
 
             player.AchievementStats.PostSpawnCheckAchievements();
@@ -930,6 +932,11 @@
             CombatFormula.Debug.CreateLog("Monster");
             CombatFormula.Debug.CreateLog("Hero");
             CombatFormula.Debug.CreateLog("Profile");
+            CombatFormula.Debug.CreateLog("Action");
+            CombatFormula.Debug.CreateLog("SideEffect Logs");
+            CombatFormula.Debug.CreateLog("Monster Issue");
+            CombatFormula.Debug.CreateLog("DamageSE");
+            //CombatFormula.Debug.LogOnly("DamageSE");            
         }
 
         public void OnActionCommand(int pid, ActionCommand cmd, HivePeer peer)
@@ -981,10 +988,12 @@
                         ne.PerformAction(new NonServerAuthoWalkAndCast(entity, cmd));
                     else if (actionType == ACTIONTYPE.DASHATTACK)
                         ne.PerformAction(new NonServerAuthoDashAttack(entity, cmd));
-                    else if(actionType == ACTIONTYPE.IDLE)
+                    else if (actionType == ACTIONTYPE.IDLE)
                         ne.PerformAction(new NonServerAuthoASIdle(entity, cmd));
-                    else if(actionType == ACTIONTYPE.WALK)
+                    else if (actionType == ACTIONTYPE.WALK)
                         ne.PerformAction(new NonServerAuthoASWalk(entity, cmd));
+                    else if (actionType == ACTIONTYPE.GETHIT)
+                        ne.PerformAction(new NonServerAuthoGethit(entity, cmd));
                 }
                 else
                 {   

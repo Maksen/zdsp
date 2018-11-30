@@ -34,5 +34,12 @@ namespace Photon.LoadBalancing.ClusterServer
                     peer.ZRPC.ClusterToGameRPC.UnRegChar(charname, broadcast_to_peers);
             }
         }
+
+
+        [RPCMethod(RPCCategory.GameToCluster, (byte)GameToClusterRPCMethods.APIManagerCallRPC)]
+        public void APIManagerCallRPC(string api,int serverID,long id,object[] args,IncomingGameServerPeer peer)
+        {
+            Photon.LoadBalancing.GameServer.MultiServer.MultiServerAPIManager.Instance.CallRPC(api, id, args, GetPeerByServerId(serverID));
+        }
     }
 }

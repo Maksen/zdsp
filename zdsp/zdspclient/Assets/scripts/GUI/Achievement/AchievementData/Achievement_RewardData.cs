@@ -12,20 +12,58 @@ public class Achievement_RewardData : MonoBehaviour
     [SerializeField] Text aexpAmtText;
     [SerializeField] Text rewardNameText;
     [SerializeField] Text rewardAmtText;
+    [SerializeField] Button button;
+    [SerializeField] GameObject claimEfx;
 
-    private AchievementRewardClaim achReward;
+    private AchievementRewardInfo achReward;
+    private UI_Achievement_RewardsDialog parent;
+    private AchievementRewardsScrollView scrollView;
 
-    public void Init(AchievementRewardClaim reward)
+    public void Init(AchievementRewardInfo reward, UI_Achievement_RewardsDialog myParent, AchievementRewardsScrollView scroll)
     {
+        parent = myParent;
+        scrollView = scroll;
         achReward = reward;
-
-        BaseAchievementObjective obj = AchievementRepo.GetObjectiveByTypeAndId(reward.ClaimType, reward.Id);
+        BaseAchievementObjective obj = AchievementRepo.GetObjectiveByTypeAndId(reward.rewardClaim.ClaimType, reward.rewardClaim.Id);
         if (obj != null)
         {
             achievementNameText.text = obj.localizedName.Replace("{count}", obj.completeCount.ToString());
             aexpAmtText.text = "x" + obj.exp;
             SetReward(obj);
         }
+        button.interactable = !reward.claimed;
+    }
+
+    public void UpdateDataAndPlayEfx(AchievementRewardInfo reward)
+    {
+        achReward = reward;
+        if (reward.claimed && button.interactable)
+        {
+            button.interactable = false;
+            claimEfx.SetActive(true);
+        }
+    }
+
+    public void UpdateData(AchievementRewardInfo reward)
+    {
+        achReward = reward;
+        if (reward.claimed && button.interactable)
+        {
+            button.interactable = false;
+        }
+    }
+
+    public void PlayClaimEfx()
+    {
+        claimEfx.SetActive(true);
+    }
+
+    // triggered by GUIAnimEvent OnFinished
+    public void OnClaimEfxFinished()
+    {
+        claimEfx.SetActive(false);
+        parent.PlayRewardEffect();
+        scrollView.RemoveData(achReward);
     }
 
     private void SetReward(BaseAchievementObjective obj)
@@ -54,7 +92,7 @@ public class Achievement_RewardData : MonoBehaviour
                 iconImage.gameObject.SetActive(true);
                 CurrencyType currencyType = (CurrencyType)obj.rewardId;
                 iconImage.sprite = ClientUtils.LoadCurrencyIcon(currencyType);
-                rewardNameText.text = ClientUtils.GetCurrencyLocalizedName(currencyType);
+                rewardNameText.text = ClientUtils.GetLocalizedCurrencyName(currencyType);
                 rewardAmtText.text = "x" + obj.rewardCount;
                 rewardNameText.transform.parent.gameObject.SetActive(true);
 
@@ -82,6 +120,11 @@ public class Achievement_RewardData : MonoBehaviour
 
     public void OnClickClaim()
     {
-        RPCFactory.CombatRPC.ClaimAchievementReward((byte)achReward.ClaimType, achReward.Id);
+        RPCFactory.CombatRPC.ClaimAchievementReward((byte)achReward.rewardClaim.ClaimType, achReward.rewardClaim.Id);
+    }
+
+    public AchievementRewardInfo GetRewardInfo()
+    {
+        return achReward;
     }
 }

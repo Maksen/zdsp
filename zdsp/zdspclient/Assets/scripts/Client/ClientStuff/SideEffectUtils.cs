@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Kopio.JsonContracts;
+using System.Collections.Generic;
 using Zealot.Common;
 using Zealot.Repository;
 
@@ -298,5 +299,27 @@ public static class SideEffectUtils
             return GUILocalizationRepo.GetLocalizedString(guiname);
         else
             return effectType.ToString();
+    }
+
+    public static void AddToBuffDict(Dictionary<EffectType, ValuePair<float, float>> buffDict, SideEffectJson se)
+    {
+        if (se == null)
+            return;
+
+        ValuePair<float, float> buffPair;
+        if (buffDict.TryGetValue(se.effecttype, out buffPair))
+        {
+            if (se.isrelative)
+                buffPair.Item2 += se.max;
+            else
+                buffPair.Item1 += se.max;
+        }
+        else
+        {
+            if (se.isrelative)
+                buffDict.Add(se.effecttype, new ValuePair<float, float>(0, se.max));
+            else
+                buffDict.Add(se.effecttype, new ValuePair<float, float>(se.max, 0));
+        }
     }
 }

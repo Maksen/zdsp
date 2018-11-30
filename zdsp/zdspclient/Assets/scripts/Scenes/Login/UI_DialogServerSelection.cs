@@ -26,7 +26,7 @@ public class UI_DialogServerSelection : MonoBehaviour
         if (GameInfo.gLogin != null)
         {
             ServerInfo serverInfo = GameInfo.gLogin.SelectedServerInfo;
-            GameInfo.gUILogin.SetSelectedGameServer((serverInfo != null) ? serverInfo.id : 0);
+            GameInfo.gUILogin.SetSelectedGameServer((serverInfo != null) ? serverInfo.Id : 0);
         }
 
         foreach (Transform child in togglegrpServerList.transform)
@@ -39,7 +39,7 @@ public class UI_DialogServerSelection : MonoBehaviour
         foreach (var kvp in serverInfoList)
         {
             ServerInfo serverInfo = kvp.Value;
-            int serverline = serverInfo.serverLine;
+            int serverline = serverInfo.ServerLine;
             if (!serverBuckets.ContainsKey(serverline))
                 serverBuckets[serverline] = new List<ServerInfo>();
             serverBuckets[serverline].Add(serverInfo);
@@ -50,7 +50,7 @@ public class UI_DialogServerSelection : MonoBehaviour
         for (int index = 0; index < count; ++index)
         {
             int serverline = serverLines[index];
-            serverBuckets[serverline] = serverBuckets[serverline].OrderBy(x => x.id).ToList(); //reorder each serverline by serverid ASC
+            serverBuckets[serverline] = serverBuckets[serverline].OrderBy(x => x.Id).ToList(); //reorder each serverline by serverid ASC
         }
     }
 
@@ -68,7 +68,7 @@ public class UI_DialogServerSelection : MonoBehaviour
             {
                 ServerInfo gameServer = gameServerList[j];
                 GameObject serverData = Instantiate(prefabServerData, togglegrpServerList.transform, false);
-                int serverId = gameServer.id, serverLine = gameServer.serverLine;
+                int serverId = gameServer.Id, serverLine = gameServer.ServerLine;
                 serverData.GetComponent<ServerData>().Init(gameServer, serverLineDict[serverLine], togglegrpServerList,
                     (isOn) => OnValueChangedServerData(serverLine, serverId, isOn));
 
@@ -79,7 +79,7 @@ public class UI_DialogServerSelection : MonoBehaviour
         // Set default toggle
         ServerInfo selectedServerInfo = GameInfo.gLogin.SelectedServerInfo;
         Toggle defaultToggle;
-        if (selectedServerInfo != null && togglesByServerId.TryGetValue(selectedServerInfo.id, out defaultToggle))
+        if (selectedServerInfo != null && togglesByServerId.TryGetValue(selectedServerInfo.Id, out defaultToggle))
             defaultToggle.isOn = true;
         else if (togglesByServerId.Count > 0)
         {
@@ -90,7 +90,7 @@ public class UI_DialogServerSelection : MonoBehaviour
                 List<ServerInfo> serverInfoList = null;
                 if (serverBuckets.TryGetValue(serverLineList[i].serverLineId, out serverInfoList))
                 {
-                    int serverid = serverInfoList.OrderBy(x => x.serverLoad).ToList()[0].id;
+                    int serverid = serverInfoList.OrderBy(x => x.ServerLoad).ToList()[0].Id;
                     togglesByServerId[serverid].isOn = true;
                     break;
                 }
@@ -103,7 +103,7 @@ public class UI_DialogServerSelection : MonoBehaviour
         if (!ison || (selectedServerLine == serverLine && selectedServerId == serverId))
             return;
 
-        ServerInfo serverInfo = serverBuckets[serverLine].Find(x => x.id == serverId);
+        ServerInfo serverInfo = serverBuckets[serverLine].Find(x => x.Id == serverId);
         if (serverInfo == null)
             return;
 

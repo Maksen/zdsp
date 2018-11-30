@@ -442,6 +442,22 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetCollectionById)]
+        public void ConsoleGetCollectionById(int id, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ConsoleGetCollectionById(id);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAchievementById)]
+        public void ConsoleGetAchievementById(int id, GameClientPeer peer)
+        {
+            Player player = peer.mPlayer;
+            if (player != null)
+                player.AchievementStats.ConsoleGetAchievementById(id);
+        }
+
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ConsoleGetAchievement)]
         public void ConsoleGetAchievement(string objtype, string target, int count, bool increment, GameClientPeer peer)
         {
@@ -756,12 +772,12 @@ namespace Photon.LoadBalancing.GameServer
             Player player = peer.mPlayer;
             if(player != null)
             {
-                player.SkillStats.SkillGroupIndex.Clear();
-                for(int i = 0; i < player.SkillStats.SkillInv.Count; ++i)
-                {
-                    player.SkillStats.SkillInv[i] = 0;
-                }
-                player.SkillStats.SkillInvCount = 0;
+                //player.SkillStats.SkillGroupIndex.Clear();
+                //for(int i = 0; i < player.SkillStats.SkillInv.Count; ++i)
+                //{
+                //    player.SkillStats.SkillInv[i] = 0;
+                //}
+                //player.SkillStats.SkillInvCount = 0;
                 for (int i = 0; i < player.SkillStats.EquippedSkill.Count; ++i)
                 {
                     player.SkillStats.EquippedSkill[i] = 0;

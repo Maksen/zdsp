@@ -679,7 +679,7 @@ namespace Zealot.Server.Rules
             {
                 if (peer.mPlayer != null && peer.mPlayer.mInstance != null)
                 {
-                    currLevelName = peer.mPlayer.mInstance.currentlevelname;
+                    currLevelName = peer.mPlayer.mInstance.mCurrentLevelName;
                     currPosition = peer.mPlayer.Position;
                     return peer.mPlayer.GetPersistentID();
                 }
@@ -712,7 +712,7 @@ namespace Zealot.Server.Rules
                     if (_peers.TryGetValue(_member.Key, out _peer))
                     {
                         Player _player = _peer.mPlayer;
-                        if (_player != null && _player.mInstance.IsWorld())
+                        if (_player != null && _player.IsInWorld)
                         {
                             string _guid = _player.mInstance.mRoom.Guid;
                             if (!_membersGroupByInstance.ContainsKey(_guid))

@@ -61,8 +61,8 @@ public class UI_Hero_StatsDialog : BaseWindowBehaviour
             statsList[(int)HeroStats.ATK].Init(GetLocalizedStatsName(HeroStats.ATK), hero.SynCombatStats.Attack);
             statsList[(int)HeroStats.ACC].Init(GetLocalizedStatsName(HeroStats.ACC), hero.SynCombatStats.Accuracy);
             statsList[(int)HeroStats.CRI].Init(GetLocalizedStatsName(HeroStats.CRI), hero.SynCombatStats.Critical);
-            statsList[(int)HeroStats.ATK_STYLE].Init(GetLocalizedStatsName(HeroStats.ATK_STYLE), GetLocalizedAttackStyle(hero.HeroJson.attackstyle));
-            statsList[(int)HeroStats.ELE].Init(GetLocalizedStatsName(HeroStats.ELE), GetLocalizedElement(hero.HeroJson.element));
+            statsList[(int)HeroStats.ATK_STYLE].Init(GetLocalizedStatsName(HeroStats.ATK_STYLE), ClientUtils.GetLocalizedAttackStyle(hero.HeroJson.attackstyle));
+            statsList[(int)HeroStats.ELE].Init(GetLocalizedStatsName(HeroStats.ELE), ClientUtils.GetLocalizedElement(hero.HeroJson.element));
             statsList[(int)HeroStats.STR].Init(GetLocalizedStatsName(HeroStats.STR), data.strength);
             statsList[(int)HeroStats.AGI].Init(GetLocalizedStatsName(HeroStats.AGI), data.agility);
             statsList[(int)HeroStats.DEX].Init(GetLocalizedStatsName(HeroStats.DEX), data.dexterity);
@@ -106,50 +106,6 @@ public class UI_Hero_StatsDialog : BaseWindowBehaviour
             case HeroStats.INT: name = "ci_inteligence"; break;
             case HeroStats.CRI_DMG: name = "stats_criticaldamage"; break;
             case HeroStats.IGN_ARMOR: name = "stats_ignorearmor"; break;
-        }
-        return GUILocalizationRepo.GetLocalizedString(name);
-    }
-
-    private string GetLocalizedAttackStyle(AttackStyle style)
-    {
-        string name = "";
-        switch (style)
-        {
-            case AttackStyle.Slice: name = "com_style_slice"; break;
-            case AttackStyle.Pierce: name = "com_style_pierce"; break;
-            case AttackStyle.Smash: name = "com_style_smash"; break;
-            case AttackStyle.God: name = "com_style_god"; break;
-            case AttackStyle.Normal: name = "com_style_normal"; break;
-        }
-        return GUILocalizationRepo.GetLocalizedString(name);
-    }
-
-
-    private string GetLocalizedElement(Element element)
-    {
-        string name = "";
-        switch (element)
-        {
-            case Element.None:
-                name = "com_ele_none";
-                break;
-            case Element.Metal:
-                name = "com_ele_metal";
-                break;
-            case Element.Wood:
-                name = "com_ele_wood";
-                break;
-            case Element.Earth:
-                name = "com_ele_earth";
-                break;
-            case Element.Water:
-                name = "com_ele_water";
-                break;
-            case Element.Fire:
-                name = "com_ele_fire";
-                break;
-            default:
-                break;
         }
         return GUILocalizationRepo.GetLocalizedString(name);
     }

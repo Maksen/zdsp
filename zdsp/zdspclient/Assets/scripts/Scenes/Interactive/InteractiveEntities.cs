@@ -8,7 +8,8 @@ public class InteractiveEntities : MonoBehaviour {
     bool canClick = false;
     PlayerGhost player;
 
-	void Start () {
+    public void Init()
+    {
         parentTrigger = transform.parent.GetComponent<InteractiveTrigger>();
         if (parentTrigger.interactiveType == InteractiveType.Target)
         {
@@ -30,9 +31,9 @@ public class InteractiveEntities : MonoBehaviour {
         }
     }
 
-    void Interactive()
+    private void Interactive()
     {
-        if (canClick && parentTrigger.GetStep() == Zealot.Common.InteractiveTriggerStep.None)
+        if (canClick && !parentTrigger.GetUsing())
         {
             int entityId = parentTrigger.EntityId;
             player.InteractiveController.OnActionEnter(entityId,
@@ -40,8 +41,11 @@ public class InteractiveEntities : MonoBehaviour {
         }
     }
 
-    public void RefreshInteractiveStats(bool canUse, bool active, int step)
+    public void SetCanUse(bool canUse)
     {
-        parentTrigger.Init(canUse, active, step);
+        parentTrigger.SetCanUse(canUse);
+        gameObject.layer = LayerMask.NameToLayer((canUse) ? "Entities" : "Character");
+        if(!canUse)
+            GameInfo.gCombat.OnSelectEntity(null);
     }
 }

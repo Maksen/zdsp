@@ -926,12 +926,6 @@ public class CombatRPC : RPCBase
     #endregion
 
     #region InteractiveTrigger
-    [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
-    public void OnInteractiveInit()
-    {
-        ProxyMethod("OnInteractiveInit");
-    }
-
     [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
     public void OnInteractiveUse(int objectId, bool enter)
     {

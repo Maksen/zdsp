@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Playables;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,8 +11,7 @@ public enum CutsceneTriggerType
     TriggerBox = 0,
     RealmStart,
     Quest,
-    UI,
-    EventTrigger,
+    UI,    
     AutoStart 
 }
 
@@ -45,8 +45,27 @@ public class CutsceneEntity : MonoBehaviour
 
     void Start()
     {
+        //if (cutsceneTriggerType == CutsceneTriggerType.AutoStart && !PhotonNetwork.connected)
+        //    PlayCutscene();        
+    }
+
+    private void OnEnable()
+    {
         if (cutsceneTriggerType == CutsceneTriggerType.AutoStart && !PhotonNetwork.connected)
             PlayCutscene();
+
+        if (Cutscene != null)
+        {
+            var timeline = Cutscene.gameObject.GetComponent<PlayableDirector>();
+            if (timeline != null)
+            {
+                if (timeline.isActiveAndEnabled && timeline.state == PlayState.Playing)
+                {
+                    CutsceneManager.instance.currentPlaying = this;
+                    HandleSkip();
+                }
+            }
+        }
     }
 
     void OnValidate()
@@ -54,15 +73,19 @@ public class CutsceneEntity : MonoBehaviour
         gameObject.tag = "Cutscene";
     }
 
+    void HandleSkip()
+    {
+        var key = "Cutscene " + CutsceneName;
+        var recorded = PlayerPrefs.HasKey(key);
+        bool showskipbutton = (canSkip != CanSkip.False) && ((canSkip == CanSkip.True) || (canSkip == CanSkip.First && recorded == true));
+
+        if(CutsceneManager.instance != null && CutsceneManager.instance.skip_button != null)
+            CutsceneManager.instance.skip_button.gameObject.SetActive(showskipbutton); 
+    }
+
     public void PlayCutscene()
     {
-        if (canSkip == CanSkip.Only)
-        {
-            var key = "Cutscene " + CutsceneName;
-            var first = PlayerPrefs.HasKey(key);
-            if (first != false)
-                return;
-        }
+        HandleSkip();
 
         skipped = false;
         destroyed = false;
@@ -75,7 +98,7 @@ public class CutsceneEntity : MonoBehaviour
             OnPrefabLoaded(cutscenePrefab);
 #else
             UIManager.StartHourglass(120);
-            GameInfo.gCombat.CutsceneManager.CutsceneLoading = true;
+            CutsceneManager.instance.CutsceneLoading = true;
 
             AssetLoader.Instance.LoadAsync<GameObject>(cutscenePath, OnPrefabLoaded);
 #endif
@@ -84,17 +107,6 @@ public class CutsceneEntity : MonoBehaviour
 
     public void SkipCutScene()
     {
-        if (canSkip == CanSkip.False)
-            return;
-
-        if (canSkip == CanSkip.First)
-        {
-            var key = "Cutscene " + CutsceneName;
-            var first = PlayerPrefs.HasKey(key);
-            if (first == false)             
-                return;
-        }
-
         if (Cutscene != null)
             Cutscene.Skip();
         else
@@ -114,14 +126,14 @@ public class CutsceneEntity : MonoBehaviour
         if (Cutscene.IsPlaying())
             return;
         if (GameInfo.gLocalPlayer != null)
-            GameInfo.gCombat.CutsceneManager.OnStartCutscene(this);
+            CutsceneManager.instance.OnStartCutscene(this);
         Cutscene.Play(Cutscene_CutsceneFinished);
     }
 
     private void Cutscene_CutsceneFinished()
     {
         if (GameInfo.gCombat != null)
-            GameInfo.gCombat.CutsceneManager.OnCutsceneFinished(this);
+            CutsceneManager.instance.OnCutsceneFinished(this);
         OnCutsceneFinished.Invoke();
 
         var key = "Cutscene " + CutsceneName;
@@ -145,7 +157,7 @@ public class CutsceneEntity : MonoBehaviour
                 StartCutscene();
         }
 
-        GameInfo.gCombat.CutsceneManager.CutsceneLoading = false;
+        CutsceneManager.instance.CutsceneLoading = false;
         UIManager.StopHourglass();
     }
 }

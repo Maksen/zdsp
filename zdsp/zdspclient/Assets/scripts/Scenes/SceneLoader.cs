@@ -130,7 +130,6 @@ public class SceneLoader : MonoSingleton<SceneLoader>
 
             default:
                 GameInfo.gClientState = GameClientState.Combat;
-                GameInfo.mWaitingQuestEvent = false;
 
                 var CombatmainPrefab = AssetLoader.Instance.Load<GameObject>(AssetLoader.GetLoadString("Prefabs_preloadcontainer", "CombatMain.prefab"));
                 GameObject main = Instantiate(CombatmainPrefab);

@@ -23,6 +23,7 @@ namespace Zealot.Client.Entities
             set { _isInLocalCombat = value; }
         }
 
+        public int Team { get { return PlayerStats.Team; } set { PlayerStats.Team = value; } }
         public bool IsAlive()
         {
             if (Destroyed || PlayerStats == null)
@@ -31,17 +32,12 @@ namespace Zealot.Client.Entities
         }
         public abstract bool IsInvalidTarget();
         public abstract bool IsInSafeZone();
-        public int Team { get { return PlayerStats.Team; } set { PlayerStats.Team = value; } }
+        public virtual int GetParty() { return -1; }
 
         public abstract ICombatStats CombatStats { get; set; }
         public abstract SkillPassiveCombatStats SkillPassiveStats { get; set; }
         public abstract bool MaxEvasionChance { get; set; }
         public abstract bool MaxCriticalChance { get; set; }
-
-        public virtual int GetParty()
-        {
-            return -1;
-        }
 
         public void OnDamage(IActor attacker, AttackResult res, bool pbasicattack) { } //Only for server
         public void OnRecoverHealth(int origamount) { } //Only for server
@@ -293,6 +289,8 @@ namespace Zealot.Client.Entities
                 }
 
                 ControlSE_Status[t.ToString()] = true;
+                if (HeadLabel != null && HeadLabel.IsControllerCreated())
+                    HeadLabel.mPlayerLabel.SetUnsetBuffDebuff(t, 1);
             }
             else if ((((int)t) & info) == 0 && ControlSE_Status[t.ToString()])
             {
@@ -340,6 +338,8 @@ namespace Zealot.Client.Entities
                 }
 
                 ControlSE_Status[t.ToString()] = false;
+                if (HeadLabel != null && HeadLabel.IsControllerCreated())
+                    HeadLabel.mPlayerLabel.SetUnsetBuffDebuff(t, 0);
             }
         }
 
@@ -520,30 +520,31 @@ namespace Zealot.Client.Entities
         {
             Threatzone threatzone = skillgroup.skillgroupJson.threatzone;
 
-            if (threatzone == Threatzone.Single)
-            {
-                HideSkillIndicator();
-                return;
-            }
-            if (skillgroup.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
-            {
-                if (mSkillIndicator360 == null)
-                {
-                    mSkillIndicator360 = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/SkillIndicator360.prefab", true);
-                }
-                Vector3 offsetpos = new Vector3(pos.Value.x, pos.Value.y + 0.3f, pos.Value.z);
-                mSkillIndicator360.transform.position = offsetpos;
-                Projector projector = mSkillIndicator360.GetComponent<Projector>();
-                projector.orthographicSize = skillgroup.skillJson.radius;
-                mSkillIndicator360.SetActive(true);
-                return;
-            }
+            //if (threatzone == Threatzone.Single)
+            //{
+            //    HideSkillIndicator();
+            //    return;
+            //}
+            //if (skillgroup.skillgroupJson.skillbehavior == SkillBehaviour.Ground)
+            //{
+            //    if (mSkillIndicator360 == null)
+            //    {
+            //        mSkillIndicator360 = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/SkillIndicator360.prefab", true);
+
+            //    }
+            //    Vector3 offsetpos = new Vector3(pos.Value.x, pos.Value.y + 0.3f, pos.Value.z);
+            //    mSkillIndicator360.transform.position = offsetpos;
+            //    Projector projector = mSkillIndicator360.GetComponent<Projector>();
+            //    projector.orthographicSize = skillgroup.skillJson.radius;
+            //    mSkillIndicator360.SetActive(true);
+            //    return;
+            //}
             if (threatzone == Threatzone.DegreeArc120)
             {
                 if (mSkillIndicator120 == null)
                 {
                     mSkillIndicator120 = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/SkillIndicator120.prefab", true);
-                    mSkillIndicator120.transform.SetParent(AnimObj.transform, false);
+                    //mSkillIndicator120.transform.SetParent(AnimObj.transform, false);
                 }
                 Projector projector = mSkillIndicator120.GetComponent<Projector>();
                 projector.orthographicSize = skillgroup.skillJson.radius;
@@ -554,7 +555,7 @@ namespace Zealot.Client.Entities
                 if (mSkillIndicator360 == null)
                 {
                     mSkillIndicator360 = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/SkillIndicator360.prefab", true);
-                    mSkillIndicator360.transform.SetParent(AnimObj.transform, false);
+                    //mSkillIndicator360.transform.SetParent(AnimObj.transform, false);
                 }
                 Projector projector = mSkillIndicator360.GetComponent<Projector>();
                 projector.orthographicSize = skillgroup.skillJson.radius;
@@ -564,8 +565,8 @@ namespace Zealot.Client.Entities
             {
                 if (mSkillIndicatorLong == null)
                 {
-                    mSkillIndicatorLong = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators/SkillIndicatorLong.prefab", true);
-                    mSkillIndicatorLong.transform.SetParent(AnimObj.transform, false);
+                    mSkillIndicatorLong = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/SkillIndicatorLong.prefab", true);
+                    //mSkillIndicatorLong.transform.SetParent(AnimObj.transform, false);
                 }
 
                 Projector projector = mSkillIndicatorLong.GetComponent<Projector>();

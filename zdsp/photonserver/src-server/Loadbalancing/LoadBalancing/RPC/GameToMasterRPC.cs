@@ -47,5 +47,11 @@ namespace Zealot.RPC
         {
             ProxyMethod("GMResultString", sessionid, result, target);
         }
+
+        //[RPCMethod(RPCCategory.GameToMaster, (byte)GameToMasterRPCMethods.GetServerList)]
+        //public void GetServerList(object target)
+        //{
+        //    ProxyMethod("GetServerList", target);
+        //}
     }
 }

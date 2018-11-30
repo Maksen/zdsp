@@ -28,7 +28,6 @@ namespace Zealot.Common.Actions
         FROZEN,
         GETHIT,
         SUMMON,
-        INTERACTIVE_TRIGGER,
     }
 
     public static class ActionManager
@@ -76,8 +75,6 @@ namespace Zealot.Common.Actions
                 return new SummonCommand();
             if (code == ACTIONTYPE.FROZEN)
                 return new FrozenActionCommand();
-            if (code == ACTIONTYPE.INTERACTIVE_TRIGGER)
-                return new InteractiveTriggerCommand();
             return null;
         }
 
@@ -707,7 +704,9 @@ namespace Zealot.Common.Actions
 
     public class GetHitCommand : ActionCommand
     {
-        public int skillid; //this is the skillgorup id./
+        public int skillid; //this is the skill id./
+        public bool isPlayer; // used to check interrupts
+
         public GetHitCommand():base(ACTIONTYPE.GETHIT) { }
 
         public override bool SerializeStream(int persid, ref byte pcode, ref Dictionary<byte, object> dic) {
@@ -726,30 +725,5 @@ namespace Zealot.Common.Actions
     public class SummonCommand : ActionCommand
     {
         public SummonCommand() : base(ACTIONTYPE.SUMMON) { }
-    }
-
-    public class InteractiveTriggerCommand : ActionCommand
-    {
-        public int entityId;
-        public int triggerTime;
-        public bool isArea;
-        public InteractiveTriggerCommand() : base(ACTIONTYPE.INTERACTIVE_TRIGGER) { }
-
-        public override bool SerializeStream(int persid, ref byte pcode, ref Dictionary<byte, object> dic)
-        {
-            dic.Add(pcode++, persid);
-            dic.Add(pcode++, mActionType);
-            dic.Add(pcode++, entityId);
-            dic.Add(pcode++, triggerTime);
-            dic.Add(pcode++, isArea);
-            return true;
-        }
-
-        public override void Deserialize(Dictionary<byte, object> dic, ref byte pcode)
-        {
-            entityId = (int)dic[pcode++];
-            triggerTime = (int)dic[pcode++];
-            isArea = (bool)dic[pcode++];
-        }
     }
 }

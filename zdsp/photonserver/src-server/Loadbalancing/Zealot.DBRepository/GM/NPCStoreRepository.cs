@@ -208,7 +208,7 @@ namespace Zealot.DBRepository.GM.NPCStore
         public async Task<Dictionary<string, NPCStoreInfo.Transaction>> GetPlayerStoreTransactions(string charid)
         {
             var instancedb = "InstanceDBCS";
-            var query = string.Format("SELECT [transactionhistory] FROM [{0}].[dbo].[{1}] WHERE [charname] = '{2}'", instancedb, "Character", charid.ToString());
+            var query = string.Format("SELECT [transactionhistory] FROM [{0}].[dbo].[{1}] WHERE [charid] = '{2}'", instancedb, "Character", charid.ToString());
             var result = await PerformQueryAsync(query).ConfigureAwait(false);
 
             //extract transactions from query
@@ -228,7 +228,7 @@ namespace Zealot.DBRepository.GM.NPCStore
             var transtr = JsonConvert.SerializeObject(transactions);
 
             var instancedb = "InstanceDBCS";
-            var command = string.Format("UPDATE [{0}].[dbo].[{1}] SET [transactionhistory] = '{3}' WHERE [charname] = '{2}'", instancedb, "Character", charid, transtr);
+            var command = string.Format("UPDATE [{0}].[dbo].[{1}] SET [transactionhistory] = '{3}' WHERE [charid] = '{2}'", instancedb, "Character", charid, transtr);
 
            var success = await PerformSQLCommandAsync(command).ConfigureAwait(false);
         }

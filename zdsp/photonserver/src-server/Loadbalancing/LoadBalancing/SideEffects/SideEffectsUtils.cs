@@ -460,7 +460,7 @@
                     break;
                 case EffectType.Stats_MaxMana:
                     relative = FieldName.ManaPercBonus;
-                    nonRelative = FieldName.ManaBase;
+                    nonRelative = FieldName.ManaBonus;
                     break;
                 case EffectType.Stats_ManaRegen:
                     relative = FieldName.ManaReducePercBonus;

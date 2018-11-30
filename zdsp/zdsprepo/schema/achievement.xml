@@ -15,7 +15,7 @@
     <enum name="CollectionMonsterType">
       <item key="Normal" value ="0"/>
       <item key="MiniBoss" value ="1"/>
-      <item key="BigBoss" value ="2"/>
+      <item key="Boss" value ="2"/>
       <item key="DungeonBoss" value ="3"/>
     </enum>
 
@@ -115,7 +115,6 @@
       <property name="name" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
       <property name="localizedunlock" type="localizedstring" uitext="Localized Unlock"/>
-      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
     </element>
 
     <element name="CollectionObjective" useexcel="true" collectionkey="cid">
@@ -131,11 +130,12 @@
       <property name="exp" type="int" uitext="AEXP Reward"/>
       <property name="rewardtype" type="AchievementRewardType" uitext="RewardType"/>
       <property name="reward" type="string" uitext="Reward" default="" info="id;count"/>
-      <property name="collectse" type="string" uitext="Collect SideEffect" default="" info="id;id"/>
       <property name="rewardiconpath" type="asset" uitext="Reward Icon Path" default="" assettype="sprite"/>
       <property name="iconpath" type="asset" uitext="Collection Icon Path" default="" assettype="sprite"/>
       <property name="bigpicpath" type="asset" uitext="BigPic Path" default="" assettype="sprite"/>
       <property name="sortorder" type="int" uitext="Sort Order"/>
+      <property name="uipos" type="string" uitext="Model UI Position" default="0;0;0;1" info="x;y;rotatey;scale"/>
+      
     </element>
 
     <element name="CollectionPhoto" useexcel="true">
@@ -151,7 +151,6 @@
       <property name="maintype" type="AchievementType" uitext="Achievement Type"/>
       <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
       <property name="localizeddescription" type="localizedstring" uitext="Localized Description"/>
-      <property name="iconpath" type="asset" uitext="Icon Path" default="" assettype="sprite"/>
     </element>
 
     <element name="AchievementSubType" useexcel="true">

@@ -63,7 +63,7 @@ public abstract class UIShop : MonoBehaviour
         foreach (var item in currentitemlist)
         {
             var storeitem = item.itemdata;
-            if (storeitem.Type == NPCStoreInfo.ItemStoreType.Normal)
+            //if (storeitem.Type == NPCStoreInfo.ItemStoreType.Normal)
             {
                 var itemkey = storeitem.Key();
 
@@ -71,7 +71,7 @@ public abstract class UIShop : MonoBehaviour
 				{
 					storeitem.Remaining = transactions[itemkey].remaining;
 
-					detailswindow.UpdateSelectedItemRemaining();
+					if(detailswindow != null) detailswindow.UpdateSelectedItemRemaining();
 					//switch (storetype)
 					//{
 					//	case NPCStoreInfo.StoreType.Normal:

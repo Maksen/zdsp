@@ -93,6 +93,20 @@ namespace Zealot.Client.Actions
         {
             return !current.Update(newAction);
         }
+
+        public static bool GethitInterrupts(Action current, Action newAction)
+        {
+            Entity entity = current.GetEntity();
+            if (entity.IsPlayer())
+            {
+                return false;
+            }
+            else if (entity.IsMonster())
+            {
+                return true;
+            }
+            return current.IsCompleted();
+        }
     }
 
     public static class AuthoACInterruptManager
@@ -183,7 +197,7 @@ namespace Zealot.Client.Actions
             {ACTIONTYPE.GETHIT, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>() {
                     {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
                     {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
-                    {ACTIONTYPE.CASTSKILL, InterruptFn.NoInterrupt},
+                    {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete},
                     {ACTIONTYPE.Flash, InterruptFn.AfterComplete},
                     {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
                     {ACTIONTYPE.APPROACH_PATHFIND, InterruptFn.AfterComplete},
@@ -232,15 +246,34 @@ namespace Zealot.Client.Actions
                     //{ACTIONTYPE.GETHIT, InterruptFn.AfterComplete},
                 }
             },
-            {ACTIONTYPE.FROZEN, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>()
-            {
-                {ACTIONTYPE.IDLE, InterruptFn.AfterComplete },
-                {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete },
-                {ACTIONTYPE.WALK, InterruptFn.AfterComplete },
-                {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
-                //{ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
-            }
-            }
+            {ACTIONTYPE.FROZEN, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>() {
+                    {ACTIONTYPE.IDLE, InterruptFn.AfterComplete },
+                    {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete },
+                    {ACTIONTYPE.WALK, InterruptFn.AfterComplete },
+                    {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
+                    //{ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+                }
+            },
+            {ACTIONTYPE.GETHIT, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>() {
+                    {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.Flash, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.APPROACH_PATHFIND, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.INTERACT, InterruptFn.AfterComplete },
+                    {ACTIONTYPE.WALKANDCAST, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.DASHATTACK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.KNOCKEDUP, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.DRAGGED, InterruptFn.AfterComplete},
+                }
+            },
+            {ACTIONTYPE.CASTSKILL, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>()
+                {
+                    {ACTIONTYPE.GETHIT, InterruptFn.GethitInterrupts },
+                }
+            },
         };
     }
 }

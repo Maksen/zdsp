@@ -50,6 +50,19 @@ namespace Zealot.Server.Actions
             
             return true; //server always follow action from player
         }
+
+        public static bool GethitInterruptSkill(Action current, Action newAction)
+        {
+            GetHitCommand cmd = (GetHitCommand)newAction.mdbCommand;
+            if (cmd.isPlayer)
+            {
+                return current.IsCompleted();
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 
     public static class AuthoASInterruptManager
@@ -94,6 +107,8 @@ namespace Zealot.Server.Actions
             },
              {ACTIONTYPE.CASTSKILL, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
                     {ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.GETHIT, InterruptFn.GethitInterruptSkill},
+                    {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
                 }
             },
              {ACTIONTYPE.DEAD, new Dictionary<ACTIONTYPE, Func<Action,Action, bool>>(){
@@ -117,6 +132,22 @@ namespace Zealot.Server.Actions
                 {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
                 //{ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
             }
+            },
+            {ACTIONTYPE.GETHIT, new Dictionary<ACTIONTYPE, Func<Action, Action, bool>>() {
+                    {ACTIONTYPE.IDLE, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.WALK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.CASTSKILL, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.Flash, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.APPROACH, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.APPROACH_PATHFIND, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.INTERACT, InterruptFn.AfterComplete },
+                    {ACTIONTYPE.WALKANDCAST, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.DASHATTACK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.KNOCKEDBACK, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.KNOCKEDUP, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.DRAGGED, InterruptFn.AfterComplete},
+                    {ACTIONTYPE.GETHIT, InterruptFn.Update},
+                }
             }
         };
     }

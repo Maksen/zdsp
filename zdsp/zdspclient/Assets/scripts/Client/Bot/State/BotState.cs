@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Zealot.Bot
 {
@@ -22,13 +20,13 @@ namespace Zealot.Bot
 
         protected BotState() { }
 
-        public BotStateType State
+        public BotStateType StateType
         {
             get { return mState; }
             protected set { mState = value; }
         }
 
-        public abstract void StateBegin(string prevState);
+        public abstract void StateBegin();
         public abstract void StateEnd();
         public virtual void StateUpdate(long dt) { }
     }
@@ -37,10 +35,10 @@ namespace Zealot.Bot
     {
         public IdleState() : base()
         {
-            State = BotStateType.Idle;
+            StateType = BotStateType.Idle;
         }
 
-        public override void StateBegin(string prevState)
+        public override void StateBegin()
         {
             Debug.Log("Enter Idle state");
         }
@@ -55,30 +53,26 @@ namespace Zealot.Bot
     {
         public AutoAttackState() : base()
         {
-            State = BotStateType.AutoAttack;
+            StateType = BotStateType.AutoAttack;
         }
 
-        public override void StateBegin(string prevstate)
+        public override void StateBegin()
         {
-            Debug.Log("Enter Auto state");
+            Debug.Log("Enter Auto attack state");
 
-            // 切換搜尋模式
             QueryContext.Instance.SetQueryType(BotQueryType.NearestEnemyQuery);
-
-            // 自動戰鬥
             BotCombatController.Instance.StartCombat();
         }
 
         public override void StateUpdate(long dt)
         {
-            base.StateUpdate(dt);
             BotTargetHandler.Instance.ManuallyChangeTarget();
         }
 
         public override void StateEnd()
         {
             BotCombatController.Instance.StopCombat();
-            Debug.Log("Leave Auto state");
+            Debug.Log("Leave Auto attack state");
         }
     }
 
@@ -87,12 +81,13 @@ namespace Zealot.Bot
     {
         public QuestState()  : base()
         {
-            State = BotStateType.Quest;
+            StateType = BotStateType.Quest;
         }
 
-        public override void StateBegin(string prevstate)
+        public override void StateBegin()
         {
             Debug.Log("Enter Quest state");
+            // TODO 如果在組隊且跟隨的狀況下，如果去執行任何state的事項，都要取消跟隨
         }
 
         public override void StateEnd()
@@ -106,21 +101,26 @@ namespace Zealot.Bot
     {
         public CombatQuestState() : base()
         {
-            State = BotStateType.CombatQuest;
+            StateType = BotStateType.CombatQuest;
         }
         
-        public override void StateBegin(string prevstate)
+        public override void StateBegin()
         {
             Debug.Log("Enter Combat Quest State");
-            // TODO 切換戰鬥搜尋模式
-            //QueryContext.Instance.SetQueryType(BotQueryType.SpecificEnemyQuery);
+            
+            QueryContext.Instance.SetQueryType(BotQueryType.SpecificEnemyQuery);
+            BotCombatController.Instance.StartCombat();
+        }
 
-            // TODO 呼叫自動戰鬥
+        public override void StateUpdate(long dt)
+        {
+            if (BotStateController.Instance.IsCombatQuestComplete())
+                BotStateController.Instance.AutoAttack();
         }
 
         public override void StateEnd()
         {
-            // TODO 當玩家移動角色/任務完成/關閉bot時，換回原本的搜尋模式
+            BotCombatController.Instance.StopCombat();
             Debug.Log("Leave Combat Quest State");
         }
     }
@@ -130,17 +130,16 @@ namespace Zealot.Bot
     {
         public NonCombatQuestState() : base()
         {
-            State = BotStateType.NonCombatQuest;
+            StateType = BotStateType.NonCombatQuest;
         }
 
-        public override void StateBegin(string prevState)
+        public override void StateBegin()
         {
             Debug.Log("Enter Non Combat Quest State");
         }
 
         public override void StateEnd()
         {
-            // TODO 當玩家移動角色/任務完成時
             Debug.Log("Leave Non Combat Quest State");
         }
     }
@@ -150,10 +149,10 @@ namespace Zealot.Bot
     {
         public CutsceneState() : base()
         {
-            State = BotStateType.Cutscene;
+            StateType = BotStateType.Cutscene;
         }
 
-        public override void StateBegin(string prevstate)
+        public override void StateBegin()
         {
             Debug.Log("Enter Cutscene state");
             // TODO 無敵、無法移動角色
@@ -161,7 +160,6 @@ namespace Zealot.Bot
 
         public override void StateEnd()
         {
-            // TODO 跳過或結束cutscene時，呼叫此function
             // TODO 3秒後，解除無敵、可移動角色，並回到Quest State
             Debug.Log("Leave Cutscene state");
         }
@@ -171,10 +169,10 @@ namespace Zealot.Bot
     {
         public RealmState() : base()
         {
-            State = BotStateType.Realm;
+            StateType = BotStateType.Realm;
         }
 
-        public override void StateBegin(string prevState)
+        public override void StateBegin()
         {
             
         }
@@ -189,18 +187,17 @@ namespace Zealot.Bot
     {
         public PartyState() : base()
         {
-            State = BotStateType.Party;
+            StateType = BotStateType.Party;
         }
 
-        public override void StateBegin(string prevState)
+        public override void StateBegin()
         {
-            
+            Debug.Log("Enter Party state");
         }
 
         public override void StateEnd()
         {
-            
+            Debug.Log("Leave Party state");
         }
     }
 }
-

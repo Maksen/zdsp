@@ -62,7 +62,7 @@ namespace CinemaDirector
             }
             Debug.Log("trigger  show words"); 
             ShowWordForSeconds.Invoke(words, duration);
-            //GameInfo.gCombat.CutsceneManager.ShowWordsForSeconds(words, duration);
+            //CutsceneManager.instance.ShowWordsForSeconds(words, duration);
         }
 
 

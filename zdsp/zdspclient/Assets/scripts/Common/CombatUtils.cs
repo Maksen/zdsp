@@ -17,25 +17,20 @@ namespace Zealot.Common
         private static readonly float QUERYRADIUS_ERRORMARGIN = 0.5f;
 
         //Checks if enemy but enemy may not be valid e.g. enemy is in safezone
-        public static bool IsEnemy(Entity entity1, Entity entity2)
+        public static bool IsEnemy(Entity originEntity, Entity targetEntity)
         {
-            if (entity1 == null || entity2 == null)
+            if (originEntity == null || targetEntity == null || originEntity == targetEntity)
                 return false;
-            if (entity1 == entity2)
-                return false;
-            if (entity1.IsActor() && entity2.IsActor())
-            {
-                int team1 = ((IActor)entity1).Team;
-                int team2 = ((IActor)entity2).Team;
-                if (IsEnemy(team1, team2))
-                    return true;
-            }
+
+            if (originEntity.IsActor() && targetEntity.IsActor())
+                return IsEnemy(((IActor)originEntity).Team, ((IActor)targetEntity).Team);
+
             return false;
         }
 
         public static bool IsEnemy(int team1, int team2)
         {
-            return (team1 == -2 || team2 == -2 || team1 != team2);
+            return (team1 == 0 || team2 == 0 || team1 != team2);
         }
 
         //Check if enemy and target is valid i.e. still alive and not in safezone
@@ -51,90 +46,81 @@ namespace Zealot.Common
         }
 
         /// <summary>
-        /// This function is used across server and client, to make sure the query result is consitant between server and client.
+        /// This function is used across server and client, to make sure the query result is consistent between server and client
         /// </summary>
-        /// <param name="origin">this new target system, origin is always the caster</param>
-        /// <param name="mTarget"></param>
-        /// <param name="targetpos"></param>
-        /// <param name="skillgroupJson"></param>
-        /// <returns></returns>
-        public static List<IActor> QueryTargetsForClientAndServer(IActor origin, IActor mTarget, SkillData skill, Vector3 targetpos, List<Entity> filterGroup = null)
+        /// <param name="origin">This new target system, origin is always the caster</param>
+        /// <param name="target"></param>
+        /// <param name="targetPos"></param>
+        /// <param name="skillData"></param>
+        /// <returns>List of targets</returns>
+        public static List<IActor> QueryTargetsForClientAndServer(IActor origin, IActor target, Vector3 targetPos, SkillData skillData, List<Entity> filterGroup = null)
         {
+            if (skillData == null)
+                Debug.LogError("Skill Data is missing");
+
             List<IActor> resultList = new List<IActor>();
-            if (skill == null) Debug.LogError("Skill Data is missing");
-            float queryradius = skill.skillJson.radius;
-            //Threatzone
-            Threatzone threatzone = skill.skillgroupJson.threatzone;
-            TargetType targetType = skill.skillgroupJson.targettype;
-            SkillBehaviour behaviour = skill.skillgroupJson.skillbehavior;
-            int maxTargets = skill.skillJson.maxtargets;
-            Entity orginEnt = origin as Entity;
-            if (skill.skillgroupJson.skilltype == SkillType.BasicAttack)
+            float queryRadius = skillData.skillJson.radius;
+            Threatzone threatZone = skillData.skillgroupJson.threatzone;
+            TargetType targetType = skillData.skillgroupJson.targettype;
+            SkillBehaviour skillBehaviour = skillData.skillgroupJson.skillbehavior;
+            int maxTargets = skillData.skillJson.maxtargets;
+            if (skillData.skillgroupJson.skilltype == SkillType.BasicAttack)
+                threatZone = Threatzone.Single;
+            if (threatZone == Threatzone.Single)
             {
-                threatzone = Threatzone.Single;
-            }
-            if (threatzone == Threatzone.Single)
-            {
-                //friendly skill with single just use the casters as target. 
+                //Friendly skill with single just use the casters as target. 
                 if ((targetType != TargetType.Enemy))
                 {
                     resultList.Add(origin);
                     return resultList;
                 }
-                if (mTarget != null)
+                if (target != null && IsCorrectTargetType(origin, target, targetType))
                 {
-                    bool eligibleTarget = IsCorrectTargetType(origin, mTarget, skill.skillgroupJson.targettype);
-                    if (eligibleTarget)
+                    if (GameUtils.InRange(targetPos, ((Entity)target).Position, queryRadius + QUERYRADIUS_ERRORMARGIN))
                     {
-                        if (GameUtils.InRange(targetpos,
-                            ((Entity)mTarget).Position, queryradius + QUERYRADIUS_ERRORMARGIN))
-                        {
-                            resultList.Add(mTarget);
-                            return resultList;
-                        }
+                        resultList.Add(target);
+                        return resultList;
                     }
                 }
             }
 
             EntitySystem.QueryEntityFilter IsValidEntity = ((queriedEntity) =>
             {
-                Entity target = queriedEntity;
-                if (target != null)
+                if (queriedEntity != null)
                 {
-                    if (target.Destroyed)
+                    if (queriedEntity.Destroyed)
                         return false;
-                    if (!target.IsActor())
+                    if (!queriedEntity.IsActor())
                         return false;
-                    if (filterGroup != null && !filterGroup.Contains(target))
+                    if (filterGroup != null && !filterGroup.Contains(queriedEntity))
                         return false;
-                    return IsCorrectTargetType(origin, (IActor)target, skill.skillgroupJson.targettype);
+                    return IsCorrectTargetType(origin, (IActor)queriedEntity, targetType);
                 }
                 return false;
             });
 
-            Entity originEntity = ((Entity)origin);
-            Vector3 originForward = ((Entity)origin).Forward;
+            Entity originEntity = (Entity)origin;
+            Vector3 originForward = originEntity.Forward;
             EntitySystem.QueryEntityFilter IsValidEntity120 = ((queriedEntity) =>
             {
-                Entity target = queriedEntity;
-                if (target != null)
+                if (queriedEntity != null)
                 {
-                    if (target.Destroyed)//|| !target.IsAlive() alive check outside this
+                    if (queriedEntity.Destroyed)//|| !queriedEntity.IsAlive() alive check outside this
                         return false;
-                    if (!target.IsActor())
+                    if (!queriedEntity.IsActor())
                         return false;
-                    if (filterGroup != null && !filterGroup.Contains(target))
+                    if (filterGroup != null && !filterGroup.Contains(queriedEntity))
                         return false;
                     //check if caster is inside target, then any angle will hit
-                    if (GameUtils.InRange(targetpos, target.Position, DEFAULT_ACTOR_RADIUS))
+                    if (GameUtils.InRange(targetPos, queriedEntity.Position, DEFAULT_ACTOR_RADIUS))
                     {
-                        return IsCorrectTargetType(origin, (IActor)target, skill.skillgroupJson.targettype);
+                        return IsCorrectTargetType(origin, (IActor)queriedEntity, targetType);
                     }
 
-                    Vector3 originToTarget = (target.Position - originEntity.Position).normalized;
+                    Vector3 originToTarget = (queriedEntity.Position - originEntity.Position).normalized;
                     float dotproduct = Vector3.Dot(originForward, originToTarget);
                     if (dotproduct >= 0.5f) //within 60 deg left & right
-                        return IsCorrectTargetType(origin, (IActor)target, skill.skillgroupJson.targettype);
+                        return IsCorrectTargetType(origin, (IActor)queriedEntity, targetType);
                     else
                         return false;
                 }
@@ -142,22 +128,21 @@ namespace Zealot.Common
             });
 
             resultList = new List<IActor>();
-            if (threatzone == Threatzone.DegreeArc360 || threatzone == Threatzone.DegreeArc120)
+            if (threatZone == Threatzone.DegreeArc360 || threatZone == Threatzone.DegreeArc120)
             {
-                EntitySystem.QueryEntityFilter filter = threatzone == Threatzone.DegreeArc360 ? IsValidEntity : IsValidEntity120;
-                if (maxTargets == 1 && skill.skillgroupJson.skillbehavior != SkillBehaviour.Ground)
+                EntitySystem.QueryEntityFilter filter = threatZone == Threatzone.DegreeArc360 ? IsValidEntity : IsValidEntity120;
+                if (maxTargets == 1 && skillBehaviour != SkillBehaviour.Ground)
                 {
                     if (targetType != TargetType.Enemy)
                     {
-                        resultList.Add((IActor)origin);
+                        resultList.Add(origin);
                     }
                     else
                     {
-                        Entity target = originEntity.EntitySystem.QueryForClosestEntityInSphere(targetpos, queryradius + QUERYRADIUS_ERRORMARGIN, filter);
-                        if (target != null)
-                            resultList.Add((IActor)target);
+                        Entity targetEntity = originEntity.EntitySystem.QueryForClosestEntityInSphere(targetPos, queryRadius + QUERYRADIUS_ERRORMARGIN, filter);
+                        if (targetEntity != null)
+                            resultList.Add((IActor)targetEntity);
                     }
-
                 }
                 else
                 {
@@ -166,28 +151,36 @@ namespace Zealot.Common
                         maxTargets = maxTargets - 1;
                         resultList.Add(origin); //add self as the filter not return self;
                     }
-                    if (SkillBehaviour.Ground == skill.skillgroupJson.skillbehavior)
+                    if (SkillBehaviour.Ground == skillBehaviour)
                     {
-                        List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(targetpos,
-                           queryradius + QUERYRADIUS_ERRORMARGIN, filter);
+                        List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(targetPos,
+                           queryRadius + QUERYRADIUS_ERRORMARGIN, filter);
                         int count = targets.Count > maxTargets ? maxTargets : targets.Count;
-                        for (int i = 0; i < count; i++)
+                        for (int i = 0; i < count; ++i)
+                            resultList.Add((IActor)targets[i]);
+                    }
+                    else if(SkillBehaviour.Target == skillBehaviour)
+                    {
+                        List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(((Entity)target).Position,
+                           queryRadius + QUERYRADIUS_ERRORMARGIN, filter);
+                        int count = targets.Count > maxTargets ? maxTargets : targets.Count;
+                        for (int i = 0; i < count; ++i)
                             resultList.Add((IActor)targets[i]);
                     }
                     else
                     {
                         List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(originEntity.Position,
-                            queryradius + QUERYRADIUS_ERRORMARGIN, filter);
+                            queryRadius + QUERYRADIUS_ERRORMARGIN, filter);
                         int count = targets.Count > maxTargets ? maxTargets : targets.Count;
-                        for (int i = 0; i < count; i++)
+                        for (int i = 0; i < count; ++i)
                             resultList.Add((IActor)targets[i]);
                     }
                 }
             }
-            else if (threatzone == Threatzone.LongStream)
+            else if (threatZone == Threatzone.LongStream)
             {
-                float width = skill.skillJson.radius * 2;
-                float range = skill.skillJson.range; //for long threatzone, we add bonus to the range
+                float width = queryRadius * 2;
+                float range = skillData.skillJson.range; //for long threatzone, we add bonus to the range
                 if (maxTargets == 1)
                 {
                     if (targetType != TargetType.Enemy)
@@ -196,9 +189,9 @@ namespace Zealot.Common
                     }
                     else
                     {
-                        Entity target = originEntity.EntitySystem.QueryForClosestEntityInRectangleF(targetpos, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
-                        if (target != null)
-                            resultList.Add((IActor)target);
+                        Entity targetEntity = originEntity.EntitySystem.QueryForClosestEntityInRectangleF(targetPos, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
+                        if (targetEntity != null)
+                            resultList.Add((IActor)targetEntity);
                     }
                 }
                 else
@@ -209,9 +202,9 @@ namespace Zealot.Common
                         resultList.Add(origin); //add self as the filter not return self
                     }
 
-                    List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInRectangleF(targetpos, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
+                    List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInRectangleF(targetPos, originForward, range + QUERYRADIUS_ERRORMARGIN, width, IsValidEntity);
                     int count = targets.Count > maxTargets ? maxTargets : targets.Count;
-                    for (int i = 0; i < count; i++)
+                    for (int i = 0; i < count; ++i)
                         resultList.Add((IActor)targets[i]);
                 }
             }
@@ -225,7 +218,7 @@ namespace Zealot.Common
             return resultList;
         }
 
-        public static int QueryNumberOfPlayersInSphere(Entity originEntity, float queryradius)
+        public static int QueryNumberOfPlayersInSphere(Entity originEntity, float queryRadius)
         {
             EntitySystem.QueryEntityFilter IsValidEntity = ((queriedEntity) =>
             {
@@ -239,23 +232,22 @@ namespace Zealot.Common
                 }
                 return false;
             });
-            List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(originEntity.Position, queryradius + QUERYRADIUS_ERRORMARGIN, IsValidEntity);
+            List<Entity> targets = originEntity.EntitySystem.QueryEntitiesInSphere(originEntity.Position, queryRadius + QUERYRADIUS_ERRORMARGIN, IsValidEntity);
             return targets.Count;
         }
 
-        private static bool IsCorrectTargetType(IActor target, IActor mEntity, TargetType desiredTargetType)
+        private static bool IsCorrectTargetType(IActor origin, IActor target, TargetType desiredTargetType)
         {
-            Entity entity1 = (Entity)mEntity;
-            Entity entity2 = (Entity)target;
-            bool isSameID = entity1.ID == entity2.ID;
-            if (isSameID)
-                return false; // myself is not returned;
-            if (desiredTargetType == TargetType.Enemy)
-                return IsEnemy(entity1, entity2);
+            Entity originEntity = (Entity)origin;
+            Entity targetEntity = (Entity)target;
+            if (originEntity.ID == targetEntity.ID)
+                return false; // myself is not returned
+            else if (desiredTargetType == TargetType.Enemy)
+                return IsEnemy(originEntity, targetEntity);
             else if (desiredTargetType == TargetType.Friendly)
-                return !IsEnemy(entity1, entity2);
+                return !IsEnemy(originEntity, targetEntity);
             else if (desiredTargetType == TargetType.Party)
-                return target.GetParty() != -1 && mEntity.GetParty() != -1 && mEntity.GetParty() == target.GetParty();
+                return origin.GetParty() != -1 && target.GetParty() != -1 && origin.GetParty() == target.GetParty();
             return false;
         }
 
@@ -629,9 +621,7 @@ namespace Zealot.Common
         //                mainsej.min *= (1 + subsej.max * 0.01f);
         //            }
         //            break;
-
-        //    } 
-
+        //    }
         //}
 
         public static void DebugCompoundSkill(SkillData data)

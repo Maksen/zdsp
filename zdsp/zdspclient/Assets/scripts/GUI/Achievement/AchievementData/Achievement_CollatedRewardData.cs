@@ -10,8 +10,9 @@ public class Achievement_CollatedRewardData : MonoBehaviour
     [SerializeField] Text rewardNameText;
     [SerializeField] Text rewardAmtText;
 
-    public void Init(AchievementReward reward)
+    public void Init(CollatedAchievementReward reward)
     {
+        ResetData();
         switch (reward.rewardType)
         {
             case AchievementRewardType.Item:
@@ -30,7 +31,7 @@ public class Achievement_CollatedRewardData : MonoBehaviour
                 iconImage.gameObject.SetActive(true);
                 CurrencyType currencyType = (CurrencyType)reward.rewardId;
                 iconImage.sprite = ClientUtils.LoadCurrencyIcon(currencyType);
-                rewardNameText.text = ClientUtils.GetCurrencyLocalizedName(currencyType);
+                rewardNameText.text = ClientUtils.GetLocalizedCurrencyName(currencyType);
                 rewardAmtText.text = "x" + reward.rewardCount;
                 break;
             case AchievementRewardType.SideEffect:
@@ -40,5 +41,11 @@ public class Achievement_CollatedRewardData : MonoBehaviour
                 rewardAmtText.text = "+" + reward.rewardCount;
                 break;
         }
+    }
+
+    private void ResetData()
+    {
+        ClientUtils.DestroyChildren(iconSlot);
+        iconImage.gameObject.SetActive(false);
     }
 }

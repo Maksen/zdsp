@@ -1,5 +1,6 @@
 ﻿using Kopio.JsonContracts;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -43,6 +44,7 @@ public class QuestClientController
     //Adventure Quest
     private Dictionary<int, CurrentQuestData> mAdventureQuest;
     private List<int> mCompletedAdventureQuest;
+    private List<int> mLockedAdventureQuest;
 
     //Subline Quest
     private Dictionary<int, CurrentQuestData> mSublineQuest;
@@ -77,14 +79,13 @@ public class QuestClientController
     private List<int> mUnlockSignboardList;
 
     private PlayerGhost mPlayer;
-    private int mQuestEventTriggered;
-    private List<int> mPendingQuestEventList;
     private Dictionary<QuestType, Dictionary<int, int>> mQuestIdByIndex;
     private bool bInit = false;
-    private List<StaticAreaGhost> mTriggerArea;
-    private StaticAreaGhost mActivedTrigger;
+    private List<StaticClientNPCAlwaysShow> mTriggerArea;
+    private StaticClientNPCAlwaysShow mActivedTrigger;
     private HUD_QuestList mQuestListHUD;
     private QuestTriggerController mQuestTriggerController;
+    private QuestGuideController mQuestGuideController;
     private QuestRequirementController mQuestRequirementController;
     private QuestDialogueController mQuestDialogueController;
 
@@ -94,6 +95,7 @@ public class QuestClientController
 
         mAdventureQuest = new Dictionary<int, CurrentQuestData>();
         mCompletedAdventureQuest = new List<int>();
+        mLockedAdventureQuest = new List<int>();
 
         mSublineQuest = new Dictionary<int, CurrentQuestData>();
         mCompletedSublineQuest = new List<int>();
@@ -114,9 +116,6 @@ public class QuestClientController
         mUnlockQuestList = new List<int>();
         mUnlockSignboardList = new List<int>();
 
-        mQuestEventTriggered = -1;
-        mPendingQuestEventList = new List<int>();
-
         mPlayer = player;
         TrackingListUpdate = false;
 
@@ -125,7 +124,7 @@ public class QuestClientController
         {
             mQuestIdByIndex.Add(type, new Dictionary<int, int>());
         }
-        mTriggerArea = new List<StaticAreaGhost>();
+        mTriggerArea = new List<StaticClientNPCAlwaysShow>();
         mActivedTrigger = null;
     }
 
@@ -135,6 +134,7 @@ public class QuestClientController
         UpdateNpcDisplayStatus();
         mQuestRequirementController = new QuestRequirementController(this);
         mQuestTriggerController = new QuestTriggerController(this, mQuestRequirementController, entitySystem);
+        mQuestGuideController = new QuestGuideController(this, entitySystem);
         mQuestDialogueController = new QuestDialogueController(this);
         OnLevelLoaded();
     }
@@ -207,6 +207,9 @@ public class QuestClientController
             case "unlockSignboardList":
                 mUnlockSignboardList = DeserializeCompletedQuest(data);
                 UpdateDailyQuestUI();
+                break;
+            case "lockedAdventure":
+                mLockedAdventureQuest = DeserializeCompletedQuest(data);
                 break;
         }
     }
@@ -356,8 +359,8 @@ public class QuestClientController
         }
         mQuestListHUD.UpdateQuestData(newdata, olddata, this);
         UpdateUI(newdata, olddata);
-        UpdateTriggerQuest(newdata, olddata);
         TriggerQuestEvent(newdata);
+        UpdateTriggerQuest(newdata, olddata);
         DisplayKillObjectiveMsg(newdata, olddata);
     }
 
@@ -624,11 +627,11 @@ public class QuestClientController
                 }
                 break;
             case QuestRequirementType.Companian:
-                if (requirement.para2 == 1 && requirement.para1 == mPlayer.PlayerSynStats.QuestCompanionId)
+                if (requirement.para2 == 1 && requirement.para1 == GetCompanionId())
                 {
                     return true;
                 }
-                else if (requirement.para2 == 2 && requirement.para1 != mPlayer.PlayerSynStats.QuestCompanionId)
+                else if (requirement.para2 == 2 && requirement.para1 != GetCompanionId())
                 {
                     return true;
                 }
@@ -817,7 +820,14 @@ public class QuestClientController
             {
                 if (questData.MainObjective.ObjectiveIds[i] == objectiveid)
                 {
-                    return questData.MainObjective.ProgressCount[i];
+                    if (questData.MainObjective.ProgressCount.Count > i)
+                    {
+                        return questData.MainObjective.ProgressCount[i];
+                    }
+                    else
+                    {
+                        return 0;
+                    }
                 }
             }
 
@@ -827,7 +837,14 @@ public class QuestClientController
                 {
                     if (entry.Value.ObjectiveIds[i] == objectiveid)
                     {
-                        return entry.Value.ProgressCount[i];
+                        if (entry.Value.ProgressCount.Count > i)
+                        {
+                            return entry.Value.ProgressCount[i];
+                        }
+                        else
+                        {
+                            return 0;
+                        }
                     }
                 }
             }
@@ -1125,6 +1142,10 @@ public class QuestClientController
                 targetname = "";
                 ishyperlink = false;
                 break;
+            case QuestObjectiveType.Guide:
+                targetname = StaticGuideRepo.GetNPCById(param).localizedname;
+                ishyperlink = true;
+                break;
         }
 
         if (ishyperlink)
@@ -1154,6 +1175,7 @@ public class QuestClientController
             case QuestObjectiveType.Empty:
             case QuestObjectiveType.MultipleObj:
             case QuestObjectiveType.QuickTalk:
+            case QuestObjectiveType.Guide:
                 targetname = "";
                 break;
         }
@@ -1175,6 +1197,7 @@ public class QuestClientController
             case QuestObjectiveType.RealmComplete:
             case QuestObjectiveType.Empty:
             case QuestObjectiveType.MultipleObj:
+            case QuestObjectiveType.Guide:
                 targetname = "";
                 ishyperlink = false;
                 break;
@@ -1403,11 +1426,11 @@ public class QuestClientController
                 }
                 break;
             case QuestRequirementType.Companian:
-                if (requirementDetailJson.para2 == 1 && mPlayer.PlayerSynStats.QuestCompanionId == requirementDetailJson.para1)
+                if (requirementDetailJson.para2 == 1 && GetCompanionId() == requirementDetailJson.para1)
                 {
                     return 1;
                 }
-                else if (requirementDetailJson.para2 == 2 && mPlayer.PlayerSynStats.QuestCompanionId != requirementDetailJson.para1)
+                else if (requirementDetailJson.para2 == 2 && GetCompanionId() != requirementDetailJson.para1)
                 {
                     return 1;
                 }
@@ -1500,7 +1523,10 @@ public class QuestClientController
         {
             for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
             {
-                if (questData.MainObjective.CompleteTime[i] != "null")
+                if (questData.MainObjective.CompleteTime.Count > i && 
+                    questData.MainObjective.CompleteTime[i].GetType() == typeof(string) && 
+                    questData.MainObjective.CompleteTime[i] != "null" && 
+                    questData.MainObjective.CompleteTime[i] != "0")
                 {
                     completetimes.Add(questData.MainObjective.ObjectiveIds[i], DateTime.ParseExact(questData.MainObjective.CompleteTime[i], "yyyy.MM.dd+HH:mm:ss", CultureInfo.InvariantCulture));
                 }
@@ -1519,7 +1545,10 @@ public class QuestClientController
             {
                 for (int i = 0; i < entry.Value.ObjectiveIds.Count; i++)
                 {
-                    if (entry.Value.CompleteTime[i] != "null")
+                    if (entry.Value.CompleteTime.Count > i && 
+                        entry.Value.CompleteTime[i].GetType() == typeof(string) &&
+                        entry.Value.CompleteTime[i] != "null" && 
+                        entry.Value.CompleteTime[i] != "0")
                     {
                         completetimes.Add(entry.Value.ObjectiveIds[i], DateTime.ParseExact(entry.Value.CompleteTime[i], "yyyy.MM.dd+HH:mm:ss", CultureInfo.InvariantCulture));
                     }
@@ -1532,7 +1561,7 @@ public class QuestClientController
 
     public string ReplaceEndTime(string description, Dictionary<int, DateTime> mainendtime, Dictionary<int, DateTime> subendtime)
     {
-        if (mainendtime.Count >= 1)
+        if (mainendtime != null && mainendtime.Count >= 1)
         {
             DateTime mainET = mainendtime.Values.First();
             double remainsec = mainET.Subtract(DateTime.Now).TotalSeconds;
@@ -1543,11 +1572,12 @@ public class QuestClientController
             }
             else
             {
-                description = GUILocalizationRepo.GetLocalizedString("quest_failed") + " " + description;
+                string colorcode = ColorUtility.ToHtmlStringRGB(Color.red);
+                description = "<color=#" + colorcode + ">" + GUILocalizationRepo.GetLocalizedString("quest_failed") + "</color>" + " " + description;
             }
             description = description.Replace("%t%", time);
         }
-        if (subendtime.Count >= 1)
+        if (subendtime != null && subendtime.Count >= 1)
         {
             KeyValuePair<int, DateTime> subET = subendtime.FirstOrDefault();
             double remainsec = subET.Value.Subtract(DateTime.Now).TotalSeconds;
@@ -1559,7 +1589,8 @@ public class QuestClientController
             }
             else
             {
-                description = GUILocalizationRepo.GetLocalizedString("quest_failed") + " " + description;
+                string colorcode = ColorUtility.ToHtmlStringRGB(Color.red);
+                description = "<color=#" + colorcode + ">" + GUILocalizationRepo.GetLocalizedString("quest_failed") + "</color>" + " " + description;
             }
             description = description.Replace(replacement, time);
         }
@@ -1610,14 +1641,18 @@ public class QuestClientController
         if (questData.Status == (byte)QuestStatus.NewQuestWithEvent || questData.Status == (byte)QuestStatus.NewObjectiveWithEvent || questData.Status == (byte)QuestStatus.CompletedWithEvent
             || questData.SubStatus == (byte)QuestStatus.NewQuestWithEvent || questData.SubStatus == (byte)QuestStatus.NewObjectiveWithEvent || questData.SubStatus == (byte)QuestStatus.CompletedWithEvent)
         {
-            if (mQuestEventTriggered != -1)
+            if (GameInfo.mQuestEventTriggered != -1 && GameInfo.mQuestEventTriggered != questData.QuestId)
             {
-                mPendingQuestEventList.Add(questData.QuestId);
+                GameInfo.mPendingQuestEventList.Add(questData.QuestId);
             }
-            else
+            else if (GameInfo.mQuestEventTriggered == -1)
             {
-                mQuestEventTriggered = questData.QuestId;
+                GameInfo.mQuestEventTriggered = questData.QuestId;
                 GetAllEventList(questData);
+            }
+            else if (questData.QuestId == GameInfo.mQuestEventTriggered)
+            {
+                Debug.Log("Remaining Quest Event List : " + GameInfo.mQuestEventList.Count);
             }
         }
         else
@@ -1630,12 +1665,12 @@ public class QuestClientController
     {
         if (questData.Status == (byte)QuestStatus.NewQuestWithEvent || questData.SubStatus == (byte)QuestStatus.NewQuestWithEvent)
         {
-            QuestJson questJson = QuestRepo.GetQuestByID(mQuestEventTriggered);
+            QuestJson questJson = QuestRepo.GetQuestByID(GameInfo.mQuestEventTriggered);
             GameInfo.mQuestEventList = QuestRepo.GetQuestEvents(questJson.eventid, EventTimingType.StartQuest);
         }
         else if (questData.Status == (byte)QuestStatus.CompletedWithEvent || questData.SubStatus == (byte)QuestStatus.CompletedWithEvent)
         {
-            QuestJson questJson = QuestRepo.GetQuestByID(mQuestEventTriggered);
+            QuestJson questJson = QuestRepo.GetQuestByID(GameInfo.mQuestEventTriggered);
             GameInfo.mQuestEventList = QuestRepo.GetQuestEvents(questJson.eventid, EventTimingType.CompleteQuest);
         }
         else if (questData.Status == (byte)QuestStatus.NewObjectiveWithEvent || questData.SubStatus == (byte)QuestStatus.NewObjectiveWithEvent)
@@ -1646,13 +1681,21 @@ public class QuestClientController
             {
                 objectivelist.AddRange(entry.Value.ObjectiveIds);
             }
-            GameInfo.mQuestEventList = QuestRepo.GetQuestEvents(EventTimingType.CompleteQuest, objectivelist);
+            GameInfo.mQuestEventList = QuestRepo.GetQuestEvents(EventTimingType.CompleteObjective, objectivelist);
         }
 
         StartQuestEvent();
     }
 
-    private void StartQuestEvent()
+    public IEnumerator OnPlayerReady()
+    {
+        yield return new WaitForSecondsRealtime(1);
+
+        GameInfo.mWaitingQuestEvent = false;
+        GameInfo.gLocalPlayer.QuestController.StartQuestEvent();
+    }
+
+    public void StartQuestEvent()
     {
         if (GameInfo.mWaitingQuestEvent)
         {
@@ -1670,7 +1713,7 @@ public class QuestClientController
         }
         else
         {
-            RPCFactory.NonCombatRPC.UpdateQuestStatus(mQuestEventTriggered);
+            RPCFactory.NonCombatRPC.UpdateQuestStatus(GameInfo.mQuestEventTriggered);
             StartNextQuestEvent();
         }
     }
@@ -1683,7 +1726,7 @@ public class QuestClientController
                 int delay = 0;
                 int.TryParse(questEvent.para2, out delay);
                 GameInfo.mWaitingQuestEvent = true;
-                GameInfo.gCombat.StartCoroutine(mPlayer.PlayCutscene(questEvent.para1, delay, mQuestEventTriggered));
+                GameInfo.gCombat.StartCoroutine(mPlayer.PlayCutscene(questEvent.para1, delay, GameInfo.mQuestEventTriggered));
                 break;
             case QuestEventType.Playmaker:
                 break;
@@ -1738,15 +1781,15 @@ public class QuestClientController
                     }
                     GameInfo.mSideEffectQuestStatus = new Dictionary<int, int>();
                 }
-                GameInfo.mSideEffectQuestStatus.Add(mQuestEventTriggered, seid);
+                GameInfo.mSideEffectQuestStatus.Add(GameInfo.mQuestEventTriggered, seid);
                 RPCFactory.NonCombatRPC.ApplyQuestEventBuff(questEvent.id);
                 break;
             case QuestEventType.Companion:
                 int companionid = -1;
                 int.TryParse(questEvent.para1, out companionid);
                 GameInfo.mCompanionQuestStatus = new Dictionary<int, int>();
-                GameInfo.mCompanionQuestStatus.Add(mQuestEventTriggered, companionid);
-                RPCFactory.NonCombatRPC.ApplyQuestEventCompanion(questEvent.id);
+                GameInfo.mCompanionQuestStatus.Add(GameInfo.mQuestEventTriggered, companionid);
+                RPCFactory.NonCombatRPC.ApplyQuestEventCompanion(questEvent.id, GameInfo.mQuestEventTriggered);
                 break;
             case QuestEventType.NPC:
                 int npcid;
@@ -1763,9 +1806,9 @@ public class QuestClientController
                         {
                             GameInfo.mNpcQuestStatus.Add(npcid, new List<int>());
                         }
-                        if (!GameInfo.mNpcQuestStatus[npcid].Contains(mQuestEventTriggered))
+                        if (!GameInfo.mNpcQuestStatus[npcid].Contains(GameInfo.mQuestEventTriggered))
                         {
-                            GameInfo.mNpcQuestStatus[npcid].Add(mQuestEventTriggered);
+                            GameInfo.mNpcQuestStatus[npcid].Add(GameInfo.mQuestEventTriggered);
                         }
                     }
                     else
@@ -1786,13 +1829,26 @@ public class QuestClientController
                 GameInfo.mWaitingQuestEvent = true;
                 if (realmstatus)
                 {
-                    RPCFactory.CombatRPC.CreateRealmByID(realmid, false, false, mQuestEventTriggered);
+                    RPCFactory.CombatRPC.CreateRealmByID(realmid, false, false, GameInfo.mQuestEventTriggered);
                 }
                 else
                 {
-                    RPCFactory.CombatRPC.LeaveRealm();
+                    string levelName = SceneManager.GetActiveScene().name;
+                    if (RealmRepo.IsWorld(levelName))
+                    {
+                        GameInfo.mWaitingQuestEvent = false;
+                    }
+                    else
+                    {
+                        RPCFactory.CombatRPC.LeaveRealm();
+                    }
                 }
                 break;
+        }
+
+        if (!GameUtils.IsEmptyString(questEvent.msg))
+        {
+            UIManager.ShowSystemMessage(questEvent.msg);
         }
 
         if (!GameInfo.mWaitingQuestEvent)
@@ -1853,15 +1909,15 @@ public class QuestClientController
 
     public void StartNextQuestEvent()
     {
-        mQuestEventTriggered = -1;
-        if (mPendingQuestEventList.Count > 0)
+        GameInfo.mQuestEventTriggered = -1;
+        if (GameInfo.mPendingQuestEventList.Count > 0)
         {
-            mQuestEventTriggered = mPendingQuestEventList[0];
-            mPendingQuestEventList.Remove(mQuestEventTriggered);
-            QuestJson questJson = QuestRepo.GetQuestByID(mQuestEventTriggered);
+            GameInfo.mQuestEventTriggered = GameInfo.mPendingQuestEventList[0];
+            GameInfo.mPendingQuestEventList.Remove(GameInfo.mQuestEventTriggered);
+            QuestJson questJson = QuestRepo.GetQuestByID(GameInfo.mQuestEventTriggered);
             if (questJson != null)
             {
-                CurrentQuestData questData = GetQuestData(questJson.type, mQuestEventTriggered);
+                CurrentQuestData questData = GetQuestData(questJson.type, GameInfo.mQuestEventTriggered);
                 if (questData != null)
                 {
                     GetAllEventList(questData);
@@ -1905,7 +1961,7 @@ public class QuestClientController
                 UIManager.StartHourglass();
                 RPCFactory.NonCombatRPC.CompleteQuest(questData.QuestId, questJson.replyid);
 
-                if (!GameInfo.gCombat.CutsceneManager.IsPlaying())
+                if (!CutsceneManager.instance.IsPlaying())
                     BotStateController.Instance.Resume();
             }
         }
@@ -1928,30 +1984,37 @@ public class QuestClientController
         }
     }
 
-    public void UpdateTriggerData(StaticAreaGhost staticArea)
+    public void UpdateTriggerData(StaticClientNPCAlwaysShow staticArea)
     {
         if (mActivedTrigger == staticArea)
         {
-            int interactid = mActivedTrigger.GetInteractId();
-            if (interactid != -1)
+            if (typeof(StaticAreaGhost) == mActivedTrigger.GetType())
             {
-                int questid = mActivedTrigger.GetActivedQuestId();
-                if (!UIManager.IsWidgetActived(HUDWidgetType.QuestAction))
+                int interactid = ((StaticAreaGhost)mActivedTrigger).GetInteractId();
+                if (interactid != -1)
                 {
-                    UIManager.SetWidgetActive(HUDWidgetType.QuestAction, true);
+                    int questid = ((StaticAreaGhost)mActivedTrigger).GetActivedQuestId();
+                    if (!UIManager.IsWidgetActived(HUDWidgetType.QuestAction))
+                    {
+                        UIManager.SetWidgetActive(HUDWidgetType.QuestAction, true);
+                    }
+                    Hud_QuestAction questAction = UIManager.GetWidget(HUDWidgetType.QuestAction).GetComponent<Hud_QuestAction>();
+                    questAction.Init(interactid, questid);
                 }
-                Hud_QuestAction questAction = UIManager.GetWidget(HUDWidgetType.QuestAction).GetComponent<Hud_QuestAction>();
-                questAction.Init(interactid, questid);
+                else
+                {
+                    UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
+                    BotStateController.Instance.Resume();
+                }
             }
-            else
+            else if (typeof(StaticGuideGhost) == mActivedTrigger.GetType())
             {
-                UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
-                BotStateController.Instance.Resume();
+                ((StaticGuideGhost)mActivedTrigger).DoInteractAction();
             }
         }
     }
 
-    public void OnEnterStaticArea(StaticAreaGhost staticArea)
+    public void OnEnterStaticArea(StaticClientNPCAlwaysShow staticArea)
     {
         if (!mTriggerArea.Contains(staticArea))
         {
@@ -1960,7 +2023,7 @@ public class QuestClientController
         OnTriggerChanged();
     }
 
-    public void OnExitStaticArea(StaticAreaGhost staticArea)
+    public void OnExitStaticArea(StaticClientNPCAlwaysShow staticArea)
     {
         if (mTriggerArea.Contains(staticArea))
         {
@@ -1975,20 +2038,27 @@ public class QuestClientController
 
         if (mActivedTrigger != null)
         {
-            int interactid = mActivedTrigger.GetInteractId();
-            int questid = mActivedTrigger.GetActivedQuestId();
-            if (interactid != -1)
+            if (typeof(StaticAreaGhost) == mActivedTrigger.GetType())
             {
-                if (!UIManager.IsWidgetActived(HUDWidgetType.QuestAction))
+                int interactid = ((StaticAreaGhost)mActivedTrigger).GetInteractId();
+                int questid = ((StaticAreaGhost)mActivedTrigger).GetActivedQuestId();
+                if (interactid != -1)
                 {
-                    UIManager.SetWidgetActive(HUDWidgetType.QuestAction, true);
+                    if (!UIManager.IsWidgetActived(HUDWidgetType.QuestAction))
+                    {
+                        UIManager.SetWidgetActive(HUDWidgetType.QuestAction, true);
+                    }
+                    Hud_QuestAction questAction = UIManager.GetWidget(HUDWidgetType.QuestAction).GetComponent<Hud_QuestAction>();
+                    questAction.Init(interactid, questid);
                 }
-                Hud_QuestAction questAction = UIManager.GetWidget(HUDWidgetType.QuestAction).GetComponent<Hud_QuestAction>();
-                questAction.Init(interactid, questid);
+                else
+                {
+                    UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
+                }
             }
-            else
+            else if (typeof(StaticGuideGhost) == mActivedTrigger.GetType())
             {
-                UIManager.SetWidgetActive(HUDWidgetType.QuestAction, false);
+                ((StaticGuideGhost)mActivedTrigger).DoInteractAction();
             }
         }
         else
@@ -2077,8 +2147,6 @@ public class QuestClientController
         QuestJson questJson = QuestRepo.GetQuestByID(questid);
         if (questJson != null)
         {
-            BotStateController.Instance.Quest();
-
             switch (type)
             {
                 case QuestObjectiveType.Kill:
@@ -2088,6 +2156,9 @@ public class QuestClientController
                 case QuestObjectiveType.Talk:
                 case QuestObjectiveType.Choice:
                 case QuestObjectiveType.Interact:
+                    ProceedToQuestTarget(targetid, questid, questJson.teleport, false, (byte)type);
+                    break;
+                case QuestObjectiveType.Guide:
                     ProceedToQuestTarget(targetid, questid, questJson.teleport, false, (byte)type);
                     break;
                 case QuestObjectiveType.QuickTalk:
@@ -2149,10 +2220,20 @@ public class QuestClientController
         }
         else
         {
-            StaticNPCJson staticNPCJson = StaticNPCRepo.GetNPCById(targetId);
-            if (staticNPCJson != null)
-                foundtarget = NPCPosMap.FindNearestStaticNPC(staticNPCJson.archetype, levelName, mPlayer.Position, 
-                    ref targetlevel, ref targetpos);
+            if (type == (byte)QuestObjectiveType.Guide)
+            {
+                StaticGuideJson staticGuideJson = StaticGuideRepo.GetNPCById(targetId);
+                if (staticGuideJson != null)
+                    foundtarget = NPCPosMap.FindNearestStaticGuide(staticGuideJson.archetype, levelName, mPlayer.Position,
+                        ref targetlevel, ref targetpos);
+            }
+            else
+            {
+                StaticNPCJson staticNPCJson = StaticNPCRepo.GetNPCById(targetId);
+                if (staticNPCJson != null)
+                    foundtarget = NPCPosMap.FindNearestStaticNPC(staticNPCJson.archetype, levelName, mPlayer.Position,
+                        ref targetlevel, ref targetpos);
+            }
         }
 
         if (!foundtarget)
@@ -2164,17 +2245,24 @@ public class QuestClientController
         {
             mPlayer.Idle();
             PartyFollowTarget.Pause(false);
+            BotStateController.Instance.Quest();
 
             if (levelName == targetlevel)
             {
                 if (isCombat)
                 {
                     mPlayer.PathFindToTarget(targetpos, -1, 0, false, false, () => {
-                        BotStateController.Instance.CombatQuest();
+                        BotStateController.Instance.CombatQuest(questId, targetId);
                     });
                 }
+                else if (type == (byte)QuestObjectiveType.Guide)
+                {
+                    mPlayer.ProceedToTarget(targetpos, targetId, CallBackAction.None);
+                }
                 else
+                {
                     mPlayer.ProceedToTarget(targetpos, targetId, CallBackAction.Interact);
+                }
             }
             else
             {
@@ -2255,6 +2343,9 @@ public class QuestClientController
                         break;
                     case QuestObjectiveType.Interact:
                         targetid = objectiveJson.para3;
+                        break;
+                    case QuestObjectiveType.Guide:
+                        targetid = objectiveJson.para1;
                         break;
                 }
             }
@@ -2456,7 +2547,7 @@ public class QuestClientController
 
     private void CheckNewDestinyQuest(CurrentQuestData newQuestData, CurrentQuestData oldQuestData)
     {
-        if (newQuestData != null && (newQuestData.Status == (byte)QuestStatus.DestinyEffect || newQuestData.Status == (byte)QuestStatus.DestinyEffectWithEvent) && oldQuestData == null)
+        if (newQuestData != null && (newQuestData.Status == (byte)QuestStatus.DestinyEffect || newQuestData.Status == (byte)QuestStatus.DestinyEffectWithEvent))
         {
             QuestJson questJson = QuestRepo.GetQuestByID(newQuestData.QuestId);
             if (questJson != null && questJson.showae)
@@ -2485,6 +2576,14 @@ public class QuestClientController
             }
             mQuestTriggerController.RefreshNPCForQuest();
         }
+
+        if (mQuestGuideController != null)
+        {
+            if (newQuestData != null)
+            {
+                mQuestGuideController.UpdateOngoingQuest(newQuestData);
+            }
+        }
     }
 
     public void RemoveQuest(int questid)
@@ -2493,6 +2592,7 @@ public class QuestClientController
         {
             mQuestTriggerController.NewCompletedQuest(questid);
             mQuestTriggerController.RefreshNPCForQuest();
+            mQuestGuideController.NewCompletedQuest(questid);
         }
     }
 
@@ -2522,6 +2622,7 @@ public class QuestClientController
             mQuestTriggerController.AddedCompletedList(added);
             mQuestTriggerController.RemovedCompletedList(removed);
             mQuestTriggerController.RefreshNPCForQuest();
+            mQuestGuideController.AddedCompletedList(added);
         }
     }
 
@@ -2644,17 +2745,7 @@ public class QuestClientController
 
     public void AddNewDialogue(StaticNPCGhost npc, List<int> questlist, Dictionary<int, int> functionlist, List<int> lockedlist)
     {
-        mQuestDialogueController.OpenQuestFunctionDialogue(npc, questlist, functionlist);
-    }
-
-    public void AddNewDialogue(StaticNPCGhost npc, List<int> questlist, List<int> lockedlist)
-    {
-        mQuestDialogueController.OpenQuestSelectionDialogue(npc, questlist);
-    }
-
-    public void AddNewDialogue(StaticNPCGhost npc, Dictionary<int, int> functionlist)
-    {
-        mQuestDialogueController.OpenFunctionSelectionDialogue(npc, functionlist);
+        mQuestDialogueController.OpenSelectionDialogue(npc, questlist, functionlist, lockedlist);
     }
 
     public void AddNewDialogue(StaticNPCGhost npc, bool completedall)
@@ -2703,5 +2794,50 @@ public class QuestClientController
             }
         }
         return -1;
+    }
+
+    public void UpdateCompanionData(string data)
+    {
+        if (data == "null")
+        {
+            GameInfo.mCompanionQuestStatus = new Dictionary<int, int>();
+        }
+        else
+        {
+            string[] values = data.Split(':');
+            if (values.Length >= 2)
+            {
+                int companionid = -1;
+                int questid = -1;
+                int.TryParse(values[0], out companionid);
+                int.TryParse(values[1], out questid);
+                GameInfo.mCompanionQuestStatus = new Dictionary<int, int>();
+                GameInfo.mCompanionQuestStatus.Add(questid, companionid);
+            }
+        }
+    }
+
+    public int GetCompanionId()
+    {
+        foreach (KeyValuePair<int, int> entry in GameInfo.mCompanionQuestStatus)
+        {
+            return entry.Value;
+        }
+        return -1;
+    }
+
+    public bool IsAdventureLocked(int questid)
+    {
+        return mLockedAdventureQuest.Contains(questid);
+    }
+
+    public QuestRequirementStatus GetQuestRequirementStatus(int questid)
+    {
+        return mQuestRequirementController.GetTriggerQuestRequirementStatus(questid);
+    }
+
+    public string GetRequirementText(int questid)
+    {
+        return mQuestRequirementController.GetRequirementText(questid);
     }
 }

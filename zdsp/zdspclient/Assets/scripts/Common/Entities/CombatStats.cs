@@ -588,7 +588,7 @@ namespace Zealot.Common.Entities
 
         
 
-        private class AbsorbDamageBonusField : CombatStatsField
+        protected class AbsorbDamageBonusField : CombatStatsField
         {
             public AbsorbDamageBonusField()
             {
@@ -597,7 +597,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SimpleField : CombatStatsField
+        protected class SimpleField : CombatStatsField
         {
             public SimpleField()
             {
@@ -608,7 +608,7 @@ namespace Zealot.Common.Entities
 
         // Aditional Stats
         // Basics
-        private class StrengthBase : CombatStatsField
+        protected class StrengthBase : CombatStatsField
         {
             public StrengthBase()
             {
@@ -617,7 +617,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class StrengthBonus : CombatStatsField
+        protected class StrengthBonus : CombatStatsField
         {
             public StrengthBonus()
             {
@@ -626,7 +626,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class StrengthPercBonus : CombatStatsField
+        protected class StrengthPercBonus : CombatStatsField
         {
             public StrengthPercBonus()
             {
@@ -635,7 +635,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class StrengthBonus_NoScore : CombatStatsField
+        protected class StrengthBonus_NoScore : CombatStatsField
         {
             public StrengthBonus_NoScore()
             {
@@ -644,7 +644,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class StrengthPercBonus_NoScore : CombatStatsField
+        protected class StrengthPercBonus_NoScore : CombatStatsField
         {
             public StrengthPercBonus_NoScore()
             {
@@ -653,12 +653,12 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Strength : CombatStatsField
+        protected class Strength : CombatStatsField
         {
             public Strength()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.CombatScore };
+                children = new FieldName[] { FieldName.IgnoreArmorBase, FieldName.CombatScore };
             }
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
@@ -675,7 +675,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AgilityBase : CombatStatsField
+        protected class AgilityBase : CombatStatsField
         {
             public AgilityBase()
             {
@@ -684,7 +684,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AgilityBonus : CombatStatsField
+        protected class AgilityBonus : CombatStatsField
         {
             public AgilityBonus()
             {
@@ -693,7 +693,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AgilityPercBonus : CombatStatsField
+        protected class AgilityPercBonus : CombatStatsField
         {
             public AgilityPercBonus()
             {
@@ -702,7 +702,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AgilityBonus_NoScore : CombatStatsField
+        protected class AgilityBonus_NoScore : CombatStatsField
         {
             public AgilityBonus_NoScore()
             {
@@ -711,7 +711,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AgilityPercBonus_NoScore : CombatStatsField
+        protected class AgilityPercBonus_NoScore : CombatStatsField
         {
             public AgilityPercBonus_NoScore()
             {
@@ -720,12 +720,12 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Agility : CombatStatsField
+        protected class Agility : CombatStatsField
         {
             public Agility()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.CombatScore };
+                children = new FieldName[] { FieldName.AttackSpeed, FieldName.Evasion, FieldName.CombatScore };
             }
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
@@ -743,7 +743,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DexterityBase : CombatStatsField
+        protected class DexterityBase : CombatStatsField
         {
             public DexterityBase()
             {
@@ -752,7 +752,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DexterityBonus : CombatStatsField
+        protected class DexterityBonus : CombatStatsField
         {
             public DexterityBonus()
             {
@@ -761,7 +761,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DexterityPercBonus : CombatStatsField
+        protected class DexterityPercBonus : CombatStatsField
         {
             public DexterityPercBonus()
             {
@@ -770,7 +770,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DexterityBonus_NoScore : CombatStatsField
+        protected class DexterityBonus_NoScore : CombatStatsField
         {
             public DexterityBonus_NoScore()
             {
@@ -779,7 +779,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DexterityPercBonus_NoScore : CombatStatsField
+        protected class DexterityPercBonus_NoScore : CombatStatsField
         {
             public DexterityPercBonus_NoScore()
             {
@@ -788,12 +788,12 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Dexterity : CombatStatsField
+        protected class Dexterity : CombatStatsField
         {
             public Dexterity()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.CombatScore };
+                children = new FieldName[] { FieldName.CastSpeed, FieldName.Accuracy, FieldName.CombatScore };
             }
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
@@ -811,7 +811,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ConstitutionBase : CombatStatsField
+        protected class ConstitutionBase : CombatStatsField
         {
             public ConstitutionBase()
             {
@@ -820,7 +820,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ConstitutionBonus : CombatStatsField
+        protected class ConstitutionBonus : CombatStatsField
         {
             public ConstitutionBonus()
             {
@@ -829,7 +829,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ConstitutionPercBonus : CombatStatsField
+        protected class ConstitutionPercBonus : CombatStatsField
         {
             public ConstitutionPercBonus()
             {
@@ -838,7 +838,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ConstitutionBonus_NoScore : CombatStatsField
+        protected class ConstitutionBonus_NoScore : CombatStatsField
         {
             public ConstitutionBonus_NoScore()
             {
@@ -847,7 +847,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ConstitutionPercBonus_NoScore : CombatStatsField
+        protected class ConstitutionPercBonus_NoScore : CombatStatsField
         {
             public ConstitutionPercBonus_NoScore()
             {
@@ -856,12 +856,12 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Constitution : CombatStatsField
+        protected class Constitution : CombatStatsField
         {
             public Constitution()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.CombatScore };
+                children = new FieldName[] { FieldName.HealthMax, FieldName.HealthRegen, FieldName.CombatScore };
             }
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
@@ -879,7 +879,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IntelligenceBase : CombatStatsField
+        protected class IntelligenceBase : CombatStatsField
         {
             public IntelligenceBase()
             {
@@ -888,7 +888,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IntelligenceBonus : CombatStatsField
+        protected class IntelligenceBonus : CombatStatsField
         {
             public IntelligenceBonus()
             {
@@ -897,16 +897,16 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IntelligencePercBonus : CombatStatsField
+        protected class IntelligencePercBonus : CombatStatsField
         {
             public IntelligencePercBonus()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.Intelligence, FieldName.ManaRegen };
+                children = new FieldName[] { FieldName.Intelligence };
             }
         }
 
-        private class IntelligenceBonus_NoScore : CombatStatsField
+        protected class IntelligenceBonus_NoScore : CombatStatsField
         {
             public IntelligenceBonus_NoScore()
             {
@@ -915,7 +915,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IntelligencePercBonus_NoScore : CombatStatsField
+        protected class IntelligencePercBonus_NoScore : CombatStatsField
         {
             public IntelligencePercBonus_NoScore()
             {
@@ -924,12 +924,12 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Intelligence : CombatStatsField
+        protected class Intelligence : CombatStatsField
         {
             public Intelligence()
             {
                 fieldValue = 0;
-                children = new FieldName[] { FieldName.CombatScore, FieldName.ManaRegen };
+                children = new FieldName[] { FieldName.ManaMax, FieldName.ManaRegen };
             }
 
             public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
@@ -947,7 +947,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AttackSpeedBase : CombatStatsField
+        protected class AttackSpeedBase : CombatStatsField
         {
             public AttackSpeedBase()
             {
@@ -956,7 +956,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AttackSpeedBuff : CombatStatsField
+        protected class AttackSpeedBuff : CombatStatsField
         {
             public AttackSpeedBuff()
             {
@@ -965,7 +965,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AttackSpeedDebuff : CombatStatsField
+        protected class AttackSpeedDebuff : CombatStatsField
         {
             public AttackSpeedDebuff()
             {
@@ -974,7 +974,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AttackSpeed : CombatStatsField
+        protected class AttackSpeed : CombatStatsField
         {
             public AttackSpeed()
             {
@@ -997,7 +997,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CastSpeedBase : CombatStatsField
+        protected class CastSpeedBase : CombatStatsField
         {
             public CastSpeedBase()
             {
@@ -1006,7 +1006,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CastSpeedBuff : CombatStatsField
+        protected class CastSpeedBuff : CombatStatsField
         {
             public CastSpeedBuff()
             {
@@ -1015,7 +1015,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CastSpeedDebuff : CombatStatsField
+        protected class CastSpeedDebuff : CombatStatsField
         {
             public CastSpeedDebuff()
             {
@@ -1024,7 +1024,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CastSpeed : CombatStatsField
+        protected class CastSpeed : CombatStatsField
         {
             public CastSpeed()
             {
@@ -1042,7 +1042,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ExpBonus : CombatStatsField
+        protected class ExpBonus : CombatStatsField
         {
             public ExpBonus()
             {
@@ -1051,7 +1051,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MoveSpeedBase : CombatStatsField
+        protected class MoveSpeedBase : CombatStatsField
         {
             public MoveSpeedBase()
             {
@@ -1060,7 +1060,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MoveSpeedBuff : CombatStatsField
+        protected class MoveSpeedBuff : CombatStatsField
         {
             public MoveSpeedBuff()
             {
@@ -1069,7 +1069,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MoveSpeedDebuff : CombatStatsField
+        protected class MoveSpeedDebuff : CombatStatsField
         {
             public MoveSpeedDebuff()
             {
@@ -1078,7 +1078,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MoveSpeed : CombatStatsField
+        protected class MoveSpeed : CombatStatsField
         {
             public MoveSpeed()
             {
@@ -1101,7 +1101,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ElementWeapon : CombatStatsField
+        protected class ElementWeapon : CombatStatsField
         {
             public ElementWeapon()
             {
@@ -1110,7 +1110,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ElementSideEffect : CombatStatsField
+        protected class ElementSideEffect : CombatStatsField
         {
             public ElementSideEffect()
             {
@@ -1119,7 +1119,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Element : CombatStatsField
+        protected class Element : CombatStatsField
         {
             public Element()
             {
@@ -1134,7 +1134,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingRejuvenation : CombatStatsField
+        protected class HealingRejuvenation : CombatStatsField
         {
             public HealingRejuvenation()
             {
@@ -1143,7 +1143,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingPoint : CombatStatsField
+        protected class HealingPoint : CombatStatsField
         {
             public HealingPoint()
             {
@@ -1152,7 +1152,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingPointDebuff : CombatStatsField
+        protected class HealingPointDebuff : CombatStatsField
         {
             public HealingPointDebuff()
             {
@@ -1161,7 +1161,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingEffect : CombatStatsField
+        protected class HealingEffect : CombatStatsField
         {
             public HealingEffect()
             {
@@ -1170,7 +1170,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingEffectDebuff : CombatStatsField
+        protected class HealingEffectDebuff : CombatStatsField
         {
             public HealingEffectDebuff()
             {
@@ -1179,7 +1179,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingBuff : CombatStatsField
+        protected class HealingBuff : CombatStatsField
         {
             public HealingBuff()
             {
@@ -1188,7 +1188,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealingDebuff : CombatStatsField
+        protected class HealingDebuff : CombatStatsField
         {
             public HealingDebuff()
             {
@@ -1197,7 +1197,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Health : CombatStatsField
+        protected class Health : CombatStatsField
         {
             public Health()
             {
@@ -1206,7 +1206,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthMax : CombatStatsField
+        protected class HealthMax : CombatStatsField
         {
             public HealthMax()
             {
@@ -1238,7 +1238,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthBase : CombatStatsField
+        protected class HealthBase : CombatStatsField
         {
             public HealthBase()
             {
@@ -1247,7 +1247,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthBonus : CombatStatsField
+        protected class HealthBonus : CombatStatsField
         {
             public HealthBonus()
             {
@@ -1256,7 +1256,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthPercentBonus : CombatStatsField
+        protected class HealthPercentBonus : CombatStatsField
         {
             public HealthPercentBonus()
             {
@@ -1265,7 +1265,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthRegenBonus : CombatStatsField
+        protected class HealthRegenBonus : CombatStatsField
         {
             public HealthRegenBonus()
             {
@@ -1274,7 +1274,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthRegenPercBonus : CombatStatsField
+        protected class HealthRegenPercBonus : CombatStatsField
         {
             public HealthRegenPercBonus()
             {
@@ -1283,7 +1283,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthRegenBonus_NoScore : CombatStatsField
+        protected class HealthRegenBonus_NoScore : CombatStatsField
         {
             public HealthRegenBonus_NoScore()
             {
@@ -1292,7 +1292,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthRegenPercBonus_NoScore : CombatStatsField
+        protected class HealthRegenPercBonus_NoScore : CombatStatsField
         {
             public HealthRegenPercBonus_NoScore()
             {
@@ -1301,7 +1301,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class HealthRegen : CombatStatsField
+        protected class HealthRegen : CombatStatsField
         {
             public HealthRegen()
             {
@@ -1325,7 +1325,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaBase : CombatStatsField
+        protected class ManaBase : CombatStatsField
         {
             public ManaBase()
             {
@@ -1334,7 +1334,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaBonus : CombatStatsField
+        protected class ManaBonus : CombatStatsField
         {
             public ManaBonus()
             {
@@ -1343,7 +1343,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaPercBonus : CombatStatsField
+        protected class ManaPercBonus : CombatStatsField
         {
             public ManaPercBonus()
             {
@@ -1352,7 +1352,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaBonus_NoScore : CombatStatsField
+        protected class ManaBonus_NoScore : CombatStatsField
         {
             public ManaBonus_NoScore()
             {
@@ -1361,7 +1361,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaPercBonus_NoScore : CombatStatsField
+        protected class ManaPercBonus_NoScore : CombatStatsField
         {
             public ManaPercBonus_NoScore()
             {
@@ -1370,7 +1370,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Mana : CombatStatsField
+        protected class Mana : CombatStatsField
         {
             public Mana()
             {
@@ -1379,7 +1379,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaMax : CombatStatsField
+        protected class ManaMax : CombatStatsField
         {
             public ManaMax()
             {
@@ -1410,7 +1410,7 @@ namespace Zealot.Common.Entities
         }
 
 
-        private class ManaRegenBonus : CombatStatsField
+        protected class ManaRegenBonus : CombatStatsField
         {
             public ManaRegenBonus()
             {
@@ -1419,7 +1419,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaRegenPercBonus : CombatStatsField
+        protected class ManaRegenPercBonus : CombatStatsField
         {
             public ManaRegenPercBonus()
             {
@@ -1428,7 +1428,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaRegenBonus_NoScoe : CombatStatsField
+        protected class ManaRegenBonus_NoScoe : CombatStatsField
         {
             public ManaRegenBonus_NoScoe()
             {
@@ -1437,7 +1437,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaRegenPercBonus_NoScore : CombatStatsField
+        protected class ManaRegenPercBonus_NoScore : CombatStatsField
         {
             public ManaRegenPercBonus_NoScore()
             {
@@ -1446,7 +1446,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaRegen : CombatStatsField
+        protected class ManaRegen : CombatStatsField
         {
             public ManaRegen()
             {
@@ -1470,7 +1470,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaReduceBonus : CombatStatsField
+        protected class ManaReduceBonus : CombatStatsField
         {
             public ManaReduceBonus()
             {
@@ -1486,7 +1486,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ManaReducePercBonus : CombatStatsField
+        protected class ManaReducePercBonus : CombatStatsField
         {
             public ManaReducePercBonus()
             {
@@ -1501,7 +1501,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EnergyShield : CombatStatsField
+        protected class EnergyShield : CombatStatsField
         {
             public EnergyShield()
             {
@@ -1516,7 +1516,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WeaponAttackBase : CombatStatsField
+        protected class WeaponAttackBase : CombatStatsField
         {
             public WeaponAttackBase()
             {
@@ -1525,7 +1525,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WeaponAttackBonus : CombatStatsField
+        protected class WeaponAttackBonus : CombatStatsField
         {
             public WeaponAttackBonus()
             {
@@ -1534,7 +1534,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WeaponAttackPercBonus : CombatStatsField
+        protected class WeaponAttackPercBonus : CombatStatsField
         {
             public WeaponAttackPercBonus()
             {
@@ -1543,7 +1543,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WeaponAttack : CombatStatsField
+        protected class WeaponAttack : CombatStatsField
         {
             public WeaponAttack()
             {
@@ -1568,7 +1568,7 @@ namespace Zealot.Common.Entities
 
         //-----------------------------Attack----------------------------------------
 
-        private class AttackBonus : CombatStatsField
+        protected class AttackBonus : CombatStatsField
         {
             public AttackBonus()
             {
@@ -1577,7 +1577,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AttackPercentBonus : CombatStatsField
+        protected class AttackPercentBonus : CombatStatsField
         {
             public AttackPercentBonus()
             {
@@ -1585,7 +1585,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Attack : CombatStatsField
+        protected class Attack : CombatStatsField
         {
             public Attack()
             {
@@ -1608,7 +1608,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AttackBase : CombatStatsField
+        protected class AttackBase : CombatStatsField
         {
             public AttackBase()
             {
@@ -1618,7 +1618,7 @@ namespace Zealot.Common.Entities
         }
 
         //-----------------------------Armor----------------------------------------
-        private class ArmorBase : CombatStatsField
+        protected class ArmorBase : CombatStatsField
         {
             public ArmorBase()
             {
@@ -1631,7 +1631,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ArmorItem : CombatStatsField
+        protected class ArmorItem : CombatStatsField
         {
             public ArmorItem()
             {
@@ -1640,7 +1640,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ArmorBonus : CombatStatsField
+        protected class ArmorBonus : CombatStatsField
         {
             public ArmorBonus()
             {
@@ -1649,7 +1649,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class ArmorPercBonus : CombatStatsField
+        protected class ArmorPercBonus : CombatStatsField
         {
             public ArmorPercBonus()
             {
@@ -1658,7 +1658,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Armor : CombatStatsField
+        protected class Armor : CombatStatsField
         {
             public Armor()
             {
@@ -1680,7 +1680,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IgnoreArmorBonus : CombatStatsField
+        protected class IgnoreArmorBonus : CombatStatsField
         {
             public IgnoreArmorBonus()
             {
@@ -1689,7 +1689,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IgnoreArmorBase : CombatStatsField
+        protected class IgnoreArmorBase : CombatStatsField
         {
             public IgnoreArmorBase()
             {
@@ -1708,7 +1708,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IgnoreArmor : CombatStatsField
+        protected class IgnoreArmor : CombatStatsField
         {
             public IgnoreArmor()
             {
@@ -1723,7 +1723,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class BlockRate : CombatStatsField
+        protected class BlockRate : CombatStatsField
         {
             public BlockRate()
             {
@@ -1732,7 +1732,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class BlockValueBonus : CombatStatsField
+        protected class BlockValueBonus : CombatStatsField
         {
             public BlockValueBonus()
             {
@@ -1741,7 +1741,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class BlockValuePercBonus : CombatStatsField
+        protected class BlockValuePercBonus : CombatStatsField
         {
             public BlockValuePercBonus()
             {
@@ -1750,7 +1750,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class BlockValueBonus_NoScore : CombatStatsField
+        protected class BlockValueBonus_NoScore : CombatStatsField
         {
             public BlockValueBonus_NoScore()
             {
@@ -1759,7 +1759,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class BlockValuePercBonus_NoScore : CombatStatsField
+        protected class BlockValuePercBonus_NoScore : CombatStatsField
         {
             public BlockValuePercBonus_NoScore()
             {
@@ -1768,7 +1768,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class BlockValue : CombatStatsField
+        protected class BlockValue : CombatStatsField
         {
             public BlockValue()
             {
@@ -1791,7 +1791,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AbsorbDamageField : CombatStatsField
+        protected class AbsorbDamageField : CombatStatsField
         {
             public AbsorbDamageField()
             {
@@ -1811,7 +1811,7 @@ namespace Zealot.Common.Entities
 
         //--------------------
         // Unused
-        private class AccuracyBase : CombatStatsField
+        protected class AccuracyBase : CombatStatsField
         {
             public AccuracyBase()
             {
@@ -1819,7 +1819,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AccuracyBonus : CombatStatsField
+        protected class AccuracyBonus : CombatStatsField
         {
             public AccuracyBonus()
             {
@@ -1827,7 +1827,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AccuracyPercBonus : CombatStatsField
+        protected class AccuracyPercBonus : CombatStatsField
         {
             public AccuracyPercBonus()
             {
@@ -1835,7 +1835,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AccuracyBonus_NoScore : CombatStatsField
+        protected class AccuracyBonus_NoScore : CombatStatsField
         {
             public AccuracyBonus_NoScore()
             {
@@ -1844,7 +1844,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AccuracyPercBonus_NoScore : CombatStatsField
+        protected class AccuracyPercBonus_NoScore : CombatStatsField
         {
             public AccuracyPercBonus_NoScore()
             {
@@ -1853,7 +1853,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Accuracy : CombatStatsField
+        protected class Accuracy : CombatStatsField
         {
             public Accuracy()
             {
@@ -1865,20 +1865,18 @@ namespace Zealot.Common.Entities
                 float accu = fields[(int)FieldName.AccuracyBonus].GetValue();
                 float accu_mod = fields[(int)FieldName.AccuracyPercBonus].GetValue() * 0.01f;
                 if (actorSynStats != null)
-                    fieldValue = (int)((80 + accu + fields[(int)FieldName.Dexterity].GetValue() + actorSynStats.Level/*+ skill*/) * (1 + accu_mod));
-                else
-                    fieldValue = (int)fields[(int)FieldName.AccuracyBase].GetValue();  // For monster use
+                    fieldValue = (int)((80 + accu + fields[(int)FieldName.Dexterity].GetValue() + actorSynStats.Level));// + GameConstantRepo.GetConstantInt("SkillAccuracy")) * (1 + accu_mod));
                 if (localCombatStats != null)
                 {
                     accu -= fields[(int)FieldName.AccuracyBonus_NoScore].GetValue();
                     accu_mod -= fields[(int)FieldName.AccuracyPercBonus_NoScore].GetValue() * 0.01f;
-                    localCombatStats.Accuracy = (int)((80 + accu + fields[(int)FieldName.Dexterity].GetValue() + actorSynStats.Level/*+ skill*/) * (1 + accu_mod));
+                    localCombatStats.Accuracy = (int)((80 + accu + fields[(int)FieldName.Dexterity].GetValue() + actorSynStats.Level) * (1 + accu_mod));
                 }
             }
         }
 
         //--------------------
-        private class EvasionBase : CombatStatsField
+        protected class EvasionBase : CombatStatsField
         {
             public EvasionBase()
             {
@@ -1886,7 +1884,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EvasionBonus : CombatStatsField
+        protected class EvasionBonus : CombatStatsField
         {
             public EvasionBonus()
             {
@@ -1894,7 +1892,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EvasionPercBonus : CombatStatsField
+        protected class EvasionPercBonus : CombatStatsField
         {
             public EvasionPercBonus()
             {
@@ -1902,7 +1900,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Evasion : CombatStatsField
+        protected class Evasion : CombatStatsField
         {
             public Evasion()
             {
@@ -1932,7 +1930,7 @@ namespace Zealot.Common.Entities
 
         //--------------------
         // Unused
-        private class CriticalBase : CombatStatsField
+        protected class CriticalBase : CombatStatsField
         {
             public CriticalBase()
             {
@@ -1940,7 +1938,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CriticalBonus : CombatStatsField
+        protected class CriticalBonus : CombatStatsField
         {
             public CriticalBonus()
             {
@@ -1948,7 +1946,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CriticalPercBonus : CombatStatsField
+        protected class CriticalPercBonus : CombatStatsField
         {
             public CriticalPercBonus()
             {
@@ -1956,7 +1954,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Critical : CombatStatsField
+        protected class Critical : CombatStatsField
         {
             public Critical()
             {
@@ -1980,7 +1978,7 @@ namespace Zealot.Common.Entities
 
         //--------------------
         // unused
-        private class CocriticalBase : CombatStatsField
+        protected class CocriticalBase : CombatStatsField
         {
             public CocriticalBase()
             {
@@ -1988,7 +1986,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CocriticalBonus : CombatStatsField
+        protected class CocriticalBonus : CombatStatsField
         {
             public CocriticalBonus()
             {
@@ -1996,7 +1994,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CocriticalPercBonus : CombatStatsField
+        protected class CocriticalPercBonus : CombatStatsField
         {
             public CocriticalPercBonus()
             {
@@ -2004,7 +2002,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class Cocritical : CombatStatsField
+        protected class Cocritical : CombatStatsField
         {
             public Cocritical()
             {
@@ -2028,7 +2026,7 @@ namespace Zealot.Common.Entities
 
         //--------------------
         // Unused
-        private class CriticalDamageBase : CombatStatsField
+        protected class CriticalDamageBase : CombatStatsField
         {
             public CriticalDamageBase()
             {
@@ -2036,7 +2034,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CriticalDamageBonus : CombatStatsField
+        protected class CriticalDamageBonus : CombatStatsField
         {
             public CriticalDamageBonus()
             {
@@ -2045,7 +2043,7 @@ namespace Zealot.Common.Entities
         }
 
         // Unused
-        private class CriticalDamagePercBonus : CombatStatsField
+        protected class CriticalDamagePercBonus : CombatStatsField
         {
             public CriticalDamagePercBonus()
             {
@@ -2053,7 +2051,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class CriticalDamage : CombatStatsField
+        protected class CriticalDamage : CombatStatsField
         {
             public CriticalDamage()
             {
@@ -2070,7 +2068,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SmashDamageBonus : CombatStatsField
+        protected class SmashDamageBonus : CombatStatsField
         {
             public SmashDamageBonus()
             {
@@ -2079,7 +2077,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SmashDamagePercBonus : CombatStatsField
+        protected class SmashDamagePercBonus : CombatStatsField
         {
             public SmashDamagePercBonus()
             {
@@ -2088,7 +2086,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SmashDamage : CombatStatsField
+        protected class SmashDamage : CombatStatsField
         {
             public SmashDamage()
             {
@@ -2111,7 +2109,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SliceDamageBonus : CombatStatsField
+        protected class SliceDamageBonus : CombatStatsField
         {
             public SliceDamageBonus()
             {
@@ -2120,7 +2118,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SliceDamagePercBonus : CombatStatsField
+        protected class SliceDamagePercBonus : CombatStatsField
         {
             public SliceDamagePercBonus()
             {
@@ -2129,7 +2127,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SliceDamage : CombatStatsField
+        protected class SliceDamage : CombatStatsField
         {
             public SliceDamage()
             {
@@ -2152,7 +2150,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class PierceDamageBonus : CombatStatsField
+        protected class PierceDamageBonus : CombatStatsField
         {
             public PierceDamageBonus()
             {
@@ -2161,7 +2159,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class PierceDamagePercBonus : CombatStatsField
+        protected class PierceDamagePercBonus : CombatStatsField
         {
             public PierceDamagePercBonus()
             {
@@ -2170,7 +2168,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class PierceDamage : CombatStatsField
+        protected class PierceDamage : CombatStatsField
         {
             public PierceDamage()
             {
@@ -2193,7 +2191,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SmashDefenseBonus : CombatStatsField
+        protected class SmashDefenseBonus : CombatStatsField
         {
             public SmashDefenseBonus()
             {
@@ -2202,7 +2200,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SmashDefensePercBonus : CombatStatsField
+        protected class SmashDefensePercBonus : CombatStatsField
         {
             public SmashDefensePercBonus()
             {
@@ -2211,7 +2209,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SmashDefense : CombatStatsField
+        protected class SmashDefense : CombatStatsField
         {
             public SmashDefense()
             {
@@ -2238,7 +2236,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SliceDefenseBonus : CombatStatsField
+        protected class SliceDefenseBonus : CombatStatsField
         {
             public SliceDefenseBonus()
             {
@@ -2247,7 +2245,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SliceDefensePercBonus : CombatStatsField
+        protected class SliceDefensePercBonus : CombatStatsField
         {
             public SliceDefensePercBonus()
             {
@@ -2256,7 +2254,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class SliceDefense : CombatStatsField
+        protected class SliceDefense : CombatStatsField
         {
             public SliceDefense()
             {
@@ -2283,7 +2281,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class PierceDefenseBonus : CombatStatsField
+        protected class PierceDefenseBonus : CombatStatsField
         {
             public PierceDefenseBonus()
             {
@@ -2292,7 +2290,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class PierceDefensePercBonus : CombatStatsField
+        protected class PierceDefensePercBonus : CombatStatsField
         {
             public PierceDefensePercBonus()
             {
@@ -2301,7 +2299,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class PierceDefense : CombatStatsField
+        protected class PierceDefense : CombatStatsField
         {
             public PierceDefense()
             {
@@ -2328,7 +2326,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDamageBonus : CombatStatsField
+        protected class NullDamageBonus : CombatStatsField
         {
             public NullDamageBonus()
             {
@@ -2337,7 +2335,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDamagePercBonus : CombatStatsField
+        protected class NullDamagePercBonus : CombatStatsField
         {
             public NullDamagePercBonus()
             {
@@ -2346,7 +2344,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDamage : CombatStatsField
+        protected class NullDamage : CombatStatsField
         {
             public NullDamage()
             {
@@ -2369,7 +2367,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDamageBonus : CombatStatsField
+        protected class MetalDamageBonus : CombatStatsField
         {
             public MetalDamageBonus()
             {
@@ -2378,7 +2376,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDamagePercBonus : CombatStatsField
+        protected class MetalDamagePercBonus : CombatStatsField
         {
             public MetalDamagePercBonus()
             {
@@ -2387,7 +2385,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDamage : CombatStatsField
+        protected class MetalDamage : CombatStatsField
         {
             public MetalDamage()
             {
@@ -2410,7 +2408,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDamageBonus : CombatStatsField
+        protected class WoodDamageBonus : CombatStatsField
         {
             public WoodDamageBonus()
             {
@@ -2419,7 +2417,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDamagePercBonus : CombatStatsField
+        protected class WoodDamagePercBonus : CombatStatsField
         {
             public WoodDamagePercBonus()
             {
@@ -2428,7 +2426,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDamage : CombatStatsField
+        protected class WoodDamage : CombatStatsField
         {
             public WoodDamage()
             {
@@ -2451,7 +2449,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDamageBonus : CombatStatsField
+        protected class EarthDamageBonus : CombatStatsField
         {
             public EarthDamageBonus()
             {
@@ -2460,7 +2458,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDamagePercBonus : CombatStatsField
+        protected class EarthDamagePercBonus : CombatStatsField
         {
             public EarthDamagePercBonus()
             {
@@ -2469,7 +2467,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDamage : CombatStatsField
+        protected class EarthDamage : CombatStatsField
         {
             public EarthDamage()
             {
@@ -2492,7 +2490,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDamageBonus : CombatStatsField
+        protected class WaterDamageBonus : CombatStatsField
         {
             public WaterDamageBonus()
             {
@@ -2501,7 +2499,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDamagePercBonus : CombatStatsField
+        protected class WaterDamagePercBonus : CombatStatsField
         {
             public WaterDamagePercBonus()
             {
@@ -2510,7 +2508,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDamage : CombatStatsField
+        protected class WaterDamage : CombatStatsField
         {
             public WaterDamage()
             {
@@ -2533,7 +2531,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDamageBonus : CombatStatsField
+        protected class FireDamageBonus : CombatStatsField
         {
             public FireDamageBonus()
             {
@@ -2542,7 +2540,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDamagePercBonus : CombatStatsField
+        protected class FireDamagePercBonus : CombatStatsField
         {
             public FireDamagePercBonus()
             {
@@ -2551,7 +2549,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDamage : CombatStatsField
+        protected class FireDamage : CombatStatsField
         {
             public FireDamage()
             {
@@ -2574,7 +2572,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDefenseBonus : CombatStatsField
+        protected class NullDefenseBonus : CombatStatsField
         {
             public NullDefenseBonus()
             {
@@ -2583,7 +2581,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDefensePercBonus : CombatStatsField
+        protected class NullDefensePercBonus : CombatStatsField
         {
             public NullDefensePercBonus()
             {
@@ -2592,7 +2590,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDefensePercBonus_NoScore : CombatStatsField
+        protected class NullDefensePercBonus_NoScore : CombatStatsField
         {
             public NullDefensePercBonus_NoScore()
             {
@@ -2601,7 +2599,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDefenseBonus_NoScore : CombatStatsField
+        protected class NullDefenseBonus_NoScore : CombatStatsField
         {
             public NullDefenseBonus_NoScore()
             {
@@ -2610,7 +2608,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class NullDefense : CombatStatsField
+        protected class NullDefense : CombatStatsField
         {
             public NullDefense()
             {
@@ -2637,7 +2635,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDefenseBonus : CombatStatsField
+        protected class MetalDefenseBonus : CombatStatsField
         {
             public MetalDefenseBonus()
             {
@@ -2646,7 +2644,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDefensePercBonus : CombatStatsField
+        protected class MetalDefensePercBonus : CombatStatsField
         {
             public MetalDefensePercBonus()
             {
@@ -2655,7 +2653,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDefenseBonus_NoScore : CombatStatsField
+        protected class MetalDefenseBonus_NoScore : CombatStatsField
         {
             public MetalDefenseBonus_NoScore()
             {
@@ -2664,7 +2662,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDefensePercBonus_NoScore : CombatStatsField
+        protected class MetalDefensePercBonus_NoScore : CombatStatsField
         {
             public MetalDefensePercBonus_NoScore()
             {
@@ -2673,7 +2671,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class MetalDefense : CombatStatsField
+        protected class MetalDefense : CombatStatsField
         {
             public MetalDefense()
             {
@@ -2700,7 +2698,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDefenseBonus : CombatStatsField
+        protected class WoodDefenseBonus : CombatStatsField
         {
             public WoodDefenseBonus()
             {
@@ -2709,7 +2707,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDefensePercBonus : CombatStatsField
+        protected class WoodDefensePercBonus : CombatStatsField
         {
             public WoodDefensePercBonus()
             {
@@ -2718,7 +2716,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDefenseBonus_NoScore : CombatStatsField
+        protected class WoodDefenseBonus_NoScore : CombatStatsField
         {
             public WoodDefenseBonus_NoScore()
             {
@@ -2727,7 +2725,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDefensePercBonus_NoScore : CombatStatsField
+        protected class WoodDefensePercBonus_NoScore : CombatStatsField
         {
             public WoodDefensePercBonus_NoScore()
             {
@@ -2736,7 +2734,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WoodDefense : CombatStatsField
+        protected class WoodDefense : CombatStatsField
         {
             public WoodDefense()
             {
@@ -2763,7 +2761,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDefenseBonus : CombatStatsField
+        protected class EarthDefenseBonus : CombatStatsField
         {
             public EarthDefenseBonus()
             {
@@ -2772,7 +2770,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDefensePercBonus : CombatStatsField
+        protected class EarthDefensePercBonus : CombatStatsField
         {
             public EarthDefensePercBonus()
             {
@@ -2781,7 +2779,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDefenseBonus_NoScore : CombatStatsField
+        protected class EarthDefenseBonus_NoScore : CombatStatsField
         {
             public EarthDefenseBonus_NoScore()
             {
@@ -2790,7 +2788,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDefensePercBonus_NoScore : CombatStatsField
+        protected class EarthDefensePercBonus_NoScore : CombatStatsField
         {
             public EarthDefensePercBonus_NoScore()
             {
@@ -2799,7 +2797,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class EarthDefense : CombatStatsField
+        protected class EarthDefense : CombatStatsField
         {
             public EarthDefense()
             {
@@ -2826,7 +2824,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDefenseBonus : CombatStatsField
+        protected class WaterDefenseBonus : CombatStatsField
         {
             public WaterDefenseBonus()
             {
@@ -2835,7 +2833,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDefensePercBonus : CombatStatsField
+        protected class WaterDefensePercBonus : CombatStatsField
         {
             public WaterDefensePercBonus()
             {
@@ -2844,7 +2842,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDefenseBonus_NoScore : CombatStatsField
+        protected class WaterDefenseBonus_NoScore : CombatStatsField
         {
             public WaterDefenseBonus_NoScore()
             {
@@ -2853,7 +2851,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDefensePercBonus_NoScore : CombatStatsField
+        protected class WaterDefensePercBonus_NoScore : CombatStatsField
         {
             public WaterDefensePercBonus_NoScore()
             {
@@ -2862,7 +2860,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class WaterDefense : CombatStatsField
+        protected class WaterDefense : CombatStatsField
         {
             public WaterDefense()
             {
@@ -2889,7 +2887,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDefenseBonus : CombatStatsField
+        protected class FireDefenseBonus : CombatStatsField
         {
             public FireDefenseBonus()
             {
@@ -2898,7 +2896,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDefensePercBonus : CombatStatsField
+        protected class FireDefensePercBonus : CombatStatsField
         {
             public FireDefensePercBonus()
             {
@@ -2907,7 +2905,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDefenseBonus_NoScore : CombatStatsField
+        protected class FireDefenseBonus_NoScore : CombatStatsField
         {
             public FireDefenseBonus_NoScore()
             {
@@ -2916,7 +2914,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDefensePercBonus_NoScore : CombatStatsField
+        protected class FireDefensePercBonus_NoScore : CombatStatsField
         {
             public FireDefensePercBonus_NoScore()
             {
@@ -2925,7 +2923,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class FireDefense : CombatStatsField
+        protected class FireDefense : CombatStatsField
         {
             public FireDefense()
             {
@@ -2952,7 +2950,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDamageBonus : CombatStatsField
+        protected class VSHumanDamageBonus : CombatStatsField
         {
             public VSHumanDamageBonus()
             {
@@ -2961,7 +2959,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDamagePercBonus : CombatStatsField
+        protected class VSHumanDamagePercBonus : CombatStatsField
         {
             public VSHumanDamagePercBonus()
             {
@@ -2970,7 +2968,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDamageBonus_NoScore : CombatStatsField
+        protected class VSHumanDamageBonus_NoScore : CombatStatsField
         {
             public VSHumanDamageBonus_NoScore()
             {
@@ -2979,7 +2977,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDamagePercBonus_NoScore : CombatStatsField
+        protected class VSHumanDamagePercBonus_NoScore : CombatStatsField
         {
             public VSHumanDamagePercBonus_NoScore()
             {
@@ -2988,7 +2986,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDamage : CombatStatsField
+        protected class VSHumanDamage : CombatStatsField
         {
             public VSHumanDamage()
             {
@@ -3011,7 +3009,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDamageBonus : CombatStatsField
+        protected class VSZombieDamageBonus : CombatStatsField
         {
             public VSZombieDamageBonus()
             {
@@ -3020,7 +3018,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDamagePercBonus : CombatStatsField
+        protected class VSZombieDamagePercBonus : CombatStatsField
         {
             public VSZombieDamagePercBonus()
             {
@@ -3029,7 +3027,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDamageBonus_NoScore : CombatStatsField
+        protected class VSZombieDamageBonus_NoScore : CombatStatsField
         {
             public VSZombieDamageBonus_NoScore()
             {
@@ -3038,7 +3036,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDamagePercBonus_NoScore : CombatStatsField
+        protected class VSZombieDamagePercBonus_NoScore : CombatStatsField
         {
             public VSZombieDamagePercBonus_NoScore()
             {
@@ -3047,7 +3045,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDamage : CombatStatsField
+        protected class VSZombieDamage : CombatStatsField
         {
             public VSZombieDamage()
             {
@@ -3070,7 +3068,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDamageBonus : CombatStatsField
+        protected class VSVampireDamageBonus : CombatStatsField
         {
             public VSVampireDamageBonus()
             {
@@ -3079,7 +3077,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDamagePercBonus : CombatStatsField
+        protected class VSVampireDamagePercBonus : CombatStatsField
         {
             public VSVampireDamagePercBonus()
             {
@@ -3088,7 +3086,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDamageBonus_NoScore : CombatStatsField
+        protected class VSVampireDamageBonus_NoScore : CombatStatsField
         {
             public VSVampireDamageBonus_NoScore()
             {
@@ -3097,7 +3095,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDamagePercBonus_NoScore : CombatStatsField
+        protected class VSVampireDamagePercBonus_NoScore : CombatStatsField
         {
             public VSVampireDamagePercBonus_NoScore()
             {
@@ -3106,7 +3104,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDamage : CombatStatsField
+        protected class VSVampireDamage : CombatStatsField
         {
             public VSVampireDamage()
             {
@@ -3129,7 +3127,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDamageBonus : CombatStatsField
+        protected class VSBeastDamageBonus : CombatStatsField
         {
             public VSBeastDamageBonus()
             {
@@ -3138,7 +3136,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDamagePercBonus : CombatStatsField
+        protected class VSBeastDamagePercBonus : CombatStatsField
         {
             public VSBeastDamagePercBonus()
             {
@@ -3147,7 +3145,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDamageBonus_NoScore : CombatStatsField
+        protected class VSBeastDamageBonus_NoScore : CombatStatsField
         {
             public VSBeastDamageBonus_NoScore()
             {
@@ -3156,7 +3154,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDamagePercBonus_NoScore : CombatStatsField
+        protected class VSBeastDamagePercBonus_NoScore : CombatStatsField
         {
             public VSBeastDamagePercBonus_NoScore()
             {
@@ -3165,7 +3163,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDamage : CombatStatsField
+        protected class VSBeastDamage : CombatStatsField
         {
             public VSBeastDamage()
             {
@@ -3188,7 +3186,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDamageBonus : CombatStatsField
+        protected class VSPlantDamageBonus : CombatStatsField
         {
             public VSPlantDamageBonus()
             {
@@ -3197,7 +3195,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDamagePercBonus : CombatStatsField
+        protected class VSPlantDamagePercBonus : CombatStatsField
         {
             public VSPlantDamagePercBonus()
             {
@@ -3206,7 +3204,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDamageBonus_NoScore : CombatStatsField
+        protected class VSPlantDamageBonus_NoScore : CombatStatsField
         {
             public VSPlantDamageBonus_NoScore()
             {
@@ -3215,7 +3213,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDamagePercBonus_NoScore : CombatStatsField
+        protected class VSPlantDamagePercBonus_NoScore : CombatStatsField
         {
             public VSPlantDamagePercBonus_NoScore()
             {
@@ -3224,7 +3222,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDamage : CombatStatsField
+        protected class VSPlantDamage : CombatStatsField
         {
             public VSPlantDamage()
             {
@@ -3247,7 +3245,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDefenseBonus : CombatStatsField
+        protected class VSHumanDefenseBonus : CombatStatsField
         {
             public VSHumanDefenseBonus()
             {
@@ -3256,7 +3254,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDefensePercBonus : CombatStatsField
+        protected class VSHumanDefensePercBonus : CombatStatsField
         {
             public VSHumanDefensePercBonus()
             {
@@ -3265,7 +3263,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDefenseBonus_NoScore : CombatStatsField
+        protected class VSHumanDefenseBonus_NoScore : CombatStatsField
         {
             public VSHumanDefenseBonus_NoScore()
             {
@@ -3274,7 +3272,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDefensePercBonus_NoScore : CombatStatsField
+        protected class VSHumanDefensePercBonus_NoScore : CombatStatsField
         {
             public VSHumanDefensePercBonus_NoScore()
             {
@@ -3283,7 +3281,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSHumanDefense : CombatStatsField
+        protected class VSHumanDefense : CombatStatsField
         {
             public VSHumanDefense()
             {
@@ -3310,7 +3308,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDefenseBonus : CombatStatsField
+        protected class VSZombieDefenseBonus : CombatStatsField
         {
             public VSZombieDefenseBonus()
             {
@@ -3319,7 +3317,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDefensePercBonus : CombatStatsField
+        protected class VSZombieDefensePercBonus : CombatStatsField
         {
             public VSZombieDefensePercBonus()
             {
@@ -3328,7 +3326,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDefenseBonus_NoScore : CombatStatsField
+        protected class VSZombieDefenseBonus_NoScore : CombatStatsField
         {
             public VSZombieDefenseBonus_NoScore()
             {
@@ -3337,7 +3335,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDefensePercBonus_NoScore : CombatStatsField
+        protected class VSZombieDefensePercBonus_NoScore : CombatStatsField
         {
             public VSZombieDefensePercBonus_NoScore()
             {
@@ -3346,7 +3344,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSZombieDefense : CombatStatsField
+        protected class VSZombieDefense : CombatStatsField
         {
             public VSZombieDefense()
             {
@@ -3373,7 +3371,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDefenseBonus : CombatStatsField
+        protected class VSVampireDefenseBonus : CombatStatsField
         {
             public VSVampireDefenseBonus()
             {
@@ -3382,7 +3380,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDefensePercBonus : CombatStatsField
+        protected class VSVampireDefensePercBonus : CombatStatsField
         {
             public VSVampireDefensePercBonus()
             {
@@ -3391,7 +3389,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDefenseBonus_NoScore : CombatStatsField
+        protected class VSVampireDefenseBonus_NoScore : CombatStatsField
         {
             public VSVampireDefenseBonus_NoScore()
             {
@@ -3400,7 +3398,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDefensePercBonus_NoScore : CombatStatsField
+        protected class VSVampireDefensePercBonus_NoScore : CombatStatsField
         {
             public VSVampireDefensePercBonus_NoScore()
             {
@@ -3409,7 +3407,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSVampireDefense : CombatStatsField
+        protected class VSVampireDefense : CombatStatsField
         {
             public VSVampireDefense()
             {
@@ -3436,7 +3434,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDefenseBonus : CombatStatsField
+        protected class VSBeastDefenseBonus : CombatStatsField
         {
             public VSBeastDefenseBonus()
             {
@@ -3445,7 +3443,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDefensePercBonus : CombatStatsField
+        protected class VSBeastDefensePercBonus : CombatStatsField
         {
             public VSBeastDefensePercBonus()
             {
@@ -3454,7 +3452,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDefenseBonus_NoScore : CombatStatsField
+        protected class VSBeastDefenseBonus_NoScore : CombatStatsField
         {
             public VSBeastDefenseBonus_NoScore()
             {
@@ -3463,7 +3461,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDefensePercBonus_NoScore : CombatStatsField
+        protected class VSBeastDefensePercBonus_NoScore : CombatStatsField
         {
             public VSBeastDefensePercBonus_NoScore()
             {
@@ -3472,7 +3470,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBeastDefense : CombatStatsField
+        protected class VSBeastDefense : CombatStatsField
         {
             public VSBeastDefense()
             {
@@ -3499,7 +3497,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDefenseBonus : CombatStatsField
+        protected class VSPlantDefenseBonus : CombatStatsField
         {
             public VSPlantDefenseBonus()
             {
@@ -3508,7 +3506,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDefensePercBonus : CombatStatsField
+        protected class VSPlantDefensePercBonus : CombatStatsField
         {
             public VSPlantDefensePercBonus()
             {
@@ -3517,7 +3515,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDefenseBonus_NoScore : CombatStatsField
+        protected class VSPlantDefenseBonus_NoScore : CombatStatsField
         {
             public VSPlantDefenseBonus_NoScore()
             {
@@ -3526,7 +3524,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDefensePercBonus_NoScore : CombatStatsField
+        protected class VSPlantDefensePercBonus_NoScore : CombatStatsField
         {
             public VSPlantDefensePercBonus_NoScore()
             {
@@ -3535,7 +3533,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSPlantDefense : CombatStatsField
+        protected class VSPlantDefense : CombatStatsField
         {
             public VSPlantDefense()
             {
@@ -3562,7 +3560,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSNullDamagePercBonus : CombatStatsField
+        protected class VSNullDamagePercBonus : CombatStatsField
         {
             public VSNullDamagePercBonus()
             {
@@ -3571,7 +3569,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSNullDamage : CombatStatsField
+        protected class VSNullDamage : CombatStatsField
         {
             public VSNullDamage()
             {
@@ -3590,7 +3588,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSMetalDamagePercBonus : CombatStatsField
+        protected class VSMetalDamagePercBonus : CombatStatsField
         {
             public VSMetalDamagePercBonus()
             {
@@ -3599,7 +3597,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSMetalDamage : CombatStatsField
+        protected class VSMetalDamage : CombatStatsField
         {
             public VSMetalDamage()
             {
@@ -3618,7 +3616,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSWoodDamagePercBonus : CombatStatsField
+        protected class VSWoodDamagePercBonus : CombatStatsField
         {
             public VSWoodDamagePercBonus()
             {
@@ -3627,7 +3625,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSWoodDamage : CombatStatsField
+        protected class VSWoodDamage : CombatStatsField
         {
             public VSWoodDamage()
             {
@@ -3646,7 +3644,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSEarthDamagePercBonus : CombatStatsField
+        protected class VSEarthDamagePercBonus : CombatStatsField
         {
             public VSEarthDamagePercBonus()
             {
@@ -3655,7 +3653,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSEarthDamage : CombatStatsField
+        protected class VSEarthDamage : CombatStatsField
         {
             public VSEarthDamage()
             {
@@ -3674,7 +3672,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSFireDamagePercBonus : CombatStatsField
+        protected class VSFireDamagePercBonus : CombatStatsField
         {
             public VSFireDamagePercBonus()
             {
@@ -3683,7 +3681,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSFireDamage : CombatStatsField
+        protected class VSFireDamage : CombatStatsField
         {
             public VSFireDamage()
             {
@@ -3702,7 +3700,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSWaterDamagePercBonus : CombatStatsField
+        protected class VSWaterDamagePercBonus : CombatStatsField
         {
             public VSWaterDamagePercBonus()
             {
@@ -3711,7 +3709,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSWaterDamage : CombatStatsField
+        protected class VSWaterDamage : CombatStatsField
         {
             public VSWaterDamage()
             {
@@ -3730,7 +3728,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBossDamageBonus : CombatStatsField
+        protected class VSBossDamageBonus : CombatStatsField
         {
             public VSBossDamageBonus()
             {
@@ -3739,7 +3737,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class VSBossDamage : CombatStatsField
+        protected class VSBossDamage : CombatStatsField
         {
             public VSBossDamage()
             {
@@ -3753,7 +3751,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AmplifyDamageBonus : CombatStatsField
+        protected class AmplifyDamageBonus : CombatStatsField
         {
             public AmplifyDamageBonus()
             {
@@ -3762,7 +3760,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class AmplifyDamage : CombatStatsField
+        protected class AmplifyDamage : CombatStatsField
         {
             public AmplifyDamage()
             {
@@ -3776,7 +3774,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IncreaseFinalDamageBonus : CombatStatsField
+        protected class IncreaseFinalDamageBonus : CombatStatsField
         {
             public IncreaseFinalDamageBonus()
             {
@@ -3785,7 +3783,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class IncreaseFinalDamage : CombatStatsField
+        protected class IncreaseFinalDamage : CombatStatsField
         {
             public IncreaseFinalDamage()
             {
@@ -3802,7 +3800,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DecreaseFinalDamageBonus : CombatStatsField
+        protected class DecreaseFinalDamageBonus : CombatStatsField
         {
             public DecreaseFinalDamageBonus()
             {
@@ -3811,7 +3809,7 @@ namespace Zealot.Common.Entities
             }
         }
 
-        private class DecreaseFinalDamage : CombatStatsField
+        protected class DecreaseFinalDamage : CombatStatsField
         {
             public DecreaseFinalDamage()
             {
@@ -3831,7 +3829,7 @@ namespace Zealot.Common.Entities
         // Aditional Stats
 
         //---------------------------CombatScore -----------------------------------------
-        private class CombatScoreField : CombatStatsField
+        protected class CombatScoreField : CombatStatsField
         {
             private static readonly int SCORE_HEALTH = InitConstValue(10, "CombatScore_Health");
             private static readonly int SCORE_Attack = InitConstValue(10, "CombatScore_Attack");
@@ -4704,6 +4702,253 @@ namespace Zealot.Common.Entities
         }
     }
 
+    public class HeroCombatStats : PlayerCombatStats
+    {
+        public override void ComputeAll()
+        {
+            if (SuppressComputeAll)
+                return;
+
+            for (int i = 0; i < mTierFieldNames.Length; i++)
+            {
+                List<FieldName> currentTierNames = mTierFieldNames[i];
+                foreach (FieldName name in currentTierNames)
+                {
+                    CombatStatsField field = mFields[(int)name];
+                    if (field.Dirty)
+                    {
+                        field.Compute(mFields, null, mActorSynStats);
+                        field.Dirty = false;
+                    }
+                }
+            }
+            if (mActor != null)
+            {
+                mActor.UpdateLocalSkillPassiveStats();
+                mActor.OnComputeCombatStats();
+            }
+        }
+
+        private class SimpleFieldModifier : CombatStatsField
+        {
+            public SimpleFieldModifier(FieldName name)
+            {
+                fieldValue = 0;
+                children = new FieldName[] { name };
+            }
+        }
+
+        private new class AttackSpeed : CombatStatsField
+        {
+            public AttackSpeed()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
+            {
+                float buff = fields[(int)FieldName.AttackSpeedBuff].GetValue();
+                float debuff = fields[(int)FieldName.AttackSpeedDebuff].GetValue();
+                fieldValue = fields[(int)FieldName.AttackSpeedBase].GetValue() + buff - debuff;
+                fieldValue = Math.Min(400, Math.Max(fieldValue, 50));
+
+                if (actorSynStats != null)
+                {
+                    actorSynStats.baSpeed = fieldValue* 0.01f;
+                }
+            }
+        }
+
+        private class HeroStrength : Strength
+        {
+            public HeroStrength()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+        }
+
+        private class HeroDexterity : Dexterity
+        {
+            public HeroDexterity()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+        }
+
+        private class HeroIntelligence : Intelligence
+        {
+            public HeroIntelligence()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+        }
+
+        private class HeroAccuracy : Accuracy
+        {
+            public HeroAccuracy()
+            {
+                fieldValue = 0;
+                children = new FieldName[] { };
+            }
+            public override void Compute(CombatStatsField[] fields, LocalCombatStats localCombatStats, ActorSynStats actorSynStats)
+            {
+                float accu = fields[(int)FieldName.AccuracyBonus].GetValue();
+                float accu_mod = fields[(int)FieldName.AccuracyPercBonus].GetValue() * 0.01f;
+                fieldValue = (int)((80 + accu + fields[(int)FieldName.Dexterity].GetValue() + fields[(int)FieldName.ExpBonus].GetValue())); // + GameConstantRepo.GetConstantInt("SkillAccuracy")) * (1 + accu_mod));
+            }
+        }
+
+       
+        public HeroCombatStats()
+        {
+            SuppressComputeAll = false;
+
+            int totalFields = (int)FieldName.LastField;
+            mFields = new CombatStatsField[totalFields];
+
+            mFields[(int)FieldName.Health] = new SimpleField();
+            mFields[(int)FieldName.HealthMax] = new SimpleField();
+            mFields[(int)FieldName.HealthRegen] = new SimpleField();
+
+            mFields[(int)FieldName.AttackBase] = new SimpleFieldModifier(FieldName.Attack);
+            mFields[(int)FieldName.AttackBonus] = new SimpleFieldModifier(FieldName.Attack);
+            mFields[(int)FieldName.AttackPercBonus] = new SimpleFieldModifier(FieldName.Attack);
+            mFields[(int)FieldName.Attack] = new Attack();
+
+            mFields[(int)FieldName.WeaponAttackBase] = new SimpleFieldModifier(FieldName.WeaponAttack);
+            mFields[(int)FieldName.WeaponAttackBonus] = new SimpleFieldModifier(FieldName.WeaponAttack);
+            mFields[(int)FieldName.WeaponAttackPercBonus] = new SimpleFieldModifier(FieldName.WeaponAttack);
+            mFields[(int)FieldName.WeaponAttack] = new WeaponAttack();
+
+            mFields[(int)FieldName.StrengthBase] = new SimpleFieldModifier(FieldName.Strength);
+            mFields[(int)FieldName.StrengthBonus] = new SimpleFieldModifier(FieldName.Strength);
+            mFields[(int)FieldName.StrengthPercBonus] = new SimpleFieldModifier(FieldName.Strength);
+            mFields[(int)FieldName.Strength] = new HeroStrength();
+
+            mFields[(int)FieldName.DexterityBase] = new SimpleFieldModifier(FieldName.Dexterity);
+            mFields[(int)FieldName.DexterityBonus] = new SimpleFieldModifier(FieldName.Dexterity);
+            mFields[(int)FieldName.DexterityPercBonus] = new SimpleFieldModifier(FieldName.Dexterity);
+            mFields[(int)FieldName.Dexterity] = new HeroDexterity();
+
+            mFields[(int)FieldName.IntelligenceBase] = new SimpleFieldModifier(FieldName.Intelligence);
+            mFields[(int)FieldName.IntelligenceBonus] = new SimpleFieldModifier(FieldName.Intelligence);
+            mFields[(int)FieldName.IntelligencePercBonus] = new SimpleFieldModifier(FieldName.Intelligence);
+            mFields[(int)FieldName.Intelligence] = new HeroIntelligence();
+
+            mFields[(int)FieldName.AccuracyBase] = new SimpleFieldModifier(FieldName.Accuracy);
+            mFields[(int)FieldName.AccuracyBonus] = new SimpleFieldModifier(FieldName.Accuracy);
+            mFields[(int)FieldName.AccuracyPercBonus] = new SimpleFieldModifier(FieldName.Accuracy);
+            mFields[(int)FieldName.Accuracy] = new HeroAccuracy();
+
+            mFields[(int)FieldName.CriticalBase] = new SimpleFieldModifier(FieldName.Critical);
+            mFields[(int)FieldName.CriticalBonus] = new SimpleFieldModifier(FieldName.Critical);
+            mFields[(int)FieldName.CriticalPercBonus] = new SimpleFieldModifier(FieldName.Critical);
+            mFields[(int)FieldName.Critical] = new Critical();
+
+            mFields[(int)FieldName.AttackSpeedBase] = new SimpleFieldModifier(FieldName.AttackSpeed);
+            mFields[(int)FieldName.AttackSpeedBuff] = new SimpleFieldModifier(FieldName.AttackSpeed);
+            mFields[(int)FieldName.AttackSpeedDebuff] = new SimpleFieldModifier(FieldName.AttackSpeed);
+            mFields[(int)FieldName.AttackSpeed] = new AttackSpeed();
+
+            mFields[(int)FieldName.MoveSpeedBase] = new SimpleFieldModifier(FieldName.MoveSpeed);
+            mFields[(int)FieldName.MoveSpeedBuff] = new SimpleFieldModifier(FieldName.MoveSpeed);
+            mFields[(int)FieldName.MoveSpeedDebuff] = new SimpleFieldModifier(FieldName.MoveSpeed);
+            mFields[(int)FieldName.MoveSpeed] = new MoveSpeed();
+
+            mFields[(int)FieldName.ElementSideEffect] = new ElementSideEffect();
+            mFields[(int)FieldName.ElementWeapon] = new ElementWeapon();
+            mFields[(int)FieldName.Element] = new Element();
+            mFields[(int)FieldName.CombatScore] = new SimpleField();
+
+            mFields[(int)FieldName.ExpBonus] = new SimpleField();
+
+            mTierFieldNames = new List<FieldName>[2]; //Number of tiers. Increase with deep dependencies.
+
+            mTierFieldNames[0] = new List<FieldName>()
+            {
+                FieldName.StrengthBase,
+                FieldName.StrengthBonus,
+                FieldName.StrengthPercBonus,
+                FieldName.DexterityBase,
+                FieldName.DexterityBonus,
+                FieldName.DexterityPercBonus,
+                FieldName.IntelligenceBase,
+                FieldName.IntelligenceBonus,
+                FieldName.IntelligencePercBonus,
+                FieldName.HealthMax,
+                FieldName.AttackBase,
+                FieldName.AttackBonus,
+                FieldName.AttackPercBonus,
+
+                FieldName.CriticalBase,
+                FieldName.CriticalBonus,
+                FieldName.CriticalPercBonus,
+                FieldName.AccuracyBase,
+                FieldName.AccuracyBonus,
+                FieldName.AccuracyPercBonus,
+
+                FieldName.MoveSpeedBase,
+                FieldName.MoveSpeedBuff,
+                FieldName.MoveSpeedDebuff,
+
+                FieldName.AttackSpeedBase,
+                FieldName.AttackSpeedBuff,
+                FieldName.AttackSpeedDebuff,
+
+                FieldName.ElementSideEffect,
+                FieldName.ElementWeapon,
+                FieldName.Health,
+            };
+
+            mTierFieldNames[1] = new List<FieldName>()
+            {
+                 FieldName.Strength,
+                 FieldName.Dexterity,
+                 FieldName.Intelligence,
+                 FieldName.HealthMax,
+                 FieldName.Attack,
+
+                 FieldName.Critical,
+                 FieldName.Accuracy,
+                 FieldName.Element,
+                 FieldName.MoveSpeed,
+                 FieldName.AttackSpeed,
+            };
+        }
+
+        public override float GetField(FieldName fieldname)
+        {
+            if (mFields[(int)fieldname] == null) return 0;
+            return mFields[(int)fieldname].GetValue();
+        }
+
+        public override void SetField(FieldName fieldname, float newval)
+        {
+            if (mFields[(int)fieldname] == null) return;
+            base.SetField(fieldname, newval);
+        }
+
+        public override void AddToField(FieldName fieldname, float newval)
+        {
+            if (mFields[(int)fieldname] == null) return;
+            base.AddToField(fieldname, newval);
+        }
+
+        /// <summary>
+        /// passing the IActor for computation of LocalSKillPassiveStats.
+        /// </summary>
+        /// <param name="localCombatStats"></param>
+        /// <param name="playerSynStats"></param>
+        /// <param name="actor"></param>
+        public void SetLocalAndSyncStats(ActorSynStats actorSynStats)
+        {
+            mActorSynStats = actorSynStats;
+        }
+    }
 
     public class MonsterCombatStats : CombatStats
     {
@@ -5042,7 +5287,7 @@ namespace Zealot.Common.Entities
                 FieldName.IntelligenceBase,
                 FieldName.IntelligenceBonus,
                 FieldName.IntelligencePercBonus,
-                FieldName.HealthMax,
+                FieldName.Health,
                 FieldName.AttackBase,  
                 FieldName.AttackBonus,
                 FieldName.AttackPercBonus,
@@ -5066,7 +5311,7 @@ namespace Zealot.Common.Entities
                 FieldName.MoveSpeedBuff,
                 FieldName.MoveSpeedDebuff,
 
-                
+                FieldName.Element,
             };
 
             mTierFieldNames[1] = new List<FieldName>()

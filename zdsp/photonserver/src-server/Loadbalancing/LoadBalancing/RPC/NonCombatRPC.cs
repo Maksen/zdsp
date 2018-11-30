@@ -308,6 +308,12 @@ namespace Zealot.RPC
         {
             ProxyMethod("Ret_AddToSkillInventory", result, skillid, skillpoint, money, target);
         }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SkillInventory)]
+        public void Ret_SkillInventory(string inventory, object target)
+        {
+            ProxyMethod("Ret_SkillInventory", inventory, target);
+        }
         #endregion
 
         #region Destiny Clue
@@ -341,9 +347,9 @@ namespace Zealot.RPC
             ProxyMethod("Ret_SocialOnOpenFriendsMenu", resultCode, target);
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequest)]
-        public void Ret_SocialRaiseRequest(int resultCode, object target)
+        public void Ret_SocialRaiseRequest(int resultCode,string friendName, object target)
         {
-            ProxyMethod("Ret_SocialRaiseRequest", resultCode, target);
+            ProxyMethod("Ret_SocialRaiseRequest", resultCode, friendName, target);
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptRequest)]
         public void Ret_SocialAcceptRequest(int resultCode, object target)
@@ -366,9 +372,9 @@ namespace Zealot.RPC
             ProxyMethod("Ret_SocialRejectAllRequest", resultCode, target);
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAddBlack)]
-        public void Ret_SocialAddBlack(int resultCode, object target)
+        public void Ret_SocialAddBlack(int resultCode,string friendName, object target)
         {
-            ProxyMethod("Ret_SocialAddBlack", resultCode, target);
+            ProxyMethod("Ret_SocialAddBlack", resultCode, friendName, target);
         }
         [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveBlack)]
         public void Ret_SocialRemoveBlack(int resultCode, object target)
@@ -392,7 +398,25 @@ namespace Zealot.RPC
         {
             ProxyMethod("Ret_SocialClearTemp", target);
         }
-        
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialTest_AddTempFriendsSingle)]
+        public void Ret_SocialTest_AddTempFriendsSingle(int resultCode, object target)
+        {
+            ProxyMethod("Ret_SocialTest_AddTempFriendsSingle", resultCode, target);
+        }
+#if DEBUG
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_DebugFixTool)]
+        public void Ret_DebugFixTool(string msg, object target)
+        {
+            ProxyMethod("Ret_DebugFixTool", msg, target);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_DebugSelectTool)]
+        public void Ret_DebugSelectTool(bool success, string charname, string result, object target)
+        {
+            ProxyMethod("Ret_DebugSelectTool", success, charname, result, target);
+        }
+#endif
 
         #endregion
     }
@@ -1230,7 +1254,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.NPCStoreGetPlayerTransactions)]
         public async void NPCStoreGetPlayerTransactions(int storeid, GameClientPeer peer)
         {
-            var transactions = await GameApplication.dbGM.NPCStoreGMRepo.GetPlayerStoreTransactions(peer.mPlayer.Name).ConfigureAwait(false);
+            var transactions = await GameApplication.dbGM.NPCStoreGMRepo.GetPlayerStoreTransactions(peer.GetCharId()).ConfigureAwait(false);
             peer.ZRPC.NonCombatRPC.Ret_NPCStoreGetPlayerTransactions(JsonConvert.SerializeObject(transactions), peer);
         }
 
@@ -1294,7 +1318,7 @@ namespace Photon.LoadBalancing.GameServer
 
                 var t = new NPCStoreInfo.Transaction();
                 t.solditem = storeentry;
-                transactions.Add(t.solditem.Key(), t);
+                transactions.Add(storeentry.Key(), t);
             }
 
             var totalcost = (int)(purchaseamount * storeentry.DiscountedPrice());
@@ -1364,25 +1388,31 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CharacterInfoSpendStatsPoints)]
         public void CharacterInfoSpendStatsPoints(int statVal1, int statVal2, int statVal3, int statVal4, int statVal5, GameClientPeer peer)
         {
+            Zealot.Common.Entities.ICombatStats ics = peer.mPlayer.CombatStats;
+            Zealot.Common.Entities.LocalCombatStats lcs = peer.mPlayer.LocalCombatStats;
+
             //Check if stats are legal
             int totalSpent = statVal1 + statVal2 + statVal3 + statVal4 + statVal5;
-            int retVal = (peer.mPlayer.LocalCombatStats.StatsPoint < totalSpent) ? -1 : 0;
-            if (retVal != -1)
+            int retVal = (lcs.StatsPoint < totalSpent) ? -1 : 0;
+            int retVal1 = (statVal1 < 0) ? -1 : 0; //change in str must be >= 0
+            int retVal2 = (statVal2 < 0) ? -1 : 0; //change in agi must be >= 0
+            int retVal3 = (statVal3 < 0) ? -1 : 0; //change in dex must be >= 0
+            int retVal4 = (statVal4 < 0) ? -1 : 0; //change in con must be >= 0
+            int retVal5 = (statVal5 < 0) ? -1 : 0; //change in int must be >= 0
+            int totalRetVal = retVal + retVal1 + retVal2 + retVal3 + retVal4 + retVal5;
+            if (totalRetVal >= 0)
             {
-                Zealot.Common.Entities.ICombatStats ics = peer.mPlayer.CombatStats;
-                Zealot.Common.Entities.LocalCombatStats lcs = peer.mPlayer.LocalCombatStats;
-
                 ics.AddToField(Zealot.Common.Entities.FieldName.StrengthBase, statVal1);
                 ics.AddToField(Zealot.Common.Entities.FieldName.AgilityBase, statVal2);
                 ics.AddToField(Zealot.Common.Entities.FieldName.DexterityBase, statVal3);
                 ics.AddToField(Zealot.Common.Entities.FieldName.ConstitutionBase, statVal4);
                 ics.AddToField(Zealot.Common.Entities.FieldName.IntelligenceBase, statVal5);
-                ics.ComputeAll();
+                ics.ComputeAll(); //computes final value of each stat category
 
                 lcs.StatsPoint -= totalSpent;
             }
 
-            peer.ZRPC.NonCombatRPC.Ret_CharacterInfoSpendStatsPoints(retVal, peer);
+            peer.ZRPC.NonCombatRPC.Ret_CharacterInfoSpendStatsPoints(totalRetVal, peer);
         }
 
         [RPCMethodProxy(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.CharacterInfoSpendStatsPoints)]
@@ -1403,16 +1433,18 @@ namespace Photon.LoadBalancing.GameServer
             {
                 // try adding skill
                 // find the skillid [groupid][id][groupid][id]
-                if (peer.mPlayer.SkillStats.SkillGroupIndex.ContainsKey(skillgid))
-                {
-                    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] + 1] = skillid;
-                }
-                else
-                {
-                    peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] = peer.mPlayer.SkillStats.SkillInvCount;
-                    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillgid;
-                    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillid;
-                }
+                //if (peer.mPlayer.SkillStats.SkillGroupIndex.ContainsKey(skillgid))
+                //{
+                //    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] + 1] = skillid;
+                //}
+                //else
+                //{
+                //    peer.mPlayer.SkillStats.SkillGroupIndex[skillgid] = peer.mPlayer.SkillStats.SkillInvCount;
+                //    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillgid;
+                //    peer.mPlayer.SkillStats.SkillInv[peer.mPlayer.SkillStats.SkillInvCount++] = skillid;
+                //}
+
+                peer.mPlayer.mSkillRecord.Add(skillgid, skillid);
 
                 // deduct cost of skill, since the requirements is guaranteed in client
 
@@ -1421,6 +1453,9 @@ namespace Photon.LoadBalancing.GameServer
 
                 ZRPC.NonCombatRPC.Ret_AddToSkillInventory((byte)SkillReturnCode.SUCCESS, skillid, peer.mPlayer.LocalCombatStats.SkillPoints,
                     peer.mPlayer.SecondaryStats.Money, peer);
+
+                string inv = JsonConvert.SerializeObject(peer.mPlayer.mSkillRecord);
+                ZRPC.NonCombatRPC.Ret_SkillInventory(inv, peer);
             }
 
             else
@@ -1446,10 +1481,10 @@ namespace Photon.LoadBalancing.GameServer
             if(player != null)
             {
                 int index = -1;
-                for (int i = 0; i < 5; ++i)
+                for (int i = 0; i < (int)peer.mPlayer.SkillStats.EquipSize; ++i)
                 {
                     if (i == slot) continue;
-                    if ((int)player.SkillStats.EquippedSkill[i + (5 * (slotGroup - 1))] == skillid)
+                    if ((int)player.SkillStats.EquippedSkill[i + ((int)peer.mPlayer.SkillStats.EquipSize * (slotGroup - 1))] == skillid)
                         index = i;
                 }
 
@@ -1457,17 +1492,17 @@ namespace Photon.LoadBalancing.GameServer
                 if(index != -1)
                 {
                     // set index to slot
-                    player.SkillStats.EquippedSkill[index + (5 * (slotGroup - 1))] = player.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))];
+                    player.SkillStats.EquippedSkill[index + ((int)peer.mPlayer.SkillStats.EquipSize * (slotGroup - 1))] = player.SkillStats.EquippedSkill[slot + (6 * (slotGroup - 1))];
                 }
 
-                peer.mPlayer.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))] = skillid;
+                peer.mPlayer.SkillStats.EquippedSkill[slot + ((int)peer.mPlayer.SkillStats.EquipSize * (slotGroup - 1))] = skillid;
             }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveEquipSkill)]
         public void RemoveEquipSkill(int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.EquippedSkill[slot + (5 * (slotGroup - 1))] = 0;
+            peer.mPlayer.SkillStats.EquippedSkill[slot + ((int)peer.mPlayer.SkillStats.EquipSize * (slotGroup - 1))] = 0;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.AutoEquipSkill)]
@@ -1478,10 +1513,12 @@ namespace Photon.LoadBalancing.GameServer
             if (player != null)
             {
                 int index = -1;
-                for (int i = 0; i < 5; ++i)
+                if (slot > (int)player.SkillStats.EquipSize) return;
+
+                for (int i = 0; i < (int)player.SkillStats.EquipSize; ++i)
                 {
                     if (i == slot) continue;
-                    if ((int)player.SkillStats.AutoSkill[i + (5 * (slotGroup - 1))] == skillid)
+                    if ((int)player.SkillStats.AutoSkill[i + ((int)player.SkillStats.EquipSize * (slotGroup - 1))] == skillid)
                         index = i;
                 }
 
@@ -1489,17 +1526,17 @@ namespace Photon.LoadBalancing.GameServer
                 if (index != -1)
                 {
                     // set index to slot
-                    player.SkillStats.AutoSkill[index + (5 * (slotGroup - 1))] = player.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))];
+                    player.SkillStats.AutoSkill[index + ((int)player.SkillStats.EquipSize * (slotGroup - 1))] = player.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))];
                 }
 
-                peer.mPlayer.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))] = skillid;
+                peer.mPlayer.SkillStats.AutoSkill[slot + ((int)player.SkillStats.EquipSize * (slotGroup - 1))] = skillid;
             }
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RemoveAutoEquipSkill)]
         public void RemoveAutoEquipSkill(int slot, int slotGroup, GameClientPeer peer)
         {
-            peer.mPlayer.SkillStats.AutoSkill[slot + (5 * (slotGroup - 1))] = 0;
+            peer.mPlayer.SkillStats.AutoSkill[slot + ((int)peer.mPlayer.SkillStats.EquipSize * (slotGroup - 1))] = 0;
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UpdateEquipSlots)]
@@ -1507,6 +1544,19 @@ namespace Photon.LoadBalancing.GameServer
         {
             peer.mPlayer.SkillStats.EquipGroup = equip;
             peer.mPlayer.SkillStats.AutoGroup = auto;
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.UnlockAutoSlot)]
+        public void UnlockAutoSlot(int amount)
+        {
+
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.RequestSkillInventory)]
+        public void RequestSkillinventory(GameClientPeer peer)
+        {
+            string inv = JsonConvert.SerializeObject(peer.mPlayer.mSkillRecord);
+            ZRPC.NonCombatRPC.Ret_SkillInventory(inv, peer);
         }
         #endregion
 
@@ -1517,16 +1567,10 @@ namespace Photon.LoadBalancing.GameServer
             peer.OnPowerUp(part);
         }
 
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianLevelUp)]
-        public void MeridianLevelUp(int type, GameClientPeer peer)
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianUp)]
+        public void MeridianUp(int type, GameClientPeer peer)
         {
-            peer.OnMeridianLevelUp(type);
-        }
-
-        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.MeridianExpUp)]
-        public void MeridianExpUp(int type, GameClientPeer peer)
-        {
-            peer.OnMeridianExpUp(type);
+            peer.OnMeridianUp(type);
         }
         #endregion
 
@@ -1629,15 +1673,21 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ApplyQuestEventCompanion)]
-        public void ApplyQuestEventCompanion(int eventid, GameClientPeer peer)
+        public void ApplyQuestEventCompanion(int eventid, int questid, GameClientPeer peer)
         {
-            peer.QuestController.UpdateCompanion(eventid);
+            peer.QuestController.UpdateCompanion(eventid, questid);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.ResetQuestEventCompanion)]
         public void ResetQuestEventCompanion(int companionid, GameClientPeer peer)
         {
             peer.QuestController.RemoveCompanionId(companionid);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.GuidePointReached)]
+        public void GuidePointReached(int questid, int guideid, GameClientPeer peer)
+        {
+            peer.QuestController.GuideCheck(questid, guideid);
         }
         #endregion
 
@@ -1701,9 +1751,9 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialRaiseRequest)]
-        public void SocialRaiseRequest(string friendName, GameClientPeer peer)
+        public void SocialRaiseRequest(string friendName,bool fromTemp, GameClientPeer peer)
         {
-            peer.mSocialController.SocialRaiseRequest(friendName);
+            peer.mSocialController.SocialRaiseRequest(friendName, fromTemp);
         }
 
         [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialAcceptRequest)]
@@ -1759,6 +1809,26 @@ namespace Photon.LoadBalancing.GameServer
             peer.mSocialController.SocialClearTemp();
         }
 
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.SocialTest_AddTempFriendsSingle)]
+        public void SocialTest_AddTempFriendsSingle(string name, GameClientPeer peer)
+        {
+            peer.mSocialController.AddTempFriendsSingle(peer.mPlayer.Name, name, rlt =>
+                peer.ZRPC.NonCombatRPC.Ret_SocialTest_AddTempFriendsSingle((int)rlt, peer)
+            );
+        }
+#if DEBUG
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DebugFixTool)]
+        public void DebugFixTool(string userid, string charname, string db_column, string path, string key, string value, bool forceReset, GameClientPeer peer)
+        {
+            CharacterDebugTool.DebugFixTool(peer, userid, charname, db_column, path, key, value, forceReset);
+        }
+
+        [RPCMethod(RPCCategory.NonCombat, (byte)ClientNonCombatRPCMethods.DebugSelectTool)]
+        public void DebugSelectTool(string userid, string charname, string db_column, string path, string key, GameClientPeer peer)
+        {
+            CharacterDebugTool.DebugSelectTool(peer, userid, charname, db_column, path, key);
+        }
+#endif
         #endregion
     }
 }

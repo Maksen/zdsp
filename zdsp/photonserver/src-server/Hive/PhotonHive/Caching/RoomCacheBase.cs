@@ -32,9 +32,9 @@ namespace Photon.Hive.Caching
 
         /// <summary>A Dictionary used to store room instances. RoomInstances[Room guid]</summary>
         public readonly Dictionary<string, RoomInstance> RoomInstances = new Dictionary<string, RoomInstance>();
-        /// <summary>A Dictionary used to store default room guid.</summary>
-        public readonly Dictionary<string, string> mDefaultRoom = new Dictionary<string, string>();
-        /// <summary>A Dictionary used to store realm Id to a list of realm room guid.</summary>
+        /// <summary>A Dictionary used to store default room guid</summary>
+        public readonly Dictionary<string, string> mDefaultRooms = new Dictionary<string, string>();
+        /// <summary>A Dictionary used to store realm Id to a list of realm room guid</summary>
         public readonly Dictionary<int, List<string>> mRealmRooms = new Dictionary<int, List<string>>();
 
         /// <summary>used to syncronize acces to the cache.</summary>
@@ -166,7 +166,7 @@ namespace Photon.Hive.Caching
             {
                 if (TryCreateRoom(roomName, ownerPeer, out room, out roomReference, args))
                 {
-                    mDefaultRoom.Add(roomName, room.Guid);
+                    mDefaultRooms.Add(roomName, room.Guid);
                     return true;
                 }
                 return false;
@@ -176,18 +176,18 @@ namespace Photon.Hive.Caching
         /// <summary>
         /// Tries to create a new realm room.
         /// </summary>
-        public bool TryCreateRealmRoom(int realmid, string roomName, bool isWorld, PeerBase ownerPeer, out Room room,
+        public bool TryCreateRealmRoom(int realmId, string roomName, bool isWorld, PeerBase ownerPeer, out Room room,
                                        out RoomReference roomReference, params object[] args)
         {
             lock (this.SyncRoot)
             {
                 if (TryCreateRoom(roomName, ownerPeer, out room, out roomReference, args))
                 {
-                    room.RealmID = realmid;
+                    room.RealmID = realmId;
                     room.IsWorld = isWorld; // To differentiate World which is also a Realm
-                    if (!mRealmRooms.ContainsKey(realmid))
-                        mRealmRooms.Add(realmid, new List<string>());
-                    mRealmRooms[realmid].Add(room.Guid);
+                    if (!mRealmRooms.ContainsKey(realmId))
+                        mRealmRooms.Add(realmId, new List<string>());
+                    mRealmRooms[realmId].Add(room.Guid);
                     return true;
                 }
                 return false;
@@ -248,32 +248,31 @@ namespace Photon.Hive.Caching
             }
         }
 
-        public string TryGetRealmRoomGuid(int realmid, int capacity)
+        public string TryGetRealmRoomGuid(int realmId, int capacity)
         {
             lock (this.SyncRoot)
             {
-                List<string> guidList = null;
-                if (mRealmRooms.TryGetValue(realmid, out guidList))
+                List<string> roomGuids = null;
+                if (mRealmRooms.TryGetValue(realmId, out roomGuids))
                 {
-                    int guidListCnt = guidList.Count;
-                    if (guidListCnt > 0)
+                    int roomGuidCount = roomGuids.Count;
+                    if (roomGuidCount > 0)
                     {
+                        string roomGuid = roomGuids[0];
                         if (capacity == 0) // If no capacity limit, choose first in the list
-                            return guidList[0];
+                            return roomGuid;
 
-                        // Look for lowest capacity room
-                        string roomGuid = guidList[0];
-                        RoomInstance roomInstance = RoomInstances[roomGuid];
-                        int refCnt = roomInstance.ReferenceCount;
-                        if (refCnt >= capacity)
+                        // Search for lowest capacity room                        
+                        int refCount = RoomInstances[roomGuid].ReferenceCount;
+                        if (refCount >= capacity)
                             roomGuid = "";
-                        for (int i = 1; i < guidListCnt; ++i)
+                        for (int i = 1; i < roomGuidCount; ++i)
                         {
-                            roomInstance = RoomInstances[guidList[i]];
-                            if (roomInstance.ReferenceCount < capacity && roomInstance.ReferenceCount < refCnt)
+                            int roomCapacity = RoomInstances[roomGuids[i]].ReferenceCount;
+                            if (roomCapacity < capacity && roomCapacity < refCount)
                             {
-                                roomGuid = guidList[i];
-                                refCnt = roomInstance.ReferenceCount;
+                                roomGuid = roomGuids[i];
+                                refCount = roomCapacity;
                             }
                         }
                         return roomGuid;
@@ -285,9 +284,9 @@ namespace Photon.Hive.Caching
 
         public string TryGetDefaultRoomGuid(string roomName)
         {
-            if (mDefaultRoom.ContainsKey(roomName))
-                return mDefaultRoom[roomName];
-            return "";
+            string roomGuid = "";
+            mDefaultRooms.TryGetValue(roomName, out roomGuid);
+            return roomGuid;
         }
 
         public void ReleaseRoomReference(RoomReference roomReference)
@@ -332,9 +331,9 @@ namespace Photon.Hive.Caching
             lock (this.SyncRoot)
             {
                 this.RoomInstances.Remove(room.Guid);
-                List<string> realmListByLevel;
-                if (mRealmRooms.TryGetValue(room.RealmID, out realmListByLevel))
-                    realmListByLevel.Remove(room.Guid);
+                List<string> roomGuidsByRealmId;
+                if (mRealmRooms.TryGetValue(room.RealmID, out roomGuidsByRealmId))
+                    roomGuidsByRealmId.Remove(room.Guid);
             }
 
             room.Dispose();

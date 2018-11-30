@@ -34,6 +34,12 @@ namespace Zealot.RPC
         public void OnConnectedSyncData(string data, object target)
         {
             ProxyMethod("OnConnectedSyncData", data, target);
-        }     
+        }
+
+        [RPCMethod(RPCCategory.ClusterToGame, (byte)ClusterToGameRPCMethods.RET_APIManagerCallRPC)]
+        public void RET_APIManagerCallRPC(long id, object[] args, object target)
+        {
+            ProxyMethod("RET_APIManagerCallRPC", id, args, target);
+        }
     }
 }

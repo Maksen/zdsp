@@ -22,7 +22,6 @@ namespace Zealot.Server.Entities
             if (!IsCorrectController())
                 return;
             //mDungeonDailySpecialInfo = (DungeonDailySpecialJson)mRealmInfo;
-            mCountDownOnMissionCompleted = 30;
         }
 
         public override bool IsCorrectController()

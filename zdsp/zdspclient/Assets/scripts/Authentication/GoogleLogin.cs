@@ -111,12 +111,12 @@ public class GoogleLogin : Photon.MonoBehaviour
             return;
 
         Login loginCmpt = GetComponent<Login>();
-        if(loginCmpt.ReconnectWhenDisconnected(LoginType.Google.ToString()))
+        if(loginCmpt.ReconnectWhenDisconnected(LoginAuthType.Google.ToString()))
             return;
 
         loginCmpt.GetLoginData();
         LoginData loginData = LoginData.Instance;
-        loginCmpt.DefaultAuthWithServer(LoginType.Google.ToString(),
+        loginCmpt.DefaultAuthWithServer(LoginAuthType.Google.ToString(),
                                         serverAuthCode, loginData.DeviceId); // Auth with server
 	}
 }

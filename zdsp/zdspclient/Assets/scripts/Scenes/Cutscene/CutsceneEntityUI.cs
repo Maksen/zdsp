@@ -10,12 +10,12 @@ public class CutsceneEntityUI : MonoBehaviour
 
     public void PlayUICutscene()
     {
-        if(GameInfo.gCombat.CutsceneManager == null)
+        if(CutsceneManager.instance == null)
         {
             return;
         }
 
-        GameInfo.gCombat.CutsceneManager.PlayUICutscene();
+        CutsceneManager.instance.PlayUICutscene();
         gameObject.SetActive(false);
     }
 }

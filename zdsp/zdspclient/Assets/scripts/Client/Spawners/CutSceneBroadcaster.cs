@@ -27,7 +27,7 @@ namespace Zealot.Spawners
         public void OnPlayerSpawned()
         {
             cutsceneEntity.OnCutsceneFinished.AddListener(OnCutsceneFinished);
-            GameInfo.gCombat.CutsceneManager.RegisterCutsceneBroadcaster(this);
+            CutsceneManager.instance.RegisterCutsceneBroadcaster(this);
         }
 
         void OnCutsceneFinished()

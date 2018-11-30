@@ -26,7 +26,7 @@ public partial class ClientMain : MonoBehaviour
                 UIManager.GetWidget(HUDWidgetType.RealmExit).GetComponent<HUD_RealmExit>().Init(actualElapsed);
                 break;
             case RealmType.Tutorial:
-                GameInfo.gCombat.CutsceneManager.OnFinishedCutsceneAction = 
+                CutsceneManager.instance.OnFinishedCutsceneAction = 
                     () => GameInfo.gLocalPlayer.m_TutorialController.ActivateTutorial(SystemName.Newbie_Realm);
                 break;
         }

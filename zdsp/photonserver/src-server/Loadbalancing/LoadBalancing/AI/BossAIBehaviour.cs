@@ -9,39 +9,38 @@ using Zealot.Server.Entities;
 using Zealot.Repository;
 
 namespace Zealot.Server.AI
-{ 
+{
     public class BossAIBehaviour : BaseAIBehaviour
     {
         public const int ROAM_COOLDOWN_TIME = 8000; //in msec
 
         protected int mLastRoam;
-        protected bool mCanRoam;        
+        protected bool mCanRoam;
         protected int mCurrentRoamCoolDown;
         protected bool mCanPathFind;
         protected bool mGroupAggro;
         protected Monster mMonster;
-        protected MonsterSpawnerBase mSpawner; 
+        protected MonsterSpawnerBase mSpawner;
         protected Actor mTarget;
         protected Actor mHighestThreatAttacker;
 
         private int mThreatScanCount;
         //protected Vector3 mLastResolveOverlappedPos;
         protected float mSkillRange;
-        protected SkillData mSkillToExecute; 
-        protected List<int> mAvialbeSkills;
+        protected SkillData mSkillToExecute;
         //protected List<NPCSkillCondition> mSkillConditions;//this is the normal skills setup in NPCSkillLink table.
         protected Dictionary<int, Threat> mThreats;
         protected bool mGoingBack;
-        
+
         protected long mBasicAttackStartTime;
         protected long mBasicAttackCooldown;
         protected long mSkillGCDEnd;
         //protected long[] mSkillCDEnd;
-        protected Dictionary<int, long> mSkillCDEndbyID;
+        protected Dictionary<int, long> mSkillCDEndbyID; // <skillid, cooldown>
 
         //protected bool mHasMoved; 
-        public BossAIBehaviour(Monster monster):base(monster)
-        { 
+        public BossAIBehaviour(Monster monster) : base(monster)
+        {
             AddState("Roam", OnRoamEnter, OnRoamLeave, OnRoamUpdate);
 
             mMonster = monster;
@@ -52,28 +51,27 @@ namespace Zealot.Server.AI
             //mLastResolveOverlappedPos = new Vector3(0, -300, 0);
             mTarget = null;
             mHighestThreatAttacker = null;
-            mSkillToExecute = null; 
-            mAvialbeSkills = new List<int>();
+            mSkillToExecute = null;
             mSkillCDEndbyID = new Dictionary<int, long>();
             mThreats = new Dictionary<int, Threat>();
 
             mBasicAttackStartTime = 0;
-            mBasicAttackCooldown = 1000; 
-            
+            mBasicAttackCooldown = 1000;
+
             //mHasMoved = false;
         }
 
         protected override void InitStates()
         {
-            AddState("Idle", OnIdleEnter, OnIdleLeave, OnIdleUpdate); 
+            AddState("Idle", OnIdleEnter, OnIdleLeave, OnIdleUpdate);
             AddState("CombatApproach", OnCombatApproachEnter, OnCombatApproachLeave, OnCombatApproachUpdate);
-            AddState("CombatExecute", OnCombatExecuteEnter, OnCombatExecuteLeave, OnCombatExecuteUpdate); 
+            AddState("CombatExecute", OnCombatExecuteEnter, OnCombatExecuteLeave, OnCombatExecuteUpdate);
             AddState("Goback", OnGobackEnter, OnGobackLeave, OnGobackUpdate);
         }
-  
+
         public override void StartMonitoring()
-        {           
-            InitAiConditions();
+        {
+            InitAIConditions();
             base.StartMonitoring();
         }
 
@@ -99,6 +97,12 @@ namespace Zealot.Server.AI
             }
         }
 
+        public void AddSkillToWaitForCast(int skillid)
+        {
+            mQueueSkills.Add(skillid);
+        }
+
+        #region Idle State
         protected override void OnIdleEnter(string prevstate)
         {
             base.OnIdleEnter(prevstate);
@@ -106,12 +110,11 @@ namespace Zealot.Server.AI
             //reset the aiskillconditions and happend ones.
             foreach (BaseSkillCondition cond in mAISkillConditions)
                 cond.Reset();
-            mConditionHappened.Clear();
-            mAvialbeSkills = new List<int>();
+
             mSkillCDEndbyID = new Dictionary<int, long>();
             //mHasMoved = false;
             //handle recover from knockedback
-            if (mTarget != null && currentState.Name != "Stun" ) //TODO: handle Root status
+            if (mTarget != null && currentState.Name != "Stun") //TODO: handle Root status
             {
                 SwitchTarget(mTarget);
                 ResetSkillToExecute();
@@ -121,7 +124,7 @@ namespace Zealot.Server.AI
         }
 
         protected override void OnIdleUpdate(long dt)
-        {            
+        {
             if (mMonster.IsAggressive())
             {
                 Actor threat = ThreatScan(2); //scan once every 2 updates
@@ -137,9 +140,9 @@ namespace Zealot.Server.AI
 
             if (mCanRoam)
             {
-                mLastRoam += (int)dt;                                
+                mLastRoam += (int)dt;
                 if (mLastRoam > mCurrentRoamCoolDown)
-                {                    
+                {
                     int pid = mMonster.GetPersistentID();
                     if (mMonster.mInstance.CanMonsterRoam(pid)) //every 20 ticks (of 50msec each) allow monsters of out of 10 groups to roam. If level has 200 monsters, then each group will be about 20 monsters.
                     {
@@ -152,28 +155,29 @@ namespace Zealot.Server.AI
                 }
             }
         }
+        #endregion
 
         #region Roam State
         protected virtual void OnRoamEnter(string prevstate)
         {
-            #if LOG_BOSS_AI
-                    if (LogAI) log.Info("OnRoamEnter");
-            #endif
+#if LOG_BOSS_AI
+            if (LogAI) log.Info("OnRoamEnter");
+#endif
             //Determine roam point          
             Vector3 randomPos = GameUtils.RandomPos(mSpawner.GetPos(), mSpawner.GetRoamRadius()); //assume height within combat radius of spawn position is "safe"
             //log.InfoFormat("monster pid {0} roaming to {1}", mMonster.GetPersistentID(), randomPos.ToString());
-            
+
             mMonster.MoveTo(randomPos, true);
         }
 
         protected virtual void OnRoamLeave()
         {
-            mLastRoam = 0;            
+            mLastRoam = 0;
             mCurrentRoamCoolDown = ROAM_COOLDOWN_TIME + GameUtils.RandomInt(0, 6000);
         }
 
         protected virtual void OnRoamUpdate(long dt)
-        {                       
+        {
             if (!mMonster.IsMoving())
             {
                 GotoState("Idle");
@@ -189,13 +193,13 @@ namespace Zealot.Server.AI
                 threat = mMonster.QueryForThreat();
                 mThreatScanCount = 0;
             }
-            mThreatScanCount++;
+            ++mThreatScanCount;
             return threat;
         }
 
         protected bool IsTargetInRange()
         {
-            return GameUtils.InRange(mMonster.Position, mTarget.Position,mSkillRange, mTarget.Radius);
+            return GameUtils.InRange(mMonster.Position, mTarget.Position, mSkillRange, mTarget.Radius);
         }
 
         protected bool IsInCombatRadius(Vector3 pos)
@@ -205,40 +209,48 @@ namespace Zealot.Server.AI
 
         protected void ResetSkillToExecute()
         {
-            //mSkillIDToExecute = -1;
-            mSkillToExecute = null; 
+            mSkillToExecute = null;
         }
 
         protected void DetermineSkillToExecute()
         {
-            if (mConditionHappened.Count > 0)
+            bool hasSkill = false;
+            long now = mMonster.EntitySystem.Timers.GetSynchronizedTime();
+
+            if (mQueueSkills.Count > 0)
             {
-                int skillid = mConditionHappened[0];
-                mSkillToExecute = SkillRepo.GetSkill(skillid);  
-            }
-            bool hasSkill = false; 
-            if (mConditionHappened.Count == 0 && mAvialbeSkills.Count > 0 )
-            {
-                long now = mMonster.EntitySystem.Timers.GetSynchronizedTime();
                 if (now >= mSkillGCDEnd) //global cooldown
                 {
-                    System.Random random = GameUtils.GetRandomGenerator();
-                    //Pick a skill     
-                    foreach(int skillid in mAvialbeSkills)
-                    {                                            
-                        if (mSkillCDEndbyID.ContainsKey(skillid) && now < mSkillCDEndbyID[skillid]) //still cooling down
+                    int skillid = mQueueSkills[0];
+                    if (!IsSkillInCooldown(skillid, now))
+                    {
+                        mQueueSkills.RemoveAt(0);
+                        hasSkill = true;
+                        mSkillToExecute = SkillRepo.GetSkill(skillid);
+                    }
+                }
+            }
+
+            if (mCondistions.Count > 0 && !hasSkill)
+            {
+                if (now >= mSkillGCDEnd) //global cooldown
+                {
+                    foreach (KeyValuePair<int, int> keyValue in mCondistions)
+                    {
+                        int skillid = keyValue.Value;
+                        if (IsSkillInCooldown(skillid, now)) //still cooling down
                             continue;
 
                         hasSkill = true;
-                        mSkillToExecute = SkillRepo.GetSkill(skillid); 
+                        mSkillToExecute = SkillRepo.GetSkill(skillid);
                         break;
                     }
                 }
             }
 
-            if ( (!hasSkill && mConditionHappened.Count == 0) || mMonster.HasControlStatus(ControlSEType.Silence))//no condition has happened
+            if (!hasSkill || mMonster.HasControlStatus(ControlSEType.Silence))
             {
-                mSkillToExecute = NextBasicAttack(); 
+                mSkillToExecute = NextBasicAttack();
 
                 //Peter, TODO: basic attack also have cooldown and cooldown can differ for different monster    
                 //We will not check basic attack cooldown here to allow at least 1 skill and its range to refer to e.g. when approaching
@@ -251,11 +263,11 @@ namespace Zealot.Server.AI
             {
                 //Revert to basic attack
                 log.Info("Warning!! Monster archetype id: " + mMonster.mArchetype.id + " has unsupported friendly skill: " + mSkillToExecute.skillJson.id);
-            }            
-           
+            }
+
             if (skillgroupJson.threatzone == Threatzone.LongStream)
                 mSkillRange = mSkillToExecute.skillJson.range;
-            else if(skillgroupJson.threatzone == Threatzone.Single)
+            else if (skillgroupJson.threatzone == Threatzone.Single)
                 mSkillRange = 2.0f;
             else
                 mSkillRange = mSkillToExecute.skillJson.radius; //120,360,single                                     
@@ -267,18 +279,18 @@ namespace Zealot.Server.AI
             //    return SkillRepo.mMonsterBasicAttack;
             int num = 0;
             if (mMonster.mArchetype.basicattack > 0)
-                num++;
+                ++num;
             if (mMonster.mArchetype.basicattack2 > 0)
-                num++;
+                ++num;
             if (num == 1)
             {
-                int id = mMonster.mArchetype.basicattack > 0 ? mMonster.mArchetype.basicattack:
+                int id = mMonster.mArchetype.basicattack > 0 ? mMonster.mArchetype.basicattack :
                 mMonster.mArchetype.basicattack2;
                 return SkillRepo.GetSkill(id);
             }
             if (GameUtils.GetRandomGenerator().NextDouble() < 0.5)
                 return SkillRepo.GetSkill(mMonster.mArchetype.basicattack);
-            else 
+            else
                 return SkillRepo.GetSkill(mMonster.mArchetype.basicattack2);
         }
 
@@ -297,7 +309,7 @@ namespace Zealot.Server.AI
                 mMonster.ApproachTarget(mTarget.GetPersistentID(), mSkillRange - 0.5f); //-0.5f so that it does not toggle at bordercase
         }
 
-        #region Combat State
+        #region Combat Approach State
         protected override void OnCombatApproachEnter(string prevstate)
         {
             base.OnCombatApproachEnter(prevstate);
@@ -313,18 +325,18 @@ namespace Zealot.Server.AI
             if (!CheckTargetValid())
                 return;
 
-            if (!IsInCombatRadius(mMonster.Position)) 
+            if (!IsInCombatRadius(mMonster.Position))
             {
                 if (mMonster.mInstance.HasCPUResourceToGoBack())
                 {
                     GotoState("Goback");
-                }                
+                }
                 return;
             }
 
-            
-            Zealot.Common.Actions.Action action = mMonster.GetAction(); 
-            if (IsTargetInRange()) 
+
+            Zealot.Common.Actions.Action action = mMonster.GetAction();
+            if (IsTargetInRange())
             {
                 GotoState("CombatExecute");
             }
@@ -345,13 +357,12 @@ namespace Zealot.Server.AI
         {
             //Normal monsters only have 1 normal attack. While boss can have additional skills of various range       
             base.OnCombatExecuteEnter(prevstate);
-            CastSkill();
         }
 
         //protected override void OnCombatExecuteLeave() { }
 
         protected override void OnCombatExecuteUpdate(long dt)
-        {            
+        {
             if (mMonster.GetActionCmd().GetActionType() != ACTIONTYPE.CASTSKILL) //if has stopped attacking
             {
                 ResetSkillToExecute(); //prepare to decide next skill
@@ -377,6 +388,12 @@ namespace Zealot.Server.AI
             }
         }
 
+        protected override void OnCombatExecuteLeave()
+        {
+            mCondistions.Clear();
+            mQueueSkills.Clear();
+        }
+
         private bool IsSkillInCooldown(int skillid, long now)
         {
             if (mSkillCDEndbyID.ContainsKey(skillid) && now < mSkillCDEndbyID[skillid])
@@ -386,52 +403,46 @@ namespace Zealot.Server.AI
 
         protected void CastSkill()
         {
-            bool canCast = true; 
+            bool canCast = true;
             //Basic Attack might still be in cooldown here
             long now = mMonster.EntitySystem.Timers.GetSynchronizedTime();
             if (mSkillToExecute.skillgroupJson.skilltype == SkillType.BasicAttack)
-            {                 
+            {
                 if (now - mBasicAttackStartTime < mBasicAttackCooldown)
                 {
                     return;
-                } 
+                }
                 mBasicAttackCooldown = (long)(1000 * mSkillToExecute.skillJson.cooldown);
                 mBasicAttackCooldown = mBasicAttackCooldown < 500 ? 500 : mBasicAttackCooldown;
                 mBasicAttackStartTime = now;
-                canCast = /*!mMonster.HasControlStatus(ControlSEType.Disarmed) &&*/ !mMonster.HasControlStatus(ControlSEType.Stun);
+                canCast = /*!mMonster.HasControlStatus(ControlSEType.Disarmed) &&*/ !mMonster.HasControlStatus(ControlSEType.Stun) && !mMonster.IsGettingHit();
                 if (canCast)
                 {
-                    mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position); 
+                    mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position);
                 }
                 return;
             }
             else
             {
-                canCast = /*!mMonster.HasControlStatus(ControlSEType.Disarmed) &&*/ !mMonster.HasControlStatus(ControlSEType.Stun) && !mMonster.HasControlStatus(ControlSEType.Silence);
+                canCast = /*!mMonster.HasControlStatus(ControlSEType.Disarmed) &&*/ !mMonster.HasControlStatus(ControlSEType.Stun) && !mMonster.HasControlStatus(ControlSEType.Silence)
+                     && !mMonster.IsGettingHit();
             }
-            if (mConditionHappened.Count > 0 &&  mSkillToExecute.skillJson.id == mConditionHappened[0])
-            {
-                System.Diagnostics.Debug.WriteLine("skill condition casted " + mSkillToExecute.skillJson.id);
-                if(mAvialbeSkills.IndexOf(mSkillToExecute.skillJson.id) < 0)
-                    mAvialbeSkills.Add(mSkillToExecute.skillJson.id);//save happend skills. 
-                mConditionHappened.RemoveAt(0);//ensure the skill is casted.  
-            }
+
             if (canCast && !IsSkillInCooldown(mSkillToExecute.skillJson.id, now))
             {
                 mMonster.CastSkill(mSkillToExecute.skillJson.id, mTarget.GetPersistentID(), mTarget.Position);
                 mSkillCDEndbyID[mSkillToExecute.skillJson.id] = now + (long)(mSkillToExecute.skillJson.cooldown * 1000);
                 mSkillGCDEnd = now + (long)(mSkillToExecute.skillJson.globalcd * 1000);
-
             }
 #if LOG_BOSS_AI
             if (LogAI) log.Info("cast skill" + mSkillToExecute.skillJson.id);
 #endif
         }
         #endregion
-        
+
         protected bool IsTargetInvalid(Actor target)
         {
-            return  CombatUtils.IsInvalidTarget(target) || !IsInCombatRadius(target.Position);
+            return CombatUtils.IsInvalidTarget(target) || !IsInCombatRadius(target.Position);
         }
 
         protected virtual bool CheckTargetValid()
@@ -451,28 +462,28 @@ namespace Zealot.Server.AI
                 if (mTarget != null)
                 {
                     mThreats.Remove(mTarget.GetPersistentID());
-                    if (mHighestThreatAttacker == mTarget)                    
-                        mHighestThreatAttacker = null;                    
+                    if (mHighestThreatAttacker == mTarget)
+                        mHighestThreatAttacker = null;
                 }
                 SwitchTarget(null);
 
                 List<int> removeList = new List<int>();
-                foreach(KeyValuePair<int, Threat> entry in mThreats) 
+                foreach (KeyValuePair<int, Threat> entry in mThreats)
                 {
                     int pid = entry.Key;
                     Actor potentialTarget = entry.Value.actor;
                     if (IsTargetInvalid(potentialTarget)) //Take this opportunity to remove all invalid targets
                     {
-                        removeList.Add(pid);      
+                        removeList.Add(pid);
                         if (mHighestThreatAttacker != null && potentialTarget == mHighestThreatAttacker)
                             mHighestThreatAttacker = null;
                     }
-                    else if (mTarget==null)
+                    else if (mTarget == null)
                     {
                         SwitchTarget(potentialTarget);
                         ResetSkillToExecute();
-                    }                    
-                }                
+                    }
+                }
 
                 foreach (int pid in removeList)
                     mThreats.Remove(pid);
@@ -487,9 +498,8 @@ namespace Zealot.Server.AI
         }
 
         #region Goback State
-
         protected void GoBackToSafePoint()
-        {            
+        {
             mGoingBack = true;
             Vector3 randomPos = mSpawner.GetPos();
             if ((randomPos - mMonster.Position).sqrMagnitude > 4)
@@ -510,13 +520,13 @@ namespace Zealot.Server.AI
             mGoingBack = false;
             if (mMonster.mInstance.HasCPUResourceToGoBack())
                 GoBackToSafePoint();
-        }        
+        }
 
         protected override void OnGobackUpdate(long dt)
         {
             //TODO: might want to check for aggro while going back... 
-           
-            if(!mGoingBack)
+
+            if (!mGoingBack)
             {
                 if (mMonster.mInstance.HasCPUResourceToGoBack())
                     GoBackToSafePoint();
@@ -527,7 +537,7 @@ namespace Zealot.Server.AI
             {
                 if (mMonster.mArchetype.recoveronreturn)
                     mMonster.SetHealth(mMonster.GetHealthMax());
-                                
+
                 //mMonster.StopAllSideEffects();
                 mMonster.ResetDamageRecords();
                 GotoState("Idle");
@@ -590,11 +600,11 @@ namespace Zealot.Server.AI
                 mThreats.Add(attackerPID, new Threat(attackerActor, aggro));
                 accAggro = aggro;
             }
-            
+
             if (mHighestThreatAttacker != null)
             {
                 int highestAggro = mThreats[mHighestThreatAttacker.GetPersistentID()].aggro;
-                if (accAggro >= highestAggro && attackerActor != mHighestThreatAttacker)                
+                if (accAggro >= highestAggro && attackerActor != mHighestThreatAttacker)
                     mHighestThreatAttacker = attackerActor;
             }
             else
@@ -613,7 +623,7 @@ namespace Zealot.Server.AI
             int attackerPID = attackerActor.GetPersistentID();
             AddThreat(attackerPID, attackerActor, aggro);
 
-             
+
             string currentStateName = GetCurrentStateName();
             if ((currentStateName == "CombatApproach" || currentStateName == "CombatExecute" || currentStateName == "Goback"))
                 return false;
@@ -637,7 +647,7 @@ namespace Zealot.Server.AI
             //boss is not to have group aggro. unless there is a design. it may be done another way also.
         }
 
-        public override void OnKilled() 
+        public override void OnKilled()
         {
             SwitchTarget(null);
             mHighestThreatAttacker = null;
@@ -646,77 +656,93 @@ namespace Zealot.Server.AI
 
         public override void OnUpdate(long dt)
         {
-            base.OnUpdate(dt); 
+            base.OnUpdate(dt);
+            
             if (mActor.IsAlive() && IsInCombat())
             {
-                foreach(BaseSkillCondition cond in mAISkillConditions)
+                foreach (BaseSkillCondition cond in mAISkillConditions)
                 {
                     if (cond.Update(dt))
                     {
-                        mConditionHappened.Add( cond.skillid);
-                        System.Diagnostics.Debug.WriteLine("condition index happend:" + cond.Index.ToString());
+                        if (mCondistions.ContainsKey(cond.ID))
+                            continue;
+
+                        mCondistions.Add(cond.ID, cond.skillid);
+                    }
+                    else
+                    {
+                        if (!mCondistions.ContainsKey(cond.ID))
+                            continue;
+
+                        mCondistions.Remove(cond.ID);
                     }
                 }
             }
         }
 
         private List<BaseSkillCondition> mAISkillConditions;
-        private List<int> mConditionHappened;//happend condition skillid is queue up in this list.
-        private void InitAiConditions()
+        private Dictionary<int, int> mCondistions; // <Boss AI ID, Skill ID>
+        private List<int> mQueueSkills;
+
+        private void InitAIConditions()
         {
-            mAISkillConditions = new List<BaseSkillCondition>(); 
-            mConditionHappened = new List<int>();
-            int idx = 0;
+            mAISkillConditions = new List<BaseSkillCondition>();
+            mCondistions = new Dictionary<int, int>();
+            mQueueSkills = new List<int>();
+
             if (mMonster.mArchetype.bossai1 > 0)
             {
-                BossAIJson data = CombatNPCRepo.GetBossAIByID(mMonster.mArchetype.bossai1);
-                BaseSkillCondition inst = CreateInstanceByData(idx++, data);
-                if (inst != null)
-                    mAISkillConditions.Add(inst);
+                StoreConditions(mMonster.mArchetype.bossai1);
             }
+
             if (mMonster.mArchetype.bossai2 > 0)
             {
-                BossAIJson data = CombatNPCRepo.GetBossAIByID(mMonster.mArchetype.bossai2);
-                BaseSkillCondition inst = CreateInstanceByData(idx++, data);
-                if (inst != null)
-                    mAISkillConditions.Add(inst);
+                StoreConditions(mMonster.mArchetype.bossai2);
             }
         }
 
-        private BaseSkillCondition CreateInstanceByData(int idx, BossAIJson data)
+        private void StoreConditions(int bossAINum)
         {
-            BaseSkillCondition res=null;
+            BossAIJson data = CombatNPCRepo.GetBossAIByID(bossAINum);
+            BaseSkillCondition inst = CreateInstanceByData(data);
+            if (inst != null)
+                mAISkillConditions.Add(inst);
+        }
+
+        private BaseSkillCondition CreateInstanceByData(BossAIJson data)
+        {
+            BaseSkillCondition res = null;
             switch (data.condition)
             {
                 case AISkillCondition.SelfHpDown:
-                    res = new HealthMonitorDown(idx, data, this);               
+                    res = new HealthMonitorDown(data, this);
                     break;
                 case AISkillCondition.SelfHpUp:
-                    res = new HealthMonitorUp(idx, data, this);
+                    res = new HealthMonitorUp(data, this);
                     break;
                 case AISkillCondition.SelfHpInterval:
-                    res = new AccumulatedHealthLoss(idx, data, this);
+                    res = new AccumulatedHealthLoss(data, this);
                     break;
                 case AISkillCondition.Engage:
-                    res = new EngageTimerMonitor(idx,  data, this);
+                    res = new EngageTimerMonitor(data, this);
                     break;
                 case AISkillCondition.TargetHpUp:
-                    res = new TargetHealthMonitor(idx, data, false, this);
+                    res = new TargetHealthMonitor(data, false, this);
                     break;
                 case AISkillCondition.TargetHpDown:
-                    res = new TargetHealthMonitor(idx, data, true, this);
+                    res = new TargetHealthMonitor(data, true, this);
                     break;
                 case AISkillCondition.InrangePlayer:
-                    res = new InRangePlayerMonitor(idx, data, this);
+                    res = new InRangePlayerMonitor(data, this);
                     break;
                 case AISkillCondition.TargetNegSE:
-                    res = new TargetSEMonitor(idx, data, false, this);
+                    res = new TargetSEMonitor(data, false, this);
                     break;
                 case AISkillCondition.TargetNegSkill:
-                    res = new TargetSEMonitor(idx, data, true, this);
+                    res = new TargetSEMonitor(data, true, this);
                     break;
                 case AISkillCondition.None:
-                    res = new NoneSpecifiedCondition(idx, data, this);
+                    res = new NoneSpecifiedCondition(data, this);
                     break;
                 default:
                     break;
@@ -725,290 +751,220 @@ namespace Zealot.Server.AI
         }
 
         private abstract class BaseSkillCondition
-        {        
-            protected int mIndex;
+        {
+            protected int mID;
             protected int mSkillId;
-            public int skillid { get { return mSkillId; }   }
-            public int Index { get { return mIndex; } }
-
             protected BossAIBehaviour self;
-            public BaseSkillCondition(int idx, BossAIJson data, BossAIBehaviour target)
+
+            public int ID { get { return mID; } }
+            public int skillid { get { return mSkillId; } }
+
+            public BaseSkillCondition(BossAIJson data, BossAIBehaviour target)
             {
-                mIndex = idx;
+                mID = data.id;
                 mSkillId = data.skillid;
                 self = target;
             }
-           
+
             public virtual void Reset() { }
             public virtual bool Update(long dt) { return false; }
         }
 
-        private class NoneSpecifiedCondition:BaseSkillCondition
+        private class NoneSpecifiedCondition : BaseSkillCondition
         {
             protected bool mTriggered = false;
-            public NoneSpecifiedCondition(int idx, BossAIJson data, BossAIBehaviour target) :base(idx, data,target) 
-            {
-            }
+            public NoneSpecifiedCondition(BossAIJson data, BossAIBehaviour target) : base(data, target) { }
 
             public override bool Update(long dt)
             {
-                if(!mTriggered)
-                {
-                    mTriggered = true;
-                    return true;
-                }else
-                {
-                    return false;
-                }
+                mTriggered = true;
+                return mTriggered;
             }
 
             public override void Reset()
             {
-                mTriggered = false; 
+                mTriggered = false;
             }
         }
+
         private class HealthMonitorDown : BaseSkillCondition
-        { 
+        {
             private float mThreshold;
-            private float mLastValue;
-            public HealthMonitorDown(int idx,  BossAIJson data, BossAIBehaviour target) :base(idx, data,target) 
+
+            public HealthMonitorDown(BossAIJson data, BossAIBehaviour target) : base(data, target)
             {
-                 
                 mThreshold = data.conditiondata * 0.01f;
-                mLastValue = self.mActor.PlayerStats.DisplayHp;
             }
-            
+
             public override bool Update(long dt)
             {
-                bool res = false;
-                if (mLastValue > mThreshold && self.mActor.PlayerStats.DisplayHp < mThreshold)
-                {
-                    res= true;
-                }
-                else
-                {
-                    res = false;
-                }
-                mLastValue = self.mActor.PlayerStats.DisplayHp;
-                return res;
+                return self.mActor.PlayerStats.DisplayHp < mThreshold;
             }
         }
 
         private class HealthMonitorUp : BaseSkillCondition
         {
-             
             private float mThreshold;
-            private float mLastValue;
-            public HealthMonitorUp(int idx, BossAIJson data, BossAIBehaviour target) : base(idx, data,target)
-            { 
-                mThreshold = data.conditiondata * 0.01f;
-                mLastValue = self.mActor.PlayerStats.DisplayHp;
+
+            public HealthMonitorUp(BossAIJson data, BossAIBehaviour target) : base(data, target)
+            {
+                mThreshold = data.conditiondata * 0.01f; // Convert data value format to percentage. Range: 0 ~ 1
             }
 
             public override bool Update(long dt)
             {
-                bool res = false;
-                if (mLastValue < mThreshold && self.mActor.PlayerStats.DisplayHp > mThreshold)
-                {
-                    res = true;
-                }
-                else
-                {
-                    res = false;
-                }
-                mLastValue = self.mActor.PlayerStats.DisplayHp;
-                return res;
+                return self.mActor.PlayerStats.DisplayHp > mThreshold;
             }
         }
-        private class EngageTimerMonitor: BaseSkillCondition
+
+        private class EngageTimerMonitor : BaseSkillCondition
         {
             private long mEngageTime;
             private long mInitTime;
-            private bool mbEngaged;
-            public EngageTimerMonitor(int idx,   BossAIJson data, BossAIBehaviour target) :base(idx, data, target)
+            private bool bEngaged;
+
+            public EngageTimerMonitor(BossAIJson data, BossAIBehaviour target) : base(data, target)
             {
                 mInitTime = (long)(data.conditiondata * 1000);
-                mEngageTime = mInitTime;  
-            }
-            public override void Reset()
-            {
-                mbEngaged = false;
                 mEngageTime = mInitTime;
             }
+
+            public override void Reset()
+            {
+                bEngaged = false;
+                mEngageTime = mInitTime;
+            }
+
             public override bool Update(long dt)
             {
-                bool res = false;
-                if (!mbEngaged)
-                { 
+                if (!bEngaged)
+                {
                     mEngageTime -= dt;
                     if (mEngageTime <= 0)
                     {
-                        mbEngaged = true;
-                        res = true;
+                        bEngaged = true;
+                        return true;
                     }
+                    return false;
                 }
-                return res;
+                else
+                    return true;
             }
         }
 
         private class AccumulatedHealthLoss : BaseSkillCondition
-        { 
+        {
             private float mThreshold;
             private float mLastValue;
-            private float mAccumulatedValue;
-            public AccumulatedHealthLoss(int idx,  BossAIJson data, BossAIBehaviour target) :base(idx, data,target)
-            { 
+
+            public AccumulatedHealthLoss(BossAIJson data, BossAIBehaviour target) : base(data, target)
+            {
                 mThreshold = data.conditiondata * 0.01f;
-                mLastValue = self.mActor.PlayerStats.DisplayHp;
-                mAccumulatedValue = 0;
+                mLastValue = self.mActor.PlayerStats.DisplayHp - mThreshold;
             }
 
             public override void Reset()
             {
-                mAccumulatedValue = 0;
+                mLastValue = self.mActor.PlayerStats.DisplayHp - mThreshold;
             }
+
             public override bool Update(long dt)
             {
-                if (mLastValue >= self.mActor.PlayerStats.DisplayHp)
+                if (self.mActor.PlayerStats.DisplayHp <= mLastValue)
                 {
-                    mAccumulatedValue += mLastValue - self.mActor.PlayerStats.DisplayHp;
-                }
-                else
-                {
-                    mAccumulatedValue = 0;
-                }
-                mLastValue = self.mActor.PlayerStats.DisplayHp;
-                if (mAccumulatedValue >= mThreshold)
-                {
-                    mAccumulatedValue = 0;
+                    mLastValue = self.mActor.PlayerStats.DisplayHp - mThreshold;
+                    self.AddSkillToWaitForCast(skillid);
                     return true;
                 }
                 else
+                {
                     return false;
+                }
             }
         }
 
-        private class TargetHealthMonitor:BaseSkillCondition
+        private class TargetHealthMonitor : BaseSkillCondition
         {
             private float mThreshold;
             private float mLastValue;
             private Actor mLastTarget;
-            private bool isdown = false;
-            public TargetHealthMonitor(int idx, BossAIJson data, bool isDown, BossAIBehaviour target) :base(idx, data,target)
+            private bool bIsDown = false;
+
+            public TargetHealthMonitor(BossAIJson data, bool isDown, BossAIBehaviour target) : base(data, target)
             {
                 mThreshold = data.conditiondata * 0.01f;
-                isdown = isDown;
+                bIsDown = isDown;
             }
 
             public override bool Update(long dt)
             {
-                bool res = false;
-                if (mLastTarget!= null && self.mTarget !=null && mLastTarget == self.mTarget)
-                {
-                    if (isdown && mLastValue > mThreshold && mLastTarget.PlayerStats.DisplayHp < mThreshold)
-                    {
-                        res = true;
-                    }
-                    else if(!isdown && mLastValue <mThreshold && mLastTarget.PlayerStats.DisplayHp > mThreshold)
-                    {
-                        res = true;
-                    }
-                }
                 mLastTarget = self.mTarget;
+
                 if (mLastTarget != null)
                 {
                     mLastValue = mLastTarget.PlayerStats.DisplayHp;
+
+                    if (bIsDown && mLastValue < mThreshold) // Target Hp Down
+                        return true;
+                    else if (!bIsDown && mLastValue > mThreshold) // Target Hp Up
+                        return true;
                 }
-                else
-                {
-                    mLastValue = 0;
-                }
-                return res;
+
+                mLastValue = 0;
+                return false;
             }
         }
 
         private class InRangePlayerMonitor : BaseSkillCondition
         {
             private int mCount = 0;
-            private bool bTriggered = false;
-            public InRangePlayerMonitor(int idx, BossAIJson data,BossAIBehaviour target) :base(idx,data,target)
-            {
-                mCount = (int)data.conditiondata;
-            }
+            private float mRadius;
 
-            public override void Reset()
+            public InRangePlayerMonitor(BossAIJson data, BossAIBehaviour target) : base(data, target)
             {
-                mQueryInterval = 5000;
-                bTriggered = false;
+                mCount = Mathf.FloorToInt(data.conditiondata);
+                mRadius = SkillRepo.GetSkill(mSkillId).skillJson.radius;
             }
-
-            private long mQueryInterval = 5000;
+            
             public override bool Update(long dt)
             {
-                mQueryInterval -= dt;
-                bool res = false;
-                if (mQueryInterval > 0)
-                {
-                    res= false;
-                }
-                else if (mQueryInterval <= 0 && !bTriggered)
-                {
-                    //do a query;
-                    if (self.mMonster!=null)
-                    {
-                        int num =CombatUtils.QueryNumberOfPlayersInSphere(self.mMonster, self.mSpawner.GetCombatRadius());
-                        if ( num >= mCount)
-                        {
-                            bTriggered = true;
-                            res = true;
-                        }
-                    }
-                    mQueryInterval = 5000;
-                }
-                return res;
+                if (self.mMonster == null)
+                    return false;
+                
+                int num = CombatUtils.QueryNumberOfPlayersInSphere(self.mMonster, mRadius);
+                if (num >= mCount)
+                    return true;
+
+                return false;
             }
         }
 
         private class TargetSEMonitor : BaseSkillCondition
         {
-            private bool mIsID = false;
-            private EffectType mType;
-            private int mId;
-            private bool mbTriggered = false;
-            public TargetSEMonitor(int idx, BossAIJson data, bool isID, BossAIBehaviour target):base(idx, data, target)
-            {
-                mIsID = isID; 
-                if (mIsID)
-                {
-                    mId = (int)data.conditiondata;
-                }
-                else
-                {
-                    mType = (EffectType)((int)data.conditiondata);
-                }
-            }
+            private bool mIsSkillID = false;
+            private int id;
 
-            public override void Reset()
+            public TargetSEMonitor(BossAIJson data, bool isSKill, BossAIBehaviour target) : base(data, target)
             {
-                mbTriggered = false;
+                mIsSkillID = isSKill;
+                id = Mathf.FloorToInt(data.conditiondata);
             }
 
             public override bool Update(long dt)
             {
-                bool res = false;
-                if (!mbTriggered)
+                if(self.mTarget != null)
                 {
-                    if (mIsID)
-                    {
-                        res = self.mTarget.HasSideEffect(mId);
-                    }
+                    Player player = self.mTarget as Player;
+                    if (player == null)
+                        return false;
+
+                    if (mIsSkillID)
+                        return player.HasSkill(id);
                     else
-                    {
-                        res = self.mTarget.HasSideEffectType(mType);
-                    }
-                    mbTriggered = true;
-                }   
-                return res;
+                        return player.HasSideEffect(id);
+                }
+
+                return false;
             }
         }
     }

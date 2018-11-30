@@ -21,7 +21,7 @@ namespace Zealot.Common.Entities
         protected int gridSizeX = 4, gridSizeZ = 4;
         protected float gridSizeHX = 2.0f, gridSizeHZ = 2.0f, gridOriX = 0.0f, gridOriZ = 0.0f;
         protected int gridNX = 64, gridNZ = 64;
-        protected LinkedList<Entity>[,] mDEntityGridList, mDNetEntityGridList;        
+        protected LinkedList<Entity>[,] mDEntityGridList, mDNetEntityGridList;
 
         protected Dictionary<int, Entity> mEntities;
         protected Dictionary<int, Entity> mNetEntities;
@@ -108,7 +108,7 @@ namespace Zealot.Common.Entities
             if (gidx >= gridNX) gidx = gridNX - 1;
             if (gidz < 0) gidz = 0;
             if (gidz >= gridNZ) gidz = gridNZ - 1;
-        }        
+        }
 
         protected void OnAddEntity(int id, int pid, Entity entity)
         {
@@ -123,7 +123,7 @@ namespace Zealot.Common.Entities
                 mNetEntities.Add(pid, entity);
                 mDNetEntityGridList[gz, gx].AddLast(entity);
             }
-        }               
+        }
 
         public bool RemoveEntityByID(int id)
         {
@@ -145,7 +145,7 @@ namespace Zealot.Common.Entities
                 mEntities.Remove(id);
                 mIDPool.FreeID(id, currentTick);
                 mDEntityGridList[gz, gx].Remove(entity);
-				entity.Destroyed = true;
+                entity.Destroyed = true;
                 entity.OnRemove();
                 return true;
             }
@@ -167,9 +167,8 @@ namespace Zealot.Common.Entities
                 mEntities.Remove(id);
                 mIDPool.FreeID(id, currentTick);
                 mDEntityGridList[gz, gx].Remove(entity);
-				entity.Destroyed = true;
+                entity.Destroyed = true;
                 entity.OnRemove();
-              
                 return true;
             }
             return false;
@@ -177,20 +176,16 @@ namespace Zealot.Common.Entities
         
         public Entity GetEntityByID(int id)
         {
-            if (mEntities.ContainsKey(id))
-            {
-                return mEntities[id];                
-            }
-            return null;
+            Entity entity;
+            mEntities.TryGetValue(id, out entity);
+            return entity;
         }
 
         public Entity GetEntityByPID(int pid)
         {
-            if (mNetEntities.ContainsKey(pid))
-            {
-                return mNetEntities[pid];
-            }
-            return null;
+            Entity entity;
+            mNetEntities.TryGetValue(pid, out entity);
+            return entity;
         }
 
         public List<IBaseNetEntity> GetNetEntitiesByOwner(int ownerID) //0 = server
@@ -198,11 +193,9 @@ namespace Zealot.Common.Entities
             List<IBaseNetEntity> list = new List<IBaseNetEntity>();
             foreach (KeyValuePair<int, Entity> entry in mNetEntities)
             {
-                IBaseNetEntity ne = (IBaseNetEntity)(entry.Value);
+                IBaseNetEntity ne = (IBaseNetEntity)entry.Value;
                 if (ne.GetOwnerID() == ownerID)
-                {
                     list.Add(ne);
-                }
             }
             return list;
         }
@@ -217,15 +210,15 @@ namespace Zealot.Common.Entities
 
             OnAddEntity(id, 0, entity);
             return entity;
-        }       
+        }
         
         public virtual void Update(long dt)
-        {            
+        {
             entities.AddRange(mEntities.Values);
 
             //foreach (KeyValuePair<int, Entity> entry in mEntities) //we may modify the dictionary while processing each entity
             foreach (Entity entity in entities)
-            {            
+            {
                 if (!entity.Destroyed)
                     entity.Update(dt);
             }
@@ -243,9 +236,9 @@ namespace Zealot.Common.Entities
         public Dictionary<int, Entity> GetAllNetEntities()
         {
             return mNetEntities;
-        }        
+        }
 
-#region Entities Queries        
+#region Entities Queries
 
         public void QueryEntitiesInCircle(Vector3 center, float radius, QueryEntityFilter filterFor, List<Entity> retList)
         {
@@ -374,13 +367,13 @@ namespace Zealot.Common.Entities
                     }
                 }
             return closestEntity;
-        }      
+        }
 
         //coumpte the four corners of a front half rectangle given center, extents and direction
         //note that may get either cw or ccw rectangle, but it does not matter when computing grid bound
         public static void ComputeRectFABCD(Vector2 O, Vector2 dir1, Vector2 dir2,
-                                                out Vector2 A, out Vector2 B, out Vector2 C, out Vector2 D)
-        {                         
+                                            out Vector2 A, out Vector2 B, out Vector2 C, out Vector2 D)
+        {
             A = O + dir2;
             B = A + dir1;
             D = O - dir2;
@@ -411,7 +404,7 @@ namespace Zealot.Common.Entities
         }
 
         private void ComputeGridMinMaxInRect(Vector2 pA, Vector2 pB, Vector2 pC, Vector2 pD,
-                                                out int gidXMin, out int gidZMin, out int gidXMax, out int gidZMax)
+                                             out int gidXMin, out int gidZMin, out int gidXMax, out int gidZMax)
         {
             int tx, tz;
             ComputeGridId(pA.x, pA.y, out tx, out tz);
@@ -439,7 +432,7 @@ namespace Zealot.Common.Entities
             Vector2 v2 = new Vector2(-hw * normalizedDir.z, hw * normalizedDir.x);
             Vector2 v2offset = new Vector2(v2.x - MAX_ENTITY_RADIUS * normalizedDir.z, v2.y + MAX_ENTITY_RADIUS * normalizedDir.x);
             Vector2 pA, pB, pC, pD;
-            ComputeRectFABCD(pO, v1offset, v2offset, out pA, out pB, out pC, out pD);            
+            ComputeRectFABCD(pO, v1offset, v2offset, out pA, out pB, out pC, out pD);
  
             int gidxmin, gidxmax, gidzmin, gidzmax;
             ComputeGridMinMaxInRect(pA, pB, pC, pD, out gidxmin, out gidzmin, out gidxmax, out gidzmax);
@@ -490,7 +483,7 @@ namespace Zealot.Common.Entities
                         if (!ent.Destroyed && filterFor(ent))
                         {
                             Vector3 vDist = ent.Position - center;
-                            Vector2 v = new Vector2(vDist.x, vDist.z);                                                        
+                            Vector2 v = new Vector2(vDist.x, vDist.z);
                             float t1 = Vector2.Dot(v, v1);
                             float t2 = Vector2.Dot(v, v2);
                             if (t2 < 0) t2 = -t2;
@@ -501,7 +494,7 @@ namespace Zealot.Common.Entities
                                     closestEntity = ent;
                                     resDist2 = d;
                                 }
-                            }                                
+                            }
                         }
                     }
                 }

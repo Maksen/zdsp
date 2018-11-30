@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CnControls;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,7 +7,6 @@ using Zealot.Common.Actions;
 using Zealot.Client.Actions;
 using Zealot.Client.Entities;
 using Zealot.Common.Entities;
-using CnControls;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -116,7 +116,7 @@ public class PlayerInput : MonoBehaviour
         if (PointerScreen.Instance.PointerCount == 1) // first pointer on screen
             pointerId = -4;  // reset
         else
-            pointerId = eventData.pointerId;
+            pointerId = eventData.pointerId;   
     }
 
     private void OnPointerClick(PointerEventData eventData)
@@ -136,9 +136,11 @@ public class PlayerInput : MonoBehaviour
                 Ray ray = mainCam.mainCamera.ScreenPointToRay(eventData.position);
                 RaycastHit[] hits = Physics.RaycastAll(ray, 100f, PickableLayerMask);
                 Array.Sort(hits, rayHitComparer);  // sort the hits by distance
-                for (int i = 0; i < hits.Length; ++i)
+                int length = hits.Length;
+                for (int i = 0; i < length; ++i)
                 {
-                    GameObjectToEntityRef entityRef = hits[i].collider.GetComponent<GameObjectToEntityRef>();
+                    RaycastHit rcHit = hits[i];
+                    GameObjectToEntityRef entityRef = rcHit.collider.GetComponent<GameObjectToEntityRef>();
                     if (entityRef)
                     {
                         //Debug.Log("click on entity :" + entityRef.ToString());
@@ -156,10 +158,9 @@ public class PlayerInput : MonoBehaviour
                                 if (entity.IsInteractiveTrigger())
                                     entityRef.gameObject.GetComponent<InteractiveEntities>().OnClickEntity();
                             }
-                                
+
                             //if (entity.IsActor())
                             //    Debug.Log("click on entity :" + ((ActorGhost)entity).GetPersistentID());
-                            
                             GameInfo.gCombat.OnSelectEntity(entity);
                             break;  // can select entity, so ignore remaining hits, else continue to check other hits
                         }
@@ -168,19 +169,19 @@ public class PlayerInput : MonoBehaviour
                     {
                         if (isWaitingForTargetPos)
                         {
-                            _selectCallback(null, hits[i].point);
+                            _selectCallback(null, rcHit.point);
                         }
                         else if (mPlayerGhost.CanMove())
                         {
-                            SetMoveIndicator(hits[i].point);
+                            SetMoveIndicator(rcHit.point);
                             mPlayerGhost.ActionInterupted();
                             PartyFollowTarget.Pause();
-                            mPlayerGhost.mBotStateController.Interrupt();
-                            mPlayerGhost.PathFindToTarget(hits[i].point, -1, 0, false, false, () =>
+                            Zealot.Bot.BotStateController.Instance.Interrupt();
+                            mPlayerGhost.PathFindToTarget(rcHit.point, -1, 0, false, false, () =>
                             {
                                 SetMoveIndicator(Vector3.zero);
                                 PartyFollowTarget.Resume();
-                                mPlayerGhost.mBotStateController.Resume();
+                                Zealot.Bot.BotStateController.Instance.Resume();
                             });
                         }
                         break;
@@ -235,7 +236,7 @@ public class PlayerInput : MonoBehaviour
                     mPlayerGhost.ActionInterupted();
 
                     if(currCommand.GetActionType() != ACTIONTYPE.CASTSKILL)
-                        mPlayerGhost.mBotStateController.Interrupt();
+                        Zealot.Bot.BotStateController.Instance.Interrupt();
                 }
             }
         }
@@ -248,7 +249,7 @@ public class PlayerInput : MonoBehaviour
                 mPlayerGhost.Idle();
                 mPlayerGhost.Bot.ClearRouter();
                 PartyFollowTarget.Resume();
-                mPlayerGhost.mBotStateController.Resume();
+                Zealot.Bot.BotStateController.Instance.Resume();
             }
         }
 

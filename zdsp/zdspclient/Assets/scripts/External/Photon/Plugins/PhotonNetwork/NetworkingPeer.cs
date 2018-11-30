@@ -855,7 +855,7 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
                         bool isEstablishConnection = false;
                         if (opParams.Count > 0 && opParams.ContainsKey(ParameterCode.LoginType))
                         {
-                            LoginType loginType = (LoginType)opParams[ParameterCode.LoginType];
+                            LoginAuthType loginType = (LoginAuthType)opParams[ParameterCode.LoginType];
                             string loginID = "", cookieId = "", password = "", serverList = "", userid = "";
                             if (opParams.ContainsKey(ParameterCode.LoginId))
                                 loginID = opParams[ParameterCode.LoginId] as string;
@@ -870,16 +870,16 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
 
                             switch (loginType)
                             {
-                                case LoginType.EstablishConnection:
+                                case LoginAuthType.EstablishConnection:
                                     GameInfo.gLogin.OnEstablishedConnection(loginID, serverList);
                                     isEstablishConnection = true;
                                     break;
-                                case LoginType.Device:
-                                case LoginType.Facebook:
-                                case LoginType.Google:
+                                case LoginAuthType.Device:
+                                case LoginAuthType.Facebook:
+                                case LoginAuthType.Google:
                                     GameInfo.gLogin.OnLoginSuccess(loginType.ToString(), loginID, cookieId, userid, serverList, "");
                                     break;
-                                case LoginType.Username:
+                                case LoginAuthType.Username:
                                     GameInfo.gLogin.OnLoginSuccess(loginType.ToString(), loginID, cookieId, userid, serverList, password);
                                     break;                               
                             }

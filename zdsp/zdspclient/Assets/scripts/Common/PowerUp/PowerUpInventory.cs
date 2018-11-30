@@ -6,11 +6,6 @@ namespace Zealot.Common
     public partial class PowerUpInventoryData
     {
         #region serializable properties
-        // Method #1
-        [JsonProperty(PropertyName = "powerUpLevels")]
-        public string powerUpLevels;
-
-        // Method #2
         [JsonProperty(PropertyName = "powerUpSlots")]
         public List<int> powerUpSlots = new List<int>();
 
@@ -44,7 +39,7 @@ namespace Zealot.Common
             if(meridianExpSlots.Count == 0)
             {
                 for (int i = 0; i < MAX_MERIDIANLEVELSLOTS; ++i)
-                    meridianExpSlots.Add(0);
+                    meridianExpSlots.Add(-1);
             }
         }
     }

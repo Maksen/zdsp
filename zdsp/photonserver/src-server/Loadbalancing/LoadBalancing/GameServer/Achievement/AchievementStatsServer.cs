@@ -54,8 +54,8 @@ namespace Photon.LoadBalancing.GameServer
             ParseAchievements(invData.Achievements);
             RewardClaims = invData.RewardClaims;
             ParseRewardClaims();
-            LatestCollections = invData.LatestCollections;
-            LatestAchievements = invData.LatestAchievements;
+            LatestCollections = ""; // invData.LatestCollections;
+            LatestAchievements = ""; //invData.LatestAchievements;
             ParseLatestRecords(latestCollectionsList, LatestCollections);
             ParseLatestRecords(latestAchievementList, LatestAchievements);
             ParseCompleteTargets(invData.CompletedTargets);
@@ -82,6 +82,7 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         #region ParseFromString
+
         private void ParseCollections(string value)
         {
             collectionsDict.Clear();
@@ -210,9 +211,11 @@ namespace Photon.LoadBalancing.GameServer
                 }
             }
         }
+
         #endregion ParseFromString
 
         #region ConvertToString
+
         private void SyncCollectionByIndex(int idx)
         {
             List<CollectionElement> list;
@@ -298,10 +301,14 @@ namespace Photon.LoadBalancing.GameServer
             sb.Clear();
             return targetString;
         }
+
         #endregion ConvertToString
 
         public void UpdateCollection(CollectionType objType, int target)
         {
+            if (!peer.CharacterData.IsTutorialRealmDone)
+                return;
+
             CollectionObjective obj = AchievementRepo.GetCollectionObjectiveByKey(objType, target);
             if (obj != null && !collectionsDict.ContainsKey(obj.id))
             {
@@ -323,8 +330,8 @@ namespace Photon.LoadBalancing.GameServer
 
                 AddToRewardClaims(AchievementKind.Collection, obj.id);
                 UpdateRewardClaimsString();
-                AddToLatestRecords(AchievementKind.Collection, obj.id, now);
-                UpdateRecordsString(AchievementKind.Collection);
+                //AddToLatestRecords(AchievementKind.Collection, obj.id, now);
+                //UpdateRecordsString(AchievementKind.Collection);
             }
         }
 
@@ -384,6 +391,8 @@ namespace Photon.LoadBalancing.GameServer
         public void UpdateAchievement(AchievementObjectiveType objType, string target = "-1", bool isNonTarget = true,
             int count = 1, bool increment = true, bool debug = false)
         {
+            if (!peer.CharacterData.IsTutorialRealmDone)
+                return;
             if (count <= 0 && !debug)
                 return;
 
@@ -406,7 +415,7 @@ namespace Photon.LoadBalancing.GameServer
                     AchievementElement elem = GetAchievementById(obj.id);
                     int idx = (int)obj.mainType;
                     bool isAlreadyCompleted = false;
-                    
+
                     if (elem != null) // existing achievement
                     {
                         isAlreadyCompleted = elem.IsCompleted();
@@ -428,7 +437,7 @@ namespace Photon.LoadBalancing.GameServer
                     if (!isAlreadyCompleted && elem.IsCompleted())  // just completed this achievement so can claim
                     {
                         AddToRewardClaims(AchievementKind.Achievement, obj.id);
-                        AddToLatestRecords(AchievementKind.Achievement, obj.id, DateTime.Now);
+                        //AddToLatestRecords(AchievementKind.Achievement, obj.id, DateTime.Now);
                         hasNewlyCompleted = true;
                     }
                 }
@@ -459,7 +468,7 @@ namespace Photon.LoadBalancing.GameServer
             if (hasNewlyCompleted) // has completed new ones so need update string
             {
                 UpdateRewardClaimsString();
-                UpdateRecordsString(AchievementKind.Achievement);
+                //UpdateRecordsString(AchievementKind.Achievement);
             }
         }
 
@@ -567,7 +576,7 @@ namespace Photon.LoadBalancing.GameServer
             }
 
             // Visit level
-            string levelId = player.mInstance.mCurrentLevelID.ToString();
+            string levelId = player.mInstance.mCurrentLevelId.ToString();
             UpdateAchievement(AchievementObjectiveType.Scene, levelId, true);
             UpdateAchievement(AchievementObjectiveType.Scene, levelId, false);
         }
@@ -596,6 +605,7 @@ namespace Photon.LoadBalancing.GameServer
         }
 
         #region Rewards
+
         public void ClaimReward(AchievementKind type, int id)
         {
             AchievementRewardClaim claim = claimsList.Find(x => x.ClaimType == type && x.Id == id);
@@ -628,6 +638,8 @@ namespace Photon.LoadBalancing.GameServer
                     AchievementObjective achObj = obj as AchievementObjective;
                     GiveFunctionReward(achObj.rewardFunction, achObj.rewardFunctionValue);
                 }
+
+                peer.ZRPC.CombatRPC.Ret_ClaimAchievementReward(string.Format("{0};{1}", (int)claim.ClaimType, claim.Id), peer);
             }
 
             claimsList.Remove(claim);
@@ -666,7 +678,7 @@ namespace Photon.LoadBalancing.GameServer
                     else
                     {
                         dirtyAchSlot.Add(elem.SlotIdx);
-                        // function reward 
+                        // function reward
                         AchievementObjective achObj = obj as AchievementObjective;
                         GiveFunctionReward(achObj.rewardFunction, achObj.rewardFunctionValue);
                     }
@@ -791,7 +803,7 @@ namespace Photon.LoadBalancing.GameServer
             List<SideEffectJson> passiveSEs = levelInfo.sideEffects;
             for (int i = 0; i < passiveSEs.Count; ++i)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE,-1, true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE, -1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse != null)
                 {
@@ -806,6 +818,7 @@ namespace Photon.LoadBalancing.GameServer
                 combatStats.ComputeAll();
             }
         }
+
         #endregion Rewards
 
         private void ApplyStoredCollectionPassives(CollectionObjective obj)
@@ -814,7 +827,7 @@ namespace Photon.LoadBalancing.GameServer
             List<SideEffectJson> passiveSEs = obj.storeSEs;
             for (int i = 0; i < passiveSEs.Count; ++i)
             {
-                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE,-1, true);
+                SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE, -1, true);
                 IPassiveSideEffect pse = se as IPassiveSideEffect;
                 if (pse != null)
                 {
@@ -851,6 +864,48 @@ namespace Photon.LoadBalancing.GameServer
         }
 
 #if DEBUG
+        public void ConsoleGetCollectionById(int id)
+        {
+            CollectionObjective obj = AchievementRepo.GetCollectionObjectiveById(id);
+            if (obj != null)
+                UpdateCollection(obj.type, obj.targetId);
+        }
+
+        public void ConsoleGetAchievementById(int id)
+        {
+            AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(id);
+            if (obj != null)
+            {
+                int dirtySlot = -1;
+                int idx = (int)obj.mainType;
+                AchievementElement elem = GetAchievementById(id);
+                if (elem != null)
+                {
+                    if (!elem.IsCompleted())
+                    {
+                        elem.UpdateCount(-1, false);
+                        dirtySlot = idx;
+                    }
+                }
+                else
+                {
+                    elem = new AchievementElement(obj.id, obj.completeCount, obj.completeCount, false, idx);
+                    achievementsDict.Add(obj.id, elem);
+                    achievementElementsByIdx[idx].Add(elem);
+                    dirtySlot = idx;
+                }
+
+                if (dirtySlot != -1)  // rebuild dirty slot in collectionhandler
+                {
+                    SyncAchievementByIndex(dirtySlot);
+                    AddToRewardClaims(AchievementKind.Achievement, obj.id);
+                    //AddToLatestRecords(AchievementKind.Achievement, obj.id, DateTime.Now);
+                    UpdateRewardClaimsString();
+                    //UpdateRecordsString(AchievementKind.Achievement);
+                }
+            }
+        }
+
         public void ConsoleResetCollections()
         {
             collectionsDict.Clear();

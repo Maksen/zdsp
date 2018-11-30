@@ -110,6 +110,12 @@ namespace Zealot.Server.Rules
                 case QuestObjectiveType.QuickTalk:
                     success = true;
                     break;
+                case QuestObjectiveType.Guide:
+                    if (objectiveJson.para1 == param1 && objectiveData.Count < 1)
+                    {
+                        success = true;
+                    }
+                    break;
             }
 
             if (success)
@@ -218,6 +224,7 @@ namespace Zealot.Server.Rules
                 case QuestObjectiveType.Choice:
                 case QuestObjectiveType.Empty:
                 case QuestObjectiveType.MultipleObj:
+                case QuestObjectiveType.Guide:
                     if (count >= 1)
                     {
                         return true;
@@ -408,27 +415,24 @@ namespace Zealot.Server.Rules
             return canAccept;
         }
 
-        public static CurrentQuestData StartNewQuestFromItem(int questid, int objectiveid, Player player)
+        public static CurrentQuestData StartNewQuestFromItem(int questid, int group, Player player)
         {
             QuestJson questJson = QuestRepo.GetQuestByID(questid);
             if (!questJson.isopen)
             {
                 return null;
             }
-
-            int group = -1;
-            int seqnum = -1;
-            bool result = QuestRepo.GetQuestGroupByObjectiveId(questid, objectiveid, out group, out seqnum);
-
-            if (result)
+            
+            List<int> result =  QuestRepo.GetObjectiveId(questid, group, 0);
+            if (result != null)
             {
                 CurrentQuestData questData = new CurrentQuestData(questJson.type);
                 questData.QuestId = questJson.questid;
 
                 questData.MainObjective = new CurrentObjectiveData();
                 questData.GroupdId = group;
-                questData.MainObjective.ObjectiveIds = new List<int>() { objectiveid };
-                questData.MainObjective.SequenceNum = seqnum;
+                questData.MainObjective.ObjectiveIds = result;
+                questData.MainObjective.SequenceNum = 0;
                 questData.MainObjective.ProgressCount = new List<int>(questData.MainObjective.ObjectiveIds.Count);
                 questData.MainObjective.RequirementProgress = new Dictionary<int, int>();
 
@@ -798,9 +802,10 @@ namespace Zealot.Server.Rules
                 {
                     newQuestData = questData;
                     newQuestData.MainObjective.RequirementProgress = new Dictionary<int, int>();
+                    newQuestData.MainObjective.ProgressCount = new List<int>(questData.MainObjective.ObjectiveIds.Count);
                     for (int i = 0; i < questData.MainObjective.ObjectiveIds.Count; i++)
                     {
-                        newQuestData.MainObjective.ProgressCount[i] = 0;
+                        newQuestData.MainObjective.ProgressCount.Add(0);
                         Dictionary<int, int> requirements = GenerateRequirementProgress(newQuestData.MainObjective.ObjectiveIds[i], player);
                         foreach (KeyValuePair<int, int> requirement in requirements)
                         {
@@ -833,8 +838,26 @@ namespace Zealot.Server.Rules
                             objectiveData.CompleteTime = GetObjectiveEndTime(objectiveData.ObjectiveIds);
                             newQuestData.SubObjective.Add(id, objectiveData);
                         }
+
+                        bool eventresult = false;
+                        foreach (int objectiveid in objectiveData.ObjectiveIds)
+                        {
+                            eventresult = QuestRepo.CheckQuestEventByObjectiveId(objectiveid);
+                            if (eventresult)
+                            {
+                                break;
+                            }
+                        }
+                        if (eventresult)
+                        {
+                            questData.SubStatus = (byte)QuestStatus.NewObjectiveWithEvent;
+                        }
+                        else
+                        {
+                            questData.SubStatus = (byte)QuestStatus.NewObjective;
+                        }
                     }
-                    newQuestData.SubStatus = (byte)QuestStatus.Non;
+                   
                 }
                 return true;
             }

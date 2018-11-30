@@ -45,6 +45,7 @@
         public LocalCombatStats LocalCombatStats { get; private set; }
         public LocalSkillPassiveStats LocalSkillPassiveStats { get; private set; }
         public BuffTimeStats BuffTimeStats { get; private set; }
+        //public ChatStats ChatStats { get; private set; }
         public SocialStats SocialStats { get; private set; }
         public WelfareStats WelfareStats { get; private set; }
         public SevenDaysStats SevenDaysStats { get; private set; }
@@ -80,12 +81,8 @@
         //Donate
         public DonateController DonateController;
 
-        //InteractiveTrigger
-        public InteractiveTriggerController InteractiveTriggerController;
-
         // Friends
         private StringBuilder friendSB;
-
         private StringBuilder friendRemoveSB;
         private Dictionary<string, string> friendsRecDict;
         private DateTime friendRecommendedCD;
@@ -97,10 +94,12 @@
 
         public WardrobeController WardrobeController { get; private set; }
         public bool InspectMode = false;
+        public bool IsInWorld = false;
 
         public WeaponType WeaponTypeUsed = WeaponType.Any;
         public MainWeaponAttribute WeaponAttr;
-        private bool mIsWorld = false;
+
+        public Dictionary<int, int> mSkillRecord;
 
         public Player() : base()
         {
@@ -146,7 +145,7 @@
             
             DonateController = new DonateController(this);
 
-            InteractiveTriggerController = new InteractiveTriggerController();
+            mSkillRecord = new Dictionary<int, int>();
         }
 
         public override int GetAccuracy()
@@ -264,6 +263,9 @@
 
             LOStats.Add(LOTYPE.BuffTimeStats, BuffTimeStats);
 
+            //ChatStats = new ChatStats();
+            //LOStats.Add(LOTYPE.ChatStats, ChatStats);
+
             SocialStats = new SocialStats(true);
             LOStats.Add(LOTYPE.SocialStats, SocialStats);
 
@@ -326,24 +328,22 @@
         public override void SetInstance(GameLogic instance)
         {
             base.SetInstance(instance);
-            mIsWorld = instance.IsWorld();
+            IsInWorld = instance.mIsWorld;
             RealmController realmController = instance.mRealmController;
             if (realmController != null)
             {
-                switch (realmController.mRealmInfo.pvptype)
+                RealmPVPType pvpType = realmController.mRealmInfo.pvptype;
+                switch (pvpType)
                 {
                     case RealmPVPType.Peace:
                         PlayerSynStats.Team = -1;
                         break;
-
                     case RealmPVPType.FreeForAll:
-                        PlayerSynStats.Team = -2;
+                        PlayerSynStats.Team = 0;
                         break;
-
                     case RealmPVPType.Guild:
-                        PlayerSynStats.Team = (SecondaryStats.guildId == 0) ? -2 : SecondaryStats.guildId;
+                        PlayerSynStats.Team = SecondaryStats.guildId;
                         break;
-
                     case RealmPVPType.Faction:
                         PlayerSynStats.Team = PlayerSynStats.faction;
                         break;
@@ -368,7 +368,7 @@
             mSaveCharacterTimer = mInstance.SetTimer(120000, OnSaveCharacterTimerUp, true);
             if ((bool)arg)
                 SaveToCharacterData(false);
-            Slot.SaveCharacter();
+            Slot.SaveCharacter(true);
         }
 
         public void ForceSaveCharacter()
@@ -534,7 +534,7 @@
             Actor attackerActor = (Actor)attacker;
             if (attackerActor.IsPlayer())
             {
-                string logstr2 = string.Format("[{0}][{1}][{2}][{3}][{4}]", DateTime.Now.ToString(), attacker.Name, "Killed", Name, mInstance.mCurrentLevelID);
+                string logstr2 = string.Format("[{0}][{1}][{2}][{3}][{4}]", DateTime.Now.ToString(), attacker.Name, "Killed", Name, mInstance.mCurrentLevelId);
                 LogStr(logstr2, attacker as Player);
             }
 
@@ -561,9 +561,8 @@
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
                         {
-                            mRespawnTimer = null;
                             RespawnAtCity();
-                            int mapId = mInstance.mCurrentLevelID;
+                            int mapId = mInstance.mCurrentLevelId;
                             DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
                         }, null);
                     }
@@ -575,9 +574,8 @@
                         int realCD = mRespawnInfo.countdown * 1000;
                         mRespawnTimer = mInstance.SetTimer(realCD, (arg) =>
                         {
-                            mRespawnTimer = null;
                             RespawnAtSafezone();
-                            int mapId = mInstance.mCurrentLevelID;
+                            int mapId = mInstance.mCurrentLevelId;
                             DeathRules.LogDeathRespawnType("Timer", mapId, Slot);
                         }, null);
                     }
@@ -629,17 +627,13 @@
                 mInstance.StopTimer(mRespawnTimer);
                 mRespawnTimer = null;
             };
-            string city = RealmRepo.GetCity(PlayerSynStats.Level);
-            if (city == mInstance.currentlevelname)
-            {
-                mInstance.SetSpawnPos(this);
-                Respawn();
-                HeroStats.SetSpawnedHeroPosition(this);
-            }
+            if (Slot.TransferToLastWorld(PlayerSynStats.Level))
+                ResetStatsOnRespawn();
             else
             {
-                ResetStatsOnRespawn();
-                Slot.TransferToRealmWorld(city);
+                mInstance.SetPlayerPosToSpawnPos(this);
+                Respawn();
+                HeroStats.SetSpawnedHeroPosition(this);
             }
         }
 
@@ -654,7 +648,7 @@
             {
                 StartInvincible(1);
             }
-            mInstance.SetSpawnPos(this);
+            mInstance.SetPlayerPosToSpawnPos(this);
             Respawn();
             HeroStats.SetSpawnedHeroPosition(this);
         }
@@ -672,7 +666,7 @@
 
         public void ResetStatsOnRespawn()
         {
-            log.InfoFormat("[{0}]: respawn ({1})", mInstance.ID, GetPersistentID());
+            log.InfoFormat("[{0}]: Respawn ({1})", mInstance.ID, GetPersistentID());
             SetHealth(GetHealthMax() / 5);
             SetMana(GetManaMax());
         }
@@ -814,7 +808,7 @@
                 InCombatTime -= dt;
                 if (InCombatTime <= 0)
                     LocalCombatStats.IsInCombat = false;
-                if (mIsWorld && PlayerSynStats.Party == 0)
+                if (IsInWorld && PlayerSynStats.Party == 0)
                 {
                     mBattleTimeCountdown -= dt;
                     if (mBattleTimeCountdown <= 0)
@@ -893,47 +887,57 @@
             characterData.ProgressLevel = PlayerSynStats.Level;
             characterData.portraitID = PlayerSynStats.PortraitID;
             characterData.CharInfoData.StatPoint = LocalCombatStats.StatsPoint;
-            characterData.CharInfoData.Str = LocalCombatStats.Strength;
-            characterData.CharInfoData.Agi = LocalCombatStats.Agility;
-            characterData.CharInfoData.Con = LocalCombatStats.Constitution;
-            characterData.CharInfoData.Int = LocalCombatStats.Intelligence;
-            characterData.CharInfoData.Dex = LocalCombatStats.Dexterity;
+            characterData.CharInfoData.Str = (int)CombatStats.GetField(FieldName.StrengthBase);
+            characterData.CharInfoData.Agi = (int)CombatStats.GetField(FieldName.AgilityBase);
+            characterData.CharInfoData.Con = (int)CombatStats.GetField(FieldName.ConstitutionBase);
+            characterData.CharInfoData.Int = (int)CombatStats.GetField(FieldName.IntelligenceBase);
+            characterData.CharInfoData.Dex = (int)CombatStats.GetField(FieldName.DexterityBase);
 
-            int lastlevelid = mInstance.mCurrentLevelID;
+            int lastlevelid = mInstance.mCurrentLevelId;
             string roomguid = mInstance.mRoom.Guid;
             if (exitroom)
             {
-                bool kickToCity = false;
-                if (InspectMode)
-                    kickToCity = true;
-                else if (!IsAlive())
+                if (IsInWorld)
                 {
-                    ResetStatsOnRespawn();
-                    if (mRespawnInfo.respawntype == RespawnType.SafeZone)
-                        mInstance.SetSpawnPos(this);
-                    else
+                    characterData.LastWorldId = mInstance.mCurrentLevelId;
+                    characterData.LastWorldPos[0] = Position.x;
+                    characterData.LastWorldPos[1] = Position.y;
+                    characterData.LastWorldPos[2] = Position.z;
+                }
+                /*else
+                {
+                    bool kickToCity = false;
+                    if (InspectMode)
                         kickToCity = true;
-                }
-                if (kickToCity)
-                {
-                    lastlevelid = LevelRepo.GetInfoByName(RealmRepo.GetCity(PlayerSynStats.Level)).id;
-                    roomguid = "";
-                    Position = Vector3.zero;
-                }
+                    else if (!IsAlive())
+                    {
+                        ResetStatsOnRespawn();
+                        if (mRespawnInfo.respawntype == RespawnType.SafeZone)
+                            mInstance.SetPlayerPosToSpawnPos(this);
+                        else
+                            kickToCity = true;
+                    }
+                    if (kickToCity)
+                    {
+                        lastlevelid = LevelRepo.GetInfoByName(RealmRepo.GetCity(PlayerSynStats.Level)).id;
+                        Position = Vector3.zero;
+                        roomguid = "";
+                    }
+                }*/
             }
 
             //characterData.EquipScore = LocalCombatStats.CombatScore;
             characterData.Health = GetHealth();
             characterData.Mana = GetMana();
             characterData.Experience = SecondaryStats.experience;
-            characterData.lastlevelid = lastlevelid;
-            characterData.roomguid = roomguid;
-            characterData.lastpos[0] = Position.x;
-            characterData.lastpos[1] = Position.y;
-            characterData.lastpos[2] = Position.z;
-            characterData.lastdirection[0] = Forward.x;
-            characterData.lastdirection[1] = Forward.y;
-            characterData.lastdirection[2] = Forward.z;
+            characterData.RoomGuid = roomguid;
+            characterData.LastLevelId = lastlevelid;           
+            characterData.LastLevelPos[0] = Position.x;
+            characterData.LastLevelPos[1] = Position.y;
+            characterData.LastLevelPos[2] = Position.z;
+            characterData.LastDirection[0] = Forward.x;
+            characterData.LastDirection[1] = Forward.y;
+            characterData.LastDirection[2] = Forward.z;
 
             characterData.ItemHotBarData = ItemHotbarStats.ToString();
             characterData.InspectCombatStats.Update(LocalCombatStats);
@@ -955,7 +959,7 @@
 
             characterData.JobSect = PlayerSynStats.jobsect;
 
-            //if (exitroom) // Log out
+            //if (exitroom) // Logout
             //{
             //    //Bag
             //    TimeSpan duration = new TimeSpan(DateTime.Now.Ticks - SecondaryStats.DTSlotOpenTime);
@@ -973,7 +977,7 @@
 
             SkillInventoryData skillInventory = characterData.SkillInventory;
             skillInventory.basicAttack1SId = SkillStats.basicAttack1SId;
-            skillInventory.SkillInvCount = SkillStats.SkillInvCount;
+            //skillInventory.SkillInvCount = SkillStats.SkillInvCount;
             skillInventory.equipGroup = SkillStats.EquipGroup;
             skillInventory.autoGroup = SkillStats.AutoGroup;
             skillInventory.EquipSize = SkillStats.EquipSize;
@@ -984,9 +988,16 @@
                 skillInventory.EquippedSkill[i] = (int)SkillStats.EquippedSkill[i];
                 skillInventory.AutoSkill[i] = (int)SkillStats.AutoSkill[i];
             }
-            count = SkillStats.SkillInv.Count;
-            for (int i = 0; i < count; ++i)
-                skillInventory.SkillInv[i] = (int)SkillStats.SkillInv[i];
+
+            foreach(var item in mSkillRecord)
+            {
+                if (skillInventory.m_SkillInventory.ContainsKey(item.Key))
+                {
+                    skillInventory.m_SkillInventory[item.Key] = item.Value;
+                }
+                else
+                    skillInventory.AddSkillToBag(item.Key, item.Value);
+            }
 
             SideEffectInventoryData sideeffectInv = characterData.SideEffectInventory;
             sideeffectInv.SEList.Clear();
@@ -1018,8 +1029,11 @@
             // Achievement
             AchievementStats.SaveToInventory(Slot.AchievementInvData);
 
+            // Chatroom
+            //characterData.ChatInventory.SaveToInventoryData(ChatStats);
+
             // Social
-            SocialStats.SaveToInventoryData(Slot.mSocialInventory);
+            //SocialStats.SaveToInventoryData(Slot.mSocialInventory);
 
             //SocialInventoryData socialInv = Slot.mSocialInventory;
             //IList<string> socialInvFriendList = socialInv.friendList;
@@ -1247,39 +1261,18 @@
             }
         }
 
-        public static void SetPlayerStats(byte jobsect, int currentlevel, ICombatStats combatstats)
+        public static void SetPlayerStats(byte jobsect, int currentlevel, ICombatStats combatstats, CharacterInfoData charainfo)
         {
-            //JobCombatStatsJson jobpara = ExperienceRepo.GetJobParameterByJobType((JobType)jobsect);
-            //LevelUpJson levelUpJson = ExperienceRepo.GetLevelInfo(currentlevel);
+            combatstats.AddToField(FieldName.StrengthBase, charainfo.Str);
+            combatstats.AddToField(FieldName.AgilityBase, charainfo.Agi);
+            combatstats.AddToField(FieldName.DexterityBase, charainfo.Dex);
+            combatstats.AddToField(FieldName.ConstitutionBase, charainfo.Con);
+            combatstats.AddToField(FieldName.IntelligenceBase, charainfo.Int);
 
-            //if (jobpara == null || levelUpJson == null)
-            //{
-            combatstats.AddToField(FieldName.HealthBase, 1000);
-            combatstats.AddToField(FieldName.ManaBase, 10);
-            combatstats.AddToField(FieldName.AttackBase, 50);
-            combatstats.AddToField(FieldName.ArmorBase, 10);
-            combatstats.AddToField(FieldName.VSHumanDefenseBonus, 20);
-            combatstats.AddToField(FieldName.VSHumanDefensePercBonus, 10);
-            combatstats.AddToField(FieldName.StrengthBase, 50);
-            combatstats.AddToField(FieldName.WeaponAttackBase, 10);
-            combatstats.AddToField(FieldName.ConstitutionBase, 10);
-            combatstats.AddToField(FieldName.IntelligenceBase, 10);
-            combatstats.AddToField(FieldName.IgnoreArmorBase, 10);
-            combatstats.AddToField(FieldName.SliceDefenseBonus, 10);
-            combatstats.AddToField(FieldName.DecreaseFinalDamageBonus, 11);
-            combatstats.AddToField(FieldName.BlockRate, 50);
-            combatstats.AddToField(FieldName.BlockValueBonus, 40);
+            JobsectJson job = JobSectRepo.GetJobByType((JobType)jobsect);
+            combatstats.AddToField(FieldName.HealthBase, job.hpbase);
+            combatstats.AddToField(FieldName.ManaBase, job.manabase);
             return;
-            //}
-            //combatstats.AddToField(FieldName.HealthBase, Mathf.FloorToInt(jobpara.hp * levelUpJson.hp));
-            //combatstats.AddToField(FieldName.AttackBase, Mathf.FloorToInt(jobpara.attack * levelUpJson.attack));
-            //combatstats.AddToField(FieldName.ArmorBase, Mathf.FloorToInt(jobpara.defense * levelUpJson.defense));
-            //combatstats.AddToField(FieldName.CriticalBase, Mathf.FloorToInt(jobpara.critical * levelUpJson.critical));
-            //combatstats.AddToField(FieldName.CocriticalBase, Mathf.FloorToInt(jobpara.cocritical * levelUpJson.cocritical));
-            //combatstats.AddToField(FieldName.CriticalDamageBase, Mathf.FloorToInt(jobpara.criticaldamage * levelUpJson.criticaldamage));
-            //combatstats.AddToField(FieldName.CoCriticalDamageBase, Mathf.FloorToInt(jobpara.cocriticaldamage * levelUpJson.cocriticaldamage));
-            //combatstats.AddToField(FieldName.AccuracyBase, Mathf.FloorToInt(jobpara.accuracy * levelUpJson.accuracy));
-            //combatstats.AddToField(FieldName.EvasionBase, Mathf.FloorToInt(jobpara.evasion * levelUpJson.evasion));
         }
 
         public void LevelUp()
@@ -1543,11 +1536,6 @@
         //}
 
         #endregion EquipmentStats
-
-        public void InitItemHotbar(string str)
-        {
-            ItemHotbarStats.InitItemHotbarFromString(str);
-        }
 
         public void UpdateItemHotbar(byte index, int itemIdToAdd)
         {
@@ -3501,17 +3489,9 @@
             }
         }
 
-        public bool IsInCity()
-        {
-            RealmWorldJson realmWorldJson = RealmRepo.GetWorldByName(mInstance.currentlevelname);
-            if (realmWorldJson != null && realmWorldJson.maptype == MapType.City)
-                return true;
-            return false;
-        }
-
         public bool CheckInvitePvpAskInCity(GameClientPeer askerpeer, GameClientPeer targetpeer, bool fromasker)
         {
-            if (askerpeer.mPlayer.IsInCity() == true && targetpeer.mPlayer.IsInCity() == true)
+            if (askerpeer.mPlayer.mInstance.mIsCity && targetpeer.mPlayer.mInstance.mIsCity)
                 return true;
             else
             {
@@ -3621,6 +3601,23 @@
                 Slot.QuestController.FailQuest(Slot.CharacterData.QuestInventory.RealmQuestId);
             }
             Slot.CharacterData.QuestInventory.RealmQuestId = questid;
+        }
+
+        public bool HasSkill(int id)
+        {
+            foreach (int skillid in SkillStats.AutoSkill)
+            {
+                if (skillid != 0 && skillid == id)
+                    return true;
+            }
+
+            foreach (int skillid in SkillStats.EquippedSkill)
+            {
+                if (skillid != 0 && skillid == id)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

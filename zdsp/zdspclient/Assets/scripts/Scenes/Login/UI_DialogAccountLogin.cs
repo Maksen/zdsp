@@ -42,6 +42,6 @@ public class UI_DialogAccountLogin : MonoBehaviour
         if (string.IsNullOrEmpty(loginId) || string.IsNullOrEmpty(pass))
             return;
 
-        GameInfo.gLogin.OnLogin(LoginType.Username, loginId, pass);
+        GameInfo.gLogin.OnLogin(LoginAuthType.Username, loginId, pass);
     }
 }

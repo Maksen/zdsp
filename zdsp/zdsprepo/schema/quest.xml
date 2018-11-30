@@ -20,6 +20,7 @@
     </element>
       
     <element name="Quest" useexcel="true" collectionkey="questid">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="questid" type="int" uitext="Quest ID" unique="true"/>
       <property name="questname" type="localizedstring" uitext="Quest Name(Localized)"/>
       <property name="subname" type="localizedstring" uitext="SubName(Localized)"/>
@@ -46,11 +47,16 @@
       <property name="unlockval" type="string" uitext="Unlock Value"/>
       <property name="showae" type="bool" uitext="Is Show AE"/>
       <property name="teleport" type="bool" uitext="Teleport"/>
+      <property name="resetteleport" type="bool" uitext="Reset Execution Teleport"/>
+      <property name="resetmap" type="string" uitext="Reset Teleport Map"/>
+      <property name="resetposition" type="string" uitext="Reset Position"/>
       <property name="candelete" type="bool" uitext="Can Delete?" default="true"/>
       <property name="canreset" type="bool" uitext="Can Reset?" default="true"/>
+      <property name="showbutton" type="bool" uitext="Show Trigger Button?" default="true"/>
     </element>
 
     <element name="QuestObjective" useexcel="true" collectionkey="objid">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="objid" type="int" uitext="Objective ID" unique="true"/>
       <property name="name" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Localized Name"/>
@@ -67,6 +73,7 @@
     </element>
     
     <element name="QuestEventDetail" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="groupid" type="int" uitext="Group Id"/>
       <property name="timing" type="EventTimingType" uitext="Event Timing"/>
       <property name="type" type="QuestEventType" uitext="Event Type"/>
@@ -78,6 +85,7 @@
     </element>
 
     <element name="QuestTalkDetail" useexcel="true" collectionkey="name">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="talkid" type="int" uitext="Talk ID" unique="true"/>
       <property name="name" type="string" uitext="Name"/>
       <property name="steps" type="int" uitext="Total Steps" default="1" min="1" max="7"/>
@@ -100,6 +108,7 @@
     </element>
 
     <element name="QuestSelectDetail" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="groupid" type="int" uitext="Group ID"/>
       <property name="answer" type="localizedstring" uitext="Answer"/>
       <property name="questtalkid" type="QuestTalkDetail" uitext="Next Talk ID" display="name"/>
@@ -110,6 +119,7 @@
     </element>
 
     <element name="QuestInteractiveDetail" useexcel="true" collectionkey="interactiveid">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="interactiveid" type="int" uitext="Interactive ID" unique="true"/>
       <property name="interactivetime" type="int" uitext="Interactive Time" default="0"/>
       <property name="successrate" type="int" uitext="Success Rate" default="0"/>
@@ -123,6 +133,7 @@
     </element>
 
     <element name="QuestRequirementDetail" useexcel="true" collectionkey="requirementid">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="requirementid" type="int" uitext="Requirement ID" unique="true"/>
       <property name="groupid" type="int" uitext="Group ID"/>
       <property name="type" type="QuestRequirementType" uitext="Type"/>
@@ -132,6 +143,7 @@
     </element>
   
     <element name="QuestDestiny" useexcel="true" collectionkey="destinyid">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="destinyid" type="int" uitext="Destiny ID" unique="true"/>
       <property name="groupid" type="int" uitext="Group ID"/>
       <property name="type" type="QuestDestinyType" uitext="Country Type"/>
@@ -148,6 +160,7 @@
     </element>
   
    <element name="QuestSignboard" useexcel="true" collectionkey="signboardid">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="signboardid" type="int" uitext="Signboard ID" unique="true"/>
       <property name="groupid" type="int" uitext="Group ID"/>
       <property name="lvlmin" type="int" uitext="Min Level"/>
@@ -172,6 +185,7 @@
     </element>
     
     <element name="Donate" useexcel="true">
+      <property name="remark" type="string" uitext="Remark" noexport="true"/>
       <property name="groupid" type="int" uitext="Group ID"/>
       <property name="rarity" type="int" uitext="Rarity"/>
       <property name="normalprobability" type="int" uitext="Normal Probability"/>

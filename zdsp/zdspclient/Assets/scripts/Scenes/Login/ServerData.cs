@@ -17,7 +17,7 @@ public class ServerData : MonoBehaviour
     public void Init(ServerInfo serverInfo, ServerLine serverLineInfo, ToggleGroup toggleGrp, UnityAction<bool> onValueChanged = null)
     {
         gameobjRecommended.SetActive(serverLineInfo.recommended);
-        txtServerName.text = ClientUtils.GetServerNameWithColor(serverInfo.serverLoad, serverLineInfo.displayName, serverInfo.serverName);
+        txtServerName.text = ClientUtils.GetServerNameWithColor(serverInfo.ServerLoad, serverLineInfo.displayName, serverInfo.ServerName);
 
         toggle.group = toggleGrp;
         toggle.onValueChanged.AddListener(onValueChanged);

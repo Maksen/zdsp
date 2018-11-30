@@ -28,10 +28,6 @@ namespace Zealot.Common
         public void InitDefault ()
         {
             EndOfFusion = false;
-            if (CoinSlot <= 0)
-            {
-                CoinSlot = 0;
-            }
             FusionItemSort = 0;
             FusionData = string.Empty;
         }

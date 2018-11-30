@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ExitGames.Logging;
+using System.Collections.Generic;
 using Zealot.Common;
 using Zealot.Common.Entities;
-using UnityEngine;
-using ExitGames.Logging;
 using Zealot.Server.Counters;
 
 namespace Zealot.Server.Entities
@@ -89,7 +88,7 @@ namespace Zealot.Server.Entities
             if (mPlayerDict.ContainsKey(name))
             {
                 mPlayerDict[name] = player;
-                log.InfoFormat("{0} in {1} not clear properly", name, player.mInstance.currentlevelname);
+                log.InfoFormat("{0} in {1} not clear properly", name, player.mInstance.mCurrentLevelName);
             }
             else
                 mPlayerDict.Add(name, player);

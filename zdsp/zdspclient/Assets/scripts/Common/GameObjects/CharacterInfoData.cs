@@ -16,4 +16,9 @@ public class CharacterInfoData
 
     [JsonProperty(PropertyName = "statpt")]
     public int StatPoint { get; set; }
+
+    public void InitDefault()
+    {
+        Str = Agi = Con = Int = Dex = 1;
+    }
 }

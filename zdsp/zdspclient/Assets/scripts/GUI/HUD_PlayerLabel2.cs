@@ -7,17 +7,26 @@ using Zealot.Common;
 using Zealot.Repository;
 using Zealot.Client.Entities;
 using Zealot.Common.Entities;
+using Zealot.Common.Datablock;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
+/// <summary>
+/// This enum should tally with ActorStats's EffectVisualTypes
+/// EffectVisualTypes is a flag
+/// </summary>
 public enum BuffEnum
 {
-    Buff = 0,
-    Debuff,
-
-    Max_BuffType,
+    Stun,
+    Slow,
+    Silence,
+    Root,
+    Disarmed,
+    Frozen,
+    Petrify,
+    NUM
 };
 
 public enum LabelTypeEnum
@@ -46,6 +55,37 @@ public enum LabelTypeEnum
 /// </summary>
 public class HUD_PlayerLabel2 : MonoBehaviour
 {
+    private class BuffDebuff
+    {
+        public int controlstat = -1;
+        public int skill = -1;
+        public Image img = null;
+
+        public void SetAsControlStatus(int ctrlIdx, Sprite spr)
+        {
+            controlstat = ctrlIdx;
+            img.sprite = spr;
+            skill = -1;
+            img.gameObject.SetActive(true);
+        }
+
+        public void SetAsSkillDebuff(int skillIdx, Sprite spr)
+        {
+            controlstat = -1;
+            img.sprite = spr;
+            skill = skillIdx;
+            img.gameObject.SetActive(true);
+        }
+
+        public void Turnoff()
+        {
+            controlstat = -1;
+            skill = -1;
+            img.gameObject.SetActive(false);
+            img.sprite = null;
+        }
+    };
+
     public delegate Vector2 GetCanvasPosDelegate(Vector3 worldOffset);
 
     [Header("Inspector Linked GameObject")]
@@ -84,8 +124,10 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     Gradient2 mHpBarGradient;
     Text mShieldValue;
     LabelTypeEnum mLabelType = LabelTypeEnum.Invalid;
-    int mNumActiveBuff = 0;
     GetCanvasPosDelegate mCanvasPosFunc = null;
+    int mNumActiveBuff = 0;
+    const int MAX_BUFF = 4;
+    List<BuffDebuff> mActiveBuffList = new List<BuffDebuff>();
     #endregion
 
     #region properties
@@ -191,6 +233,15 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     {
         set { mCanvasPosFunc = value; }
     }
+    private int NumBuff
+    {
+        get { return mNumActiveBuff; }
+        set
+        {
+            mNumActiveBuff = value;
+            CheckBuffAutoOff();
+        }
+    }
     #endregion
 
     [Header("Buff related")]
@@ -198,7 +249,7 @@ public class HUD_PlayerLabel2 : MonoBehaviour
     GameObject mBuffPrefab;
     [SerializeField]
     List<Sprite> mBuffPathList;
-    Dictionary<EffectVisualTypes, GameObject> mActiveBuffDic = new Dictionary<EffectVisualTypes, GameObject>();
+
 
     [Header("HP bar gradient")]
     [SerializeField]
@@ -244,16 +295,19 @@ public class HUD_PlayerLabel2 : MonoBehaviour
 
         //Create all buff gameobject icons and hide them
         //Create dict to quick access buff game object icon
-        for (EffectVisualTypes e = EffectVisualTypes.Stun; e < EffectVisualTypes.NUM; e++)
+        for (int i = 0; i < MAX_BUFF; ++i)
         {
             GameObject obj = Instantiate(mBuffPrefab, Vector3.zero, Quaternion.identity) as GameObject;
             obj.transform.SetParent(mBuffParent.transform, false);
             obj.SetActive(false);
 
             Image img = obj.GetComponent<Image>();
-            img.sprite = mBuffPathList[(int)e];
+            img.sprite = null;
 
-            mActiveBuffDic[e] = obj;
+            BuffDebuff bd = new BuffDebuff();
+            bd.img = img;
+
+            mActiveBuffList.Add(bd);
         }
     }
     void OnDestroy()
@@ -300,26 +354,126 @@ public class HUD_PlayerLabel2 : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// Set control debuff's icons, has higher priority than skill buff/debuff icons
+    /// overwrites any skill buff/debuff icons
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="onoff"></param>
     public void SetUnsetBuffDebuff(EffectVisualTypes e, int onoff)
     {
-        ////Buff to remove
-        //if (onoff == 0)
-        //{
-        //    mActiveBuffDic[e].SetActive(false);
-        //    mNumActiveBuff--;
-        //}
-        ////Buff to add
-        //else if (onoff > 0)
-        //{
-        //    mActiveBuffDic[e].SetActive(true);
-        //    mNumActiveBuff++;
-        //}
+        if (e >= EffectVisualTypes.NUM)
+            return;
+        
+        //Cast bitwise flag into index for array
+        //(Math: the power of the value of the flag is the index to our array)
+        int ee = (int)Mathf.Log((int)e, 2);
+        int emptyIdx = -1;
+        int skilldebuff = -1;
+
+        //Loop check, if buff exists, set according to onoff
+        for (int i = 0; i < MAX_BUFF; ++i)
+        {
+            if (mActiveBuffList[i].controlstat == ee)
+            {
+                if (onoff <= 0)
+                {
+                    mActiveBuffList[i].Turnoff();
+                    NumBuff--;
+                }
+                //return; //buff found, exit
+            }
+
+            else if (mActiveBuffList[i].controlstat < 0)
+            {
+                if (mActiveBuffList[i].skill < 0)
+                    emptyIdx = i;
+                else
+                    skilldebuff = i;
+            } 
+        }
+
+        //If buff dont exist, and buff turn off, exit
+        if (onoff <= 0)
+            return;
+
+        //TODO: Allocate better later
+        //Find a empty buff slot and initialize
+        if (emptyIdx > 0)
+        {
+            mActiveBuffList[emptyIdx].SetAsControlStatus(ee, mBuffPathList[ee]);
+            NumBuff++;
+        }
+        else if (skilldebuff > 0)
+        {
+            mActiveBuffList[skilldebuff].SetAsControlStatus(ee, mBuffPathList[ee]);
+            NumBuff++;
+        }
     }
+    public void SetUnsetBuffDebuff(CollectionHandler<object> buffs)
+    {
+        if (buffs == null)
+            return;
+
+        //CollectionHandler<object> buffs - contain only 4 debuffs or buff
+        bool isBuff = false;
+        SEORIGINID origin = SEORIGINID.NONE;
+        int originid = -1;
+        int buffIdx = 0;
+
+        for (int j = 0; j < MAX_BUFF; ++j, buffIdx += 2)
+        {
+            //Skip if this is a controlstatus debuff
+            if (mActiveBuffList[j].controlstat >= 0)
+                continue;
+
+            //Grab 1 buff
+            long t = Convert.ToInt64(buffs[buffIdx]);
+            long ticks = Convert.ToInt64(buffs[buffIdx+1]);
+            //if buff is no more, disable it
+            if (t == 0)
+            {
+                if (mActiveBuffList[j].skill >= 0)
+                {
+                    mActiveBuffList[j].Turnoff();
+                    NumBuff--;
+                }
+                continue;
+            }
+
+            //Decode buff/debuff
+            isBuff = (t & (((long)1) << 40)) == (((long)1) << 40) ? true : false;
+            origin = (SEORIGINID)((t >> 32) & ~(1 << 8));
+            originid = (int)(t & ~1);
+
+            Sprite spr = null;
+            switch (origin)
+            {
+                case SEORIGINID.EITEM:
+                    IInventoryItem item = GameRepo.ItemFactory.GetInventoryItem(originid);
+                    spr = ClientUtils.LoadIcon(item.JsonObject.iconspritepath);
+                    break;
+                case SEORIGINID.ESKILL:
+                    SkillData sd = SkillRepo.GetSkill(originid);
+                    spr = ClientUtils.LoadIcon(sd.skillgroupJson.icon);
+                    break;
+            }
+
+            //Check if its a new skill buff
+            if (mActiveBuffList[j].skill < 0)
+                NumBuff++;
+            //Initialize buff icon with skill buff/debuff info;
+            mActiveBuffList[j].SetAsSkillDebuff(originid, spr);
+
+        }
+    }
+
     public void SetBuffDebuff(ActorGhost ghost)
     {
         if (ghost == null)
             return;
 
+        //ghost.PlayerStats.VisualEffectTypes;
         //SetUnsetBuffDebuff(BuffEnum.ArrowUp, ghost.PlayerStats.havebuff);
         //SetUnsetBuffDebuff(BuffEnum.ArrowDown, ghost.PlayerStats.havedebuff);
         //SetUnsetBuffDebuff(BuffEnum.GreenWaterdrop, ghost.PlayerStats.havedot);

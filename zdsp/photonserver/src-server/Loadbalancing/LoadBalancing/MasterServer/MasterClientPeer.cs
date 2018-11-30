@@ -209,7 +209,7 @@ namespace Photon.LoadBalancing.MasterServer
             //string salt = Guid.NewGuid().ToString().Replace("-", "");
             //string hpass = GetHashedID(salt+password);
             AccountInsertResult? result
-                = await MasterApplication.dbGMRepository.PlayerAccount.InsertAccountAsync((int)LoginType.Username, username, password, deviceId);
+                = await MasterApplication.dbGMRepository.PlayerAccount.InsertAccountAsync((int)LoginAuthType.Username, username, password, deviceId);
             if (result.HasValue)
             {
                 if (result.Value.ErrorCode == AccountInsertErrorCode.UsernameInUse)
@@ -248,7 +248,7 @@ namespace Photon.LoadBalancing.MasterServer
             string loginId = request.LoginId;
             string requestType = request.DeviceId;
             short returnCode = (short)ErrorCode.InvalidLoginType;
-            LoginType currloginType;
+            LoginAuthType currloginType;
             bool isLoginValid = Enum.TryParse(loginType, out currloginType); // Check if valid
             if (isLoginValid)
             {
@@ -519,7 +519,7 @@ namespace Photon.LoadBalancing.MasterServer
             string extra_param_str = GetExtraParam(request.ClientAuthenticationParams);
 
             ErrorCode returnCode = ErrorCode.InvalidAuthentication;
-            LoginType currloginType; // Login system authentication 
+            LoginAuthType currloginType; // Login system authentication 
             bool isLoginValid = Enum.TryParse(login_type_str, out currloginType); // Check if valid login type
             string loginId = ""; // Login ID of player
             string userId = Guid.Empty.ToString();
@@ -528,12 +528,12 @@ namespace Photon.LoadBalancing.MasterServer
                 List<Dictionary<string, object>> loginIdList = null;
                 switch (currloginType)
                 {
-                    case LoginType.EstablishConnection:
+                    case LoginAuthType.EstablishConnection:
                         // For authentication that only to establish connection
                         loginId = token_str;
                         if (!string.IsNullOrEmpty(loginId))
                         {
-                            LoginType tmpType;
+                            LoginAuthType tmpType;
                             bool isValidEnum = Enum.TryParse(loginId, out tmpType); // Check if valid login type
                             // If is not a login connection
                             if (!isValidEnum && !loginId.Equals("Register") && !loginId.Equals("VerifyLoginIdRegister") &&
@@ -566,9 +566,9 @@ namespace Photon.LoadBalancing.MasterServer
 //                        returnCode = ErrorCode.Ok;
 //                        break;
 //#endif
-                    case LoginType.Username:
+                    case LoginAuthType.Username:
                         loginId = token_str;
-                        loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginType.Username, loginId);
+                        loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginAuthType.Username, loginId);
                         if (loginIdList.Count <= 0) // Account does not exist
                             returnCode = ErrorCode.UsernameDoesNotExist;
                         else // Account exist
@@ -587,7 +587,7 @@ namespace Photon.LoadBalancing.MasterServer
                         }
                         break;
 
-                    case LoginType.Facebook:
+                    case LoginAuthType.Facebook:
                         string accessToken = token_str;
                         IDictionary<string, object> tokenData = await GetFBTokenData(accessToken);
                         if (tokenData != null)
@@ -596,11 +596,11 @@ namespace Photon.LoadBalancing.MasterServer
                             if (valid)
                             {
                                 loginId = tokenData["user_id"].ToString();
-                                loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginType.Facebook, loginId);
+                                loginIdList = await MasterApplication.dbGMRepository.PlayerAccount.GetAccountByLoginAsync((int)LoginAuthType.Facebook, loginId);
                                 if (loginIdList.Count <= 0) // Account does not exist
                                 {
                                     string deviceID = extra_param_str;
-                                    AccountInsertResult? result = await MasterApplication.dbGMRepository.PlayerAccount.InsertAccountAsync((int)LoginType.Facebook, loginId, "", deviceID);
+                                    AccountInsertResult? result = await MasterApplication.dbGMRepository.PlayerAccount.InsertAccountAsync((int)LoginAuthType.Facebook, loginId, "", deviceID);
                                     if (result.HasValue)
                                     {
                                         userId = result.Value.UserId.ToString();
@@ -672,7 +672,7 @@ namespace Photon.LoadBalancing.MasterServer
             opParameter.Add((byte)ParameterCode.LoginId, loginId);
             opParameter.Add((byte)ParameterCode.ServerList, application.mMasterGame.GetSerializedServer());
 
-            if (isLoginValid && returnCode == ErrorCode.Ok && currloginType != LoginType.EstablishConnection) // Normal Authentication
+            if (isLoginValid && returnCode == ErrorCode.Ok && currloginType != LoginAuthType.EstablishConnection) // Normal Authentication
             {
                 if (application.mMasterGame.DCUsers.ContainsKey(userId))
                     returnCode = ErrorCode.DuplicateLogin;
@@ -684,7 +684,7 @@ namespace Photon.LoadBalancing.MasterServer
                     myUserId = userId;
                     opParameter.Add((byte)ParameterCode.CookieId, cookieStr);
                     opParameter.Add((byte)ParameterCode.UniqueId, userId);
-                    if (currloginType == LoginType.Username)
+                    if (currloginType == LoginAuthType.Username)
                         opParameter.Add((byte)ParameterCode.Password, extra_param_str);
                     application.mMasterGame.KickPlayer(myUserId, "relogin");
                     var success = MasterApplication.dbGMRepository.PlayerAccount.UpdateCookie(myUserId, myCookie);

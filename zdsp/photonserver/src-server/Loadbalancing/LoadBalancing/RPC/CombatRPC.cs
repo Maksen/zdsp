@@ -51,15 +51,9 @@ namespace Zealot.RPC
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.SpawnInteractiveEntity)]
-        public void SpawnInteractiveEntity(int pid, string prefab, string parent, RPCPosition pos, RPCDirection rota, object target)
+        public void SpawnInteractiveEntity(int pid, string prefab, string parent, bool isNpc, RPCPosition pos, object target)
         {
-            ProxyMethod("SpawnInteractiveEntity", pid, prefab, parent, pos, rota, target);
-        }
-
-        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.InteractiveTrigger)]
-        public void InteractiveTrigger(int pid, bool canUse, bool active, object target)
-        {
-            ProxyMethod("InteractiveTrigger", pid, canUse, active, target);
+            ProxyMethod("SpawnInteractiveEntity", pid, prefab, parent, isNpc, pos, target);
         }
 
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.OnPlayerDead)]
@@ -526,6 +520,12 @@ namespace Zealot.RPC
         #endregion
 
         #region Achievement
+        [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_ClaimAchievementReward)]
+        public void Ret_ClaimAchievementReward(string claimedReward, object target)
+        {
+            ProxyMethod("Ret_ClaimAchievementReward", claimedReward, target);
+        }
+
         [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.Ret_ClaimAllAchievementRewards)]
         public void Ret_ClaimAllAchievementRewards(string claimedRewards, object target)
         {

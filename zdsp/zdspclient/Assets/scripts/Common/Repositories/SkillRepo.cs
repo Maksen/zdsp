@@ -788,6 +788,7 @@ namespace Zealot.Repository
             SideEffectJson skill = GetSideEffect((int)id[0]);
             token = token.Remove(0, 1);
             token = token.Remove(token.Length - 1, 1);
+            token = token.ToLower();
             switch (token)
             {
                 case "min":

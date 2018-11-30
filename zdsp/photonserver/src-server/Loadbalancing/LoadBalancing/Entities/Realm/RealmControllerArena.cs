@@ -31,7 +31,6 @@ namespace Zealot.Server.Entities
                 return;
             mPropertyInfos_Arena = (RealmControllerArenaJson)info;
             //mArenaInfo = (ArenaJson)mRealmInfo;
-            mCountDownOnMissionCompleted = 15;
         }
 
         //public override bool IsCorrectController()
@@ -132,7 +131,7 @@ namespace Zealot.Server.Entities
             combatStats.SetPlayerLocalAndSyncStats(localCombatStats, playerStats, aiplayer);
             combatStats.SuppressComputeAll = true;
 
-            Player.SetPlayerStats(playerStats.jobsect, playerStats.Level, combatStats);
+            //Player.SetPlayerStats(playerStats.jobsect, playerStats.Level, combatStats, );
             if (opponent.Fake)
             {
                 // Add equipped combatstats
@@ -183,9 +182,9 @@ namespace Zealot.Server.Entities
                     combatStats.AddToField(FieldName.AbsorbDamageBonus, BonusCombatStats.AbsorbDmgBonus);
             }
 
-            //skill inv
+            // Skill Inventory
             SkillSynStats skillStats = new SkillSynStats();
-            skillStats.CopyFromInvData(SkillInventory);
+            skillStats.Init(SkillInventory);
             aiplayer.SkillStats = skillStats;
              
             aiplayer.CombatStats = combatStats;//needed for the below .
@@ -200,8 +199,7 @@ namespace Zealot.Server.Entities
             data.redlevel = ArenaSkillLevel.RedLvl;
             data.greenlevel = ArenaSkillLevel.GreenLvl;
             data.bluelevel = ArenaSkillLevel.BlueLvl; 
-
-            
+  
             aiplayer.SetInstance(mInstance);
             aiplayer.Position = mPropertyInfos_Arena.aiPos;
             aiplayer.Forward = mPropertyInfos_Arena.aiForward;            
@@ -250,7 +248,6 @@ namespace Zealot.Server.Entities
             //skillInventory.basicAttack1SId = SkillRepo.Rage_BasicAtk1;
             //skillInventory.basicAttack2SId = SkillRepo.Rage_BasicAtk2;
             //skillInventory.basicAttack3SId = SkillRepo.Rage_BasicAtk3;
-            
 
             return record;
         }
@@ -300,7 +297,7 @@ namespace Zealot.Server.Entities
             //mInstance.mEntitySystem.RemoveEntityByPID(mAIPlayer.GetPersistentID());
             foreach (Player player in mPlayers.Values)
             {
-                player.Slot.ZRPC.CombatRPC.ShowScoreBoard(success, mCountDownOnMissionCompleted, mNewRank, mMyRank, player.Slot);
+                player.Slot.ZRPC.CombatRPC.ShowScoreBoard(success, mRealmInfo.endcountdown, mNewRank, mMyRank, player.Slot);
             }
         }
 

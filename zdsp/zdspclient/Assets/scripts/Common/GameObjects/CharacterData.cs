@@ -16,82 +16,75 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "Name")]
         public string Name { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "Gender")]
         public byte Gender { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "job")]
         public byte JobSect { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "faction")]
         public byte Faction { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "fnkill")]
         public int FactionKill { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "fndie")]
         public int FactionDeath { get; set; }
 
-        [JsonProperty(PropertyName = "tutorialdone")]
-        public bool IsTutorialRealmDone { get; set; }
-
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "lvl")]
         public int ProgressLevel { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "equipscore")]
         public int EquipScore { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "health")]
         public int Health { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "mana")]
         public int Mana { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "exp")]
         public int Experience { get; set; }
-
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "levelid")]
-        public int lastlevelid { get; set; }
 
         [DefaultValue("")]
         [JsonProperty(PropertyName = "removechardt")]
         public string RemoveCharDT { get; set; }
 
+        [JsonProperty(PropertyName = "tutorialdone")]
+        public bool IsTutorialRealmDone { get; set; }
+
         [DefaultValue("")]
         [JsonProperty(PropertyName = "roomguid")]
-        public string roomguid { get; set; }
+        public string RoomGuid { get; set; }
 
-        [JsonProperty(PropertyName = "lastpos")]
-        public float[] lastpos { get; set; }
+        [JsonProperty(PropertyName = "lastlevelid")]
+        public int LastLevelId { get; set; }
+
+        [JsonProperty(PropertyName = "lastlevelpos")]
+        public float[] LastLevelPos { get; set; }
+
+        [JsonProperty(PropertyName = "lastworldid")]
+        public int LastWorldId { get; set; }
+
+        [JsonProperty(PropertyName = "lastworldpos")]
+        public float[] LastWorldPos { get; set; }
 
         [JsonProperty(PropertyName = "lastdir")]
-        public float[] lastdirection { get; set; }
+        public float[] LastDirection { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "revive")]
         public int FreeReviveOnSpot { get; set; }
 
         [JsonProperty(PropertyName = "newday")]
         public DateTime NewDayDts { get; set; }
 
+        [DefaultValue("")]
         [JsonProperty(PropertyName = "ihotbar")]
         public string ItemHotBarData { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "guildid")]
         public int GuildId { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "guildrank")]
         public byte GuildRank { get; set; }
 
@@ -99,15 +92,12 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "gshopbuycnt")]
         public string GuildShopBuyCount { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "gsmbossentry")]
         public int GuildSMBossEntry { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "gsmbossextra")]
         public int GuildSMBossExtraEntry { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "gbossrealm")]
         public int GuildBossRewardRealm { get; set; }
 
@@ -117,7 +107,6 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "gleavecdtick")]
         public long LeaveGuildCDEndTick { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "guilddhused")]
         public byte GuildDreamHouseUsed { get; set; }
 
@@ -132,29 +121,38 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "botsetting")]
         public string BotSetting { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "PortraitID")]
         public int portraitID { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "currencyExchangeTime")]
         public byte CurrencyExchangeTime { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "MountID")]
         public int MountID { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "firstbuyflag")]
         public int FirstBuyFlag { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "firstbuycollected")]
         public int FirstBuyCollected { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "TutorialStatus")]
         public int TutorialStatus { get; set; }
+
+        [JsonProperty(PropertyName = "randombox")]
+        public long RandomBoxTimeTick { get; set; }
+
+        [JsonProperty(PropertyName = "costbuffid")]
+        public int costbuffid { get; set; }
+
+        [JsonProperty(PropertyName = "costbuffgold")]
+        public int costbuffgold { get; set; }
+
+        [JsonProperty(PropertyName = "tutorialreddot")]
+        public int tutorialreddot { get; set; }
+
+        [JsonProperty(PropertyName = "battletime")]
+        public int BattleTime { get; set; } //max 900 minutes * 60seconds = 54000 seconds.
         #endregion
 
         [JsonProperty(PropertyName = "currency")]
@@ -168,6 +166,9 @@ namespace Zealot.Common
 
         [JsonProperty(PropertyName = "realminv")]
         public RealmInventoryData RealmInventory { get; set; }
+
+        //[JsonProperty(PropertyName = "chatinv")]
+        //public ChatInventoryData ChatInventory { get; set; }
 
         [JsonProperty(PropertyName = "clueinv")]
         public DestinyClueInventory ClueInventory { get; set; }
@@ -190,10 +191,10 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "arenainv")]
         public ArenaInventoryData ArenaInventory { get; set; }
 
-        [JsonProperty(PropertyName = "mailInv")]
+        [JsonProperty(PropertyName = "mailinv")]
         public MailInventoryData MailInventory { get; set; }
 
-        [JsonProperty(PropertyName = "mallInv")]
+        [JsonProperty(PropertyName = "mallinv")]
         public ItemMallInventoryData ItemMallInventory { get; set; }
 
         [JsonProperty(PropertyName = "welfareinv")]
@@ -223,48 +224,29 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "lotteryinv")]
         public LotteryInventoryData LotteryInventory { get; set; }
 
-        [JsonProperty(PropertyName = "HeroInvData")]
+        [JsonProperty(PropertyName = "heroinvdata")]
         public HeroInvData HeroInventory { get; set; }
 
         [JsonProperty(PropertyName = "storeinv")]
         public StoreInventoryData StoreInventory { get; set; }
 
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "RandomBox")]
-        public long RandomBoxTimeTick { get; set; }
-
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "costbuffid")]
-        public int costbuffid { get; set; }
-
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "costbuffgold")]
-        public int costbuffgold { get; set; }
-
-        [JsonProperty(PropertyName = "GuildQuests")]
+        [JsonProperty(PropertyName = "guildquests")]
         public GuildQuestInventory GuildQuests { get; set; }
 
-        [JsonProperty(PropertyName = "PrizeGuaranteeData")]
+        [JsonProperty(PropertyName = "prizeguarantee")]
         public PrizeGuaranteeData PrizeGuaranteeData { get; set; }
 
-        [JsonProperty(PropertyName = "CombatStats")]
+        [JsonProperty(PropertyName = "combatstats")]
         public InspectCombatStats InspectCombatStats;
 
-        [JsonProperty(PropertyName = "ExchangeShop")]
+        [JsonProperty(PropertyName = "exchangeshop")]
         public ExchangeShopInventory ExchangeShopInv;
 
-        [JsonProperty(PropertyName = "PortraitData")]
+        [JsonProperty(PropertyName = "portraitdata")]
         public PortraitData PortraitData;
 
-        [JsonProperty(PropertyName = "CharacterInfoData")]
+        [JsonProperty(PropertyName = "characterinfodata")]
         public CharacterInfoData CharInfoData;
-
-        [DefaultValue(0)]
-        [JsonProperty(PropertyName = "tutorialreddot")]
-        public int tutorialreddot { get; set; }
-        
-        [JsonProperty(PropertyName = "BattleTime")]
-        public int BattleTime { get; set; } //max 900 minutes * 60seconds = 54000 seconds.
 
         [JsonProperty(PropertyName = "itemlimitdata")]
         public ItemUseDropLimitData ItemLimitData { get; set; }
@@ -277,6 +259,7 @@ namespace Zealot.Common
             EquipmentCraftInventory = new EquipmentCraftInventoryData();
             EquipFusionInventory = new EquipFusionInventoryData();
             RealmInventory = new RealmInventoryData();
+            //ChatInventory = new ChatInventoryData();
             QuestInventory = new QuestInventoryData();
             ClueInventory = new DestinyClueInventory();
             DonateInventory = new DonateInventoryData();
@@ -326,6 +309,7 @@ namespace Zealot.Common
             PowerUpInventory.InitDefault();
             EquipmentCraftInventory.InitDefault();
             EquipFusionInventory.InitDefault();
+            CharInfoData.InitDefault();
         }
 
         public void ValidateDefault()
@@ -429,7 +413,7 @@ namespace Zealot.Common
     public class CharacterCreationDataBase
     {
         [DefaultValue("")]
-        [JsonProperty(PropertyName = "Name")]
+        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
         [DefaultValue(0)]
@@ -441,8 +425,8 @@ namespace Zealot.Common
         public byte Gender { get; set; }
 
         [DefaultValue(0)]
-        [JsonProperty(PropertyName = "levelid")]
-        public int Levelid { get; set; }
+        [JsonProperty(PropertyName = "lastlevelid")]
+        public int LastLevelId { get; set; }
 
         [DefaultValue("")]
         [JsonProperty(PropertyName = "removechardt")]
@@ -486,8 +470,7 @@ namespace Zealot.Common
         #endregion
 
         public CharacterCreationData() : base()
-        {
-            
+        {           
         }
 
         public static CharacterCreationData DeserializeForCharCreation(string charData)

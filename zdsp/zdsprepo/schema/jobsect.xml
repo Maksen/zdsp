@@ -5,6 +5,8 @@
       <property name="name" type="string" uitext="Name"/>
       <property name="localizedname" type="localizedstring" uitext="Jobsect Name" display="name" />
       <property name="jobtype" type="JobType" uitext="Job Type"/>
+      <property name="manabase" type="int" uitext="Mana Base"/>
+      <property name="hpbase" type="int" uitext="Health Base"/>                
       <property name="malemeshpath" type="asset" uitext="Male Mesh Path" default="" assettype="mesh"/>
       <property name="malematerialpath" type="asset" uitext="Male Material Path" default="" assettype="material"/>
       <property name="femalemeshpath" type="asset" uitext="Female Mesh Path" default="" assettype="mesh"/>

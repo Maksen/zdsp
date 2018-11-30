@@ -53,10 +53,10 @@ namespace Zealot.Bot
             {
                 isRunning = false;
 
-                ClearAllCoroutine();
-
                 GameInfo.gCombat.StopCoroutine(mRunCombatCoroutine);
                 mRunCombatCoroutine = null;
+
+                ClearAllCoroutine();
             }
         }
 

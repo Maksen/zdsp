@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zealot.Common;
 
 public static class UIManager
 {
@@ -120,10 +121,10 @@ public static class UIManager
             SystemMsgManager.ShowEventNotification(message);
     }
 
-    public static void ShowAchievementMessage(string message)
+    public static void ShowAchievementMessage(AchievementKind type, int id)
     {
         if (SystemMsgManager != null)
-            SystemMsgManager.ShowAchievementMessage(message);
+            SystemMsgManager.ShowAchievementMessage(type, id);
     }
     #endregion SystemMsgManager
 
@@ -240,8 +241,10 @@ public static class UIManager
 
     #endregion Open/Close windows and dialogs
 
-    public static void HideOpenedWindowsUICameras(bool hide)
+    public static void HideUIsForHeroCutscene(bool hide)
     {
+        HideOpenedDialogs(hide);
+
         for (int i = 0; i < windowStack.Count; i++)
         {
             GameObject windowObj = GetWindowGameObject(windowStack[i]);
@@ -249,6 +252,9 @@ public static class UIManager
             for (int index = 0; index < uiCameras.Length; index++)
                 uiCameras[index].enabled = !hide;
         }
+
+        if (SystemMsgManager != null)
+            SystemMsgManager.EnableShowAchievementMessages(!hide);
     }
 
     #region Open specific windows
@@ -281,7 +287,7 @@ public static class UIManager
             CloseAllDialogs();
         }
 
-        OpenDialog(WindowType.DialogCutscene, (window) => window.GetComponent<UI_Cutscene>().Init(buttonstatus));
+        OpenDialog(WindowType.DialogCutscene, (window) => window.GetComponent<UI_Cutscene_Skip>().Init(buttonstatus));
     }
 
     #endregion Open specific windows

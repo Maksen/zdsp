@@ -36,7 +36,7 @@ public class UI_Party_Avatar : MonoBehaviour
         kickButtonObj.SetActive(showKickBtn);
 
         if (localPlayer.Name == member.name)  // self
-            modelAvatar.Change(localPlayer.mEquipmentInvData, (JobType)localPlayer.PlayerSynStats.jobsect, localPlayer.mGender);
+            modelAvatar.Change(localPlayer.mEquipmentInvData, localPlayer.GetJobSect(), localPlayer.mGender);
         else
         {
             if (member.IsHero())

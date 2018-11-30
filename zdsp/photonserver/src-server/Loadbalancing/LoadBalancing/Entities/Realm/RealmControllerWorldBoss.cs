@@ -370,7 +370,7 @@ namespace Zealot.Server.Entities
                 if (rank <= 50 && playerDamage == 0)
                     rank = 51;
 
-                player.Slot.ZRPC.CombatRPC.ShowScoreBoard(success, mCountDownOnMissionCompleted, rank, mBossPId, player.Slot);
+                player.Slot.ZRPC.CombatRPC.ShowScoreBoard(success, mRealmInfo.endcountdown, rank, mBossPId, player.Slot);
             }
 
             int recordCount = GameConfig.WorldBossRecordCount;

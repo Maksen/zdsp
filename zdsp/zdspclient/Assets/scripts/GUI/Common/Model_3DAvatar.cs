@@ -9,8 +9,11 @@ public class Model_3DAvatar : MonoBehaviour
     [SerializeField]
     Transform modelParent = null;
 
-    GameObject model;
-    string modelpath = "";
+    public Transform ModelParent { get { return modelParent; } }
+    public GameObject OutfitModel { get { return model; } }
+
+    private GameObject model;
+    private string modelpath = "";
 
     public void Change(EquipmentInventoryData equipmentInvData, JobType jobtype, Gender gender, UnityAction<GameObject> afterLoad = null)
     {
@@ -93,6 +96,9 @@ public class Model_3DAvatar : MonoBehaviour
             modelpath = "";
         }
 
+        if (string.IsNullOrEmpty(prefabPath))
+            return;
+
         if (model == null)
         {
             AssetLoader.Instance.LoadAsync<GameObject>(prefabPath, (obj) =>
@@ -130,11 +136,6 @@ public class Model_3DAvatar : MonoBehaviour
     {
         if (model != null)
             model.SetActive(show);
-    }
-
-    public GameObject GetOutfitModel()
-    {
-        return model;
     }
 
     public void PlayAnimation(string animationState)

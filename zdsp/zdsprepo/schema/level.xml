@@ -94,11 +94,12 @@
       <property name="pvptype" type="RealmPVPType" uitext="PVP Type" default="0"/>
       <property name="preparation" type="int" uitext="Preparation Time" default="0" info="0 means no preparation time"/>
       <property name="timelimit" type="int" uitext="Time Limit" default="600" info="0 means no limit"/>
+      <property name="endcountdown" type="int" uitext="End Countdown" default="20"/>
       <property name="respawn" type="Respawn" uitext="Respawn" display="name"/>
       <property name="respawncd" type="int" uitext="Respawn Cooldown" default="10" info="Seconds"/>
       <property name="minplayer" type="int" uitext="Min Player" default="1" info="0 means no min player"/>
       <property name="maxplayer" type="int" uitext="Max Player" default="0" info="0 means no max limit"/>
-      <property name="maptype" type="MapType" uitext="Map Type"/>
+      <property name="maptype" type="MapType" uitext="Map Type"/>    
     </element>
 
     <element name="RealmWorld" inherit="Realm" useexcel="true" collectionkey="excelname">
@@ -129,6 +130,7 @@
       <property name="lootlimit" type="int" uitext="Loot Limit" default="3"/>
       <property name="lootresettype" type="LootResetType" uitext="Loot Reset Type" default="1"/>
       <property name="lootresettime" type="string" uitext="Loot Reset Time" info="Usage: 0000 to 2359"/>
+      <property name="reconnect" type="bool" uitext="Reconnect" default="false"/>
     </element>
     
     <element name="Tutorial" inherit="Realm" useexcel="true">

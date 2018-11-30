@@ -14,7 +14,7 @@
       <item key="None" value="9"/>
     </enum>
 
-    <enum name="NPCLootRule">      
+    <enum name="NPCLootRule">
       <item key="LootByLasthit" value="0"/>
       <item key="LootByDamage" value="1"/>
     </enum>
@@ -42,28 +42,28 @@
     </enum>
     
     <enum name="JobType">
-      <item key="Tutorial" value="0"/>
-      <item key="Newbie" value="1"/>
-      <item key="Warrior" value="2"/>
-      <item key="Soldier" value="3"/>
-      <item key="Tactician" value="4"/>
-      <item key="Killer" value="5"/>
-      <item key="Samurai" value="6"/>
-      <item key="Swordsman" value="7"/>
-      <item key="Lieutenant" value="8"/>
-      <item key="SpecialForce" value="9"/>
-      <item key="Alchemist" value="10"/>
-      <item key="QigongMaster" value="11"/>
-      <item key="Assassin" value="12"/>
-      <item key="Shadow" value="13"/>
-      <item key="BladeMaster" value="14"/>
-      <item key="SwordMaster" value="15"/>
-      <item key="General" value="16"/>
-      <item key="Commando" value="17"/>
-      <item key="Strategist" value="18"/>
-      <item key="Schemer" value="19"/>
-      <item key="Executioner" value="20"/>
-      <item key="Slaughter" value="21"/>
+      <item key="Newbie"        value="0"/>
+      <item key="Warrior"       value="1"/>
+      <item key="Soldier"       value="2"/>
+      <item key="Tactician"     value="3"/>
+      <item key="Killer"        value="4"/>
+      <item key="Samurai"       value="5"/>
+      <item key="Swordsman"     value="6"/>
+      <item key="Lieutenant"    value="7"/>
+      <item key="SpecialForce"  value="8"/>
+      <item key="Alchemist"     value="9"/>
+      <item key="QigongMaster"  value="10"/>
+      <item key="Assassin"      value="11"/>
+      <item key="Shadow"        value="12"/>
+      <item key="BladeMaster"   value="13"/>
+      <item key="SwordMaster"   value="14"/>
+      <item key="General"       value="15"/>
+      <item key="Commando"      value="16"/>
+      <item key="Strategist"    value="17"/>
+      <item key="Schemer"       value="18"/>
+      <item key="Executioner"   value="19"/>
+      <item key="Slaughter"     value="20"/>
+      <item key="Tutorial"      value="99"/>
     </enum>
 	
 	  <enum name="CharPortraitType">
@@ -238,12 +238,12 @@
     <enum name="TargetType">
       <item key="Friendly" value="0"/>
       <item key="Enemy" value="1"/>
-      <item key="Party" value="2"/>      
+      <item key="Party" value="2"/>
     </enum>
 
     <enum name="HitType">
       <item key="Basic" value="0"/>
-      <item key="Definite" value="1"/>      
+      <item key="Definite" value="1"/>
     </enum> 
 
     <enum name="Threatzone">
@@ -410,7 +410,7 @@
       <item key="Control_BeakBack" value="305"/>
 
       <item key="SpecialControl_Freeze" value="310"/>
-	    <item key="SpecialControl_Petrify" value="311"/>
+      <item key="SpecialControl_Petrify" value="311"/>
       
       <item key="Immune_AllDamage"  value="350"/>
       <item key="Immune_AllDebuff"  value="351"/>
@@ -438,7 +438,7 @@
       <item key="Trigger_OnNormalAttack" value="450"/>
       
       <item key="Enhance_IncRepeatSE" value="460"/>
-      <item key="Enhance_IncSkillAffect" value="461"/>     
+      <item key="Enhance_IncSkillAffect" value="461"/>
     </enum>
         
     <enum name="InteractiveType">
@@ -561,11 +561,11 @@
       <item key="NationQuest" value="2"/>
       <item key="Warehouse" value="3"/>
     </enum>
-  
-    <enum name="DirtyWordType">
-      <item key="Chat" value="0"/>
-      <item key="GameName" value="1"/>
-      <item key="BothChatName" value="2"/>
+
+    <enum name="WordFilterType">
+      <item key="All" value="0"/>
+      <item key="Naming" value="1"/>
+      <item key="Chat" value="2"/>
     </enum>
 
     <enum name="DailyEventCategoryType">
@@ -636,7 +636,7 @@
       <item key="Hero_Explore" value="11"/>
       <item key="Equipment_Fusion" value="12"/>
       <item key="Equipment_Craft" value="13"/>
-    </enum>    
+    </enum>
 
     <enum name="ItemMallCategory">
       <item key="None" value="0"/>
@@ -650,7 +650,7 @@
       <item key="Pet" value="8"/>
       <item key="WeaponFashion" value="9"/>
     </enum>
-    
+
     <enum name="ItemMallShoppingType">
       <item key="None" value="0"/>
       <item key="Tortoise" value="1"/>
@@ -660,7 +660,7 @@
       <item key="Unbind" value="5"/>
       <item key="Bind" value="6"/>
     </enum>
-        
+
     <enum name="PushNotificationType">
       <item key="None" value="0"/>
       <item key="Monday" value="1"/>
@@ -677,46 +677,47 @@
       <item key="Chest" value="0"/>
       <item key="Activity" value="1"/>
     </enum>
-    
+
     <enum name="NotificationType">
       <item key="None" value="0"/>
       <item key="WorldBoss" value="1"/>
     </enum>
-	
-	  <enum name="UIStoreLinkType">
-		  <item key="NotApplicable" value="0"/>
-		  <item key="MoneyStore" value="1"/>
-		  <item key="GuildStore" value="2"/>
-		  <item key="Lottery" value="3"/>
-		  <item key="WuLing" value="4"/>
-		  <item key="WuMen" value="5"/>
-	  </enum>
+
+    <enum name="UIStoreLinkType">
+      <item key="NotApplicable" value="0"/>
+      <item key="MoneyStore" value="1"/>
+      <item key="GuildStore" value="2"/>
+      <item key="Lottery" value="3"/>
+      <item key="WuLing" value="4"/>
+      <item key="WuMen" value="5"/>
+    </enum>
 
     <enum name="NPCStoreType">
       <item key="Normal" value="0"/>
       <item key="Random" value="1"/>
       <item key="Barter" value="2"/>
     </enum>
-	
-	  <enum name="NPCFunctionType">
-		  <item key="Shop" value="0"/>
-		  <item key="Teleport" value="1"/>
-		  <item key="ClassChange" value="2"/>
-		  <item key="Storage" value="3"/>
-		  <item key="Crafting" value="4"/>
-		  <item key="StatsReset" value="5"/>
-		  <item key="SkillReset" value="6"/>
-		  <item key="PlasticSurgery" value="7"/>
-		  <item key="Salon" value="8"/>
-		  <item key="HotSpring" value="9"/>
-		  <item key="TrainingGround" value="10"/>
-		  <item key="CashShopGamble" value="11"/>
-	  </enum>
-    
+
+    <enum name="NPCFunctionType">
+      <item key="Shop" value="0"/>
+      <item key="Teleport" value="1"/>
+      <item key="ClassChange" value="2"/>
+      <item key="Storage" value="3"/>
+      <item key="Crafting" value="4"/>
+      <item key="StatsReset" value="5"/>
+      <item key="SkillReset" value="6"/>
+      <item key="PlasticSurgery" value="7"/>
+      <item key="Salon" value="8"/>
+      <item key="HotSpring" value="9"/>
+      <item key="TrainingGround" value="10"/>
+      <item key="CashShopGamble" value="11"/>
+    </enum>
+
     <enum name="StaticNPCInteractType">
       <item key="Talk" value="0"/>
       <item key="Area" value="1"/>
       <item key="Target" value="2"/>
+      <item key="Auto" value="3"/>
     </enum>
 
     <enum name="PositionType">
@@ -776,6 +777,7 @@
       <item key="MultipleObj" value="6"/>
       <item key="Empty" value="7"/>
       <item key="QuickTalk" value="8"/>
+      <item key="Guide" value="9"/>
     </enum>
 
     <enum name="QuestEventType">
@@ -789,13 +791,13 @@
       <item key="NPC" value="7"/>
       <item key="Realm" value="8"/>
     </enum>
-    
+
     <enum name="EventTimingType">
       <item key="StartQuest" value="0"/>
       <item key="CompleteObjective" value="1"/>
       <item key="CompleteQuest" value="2"/>
     </enum>
-    
+
     <enum name="QuestInteractiveType">
       <item key="StartQuest" value="0"/>
       <item key="EndQuest" value="1"/>
@@ -887,18 +889,13 @@
       <item key="NFS" value="3"/>
     </enum>
 
-    <enum name="FilterType">
-      <item key="All" value="0"/>
-      <item key="Naming" value="1"/>
-      <item key="Chat" value="2"/>
-    </enum>
-
     <enum name="InteractiveTriggerStep">
       <item key="None" value="0"/>
       <item key="OnTrigger" value="1"/>
       <item key="OnProgress" value="2"/>
       <item key="CannotUse" value="3"/>
+      <item key="InActive" value="4"/>
     </enum>
-    
+
   </data>
 </magicalarea51>

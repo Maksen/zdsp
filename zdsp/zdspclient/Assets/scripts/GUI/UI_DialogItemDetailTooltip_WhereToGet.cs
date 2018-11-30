@@ -79,7 +79,7 @@ public class UI_DialogItemDetailTooltip_WhereToGet : MonoBehaviour
             Kopio.JsonContracts.CombatNPCJson cnpc = CombatNPCRepo.GetNPCByArchetype(a);
             bool newbtn = CreateButton(out btn);
             btn.Name = cnpc.localizedname;
-            btn.LevelName = cnpc.level.ToString();
+            btn.LevelName = GUILocalizationRepo.GetLocalizedString("com_level") + cnpc.level;
             btn.MapName = string.Empty;
             btn.Portrait = ClientUtils.LoadIcon(cnpc.portraitpath);
             btn.ButtonAction = () =>

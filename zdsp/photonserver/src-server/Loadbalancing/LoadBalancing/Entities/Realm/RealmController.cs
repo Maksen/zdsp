@@ -20,7 +20,6 @@ namespace Zealot.Server.Entities
         public bool mMissionCompleted = false;
         protected DateTime mTimerStart;
         protected GameTimer timer;
-        protected int mCountDownOnMissionCompleted = 20;
 
         public RealmController(RealmControllerJson info, GameLogic instance)
         {
@@ -106,7 +105,8 @@ namespace Zealot.Server.Entities
             }
             else
             {
-                foreach (Player player in mPlayers.Values)
+                Dictionary<string, Player>.ValueCollection players = mPlayers.Values;
+                foreach (Player player in players)
                     player.Slot.LeaveRealm();
                 mPlayers.Clear();
             }          
@@ -142,11 +142,17 @@ namespace Zealot.Server.Entities
                 mInstance.StopTimer(timer);
             foreach (var entry in mInstance.maMonsterSpawners)
                 entry.DestoryAll();
-            timer = mInstance.SetTimer(mCountDownOnMissionCompleted * 1000, (arg) => RealmEnd(), null);
-            foreach (Player player in mPlayers.Values)
+            int countDownOnMissionCompleted = mRealmInfo.endcountdown;
+            if (countDownOnMissionCompleted > 0)
+                timer = mInstance.SetTimer(countDownOnMissionCompleted * 1000, (arg) => RealmEnd(), null);
+            else
+                RealmEnd();
+
+            if (broadcast)
             {
-                if (broadcast)
-                    player.Slot.ZRPC.CombatRPC.OnMissionCompleted(success, mCountDownOnMissionCompleted, player.Slot);
+                Dictionary<string, Player>.ValueCollection players = mPlayers.Values;
+                foreach (Player player in players)
+                    player.Slot.ZRPC.CombatRPC.OnMissionCompleted(success, countDownOnMissionCompleted, player.Slot);
             }
         }
 

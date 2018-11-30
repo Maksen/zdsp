@@ -86,8 +86,7 @@ namespace Photon.LoadBalancing.GameServer
             ActionManager.RegisterAction(ACTIONTYPE.KNOCKEDBACK, typeof(KnockedBackCommand), null);//KnockBack only for monsters.
             ActionManager.RegisterAction(ACTIONTYPE.KNOCKEDUP, typeof(KnockedUpCommand), null);//KnockBackup only for monsters.
             ActionManager.RegisterAction(ACTIONTYPE.DRAGGED, typeof(DraggedActionCommand), null);
-            ActionManager.RegisterAction(ACTIONTYPE.GETHIT, typeof(GetHitCommand), null);
-            ActionManager.RegisterAction(ACTIONTYPE.INTERACTIVE_TRIGGER, typeof(InteractiveTriggerCommand), null);
+            ActionManager.RegisterAction(ACTIONTYPE.GETHIT, typeof(GetHitCommand), typeof(NonServerAuthoGethit));
         }
         #endregion
 
@@ -254,6 +253,7 @@ namespace Photon.LoadBalancing.GameServer
             QuestRules.Init();
             LootRules.Init();
             DonationRules.Init();
+            InteractiveTriggerRule.Init();
 
             OnStartupNewDay();
             SetNewDayTimer();
@@ -947,14 +947,6 @@ namespace Photon.LoadBalancing.GameServer
         public static void BroadcastDonateRefresh(bool normarlRefresh)
         {
             Instance.BroadcastDonationRefreshMessage(BroadcastMessageType.DonationRefresh, normarlRefresh);
-        }
-        #endregion
-
-        #region InteractiveTrigger
-        public static void BroadcastInteractiveCount(string pid, string canUse, string active, string step)
-        {
-            string bind = string.Format("{0};{1};{2};{3}", pid, canUse, active, step);
-            Instance.BroadcastMessage(BroadcastMessageType.InteractiveTrigger, bind);
         }
         #endregion
     }

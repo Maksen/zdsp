@@ -15,34 +15,35 @@
     {
         private static byte[][] posPriorities = new byte[][] { 
             //based on index in PositionSlots
-	        //last index of each array if omitted, AI won't go through target to the back of target
-	        new byte []{0,7,1,6,2,5,3,4}, 	//top 0
-	        new byte []{1,0,2,7,3,6,4,5}, 	//topright 1
-	        new byte []{2,1,3,0,4,7,5,6}, 	//right 2
-	        new byte []{3,2,4,1,5,0,6,7}, 	//bottomright 3
-	        new byte []{4,3,5,2,6,1,7,0}, 	//bottom 4
-	        new byte []{5,4,6,3,7,2,0,1}, 	//bottomleft 5
-	        new byte []{6,5,7,4,0,3,1,2}, 	//left 6
-	        new byte []{7,6,0,5,1,4,2,3} 	//topleft	7
+            //last index of each array if omitted, AI won't go through target to the back of target
+            new byte[] {0,7,1,6,2,5,3,4}, 	//top 0
+            new byte[] {1,0,2,7,3,6,4,5}, 	//topright 1
+            new byte[] {2,1,3,0,4,7,5,6}, 	//right 2
+            new byte[] {3,2,4,1,5,0,6,7}, 	//bottomright 3
+            new byte[] {4,3,5,2,6,1,7,0}, 	//bottom 4
+            new byte[] {5,4,6,3,7,2,0,1}, 	//bottomleft 5
+            new byte[] {6,5,7,4,0,3,1,2}, 	//left 6
+            new byte[] {7,6,0,5,1,4,2,3}    //topleft 7
         };
 
-        private static Vector3[] dirs = new Vector3[]{
+        private static Vector3[] dirs = new Vector3[] {
                    new Vector3(0, 0, 1),
-				   new Vector3(0.707f,0, 0.707f),
-				   new Vector3(1,0, 0),
-				   new Vector3(0.707f,0,-0.707f),
-				   new Vector3(0,0,-1),
-				   new Vector3(-0.707f,0,-0.707f),
-				   new Vector3(-1,0,0),
-				   new Vector3(-0.707f,0,0.707f)};
+                   new Vector3(0.707f,0, 0.707f),
+                   new Vector3(1,0, 0),
+                   new Vector3(0.707f,0,-0.707f),
+                   new Vector3(0,0,-1),
+                   new Vector3(-0.707f,0,-0.707f),
+                   new Vector3(-1,0,0),
+                   new Vector3(-0.707f,0,0.707f)};
 
         private Actor mTargetEntity;
         private Actor[] mSlots;
+        private readonly int mSlotCount = 8;
 
         public PositionSlots(Actor targetEntity)
         {
             mTargetEntity = targetEntity;
-            mSlots = new Actor[8];
+            mSlots = new Actor[mSlotCount];
             Reset();    
         }
 
@@ -58,11 +59,10 @@
 
         public bool IsAttackerInSlots(Actor attacker)
         {
-            foreach(Actor actor in mSlots)
-            {
-                if (actor == attacker)
+            for (byte i = 0; i < mSlotCount; ++i)
+                if (mSlots[i] == attacker)
                     return true;
-            }
+
             return false;
         }
 
@@ -79,78 +79,76 @@
         }
 
         private byte[] GetPosPrioritiesByAttackerPos(Actor attacker)
-	    {
-		    Vector3 targetPos = mTargetEntity.Position;
-		    Vector3 attackerPos = attacker.Position;
-		    float left = targetPos.x - attackerPos.x;
-		    float top = attackerPos.z - targetPos.z;
-		
-		    if (left>=0)
-		    {
-			    if (top>=0) //top left
-			    {
-				    float ratio = top/left;
-				    if (ratio<0.5)
-					    return posPriorities[6]; //left centric
-				    else if (ratio>2) 
-					    return posPriorities[0]; //top centric
-				    else 
-					    return posPriorities[7]; //topleft centric
-			    }
-			    else
-			    {
-				    float ratio = -top/left;
-				    if (ratio<0.5)
-					    return posPriorities[6]; //left centric
-				    else if (ratio>2) 
-					    return posPriorities[4]; //bottom centric
-				    else 
-					    return posPriorities[5]; //bottomleft centric
-			    }
-		    }
-		    else
-		    {
-			    if (top>=0) //top right
-			    {
-				    float ratio = top/-left;
-				    if (ratio<0.5)
-					    return posPriorities[2]; //right centric
-				    else if (ratio>2) 
-					    return posPriorities[0]; //top centric
-				    else 
-					    return posPriorities[1]; //topright centric
-			    }
-			    else //bottom right
-			    {
-				    float ratio = top/left;
-				    if (ratio<0.5)
-					    return posPriorities[2]; //right centric
-				    else if (ratio>2) 
-					    return posPriorities[4]; //bottom centric
-				    else 
-					    return posPriorities[3]; //bottomright centric
-			    }
-		    }	
-	    }
+        {
+            Vector3 targetPos = mTargetEntity.Position;
+            Vector3 attackerPos = attacker.Position;
+            float left = targetPos.x - attackerPos.x;
+            float top = attackerPos.z - targetPos.z;
+        
+            if (left>=0)
+            {
+                if (top>=0) //top left
+                {
+                    float ratio = top/left;
+                    if (ratio<0.5)
+                        return posPriorities[6]; //left centric
+                    else if (ratio>2) 
+                        return posPriorities[0]; //top centric
+                    else 
+                        return posPriorities[7]; //topleft centric
+                }
+                else
+                {
+                    float ratio = -top/left;
+                    if (ratio<0.5)
+                        return posPriorities[6]; //left centric
+                    else if (ratio>2) 
+                        return posPriorities[4]; //bottom centric
+                    else 
+                        return posPriorities[5]; //bottomleft centric
+                }
+            }
+            else
+            {
+                if (top>=0) //top right
+                {
+                    float ratio = top/-left;
+                    if (ratio<0.5)
+                        return posPriorities[2]; //right centric
+                    else if (ratio>2) 
+                        return posPriorities[0]; //top centric
+                    else 
+                        return posPriorities[1]; //topright centric
+                }
+                else //bottom right
+                {
+                    float ratio = top/left;
+                    if (ratio<0.5)
+                        return posPriorities[2]; //right centric
+                    else if (ratio>2) 
+                        return posPriorities[4]; //bottom centric
+                    else 
+                        return posPriorities[3]; //bottomright centric
+                }
+            }
+        }
 
         public Vector3? AllocateEmptySlot(Actor attacker, float preferredRange)
-	    {
-		    byte[] posPriorities = GetPosPrioritiesByAttackerPos(attacker);
-		    
-		    foreach(byte index in posPriorities)
-		    {
-			    Actor slot = mSlots[index];
-			    if (slot == null || slot == attacker || !slot.IsAlive())
-			    {
-				    return AllocateSlot(attacker, index, preferredRange);                    
-			    }
-		    }
-		    return null;
-	    }	
+        {
+            byte[] posPriorities = GetPosPrioritiesByAttackerPos(attacker);
+            
+            foreach(byte index in posPriorities)
+            {
+                Actor slot = mSlots[index];
+                if (slot == null || slot == attacker || !slot.IsAlive())
+                    return AllocateSlot(attacker, index, preferredRange);
+            }
+            return null;
+        }
 
         public bool DeallocateSlot(Actor attacker)
         {
-            for(byte i = 0 ; i < mSlots.Length; i++)
+            for (byte i = 0 ; i < mSlotCount; ++i)
             {
                 Actor slot = mSlots[i];
                 if (slot != null && slot == attacker)
@@ -164,7 +162,7 @@
 
         public void Reset()
         {
-            for (byte i = 0; i < 8; i++)
+            for (byte i = 0; i < mSlotCount; ++i)
                 mSlots[i] = null;
         }
     }
@@ -182,7 +180,8 @@
     }
 
     [Flags]
-    public enum ImmuneSEType : int {
+    public enum ImmuneSEType : int
+    {
         Stun = 1 << 0,
         Root = 1 << 1,
         Fear = 1 << 2,
@@ -191,7 +190,7 @@
         Freeze = 1 << 5,
         AllDamage = 1 << 6,
         AllDebuff = 1 << 7,
-        AllControl = 1 << 8        
+        AllControl = 1 << 8
     }
 
     public class LocalSkillStats
@@ -208,7 +207,7 @@
 
     public abstract class Actor : NetEntity, IActor
     {                
-        public ActorSynStats PlayerStats { get; set; }        
+        public ActorSynStats PlayerStats { get; set; }
         public ICombatStats CombatStats { get; set; }
  
         public SkillPassiveCombatStats SkillPassiveStats { get; set; }
@@ -221,7 +220,7 @@
 
         public virtual void OnEvasion()
         {
-            SkillPassiveStats.OnEvasion(GetPersistentID() ,GetHealthMax());
+            SkillPassiveStats.OnEvasion(GetPersistentID(), GetHealthMax());
         }
 
         public int GetHealth()
@@ -308,14 +307,14 @@
             CombatStats.SetField(FieldName.ManaMax, val);
         }
 
+        public string Name { get; set; }
+        public int Team { get { return PlayerStats.Team; } set { PlayerStats.Team = value; } }
         public bool IsAlive()
         {
             return !Destroyed && PlayerStats.Alive;
         }
-        public int Team { get { return PlayerStats.Team; } set { PlayerStats.Team = value; } }
         public abstract bool IsInvalidTarget();
         public abstract bool IsInSafeZone();
-        public string Name { get; set; }
 
         private PositionSlots mPositionSlots;
         public PositionSlots PositionSlots { get { return mPositionSlots; } }
@@ -339,7 +338,7 @@
         public ShieldSE shieldSE = null;
 
         public bool InvincibleMode { get { return PlayerStats.invincible; }
-            set { PlayerStats.invincible = value; } }
+                                     set { PlayerStats.invincible = value; } }
 
         public Actor() : base()
         {
@@ -374,35 +373,34 @@
             if (seconds <= 0)
                 return;
             InvincibleMode = true;
-            EntitySystem.Timers.SetTimer((long)(seconds*1000), (arg)=>{
-                InvincibleMode = false;
-            }, null);
+            EntitySystem.Timers.SetTimer((long)(seconds*1000),
+                (arg) => { InvincibleMode = false; }, null);
         }
 
         #region NPCAttackers
         public void AddNPCAttacker(Actor npc)
-	    {
-		    int pid = npc.GetPersistentID();
-		    if (!mNPCAttackers.ContainsKey(pid))
-		    {
-			    mNPCAttackers.Add(pid, npc);
-		    }
-	    }
+        {
+            int pid = npc.GetPersistentID();
+            if (!mNPCAttackers.ContainsKey(pid))
+            {
+                mNPCAttackers.Add(pid, npc);
+            }
+        }
 
-	    public void RemoveNPCAttacker(Actor npc)
-	    {
+        public void RemoveNPCAttacker(Actor npc)
+        {
             mNPCAttackers.Remove(npc.GetPersistentID());
-	    }
+        }
 
-	    public Dictionary<int, Actor> GetNPCAttackers()
-	    {
-		    return mNPCAttackers;
-	    }
+        public Dictionary<int, Actor> GetNPCAttackers()
+        {
+            return mNPCAttackers;
+        }
 
-	    public void ClearNPCAttackers()
-	    {
-		    mNPCAttackers.Clear();
-	    }
+        public void ClearNPCAttackers()
+        {
+            mNPCAttackers.Clear();
+        }
 
         public void AddPlayerAttacker(Actor player)
         {
@@ -466,20 +464,38 @@
             if (attacker != this) // If player attacks himself, we don't queue as attacker
                 attacker.QueueDmgResult(res); //For attacker to see this result at client
 
-            res.RealDamage = (shieldSE != null) 
-                ? shieldSE.OnAttacked(res.RealDamage) : SkillPassiveStats.OnDamage(res.RealDamage, this);        
+            //res.RealDamage = (shieldSE != null) 
+            //    ? shieldSE.OnAttacked(res.RealDamage) : SkillPassiveStats.OnDamage(res.RealDamage, this); 
+            res.RealDamage = (shieldSE != null) ? shieldSE.OnAttacked(res.RealDamage) : res.RealDamage;
+
             QueueDmgResult(res); // For defender to see this result at client
             OnAttacked(attacker, res.RealDamage); //currently 1:1  
-            OnGetHit(200);
+            //OnGetHit(200);
 
             int hpAfterDmg = GetHealth() - res.RealDamage;
             if (hpAfterDmg <= 0)
-            {                                
+            {
                 SetHealth(0);
                 OnKilled(attacker);
             }
-            else          
+            else
+            {
                 SetHealth(hpAfterDmg);
+
+                if (!res.IsEvasion)
+                {
+                    Common.Actions.GetHitCommand cmd = new Common.Actions.GetHitCommand();
+                    cmd.skillid = res.Skillid;
+                    cmd.isPlayer = IsPlayer();
+                    ServerAuthoGethit gethit = new ServerAuthoGethit(this, cmd);
+                    gethit.SetCompleteCallback(() =>
+                    {
+                        ServerAuthoASIdle idleAction = new ServerAuthoASIdle(this, new Common.Actions.IdleActionCommand());
+                        PerformAction(idleAction);
+                    });
+                    PerformAction(gethit);
+                }
+            }
         }
 
         public virtual void OnRecoverHealth(int origAmount)
@@ -537,8 +553,7 @@
 
         //public virtual bool CheckImmuneStatusByEffectType(EffectType type) {
         //    ImmuneSEType bitstring;
-        //    switch (type) {
-                
+        //    switch (type) {    
         //    }
         //}
         public virtual Actor GetOwner() { return this; }
@@ -570,8 +585,8 @@
             if (PlayerStats == null)
                 return;
             if (PlayerStats.IsDirty())
-                PlayerStats.Reset();           
-        } 
+                PlayerStats.Reset();
+        }
 
         public bool IsPerformingApproach()
         {
@@ -635,10 +650,9 @@
             AddSideEffectVisual(se, positiveEffect);
             return type;
 
-
-            //if (positiveEffect)            
-            //    sideeffects = mSideEffectsPos;            
-            //else            
+            //if (positiveEffect)
+            //    sideeffects = mSideEffectsPos;
+            //else
             //    sideeffects = mSideEffectsNeg;
 
             //int length = sideeffects.Length;
@@ -832,7 +846,7 @@
             //for (int i = 0; i < length; ++i)
             //{
             //    if (sideeffects[i] == se)
-            //    {                    
+            //    {
             //        sideeffects[i] = null;
             //        StopSideEffectVisual(se, positiveEffect); 
             //        slotid = i;
@@ -969,7 +983,7 @@
                 {
                     SpecialSE se = mPersistentSideEffects[i];
                     if (se != null)
-                        se.OnInterval(lastUpdatePersistentSE);                    
+                        se.OnInterval(lastUpdatePersistentSE);
                 }
                 lastUpdatePersistentSE = 0;
             }
@@ -977,20 +991,33 @@
          
         public bool HasSideEffect(int sid)
         {
-            foreach(SideEffect se in mSideEffectsPos)
+            //foreach(SideEffect se in mSideEffectsPos)
+            //{
+            //    if (se !=null && se.mSideeffectData.id == sid)
+            //    {
+            //        return true;
+            //    }
+            //}
+            //foreach (SideEffect se in mSideEffectsNeg)
+            //{
+            //    if (se != null && se.mSideeffectData.id == sid)
+            //    {
+            //        return true;
+            //    }
+            //}
+            //return false;
+
+            Kopio.JsonContracts.SideEffectJson sideeffect = Zealot.Repository.SideEffectRepo.GetSideEffect(sid);
+            byte type = (byte)SideEffectsUtils.GetEffectHandleType(sideeffect.effecttype);
+
+            if (!m_SideEffects.ContainsKey(type))
+                return false;
+
+            foreach (var se in m_SideEffects[type])
             {
-                if (se !=null && se.mSideeffectData.id == sid)
-                {
-                    return true;
-                }
+                if (se.mSideeffectData.id == sid) return true;
             }
-            foreach (SideEffect se in mSideEffectsNeg)
-            {
-                if (se != null && se.mSideeffectData.id == sid)
-                {
-                    return true;
-                }
-            }
+
             return false;
         }
 
@@ -1011,12 +1038,12 @@
             //    }
             //}
 
-            foreach(var pair in m_SideEffects)
+            Kopio.JsonContracts.SideEffectJson sideeffect = Zealot.Repository.SideEffectRepo.GetSideEffect(sid);
+            byte type = (byte)SideEffectsUtils.GetEffectHandleType(sideeffect.effecttype);
+
+            foreach (var se in m_SideEffects[type])
             {
-                foreach(SideEffect se in pair.Value)
-                {
-                    if (se.mSideeffectData.id == sid) return se;
-                }
+                if (se.mSideeffectData.id == sid) return se;
             }
 
             return null;
@@ -1187,7 +1214,7 @@
             }
         }
     
-        //call this for updating status to client.  
+        //call this for updating status to client.
         public virtual void OnControlChanged()
         {
         }
@@ -1229,7 +1256,7 @@
 
 
         public virtual void onDragged(Vector3 pos, float dur, float speed)
-        {           
+        {
         }
 
         public virtual void OnStun()

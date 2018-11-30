@@ -65,15 +65,26 @@
             HeroSynStats.ModelTier = hero.ModelTier;
 
             // Set CombatStats
-            PlayerCombatStats heroCombatStats = (PlayerCombatStats)hero.CombatStats;
-            heroCombatStats.SetPlayerLocalAndSyncStats(null, HeroSynStats, null);
+            HeroCombatStats heroCombatStats = (HeroCombatStats)hero.CombatStats;
+            heroCombatStats.SetLocalAndSyncStats(HeroSynStats);
+            hero.ComputeCombatStats();
             CombatStats = heroCombatStats;
+
+            heroCombatStats.SetField(FieldName.MoveSpeedBase, HeroData.movespeed);
+            heroCombatStats.SetField(FieldName.AttackSpeedBase, HeroData.attackspeed);
+            heroCombatStats.ComputeAll();
         }
 
         public void SetSpawnPosition(Player player)
         {
             Position = player.Position - player.Forward * (player.Radius + 0.5f);
             Forward = player.Forward;
+        }
+
+        public void SetTeleportPosDirection(Vector3 pos, Vector3 dir, Player player)
+        {
+            Position = pos - dir * (player.Radius + 0.5f);
+            Forward = dir;
         }
 
         public void CleanUp()
@@ -87,7 +98,7 @@
             HeroGrowthJson growthData = HeroRepo.GetHeroGrowthData(HeroData.growthgroup, currentLevel);
             if (growthData != null)
             {
-                PlayerCombatStats combatStats = (PlayerCombatStats)CombatStats;
+                HeroCombatStats combatStats = (HeroCombatStats)CombatStats;
                 combatStats.SuppressComputeAll = true;
                 CombatStats.SetField(FieldName.WeaponAttackBase, HeroData.weaponattack);
                 CombatStats.SetField(FieldName.StrengthBase, growthData.strength);

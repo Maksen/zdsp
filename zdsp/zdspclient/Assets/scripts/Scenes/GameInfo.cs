@@ -54,6 +54,8 @@ public static class GameInfo
     public static Dictionary<int, int> mSideEffectQuestStatus = new Dictionary<int, int>();
     public static Dictionary<int, int> mCompanionQuestStatus = new Dictionary<int, int>();
     public static List<QuestEventDetailJson> mQuestEventList = new List<QuestEventDetailJson>();
+    public static int mQuestEventTriggered = -1;
+    public static List<int> mPendingQuestEventList = new List<int>();
     public static bool mWaitingQuestEvent = false;
 
     public static void OnQuitGame()
@@ -81,10 +83,10 @@ public static class GameInfo
         mRealmState = RealmState.Created;
         gLocalPlayer = null;       
         mIsPlayerReady = false;
-        if (gCombat != null)
+        if (CutsceneManager.instance != null)
         {
-            if (gCombat.CutsceneManager != null)
-                gCombat.CutsceneManager.StopCutScene();
+            if (CutsceneManager.instance != null)
+                CutsceneManager.instance.StopCutScene();
             gCombat.OnLevelChanged();
         }
         gSelectedEntity = null;

@@ -26,12 +26,6 @@ namespace Zealot.Common
         [JsonProperty(PropertyName ="AutoGroup")]
         public int autoGroup { get; set; }
 
-        [JsonProperty(PropertyName = "SkillInvCount")]
-        public int SkillInvCount;
-
-        [JsonProperty(PropertyName = "SkillInv")]
-        public List<int> SkillInv; // stores all skill level with key being the skillid
-
         [JsonProperty(PropertyName = "EquippedSkill")]
         public List<int> EquippedSkill; // stores all equipped skills
 
@@ -41,24 +35,46 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "EquipSize")]
         public int EquipSize; // stores the size of skills that can be equipped
 
+        [JsonProperty(PropertyName = "AutoSize")]
+        public int AutoSize; // stores te size of skills that can be botted
+
+        [JsonProperty(PropertyName = "UnlockedAutoSize")]
+        public int UnlockedAutoSize;
+
+        [JsonProperty(PropertyName = "SkillInventory")]
+        public Dictionary<int, int> m_SkillInventory { get; set; }
+
         //cannot disable basic attack 
         public void InitDefault(JobsectJson jsj)
         {
             basicAttack1SId = 1;
-            SkillInv = new List<int>(40);
             EquippedSkill = new List<int>(36);
-            AutoSkill = new List<int>(36);
-            SkillInvCount = 0;
+            AutoSkill = new List<int>(42);
             equipGroup = autoGroup = 1;
             EquipSize = 6;
-            for (int i = 0; i < 40; ++i)
-            {
-                SkillInv.Add(0);
-            }
+            AutoSize = 7;
+            UnlockedAutoSize = 4;
             for (int i = 0; i < 36; ++i)
             {
                 EquippedSkill.Add(0);
+            }
+            for(int i = 0; i < 42; ++i)
+            {
                 AutoSkill.Add(0);
+            }
+
+            m_SkillInventory = new Dictionary<int, int>(); // not synced
+        }
+
+        public void AddSkillToBag(int skillgroup, int skillid)
+        {
+            if (m_SkillInventory.ContainsKey(skillgroup))
+            {
+                m_SkillInventory[skillgroup] = skillid;
+            }
+            else
+            {
+                m_SkillInventory.Add(skillgroup, skillid);
             }
         }
     }

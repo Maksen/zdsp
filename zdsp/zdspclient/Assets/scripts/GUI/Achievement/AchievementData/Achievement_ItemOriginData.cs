@@ -1,6 +1,4 @@
 ﻿using Kopio.JsonContracts;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Bot;
@@ -40,7 +38,7 @@ public class Achievement_ItemOriginData : MonoBehaviour
                     {
                         mapNameText.text = "";
                         button.gameObject.SetActive(false);
-                    }                       
+                    }
                 }
                 break;
             case ItemOriginType.Item:
@@ -81,21 +79,31 @@ public class Achievement_ItemOriginData : MonoBehaviour
                 }
                 break;
             case ItemOriginType.UI:
+                int uitype;
+                if (int.TryParse(param, out uitype))
+                {
+                    LinkUIType uIType = (LinkUIType)uitype;
+                    iconImage.sprite = null; // todo: jm replace with ui icon?
+                    nameText.text = uIType.ToString();  // to localize
+                    levelText.text = "";
+                    mapNameText.text = "";
+                    button.onClick.AddListener(() =>
+                    {
+                        if (ClientUtils.OpenUIWindowByLinkUI(uIType))
+                            UIManager.CloseAllDialogs();
+                    });
+                }
                 break;
             case ItemOriginType.Auction:
-                break;
-            default:
                 break;
         }
     }
 
     private void PathFindToTarget(string targetLevel, Vector3 targetPos, ReachTargetAction targetAction, int targetId = -1)
     {
-        UIManager.CloseAllDialogs();
-        UIManager.CloseAllWindows();
-
         PlayerGhost player = GameInfo.gLocalPlayer;
         string currentLevel = ClientUtils.GetCurrentLevelName();
+        bool foundtarget = true;
 
         if (currentLevel == targetLevel)
         {
@@ -106,7 +114,6 @@ public class Achievement_ItemOriginData : MonoBehaviour
         }
         else
         {
-            bool foundtarget;
             BotController.TheDijkstra.DoRouter(currentLevel, targetLevel, out foundtarget);
             if (foundtarget)
             {
@@ -117,7 +124,13 @@ public class Achievement_ItemOriginData : MonoBehaviour
                 GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
             }
             else
-                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));                           
+                UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_CannotFindTarget"));
+        }
+
+        if (foundtarget)
+        {
+            UIManager.CloseAllDialogs();
+            UIManager.CloseAllWindows();
         }
     }
 }

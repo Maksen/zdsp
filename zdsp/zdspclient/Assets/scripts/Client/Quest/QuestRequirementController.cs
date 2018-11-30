@@ -16,6 +16,7 @@ public class QuestRequirementData
 {
     public int QuestId;
     public QuestRequirementType Type;
+    public QuestRequirementDetailJson QuestRequirementDetailJson;
     public int RequirementGroup;
     public int RequirementId;
     public int TriggerId;
@@ -26,6 +27,7 @@ public class QuestRequirementData
     {
         QuestId = questid;
         Type = requirementJson.type;
+        QuestRequirementDetailJson = requirementJson;
         RequirementGroup = requirementJson.groupid;
         RequirementId = requirementJson.requirementid;
         TriggerId = requirementJson.para1;
@@ -65,6 +67,92 @@ public class QuestRequirementData
     public virtual bool FullfillRequirement()
     {
         return Progress >= RequireProgress;
+    }
+
+    public string GetRequirementText()
+    {
+        Dictionary<string, string> param = new Dictionary<string, string>();
+        switch(Type)
+        {
+            case QuestRequirementType.Level:
+                param.Add("level", RequireProgress.ToString());
+                return GUILocalizationRepo.GetLocalizedString("quest_lvl_requirement", param);
+            case QuestRequirementType.Item:
+                param.Add("item", GetRequirementName());
+                param.Add("count", RequireProgress.ToString());
+                return GUILocalizationRepo.GetLocalizedString("quest_item_requirement", param);
+            case QuestRequirementType.Equipment:
+                param.Add("item", GetRequirementName());
+                param.Add("count", RequireProgress.ToString());
+                return GUILocalizationRepo.GetLocalizedString("quest_equipment_requirement", param);
+            case QuestRequirementType.Hero:
+                if (QuestRequirementDetailJson.para2 == 1)
+                {
+                    param.Add("hero", GetRequirementName());
+                    return GUILocalizationRepo.GetLocalizedString("quest_herounlock_requirement", param);
+                }
+                else
+                {
+                    param.Add("hero", GetRequirementName());
+                    return GUILocalizationRepo.GetLocalizedString("quest_herouse_requirement", param);
+                }
+            case QuestRequirementType.Title:
+                param.Add("title", GetRequirementName());
+                return GUILocalizationRepo.GetLocalizedString("quest_title_requirement", param);
+            case QuestRequirementType.SideEffect:
+                param.Add("sideeffect", GetRequirementName());
+                return GUILocalizationRepo.GetLocalizedString("quest_se_requirement", param);
+            case QuestRequirementType.Companian:
+                param.Add("npc", GetRequirementName());
+                return GUILocalizationRepo.GetLocalizedString("quest_companion_requirement", param);
+            case QuestRequirementType.Clue:
+                param.Add("clue", GetRequirementName());
+                return GUILocalizationRepo.GetLocalizedString("quest_clue_requirement", param);
+            case QuestRequirementType.Job:
+                param.Add("job", GetRequirementName());
+                return GUILocalizationRepo.GetLocalizedString("quest_job_requirement", param);
+            case QuestRequirementType.TimeClue:
+                param.Add("clue", GetRequirementName());
+                return GUILocalizationRepo.GetLocalizedString("quest_timeclue_requirement", param);
+            default:
+                return "";
+        }
+    }
+
+    private string GetRequirementName()
+    {
+        switch (Type)
+        {
+            case QuestRequirementType.Level:
+                return "";
+            case QuestRequirementType.Item:
+            case QuestRequirementType.Equipment:
+                ItemBaseJson itemBaseJson = GameRepo.ItemFactory.GetItemById(QuestRequirementDetailJson.para1);
+                return itemBaseJson == null ? "" : itemBaseJson.localizedname;
+            case QuestRequirementType.Hero:
+                HeroJson heroJson = HeroRepo.GetHeroById(QuestRequirementDetailJson.para1);
+                return heroJson == null ? "" : heroJson.localizedname;
+            case QuestRequirementType.Title:
+                return "";
+            case QuestRequirementType.SideEffect:
+                SideEffectJson sideEffectJson = SideEffectRepo.GetSideEffect(QuestRequirementDetailJson.para1);
+                return sideEffectJson == null ? "" : sideEffectJson.localizedname;
+            case QuestRequirementType.Companian:
+                StaticNPCJson staticNPCJson = StaticNPCRepo.GetNPCById(QuestRequirementDetailJson.para1);
+                return staticNPCJson == null ? "" : staticNPCJson.localizedname;
+            case QuestRequirementType.Clue:
+                DestinyClueJson destinyClueJson = DestinyClueRepo.GetDestinyClueById(QuestRequirementDetailJson.para1);
+                QuestJson destinyQuestJson = QuestRepo.GetQuestByID(destinyClueJson == null ? -1 : destinyClueJson.questid);
+                return destinyQuestJson == null ? "" : destinyQuestJson.questname;
+            case QuestRequirementType.Job:
+                return JobSectRepo.GetJobLocalizedName((JobType)QuestRequirementDetailJson.para1);
+            case QuestRequirementType.TimeClue:
+                TimeClueJson timeClueJson = DestinyClueRepo.GetTimeClueById(QuestRequirementDetailJson.para1);
+                QuestJson timeQuestJson = QuestRepo.GetQuestByID(timeClueJson == null ? -1 : timeClueJson.questid);
+                return timeQuestJson == null ? "" : timeQuestJson.questname;
+            default:
+                return "";
+        }
     }
 }
 
@@ -533,7 +621,7 @@ public class QuestRequirementController
         }
     }
 
-    private QuestRequirementStatus GetTriggerQuestRequirementStatus(int questid)
+    public QuestRequirementStatus GetTriggerQuestRequirementStatus(int questid)
     {
         if (mStartQuestRequirementStatus.ContainsKey(questid))
         {
@@ -697,11 +785,11 @@ public class QuestRequirementController
                 }
                 break;
             case QuestRequirementType.Companian:
-                if (player.PlayerSynStats.QuestCompanionId == triggerid && triggertype == 1)
+                if (mQuestController.GetCompanionId() == triggerid && triggertype == 1)
                 {
                     progress = 1;
                 }
-                else if (player.PlayerSynStats.QuestCompanionId != triggerid && triggertype == 2)
+                else if (mQuestController.GetCompanionId() != triggerid && triggertype == 2)
                 {
                     progress = 2;
                 }
@@ -749,5 +837,26 @@ public class QuestRequirementController
         int progress = 0;
         UpdateProgress(requirementData.Type, requirementData.TriggerId, requirementData.RequireProgress, player, ref progress);
         requirementData.Progress = progress;
+    }
+    
+    public string GetRequirementText(int questid)
+    {
+        QuestJson questJson = QuestRepo.GetQuestByID(questid);
+        Dictionary<string, string> param = new Dictionary<string, string>();
+        param.Add("questname", questJson == null ? "" : questJson.questname);
+        string result = GUILocalizationRepo.GetLocalizedString("quest_requirement", param);
+        List<QuestRequirementType> requirementTypes = GetTriggerQuestRequirementCheckList(questid);
+        foreach (QuestRequirementType requiremnettype in requirementTypes)
+        {
+            List<QuestRequirementData> requirementDatas = GetTriggerQuestRequirementData(requiremnettype, questid);
+            foreach(QuestRequirementData data in requirementDatas)
+            {
+                if (!data.FullfillRequirement())
+                {
+                    result += data.GetRequirementText() + " ";
+                }
+            }
+        }
+        return result;
     }
 }

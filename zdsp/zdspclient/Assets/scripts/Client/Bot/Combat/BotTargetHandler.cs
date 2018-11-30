@@ -29,38 +29,32 @@ namespace Zealot.Bot
 
         protected override IEnumerator Start()
         {
-            // 開啟掛機前，確認是否有手動選擇的目標
+            ActorGhost theTarget = null;
+
             var selectedTarget = GameInfo.gSelectedEntity as ActorGhost;
-            if (IsTargetValidAndAlive(selectedTarget))
+            if (selectedTarget != null && selectedTarget != mCurrentTarget && IsMonsterValid(selectedTarget))
             {
-                if (IsMonsterValid(selectedTarget))
-                    SetManualTarget(selectedTarget);
-                else
-                {
-                    selectedTarget = null;
-                    ClearTarget();
-                }
+                SetManualTarget(selectedTarget);
+                theTarget = mManuallySelectedTarget;
             }
 
-            ActorGhost newTarget = GetFriendlyTarget(); // 針對非Enemy Target Type先進行一次設定
-
-            if (newTarget == null) // Enemy Target Type的設定
+            theTarget = GetFriendlyTarget();
+            if (theTarget == null)
             {
                 if (!IsTargetValidAndAlive(mManuallySelectedTarget))
                 {
                     do
                     {
-                        newTarget = QueryContext.Instance.QueryResult();
+                        theTarget = QueryContext.Instance.QueryResult();
                         yield return null;
-                    } while (!IsTargetValidAndAlive(newTarget));
+                    } while (!IsTargetValidAndAlive(theTarget));
                 }
                 else
-                    newTarget = mManuallySelectedTarget;
-
-                SelectTarget(newTarget);
+                    theTarget = mManuallySelectedTarget;
             }
-            else
-                SetupCurrentTargetNoMark(newTarget);
+
+            SelectTarget(theTarget);
+            BotQuerySystem.Instance.ClearAllExcludedTargets();
         }
 
         public override void Stop()
@@ -68,13 +62,22 @@ namespace Zealot.Bot
             base.Stop();
             ClearTarget();
             ClearManuallyInput();
+            ClearManaulTarget();
+            BotQuerySystem.Instance.ClearAllExcludedTargets();
+        }
+
+        public void ExcludeCurrentTarget()
+        {
+            BotQuerySystem.Instance.AddExcludedTarget(mCurrentTarget);
+            ClearTarget();
         }
 
         private void SetupCurrentTarget(ActorGhost newTarget)
         {
-            //Debug.Log("Currrent target ID: " + newTarget.GetPersistentID());
+            ClearTarget();
             mCurrentTarget = newTarget;
             GameInfo.gCombat.OnSelectEntity(mCurrentTarget);
+            //Debug.Log("Currrent target ID: " + newTarget.GetPersistentID());
         }
 
         private void SetupCurrentTargetNoMark(ActorGhost newTarget)
@@ -82,10 +85,17 @@ namespace Zealot.Bot
             ClearTarget();
             mCurrentTarget = newTarget;
             GameInfo.gSelectedEntity = mCurrentTarget;
+            //Debug.Log("No mark target ID: " + newTarget.GetPersistentID());
         }
 
         private void SelectTarget(ActorGhost newTarget)
         {
+            if (newTarget.IsPlayer())
+            {
+                SetupCurrentTargetNoMark(newTarget);
+                return;
+            }
+
             switch (BotAutoSkillHandler.Instance.GetSkillThreatzone())
             {
                 case Threatzone.Single:
@@ -141,12 +151,22 @@ namespace Zealot.Bot
             });
         }
 
+        public ActorGhost GetCurrentTarget()
+        {
+            return mCurrentTarget;
+        }
+
         private void SetManualTarget(ActorGhost newTarget)
         {
             //Debug.Log("Manually changed target!" + newTarget.GetPersistentID());
             ClearTarget();
             mManuallySelectedTarget = newTarget;
             SetupCurrentTarget(mManuallySelectedTarget);
+        }
+
+        private void ClearManaulTarget()
+        {
+            mManuallySelectedTarget = null;
         }
 
         private void ClearManuallyInput()

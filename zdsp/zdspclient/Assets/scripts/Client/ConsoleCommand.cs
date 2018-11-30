@@ -947,7 +947,7 @@ public class CommandManager
     {
         if (param.Length == 1)
         {
-            GameInfo.gCombat.CutsceneManager.PlayQuestCutscene(param[0]);
+            CutsceneManager.instance.PlayQuestCutscene(param[0]);
         }
         else
             PrintToConsole("Format: \\PlayCutscene <cutscene name>");
@@ -1334,6 +1334,30 @@ public class CommandManager
         }
     }
 
+    [ConsoleCmd("Get Collection by Id. Parameters: id range")]
+    public void GetCollectionById(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int id;
+            if (int.TryParse(param[0], out id))
+                RPCFactory.NonCombatRPC.ConsoleGetCollectionById(id);
+        }
+        else if (param.Length == 2)
+        {
+            int idstart, idend;
+            if (int.TryParse(param[0], out idstart) && int.TryParse(param[1], out idend))
+            {
+                for (int id = idstart; id <= idend; ++id)
+                    RPCFactory.NonCombatRPC.ConsoleGetCollectionById(id);
+            }
+        }
+        else
+        {
+            PrintToConsole("Format: \\GetCollectionById [Id] [to ID]");
+        }
+    }
+
     [ConsoleCmd("Get Achievement. Parameters: objtype|reset [target] [count]|[max]")]
     public void GetAchievement(string[] param)
     {
@@ -1363,6 +1387,30 @@ public class CommandManager
         else
         {
             PrintToConsole("Format: \\GetAchievement objtype|reset [target] [count]|[max]");
+        }
+    }
+
+    [ConsoleCmd("Get Achievement by Id. Parameters: id range")]
+    public void GetAchievementById(string[] param)
+    {
+        if (param.Length == 1)
+        {
+            int id;
+            if (int.TryParse(param[0], out id))
+                RPCFactory.NonCombatRPC.ConsoleGetAchievementById(id);
+        }
+        else if (param.Length == 2)
+        {
+            int idstart, idend;
+            if (int.TryParse(param[0], out idstart) && int.TryParse(param[1], out idend))
+            {
+                for (int id = idstart; id <= idend; ++id)
+                    RPCFactory.NonCombatRPC.ConsoleGetAchievementById(id);
+            }
+        }
+        else
+        {
+            PrintToConsole("Format: \\GetAchievementById [Id] [to ID]");
         }
     }
 

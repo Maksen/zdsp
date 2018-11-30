@@ -25,7 +25,7 @@ public class UI_Achievement_AbilityDialog : BaseWindowBehaviour
         {
             List<SideEffectJson> passiveSEs = levelInfo.sideEffects;
             for (int i = 0; i < passiveSEs.Count; ++i)
-                AddToBuffMap(passiveSEs[i]);
+                SideEffectUtils.AddToBuffDict(buffsMap, passiveSEs[i]);
         }
 
         // from collections claimed and stored
@@ -36,11 +36,11 @@ public class UI_Achievement_AbilityDialog : BaseWindowBehaviour
             if (obj != null)
             {
                 if (obj.rewardType == AchievementRewardType.SideEffect && obj.rewardId > 0 && elem.Value.Claimed)
-                    AddToBuffMap(SideEffectRepo.GetSideEffect(obj.rewardId));
+                    SideEffectUtils.AddToBuffDict(buffsMap, SideEffectRepo.GetSideEffect(obj.rewardId));
                 if ((obj.type == CollectionType.Fashion || obj.type == CollectionType.Relic) && elem.Value.Stored)
                 {
                     for (int i = 0; i < obj.storeSEs.Count; ++i)
-                        AddToBuffMap(obj.storeSEs[i]);
+                        SideEffectUtils.AddToBuffDict(buffsMap, obj.storeSEs[i]);
                 }
             }
         }
@@ -53,32 +53,11 @@ public class UI_Achievement_AbilityDialog : BaseWindowBehaviour
             if (obj != null)
             {
                 if (obj.rewardType == AchievementRewardType.SideEffect && obj.rewardId > 0 && elem.Value.Claimed)
-                    AddToBuffMap(SideEffectRepo.GetSideEffect(obj.rewardId));
+                    SideEffectUtils.AddToBuffDict(buffsMap, SideEffectRepo.GetSideEffect(obj.rewardId));
             }
         }
 
         Populate();
-    }
-
-    private void AddToBuffMap(SideEffectJson se)
-    {
-        if (se == null)
-            return;
-
-        if (buffsMap.ContainsKey(se.effecttype))
-        {
-            if (se.isrelative)
-                buffsMap[se.effecttype].Item2 += se.max;
-            else
-                buffsMap[se.effecttype].Item1 += se.max;
-        }
-        else
-        {
-            if (se.isrelative)
-                buffsMap.Add(se.effecttype, new ValuePair<float, float>(0, se.max));
-            else
-                buffsMap.Add(se.effecttype, new ValuePair<float, float>(se.max, 0));
-        }
     }
 
     private void Populate()

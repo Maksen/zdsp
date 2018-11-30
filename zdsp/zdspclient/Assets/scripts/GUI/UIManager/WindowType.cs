@@ -29,6 +29,8 @@
     Achievement = 24,
     DNA = 25,
     Relic = 26,
+    Social = 27,
+    Meridian = 28,
 
     // Add persistent type window here
     //-----------------------------------

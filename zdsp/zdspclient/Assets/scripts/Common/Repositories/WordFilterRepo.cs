@@ -7,39 +7,39 @@ namespace Zealot.Repository
 {
     public static class WordFilterRepo
     {
-        private static Dictionary<FilterType, List<string>> mWordFilterList;
+        private static Dictionary<WordFilterType, List<string>> mWordFilterList;
 
         static WordFilterRepo()
 		{
-            mWordFilterList = new Dictionary<FilterType, List<string>>();
+            mWordFilterList = new Dictionary<WordFilterType, List<string>>();
         }
 
         public static void Init(GameDBRepo gameData)
 		{
-            foreach (KeyValuePair<int, DisableWordJson> entry in gameData.DisableWord)
+            Dictionary<int, WordFilterJson>.ValueCollection wordFilterValues = gameData.WordFilter.Values;
+            foreach (WordFilterJson value in wordFilterValues)
             {
-                if (!mWordFilterList.ContainsKey(entry.Value.filtertype))
-                {
-                    mWordFilterList.Add(entry.Value.filtertype, new List<string>());
-                }
+                WordFilterType wordFilterType = value.wordfiltertype;
+                if (!mWordFilterList.ContainsKey(wordFilterType))
+                    mWordFilterList.Add(wordFilterType, new List<string>());
 
-                mWordFilterList[entry.Value.filtertype].Add(entry.Value.word);
+                mWordFilterList[wordFilterType].Add(value.localizedword);
             }
         }
 
         private static int CompareStr(string x, string y)
         {
-            if(x == null)
+            if (x == null)
             {
-                if(y == null) return 0; // equal
+                if (y == null) return 0; // equal
                 else return -1; // y greater
             }
             else
             {
-                if(y == null) return 1; // x greater
+                if (y == null) return 1; // x greater
                 else
                 {
-                    if(x.Length == y.Length)
+                    if (x.Length == y.Length)
                         return string.Compare(x, y);
                     else if (x.Length > y.Length)
                         return 1;
@@ -77,7 +77,7 @@ namespace Zealot.Repository
             return -1;
         }
 
-        public static bool FilterString(string str, char symbol, FilterType type, out string filteredStr)
+        public static bool FilterString(string str, char symbol, WordFilterType type, out string filteredStr)
         {
             filteredStr = str;
             if (string.IsNullOrEmpty(str))
@@ -116,7 +116,7 @@ namespace Zealot.Repository
             return hasInvalid;
         }
 
-        public static bool CheckString(string word, FilterType type)
+        public static bool CheckString(string word, WordFilterType type)
         {
             if (string.IsNullOrEmpty(word))
             {
@@ -128,7 +128,7 @@ namespace Zealot.Repository
                 return false;
             }
 
-            List<string> wordFilterList = mWordFilterList[FilterType.All];
+            List<string> wordFilterList = mWordFilterList[WordFilterType.All];
             wordFilterList.AddRange(mWordFilterList[type]);
             if (wordFilterList.Count <= 0)
             {

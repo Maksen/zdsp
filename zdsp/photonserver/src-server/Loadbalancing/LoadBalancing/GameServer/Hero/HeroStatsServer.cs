@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using UnityEngine;
 using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Repository;
@@ -50,7 +51,7 @@ namespace Photon.LoadBalancing.GameServer
             peer = _peer;
 
             List<Hero> heroesList = invData.HeroesList;
-            for (int i = 0; i < heroesList.Count; i++)
+            for (int i = 0; i < heroesList.Count; ++i)
             {
                 Hero hero = heroesList[i];
                 HeroJson heroData = HeroRepo.GetHeroById(hero.HeroId);
@@ -70,7 +71,7 @@ namespace Photon.LoadBalancing.GameServer
             ApplyHeroBondSEs();
 
             int count = invData.OngoingMaps.Count;
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; ++i)
             {
                 ExploreMapData map = invData.OngoingMaps[i];
                 ExplorationMapJson mapData = HeroRepo.GetExplorationMapById(map.MapId);
@@ -119,7 +120,7 @@ namespace Photon.LoadBalancing.GameServer
                 foreach (var hero in mHeroesDict.Values)
                 {
                     List<int> quests = hero.GetAllTriggeredQuests();
-                    for (int i = 0; i < quests.Count; i++)
+                    for (int i = 0; i < quests.Count; ++i)
                     {
                         if (!player.Slot.QuestController.HasQuestBeenTriggered(quests[i]))
                             player.Slot.QuestController.TriggerNewQuest(quests[i], hero.HeroId);
@@ -130,7 +131,7 @@ namespace Photon.LoadBalancing.GameServer
 
         private int GetEmptySlot()
         {
-            for (int i = 0; i < heroes.Count; i++)
+            for (int i = 0; i < heroes.Count; ++i)
             {
                 if (heroes[i] == null)
                     return i;
@@ -491,7 +492,7 @@ namespace Photon.LoadBalancing.GameServer
             if (hero != null)
             {
                 string[] skinitems = hero.HeroJson.skinitemid.Split(';');
-                for (int i = 0; i < skinitems.Length; i++)
+                for (int i = 0; i < skinitems.Length; ++i)
                 {
                     string[] itemids = skinitems[i].Split(',');
                     int bindItemId = 0, unbindItemId = 0;  // get bind and unbind id of the skin item
@@ -612,6 +613,15 @@ namespace Photon.LoadBalancing.GameServer
             }
         }
 
+        public void TeleportSpawnedHeroPosDirection(Vector3 pos, Vector3 dir, Player player)
+        {
+            if (summonedHeroEntity != null)
+            {
+                summonedHeroEntity.SetTeleportPosDirection(pos, dir, player);
+                summonedHeroEntity.Idle();
+            }
+        }
+
         public void SpawnHeroEntity(Hero hero, bool summoning)
         {
             bool changedHero = false;
@@ -703,7 +713,7 @@ namespace Photon.LoadBalancing.GameServer
             if (passiveSkill != null && passiveSkill.skills != null)
             {
                 List<SideEffectJson> passiveSEs = passiveSkill.skills.mTarget;
-                for (int i = 0; i < passiveSEs.Count; i++)
+                for (int i = 0; i < passiveSEs.Count; ++i)
                 {
                     SideEffect se = SideEffectFactory.CreateSideEffect(passiveSEs[i], SEORIGINID.NONE,passiveSkill.skillJson.id, true);
                     IPassiveSideEffect pse = se as IPassiveSideEffect;
@@ -733,7 +743,7 @@ namespace Photon.LoadBalancing.GameServer
             List<IPassiveSideEffect> pselist;
             if (heroPassiveSEs.TryGetValue(heroId, out pselist))
             {
-                for (int i = 0; i < pselist.Count; i++)
+                for (int i = 0; i < pselist.Count; ++i)
                     pselist[i].RemovePassive();
                 pselist.Clear();
                 return true;
@@ -744,7 +754,7 @@ namespace Photon.LoadBalancing.GameServer
         private bool RemoveSummonPassiveSEs()
         {
             bool needCompute = summonPassiveSEs.Count > 0;
-            for (int i = 0; i < summonPassiveSEs.Count; i++)
+            for (int i = 0; i < summonPassiveSEs.Count; ++i)
             {
                 summonPassiveSEs[i].RemovePassive();
             }
@@ -769,7 +779,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             bool needComputeAll = false;
             List<HeroBond> bonds = HeroRepo.GetInvolvedBondsByHeroId(heroId);
-            for (int i = 0; i < bonds.Count; i++)
+            for (int i = 0; i < bonds.Count; ++i)
             {
                 int groupId = bonds[i].heroBondGroupJson.id;
                 HeroBondJson highestLevelData = bonds[i].GetHighestFulfilledLevel(this);
@@ -823,7 +833,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             bool needCompute = false;
             var passiveSEs = fulfilledBonds[groupId].passiveSEs;
-            for (int i = 0; i < passiveSEs.Count; i++)
+            for (int i = 0; i < passiveSEs.Count; ++i)
             {
                 passiveSEs[i].RemovePassive();
                 needCompute = true;
@@ -857,7 +867,7 @@ namespace Photon.LoadBalancing.GameServer
                 return;
 
             List<Hero> heroesList = new List<Hero>();
-            for (int i = 0; i < heroIds.Count; i++) // check heros meet map requirements
+            for (int i = 0; i < heroIds.Count; ++i) // check heros meet map requirements
             {
                 Hero hero = GetHero(heroIds[i]);
                 if (hero == null)  // should not happen
@@ -940,7 +950,7 @@ namespace Photon.LoadBalancing.GameServer
         {
             // calculate efficiency
             float efficiency = mapData.baseefficiency * 0.01f;
-            for (int i = 0; i < heroesList.Count; i++)
+            for (int i = 0; i < heroesList.Count; ++i)
             {
                 Hero hero = heroesList[i];
                 hero.IsAway = true; // set used heroes as away
@@ -972,10 +982,10 @@ namespace Photon.LoadBalancing.GameServer
                 {
                     Dictionary<int, int> rewardlistItems = new Dictionary<int, int>();
                     List<ItemInfo> itemInfoList = new List<ItemInfo>();
-                    GameRules.GenerateRewardByRewardGrpID(target.rewardgroupid, player.PlayerSynStats.Level, player.PlayerSynStats.progressJobLevel, player.PlayerSynStats.jobsect,
-                        itemInfoList, currencyToAdd);
+                    GameRules.GenerateRewardByRewardGrpID(target.rewardgroupid, player.GetAccumulatedLevel(), player.PlayerSynStats.progressJobLevel, 
+                        player.PlayerSynStats.jobsect, itemInfoList, currencyToAdd);
                     // add up items from reward list
-                    for (int i = 0; i < itemInfoList.Count; i++)
+                    for (int i = 0; i < itemInfoList.Count; ++i)
                     {
                         ItemInfo item = itemInfoList[i];
                         if (item.stackCount > 0)
@@ -997,16 +1007,17 @@ namespace Photon.LoadBalancing.GameServer
                             rewardToAdd.Add(new ItemInfo { itemId = (ushort)item.Key, stackCount = item.Value });
                     }
                 }
+
                 LootLink lootLink = LootRepo.GetLootLink(target.lootlinkid);
                 if (lootLink != null)  // add any item from loot link
                 {
                     Dictionary<int, int> lootItems = new Dictionary<int, int>();
-                    LootRules.GenerateLootItems(lootLink.gids, lootItems, currencyToAdd);
+                    LootRules.GenerateLootItems(lootLink.gids, lootItems, currencyToAdd, target.monstertype, target.level, player.GetAccumulatedLevel());
                     // modify loot item count by efficiency
                     foreach (int itemid in lootItems.Keys.ToList())
                         lootItems[itemid] = (int)Math.Floor(lootItems[itemid] * efficiency);
                     List<ItemInfo> itemInfoList = LootRules.GetItemInfoListToAdd(lootItems, true); // check for limited items
-                    for (int i = 0; i < itemInfoList.Count; i++)
+                    for (int i = 0; i < itemInfoList.Count; ++i)
                     {
                         int index = rewardToAdd.FindIndex(x => x.itemId == itemInfoList[i].itemId);
                         if (index != -1) // has item already in list so just add up the count
@@ -1038,7 +1049,7 @@ namespace Photon.LoadBalancing.GameServer
 
                     List<Hero> heroesList = new List<Hero>();
                     int count = map.HeroIdList.Count;
-                    for (int i = 0; i < count; i++)
+                    for (int i = 0; i < count; ++i)
                     {
                         Hero hero = GetHero(map.HeroIdList[i]);
                         if (hero == null)  // should not happen
@@ -1071,7 +1082,7 @@ namespace Photon.LoadBalancing.GameServer
                 UnSummonHeroEntity();
                 SummonedHeroId = 0;
                 mHeroesDict.Clear();
-                for (int i = 0; i < heroes.Count; i++)
+                for (int i = 0; i < heroes.Count; ++i)
                     heroes[i] = null;
             }
             else if (IsHeroUnlocked(heroId))

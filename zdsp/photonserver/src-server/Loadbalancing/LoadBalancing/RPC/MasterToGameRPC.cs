@@ -149,5 +149,12 @@ namespace Zealot.RPC
         //{
         //    ProxyMethod("GMNotifyTalentModifierChanged", target);
         //}
+
+
+        //[RPCMethod(RPCCategory.MasterToGame, (byte)MasterToGameRPCMethods.Ret_GetServerList)]
+        //public void Ret_GetServerList(string info, object target)
+        //{
+        //    ProxyMethod("Ret_GetServerList", info, target);
+        //}
     }
 }

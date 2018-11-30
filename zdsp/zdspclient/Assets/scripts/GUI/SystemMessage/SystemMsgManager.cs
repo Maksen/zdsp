@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zealot.Common;
 
 public class SystemMsgManager : MonoBehaviour
 {
@@ -63,11 +64,18 @@ public class SystemMsgManager : MonoBehaviour
             component.GetComponent<UI_EventNotification>().ShowMessage(message);
     }
 
-    public void ShowAchievementMessage(string message)
+    public void ShowAchievementMessage(AchievementKind type, int id)
     {
         SystemMsgComponent component;
         if (sysMsgMap.TryGetValue(SystemMsgType.Achievement, out component))
-            component.GetComponent<UI_AchievementMessage>().ShowMessage(message);
+            component.GetComponent<UI_AchievementMessage>().ShowMessage(type, id);
+    }
+
+    public void EnableShowAchievementMessages(bool value)
+    {
+        SystemMsgComponent component;
+        if (sysMsgMap.TryGetValue(SystemMsgType.Achievement, out component))
+            component.GetComponent<UI_AchievementMessage>().EnableShowMessages(value);
     }
 
     private void OnDestroy()

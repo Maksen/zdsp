@@ -6,6 +6,8 @@ using Zealot.Spawners;
 
 public class CutsceneManager : MonoBehaviour
 {
+    public static CutsceneManager instance = null;
+
     private List<CutsceneEntity> cutsceneEntities;
     
     /// <summary>
@@ -13,10 +15,20 @@ public class CutsceneManager : MonoBehaviour
     /// </summary>
     private int indexRealmStart = -1;
     private int indexUI = -1;
-    private CutsceneEntity currentPlaying = null;
+
+    public CutsceneEntity currentPlaying = null;
+    public UI_Cutscene_Skip skip_button
+    {
+        get { return UI_Cutscene_Skip.instance; } 
+    }
 
     private Dictionary<int, CutsceneEntity> eventCutscenes;
     private Dictionary<string, int> questCutscenes;
+
+    CutsceneManager()
+    {
+        if(instance == null) instance = this;
+    }
 
     [NonSerialized]
     public bool CutsceneLoading = false;
@@ -193,7 +205,8 @@ public class CutsceneManager : MonoBehaviour
         if (currentPlaying != null)
         {
             currentPlaying.SkipCutScene();
-            GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.OnCutsceneFinished(3));
+            if(GameInfo.gCombat != null && GameInfo.gLocalPlayer != null)
+                GameInfo.gCombat.StartCoroutine(GameInfo.gLocalPlayer.OnCutsceneFinished(3));
         }
     }
 
@@ -216,7 +229,6 @@ public class CutsceneManager : MonoBehaviour
         }
         return false;
     }
-
 
     public void PlayUICutscene()
     {

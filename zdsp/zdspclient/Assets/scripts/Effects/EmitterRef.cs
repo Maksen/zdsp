@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-//using Xft;
 
 public class EmitterRef : MonoBehaviour
 {
@@ -9,13 +7,6 @@ public class EmitterRef : MonoBehaviour
     public Vector3 Rotation = Vector3.zero;
     public Vector3 Scale = Vector3.one;
     public bool WorldSpace = false;
-
-    public void Awake()
-    {
-        //XffectComponent xffect = GetComponent<XffectComponent> ();
-        //if (xffect)
-        //xffect.Initialize ();
-    }
 
     public string GetRefboneName()
     {
@@ -97,55 +88,35 @@ public class EmitterRef : MonoBehaviour
 
     public void Restart()
     {
-        //XffectComponent xffect = GetComponent<XffectComponent>();
         ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
 
         Animator[] animators = GetComponentsInChildren<Animator>();
         if (animators != null && animators.Length > 0)
         {
-            for (int j = 0; j < animators.Length; j++)
+            for (int i = 0; i < animators.Length; ++i)
             {
-                Animator anim = animators[j];
+                Animator anim = animators[i];
                 RuntimeAnimatorController ac = anim.runtimeAnimatorController;
                 anim.Play(ac.animationClips[0].name, 0, 0f);
-                //anim.Play(ac.layers[0].stateMachine.defaultState.name, 0, 0f);                
+                //anim.Play(ac.layers[0].stateMachine.defaultState.name, 0, 0f);
             }
         }
 
-//        if (xffect)
-//        {
-//#if UNITY_EDITOR
-//            //if (GameInfo.gLocalPlayer == null)
-//            {
-//                xffect.EditView = true;
-//                xffect.EnableEditView();
-//                xffect.ResetEditScene();
-//            }
-//#endif
-
-//            xffect.Active();//need for particle to play. 
-//        }
-
-
-        for (int i = 0; i < particles.Length; i++)
+        for (int i = 0; i < particles.Length; ++i)
         {
             ParticleSystem particle = particles[i];
             particle.Clear();
             particle.Play();
         }
 
-        foreach (EffectObjectController obj in gameObject.GetComponentsInChildren<EffectObjectController>())
-            obj.Replay();
+        //foreach (EffectObjectController obj in gameObject.GetComponentsInChildren<EffectObjectController>())
+        //    obj.Replay();
     }
 
     public void Deactive()
     {
-        //XffectComponent xffect = GetComponent<XffectComponent>();
-        //if (xffect)
-        //    xffect.DeActive();
-
         ParticleSystem[] ps = GetComponentsInChildren<ParticleSystem>(true);
-        for (int i = 0; i < ps.Length; i++)
+        for (int i = 0; i < ps.Length; ++i)
         {
             var main = ps[i].main;
             main.playOnAwake = false;

@@ -51,7 +51,7 @@
         WelfareRefreshTotalSpend,
         WelfareRefreshOpenServiceFund,
         WelfareRefreshGoldJackpot,
-        WelfareRefreshContLogin
+        WelfareRefreshContLogin,
     }
 
     public enum GameToMasterRPCMethods : byte
@@ -72,12 +72,14 @@
         UnRegChar,
         RegCharMultiple,
         OnConnectedSyncData,
+        RET_APIManagerCallRPC,
     }
 
     public enum GameToClusterRPCMethods : byte
     {
         RegChar,
         UnRegChar,
+        APIManagerCallRPC
     }
 
     public enum MasterToClusterRPCMethods : byte
@@ -120,7 +122,6 @@
         SpawnHeroEntity,
         DestroyEntity,
         SpawnInteractiveEntity,
-        InteractiveTrigger,
         OnPlayerDead,
         RespawnPlayer,
         TeleportSetPos,
@@ -165,6 +166,7 @@
         #endregion
 
         #region Achievement
+        Ret_ClaimAchievementReward,
         Ret_ClaimAllAchievementRewards,
         #endregion
 
@@ -528,7 +530,6 @@
         #endregion
 
         #region InteractiveTrigger
-        OnInteractiveInit,
         OnInteractiveUse,
         OnInteractiveTrigger,
         #endregion
@@ -582,7 +583,9 @@
         ConsoleAddRewardGroupCheckBagMail,
         ConsoleSetAchievementLevel,
         ConsoleGetCollection,
+        ConsoleGetCollectionById,
         ConsoleGetAchievement,
+        ConsoleGetAchievementById,
         ConsoleClearAchievementRewards,
         ConsoleAddHero,
         ConsoleRemoveHero,
@@ -751,6 +754,7 @@
         ApplyQuestEventBuff,
         ApplyQuestEventCompanion,
         ResetQuestEventCompanion,
+        GuidePointReached,
         #endregion
 
         #region CharacterInfo
@@ -764,12 +768,13 @@
         AutoEquipSkill,
         RemoveAutoEquipSkill,
         UpdateEquipSlots,
+        UnlockAutoSlot,
+        RequestSkillInventory,
         #endregion
 
         #region PowerUp
         PowerUp,
-        MeridianLevelUp,
-        MeridianExpUp,
+        MeridianUp,
         #endregion
 
         #region EquipmentCraft
@@ -806,6 +811,9 @@
         SocialRemoveGood,
         SocialRaiseAllTempRequest,
         SocialClearTemp,
+        SocialTest_AddTempFriendsSingle,
+        DebugFixTool,
+        DebugSelectTool,
         #endregion
 
         #region Invincible
@@ -910,6 +918,7 @@
 
         #region Skill
         Ret_AddToSkillInventory,
+        Ret_SkillInventory,
         #endregion
 
         #region Destiny Clue
@@ -936,6 +945,9 @@
         Ret_SocialRemoveGood,
         Ret_SocialRaiseAllTempRequest,
         Ret_SocialClearTemp,
+        Ret_SocialTest_AddTempFriendsSingle,
+        Ret_DebugFixTool,
+        Ret_DebugSelectTool,
         #endregion
     }
 }

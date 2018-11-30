@@ -465,30 +465,6 @@ namespace Zealot.Repository
             return questRequirementDetailJsonList;
         }
 
-        public static bool GetQuestGroupByObjectiveId(int questid, int objectiveid, out int group, out int seqnum)
-        {
-            group = 0;
-            seqnum = 0;
-            Dictionary<int, Dictionary<int, List<string>>> grouplist = GetQuestObjectiveByQuestId(questid);
-            foreach (KeyValuePair<int, Dictionary<int, List<string>>> seqentry in grouplist)
-            {
-                foreach (KeyValuePair<int, List<string>> objentry in seqentry.Value)
-                {
-                    List<int> objectivelist = objentry.Value.Select(int.Parse).ToList();
-                    foreach(int objid in objectivelist)
-                    {
-                        if (objid == objectiveid)
-                        {
-                            group = seqentry.Key;
-                            seqnum = objentry.Key;
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
         public static List<int> GetPreviousObjectiveId(int questid, int group, int seqnum)
         {
             Dictionary<int, Dictionary<int, List<string>>> grouplist = GetQuestObjectiveByQuestId(questid);
@@ -654,6 +630,8 @@ namespace Zealot.Repository
                 case QuestObjectiveType.Empty:
                     return 1;
                 case QuestObjectiveType.QuickTalk:
+                    return 1;
+                case QuestObjectiveType.Guide:
                     return 1;
                 default:
                     return 0;
@@ -1012,6 +990,26 @@ namespace Zealot.Repository
         public static Dictionary<int, SignboardLimitJson> GetSignboardDailyLimit()
         {
             return mDailyLimitDetailMap;
+        }
+
+        public static bool GetQuestPromptAccept(int questid)
+        {
+            QuestJson questJson = GetQuestByID(questid);
+            if (questJson != null)
+            {
+                return questJson.promptaccept;
+            }
+            return false;
+        }
+
+        public static bool GetQuestPromptObjective(int questid)
+        {
+            QuestJson questJson = GetQuestByID(questid);
+            if (questJson != null)
+            {
+                return questJson.promptaccept;
+            }
+            return false;
         }
     }
 }

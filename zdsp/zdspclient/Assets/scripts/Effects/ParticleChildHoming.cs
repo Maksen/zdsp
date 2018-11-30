@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
-public class ParticleChildHoming : MonoBehaviour
+//[ExecuteInEditMode]
+public class ParticleChildHoming : PooledEffects
 {
     public Transform target = null;
     public float homing_strength = 10.0f;
@@ -26,6 +26,13 @@ public class ParticleChildHoming : MonoBehaviour
         UpdateHoming(particlesystem);
 
         BindChildParticles();
+    }
+
+    public override void Restart()
+    {
+        FlushChildren();
+        var parentsystem = GetComponent<ParticleSystem>();
+        parentsystem.Play();
     }
 
     private void OnDisable()

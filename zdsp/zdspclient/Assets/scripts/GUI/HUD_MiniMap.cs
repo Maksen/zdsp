@@ -234,6 +234,8 @@ public class HUD_MiniMap : MonoBehaviour
             case IconType.EMPTY:
                 img.sprite = null;
                 img.gameObject.SetActive(false);
+                if (setParent)
+                    img.gameObject.transform.SetParent(mMMIconParent_QuestNPC.transform, false);
                 return;
         }
 
@@ -254,34 +256,42 @@ public class HUD_MiniMap : MonoBehaviour
             case QuestType.Destiny:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.DESTINYQUEST, img, setParent);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_DESTINYQUEST, img, setParent);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_DESTINYQUEST, img, setParent);
+                else
+                    SetIcon(IconType.EMPTY, img, setParent);
                 break;
             case QuestType.Main:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.MAINQUEST, img, setParent);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_MAINQUEST, img, setParent);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_MAINQUEST, img, setParent);
+                else
+                    SetIcon(IconType.EMPTY, img, setParent);
                 break;
             case QuestType.Sub:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.DAILYQUEST, img, setParent);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_DAILYQUEST, img, setParent);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_DAILYQUEST, img, setParent);
+                else
+                    SetIcon(IconType.EMPTY, img, setParent);
                 break;
             case QuestType.Event:
                 if (pair.hasQuestAvailable())
                     SetIcon(IconType.SIDEQUEST, img, setParent);
-                else if (pair.hasQuestToSubmit() || pair.hasQuestOngoing())
+                else if (pair.hasQuestOngoing())
                     SetIcon(IconType.RETURN_SIDEQUEST, img, setParent);
-                else if (pair.hasQuestCompleted())
+                else if (pair.hasQuestToSubmit())
                     SetIcon(IconType.FINISH_SIDEQUEST, img, setParent);
+                else
+                    SetIcon(IconType.EMPTY, img, setParent);
                 break;
         }
     }
@@ -485,24 +495,23 @@ public class HUD_MiniMap : MonoBehaviour
                 for (int i = 0; i < HUD_MapController.mQuestNPCPosLst.Count; ++i)
                 {
                     StaticMapIconGameObjectPair npcIconPair = HUD_MapController.mQuestNPCPosLst[i];
-                    //Turn off marker if marker has no need to show
-                    if (npcIconPair.hasQuest() == false ||
-                        !npcIconPair.hasQuestAvailable() &&
-                        !npcIconPair.hasQuestOngoing() &&
-                        !npcIconPair.hasQuestToSubmit() &&
-                        !npcIconPair.hasQuestCompleted())
-                    {
-                        //Check if marker already exist, if it doesnt.. dont create at all
-                        if (i < mMMIconParent_QuestNPC.transform.childCount)
-                            mMMIconParent_QuestNPC.transform.GetChild(i).gameObject.SetActive(false);
-                        continue;
-                    }
 
                     //if there are more quest NPCs now than when created initially
                     if (i >= mMMIconParent_QuestNPC.transform.childCount)
                     {
                         Image newicon = CreateIcon();
-                        SetIcon2(npcIconPair, newicon);
+                        SetIcon2(npcIconPair, newicon); //Parents to mMMIconParent_QuestNPC
+                    }
+                    
+                    //Turn off marker if marker has no need to show
+                    if (npcIconPair.hasQuest() == false ||
+                        !npcIconPair.hasQuestAvailable() &&
+                        !npcIconPair.hasQuestOngoing() &&
+                        !npcIconPair.hasQuestToSubmit() ||
+                        npcIconPair.hasQuestCompleted())
+                    {
+                        mMMIconParent_QuestNPC.transform.GetChild(i).gameObject.SetActive(false);
+                        continue;
                     }
 
                     Transform child = mMMIconParent_QuestNPC.transform.GetChild(i);

@@ -74,7 +74,7 @@ public class Achievement_ObjectiveDataBase : MonoBehaviour
                 rewardImage.gameObject.SetActive(true);
                 CurrencyType currencyType = (CurrencyType)obj.rewardId;
                 rewardImage.sprite = ClientUtils.LoadCurrencyIcon(currencyType);
-                rewardNameText.text = ClientUtils.GetCurrencyLocalizedName(currencyType);
+                rewardNameText.text = ClientUtils.GetLocalizedCurrencyName(currencyType);
                 rewardAmtText.text = "x" + obj.rewardCount;
                 break;
             case AchievementRewardType.SideEffect:
@@ -92,18 +92,17 @@ public class Achievement_ObjectiveDataBase : MonoBehaviour
 
     private Sprite LoadTrophyIcon(AchievementTrophyType trophyType)
     {
-        //todo: jm to fill in path
         string path = "";
         switch (trophyType)
         {
             case AchievementTrophyType.Bronze:
-                path = "";
+                path = "UI_ZDSP_Icons/Achievement/Trophy_Copper.png";
                 break;
             case AchievementTrophyType.Silver:
-                path = "";
+                path = "UI_ZDSP_Icons/Achievement/Trophy_Silver.png";
                 break;
             case AchievementTrophyType.Gold:
-                path = "";
+                path = "UI_ZDSP_Icons/Achievement/Trophy_Golden.png";
                 break;
         }
         return ClientUtils.LoadIcon(path);

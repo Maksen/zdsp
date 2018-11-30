@@ -1,11 +1,7 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Globalization;
 using UnityEditor;
 using UnityEngine;
 using Zealot.Common;
-using Zealot.Common.RPC;
-using Zealot.Repository;
 
 /// <summary>
 /// Code in here is more like a hack to quicken the testing on Editor and it is not suppose to be in the game
@@ -33,7 +29,7 @@ namespace TestContent
         string AccountID = "";
         public void ChangeDeviceID()
         {
-            LoginData.Instance.LoginType = (short)LoginType.Device;
+            LoginData.Instance.LoginType = (short)LoginAuthType.Device;
             LoginData.Instance.DeviceId = AccountID;
         }
 

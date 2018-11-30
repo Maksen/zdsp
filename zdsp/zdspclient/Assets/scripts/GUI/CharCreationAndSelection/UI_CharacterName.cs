@@ -61,7 +61,7 @@ public class UI_CharacterName : MonoBehaviour
             WarningMessage.gameObject.SetActive(true);
             WarningMessage.text = GUILocalizationRepo.GetLocalizedString("charactercreation_shortorlong");
         }
-        else if (WordFilterRepo.CheckString(mName, FilterType.Naming))
+        else if (WordFilterRepo.CheckString(mName, WordFilterType.Naming))
         {
             invalidname = true;
             WarningMessage.gameObject.SetActive(true);

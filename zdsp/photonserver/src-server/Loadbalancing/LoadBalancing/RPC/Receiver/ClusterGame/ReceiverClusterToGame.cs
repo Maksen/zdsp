@@ -65,6 +65,13 @@ namespace Photon.LoadBalancing.GameServer
             for (int index = 0; index < _delete_char.Count; index++)
                 DeleteCharDatablock(_delete_char[index], true, false);
         }
+
+        [RPCMethod(RPCCategory.ClusterToGame, (byte)ClusterToGameRPCMethods.RET_APIManagerCallRPC)]
+        public void RET_APIManagerCallRPC(long id, object[] args, OutgoingClusterServerPeer peer)
+        {
+            MultiServer.MultiServerAPIManager.Instance.ReleaseRequest(id, args);
+        }
+        
         #endregion
     }
 }

@@ -6,9 +6,7 @@ public partial class ClientMain
     public void TransferRoom(string levelName)
     {
         if (levelName != "lobby")
-        {
             UIManager.ShowLoadingScreen(true);
-        }
     }
 
     [RPCMethod(RPCCategory.Combat, (byte)ServerCombatRPCMethods.LoadLevel)]
@@ -21,4 +19,3 @@ public partial class ClientMain
         PhotonNetwork.LoadLevel(levelName);     
     }
 }
-

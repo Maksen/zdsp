@@ -8,13 +8,13 @@ using Zealot.Entities;
 namespace Photon.LoadBalancing.GameServer
 {
     using Kopio.JsonContracts;
+    using TopUp;
     using Zealot.Common;
     using Zealot.Common.Entities;
     using Zealot.Server.Entities;
     using Zealot.RPC;
     using Zealot.Server.Rules;
     using Zealot.Repository;
-    using TopUp;
 
     public partial class GameLogic
     {
@@ -27,7 +27,7 @@ namespace Photon.LoadBalancing.GameServer
                 PortalEntryData entryData;
                 if (PortalInfos.mEntries.TryGetValue(entryName, out entryData))
                 {
-                    if (entryData.mLevel != currentlevelname || (entryData.mPosition - player.Position).magnitude > 30)
+                    if (entryData.mLevel != mCurrentLevelName || (entryData.mPosition - player.Position).magnitude > 30)
                         return;
                     GameRules.TeleportToPortalExit(peer.mPlayer, entryData.mExitName);
                 }
@@ -68,7 +68,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnClickWorldMap)]
         public void OnClickWorldMap(string levelName, GameClientPeer peer)
         {
-            if (currentlevelname == levelName)
+            if (mCurrentLevelName == levelName)
                 RealmRules.TeleportToLevelInPos(levelName, null, true, peer);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnClickWorldMap)]
@@ -81,7 +81,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevel)]
         public void OnTeleportToLevel(string levelName, GameClientPeer peer)
         {
-            if (currentlevelname != levelName)
+            if (mCurrentLevelName != levelName)
                 RealmRules.TeleportToLevelInPos(levelName, null, false, peer);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevel)]
@@ -93,7 +93,7 @@ namespace Photon.LoadBalancing.GameServer
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnTeleportToLevelAndPos)]
         public void OnTeleportToLevelAndPos(string levelName, RPCPosition pos, GameClientPeer peer)
         {
-            if (currentlevelname == levelName)
+            if (mCurrentLevelName == levelName)
                 OnTeleportToPosInLevel(pos, peer);
             else
                 RealmRules.TeleportToLevelInPos(levelName, pos, false, peer);
@@ -135,7 +135,7 @@ namespace Photon.LoadBalancing.GameServer
         public void RespawnOnSpot(bool force, GameClientPeer peer)
         {
             Player player = peer.mPlayer;
-            if (player == null || player.Destroyed || player.IsAlive())
+            if (player == null || player.IsAlive())
                 return;
             if (force)
             {
@@ -145,7 +145,6 @@ namespace Photon.LoadBalancing.GameServer
 
             RespawnJson mRespawnInfo;
             RealmController realmController = player.mInstance.mRealmController;
-
             int respawnId = realmController.mRealmInfo.respawn;
             mRespawnInfo = RespawnRepo.GetRespawnDataByID(respawnId);
 
@@ -180,9 +179,7 @@ namespace Photon.LoadBalancing.GameServer
             // Deduct items and currency
             DeathRules.UseRespawnItem(itemList, peer);
             DeathRules.DeductRespawnCurrency(currencyList, peer);
-
-            int mapId = player.mInstance.mCurrentLevelID;
-            DeathRules.LogDeathRespawnType("Button", mapId, peer);
+            DeathRules.LogDeathRespawnType("Button", player.mInstance.mCurrentLevelId, peer);
 
             player.RespawnOnSpot();
         }
@@ -199,7 +196,7 @@ namespace Photon.LoadBalancing.GameServer
             if (player == null || player.Destroyed || player.IsAlive())
                 return;
             player.RespawnAtCity();
-            int mapId = player.mInstance.mCurrentLevelID;
+            int mapId = player.mInstance.mCurrentLevelId;
             DeathRules.LogDeathRespawnType("FreeRevive", mapId, peer);
         }
         [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.RespawnAtCity)]
@@ -230,7 +227,7 @@ namespace Photon.LoadBalancing.GameServer
             if (player == null || player.Destroyed || player.IsAlive())
                 return;
 
-            int mapId = player.mInstance.mCurrentLevelID;
+            int mapId = player.mInstance.mCurrentLevelId;
             //DeathRules.LogDeathRespawnType("Button", mapId, peer);
 
             int viplevel = 0;
@@ -2254,17 +2251,6 @@ namespace Photon.LoadBalancing.GameServer
         #endregion
 
         #region InteractiveTrigger
-        [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
-        public void OnInteractiveInit(GameClientPeer peer)
-        {
-            peer.mPlayer.InteractiveTriggerController.Init(peer.mPlayer.mInstance.mCurrentLevelID);
-        }
-        [RPCMethodProxy(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveInit)]
-        public void OnInteractiveInitProxy(object[] args)
-        {
-            OnInteractiveInit((GameClientPeer)args[0]);
-        }
-
         [RPCMethod(RPCCategory.Combat, (byte)ClientCombatRPCMethods.OnInteractiveUse)]
         public void OnInteractiveUse(int objectId, bool enter, GameClientPeer peer)
         {
@@ -2274,7 +2260,7 @@ namespace Photon.LoadBalancing.GameServer
                 InteractiveTrigger _trigger = _serverEntity as InteractiveTrigger;
                 if (_trigger != null)
                 {
-                    _trigger.OnInteractiveUse(objectId, enter, peer);
+                    _trigger.OnInteractiveUse(objectId, enter, peer.mPlayer);
                 }
             }
         }
@@ -2293,7 +2279,7 @@ namespace Photon.LoadBalancing.GameServer
                 InteractiveTrigger _trigger = _serverEntity as InteractiveTrigger;
                 if (_trigger != null)
                 {
-                    _trigger.OnInteractive(objectId, peer);
+                    _trigger.OnInteractive(objectId, peer.mPlayer);
                 }
             }
         }

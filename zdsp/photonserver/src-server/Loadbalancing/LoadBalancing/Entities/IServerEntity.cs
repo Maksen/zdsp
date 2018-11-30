@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Zealot.Entities;
-using Zealot.Common;
+﻿using Zealot.Entities;
 
 namespace Zealot.Server.Entities
 {

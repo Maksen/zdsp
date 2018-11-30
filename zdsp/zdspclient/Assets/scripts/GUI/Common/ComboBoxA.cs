@@ -7,39 +7,16 @@ using UnityEngine.UI;
 
 public class ComboBoxA : MonoBehaviour
 {
-    [SerializeField]
-    Text titleText;
-
-    [SerializeField]
-    RectTransform bgRectTransform;
-
-    [SerializeField]
-    RectTransform scrollViewRectTransform;
-
-    [SerializeField]
-    ScrollRect scrollRect;
-
-    [SerializeField]
-    Transform childContent;
+    [SerializeField] Transform childContent;
+    [SerializeField] Text titleText;
 
     [SerializeField]
     [Tooltip("Prefab to be used for item in dropdown list")]
     GameObject comboBoxItem;
 
-    [SerializeField]
-    [Tooltip("Automatically resize dropdown panel to fit items")]
-    bool autoResize = true;
-
-    [SerializeField]
-    [Tooltip("Automatically resize dropdown panel to fit items")]
-    int itemsToDisplay = 5;
-
     private Toggle toggle;
     private List<GameObject> raycastTargetObjects = new List<GameObject>();
     private List<RaycastResult> raycastHitsCache = new List<RaycastResult>();
-
-    private float childItemHeight;
-    private int baseItemCount = 5;
 
     private int selectedIndex = -1;
 
@@ -89,10 +66,6 @@ public class ComboBoxA : MonoBehaviour
     {
         toggle = GetComponent<Toggle>();
 
-        float itemHeight = comboBoxItem.GetComponent<RectTransform>().rect.height;
-        float spacing = childContent.GetComponent<VerticalLayoutGroup>().spacing;
-        childItemHeight = itemHeight + spacing;
-
         Image[] images = GetComponentsInChildren<Image>();
         for (int i = 0; i < images.Length; i++)
         {
@@ -128,30 +101,6 @@ public class ComboBoxA : MonoBehaviour
                 ItemList.Add(item);
             }
         }
-
-        if (autoResize)
-            ResizeDropdownPanel();
-
-        print("sd: " + scrollViewRectTransform.sizeDelta);
-        print("height: " +scrollViewRectTransform.rect.height);
-        float height = Mathf.Abs(scrollViewRectTransform.rect.height);
-        int numRowsVisible = Mathf.CeilToInt(height / childItemHeight);
-        print("max child: " + numRowsVisible);
-    }
-
-    private void ResizeDropdownPanel()
-    {
-        if (ItemList.Count <= 0)
-            return;
-
-        float bottom = GetPanelBottom(Mathf.Min(itemsToDisplay, ItemList.Count));
-        scrollViewRectTransform.offsetMin = new Vector2(scrollViewRectTransform.offsetMin.x, bottom);
-        bgRectTransform.offsetMin = new Vector2(bgRectTransform.offsetMin.x, bottom);
-    }
-
-    private float GetPanelBottom(int childCount)
-    {
-        return (baseItemCount - childCount) * childItemHeight;
     }
 
     public void AddItem(string text, string value)
@@ -167,9 +116,6 @@ public class ComboBoxA : MonoBehaviour
         }
         else
             Debug.LogError("ComboBox item do not have ComboBoxAItem script attached!");
-
-        if (autoResize)
-            ResizeDropdownPanel();
     }
 
     private void OnSelectItem(int index)
@@ -194,8 +140,6 @@ public class ComboBoxA : MonoBehaviour
     {
         if (toggle.isOn)
             toggle.isOn = false;
-
-        scrollRect.verticalNormalizedPosition = 1f;
     }
 
     public void ClearItemList()

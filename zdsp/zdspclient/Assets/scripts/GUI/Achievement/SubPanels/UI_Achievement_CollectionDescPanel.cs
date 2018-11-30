@@ -14,7 +14,6 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
 
     [Header("Rewards")]
     [SerializeField] Image aexpIconImage;
-
     [SerializeField] Text aexpAmtText;
     [SerializeField] Transform itemIconSlot;
     [SerializeField] Image rewardImage;
@@ -23,7 +22,6 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
 
     [Header("SideEffect")]
     [SerializeField] GameObject sideEffectsObj;
-
     [SerializeField] GameObject seDataPrefab;
     [SerializeField] GameObject seLeftColumnObj;
     [SerializeField] Transform seLeftSlot;
@@ -31,6 +29,11 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
     [SerializeField] Transform seRightSlot;
 
     private List<int> seIds = new List<int>();
+
+    private void Start()
+    {
+        aexpIconImage.sprite = ClientUtils.LoadCurrencyIcon(CurrencyType.AExp);
+    }
 
     public void Init(CollectionObjective obj, CollectionElement elem)
     {
@@ -70,7 +73,6 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
 
     private void SetReward(BaseAchievementObjective obj)
     {
-        aexpIconImage.sprite = ClientUtils.LoadCurrencyIcon(CurrencyType.AExp);
         aexpAmtText.text = "x" + obj.exp;
 
         switch (obj.rewardType)
@@ -95,7 +97,7 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
                 rewardImage.gameObject.SetActive(true);
                 CurrencyType currencyType = (CurrencyType)obj.rewardId;
                 rewardImage.sprite = ClientUtils.LoadCurrencyIcon(currencyType);
-                rewardNameText.text = ClientUtils.GetCurrencyLocalizedName(currencyType);
+                rewardNameText.text = ClientUtils.GetLocalizedCurrencyName(currencyType);
                 rewardAmtText.text = "x" + obj.rewardCount;
                 break;
             case AchievementRewardType.SideEffect:
@@ -135,6 +137,7 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
                 SetLeftSideEffects(true);
                 ParseSideEffectString(dna.DNAJson.negative);
                 SetLeftSideEffects(false);
+                seRightColumnObj.SetActive(false);
                 break;
         }
 
@@ -193,5 +196,15 @@ public class UI_Achievement_CollectionDescPanel : MonoBehaviour
     {
         if (toggle.isOn)
             toggle.isOn = false;
+    }
+
+    public void Empty()
+    {
+        objNameText.text = "";
+        objDescText.text = "";
+        objDescText.gameObject.SetActive(false);
+        aexpAmtText.text = "x0";
+        itemIconSlot.parent.gameObject.SetActive(false);
+        sideEffectsObj.SetActive(false);
     }
 }

@@ -55,7 +55,7 @@ public class UI_Login : MonoBehaviour
         // Establish connection and send device ID if is a new device
         // Send empty string if has existing login data
         string newDeviceId = isLoginDataValid ? "" : loginData.DeviceId;
-        GameInfo.gLogin.ConnectToPhotonServer(LoginType.EstablishConnection.ToString(), newDeviceId);
+        GameInfo.gLogin.ConnectToPhotonServer(LoginAuthType.EstablishConnection.ToString(), newDeviceId);
 
         CachedPass = "";
         StartCoroutine(InitLocalizeText());
@@ -99,9 +99,9 @@ public class UI_Login : MonoBehaviour
         SoundFX.Instance.SetVolume(volumeScale);
     }
 
-    public void SetLoginDataPass(LoginType loginType, string password)
+    public void SetLoginDataPass(LoginAuthType loginType, string password)
     {
-        if (loginType == LoginType.Username && !string.IsNullOrEmpty(password))
+        if (loginType == LoginAuthType.Username && !string.IsNullOrEmpty(password))
         {
             DESCryptoServiceProvider des = new DESCryptoServiceProvider();
             des.GenerateIV();
@@ -114,7 +114,7 @@ public class UI_Login : MonoBehaviour
     public bool TryGetLoginDataPass(out string password)
     {
         password = "";
-        if (LoginData.Instance.LoginType == (short)LoginType.Username &&
+        if (LoginData.Instance.LoginType == (short)LoginAuthType.Username &&
             !string.IsNullOrEmpty(LoginData.Instance.EncryptedPass) && 
             !string.IsNullOrEmpty(LoginData.Instance.IV))
         {
@@ -132,8 +132,8 @@ public class UI_Login : MonoBehaviour
         {
             ServerInfo serverInfo = serverInfoRefDict[serverId];
             login.SelectedServerInfo = serverInfo;
-            string world = login.ServerLineRefDict[serverInfo.serverLine].displayName;
-            txtServerName.text = ClientUtils.GetServerNameWithColor(serverInfo.serverLoad, world, serverInfo.serverName);
+            string world = login.ServerLineRefDict[serverInfo.ServerLine].displayName;
+            txtServerName.text = ClientUtils.GetServerNameWithColor(serverInfo.ServerLoad, world, serverInfo.ServerName);
             if (login.IsConnectingToGameServer)
                 login.ConnectToSelectedGameServerSetup();
         }
@@ -144,7 +144,7 @@ public class UI_Login : MonoBehaviour
     public void ParseServersInfoStr(string serversInfoStr)
     {
         Login login = GameInfo.gLogin;
-        int selectedServerId = (login.SelectedServerInfo != null) ? login.SelectedServerInfo.id : LoginData.Instance.ServerId;
+        int selectedServerId = (login.SelectedServerInfo != null) ? login.SelectedServerInfo.Id : LoginData.Instance.ServerId;
 
         bool isSelectedServerValid = false;
         Dictionary<int, ServerInfo> serverInfoRefDict = login.ServerInfoRefDict;
@@ -221,19 +221,19 @@ public class UI_Login : MonoBehaviour
 
     public void OnClickAnywhereToStart()
     {
-        LoginType type = (LoginType)LoginData.Instance.LoginType;
+        LoginAuthType type = (LoginAuthType)LoginData.Instance.LoginType;
         switch (type)
         {
-            case LoginType.Device:
+            case LoginAuthType.Device:
                 string loginId = LoginData.Instance.LoginId = LoginData.Instance.DeviceId;
                 GameInfo.gLogin.OnLogin(type, loginId, loginId);
                 break;
-            case LoginType.Username:
+            case LoginAuthType.Username:
                 string pass = "";
                 if (TryGetLoginDataPass(out pass))
                     GameInfo.gLogin.OnLogin(type, LoginData.Instance.LoginId, pass);
                 break;
-            case LoginType.Facebook:
+            case LoginAuthType.Facebook:
                 GetComponent<FBLogin>().CallFBLogin();
                 break;
         }

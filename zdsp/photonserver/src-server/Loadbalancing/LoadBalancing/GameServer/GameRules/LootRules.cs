@@ -159,16 +159,10 @@ namespace Zealot.Server.Rules
             }
         }
 
-        #region Generate Loot
-        public static void GenerateLootItems(Player player, List<LootItem> lootItemList, MonsterType monsterType, int monsterLvl, 
-            LootItemDisplayInventory displayInventory)
+        private static int GetLootCorrectionPercent(MonsterType monsterType, int monsterLvl, int playerLvl)
         {
-            int lootItemListCount = lootItemList.Count;
-            if (lootItemListCount == 0)
-                return;
-
             int lootCorrectionPercent = 100;
-            LootCorrectionJson lootCorrectionJson = LootRepo.GetLootCorrection(monsterLvl - player.GetAccumulatedLevel());
+            LootCorrectionJson lootCorrectionJson = LootRepo.GetLootCorrection(monsterLvl - playerLvl);
             if (lootCorrectionJson != null)
             {
                 switch (monsterType)
@@ -181,7 +175,18 @@ namespace Zealot.Server.Rules
                         break;
                 }
             }
+            return lootCorrectionPercent;
+        }
 
+        #region Generate Loot
+        public static void GenerateLootItems(Player player, List<LootItem> lootItemList, MonsterType monsterType, int monsterLvl,
+            LootItemDisplayInventory displayInventory)
+        {
+            int lootItemListCount = lootItemList.Count;
+            if (lootItemListCount == 0)
+                return;
+
+            int lootCorrectionPercent = GetLootCorrectionPercent(monsterType, monsterLvl, player.GetAccumulatedLevel());
             bool noBattleTime = player.Slot.CharacterData.BattleTime <= 0;
             bool isDisplayingLoot = (displayInventory != null);
             int pid = player.GetPersistentID();
@@ -228,7 +233,7 @@ namespace Zealot.Server.Rules
         {
             Dictionary<int, int> itemsToAdd = new Dictionary<int, int>();
             Dictionary<CurrencyType, int> currencyToAdd = new Dictionary<CurrencyType, int>();
-            if (GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, displayInventory))
+            if (GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, displayInventory, MonsterType.Normal, 0, 0))
             {
                 // If can't add to inventory, send mail
                 List<IInventoryItem> itemList = GetInvItemListToAdd(itemsToAdd, true);
@@ -243,20 +248,42 @@ namespace Zealot.Server.Rules
                 return;
 
             List<LootItem> lootItemList = LootRepo.RandomItems(grpIds);
-            GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, null);
+            GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, null, MonsterType.Normal, 0, 0);
+        }
+
+        // Check LootCorrection, doesn't check battle time, no displayloot
+        public static void GenerateLootItems(List<int> grpIds, Dictionary<int, int> itemsToAdd, Dictionary<CurrencyType, int> currencyToAdd,
+             MonsterType monsterType, int monsterLvl, int playerLvl)
+        {
+            if (grpIds.Count == 0)
+                return;
+
+            List<LootItem> lootItemList = LootRepo.RandomItems(grpIds);
+            GenerateLootItems(lootItemList, itemsToAdd, currencyToAdd, 0, null, monsterType, monsterLvl, playerLvl);
         }
 
         public static bool GenerateLootItems(List<LootItem> lootItemList, Dictionary<int, int> itemsToAdd, Dictionary<CurrencyType, int> currencyToAdd,
-            int pid, LootItemDisplayInventory displayInventory)
+            int pid, LootItemDisplayInventory displayInventory, MonsterType monsterType, int monsterLvl, int playerLvl)
         {
             int lootItemListCount = lootItemList.Count;
             if (lootItemListCount == 0)
                 return false;
 
-            bool isAddingCurrency = currencyToAdd != null, isDisplayingLoot = (displayInventory != null);
+            bool isAddingCurrency = currencyToAdd != null;
+            bool isDisplayingLoot = displayInventory != null;
+            bool hasLootCorrection = monsterLvl != 0;
+
+            int lootCorrectionPercent = hasLootCorrection ? GetLootCorrectionPercent(monsterType, monsterLvl, playerLvl) : 100;
+
             for (int index = 0; index < lootItemListCount; ++index)
             {
                 LootItem lootItem = lootItemList[index];
+                if (hasLootCorrection && !lootItem.ignorelv)
+                {
+                    if (lootCorrectionPercent == 0 || (lootCorrectionPercent < 100 && lootCorrectionPercent < GameUtils.RandomInt(1, 100)))
+                        continue;
+                }
+
                 int stackCount = lootItem.GetAmount();
                 if (stackCount == 0)
                     continue;

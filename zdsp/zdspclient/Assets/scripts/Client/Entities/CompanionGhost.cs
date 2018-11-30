@@ -1,4 +1,5 @@
 ﻿using Kopio.JsonContracts;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Zealot.Common;
@@ -38,8 +39,12 @@ namespace Zealot.Client.Entities
 
         public override void OnAnimObjLoaded(Object asset)
         {
-            if (asset != null)
-                AnimObj = (GameObject)Object.Instantiate(asset);
+            GameInfo.gCombat.StartCoroutine(SpawnModel(asset));
+        }
+
+        private IEnumerator SpawnModel(Object asset)
+        {
+            yield return new WaitUntil(() => AnimObj = (GameObject)Object.Instantiate(asset));
             InitAnimObj();
         }
 
@@ -83,17 +88,26 @@ namespace Zealot.Client.Entities
 
         public override void Update(long dt)
         {
-            if (GameInfo.gLocalPlayer == null)
+            if (GameInfo.gLocalPlayer == null || AnimObj == null)
             {
                 return;
             }
 
             Vector3 targetpos = GameInfo.gLocalPlayer.Position;
             Vector3 position = mTargetPos == Vector3.zero ? Position : mTargetPos;
-            if (Vector3.Distance(targetpos, position) > 1.5f)
+            float distance = Vector3.Distance(targetpos, position);
+            if (distance > 1.5f)
             {
-                mTargetPos = GameUtils.RandomPosWithRadiusRange(targetpos, 1.0f, 1.5f);
-                PathFindingToPlayer(position, mTargetPos);
+                if (distance > 50.0f)
+                {
+                    mTargetPos = Vector3.zero;
+                    AnimObj.transform.position = Position = targetpos;
+                }
+                else
+                {
+                    mTargetPos = GameUtils.RandomPosWithRadiusRange(targetpos, 1.0f, 1.5f);
+                    PathFindingToPlayer(position, mTargetPos);
+                }
             }
             else
             {

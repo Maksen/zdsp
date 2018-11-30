@@ -31,7 +31,7 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
     private int currentFirstRow;
     private bool initialized = false;
 
-    private List<AchievementReward> dataList;
+    private List<CollatedAchievementReward> dataList;
 
     public void Clear()
     {
@@ -80,11 +80,6 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
         emptyRowList = null;
     }
 
-    private void Awake()
-    {
-        InitScrollView();
-    }
-
     public void InitScrollView()
     {
         currentTopIndex = 0;
@@ -98,7 +93,7 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
         visibleHeight = GetComponent<RectTransform>().rect.height;
     }
 
-    public void Populate(List<AchievementReward> rewardList)
+    public void Populate(List<CollatedAchievementReward> rewardList)
     {
         Clear();
 
@@ -114,7 +109,7 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
         {
             var currentRow = contentRowList[i];
             Achievement_CollatedRewardData achData = currentRow.GetComponent<Achievement_CollatedRewardData>();
-            AchievementReward info = dataList[j];
+            CollatedAchievementReward info = dataList[j];
             achData.Init(info);
         }
         if (!initialized)
@@ -128,7 +123,7 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
         initialized = true;
     }
 
-    public void Refresh(List<AchievementReward> rewardList)
+    public void Refresh(List<CollatedAchievementReward> rewardList)
     {
         dataList = rewardList;
 
@@ -136,7 +131,7 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
         {
             var currentRow = contentRowList[i];
             Achievement_CollatedRewardData achData = currentRow.GetComponent<Achievement_CollatedRewardData>();
-            AchievementReward info = dataList[j];
+            CollatedAchievementReward info = dataList[j];
             achData.Init(info);
         }
     }
@@ -275,7 +270,7 @@ public class AchievementCollatedRewardsScrollView : MonoBehaviour
             return;
 
         Achievement_CollatedRewardData achData = newRow.GetComponent<Achievement_CollatedRewardData>();
-        AchievementReward info = dataList[newIndex];
+        CollatedAchievementReward info = dataList[newIndex];
         achData.Init(info);
     }
 }

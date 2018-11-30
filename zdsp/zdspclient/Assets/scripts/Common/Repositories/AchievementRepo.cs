@@ -43,38 +43,85 @@ namespace Zealot.Repository
                 if (reward.Length > 1)
                     rewardCount = int.Parse(reward[1]);
             }
-            if (type == CollectionType.Fashion || type == CollectionType.Relic)
-            {
-                if (!string.IsNullOrEmpty(json.collectse))
-                {
-                    string[] seArray = json.collectse.Split(';');
-                    for (int i = 0; i < seArray.Length; ++i)
-                    {
-                        SideEffectJson se = SideEffectRepo.GetSideEffect(int.Parse(seArray[i]));
-                        if (se != null)
-                            storeSEs.Add(se);
-                    }
-                }
-            }
 
             switch (type)
             {
                 case CollectionType.Monster:
-                    targetJsonObject = CombatNPCRepo.GetNPCById(targetId);
+                    CombatNPCJson combatNPCJson = CombatNPCRepo.GetNPCById(targetId);
+                    if (combatNPCJson != null)
+                    {
+                        targetJsonObject = combatNPCJson;
+                        SetLocalizedName(combatNPCJson.localizedname);
+                    }
                     break;
                 case CollectionType.Fashion:
-                case CollectionType.Relic:
-                case CollectionType.DNA:
-                    targetJsonObject = GameRepo.ItemFactory.GetInventoryItem(targetId);
+                    Equipment equipment = GameRepo.ItemFactory.GetInventoryItem(targetId) as Equipment;
+                    if (equipment != null)
+                    {
+                        targetJsonObject = equipment;
+                        SetLocalizedName(equipment.EquipmentJson.localizedname);
+                        AddStoreSEs(equipment.EquipmentJson.collectability);
+                    }
                     break;
                 case CollectionType.Hero:
-                    targetJsonObject = HeroRepo.GetHeroById(targetId);
+                    HeroJson heroJson = HeroRepo.GetHeroById(targetId);
+                    if (heroJson != null)
+                    {
+                        targetJsonObject = heroJson;
+                        SetLocalizedName(heroJson.localizedname);
+                    }
                     break;
                 case CollectionType.NPC:
-                    targetJsonObject = StaticNPCRepo.GetNPCById(targetId);
+                    StaticNPCJson staticNPCJson = StaticNPCRepo.GetNPCById(targetId);
+                    if (staticNPCJson != null)
+                    {
+                        targetJsonObject = staticNPCJson;
+                        SetLocalizedName(staticNPCJson.localizedname);
+                    }
+                    break;
+                case CollectionType.Relic:
+                    Relic relic = GameRepo.ItemFactory.GetInventoryItem(targetId) as Relic;
+                    if (relic != null)
+                    {
+                        targetJsonObject = relic;
+                        SetLocalizedName(relic.RelicJson.localizedname);
+                        AddStoreSEs(relic.RelicJson.collectability);
+                    }
+                    break;
+                case CollectionType.DNA:
+                    DNA dna = GameRepo.ItemFactory.GetInventoryItem(targetId) as DNA;
+                    if (dna != null)
+                    {
+                        targetJsonObject = dna;
+                        SetLocalizedName(dna.DNAJson.localizedname);
+                    }
                     break;
                 case CollectionType.Photo:
                     break;
+            }
+        }
+
+        private void SetLocalizedName(string localizedname)
+        {
+            if (GameUtils.IsEmptyString(localizedName))
+                localizedName = localizedname;
+        }
+
+        private void AddStoreSEs(string seStr)
+        {
+            if (!string.IsNullOrEmpty(seStr) && seStr != "null")
+            {
+                string[] seArray = seStr.Split(';');
+                for (int i = 0; i < seArray.Length; ++i)
+                {
+                    int seid;
+                    if (int.TryParse(seArray[i], out seid) && seid > 0)
+                    {
+                        SideEffectJson se = SideEffectRepo.GetSideEffect(seid);
+                        if (se != null)
+                            storeSEs.Add(se);
+                    }
+                }
             }
         }
     }

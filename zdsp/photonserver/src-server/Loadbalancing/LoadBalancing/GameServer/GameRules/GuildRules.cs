@@ -362,7 +362,7 @@ namespace Zealot.Server.Rules
 
             // Check for forbidden words
             string filteredTxt = "";
-            if (WordFilterRepo.FilterString(guildName, '*', FilterType.Naming, out filteredTxt))
+            if (WordFilterRepo.FilterString(guildName, '*', WordFilterType.Naming, out filteredTxt))
                 return GuildReturnCode.NameHasForbiddenWord;
 
             // Check guild name length

@@ -75,7 +75,7 @@ public class HUD_Skills : MonoBehaviour
         int group = localplayer.SkillStats.EquipGroup;
         for (int i = 0; i < SkillButtons.Length; i++)
         {
-            int skillno = (int)skillequipped[(5 * (group - 1)) + i];
+            int skillno = (int)skillequipped[(localplayer.SkillStats.EquipSize * (group - 1)) + i];
             SkillButtons[i].OnSkillUpdated(skillno);
             if (skillno == 0)
             {

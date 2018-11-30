@@ -30,10 +30,10 @@ public class Achievement_CollectionRowData : MonoBehaviour
         dataList.Add(child);
     }
 
-    public void AddData(CollectionInfo info, UnityAction<bool, CollectionObjective> callback, bool selected = false)
+    public void AddData(CollectionInfo info, UnityAction<bool, CollectionObjective> callback)
     {
         Achievement_CollectionData colData = GetNewCollectionData();
-        colData.Init(info, callback, selected);
+        colData.Init(info, callback);
     }
 
     public void UpdateData(int index, CollectionInfo info)

@@ -26,7 +26,7 @@ public class HUD_ExpandDataHelper : MonoBehaviour
     {
         m_Icon.sprite = ClientUtils.LoadIcon(skill.skillgroupJson.icon);
         m_SkillName.text = skill.skillgroupJson.localizedname;
-
+        m_Skill = skill;
         if (skill.skillgroupJson.skilltype == Zealot.Common.SkillType.BasicAttack)
         {
             //no level needed
@@ -35,23 +35,15 @@ public class HUD_ExpandDataHelper : MonoBehaviour
         }
         else
         {
-            //m_Level.Max = SkillRepo.GetSkillGroupMaxUpgrade(skill.skillgroupJson.id);
-            Zealot.Common.Datablock.CollectionHandler<object> skills = GameInfo.gLocalPlayer.SkillStats.SkillInv;
-            for (int i = 0; i < skills.Count >> 1; i += 2)
+            Dictionary<int, int> skills = GameInfo.gLocalPlayer.mSkillInventory;
+            if (skills.ContainsKey(m_Skill.skillgroupJson.id))
             {
-                if ((int)skills[i] == 0)
-                {
-                    break;
-                }
-                if ((int)skills[i] == skill.skillgroupJson.id)
-                {
-                    SkillData m_SkillData = SkillRepo.GetSkill((int)skills[i + 1]);
-                    m_Level.Max = m_SkillData.skillJson.level;
-                }
+                SkillData skd = SkillRepo.GetSkill(skills[m_Skill.skillgroupJson.id]);
+                m_Level.Max = skd.skillJson.level;
             }
             m_Level.Value = skill.skillJson.level;
         }
-        m_Skill = skill;
+        
         m_Button.m_Skillid = m_Skill.skillJson.id;
     }
 

@@ -79,7 +79,6 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
     #region Refresh
     void InitAwake ()
     {
-        mine = this;
         addButton[0].GetComponent<Button>().onClick.AddListener(OnClickLeftEquipmentBtn);
         addButton[1].GetComponent<Button>().onClick.AddListener(OnClickLeftMaterialEquipmentBtn);
         addButton[2].GetComponent<Button>().onClick.AddListener(delegate { OnClickLeftStone(3); });
@@ -413,15 +412,12 @@ public class UI_CharacterEquipFusionManager : MonoBehaviour {
         }
     }
 
-    public static void RefreshFusion()
+    public void RefreshFusion()
     {
-        if (mine != null)
-        {
-            mine.FinishedFusion();
-            mine.InitVariable();
-            mine.RefreshData();
-            mine.UpdateCurrency();
-        }
+        FinishedFusion();
+        InitVariable();
+        RefreshData();
+        UpdateCurrency();
     }
 
     public void NotEnoughMaterial ()

@@ -1,47 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
 using Zealot.Client.Entities;
 
 namespace Zealot.Bot
 {
-    public interface IQueryEntity
-    {
-        ActorGhost QueryResult();
-    }
-
-    public class NearestEnemyQuery : IQueryEntity
-    {
-        float radius;
-
-        public NearestEnemyQuery(float radius)
-        {
-            this.radius = radius;
-        }
-
-        public ActorGhost QueryResult()
-        {
-            return BotQuerySystem.Instance.GetNearestEnemyInRange(radius);
-        }
-    }
-
-    public class SpecificEnemyQuery : IQueryEntity
-    {
-        float radius;
-        int targetID;
-
-        public SpecificEnemyQuery(float radius, int targetID)
-        {
-            this.radius = radius;
-            this.targetID = targetID;
-        }
-
-        public ActorGhost QueryResult()
-        {
-            return BotQuerySystem.Instance.GetNearestEnemyByID(radius, targetID);
-        }
-    }
-
     public enum BotQueryType : byte
     {
         NearestEnemyQuery = 0,
@@ -63,26 +24,41 @@ namespace Zealot.Bot
         }
         #endregion
 
-        private BotQueryType mBotQueryType = BotQueryType.NearestEnemyQuery;
-        private IQueryEntity queryEntity = null;
+        private QueryData mQueryData = null;
 
         private QueryContext()
         {
+            mQueryData = new QueryData();
             SetQueryType(BotQueryType.NearestEnemyQuery);
         }
 
-        public void SetQueryType(BotQueryType queryType, int targetID = 0)
+        public QueryData GetQueryData()
         {
-            mBotQueryType = queryType;
-            queryEntity = QueryStrategyFactory.Create(mBotQueryType, targetID);
+            return mQueryData;
         }
 
-        // 依照目前的Query方式去回傳目標
+        public void SetQueryType(BotQueryType queryType)
+        {
+            switch (queryType)
+            {
+                case BotQueryType.NearestEnemyQuery:
+                    mQueryData.SetQueryStrategy(new NearestEnemyQuery());
+                    break;
+                case BotQueryType.SpecificEnemyQuery:
+                    mQueryData.SetQueryStrategy(new SpecificEnemyQuery());
+                    break;
+                default:
+                    break;
+            }
+
+            mQueryData.InitData();
+        }
+
         public ActorGhost QueryResult()
         {
             try
             {
-                return queryEntity.QueryResult();
+                return mQueryData.GetQeuryStrategy().QueryResult();
             }
             catch (Exception ex)
             {
@@ -91,19 +67,95 @@ namespace Zealot.Bot
         }
     }
 
-    public static class QueryStrategyFactory
+    #region Query Strategy
+    public abstract class IQueryStrategy
     {
-        public static IQueryEntity Create(BotQueryType queryType, int targetID)
+        public abstract void Init(QueryData queryData);
+        public abstract ActorGhost QueryResult();
+    }
+
+    public class NearestEnemyQuery : IQueryStrategy
+    {
+        float radius;
+
+        public override void Init(QueryData queryData)
         {
-            switch (queryType)
-            {
-                case BotQueryType.NearestEnemyQuery:
-                    return new NearestEnemyQuery(BotController.MaxQueryRadius);
-                case BotQueryType.SpecificEnemyQuery:
-                    return new SpecificEnemyQuery(BotController.MaxQueryRadius, targetID);
-                default:
-                    return null;
-            }
+            if (queryData == null)
+                return;
+
+            radius = queryData.GetRadius();
+        }
+
+        public override ActorGhost QueryResult()
+        {
+            return BotQuerySystem.Instance.GetNearestEnemyInRange(radius);
         }
     }
+
+    public class SpecificEnemyQuery : IQueryStrategy
+    {
+        float radius;
+        int targetID;
+
+        public override void Init(QueryData queryData)
+        {
+            if (queryData == null)
+                return;
+
+            radius = queryData.GetRadius();
+            targetID = queryData.GetTargetID();
+        }
+
+        public override ActorGhost QueryResult()
+        {
+            return BotQuerySystem.Instance.GetNearestEnemyByID(radius, targetID);
+        }
+    }
+    #endregion
+
+    #region Query Data
+    public class QueryData
+    {
+        protected IQueryStrategy mQueryStrategy = null;
+
+        protected float mRadius;
+        protected int mTargetID;
+
+        public void InitData()
+        {
+            SetRadius(BotController.MaxQueryRadius);
+            mQueryStrategy.Init(this);
+        }
+
+        public void SetQueryStrategy(IQueryStrategy strategy)
+        {
+            mQueryStrategy = strategy;
+        }
+
+        public IQueryStrategy GetQeuryStrategy()
+        {
+            return mQueryStrategy;
+        }
+
+        public void SetRadius(float radius)
+        {
+            mRadius = radius;
+        }
+
+        public float GetRadius()
+        {
+            return mRadius;
+        }
+
+        public void SetTargetID(int id)
+        {
+            mTargetID = id;
+        }
+
+        public int GetTargetID()
+        {
+            return mTargetID;
+        }
+    }
+    #endregion
 }

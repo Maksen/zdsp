@@ -21,22 +21,21 @@ public class UI_SkillSelectDropDownList : MonoBehaviour {
 
     public void GenerateSkillList()
     {
-        Zealot.Common.Datablock.CollectionHandler<object> skill = null;
+        Dictionary<int, int> skill = null;
         if (GameInfo.gLocalPlayer != null)
-            skill = GameInfo.gLocalPlayer.SkillStats.SkillInv;
+            skill = GameInfo.gLocalPlayer.mSkillInventory;
 
         List<KeyValuePair<int, int>> temp = new List<KeyValuePair<int, int>>();
 
         SkillData basic = SkillRepo.GetSkill(GameInfo.gLocalPlayer.SkillStats.basicAttack1SId);
         temp.Add(new KeyValuePair<int, int>(basic.skillgroupJson.id, basic.skillJson.id));
 
-        for(int i = 0; i < skill.Count >> 1; i += 2)
+        foreach(var item in skill)
         {
-            if ((int)skill[i] == 0) break;
-            SkillData skd = SkillRepo.GetSkill((int)skill[i + 1]);
+            SkillData skd = SkillRepo.GetSkill(item.Value);
             if (skd.skillgroupJson.skilltype == Zealot.Common.SkillType.Active)// &&
                 //skd.skillgroupJson.skillclass == Zealot.Common.SkillClass.Normal)
-                temp.Add(new KeyValuePair<int, int>((int)skill[i], (int)skill[i + 1]));
+                temp.Add(item);
         }
 
         for (int i = 0; i < temp.Count; ++i)

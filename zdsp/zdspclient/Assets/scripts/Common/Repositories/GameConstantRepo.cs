@@ -5,14 +5,14 @@ namespace Zealot.Repository
 {
     public class NewCharInfo
     {
-        public int levelId = 1;
-        public float[] pos;
-        public float[] dir;
+        public int LevelId = 1;
+        public float[] Pos;
+        public float[] Dir;
 
         public NewCharInfo()
         {
-            pos = new float[3];
-            dir = new float[3];
+            Pos = new float[3];
+            Dir = new float[3];
         }
     }
 
@@ -32,21 +32,26 @@ namespace Zealot.Repository
         {
             mNameMap.Clear();
 
-            foreach (KeyValuePair<int, GameConstantJson> entry in gameData.GameConstant)
+            var gameConstantValues = gameData.GameConstant.Values;
+            foreach (GameConstantJson gameConstant in gameConstantValues)
             {
-                if(mNameMap.ContainsKey(entry.Value.name) == false)
-                    mNameMap.Add(entry.Value.name, entry.Value.value);
+                if(mNameMap.ContainsKey(gameConstant.name) == false)
+                    mNameMap.Add(gameConstant.name, gameConstant.value);
             }
            
             string newChar_SpawnInfoStr = GetConstant("NewChar_SpawnInfo");
             if (!string.IsNullOrEmpty(newChar_SpawnInfoStr))
             {
                 string[] newChar_SpawnInfo = newChar_SpawnInfoStr.Split(';');
-                mNewCharInfo.levelId = int.Parse(newChar_SpawnInfo[0]);
+                mNewCharInfo.LevelId = int.Parse(newChar_SpawnInfo[0]);
                 string[] newChar_Pos = newChar_SpawnInfo[1].Split('|');
-                string[] newChar_Dir = newChar_SpawnInfo[2].Split('|');
-                mNewCharInfo.pos = new float[] { float.Parse(newChar_Pos[0]), float.Parse(newChar_Pos[1]), float.Parse(newChar_Pos[2]) };
-                mNewCharInfo.dir = new float[] { float.Parse(newChar_Dir[0]), float.Parse(newChar_Dir[1]), float.Parse(newChar_Dir[2]) };
+                float.TryParse(newChar_Pos[0], out mNewCharInfo.Pos[0]);
+                float.TryParse(newChar_Pos[1], out mNewCharInfo.Pos[1]);
+                float.TryParse(newChar_Pos[2], out mNewCharInfo.Pos[2]);
+                string[] newChar_Dir = newChar_SpawnInfo[2].Split('|');       
+                float.TryParse(newChar_Dir[0], out mNewCharInfo.Dir[0]);
+                float.TryParse(newChar_Dir[1], out mNewCharInfo.Dir[1]);
+                float.TryParse(newChar_Dir[2], out mNewCharInfo.Dir[2]);
             }
 
             ItemInvStartingSlotCount = GetConstantInt("NewChar_InventorySlotCount", 30);

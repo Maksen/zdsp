@@ -26,7 +26,7 @@ public class HUD_SelectTarget : MonoBehaviour
 
     private void Awake()
     {
-        for (BuffEnum e = 0; e < BuffEnum.Max_BuffType; e++)
+        for (BuffEnum e = 0; e < BuffEnum.NUM; e++)
         {
             GameObject obj = ClientUtils.CreateChild(buffDebuffTransform, buffDebuffGameIcon);
             GameIcon_BuffDebuff icon = obj.GetComponent<GameIcon_BuffDebuff>();
@@ -80,6 +80,15 @@ public class HUD_SelectTarget : MonoBehaviour
             SetTargetHeath(1f);
             SetMonsterElement(heroJson.element);
             SetPortrait(heroJson.smallportraitpath);
+        }
+        else if (entity.IsInteractiveTrigger())
+        {
+            InteractiveGhost interactive = entity as InteractiveGhost;
+            nameText.text = interactive.npcName;
+            SetTargetHeath(1f);
+            SetPortrait((interactive.isNpcEntity) ? 
+                StaticNPCRepo.GetNPCByArchetype(interactive.npcArchetype).portraitpath : 
+                "UI_ZDSP_Icons/PortraitsNPC/portraits_npc_s01.png");
         }
     }
 

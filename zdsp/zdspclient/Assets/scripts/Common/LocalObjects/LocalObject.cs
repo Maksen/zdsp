@@ -245,6 +245,7 @@
         LocalCombatStats,
         LocalSkillPassiveStats,
         BuffTimeStats,
+        //ChatStats,
         SocialStats,
         //TutorialStats,
         LotteryShopItemsTabStats,
@@ -261,6 +262,7 @@
         PortraitDataStats,
         PowerUpStats,
         MeridianStats,
+        InteractiveTriggerSynStats,
     }
 
     public static class LocalObjectAllowType

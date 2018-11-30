@@ -331,10 +331,10 @@ namespace Zealot.Server.AI
         {
             if (skillid == mAIPlayer.SkillStats.basicAttack1SId)
                 return 0;
-            else if (skillid == mAIPlayer.SkillStats.basicAttack2SId)
-                return 1;
-            else if (skillid == mAIPlayer.SkillStats.basicAttack3SId)
-                return 2;
+            //else if (skillid == mAIPlayer.SkillStats.basicAttack2SId)
+            //    return 1;
+            //else if (skillid == mAIPlayer.SkillStats.basicAttack3SId)
+            //    return 2;
 
             return -1;
         }
@@ -354,18 +354,18 @@ namespace Zealot.Server.AI
                     if (mCastBasicAttackIndex >= 3)
                         mCastBasicAttackIndex = 0;
                                         
-                    if (mCastBasicAttackIndex == 1)
-                    {
-                        SkillData skilldata = SkillRepo.GetSkillByGroupID(mAIPlayer.SkillStats.basicAttack2SId);
-                        mSkillToExecute = skilldata;
-                        //System.Diagnostics.Debug.WriteLine(now + " cast attack2");
-                    }
-                    else if (mCastBasicAttackIndex == 2)
-                    {
-                        SkillData skilldata = SkillRepo.GetSkillByGroupID(mAIPlayer.SkillStats.basicAttack3SId);
-                        mSkillToExecute = skilldata;
-                        //System.Diagnostics.Debug.WriteLine(now + " cast attack3");
-                    }
+                    //if (mCastBasicAttackIndex == 1)
+                    //{
+                    //    SkillData skilldata = SkillRepo.GetSkillByGroupID(mAIPlayer.SkillStats.basicAttack2SId);
+                    //    mSkillToExecute = skilldata;
+                    //    //System.Diagnostics.Debug.WriteLine(now + " cast attack2");
+                    //}
+                    //else if (mCastBasicAttackIndex == 2)
+                    //{
+                    //    SkillData skilldata = SkillRepo.GetSkillByGroupID(mAIPlayer.SkillStats.basicAttack3SId);
+                    //    mSkillToExecute = skilldata;
+                    //    //System.Diagnostics.Debug.WriteLine(now + " cast attack3");
+                    //}
                 }
                 else
                 {

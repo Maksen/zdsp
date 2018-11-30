@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
+using Zealot.Common.Entities.Social;
+using Zealot.Common.Entities;
+using Zealot.Common;
 using Zealot.Repository;
 
 public class HUD_PortraitFunctions : MonoBehaviour
@@ -16,6 +19,10 @@ public class HUD_PortraitFunctions : MonoBehaviour
     [SerializeField] GameObject cancelFollowMemberBtn;
     [SerializeField] GameObject setAsLeaderBtn;
 
+    [Header("Social")]
+    [SerializeField] GameObject addToFriendListBtn;
+    [SerializeField] GameObject addToBlackListBtn;
+
     private PlayerGhost localPlayer;
     private string playerName;
     private List<RaycastResult> raycastHits = new List<RaycastResult>();
@@ -27,6 +34,8 @@ public class HUD_PortraitFunctions : MonoBehaviour
             ClientUtils.SetLayerRecursively(gameObject, parentLayer);
     }
 
+    public string PlayerName { get { return playerName; } }
+
     public void Init(string charName, string guildName)
     {
         gameObject.SetActive(true);
@@ -37,6 +46,7 @@ public class HUD_PortraitFunctions : MonoBehaviour
         guildNameText.text = !string.IsNullOrEmpty(guildName) ? guildName : GUILocalizationRepo.GetLocalizedString("com_noguild");
 
         SetPartyFunctions();
+        SetSocialFunctions();
     }
 
     private void SetPartyFunctions()
@@ -59,6 +69,100 @@ public class HUD_PortraitFunctions : MonoBehaviour
                 setAsLeaderBtn.SetActive(partyStats.IsLeader(localPlayer.Name)); // show change leader button if I'm leader
             }
         }
+
+       
+    }
+
+    const bool SocialHideALL = false;
+    private void SetSocialFunctions()
+    {
+        if (localPlayer == null)
+            return;
+
+        var stats = localPlayer.SocialStats;
+        if (stats == null)
+            return;
+
+        var data = stats.data;
+        if (data == null)
+            return;
+
+        if (SocialHideALL)
+        {
+            if (data.goodFriendStates != null && data.blackFriendStates != null)
+            {
+                bool contains = data.goodFriendStates.ContainsPlayerName(playerName) || data.blackFriendStates.ContainsPlayerName(playerName);
+                addToFriendListBtn.SetActive(!contains);
+                addToBlackListBtn.SetActive(!contains);
+            }
+            else
+            {
+                addToFriendListBtn.SetActive(false);
+                addToBlackListBtn.SetActive(false);
+            }
+        }
+        else
+        {
+            if (data.goodFriendStates != null)
+                addToFriendListBtn.SetActive(!data.goodFriendStates.ContainsPlayerName(playerName));
+            if (data.blackFriendStates != null)
+                addToBlackListBtn.SetActive(!data.blackFriendStates.ContainsPlayerName(playerName));
+        }
+    }
+
+    bool socialLocked = false;
+
+    public void SocialUnlock()
+    {
+        socialLocked = false;
+    }
+
+
+    private SocialData GetSocialData()
+    {
+        SocialStats stats;
+        if(localPlayer!=null)
+        {
+            stats = localPlayer.SocialStats;
+            if (stats != null)
+            {
+                return stats.data;
+            }
+        }
+        return null;
+    }
+
+    public void OnClickAddToFriendList()
+    {
+        SocialData data;
+        if (!string.IsNullOrEmpty(playerName) && (data = GetSocialData()) != null)
+        {
+            if (data.blackFriendStates.ContainsPlayerName(playerName))
+                SocialController.AddSystemMessage("ret_social_RaiseRequest_TargetBlacked", "name;" + playerName);
+            else if (!socialLocked)
+            {
+                socialLocked = true;
+
+                RPCFactory.NonCombatRPC.SocialRaiseRequest(playerName,false);
+            }
+        }
+        ClosePanel();
+    }
+
+    public void OnClickAddToBlackList()
+    {
+        SocialData data;
+        if (!string.IsNullOrEmpty(playerName) && (data = GetSocialData()) != null)
+        {
+            if (data.goodFriendStates.ContainsPlayerName(playerName))
+                SocialController.AddSystemMessage("ret_social_AddBlack_RemoveGoodFriendFirst", "name;" + playerName);
+            else if (!socialLocked)
+            {
+                socialLocked = true;
+                RPCFactory.NonCombatRPC.SocialAddBlack(playerName);
+            }
+        }
+        ClosePanel();
     }
 
     public void OnClickChangePartyLeader()

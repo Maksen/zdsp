@@ -139,17 +139,6 @@ public class UI_SkillEquipIconHelper : MonoBehaviour {
         m_Parent.m_SelectSkillDDL.SortList(m_CurrentSelected.m_Skillid);
         m_Parent.CloseWindows("SkillEquip");
         m_Parent.m_SelectSkillDDL.gameObject.SetActive(true);
-        //// the selected one
-        //if (button.m_Toggle.isOn)
-        //{
-        //    if (m_CurrentSelected != null && (button.m_skgID != m_CurrentSelected.m_skgID && m_CurrentSelected.m_Toggle.isOn))
-        //        m_CurrentSelected.m_Toggle.isOn = false;
-        //    m_CurrentSelected = (UI_SkillSelectButton)button;
-        //    m_Parent.m_SelectSkillDDL.GenerateSkillList();
-        //    m_Parent.m_SelectSkillDDL.SortList(m_CurrentSelected.m_Skillid);
-        //    m_Parent.CloseWindows(true);
-        //    m_Parent.m_SelectSkillDDL.gameObject.SetActive(true);
-        //}
     }
 
     public void OnSelectEquip(int id)

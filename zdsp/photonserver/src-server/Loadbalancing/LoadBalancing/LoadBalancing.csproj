@@ -142,8 +142,8 @@
     <Compile Include="Actions\ASDead.cs" />
     <Compile Include="Actions\ASDragged.cs" />
     <Compile Include="Actions\ASFrozen.cs" />
+    <Compile Include="Actions\ASGetHit.cs" />
     <Compile Include="Actions\ASIdle.cs" />
-    <Compile Include="Actions\ASInteractiveTrigger.cs" />
     <Compile Include="Actions\ASInterruptManager.cs" />
     <Compile Include="Actions\ASKnockedBack.cs" />
     <Compile Include="Actions\ASKnockedUp.cs" />
@@ -167,6 +167,7 @@
     <Compile Include="GameServer\Achievement\AchievementStatsServer.cs" />
     <Compile Include="GameServer\Combat\CombatFormula.cs" />
     <Compile Include="GameServer\Combat\CombatNode.cs" />
+    <Compile Include="GameServer\Debugger\CharacterDebugTool.cs" />
     <Compile Include="GameServer\DestinyClue\DestinyClueController.cs" />
     <Compile Include="GameServer\EquipFushion\EquipFushionController.cs" />
     <Compile Include="GameServer\EquipmentCraft\EquipmentCraftController.cs" />
@@ -176,13 +177,15 @@
     <Compile Include="GameServer\GameRules\LootRules.cs" />
     <Compile Include="GameServer\GameRules\QuestRules.cs" />
     <Compile Include="GameServer\Hero\HeroStatsServer.cs" />
-    <Compile Include="GameServer\InteractiveTrigger\InteractiveTriggerController.cs" />
+    <Compile Include="GameServer\MultiServer\MultiServerAPIManager.cs" />
+    <Compile Include="GameServer\MultiServer\MultiServerDataHandler.cs" />
     <Compile Include="GameServer\NPCStore\NPCStoreManager.cs" />
     <Compile Include="GameServer\PowerUp\PowerUpController.cs" />
     <Compile Include="GameServer\Quest\DonateController.cs" />
     <Compile Include="GameServer\Quest\QuestController.cs" />
     <Compile Include="GameServer\Revive\ReviveItemController.cs" />
     <Compile Include="GameServer\Social\SocialController.cs" />
+    <Compile Include="GameServer\Social\SocialDataHandler.cs" />
     <Compile Include="GameServer\Social\SocialExtensions.cs" />
     <Compile Include="MasterServer\ClusterServer\IncomingGamePeer.cs" />
     <Compile Include="MasterServer\MasterGame.cs" />

@@ -52,8 +52,7 @@ public class UI_Hero_Info : MonoBehaviour
     private void HideObjectsForTimeline(bool hide)
     {
         clickBlocker.SetActive(hide);
-        UIManager.HideOpenedDialogs(hide);
-        UIManager.HideOpenedWindowsUICameras(hide);
+        UIManager.HideUIsForHeroCutscene(hide);
     }
 
     private List<HeroCellDto> CreateHeroesData()
@@ -329,6 +328,12 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnClickResetSkillPoints()
     {
+        if (selectedHeroData == null)
+            return;
+
+        if (selectedHero.Skill1Level == 1 && selectedHero.Skill2Level == 1 && selectedHero.Skill3Level == 1)
+            return;
+
         Dictionary<string, string> param = new Dictionary<string, string>();
         param.Add("cost", selectedHeroData.resetskillmoney.ToString());
         string message = GUILocalizationRepo.GetLocalizedString("hro_confirmResetSkillPoints", param);
@@ -337,18 +342,27 @@ public class UI_Hero_Info : MonoBehaviour
 
     public void OnClickAddSkillPoints()
     {
+        if (selectedHeroData == null)
+            return;
+
         UIManager.OpenDialog(WindowType.DialogHeroSkillPoints,
             (window) => window.GetComponent<UI_Hero_AddSkillPointsDialog>().Init(selectedHero));
     }
 
     public void OnClickAddTrust()
     {
+        if (selectedHeroData == null)
+            return;
+
         UIManager.OpenDialog(WindowType.DialogHeroTrust,
             (window) => window.GetComponent<UI_Hero_AddTrustDialog>().Init(selectedHero));
     }
 
     public void OnClickChangeInterest()
     {
+        if (selectedHeroData == null)
+            return;
+
         UIManager.OpenDialog(WindowType.DialogHeroInterest,
             (window) => window.GetComponent<UI_Hero_InterestDialog>().Init(selectedHero, interestIconImage.sprite, interestDescText.text));
     }

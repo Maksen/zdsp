@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Zealot.Common
 {
     #region Authentication Type
-    public enum LoginType : short
+    public enum LoginAuthType : short
     {   
         EstablishConnection = -1,
         Device = 0,
@@ -19,32 +19,32 @@ namespace Zealot.Common
 
     public class ServerInfo
     {        
-        public int id;
-        public string ipAddr;
-        public string serverName;
-        public int serverLine;
-        public ServerLoad serverLoad;
+        public int Id { get; set; }
+        public string IpAddr { get; set; }
+        public string ServerName { get; set; }
+        public int ServerLine { get; set; }
+        public ServerLoad ServerLoad { get; set; }
 
         public ServerInfo(int id, string ipAddr, string serverName, int serverLine, ServerLoad serverLoad)
         {
-            this.id = id;
-            this.ipAddr = ipAddr;
-            this.serverName = serverName;
-            this.serverLine = serverLine;
-            this.serverLoad = serverLoad;
+            Id = id;
+            IpAddr = ipAddr;
+            ServerName = serverName;
+            ServerLine = serverLine;
+            ServerLoad = serverLoad;
         }
     }
 
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class LoginData
     {
-        public static string clientDataFile = "ClientData.json";
-        public static string editorDataFile = "EditorData.json";
+        public static string ClientDataFile = "ClientData.json";
+        public static string EditorDataFile = "EditorData.json";
 
-        #region Serializable properties
+        #region serializable properties
 
         [DefaultValue(1)]
-        [JsonProperty(PropertyName = "logintype")]
+        [JsonProperty(PropertyName = "loginauthtype")]
         public short LoginType { get; set; }
 
         [DefaultValue("")]
@@ -63,19 +63,15 @@ namespace Zealot.Common
         [JsonProperty(PropertyName = "iv")]
         public string IV { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "svriddisplay")]
         public int ServerId { get; set; }
 
-        [DefaultValue(0)]
         [JsonProperty(PropertyName = "firstlogintick")]
         public long FirstLoginTick { get; set; }
 
-        [DefaultValue(false)]
         [JsonProperty(PropertyName = "showannounce")]
         public bool ShowAnnounce { get; set; }
 
-        [DefaultValue(false)]
         [JsonProperty(PropertyName = "hasreadlicense")]
         public bool HasReadLicense { get; set; }
 
@@ -112,7 +108,7 @@ namespace Zealot.Common
         {
             cookieId = Guid.Empty;
             userId = Guid.Empty;
-            this.LoginType = (short)Zealot.Common.LoginType.Username;
+            LoginType = (short)LoginAuthType.Username;
         }
 
         public bool IsDataValid
@@ -122,15 +118,15 @@ namespace Zealot.Common
 
         public void SerializeLoginData()
         {
-            string dataFile = (Application.platform == RuntimePlatform.WindowsEditor) ? editorDataFile
-                                                                                      : clientDataFile;
+            string dataFile = (Application.platform == RuntimePlatform.WindowsEditor) ? EditorDataFile
+                                                                                      : ClientDataFile;
             SerializeToFile(string.Format("{0}/{1}", Application.persistentDataPath, dataFile));
         }
 
         public bool DeserializeLoginData()
         {
-            string dataFileJson = (Application.platform == RuntimePlatform.WindowsEditor) ? editorDataFile
-                                                                                          : clientDataFile;
+            string dataFileJson = (Application.platform == RuntimePlatform.WindowsEditor) ? EditorDataFile
+                                                                                          : ClientDataFile;
             string dataFileJsonPath = string.Format("{0}/{1}", Application.persistentDataPath, dataFileJson);
             if (!File.Exists(dataFileJsonPath))
                 return false;
@@ -148,7 +144,7 @@ namespace Zealot.Common
             return true;
         }
 
-        #region Json Serialization Methods
+        #region Json serialization methods
 
         public void SerializeToFile(string path)
         {
@@ -185,10 +181,10 @@ namespace Zealot.Common
     [Obsolete]
     public class LoginUtils
     {
-        public static string clientDataFile = "ClientData.txt";
-        public static string editorDataFile = "EditorData.txt";
+        public static string ClientDataFile = "ClientData.txt";
+        public static string EditorDataFile = "EditorData.txt";
 
-        #region Text Serialization Methods
+        #region Text serialization methods
 
         public static void ReadClientData(string path, ref string loginType, ref string loginId, ref string deviceId, 
                                           ref string ipaddr, ref string encryptedPass, ref string IV)

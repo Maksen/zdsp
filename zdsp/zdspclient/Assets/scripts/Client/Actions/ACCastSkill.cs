@@ -74,7 +74,7 @@ namespace Zealot.Client.Actions
                 mBasicAttackIndex = 1;
             }
             //Debug.Log("recover time : " + recovertime);
-            long minrttime = (long)(1000 * mSkillData.skillgroupJson.basicminrt) - 15; //OnTimer Compensate
+            long minrttime = (long)(1000 * mSkillData.skillgroupJson.basicminrt); //OnTimer Compensate
             if (recovertime_mod > 0) minrttime = (long)(1000 * recovertime_mod);
             if (recovertime > minrttime)
             {
@@ -182,12 +182,12 @@ namespace Zealot.Client.Actions
         private void QueryForTargets()
         {
             if (Time.realtimeSinceStartup - lastqueryTime < 0.5f)
-            {
                 return;
-            }
+
             lastqueryTime = Time.realtimeSinceStartup;
-            if (mSkillData == null) Debug.LogError("Skill is missing from the start?");
-            queryiedTargets = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, (IActor)mTarget, mSkillData, mTargetPos);
+            if (mSkillData == null)
+                Debug.LogError("Skill is missing from the start?");
+            queryiedTargets = CombatUtils.QueryTargetsForClientAndServer((IActor)mEntity, mTarget, mTargetPos, mSkillData);
         }
 
         private void CheckEffectProcs(long dt)
@@ -220,32 +220,15 @@ namespace Zealot.Client.Actions
                 {
                     if (ghost.IsPlayer())
                     {
-                        if (ghost.IsRecovering || ghost.IsMoving() || ghost.IsIdling())
-                        {
-                            if (ghost.IsLocal)
-                            {
-                                ClientAuthoACGetHit getHitAction = new ClientAuthoACGetHit(ghost, ghcmd);
-                                Action prev = ghost.GetAction();
-                                getHitAction.SetCompleteCallback(() => ghost.PerformAction(prev));
-                                ghost.PerformAction(getHitAction);
-                            }
-                            else
-                            {
-                                NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(ghost, ghcmd);
-                                Action prev = ghost.GetAction();
-                                getHitAction.SetCompleteCallback(() => ghost.PerformAction(prev));
-                                ghost.PerformAction(getHitAction);
-                            }
-                        }
-                        else
+                        if (!ghost.IsRecovering && !ghost.IsMoving() && !ghost.IsIdling())
                             ghost.PlayEffect("", hitEffect);
                     }
                     else
                     {
-                        NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(ghost, ghcmd);
-                        Action prev = ghost.GetAction();
-                        getHitAction.SetCompleteCallback(() => ghost.PerformAction(prev));
-                        ghost.PerformAction(getHitAction);
+                        // client will do the animation first and the server will later ondamage handle the action instead
+                        ghost.PlayEffect("", hitEffect);
+                        ((MonsterGhost)ghost).Flash(); //flash on monster
+                        ghost.StartHitted(200);
                     }
                 }
             }
@@ -323,6 +306,7 @@ namespace Zealot.Client.Actions
 
         protected override void OnActiveEnter(string prevstate)
         {
+            GameInfo.gLocalPlayer.HideSkillIndicator();
             FaceTarget();
             _attackspeed = mCaster.PlayerStats.baSpeed;
             if (PlayerBasicAttack)
@@ -340,14 +324,14 @@ namespace Zealot.Client.Actions
             }
 
             SetupSkillCastTimer();
-            //OnStartCastSkill();
+            OnStartCastSkill();
             PlaySkillEffect();
         }
 
         protected override void OnActiveUpdate(long dt)
         {
             base.OnActiveUpdate(dt);
-            //CheckEffectProcs(dt);
+            CheckEffectProcs(dt);
         }
 
         /// <summary>
@@ -410,7 +394,7 @@ namespace Zealot.Client.Actions
                         GotoState("Completed");
                         return;
                     }
-
+                    Bot.BotCastSkillHandler.Instance.FinishCastSkill();
                     GotoState("Active");
                     return;
                 }
@@ -452,7 +436,7 @@ namespace Zealot.Client.Actions
                 MonsterGhost monster = (MonsterGhost)mEntity;
                 if (monster.mArchetype.monstertype == MonsterType.Boss)
                 {
-                    if (mSkillData.skillgroupJson.skilltype == SkillType.Active && !GameInfo.gCombat.CutsceneManager.IsPlaying()) //boss casts skill, we show the warning indicator
+                    if (mSkillData.skillgroupJson.skilltype == SkillType.Active && !CutsceneManager.instance.IsPlaying()) //boss casts skill, we show the warning indicator
                     {
                         monster.DisplaySkillIndicator(mSkillData, null);
                         mSkillIndicatorDisplayed = true;

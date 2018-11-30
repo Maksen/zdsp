@@ -36,7 +36,7 @@
             {EffectType.Stats_HealthRegen, typeof(StatsSE) },
             {EffectType.Stats_MaxMana, typeof(StatsSE) },
             {EffectType.Stats_ManaRegen, typeof(StatsSE) },
-            {EffectType.Stats_EnergyShield, typeof(StatsSE) }, // Might need a new SE for special behaviour
+            {EffectType.Stats_EnergyShield, typeof(ShieldSE) }, // Might need a new SE for special behaviour
             {EffectType.Stats_IgnoreArmor, typeof(StatsSE) },
             {EffectType.Stats_ChangeEleToNone, typeof(ToNoneElementalSE) },
             {EffectType.Stats_ChangeEleToMetal, typeof(ToMetalElementalSE) },

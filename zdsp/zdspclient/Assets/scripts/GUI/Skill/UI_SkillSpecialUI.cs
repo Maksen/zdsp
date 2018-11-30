@@ -48,14 +48,14 @@ public class UI_SkillSpecialUI : MonoBehaviour {
             m_RowCount = 0;
             m_CurrentRow = m_SpecialRowPool.RequestObject();
             
-            m_CurrentRow.transform.parent = m_ContentRect.transform;
+            m_CurrentRow.transform.SetParent(m_ContentRect.transform, false);
             m_CurrentRow.transform.localPosition = new Vector3(0, 0, 1);
             m_CurrentRow.transform.localScale = new Vector3(1, 1, 1);
         }
         if (m_RowCount < 3)
         {
             GameObject obj = m_SkillIconPool.RequestObject();
-            obj.transform.parent = m_CurrentRow.transform;
+            obj.transform.SetParent(m_CurrentRow.transform, false);
             obj.transform.localPosition = new Vector3(0, 0, 1);
             obj.transform.localScale = new Vector3(1, 1, 1);
             button = obj.GetComponent<UI_SkillSpecialSelectButton>();

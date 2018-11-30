@@ -5,4 +5,10 @@ namespace Zealot.Entities
         public string archetype;
         public float radius;
     }
+
+    public class StaticClientGuideSpawnerJson : ServerEntityJson
+    {
+        public string archetype;
+        public float radius;
+    }
 }

@@ -45,7 +45,7 @@
                     ccd.Name = cd.Name;
                     ccd.JobSect = cd.JobSect;
                     ccd.Gender = cd.Gender;
-                    ccd.Levelid = cd.lastlevelid;
+                    ccd.LastLevelId = cd.LastLevelId;
                     ccd.RemoveCharDT = cd.RemoveCharDT;
                     ccd.ProgressLevel = cd.ProgressLevel;
                     ccd.EquipmentInventory = cd.EquipmentInventory;
@@ -110,6 +110,10 @@
                                     break;
                                 }
                             }
+
+                            int partyId = PartyRules.GetPartyIdByPlayerName(charname);
+                            if (partyId > 0)
+                                PartyRules.LeaveParty(partyId, charname, LeavePartyReason.Self);
                         }
                     }
                 }
@@ -132,9 +136,12 @@
                 if (charData != null)
                 {
                     GameCounters.ExecutionFiberQueue.Increment();
-                    GameApplication.Instance.executionFiber.Enqueue(() =>
+                    GameApplication.Instance.executionFiber.Enqueue(async () =>
                     {
                         GameCounters.ExecutionFiberQueue.Decrement();
+
+                        await peer.InitSocialDataFromDB(charname);
+
                         //charData.IsTutorialRealmDone = true;
                         if (!charData.IsTutorialRealmDone)
                         {                           
@@ -142,48 +149,47 @@
                             if (tutorialRealmJson != null)
                             {
                                 LevelJson level = LevelRepo.GetInfoById(tutorialRealmJson.level);
-                                if (level != null)
+                                if (level != null) // Create tutorial realm with realm Id
                                 {
-                                    // Create tutorial realm with realm Id
                                     peer.CreateRealm(tutorialRealmJson.id, level.unityscene);
                                     return;
                                 }
                             }
                         }
 
-                        LevelJson levelInfo = LevelRepo.GetInfoById(charData.lastlevelid);                 
+                        LevelJson levelInfo = LevelRepo.GetInfoById(charData.LastLevelId);                 
                         if (levelInfo != null)
                         {
+                            Room room;
                             string levelName = levelInfo.unityscene;
-                            if (RealmRepo.IsWorld(levelName))
+                            if (peer.TransferToRealmWorld(levelName)) // Last level is Realm World
                             {
-                                float[] lastpos = charData.lastpos;
-                                float[] lastforward = charData.lastdirection;
-                                peer.TransferToRealmWorld(levelName);
-                                peer.mSpawnPos = new Vector3(lastpos[0], lastpos[1], lastpos[2]);
-                                peer.mSpawnForward = new Vector3(lastforward[0], 0, lastforward[2]);
-                            }
-                            else // Character spawn to non-world realm
+                                float[] lastPos = charData.LastLevelPos;
+                                float[] lastForward = charData.LastDirection;
+                                peer.mSpawnPos = new Vector3(lastPos[0], lastPos[1], lastPos[2]);
+                                peer.mSpawnForward = new Vector3(lastForward[0], 0, lastForward[2]);
+                            } 
+                            else if (GameApplication.Instance.GameCache.TryGetRoomWithoutReference(charData.RoomGuid, out room))
                             {
-                                string roomGuid = charData.roomguid;
-                                Room room;
-                                GameApplication.Instance.GameCache.TryGetRoomWithoutReference(roomGuid, out room);
+                                // Character spawn to non-world realm
                                 Game game = room as Game;
-                                if (game != null && game.controller != null && game.controller.mRealmController != null && 
+                                if (game != null && game.controller != null && game.controller.mRealmController != null &&
                                     game.controller.mRealmController.CanReconnect())
                                 {
-                                    float[] lastpos = charData.lastpos;
-                                    float[] lastforward = charData.lastdirection;
-                                    peer.TransferRoom(roomGuid, levelName);
-                                    peer.mSpawnPos = new Vector3(lastpos[0], lastpos[1], lastpos[2]);
-                                    peer.mSpawnForward = new Vector3(lastforward[0], 0, lastforward[2]);
+                                    peer.TransferRoom(charData.RoomGuid, levelName);
+                                    float[] lastPos = charData.LastLevelPos;
+                                    float[] lastForward = charData.LastDirection;
+                                    peer.mSpawnPos = new Vector3(lastPos[0], lastPos[1], lastPos[2]);
+                                    peer.mSpawnForward = new Vector3(lastForward[0], 0, lastForward[2]);
                                 }
                                 else
-                                    peer.TransferToCity(charData.ProgressLevel);
+                                    peer.TransferToLastWorld(charData.ProgressLevel);
                             }
+                            else
+                                peer.TransferToLastWorld(charData.ProgressLevel);
                         }
                         else
-                            peer.TransferToCity(charData.ProgressLevel);
+                            peer.TransferToLastWorld(charData.ProgressLevel);
                     });
                 }
             //}

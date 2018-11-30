@@ -1,14 +1,13 @@
-using Zealot.Common;
 namespace Zealot.Common.Entities
 {
-	public interface IActor
-	{
-		ActorSynStats PlayerStats{ get; set; }
+    public interface IActor
+    {
+        ActorSynStats PlayerStats{ get; set; }
         string Name { get; set; }
+        int Team { get; set; }
         bool IsAlive();
         bool IsInvalidTarget();
         bool IsInSafeZone();
-        int Team { get; set; }
         int GetParty();
 
         void OnDamage(IActor attacker, AttackResult res, bool pbasicAttack);

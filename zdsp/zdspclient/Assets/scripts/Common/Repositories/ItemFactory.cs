@@ -192,6 +192,13 @@ namespace Zealot.Repository
             return null;    
         }
 
+        public ItemOriginJson GetItemOriginById(int originId)
+        {
+            ItemOriginJson itemOriginJson;
+            ItemOriginTable.TryGetValue(originId, out itemOriginJson);
+            return itemOriginJson;
+        }
+
         public List<ItemOriginJson> GetItemOriginJson(int itemId)
         {
             List<ItemOriginJson> _result = new List<ItemOriginJson>();

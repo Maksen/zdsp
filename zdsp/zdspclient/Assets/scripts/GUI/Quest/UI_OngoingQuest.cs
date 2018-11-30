@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Zealot.Repository;
 using System;
 using Kopio.JsonContracts;
+using UnityEngine.SceneManagement;
 
 public enum UIQuestType
 {
@@ -149,16 +150,19 @@ public class UI_OngoingQuest : MonoBehaviour
     {
         List<int> newquestlist = mQuestController.GetUnlockQuest(type).Select(o => o.questid).ToList();
         List<int> oldquestlist = mUnlockQuest[type];
-        foreach (int questid in oldquestlist)
+        if (oldquestlist != null)
         {
-            if (!newquestlist.Contains(questid))
+            foreach (int questid in oldquestlist)
             {
-                if (mOngoingQuestList.ContainsKey(questid))
+                if (!newquestlist.Contains(questid))
                 {
-                    Destroy(mOngoingQuestList[questid]);
-                    mOngoingQuestList.Remove(questid);
+                    if (mOngoingQuestList.ContainsKey(questid))
+                    {
+                        Destroy(mOngoingQuestList[questid]);
+                        mOngoingQuestList.Remove(questid);
+                    }
+                    mUnlockQuest[type].Remove(questid);
                 }
-                mUnlockQuest[type].Remove(questid);
             }
         }
     }
@@ -491,12 +495,48 @@ public class UI_OngoingQuest : MonoBehaviour
 
     public void OnClickedReset()
     {
-        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_reset"), delegate { OnConfirmResetQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        QuestJson questJson = QuestRepo.GetQuestByID(mSelectedQuest);
+        Dictionary<string, string> param = new Dictionary<string, string>();
+        if (questJson != null)
+        {
+            if (!questJson.canreset)
+            {
+                UIManager.OpenOkDialog(GUILocalizationRepo.GetLocalizedString("quest_noreset"), null);
+                return;
+            }
+            param.Add("questname", questJson.questname);
+            param.Add("map", questJson.questname);
+        }
+
+        string levelName = SceneManager.GetActiveScene().name;
+        if (RealmRepo.IsWorld(levelName) && GameUtils.IsEmptyString(questJson.resetmap))
+        {
+            UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_reset", param), delegate { OnConfirmResetQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        }
+        else if (RealmRepo.IsWorld(levelName) && !GameUtils.IsEmptyString(questJson.resetmap))
+        {
+            UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_resetteleport", param), delegate { OnConfirmResetQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        }
+        else
+        {
+            UIManager.OpenOkDialog(GUILocalizationRepo.GetLocalizedString("quest_cannotreset"), null);
+        }
     }
 
     public void OnClickedDelete()
     {
-        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_delete"), delegate { OnDeleteDeleteQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
+        QuestJson questJson = QuestRepo.GetQuestByID(mSelectedQuest);
+        Dictionary<string, string> param = new Dictionary<string, string>();
+        if (questJson != null)
+        {
+            if (!questJson.candelete)
+            {
+                UIManager.OpenOkDialog(GUILocalizationRepo.GetLocalizedString("quest_nodelete"), null);
+                return;
+            }
+            param.Add("questname", questJson.questname);
+        }
+        UIManager.OpenYesNoDialog(GUILocalizationRepo.GetLocalizedString("quest_delete", param), delegate { OnDeleteDeleteQuest(mSelectedQuest); }, delegate { OnCancelAction(); });
     }
 
     private void OnConfirmResetQuest(int questid)

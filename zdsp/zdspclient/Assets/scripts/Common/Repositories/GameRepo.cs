@@ -91,6 +91,7 @@ namespace Zealot.Repository
             CharacterCreationRepo.Init(GameData);
             WordFilterRepo.Init(GameData);
             TutorialRepo.Init(GameData);
+            StaticGuideRepo.Init(GameData);
             ProfilerUtils.LogIncrementSize("Other Repos", ref heapsize);
             _loaded = true;
         }

@@ -107,7 +107,7 @@ public class UI_CharacterInfoTabTwo : MonoBehaviour
     }
     public void OnConfirmStatsAllocation_ServerFeedback(int retVal)
     {
-        if (retVal == -1)
+        if (retVal < 0)
         {
             //Error msg
             return;

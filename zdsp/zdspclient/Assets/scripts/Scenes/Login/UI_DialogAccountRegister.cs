@@ -68,7 +68,7 @@ public class UI_DialogAccountRegister : MonoBehaviour
             return;
         }
 
-        login.CustomAuthWithServer(OperationCode.VerifyLoginId, LoginType.Username.ToString(), loginId, "VerifyLoginIdRegister");
+        login.CustomAuthWithServer(OperationCode.VerifyLoginId, LoginAuthType.Username.ToString(), loginId, "VerifyLoginIdRegister");
     }
 
     public void OnClickSignUp()

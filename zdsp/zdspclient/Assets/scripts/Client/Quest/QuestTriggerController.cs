@@ -623,7 +623,8 @@ public class QuestTriggerController
     public void UpdateOngoingQuest(CurrentQuestData questData, PlayerGhost player)
     {
         QuestStatus questStatus = (QuestStatus)questData.Status;
-        if (questStatus == QuestStatus.NewQuest || questStatus == QuestStatus.NewObjective)
+        QuestStatus questSubStatus = (QuestStatus)questData.SubStatus;
+        if (questStatus == QuestStatus.NewQuest || questStatus == QuestStatus.NewObjective || questSubStatus == QuestStatus.NewObjective)
         {
             if (AddQuestGroupProgress(questData))
             {
@@ -636,6 +637,10 @@ public class QuestTriggerController
                     AddToObjectiveNpcTrackList(npcid, questData.QuestId, objectiveid);
                     CheckObjectiveAvailable(questData.QuestId, objectiveid, npcid);
                 }
+            }
+            else
+            {
+                mRequirementController.UpdateOngoingQuestData(questData, player);
             }
 
             GetEmptyObjectiveType(questData);
@@ -898,7 +903,204 @@ public class QuestTriggerController
 
     private void SubmitQuestWithEmptyObjective(List<int> questlist)
     {
-        string questids = JsonConvertDefaultSetting.SerializeObject(questlist);
-        RPCFactory.NonCombatRPC.SubmitEmptyObjective(questids);
+        if (questlist.Contains(GameInfo.mQuestEventTriggered))
+        {
+            questlist.Remove(GameInfo.mQuestEventTriggered);
+        }
+        if (questlist.Count > 0)
+        {
+            string questids = JsonConvertDefaultSetting.SerializeObject(questlist);
+            RPCFactory.NonCombatRPC.SubmitEmptyObjective(questids);
+        }
+    }
+}
+
+public class QuestGuideController
+{
+    private QuestClientController mQuestController;
+    private ClientEntitySystem mEntitySystem;
+    private Dictionary<int, List<int>> mOngoingListByGuide;
+    private Dictionary<int, List<int>> mGuideIdByQuesId;
+    private List<int> mGuideForUpdate;
+
+    public QuestGuideController(QuestClientController questController, ClientEntitySystem entitySystem)
+    {
+        mQuestController = questController;
+        mEntitySystem = entitySystem;
+        mOngoingListByGuide = new Dictionary<int, List<int>>();
+        mGuideIdByQuesId = new Dictionary<int, List<int>>();
+        mGuideForUpdate = new List<int>();
+    }
+
+    public void InitOngoingQuest()
+    {
+        foreach (QuestType type in Enum.GetValues(typeof(QuestType)))
+        {
+            Dictionary<int, CurrentQuestData> questDatas = mQuestController.GetQuestDataList(type);
+            foreach (KeyValuePair<int, CurrentQuestData> entry in questDatas)
+            {
+                int questid = entry.Key;
+                List<int> guidelist = GetGuideList(entry.Value);
+                AddToObjectiveGuideTrackList(questid, guidelist);
+                AddUpdateGuide(guidelist);
+            }
+        }
+        RefreshGuide();
+    }
+
+    public void UpdateOngoingQuest(CurrentQuestData questData)
+    {
+        QuestStatus questStatus = (QuestStatus)questData.Status;
+        if (questStatus == QuestStatus.NewQuest || questStatus == QuestStatus.NewObjective)
+        {
+            List<int> guidelist = GetGuideList(questData);
+            AddToObjectiveGuideTrackList(questData.QuestId, guidelist);
+            AddUpdateGuide(guidelist);
+            RefreshGuide();
+        }
+    }
+
+    public void AddedCompletedList(List<int> questlist)
+    {
+        foreach(int questid in questlist)
+        {
+            List<int> guidelist = new List<int>();
+            if (mGuideIdByQuesId.ContainsKey(questid))
+            {
+                guidelist = mGuideIdByQuesId[questid];
+                mGuideIdByQuesId.Remove(questid);
+                RemoveFromObjectiveGuideTrackList(guidelist, questid);
+                AddUpdateGuide(guidelist);
+            }
+        }
+        RefreshGuide();
+    }
+
+    public void NewCompletedQuest(int questid)
+    {
+        List<int> guidelist = new List<int>();
+        if (mGuideIdByQuesId.ContainsKey(questid))
+        {
+            guidelist = mGuideIdByQuesId[questid];
+            mGuideIdByQuesId.Remove(questid);
+            RemoveFromObjectiveGuideTrackList(guidelist, questid);
+            AddUpdateGuide(guidelist);
+        }
+        RefreshGuide();
+    }
+
+    private void AddToObjectiveGuideTrackList(int questid, List<int> guidelist)
+    {
+        foreach(int guideid in guidelist)
+        {
+            if (!mOngoingListByGuide.ContainsKey(guideid))
+            {
+                mOngoingListByGuide.Add(guideid, new List<int>());
+            }
+
+            if (!mOngoingListByGuide[guideid].Contains(questid))
+            {
+                mOngoingListByGuide[guideid].Add(questid);
+            }
+        }
+    }
+
+    private void RemoveFromObjectiveGuideTrackList(List<int> guidelist, int questid)
+    {
+        foreach (int guideid in guidelist)
+        {
+            if (mOngoingListByGuide.ContainsKey(guideid))
+            {
+                mOngoingListByGuide[guideid].Remove(questid);
+            }
+
+            if (mOngoingListByGuide[guideid].Count == 0)
+            {
+                mOngoingListByGuide.Remove(guideid);
+            }
+        }
+    }
+
+    private void AddGuideTrackList(int guideid, int questid)
+    {
+        if (!mGuideIdByQuesId.ContainsKey(questid))
+        {
+            mGuideIdByQuesId.Add(questid, new List<int>());
+        }
+
+        if (!mGuideIdByQuesId[questid].Contains(guideid))
+        {
+            mGuideIdByQuesId[questid].Add(guideid);
+        }
+    }
+
+    private void AddUpdateGuide(List<int> guidelist)
+    {
+        foreach (int guideid in guidelist)
+        {
+            if (!mGuideForUpdate.Contains(guideid))
+            {
+                mGuideForUpdate.Add(guideid);
+            }
+        }
+    }
+
+    private void RefreshGuide()
+    {
+        foreach(int guideid in mGuideForUpdate)
+        {
+            StaticGuideGhost guidenpc = mEntitySystem.GetQuestGuide(guideid);
+            if (guidenpc != null)
+            {
+                guidenpc.UpdateOngoingQuestList(GetOngoingListByGuideId(guideid));
+            }
+        }
+    }
+
+    private List<int> GetOngoingListByGuideId(int guideid)
+    {
+        if (mOngoingListByGuide.ContainsKey(guideid))
+        {
+            return mOngoingListByGuide[guideid];
+        }
+        return new List<int>();
+    }
+
+    private List<int> GetGuideList(CurrentQuestData questData)
+    {
+        QuestStatus status = (QuestStatus)questData.Status;
+        if (status == QuestStatus.CompletedAllObjective || status == QuestStatus.CompletedWithEvent)
+        {
+            return new List<int>();
+        }
+        else
+        {
+            List<int> guidelist = new List<int>();
+            GetGuideListFromObjectiveData(questData.MainObjective, ref guidelist);
+            foreach (KeyValuePair<int, CurrentObjectiveData> entry in questData.SubObjective)
+            {
+                GetGuideListFromObjectiveData(entry.Value, ref guidelist);
+            }
+            return guidelist;
+        }
+    }
+
+    private void GetGuideListFromObjectiveData(CurrentObjectiveData objectiveData, ref List<int> guidelist)
+    {
+        for (int i = 0; i < objectiveData.ObjectiveIds.Count; i++)
+        {
+            int objectiveid = objectiveData.ObjectiveIds[i];
+            QuestObjectiveJson objectiveJson = QuestRepo.GetQuestObjectiveByID(objectiveid);
+            if (objectiveJson.type == QuestObjectiveType.Guide)
+            {
+                if (objectiveData.ProgressCount[i] == 0)
+                {
+                    if (!guidelist.Contains(objectiveJson.para1))
+                    {
+                        guidelist.Add(objectiveJson.para1);
+                    }
+                }
+            }
+        }
     }
 }

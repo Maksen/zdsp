@@ -152,7 +152,7 @@ public class Login : Photon.MonoBehaviour
     {
         if (!PhotonNetwork.connected) // If disconnected, try to reconnect
         {
-            ConnectToPhotonServer(LoginType.EstablishConnection.ToString(), connectType);
+            ConnectToPhotonServer(LoginAuthType.EstablishConnection.ToString(), connectType);
             return true;
         }
         return false;
@@ -181,13 +181,13 @@ public class Login : Photon.MonoBehaviour
     {
         if (SelectedServerInfo == null)
             return;
-        else if (SelectedServerInfo.serverLoad == ServerLoad.Full)
+        else if (SelectedServerInfo.ServerLoad == ServerLoad.Full)
         {
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_ServerFull"));
             return;
         }
 
-        int serverid = SelectedServerInfo.id;
+        int serverid = SelectedServerInfo.Id;
         Debug.LogFormat("Tell master I want to connect to GameServer with id: {0}", serverid);
         Dictionary<byte, object> parameters = new Dictionary<byte, object>();
         parameters.Add(ParameterCode.ServerID, serverid);
@@ -208,7 +208,7 @@ public class Login : Photon.MonoBehaviour
         else if (errorcode == ErrorCode.DuplicateLogin)
             UIManager.ShowSystemMessage(GUILocalizationRepo.GetLocalizedSysMsgByName("sys_DuplicateLogin"));
         else if (errorcode == ErrorCode.Ok)
-            StartCoroutine(ConnectToGameServer(SelectedServerInfo.ipAddr));
+            StartCoroutine(ConnectToGameServer(SelectedServerInfo.IpAddr));
     }
 
     private IEnumerator ConnectToGameServer(string ipAddress)
@@ -222,7 +222,7 @@ public class Login : Photon.MonoBehaviour
     public virtual void OnConnectedToGameServer()
     {
         IsConnectingToGameServer = false;
-        PhotonNetwork.AuthenticateCookie(LoginData.Instance.userId.ToString(), LoginData.Instance.cookieId.ToString(), SelectedServerInfo.id);
+        PhotonNetwork.AuthenticateCookie(LoginData.Instance.userId.ToString(), LoginData.Instance.cookieId.ToString(), SelectedServerInfo.Id);
         UIManager.StartHourglass(10.0f, GameInfo.gUILogin.SysMsgConnectingGameServer);
     }
 
@@ -296,7 +296,7 @@ public class Login : Photon.MonoBehaviour
         return false;
     }
 
-    public void OnLogin(LoginType loginType, string loginId, string password)
+    public void OnLogin(LoginAuthType loginType, string loginId, string password)
     {
         string loginTypeStr = loginType.ToString();
         if (ReconnectWhenDisconnected(loginTypeStr))
@@ -330,9 +330,9 @@ public class Login : Photon.MonoBehaviour
                 if (string.IsNullOrEmpty(appId))
                 {
                     ServerInfo serverInfo = SelectedServerInfo;
-                    if (serverInfo != null && serverInfo.id != LoginData.Instance.ServerId)
+                    if (serverInfo != null && serverInfo.Id != LoginData.Instance.ServerId)
                     {
-                        LoginData.Instance.ServerId = serverInfo.id;
+                        LoginData.Instance.ServerId = serverInfo.Id;
                         LoginData.Instance.SerializeLoginData();
                     }
 
@@ -369,17 +369,17 @@ public class Login : Photon.MonoBehaviour
         // Actions after established connection
         if (!string.IsNullOrEmpty(connectTypeStr))
         {
-            if (Enum.IsDefined(typeof(LoginType), connectTypeStr))
+            if (Enum.IsDefined(typeof(LoginAuthType), connectTypeStr))
             {
-                LoginType loginType = (LoginType)Enum.Parse(typeof(LoginType), connectTypeStr);
+                LoginAuthType loginType = (LoginAuthType)Enum.Parse(typeof(LoginAuthType), connectTypeStr);
                 string loginId = "";
                 switch (loginType)
                 {
-                    case LoginType.Device:
+                    case LoginAuthType.Device:
                         loginId = LoginData.Instance.LoginId = LoginData.Instance.DeviceId;
                         GameInfo.gLogin.OnLogin(loginType, loginId, loginId);
                         break;
-                    case LoginType.Username:
+                    case LoginAuthType.Username:
                         GameObject dialogObj = UIManager.GetWindowGameObject(WindowType.DialogAccountLogin);
                         string password = "";
                         if (dialogObj.GetComponent<UI_DialogAccountLogin>().TryGetInputfieldSignIn(out loginId, out password))
@@ -393,10 +393,10 @@ public class Login : Photon.MonoBehaviour
                             //});
                         }
                         break;
-                    case LoginType.Facebook:
+                    case LoginAuthType.Facebook:
                         GetComponent<FBLogin>().OnFBLoggedIn();
                         break;
-                    case LoginType.Google:
+                    case LoginAuthType.Google:
                         GetComponent<GoogleLogin>().OnGoogleLoggedIn();
                         break;
                 }
@@ -465,9 +465,9 @@ public class Login : Photon.MonoBehaviour
             UIManager.CloseDialog(WindowType.DialogAccountRegister);
             UIManager.OpenOkDialog(uiLogin.RetMsgSignUpSuccess, null);
 
-            LoginData.Instance.LoginType = (short)LoginType.Username; // Set to username login type
+            LoginData.Instance.LoginType = (short)LoginAuthType.Username; // Set to username login type
             LoginData.Instance.LoginId = loginId; // Set to new login ID
-            uiLogin.SetLoginDataPass(LoginType.Username, uiLogin.CachedPass);
+            uiLogin.SetLoginDataPass(LoginAuthType.Username, uiLogin.CachedPass);
 
             GameObject dialogObj = UIManager.GetWindowGameObject(WindowType.DialogAccountLogin);
             dialogObj.GetComponent<UI_DialogAccountLogin>().SetInputfieldSignIn(loginId, uiLogin.CachedPass);
@@ -485,12 +485,12 @@ public class Login : Photon.MonoBehaviour
         UI_Login uiLogin = GameInfo.gUILogin;
         uiLogin.ParseServersInfoStr(serversInfoStr);
         Debug.LogFormat("{0} Login success...Login ID: {1}", loginTypeStr, loginId);
-        if (Enum.IsDefined(typeof(LoginType), loginTypeStr))
+        if (Enum.IsDefined(typeof(LoginAuthType), loginTypeStr))
         {
-            short loginType = (short)Enum.Parse(typeof(LoginType), loginTypeStr);
+            short loginType = (short)Enum.Parse(typeof(LoginAuthType), loginTypeStr);
             LoginData.Instance.LoginType = loginType; // Set to new login type
             LoginData.Instance.LoginId = loginId;     // Set to new login ID
-            uiLogin.SetLoginDataPass((LoginType)loginType, password);
+            uiLogin.SetLoginDataPass((LoginAuthType)loginType, password);
         }
         LoginData.Instance.SerializeLoginData();
         LoginData.Instance.cookieId = new Guid(cookie);

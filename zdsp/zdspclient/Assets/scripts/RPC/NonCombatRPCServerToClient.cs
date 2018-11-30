@@ -5,6 +5,7 @@ using Zealot.Common;
 using Zealot.Common.RPC;
 using Zealot.Repository;
 
+
 public partial class ClientMain : MonoBehaviour
 {
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_TransferServer)]
@@ -183,6 +184,14 @@ public partial class ClientMain : MonoBehaviour
         UI_SkillTree ui = obj.GetComponent<UI_SkillTree>();
         ui.OnEventSkillLevelUp(result, skillid, skillpoint, money);
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SkillInventory)]
+    public void Ret_SkillInventory(string skills)
+    {
+        JsonSerializerSettings jsonSetting = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore, ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+        Dictionary<int, int> result = JsonConvert.DeserializeObject<Dictionary<int, int>>(skills, jsonSetting);
+        GameInfo.gLocalPlayer.mSkillInventory = result;
+    }
     #endregion
 
     #region Destiny Clue
@@ -247,9 +256,26 @@ public partial class ClientMain : MonoBehaviour
         SocialTestTool.DoAction(ctrl => ctrl.OpenSocialMenu_Completed());
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseRequest)]
-    public void Ret_SocialRaiseRequest(int resultCode)
+    public void Ret_SocialRaiseRequest(int resultCode,string friendName)
     {
-        SocialTestTool.DoAction(ctrl => ctrl.SocialRaiseRequest_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
+        var rlt = (Zealot.Common.Entities.Social.SocialResult)resultCode;
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRaiseRequest_Completed(rlt));
+
+        if (rlt == Zealot.Common.Entities.Social.SocialResult.PlayerNameNotFound)
+        {
+            if (!string.IsNullOrEmpty(friendName))
+                SocialController.OpenOkDialog("ret_social_PlayerNameNotFound", "name;" + friendName);
+        }
+
+        var selTarget = UIManager.GetWidget(HUDWidgetType.SelectTarget).GetComponent<HUD_SelectTarget>();
+        if(selTarget!=null)
+        {
+            var funcMenu = selTarget.GetComponentInChildren<HUD_PortraitFunctions>(true);
+            if(funcMenu!=null)
+            {
+                funcMenu.SocialUnlock();
+            }
+        }
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptRequest)]
     public void Ret_SocialAcceptRequest(int resultCode)
@@ -260,6 +286,7 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAcceptAllRequest)]
     public void Ret_SocialAcceptAllRequest(int resultCode)
     {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialAcceptAllRequest_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRejectRequest)]
@@ -271,12 +298,30 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRejectAllRequest)]
     public void Ret_SocialRejectAllRequest(int resultCode)
     {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRejectAllRequest_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialAddBlack)]
-    public void Ret_SocialAddBlack(int resultCode)
+    public void Ret_SocialAddBlack(int resultCode, string friendName)
     {
+        var rlt = (Zealot.Common.Entities.Social.SocialResult)resultCode;
         SocialTestTool.DoAction(ctrl => ctrl.SocialAddBlack_Completed((Zealot.Common.Entities.Social.SocialResult)resultCode));
+
+        if (rlt == Zealot.Common.Entities.Social.SocialResult.PlayerNameNotFound)
+        {
+            if (!string.IsNullOrEmpty(friendName))
+                SocialController.OpenOkDialog("ret_social_PlayerNameNotFound", "name;" + friendName);
+        }
+
+        var selTarget = UIManager.GetWidget(HUDWidgetType.SelectTarget).GetComponent<HUD_SelectTarget>();
+        if (selTarget != null)
+        {
+            var funcMenu = selTarget.GetComponentInChildren<HUD_PortraitFunctions>(true);
+            if (funcMenu != null)
+            {
+                funcMenu.SocialUnlock();
+            }
+        }
     }
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRemoveBlack)]
     public void Ret_SocialRemoveBlack(int resultCode)
@@ -293,14 +338,48 @@ public partial class ClientMain : MonoBehaviour
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialRaiseAllTempRequest)]
     public void Ret_SocialRaiseAllTempRequest()
     {
-        
+        SocialTestTool.DoAction(ctrl => ctrl.SocialRaiseAllTempRequest_Completed());
     }
 
     [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialClearTemp)]
     public void Ret_SocialClearTemp()
     {
-
+        SocialTestTool.DoAction(ctrl => ctrl.SocialClearTemp_Completed());
     }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_SocialTest_AddTempFriendsSingle)]
+    public void Ret_SocialTest_AddTempFriendsSingle(int resultCode)
+    {
+        SocialTestTool.DoAction(ctrl => ctrl.SocialTest_AddTempFriendsSingle_Completed((Zealot.Common.Entities.Social.SocialAddTempFriends_Result)resultCode));
+    }
+
+#if ZEALOT_DEVELOPMENT
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_DebugFixTool)]
+    public void Ret_DebugFixTool(string msg)
+    {
+        CharacterDebugTool.DoAction(ctrl => ctrl.DebugFixTool_Completed(msg));
+    }
+
+    [RPCMethod(RPCCategory.NonCombat, (byte)ServerNonCombatRPCMethods.Ret_DebugSelectTool)]
+    public void Ret_DebugSelectTool(bool success,string charname,string result)
+    {
+        if (success)
+        {
+            try
+            {
+                var token = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JToken>(result);
+                
+                if (token.Type == Newtonsoft.Json.Linq.JTokenType.Object ||
+                    token.Type == Newtonsoft.Json.Linq.JTokenType.Array)//在大量資料時json排版
+                    result = token.ToString();
+                else//使用JToken.ToString(Formatting.None) 避免因為單一字串JToken.ToString() 不會幫加上 " " 的情況
+                    result = token.ToString(Formatting.None);
+            }
+            catch { }
+        }
+        CharacterDebugTool.DoAction(ctrl => ctrl.DebugSelectTool_Completed(success, charname, result));
+    }
+#endif
 
     #endregion
 }

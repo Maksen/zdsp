@@ -80,11 +80,17 @@ public class GameIcon_BuffDebuff : MonoBehaviour
         string path = "";
         switch (eff)
         {
-            case BuffEnum.Buff:
-                path = "zzz_DefaultTest.tif";
+            case BuffEnum.Stun:
+                path = "BuffDebuff/stun.png";
                 break;
-            case BuffEnum.Debuff:
-                path = "zzz_DefaultTest.tif";
+            case BuffEnum.Root:
+                path = "BuffDebuff/paralysis.png";
+                break;
+            case BuffEnum.Frozen:
+                path = "BuffDebuff/frozen.png";
+                break;
+            case BuffEnum.Petrify:
+                path = "BuffDebuff/petrochemical.png";
                 break;
             default:
                 break;

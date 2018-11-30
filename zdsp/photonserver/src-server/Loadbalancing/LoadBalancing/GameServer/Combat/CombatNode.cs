@@ -8,7 +8,7 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
         public bool condition;
         public DecisionNode trueNode, falseNode;
 
-        public float Update() {
+        public double Update() {
             if (condition) {
                 trueNode.Update();
                 return trueNode.result;
@@ -23,7 +23,7 @@ namespace Photon.LoadBalancing.GameServer.CombatFormula
     public class DecisionNode {
         public ConditionalNode condition;
         public DecisionNode parent;
-        public float result;
+        public double result;
         
         public DecisionNode() { condition = new ConditionalNode(); }
         public virtual void SetConditionalStatement(Func<bool> evaluator) {

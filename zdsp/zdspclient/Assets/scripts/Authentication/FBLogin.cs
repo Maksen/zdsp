@@ -177,12 +177,12 @@ public class FBLogin : Photon.MonoBehaviour
 	public void OnFBLoggedIn()
 	{
         Login loginCmpt = GetComponent<Login>();
-        if(loginCmpt.ReconnectWhenDisconnected(LoginType.Facebook.ToString()))
+        if(loginCmpt.ReconnectWhenDisconnected(LoginAuthType.Facebook.ToString()))
             return;
 
         loginCmpt.GetLoginData();
         LoginData loginData = LoginData.Instance;
-        loginCmpt.DefaultAuthWithServer(LoginType.Facebook.ToString(),
+        loginCmpt.DefaultAuthWithServer(LoginAuthType.Facebook.ToString(),
                                         AccessToken.CurrentAccessToken.TokenString, 
                                         loginData.DeviceId); // Auth with server
 	}

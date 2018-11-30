@@ -19,7 +19,6 @@ namespace Zealot.Server.Entities
             if (!IsCorrectController())
                 return;
             mUnityData = (RealmControllerInvitePVPJson)mPropertyInfos;
-            mCountDownOnMissionCompleted = 10;
             mPlayersHpOnEnter = new Dictionary<string, int>();
         }
 

@@ -118,7 +118,7 @@ public class UI_CharacterSelection : MonoBehaviour
             PlayerAvatar.Cleanup();
             GameInfo.gLobby.PlayCharacterCreationCutscene();
         }
-        else if (mSelectedCharacter != characterData || (mSelectedCharacter == characterData && PlayerAvatar.GetOutfitModel() == null))
+        else if (mSelectedCharacter != characterData || (mSelectedCharacter == characterData && PlayerAvatar.OutfitModel == null))
         {
             mSelectedCharacter = characterData;
             InfoPanel.SetActive(false);
@@ -170,7 +170,7 @@ public class UI_CharacterSelection : MonoBehaviour
 
     private void ChangeCharacter()
     {
-        if (PlayerAvatar.GetOutfitModel() != null)
+        if (PlayerAvatar.OutfitModel != null)
         {
             LockButton();
             PlayerAvatar.PlayAnimation("pc_show3", UpdateCharacterModel);
@@ -228,7 +228,7 @@ public class UI_CharacterSelection : MonoBehaviour
         if (status == 0)
         {
             RemoveEndTime = DateTime.MinValue;
-            LevelJson levelInfo = LevelRepo.GetInfoById(mSelectedCharacter.Levelid);
+            LevelJson levelInfo = LevelRepo.GetInfoById(mSelectedCharacter.LastLevelId);
             Location.text = levelInfo != null ? levelInfo.localizedname : "";
             Delete.interactable = true;
             DeleteText.text = GUILocalizationRepo.GetLocalizedString("csl_delete_character");

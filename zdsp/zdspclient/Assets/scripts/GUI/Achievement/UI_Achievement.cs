@@ -1,6 +1,7 @@
 ﻿using Kopio.JsonContracts;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zealot.Client.Entities;
@@ -12,6 +13,7 @@ public class UI_Achievement : BaseWindowBehaviour
     [Header("Left Side")]
     [SerializeField] UI_ProgressBarC expProgressBar;
     [SerializeField] Text levelText;
+    [SerializeField] GameObject levelUpEfxObj;
     [SerializeField] Model_3DAvatar modelAvatar;
     [SerializeField] DragSpin3DAvatar dragSpinAvatar;
     [SerializeField] UI_DragEvent uiDragEvent;
@@ -37,6 +39,9 @@ public class UI_Achievement : BaseWindowBehaviour
     private bool hasRewardFunctionUnlocked;
     private Coroutine refreshCoroutine;
     private WaitForSeconds refreshWait;
+    private int currentAchievementLevel;
+    private string currentLevelName;
+    private Queue<AchievementRewardClaim> rewardQueue = new Queue<AchievementRewardClaim>();
 
     private void Awake()
     {
@@ -66,6 +71,7 @@ public class UI_Achievement : BaseWindowBehaviour
 
         player = GameInfo.gLocalPlayer;
         achStats = player.AchievementStats;
+        currentAchievementLevel = player.PlayerSynStats.AchievementLevel;
 
         UpdateLevelProgress();
         UpdateTierProgress();
@@ -92,6 +98,7 @@ public class UI_Achievement : BaseWindowBehaviour
         uiAchDetails.CleanUp();
         uiColDetails.CleanUp();
         hasRewardFunctionUnlocked = false;
+        currentTierData = null;
         if (refreshCoroutine != null)
         {
             StopCoroutine(refreshCoroutine);
@@ -99,11 +106,15 @@ public class UI_Achievement : BaseWindowBehaviour
         }
     }
 
-    public void OnAchievementLevelUp(bool isUIOpen)
+    public void AddRewardQueue(AchievementRewardClaim reward)
     {
-        if (isUIOpen)
+        rewardQueue.Enqueue(reward);
+    }
+
+    public void OnAchievementLevelUp()
+    {
+        if (gameObject.activeInHierarchy)
         {
-            UpdateLevelProgress();
             UpdateTierProgress();
         }
 
@@ -112,12 +123,69 @@ public class UI_Achievement : BaseWindowBehaviour
             hasRewardFunctionUnlocked = levelInfo.rewardFunction != LISAFunction.None;
     }
 
+    public void UpdateLevelProgressFromClient()
+    {
+        if (rewardQueue.Count > 0)
+        {
+            AchievementRewardClaim reward = rewardQueue.Dequeue();
+            BaseAchievementObjective obj = AchievementRepo.GetObjectiveByTypeAndId(reward.ClaimType, reward.Id);
+            if (obj != null)
+            {
+                AddAchievementExp(obj.exp);
+            }
+        }
+    }
+
+    private void AddAchievementExp(int amt)
+    {
+        if (amt <= 0)
+            return;
+
+        if (currentAchievementLevel < AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
+        {
+            int achExp = (int)expProgressBar.Value + amt;
+            bool hasLevelUp = false;
+            AchievementLevel info = AchievementRepo.GetAchievementLevelInfo(currentAchievementLevel);
+            while (currentAchievementLevel < AchievementRepo.ACHIEVEMENT_MAX_LEVEL && info != null && achExp >= info.expToNextLv)
+            {
+                achExp -= info.expToNextLv;
+                currentAchievementLevel++;
+                hasLevelUp = true;
+                info = AchievementRepo.GetAchievementLevelInfo(currentAchievementLevel);
+            }
+
+            if (currentAchievementLevel == AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
+            {
+                expProgressBar.Max = 100;
+                expProgressBar.Value = 100;
+            }
+            else
+            {
+                expProgressBar.Max = info.expToNextLv;
+                expProgressBar.Value = achExp;
+            }
+            expProgressBar.Refresh();
+
+            if (hasLevelUp)
+            {
+                currentLevelName = info.name;
+                levelUpEfxObj.SetActive(false); // turn off first in case is still running
+                levelUpEfxObj.SetActive(true);
+            }
+        }
+    }
+
+    public void SetLevelText()
+    {
+        levelText.text = currentLevelName;
+    }
+
     public void UpdateLevelProgress()
     {
         AchievementLevel levelInfo = AchievementRepo.GetAchievementLevelInfo(player.PlayerSynStats.AchievementLevel);
         if (levelInfo != null)
         {
-            levelText.text = levelInfo.name;
+            currentLevelName = levelInfo.name;
             if (player.PlayerSynStats.AchievementLevel == AchievementRepo.ACHIEVEMENT_MAX_LEVEL)
             {
                 expProgressBar.Max = 100;
@@ -128,6 +196,15 @@ public class UI_Achievement : BaseWindowBehaviour
                 expProgressBar.Max = levelInfo.expToNextLv;
                 expProgressBar.Value = player.SecondaryStats.AchievementExp;
             }
+
+            if (currentAchievementLevel != player.PlayerSynStats.AchievementLevel)
+            {
+                currentAchievementLevel = player.PlayerSynStats.AchievementLevel;
+                levelUpEfxObj.SetActive(false); // turn off first in case is still running
+                levelUpEfxObj.SetActive(true);
+            }
+            else
+                levelText.text = currentLevelName;
         }
         else
         {
@@ -135,6 +212,15 @@ public class UI_Achievement : BaseWindowBehaviour
             expProgressBar.Value = 0;
         }
         expProgressBar.Refresh();
+    }
+
+    public void ForceUpdateLevelProgress()
+    {
+        if (rewardQueue.Count > 0)
+        {
+            UpdateLevelProgress();
+            rewardQueue.Clear();
+        }
     }
 
     public void UpdateTierProgress()
@@ -296,7 +382,7 @@ public class UI_Achievement : BaseWindowBehaviour
     public void OnClickClaimRewards()
     {
         UIManager.OpenDialog(WindowType.DialogAchievementRewards,
-            (window) => window.GetComponent<UI_Achievement_RewardsDialog>().InitRewardsList(achStats.claimsList));
+            (window) => window.GetComponent<UI_Achievement_RewardsDialog>().InitRewardsList(achStats.claimsList, this));
     }
 
     public void ShowLisaMessage(LISAMsgBehaviourType behaviourType)

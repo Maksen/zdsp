@@ -161,15 +161,18 @@ namespace Zealot.Repository
             return "";
         }
 
-        public static float[] ParseCameraPosInTalk(string camerapos)
+        public static float[] ParseCameraPosInTalk(string cameraPos)
         {
-            float[] camerastats = new float[4];
-            string[] camera = camerapos.Split(';');
-            camerastats[0] = float.Parse(camera[0]);
-            camerastats[1] = float.Parse(camera[1]);
-            camerastats[2] = float.Parse(camera[2]);
-            camerastats[3] = float.Parse(camera[3]);
-            return camerastats;
+            float[] result = new float[] { 0, 0, 0, 1 };
+            string[] strArray = cameraPos.Split(';');
+            if (strArray.Length == 4)
+            {
+                float.TryParse(strArray[0], out result[0]);
+                float.TryParse(strArray[1], out result[1]);
+                float.TryParse(strArray[2], out result[2]);
+                float.TryParse(strArray[3], out result[3]);
+            }
+            return result;
         }
     }
 
@@ -269,6 +272,42 @@ namespace Zealot.Repository
             List<SpecialBossJson> bossList;
             mBossOrderedBySequence.TryGetValue(type, out bossList);
             return bossList;
+        }
+    }
+
+    public static class StaticGuideRepo
+    {
+        public static Dictionary<int, StaticGuideJson> mIdMap;
+        public static Dictionary<string, int> mNameMap;
+
+        static StaticGuideRepo()
+        {
+            mIdMap = new Dictionary<int, StaticGuideJson>();
+            mNameMap = new Dictionary<string, int>();
+        }
+
+        public static void Init(GameDBRepo gameData)
+        {
+            mIdMap = gameData.StaticGuide;
+
+            foreach (KeyValuePair<int, StaticGuideJson> kvp in mIdMap)
+            {
+                mNameMap[kvp.Value.archetype] = kvp.Value.id;
+            }  
+        }
+
+        public static StaticGuideJson GetNPCById(int id)
+        {
+            StaticGuideJson npcJson;
+            mIdMap.TryGetValue(id, out npcJson);
+            return npcJson;
+        }
+
+        public static StaticGuideJson GetNPCByArchetype(string archetype)
+        {
+            if (mNameMap.ContainsKey(archetype))
+                return mIdMap[mNameMap[archetype]];
+            return null;
         }
     }
 }

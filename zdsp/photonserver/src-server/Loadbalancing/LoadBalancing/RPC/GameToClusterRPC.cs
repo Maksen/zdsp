@@ -23,5 +23,11 @@ namespace Zealot.RPC
         {
             ProxyMethod("UnRegChar", charName, userid, target);
         }
+
+        [RPCMethod(RPCCategory.GameToCluster, (byte)GameToClusterRPCMethods.APIManagerCallRPC)]
+        public void APIManagerCallRPC(string api,int serverID, long id,object[] args, object target)
+        {
+            ProxyMethod("APIManagerCallRPC", api, serverID, id, args, target);
+        }
     }
 }

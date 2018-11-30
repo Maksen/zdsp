@@ -110,7 +110,7 @@ public partial class ClientMain : MonoBehaviour
 
     private long mUpdateElapsedTime;
 
-    public CutsceneManager CutsceneManager { get; set; }
+    //public CutsceneManager CutsceneManager { get; set; }
     private EnvironmentController mEnvironmentController;
 
     private GameObject mMonsterHolder; //to organize monster
@@ -163,7 +163,7 @@ public partial class ClientMain : MonoBehaviour
         mRelevanceObjects = null;
         mSelectIndicator = null;
         reclaimRequest = null;
-        CutsceneManager = null;
+        //CutsceneManager = null;
     }
 
     public void OnDisconnected()
@@ -210,10 +210,13 @@ public partial class ClientMain : MonoBehaviour
         mLootHolder = new GameObject();
         mLootHolder.name = "Loot";
 
-        GameObject cutsceneManager = new GameObject();
-        cutsceneManager.transform.SetParent(transform, false);
-        cutsceneManager.name = "CutsceneManager";
-        CutsceneManager = cutsceneManager.AddComponent<CutsceneManager>();
+        if (CutsceneManager.instance == null)
+        {
+            GameObject cutsceneManager = new GameObject();
+            cutsceneManager.transform.SetParent(transform, false);
+            cutsceneManager.name = "CutsceneManager";
+            cutsceneManager.AddComponent<CutsceneManager>();
+        }
     }
 
     private void RegisterActions()
@@ -234,7 +237,6 @@ public partial class ClientMain : MonoBehaviour
         ActionManager.RegisterAction(ACTIONTYPE.DRAGGED, typeof(DraggedActionCommand), typeof(NonClientAuthoDragged));
         ActionManager.RegisterAction(ACTIONTYPE.GETHIT, typeof(GetHitCommand), typeof(NonClientAuthoACGetHit));
         ActionManager.RegisterAction(ACTIONTYPE.FROZEN, typeof(FrozenActionCommand), typeof(NonClientAuthoFrozen));
-        ActionManager.RegisterAction(ACTIONTYPE.INTERACTIVE_TRIGGER, typeof(InteractiveTriggerCommand), typeof(NonClientAuthoACInteractiveTrigger));
     }
 
     public void OnZealotRPCEvent(PhotonNetworkingMessage eventType, EventData eventData)
@@ -439,7 +441,6 @@ public partial class ClientMain : MonoBehaviour
             GameInfo.OnLocalPlayerSpawned();
             SpawnClientSpawners();
             MailInvController.Init();
-            InteractiveController.Init();
 
             mPlayerInput.Init(playerghost);
             mPlayerInput.enabled = true;
@@ -471,6 +472,7 @@ public partial class ClientMain : MonoBehaviour
         yield return null;
         OnAllClientStuffReady();
         UIManager.ShowLoadingScreen(false);
+        StartCoroutine(GameInfo.gLocalPlayer.QuestController.OnPlayerReady());
     }
 
     private void OnAllClientStuffReady()
@@ -520,10 +522,6 @@ public partial class ClientMain : MonoBehaviour
                 GameInfo.gLocalPlayer.Bot.SeekingWithRouter();
             else if (GameInfo.gLocalPlayer.IsInParty() && PartyFollowTarget.ResumeAfterTeleport)
                 PartyFollowTarget.Resume(true);
-        }
-        else
-        {
-            GameInfo.gLocalPlayer.Bot.StartBot();
         }
     }
 
@@ -918,11 +916,7 @@ public partial class ClientMain : MonoBehaviour
                 {
                     GameObject obj = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/IndicatorEnemy.prefab", true);
                     if (obj != null)
-                    {
-                        if (obj.transform.localPosition.y == 0f) // move slightly above ground
-                            obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, 0.1f, obj.transform.localPosition.z);
                         mSelectIndicator[0] = obj;
-                    }
                 }
                 selectIndicator = mSelectIndicator[0];
             }
@@ -932,11 +926,7 @@ public partial class ClientMain : MonoBehaviour
                 {
                     GameObject obj = ObjPoolMgr.Instance.GetObject(OBJTYPE.MODEL, "Effects_ZDSP_Indicators_prefab/indicatorSelf.prefab", true);
                     if (obj != null)
-                    {
-                        if (obj.transform.localPosition.y == 0f) // move slightly above ground
-                            obj.transform.localPosition = new Vector3(obj.transform.localPosition.x, 0.1f, obj.transform.localPosition.z);
-                        mSelectIndicator[1] = obj;
-                    }
+                       mSelectIndicator[1] = obj;
                 }
                 selectIndicator = mSelectIndicator[1];
             }
@@ -988,10 +978,12 @@ public partial class ClientMain : MonoBehaviour
 
     private void DisableSelectIndicator()
     {
-        for (int i = 0; i < mSelectIndicator.Length; ++i)
+        int length = mSelectIndicator.Length;
+        for (int i = 0; i < length; ++i)
         {
-            if (mSelectIndicator[i] != null && mSelectIndicator[i].activeSelf)
-                mSelectIndicator[i].SetActive(false);
+            GameObject selectIndicator = mSelectIndicator[i];
+            if (selectIndicator != null && selectIndicator.activeSelf)
+                selectIndicator.SetActive(false);
         }
     }
 
@@ -1227,10 +1219,22 @@ public partial class ClientMain : MonoBehaviour
             return;
 
         float distRequirement = 0;
-        if (sdata.skillgroupJson.threatzone == Threatzone.Single)
-            distRequirement = sdata.skillJson.range;
-        else
-            distRequirement = sdata.skillJson.radius;
+        switch (sdata.skillgroupJson.threatzone)
+        {
+            case Threatzone.Single:
+            case Threatzone.LongStream:
+                distRequirement = sdata.skillJson.range;
+                break;
+            case Threatzone.DegreeArc120:
+                distRequirement = sdata.skillJson.radius;
+                break;
+            case Threatzone.DegreeArc360:
+                if (sdata.skillgroupJson.skillbehavior == SkillBehaviour.Self)
+                    distRequirement = sdata.skillJson.radius;
+                else
+                    distRequirement = sdata.skillJson.range;
+                break;
+        }
 
         PlayerGhost localplayer = GameInfo.gLocalPlayer;
         if (GameUtils.InRange(localplayer.Position, pos, distRequirement))
@@ -1240,8 +1244,8 @@ public partial class ClientMain : MonoBehaviour
         else
         {
             //targetpos is the cast location.  not destination pos;
-            float range = sdata.skillJson.radius;
-            localplayer.ProceedToTarget(pos, pid, CallBackAction.ActiveSkill, range, skillid);
+            //float range = sdata.skillJson.radius;
+            localplayer.ProceedToTarget(pos, pid, CallBackAction.ActiveSkill, distRequirement, skillid);
         }
     }
 
@@ -1255,6 +1259,7 @@ public partial class ClientMain : MonoBehaviour
     /// <param name="pos"></param>
     private void DirectCastSkill(int skillid, int targetpid, Vector3 pos)
     {
+        
         PlayerGhost localplayer = GameInfo.gLocalPlayer;
         if (localplayer == null || !localplayer.CanCastSkill(true))
             return;
@@ -1267,6 +1272,8 @@ public partial class ClientMain : MonoBehaviour
         CastSkillCommand castcmd = new CastSkillCommand();
         castcmd.skillid = skillid;
         castcmd.targetpid = targetpid;
+        
+        Zealot.Bot.BotCastSkillHandler.Instance.StartCastSkill();
 
         // pause party follow
         PartyFollowTarget.Pause();
@@ -1274,6 +1281,8 @@ public partial class ClientMain : MonoBehaviour
         castcmd.targetPos = pos;
 
         Zealot.Common.Actions.Action action;
+        Zealot.Common.Actions.Action prevAction;
+        prevAction = localplayer.GetAction();
         SkillData skilldata;
         skilldata = SkillRepo.GetSkill(castcmd.skillid);
         if (skilldata == null)
@@ -1305,10 +1314,15 @@ public partial class ClientMain : MonoBehaviour
         {
             action = new ClientAuthoCastSkill(localplayer, castcmd);
         }
-
+        
         action.SetCompleteCallback(() => 
         {
-            localplayer.Idle();
+            if(prevAction.mdbCommand.GetActionType() == ACTIONTYPE.CASTSKILL && ((ClientAuthoCastSkill)prevAction).PlayerBasicAttack)
+            {
+                CommonCastBasicAttack(((CastSkillCommand)prevAction.mdbCommand).targetpid);
+            }
+            else
+                localplayer.Idle();
             Zealot.Bot.BotCastSkillHandler.Instance.FinishCastSkill();
         });
 
@@ -1318,7 +1332,7 @@ public partial class ClientMain : MonoBehaviour
             HUD_Skills hud = UIManager.GetWidget(HUDWidgetType.SkillButtons).GetComponent<HUD_Skills>();
             if(hud != null)
                 hud.AddActiveSkillCooldown(skillid, skilldata.skillJson);
-
+            
         }
     }
 
@@ -1422,25 +1436,38 @@ public partial class ClientMain : MonoBehaviour
                 }
 
                 break;
-            case Threatzone.DegreeArc120:
+            case Threatzone.DegreeArc120: 
             case Threatzone.LongStream:
-
-
+                GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, GameInfo.gLocalPlayer.Position);
+                DirectCastSkill(skillid, -1, localplayer.Position);
+                
                 break;
             case Threatzone.DegreeArc360:
                 switch (sdata.skillgroupJson.skillbehavior)
                 {
                     case SkillBehaviour.Self:
+                        //GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, GameInfo.gLocalPlayer.Position);
                         DirectCastSkill(skillid, -1, localplayer.Position);
+
                         break;
                     case SkillBehaviour.Target:
 
-                        GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, GameInfo.gLocalPlayer.Position);
+                        //GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, GameInfo.gLocalPlayer.Position);
                         switch (sdata.skillgroupJson.targettype)
                         {
                             case TargetType.Enemy:
-                                if (GameInfo.gSelectedEntity == null)
-                                    AutoSelectNearestEnemy();
+                                mPlayerInput.ListenForPos((ActorGhost entity, Vector3 pos) =>
+                                {
+                                    Debug.Log("selected pos is " + pos.ToString());
+                                    mPlayerInput.SetMoveIndicator(Vector3.zero);
+
+                                    if (entity == null)
+                                        return;
+
+                                    mPlayerInput.SetMoveIndicator(Vector3.zero);
+                                    ApproachAndCastSkill(skillid, entity.GetPersistentID(), pos);
+
+                                }, true);
                                 break;
 
                             case TargetType.Friendly:
@@ -1448,21 +1475,12 @@ public partial class ClientMain : MonoBehaviour
 
                                 break;
                         }
-
-
-                        BaseNetEntityGhost target = (BaseNetEntityGhost)GameInfo.gSelectedEntity;
-                        if (target == null)
-                            return;
-
-                        mPlayerInput.SetMoveIndicator(Vector3.zero);
-                        Debug.Log("ID of selected : " + target.GetPersistentID());
-                        ApproachAndCastSkill(skillid, target.GetPersistentID(), target.Position);
-
                         break;
                     case SkillBehaviour.Ground:
+                        Vector3 position = (GameInfo.gLocalPlayer.Forward * sdata.skillJson.range) + GameInfo.gLocalPlayer.Position;
 
                         // show skill indicator
-                        GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, GameInfo.gLocalPlayer.Position);
+                        GameInfo.gLocalPlayer.DisplaySkillIndicator(sdata, position);
                         mPlayerInput.ListenForPos((ActorGhost entity, Vector3 pos) =>
                         {
                             Debug.Log("selected pos is " + pos.ToString());
@@ -1524,6 +1542,7 @@ public partial class ClientMain : MonoBehaviour
 
     private void AutoSelectNearestEnemy()
     {
+        Zealot.Bot.QueryContext.Instance.SetQueryType(Zealot.Bot.BotQueryType.NearestEnemyQuery);
         var nearestTarget = Zealot.Bot.QueryContext.Instance.QueryResult();
         GameInfo.gSelectedEntity = nearestTarget;
     }

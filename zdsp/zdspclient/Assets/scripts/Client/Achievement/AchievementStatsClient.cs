@@ -1,5 +1,4 @@
-﻿using Kopio.JsonContracts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -20,38 +19,43 @@ public class AchievementStatsClient : AchievementStats
         windowObj = UIManager.GetWindowGameObject(WindowType.Achievement);
         uiAchieve = windowObj.GetComponent<UI_Achievement>();
         player = GameInfo.gLocalPlayer;
+
+        InitCollections();
+        InitAchievements();
     }
 
-    public void OnUpdateAchievementLevel()
+    private void InitCollections()
     {
-        if (windowObj != null)
-            uiAchieve.OnAchievementLevelUp(windowObj.activeInHierarchy);
-    }
+        for (int idx = 0; idx < Collections.Count; ++idx)
+        {
+            if (Collections[idx] == null)
+                continue;
+            string info = (string)Collections[idx];
+            if (string.IsNullOrEmpty(info))
+                continue;
 
-    public void OnUpdateAchievementExp()
-    {
-        if (windowObj != null && windowObj.activeInHierarchy)
-            uiAchieve.UpdateLevelProgress();
-    }
+            string[] colArray = info.Split('|');
+            for (int i = 0; i < colArray.Length; ++i)
+            {
+                string[] colData = colArray[i].Split(';');
+                int id = int.Parse(colData[0]);
+                DateTime date = DateTime.ParseExact(colData[1], "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                bool claimed = int.Parse(colData[2]) == 1;
+                string photodesc = "";
+                bool stored = false;
+                if (colData.Length > 3)
+                {
+                    int isStored;
+                    if (int.TryParse(colData[3], out isStored) && isStored == 1)
+                        stored = true;
+                    else
+                        photodesc = colData[3];
+                }
 
-    public int GetTotalCompletedCollectionsCount()
-    {
-        return collectionsDict.Count;
-    }
-
-    public int GetCollectionCountByType(int index)
-    {
-        return collectionsDict.Values.Count(x => x.SlotIdx == index);
-    }
-
-    public int GetTotalCompletedAchievementsCount()
-    {
-        return achievementsDict.Values.Count(x => x.IsCompleted());
-    }
-
-    public int GetAchievementCountByType(int index)
-    {
-        return achievementsDict.Values.Count(x => x.IsCompleted() && x.SlotIdx == index);
+                CollectionElement elem = new CollectionElement(id, date, claimed, photodesc, stored, idx);
+                collectionsDict.Add(id, elem);
+            }
+        }
     }
 
     public void UpdateCollections(byte idx, string value)
@@ -84,15 +88,49 @@ public class AchievementStatsClient : AchievementStats
                 elem.Claimed = claimed;
                 elem.Stored = stored;
             }
-            else
+            else // new completed
             {
                 elem = new CollectionElement(id, date, claimed, photodesc, stored, idx);
                 collectionsDict.Add(id, elem);
+
+                UIManager.ShowAchievementMessage(AchievementKind.Collection, id);
             }
         }
 
         if (windowObj != null && windowObj.activeInHierarchy)
             uiAchieve.UpdateCollectionProgress();
+
+        GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogCollection);
+        if (dialog != null && dialog.activeInHierarchy)
+            dialog.GetComponent<UI_Achievement_CollectionDialog>().RefreshObjectiveList();
+    }
+
+    private void InitAchievements()
+    {
+        for (int idx = 0; idx < Achievements.Count; ++idx)
+        {
+            if (Achievements[idx] == null)
+                continue;
+            string info = (string)Achievements[idx];
+            if (string.IsNullOrEmpty(info))
+                continue;
+
+            string[] achArray = info.Split('|');
+            for (int i = 0; i < achArray.Length; ++i)
+            {
+                string[] achData = achArray[i].Split(';');
+                int id = int.Parse(achData[0]);
+                int count = int.Parse(achData[1]);
+                bool claimed = int.Parse(achData[2]) == 1;
+
+                AchievementObjective obj = AchievementRepo.GetAchievementObjectiveById(id);
+                if (obj != null)
+                {
+                    AchievementElement elem = new AchievementElement(id, count, obj.completeCount, claimed, idx);
+                    achievementsDict.Add(id, elem);
+                }
+            }
+        }
     }
 
     public void UpdateAchievements(byte idx, string value)
@@ -108,12 +146,17 @@ public class AchievementStatsClient : AchievementStats
             int id = int.Parse(achData[0]);
             int count = int.Parse(achData[1]);
             bool claimed = int.Parse(achData[2]) == 1;
+
             AchievementElement elem = GetAchievementById(id);
+            bool isAlreadyCompleted = false;
+
             if (elem != null)  // existing, update count
             {
-                if (!elem.IsCompleted())
-                    elem.Count = count;
                 elem.Claimed = claimed;
+                isAlreadyCompleted = elem.IsCompleted();
+                if (isAlreadyCompleted)
+                    continue;
+                elem.Count = count;
             }
             else // new, add to dict
             {
@@ -124,6 +167,9 @@ public class AchievementStatsClient : AchievementStats
                     achievementsDict.Add(id, elem);
                 }
             }
+
+            if (!isAlreadyCompleted && elem.IsCompleted()) // just completed this achievement
+                UIManager.ShowAchievementMessage(AchievementKind.Achievement, id);
         }
 
         if (windowObj != null && windowObj.activeInHierarchy)
@@ -147,17 +193,35 @@ public class AchievementStatsClient : AchievementStats
             }
         }
 
+        bool hasUnclaimed = HasUnclaimedRewards();
+
         if (windowObj != null && windowObj.activeInHierarchy)
-            uiAchieve.SetClaimRewardButton(HasUnclaimedRewards());
+            uiAchieve.SetClaimRewardButton(hasUnclaimed);
 
         GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
         if (dialog != null && dialog.activeInHierarchy)
-            dialog.GetComponent<UI_Achievement_RewardsDialog>().RefreshRewardsList(claimsList);
+            dialog.GetComponent<UI_Achievement_RewardsDialog>().SetClaimAllButton(hasUnclaimed);
     }
 
     public bool HasUnclaimedRewards()
     {
         return claimsList.Count > 0;
+    }
+
+    public void OnClaimReward(string claimedReward)
+    {
+        //Debug.Log("OnClaimReward: " + claimedReward);
+        if (!string.IsNullOrEmpty(claimedReward))
+        {
+            string[] rcData = claimedReward.Split(';');
+            AchievementKind type = (AchievementKind)int.Parse(rcData[0]);
+            int id = int.Parse(rcData[1]);
+            AchievementRewardClaim claim = new AchievementRewardClaim(type, id);
+
+            GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
+            if (dialog != null && dialog.activeInHierarchy)
+                dialog.GetComponent<UI_Achievement_RewardsDialog>().OnClaimedReward(claim);
+        }
     }
 
     public void OnClaimAllRewards(string claimedRewards)
@@ -178,9 +242,7 @@ public class AchievementStatsClient : AchievementStats
 
             GameObject dialog = UIManager.GetWindowGameObject(WindowType.DialogAchievementRewards);
             if (dialog != null && dialog.activeInHierarchy)
-            {
-                dialog.GetComponent<UI_Achievement_RewardsDialog>().InitCollatedRewardsList(claimedRewardsList);
-            }
+                dialog.GetComponent<UI_Achievement_RewardsDialog>().OnClaimedAllRewards(claimedRewardsList);
         }
     }
 
@@ -201,6 +263,32 @@ public class AchievementStatsClient : AchievementStats
                 list.Add(record);
             }
         }
+    }
+
+    public void OnUpdateAchievementLevel()
+    {
+        if (windowObj != null)
+            uiAchieve.OnAchievementLevelUp();
+    }
+
+    public int GetTotalCompletedCollectionsCount()
+    {
+        return collectionsDict.Count;
+    }
+
+    public int GetCollectionCountByType(int index)
+    {
+        return collectionsDict.Values.Count(x => x.SlotIdx == index);
+    }
+
+    public int GetTotalCompletedAchievementsCount()
+    {
+        return achievementsDict.Values.Count(x => x.IsCompleted());
+    }
+
+    public int GetAchievementCountByType(int index)
+    {
+        return achievementsDict.Values.Count(x => x.IsCompleted() && x.SlotIdx == index);
     }
 
     public void GetLastCompletedAndNextAchievement(List<AchievementObjective> objList, out AchievementObjective last, out AchievementObjective next)
@@ -263,6 +351,7 @@ public class AchievementStatsClient : AchievementStats
     }
 
 #if ZEALOT_DEVELOPMENT
+
     public void ClearCollectionsDict()
     {
         collectionsDict.Clear();
@@ -272,5 +361,6 @@ public class AchievementStatsClient : AchievementStats
     {
         achievementsDict.Clear();
     }
+
 #endif
 }

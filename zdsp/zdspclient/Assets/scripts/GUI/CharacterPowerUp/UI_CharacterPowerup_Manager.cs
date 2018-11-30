@@ -99,9 +99,10 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
     #endregion
 
     #region Refresh
-    public void InitFromOther()
+    public void Refresh()
     {
         Init(nowPartTypeCount);
+        equipIconData[nowPartTypeCount].PowerUp = NowPartLevel;
     }
 
     void Init(int part)
@@ -111,7 +112,7 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
         powerUpToggle[part].isOn = true;
         ClientUtils.DestroyChildren(ItemRequirements_Parents);
         LevelCanPowerUp = false;
-        haveEnoughMaterial = false;
+        haveEnoughMaterial = true;
 
         RefreshPowerUpShow(part);
         InstantiatePartRequir(part);
@@ -166,7 +167,6 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
         {
             int power = powerupData.power;
             SideEffectJson sideeffect = SideEffectRepo.GetSideEffect(powerupData.effect);
-            haveEnoughMaterial = true;
             string RawMatDataString = powerupData.material;
             List<ItemInfo> Split_List = PowerUpUtilities.ConvertMaterialFormat(RawMatDataString);
 
@@ -178,7 +178,7 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
                 int invAmount = player.clientItemInvCtrl.itemInvData.GetTotalStackCountByItemId(Split_List[i].itemId);
 
                 RequiredItemData reqItemData = reqItemDataObj.GetComponent<RequiredItemData>();
-                reqItemData.InitMaterial(Split_List[i].itemId, invAmount, Split_List[i].stackCount);
+                CompareRequire(reqItemData.InitMaterial(Split_List[i].itemId, invAmount, Split_List[i].stackCount));
             }
             
             int playerCurrency = player.SecondaryStats.Money;
@@ -187,12 +187,20 @@ public class UI_CharacterPowerup_Manager : MonoBehaviour
             GameObject reqCurrencyObj = ClientUtils.CreateChild(ItemRequirements_Parents, requiredItemDataPrefab);
             RequiredItemData reqCurrency = reqCurrencyObj.GetComponent<RequiredItemData>();
 
-            reqCurrency.InitCurrency(CurrencyType.Money, playerCurrency, requireCurrency);
+            CompareRequire(reqCurrency.InitCurrency(CurrencyType.Money, playerCurrency, requireCurrency));
         }
     }
     #endregion
 
     #region CompareConsume
+    private void CompareRequire(bool isEnough)
+    {
+        if (!isEnough)
+        {
+            haveEnoughMaterial = false;
+        }
+    }
+
     public void NotEnoughAnimator()
     {
         AT_NoEnough.Play((haveEnoughMaterial == true) ? "inv_notenough_DEFAULT" : "inv_notenough");

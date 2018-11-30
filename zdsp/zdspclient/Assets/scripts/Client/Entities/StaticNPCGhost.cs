@@ -172,32 +172,25 @@ namespace Zealot.Client.Entities
             PlayerGhost player = GameInfo.gLocalPlayer;
             QuestClientController questController = player.QuestController;
             player.PerformAction(new ClientAuthoACIdle(player, new IdleActionCommand()));
+            int totalcount = mAvailableQuest.Count + mFunction.Count + mLockedList.Count;
 
             if (mActiveQuest != -1 && mOngoingQuest.ContainsKey(mActiveQuest))
             {
                 questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, true);
             }
-            else if (mAvailableQuest.Count > 0 && mFunction.Count > 0)
-            {
-                questController.AddNewDialogue(this, mAvailableQuest, mFunction, mLockedList);
-            }
             else if (mActiveQuest != -1 && mAvailableQuest.Count == 1 && mAvailableQuest.Contains(mActiveQuest))
             {
                 questController.AddNewDialogue(this, questController.GetTalkId(mActiveQuest, mArchetypeId), mActiveQuest, false);
             }
-            else if (mActiveQuest == -1 && mAvailableQuest.Count > 0)
+            else if (totalcount >= 1)
             {
-                questController.AddNewDialogue(this, mAvailableQuest, mLockedList);
+                questController.AddNewDialogue(this, mAvailableQuest, mFunction, mLockedList);
             }
-            else if (mFunction.Count > 0)
-            {
-                questController.AddNewDialogue(this, mFunction);
-            }
-            else if (mQuestList.Count > 0 && mAvailableQuest.Count == 0 && questController.CompletedAllQuest(mQuestList))
+            else if (mQuestList.Count > 0 && mAvailableQuest.Count == 0 && questController.CompletedAllQuest(mQuestList) && mFunction.Count == 0 && mLockedList.Count == 0)
             {
                 questController.AddNewDialogue(this, true);
             }
-            else if (GameUtils.IsEmptyString(mArchetype.talktext))
+            else if (!GameUtils.IsEmptyString(mArchetype.talktext))
             {
                 questController.AddNewDialogue(this, false);
             }
@@ -405,7 +398,8 @@ namespace Zealot.Client.Entities
             {
                 foreach (int questid in mQuestList)
                 {
-                    if (!availablelist.Contains(questid) && GameInfo.gLocalPlayer.QuestController.IsQuestShowable(questid))
+                    QuestJson questJson = QuestRepo.GetQuestByID(questid);
+                    if (!availablelist.Contains(questid) && GameInfo.gLocalPlayer.QuestController.IsQuestShowable(questid) && questJson.showbutton)
                     {
                         mLockedList.Add(questid);
                     }

@@ -104,6 +104,12 @@ public class EffectRef : MonoBehaviour
 
         for (int i = 0; i < cameraZoomers.Length; i++)
             cameraZoomers[i].StartZoom();
+
+        var pooledeffects = GetComponentsInChildren<PooledEffects>();
+        foreach (var eff in pooledeffects)
+        {
+            eff.Restart();
+        }
     }
 
     private IEnumerator DelayAndActivateWeaponTrail()

@@ -12,7 +12,6 @@ namespace Zealot.Entities
         public static Dictionary<string, LevelInfo> levels;
         public static Dictionary<int, BossLocationData> mSpecialBossLocationDataMap;
         public static Dictionary<BossType, Dictionary<int, int>> mSpecialBossByType;
-        public static Dictionary<int, int> mInteractiveTriggerMap;
         public static bool IsClientInitialized = false;
 
         static LevelReader()
@@ -20,7 +19,6 @@ namespace Zealot.Entities
             levels = new Dictionary<string, LevelInfo>();
             mSpecialBossLocationDataMap = new Dictionary<int, BossLocationData>();
             mSpecialBossByType = new Dictionary<BossType, Dictionary<int, int>>();
-            mInteractiveTriggerMap = new Dictionary<int, int>();
             var boss_categories = Enum.GetValues(typeof(BossType));
             foreach (BossType entry in boss_categories)
                 mSpecialBossByType.Add(entry, new Dictionary<int, int>());
@@ -79,7 +77,6 @@ namespace Zealot.Entities
                         PortalInfos.AddPortal(levelName, lvlInfo);
                         SafeZoneInfo.AddSafeZone(levelName, lvlInfo);
                         AddSpecialBossLocationData(levelName, lvlInfo);
-                        AddInteractiveTriggerMap(levelName, lvlInfo);
                         levels[levelName] = lvlInfo;
                     }
                     catch (Exception e)
@@ -127,19 +124,6 @@ namespace Zealot.Entities
             if (levels.ContainsKey(name))
                 return levels[name];
             return null;
-        }
-
-        public static void AddInteractiveTriggerMap(string level, LevelInfo info)
-        {
-            Dictionary<int, ServerEntityJson> aInteractiveTriggerJson;
-            if (info.mEntities.TryGetValue("InteractiveTriggerJson", out aInteractiveTriggerJson))
-            {
-                int levelId = LevelRepo.GetInfoByName(level).id;
-                foreach (InteractiveTriggerJson entry in aInteractiveTriggerJson.Values)
-                {
-                    mInteractiveTriggerMap.Add(entry.ObjectID, levelId);
-                }
-            }
         }
     }
 }

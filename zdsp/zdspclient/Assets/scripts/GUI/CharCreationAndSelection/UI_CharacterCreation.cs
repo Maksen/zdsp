@@ -405,9 +405,13 @@ public class UI_CharacterCreation : MonoBehaviour
     public void OnClickRandomStyle()
     {
         mEquipmentInventoryData.SetAppearanceToSlot((int)AppearanceSlot.HairStyle, GetRandomCustomizeData(ApperanceType.HairStyle));
+        mLoadedCharcterData.HairStyle = mEquipmentInventoryData.GetAppearanceSlot((int)AppearanceSlot.HairStyle);
         mEquipmentInventoryData.SetAppearanceToSlot((int)AppearanceSlot.HairColor, GetRandomCustomizeData(ApperanceType.HairColor));
+        mLoadedCharcterData.HairColor = mEquipmentInventoryData.GetAppearanceSlot((int)AppearanceSlot.HairColor);
         mEquipmentInventoryData.SetAppearanceToSlot((int)AppearanceSlot.MakeUp, GetRandomCustomizeData(ApperanceType.MakeUp));
+        mLoadedCharcterData.MakeUp = mEquipmentInventoryData.GetAppearanceSlot((int)AppearanceSlot.MakeUp);
         mEquipmentInventoryData.SetAppearanceToSlot((int)AppearanceSlot.SkinColor, GetRandomCustomizeData(ApperanceType.SkinColor));
+        mLoadedCharcterData.SkinColor = mEquipmentInventoryData.GetAppearanceSlot((int)AppearanceSlot.SkinColor);
 
         UpdateCharacterModel();
     }
@@ -431,13 +435,28 @@ public class UI_CharacterCreation : MonoBehaviour
                 break;
         }
 
+        Dictionary<int, int> randomlist = GetAppearanceKeyList(appearancelist);
         System.Random rand = GameUtils.GetRandomGenerator();
         if (appearancelist.Count > 0)
         {
-            return appearancelist.ElementAt(rand.Next(0, appearancelist.Count)).Key;
+            int seed = rand.Next(0, appearancelist.Count);
+            int appearanceid = randomlist[seed];
+            return appearanceid;
         }
 
         return -1;
+    }
+
+    private Dictionary<int, int> GetAppearanceKeyList(Dictionary<int, AppearanceJson> appearancelist)
+    {
+        Dictionary<int, int> result = new Dictionary<int, int>();
+        int count = 0;
+        foreach(KeyValuePair<int, AppearanceJson> entry in appearancelist)
+        {
+            result.Add(count, entry.Key);
+            count += 1;
+        }
+        return result;
     }
 
     public void OnClickBack()

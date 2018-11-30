@@ -69,5 +69,12 @@ namespace Photon.LoadBalancing.MasterServer
             var gmPeer = MasterApplication.Instance.GMPeer;
             gmPeer.ZRPC.MasterToGMRPC.GMResultString(sessionid, result, gmPeer);
         }
+
+        //[RPCMethod(RPCCategory.GameToMaster, (byte)GameToMasterRPCMethods.GetServerList)]
+        //public void GetServerList(IncomingGamePeer peer)
+        //{
+        //    string info = MasterApplication.Instance.mMasterGame.GetServerListJson();
+        //    peer.ZRPC.MasterToGameRPC.Ret_GetServerList(info, peer);
+        //}
     }
 }

@@ -1,4 +1,5 @@
-﻿using Zealot.Common;
+﻿using System.Collections.Generic;
+using Zealot.Common;
 using Zealot.Common.Entities;
 using Zealot.Client.Entities;
 
@@ -19,12 +20,18 @@ namespace Zealot.Bot
         }
         #endregion
 
-        private BotQuerySystem() { }
+        private List<int> mExcludeList;
+        
+
+        private BotQuerySystem()
+        {
+            mExcludeList = new List<int>();
+        }
 
         public ActorGhost GetNearestEnemyInRange(float radius)
         {
-            int[] excludeSelfList = new int[1] { GameInfo.gLocalPlayer.ID };
-            return QueryForNonSpecificTarget(radius, true, excludeSelfList);
+            AddExcludedTarget(GameInfo.gLocalPlayer);
+            return QueryForNonSpecificTarget(radius, true, mExcludeList);
         }
 
         public ActorGhost GetNearestEnemyByID(float radius, int targetID)
@@ -32,7 +39,23 @@ namespace Zealot.Bot
             return QueryForSpecificTarget(radius, targetID);
         }
 
-        private ActorGhost QueryForNonSpecificTarget(float radius, bool includeEliteAndBoss, int[] ExcludeList)
+        public void AddExcludedTarget(ActorGhost target)
+        {
+            if (target == null)
+                return;
+
+            int targetID = target.ID;
+
+            if (!mExcludeList.Contains(targetID))
+                mExcludeList.Add(targetID);
+        }
+
+        public void ClearAllExcludedTargets()
+        {
+            mExcludeList.Clear();
+        }
+
+        private ActorGhost QueryForNonSpecificTarget(float radius, bool includeEliteAndBoss, List<int> ExcludeList)
         {
             EntitySystem entitySystem = GameInfo.gLocalPlayer.EntitySystem;
 
@@ -96,4 +119,3 @@ namespace Zealot.Bot
         }
     }
 }
-

@@ -28,6 +28,8 @@ public class UI_Inventory : BaseWindowBehaviour
     [SerializeField]
     Model_3DAvatar avatar = null;
     [SerializeField]
+    Image imgJobIcon = null;
+    [SerializeField]
     Toggle toggleEquipFashion = null;
     [SerializeField]
     Toggle hideHelm = null;
@@ -134,7 +136,8 @@ public class UI_Inventory : BaseWindowBehaviour
                 RefreshRight(player);  
             }
             defaultToggleingrpInvTabs.GoToPage((byte)inventoryTab);
-            
+
+            ClientUtils.LoadJobIconAsync(player.GetJobSect(), OnJobIconLoaded);
             RefreshLeft(player);
             StartCoroutine(InitOnNextFrame(player));
         }
@@ -285,7 +288,7 @@ public class UI_Inventory : BaseWindowBehaviour
     public void RefreshLeft(PlayerGhost player)
     {
         EquipmentInventoryData equipmentInvData = player.mEquipmentInvData;
-        avatar.Change(equipmentInvData, (JobType)player.PlayerSynStats.jobsect, player.mGender);
+        avatar.Change(equipmentInvData, player.GetJobSect(), player.mGender);
         RefreshEquipIcons(equipmentInvData.Slots, equipSlots);
         RefreshEquipIcons(equipmentInvData.FashionSlots, fashionSlots);
     }
@@ -312,6 +315,11 @@ public class UI_Inventory : BaseWindowBehaviour
                 _equipIcon.GetComponent<GameIcon_Equip>().InitWithoutCallback(_item.ItemID, 0, 0, _item.UpgradeLevel);
             }
         }
+    }
+
+    private void OnJobIconLoaded(Sprite sprite)
+    {
+        imgJobIcon.sprite = sprite;
     }
 
     public void OnHelmToggleChanged(bool isOn)
@@ -357,13 +365,13 @@ public class UI_Inventory : BaseWindowBehaviour
         List<ItemDetailsButton> _buttons = new List<ItemDetailsButton>();
 
         var _equipmentJson = (EquipmentJson)item.JsonObject;
+        AddUnEquip(_buttons, slotId, item, fashionslot);
         //if (!string.IsNullOrEmpty(_equipmentJson.socketspace) && _equipmentJson.socketspace != "-1")
         //    AddSocket(_buttons, item);
         if (!string.IsNullOrEmpty(_equipmentJson.evolvegrp) && _equipmentJson.evolvegrp != "-1")
             AddEvolve(_buttons, slotId);
         if (_equipmentJson.upgradelimit > 0)
             AddUpgrade(_buttons, slotId);
-        AddUnEquip(_buttons, slotId, item, fashionslot);
 
         component.SetButtonCallback(_buttons);
     }
@@ -395,13 +403,6 @@ public class UI_Inventory : BaseWindowBehaviour
                 break;
             case ItemType.Equipment:
                 var _equipmentJson = (EquipmentJson)item.JsonObject;
-                if (!string.IsNullOrEmpty(_equipmentJson.socketspace) && _equipmentJson.socketspace != "-1")
-                    AddSocket(_buttons, item);
-                if (!string.IsNullOrEmpty(_equipmentJson.evolvegrp) && _equipmentJson.evolvegrp != "-1")
-                    AddEvolve(_buttons, slotId);
-                if (_equipmentJson.upgradelimit > 0)
-                    AddUpgrade(_buttons, slotId);
-
                 //Add equip buttons according to what the player wears
                 switch (_equipmentJson.partstype)
                 {
@@ -430,7 +431,13 @@ public class UI_Inventory : BaseWindowBehaviour
                         break;
                 }
 
-                
+                if (!string.IsNullOrEmpty(_equipmentJson.socketspace) && _equipmentJson.socketspace != "-1")
+                    AddSocket(_buttons, item);
+                if (!string.IsNullOrEmpty(_equipmentJson.evolvegrp) && _equipmentJson.evolvegrp != "-1")
+                    AddEvolve(_buttons, slotId);
+                if (_equipmentJson.upgradelimit > 0)
+                    AddUpgrade(_buttons, slotId);
+
                 //TODO: Need to add double equip button if its ring or accessory
                 break;
             case ItemType.DNA:

@@ -73,9 +73,9 @@ public partial class ClientMain : MonoBehaviour
                     GameInfo.gDmgLabelPool.Setup(res, defenderghost.Position);
             }
 
-            GetHitCommand ghcmd = new GetHitCommand();
-            ghcmd.skillid = skillid;
-            SkillData skill = SkillRepo.GetSkill(skillid);
+            //GetHitCommand ghcmd = new GetHitCommand();
+            //ghcmd.skillid = skillid;
+            //SkillData skill = SkillRepo.GetSkill(skillid);
 
             if (defenderghost.IsMonster())//monster get hit
             {
@@ -84,23 +84,23 @@ public partial class ClientMain : MonoBehaviour
                 if (res.IsCritical)
                     defenderghost.PlayEffect("", GameInfo.gLocalPlayer.GetHitCritEffect());
 
-                if (skill != null)
-                {
-                    if (!defenderghost.IsDying())
-                    {
-                        NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(defenderghost, ghcmd);
-                        Action prev = defenderghost.GetAction();
-                        if (prev == null || prev.mdbCommand.GetActionType() == ACTIONTYPE.CASTSKILL)
-                            prev = new NonClientAuthoACIdle(defenderghost, new IdleActionCommand());
-                        getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
-                        defenderghost.PerformAction(getHitAction);
-                    }
-                    else
-                    {
-                        monsterGhost.PlayEffect("", skill.skillJson.name + "_gethit");
-                        monsterGhost.Flash();
-                    }
-                }
+                //if (skill != null)
+                //{
+                //    if (!defenderghost.IsDying())
+                //    {
+                //        //NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(defenderghost, ghcmd);
+                //        //Action prev = defenderghost.GetAction();
+                //        //if (prev == null || prev.mdbCommand.GetActionType() == ACTIONTYPE.CASTSKILL)
+                //        //    prev = new NonClientAuthoACIdle(defenderghost, new IdleActionCommand());
+                //        //getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
+                //        //defenderghost.PerformAction(getHitAction);
+                //    }
+                //    //else
+                //    //{
+                //    //    monsterGhost.PlayEffect("", skill.skillJson.name + "_gethit");
+                //    //    monsterGhost.Flash();
+                //    //}
+                //}
             }
             else if (defenderghost.IsPlayer())//player get hit
             {
@@ -110,6 +110,10 @@ public partial class ClientMain : MonoBehaviour
                     //local player on damage interrupt interact action.
                     if (defenderghost.GetAction().mdbCommand.GetActionType() == ACTIONTYPE.INTERACT)
                         defenderghost.PerformAction(new ClientAuthoACIdle(defenderghost, new IdleActionCommand()));
+
+                    GetHitCommand ghcmd = new GetHitCommand();
+                    ghcmd.skillid = skillid;
+                    SkillData skill = SkillRepo.GetSkill(skillid);
 
                     if (skill != null)
                     {
@@ -122,26 +126,26 @@ public partial class ClientMain : MonoBehaviour
                             getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
                             defenderghost.PerformAction(getHitAction);
                         }
-                        else
-                            defenderghost.PlayEffect("", skill.skillJson.name + "_gethit");
+                        //else
+                        //    defenderghost.PlayEffect("", skill.skillJson.name + "_gethit");
                     }
                 }
                 else
                 {
                     player.SetHeadLabel();
 
-                    if (skill != null)
-                    {
-                        if ((player.IsRecovering || player.IsMoving() || player.IsIdling()) && !defenderghost.IsDying())
-                        {
-                            NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(defenderghost, ghcmd);
-                            Action prev = defenderghost.GetAction();
-                            getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
-                            defenderghost.PerformAction(getHitAction);
-                        }
-                        else
-                            player.PlayEffect("", skill.skillJson.name + "_gethit");
-                    }
+                    //if (skill != null)
+                    //{
+                    //    if ((player.IsRecovering || player.IsMoving() || player.IsIdling()) && !defenderghost.IsDying())
+                    //    {
+                    //        NonClientAuthoACGetHit getHitAction = new NonClientAuthoACGetHit(defenderghost, ghcmd);
+                    //        Action prev = defenderghost.GetAction();
+                    //        getHitAction.SetCompleteCallback(() => defenderghost.PerformAction(prev));
+                    //        defenderghost.PerformAction(getHitAction);
+                    //    }
+                    //    else
+                    //        player.PlayEffect("", skill.skillJson.name + "_gethit");
+                    //}
                 }
             }
             //Debug.Log("damage: " + ghost.Name + " " + attacktype);

@@ -146,7 +146,7 @@ namespace Zealot.Server.Entities
             base.OnMissionCompleted(success, broadcast);
 
             foreach (Player player in mPlayers.Values)
-                player.Slot.ZRPC.CombatRPC.ShowScoreBoard(success, mCountDownOnMissionCompleted, mSMBossDmgDone, 0, player.Slot);
+                player.Slot.ZRPC.CombatRPC.ShowScoreBoard(success, mRealmInfo.endcountdown, mSMBossDmgDone, 0, player.Slot);
 
             mInstance.mRoom.EmptyRoomLiveTime = 500;
             if (success)

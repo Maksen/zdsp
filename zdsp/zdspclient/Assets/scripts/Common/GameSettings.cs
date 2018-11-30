@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.IO;
+using UnityEngine;
 
 public static class GameSettings
 {
@@ -117,13 +117,13 @@ public static class GameSettings
 
     public static void SerializeClient()
     {
-        string dataFile = ClientSettingsData.settingsDataFile;
+        string dataFile = ClientSettingsData.SettingsDataFile;
         ClientSettingsData.SerializeToFile(string.Format("{0}/{1}", Application.persistentDataPath, dataFile));
     }
 
     public static void DeserializeClient(ClientSettingsData settingsData)
     {
-        string dataFileJson = ClientSettingsData.settingsDataFile;
+        string dataFileJson = ClientSettingsData.SettingsDataFile;
         string dataFileJsonPath = string.Format("{0}/{1}", Application.persistentDataPath, dataFileJson);
 
         if (File.Exists(dataFileJsonPath))
@@ -148,7 +148,7 @@ public static class GameSettings
 [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
 public class ClientSettingsData
 {
-    public static string settingsDataFile = "GameSettings.json";
+    public static string SettingsDataFile = "GameSettings.json";
 
     [JsonProperty(PropertyName = "music")]
     public bool MusicEnabled { get; set; }

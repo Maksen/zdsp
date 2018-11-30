@@ -102,7 +102,7 @@ public abstract class UIShopDetails : MonoBehaviour
     public void BuySelectedItem()
     {
         last_purchase_quantity = purchasequantitywidget.Value;
-        RPCFactory.NonCombatRPC.NPCStoreBuy(selecteditem.StoreID, selecteditem.ItemListID, purchasequantitywidget.Value, GameInfo.gLocalPlayer.Name);
+        RPCFactory.NonCombatRPC.NPCStoreBuy(selecteditem.StoreID, selecteditem.ItemListID, purchasequantitywidget.Value, GameInfo.mCharId);
     }
 
     public void UpdateSelectedItemRemaining()

@@ -182,6 +182,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 1132833443}
     m_Modifications:
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 224382625668686434, guid: 40ba4117986c2a74494f792c180df5e0,
         type: 2}
       propertyPath: m_LocalPosition.x
@@ -281,12 +286,42 @@ Prefab:
       propertyPath: localizeText
       value: pfd_add_to_blacklist
       objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 940154479}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClickAddToBlackList
+      objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 40ba4117986c2a74494f792c180df5e0, type: 2}
   m_IsPrefabParent: 0
 --- !u!224 &175636453 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 224382625668686434, guid: 40ba4117986c2a74494f792c180df5e0,
+    type: 2}
+  m_PrefabInternal: {fileID: 175636452}
+--- !u!1 &175636454 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1689836841988192, guid: 40ba4117986c2a74494f792c180df5e0,
     type: 2}
   m_PrefabInternal: {fileID: 175636452}
 --- !u!1 &279618231
@@ -584,6 +619,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 1132833443}
     m_Modifications:
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 224382625668686434, guid: 40ba4117986c2a74494f792c180df5e0,
         type: 2}
       propertyPath: m_LocalPosition.x
@@ -683,12 +723,42 @@ Prefab:
       propertyPath: localizeText
       value: pfd_add_to_friendlist
       objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 940154479}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClickAddToFriendList
+      objectReference: {fileID: 0}
+    - target: {fileID: 114078348486297700, guid: 40ba4117986c2a74494f792c180df5e0,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 40ba4117986c2a74494f792c180df5e0, type: 2}
   m_IsPrefabParent: 0
 --- !u!224 &687235112 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 224382625668686434, guid: 40ba4117986c2a74494f792c180df5e0,
+    type: 2}
+  m_PrefabInternal: {fileID: 687235111}
+--- !u!1 &687235113 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1689836841988192, guid: 40ba4117986c2a74494f792c180df5e0,
     type: 2}
   m_PrefabInternal: {fileID: 687235111}
 --- !u!1 &776822286
@@ -1032,12 +1102,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   clickBlocker: {fileID: 2115295930}
-  uidText: {fileID: 0}
   charNameText: {fileID: 1456614675}
   guildNameText: {fileID: 942568685}
   followMemberBtn: {fileID: 853972461}
   cancelFollowMemberBtn: {fileID: 1151775512}
   setAsLeaderBtn: {fileID: 1464778162}
+  addToFriendListBtn: {fileID: 687235113}
+  addToBlackListBtn: {fileID: 175636454}
 --- !u!1 &942568682
 GameObject:
   m_ObjectHideFlags: 0

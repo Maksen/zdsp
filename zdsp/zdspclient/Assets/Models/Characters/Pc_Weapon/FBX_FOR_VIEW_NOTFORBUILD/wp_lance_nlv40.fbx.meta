@@ -20,7 +20,12 @@ ModelImporter:
     4300002: wp_lance_nlv40_01
     7400000: Take 001
     9500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wp_lance_nlv40
+    second: {fileID: 2100000, guid: 28cadab4b646f3340b726acaca2877c6, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

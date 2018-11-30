@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
+  m_IndirectSpecularColor: {r: 0.4513998, g: 0.50089115, b: 0.5723174, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -158,7 +158,7 @@ ParticleSystemRenderer:
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
   - {fileID: 2100000, guid: 066b5130e4cd8684986d8b8e07ecb34c, type: 2}
@@ -179,8 +179,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 0
@@ -261,7 +261,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
-  randomSeed: -1483448082
+  randomSeed: -475066795
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -2756,7 +2756,7 @@ ParticleSystem:
       type: 0
       properties: 0
   LightsModule:
-    enabled: 1
+    enabled: 0
     ratio: 1
     light: {fileID: 0}
     randomDistribution: 0
@@ -3846,7 +3846,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
-  randomSeed: 689757373
+  randomSeed: -710161890
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7221,7 +7221,7 @@ ParticleSystemRenderer:
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
   - {fileID: 2100000, guid: 73ccbc0248cd7204ba2627b71326a7d2, type: 2}
@@ -7242,8 +7242,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 0
@@ -7324,7 +7324,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
-  randomSeed: 1131945706
+  randomSeed: -483388254
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10739,6 +10739,11 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bb95f3e7d2fceb141a34e7a09aaffa4f, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &973022104 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1329843656119308, guid: bb95f3e7d2fceb141a34e7a09aaffa4f,
+    type: 2}
+  m_PrefabInternal: {fileID: 973022103}
 --- !u!1 &1127729933
 GameObject:
   m_ObjectHideFlags: 0
@@ -10801,10 +10806,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
-  Refmodel: {fileID: 0}
+  Refmodel: {fileID: 973022104}
   Refbone: 
-  RefAnimation: gethit
+  RefAnimation: gethit1
   Offset: {x: 0, y: 0, z: 0}
   Rotation: {x: 0, y: 0, z: 0}
   Scale: {x: 1, y: 1, z: 1}
@@ -10812,8 +10818,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 0}
 --- !u!4 &1325745778
 Transform:
   m_ObjectHideFlags: 0
@@ -11012,7 +11016,7 @@ ParticleSystemRenderer:
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
   - {fileID: 2100000, guid: 1f49bbff8f6b142448971be8dc6e80b5, type: 2}
@@ -11033,8 +11037,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 0
@@ -11115,7 +11119,7 @@ ParticleSystem:
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
-  randomSeed: -2129434212
+  randomSeed: 1241641667
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -14496,7 +14500,7 @@ ParticleSystemRenderer:
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
   - {fileID: 2100000, guid: 2752b11d2141b7c42bb164490a92a36d, type: 2}
@@ -14517,8 +14521,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: -20
   m_RenderMode: 0
   m_SortMode: 0
@@ -14599,7 +14603,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
-  randomSeed: 1497219216
+  randomSeed: -1495108115
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -17990,7 +17994,7 @@ ParticleSystemRenderer:
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
+  m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_Materials:
   - {fileID: 2100000, guid: 73ccbc0248cd7204ba2627b71326a7d2, type: 2}
@@ -18011,8 +18015,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 0
@@ -18093,7 +18097,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 0
-  randomSeed: -1940995350
+  randomSeed: -732428637
   InitialModule:
     serializedVersion: 3
     enabled: 1

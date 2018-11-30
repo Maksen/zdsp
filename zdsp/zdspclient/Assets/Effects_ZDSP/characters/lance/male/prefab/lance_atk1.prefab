@@ -256,7 +256,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32768
   m_Lightmapping: 4
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 0
@@ -275,10 +275,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 0}
   Refbone: 
-  RefAnimation: 'lance_atk1 '
+  RefAnimation: lance_atk1
   Offset: {x: 0, y: 0, z: 0}
   Rotation: {x: 0, y: 0, z: 0}
   Scale: {x: 1, y: 1, z: 1}
@@ -286,8 +287,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 0}
 --- !u!114 &114925799246144590
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -363,8 +362,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -379606260
+  scalingMode: 0
+  randomSeed: -1852025642
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3724,8 +3723,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: 402290095
+  scalingMode: 0
+  randomSeed: -1384178860
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7130,8 +7129,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: 883637187
+  scalingMode: 0
+  randomSeed: 1992043391
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10536,8 +10535,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: 1815619793
+  scalingMode: 0
+  randomSeed: -872082950
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -13898,7 +13897,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 647698448
+  randomSeed: -1831702893
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -17259,7 +17258,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 432494253
+  randomSeed: -1757980816
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -20593,8 +20592,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 1
   m_SortMode: 0
@@ -20809,8 +20808,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 26
   m_RenderMode: 4
   m_SortMode: 0
@@ -20863,8 +20862,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 26
   m_RenderMode: 4
   m_SortMode: 0

@@ -369,6 +369,11 @@ Transform:
   m_Father: {fileID: 1068991777}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &602646657 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1105296258215530, guid: 3249793e206301d4aad4d4b2ea11e01f,
+    type: 2}
+  m_PrefabInternal: {fileID: 1453020382}
 --- !u!1001 &835697991
 Prefab:
   m_ObjectHideFlags: 0
@@ -474,7 +479,7 @@ Transform:
   - {fileID: 1171191780}
   - {fileID: 271665813}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 179.99998, z: 0}
 --- !u!1 &1171191779
 GameObject:
@@ -1385,11 +1390,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3249793e206301d4aad4d4b2ea11e01f, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &1453020383 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 1769798746948644, guid: 3249793e206301d4aad4d4b2ea11e01f,
-    type: 2}
-  m_PrefabInternal: {fileID: 1453020382}
 --- !u!1001 &1702722755
 Prefab:
   m_ObjectHideFlags: 0
@@ -1478,7 +1478,7 @@ Transform:
   m_PrefabParentObject: {fileID: 4926079949915672, guid: 784231c16257db542b4762594a73f282,
     type: 2}
   m_PrefabInternal: {fileID: 1702722755}
---- !u!1001 &1798359569
+--- !u!1001 &1976272273
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1517,11 +1517,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 198124289134693870, guid: e167362417e7de74c992b44f20f99a8d,
+        type: 2}
+      propertyPath: LightsModule.light
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 114343457517498842, guid: e167362417e7de74c992b44f20f99a8d,
         type: 2}
       propertyPath: Refmodel
       value: 
-      objectReference: {fileID: 1453020383}
+      objectReference: {fileID: 602646657}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e167362417e7de74c992b44f20f99a8d, type: 2}
   m_IsPrefabParent: 0

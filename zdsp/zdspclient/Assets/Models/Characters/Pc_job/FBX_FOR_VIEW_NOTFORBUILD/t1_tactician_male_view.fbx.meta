@@ -103,7 +103,17 @@ ModelImporter:
     7400000: Take 001
     9500000: //RootNode
     10800000: light
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: t1_tactician_male_body
+    second: {fileID: 2100000, guid: 10aa3cc148ed1be4db1ddb41d4dd8141, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: t1_tactician_male_head
+    second: {fileID: 2100000, guid: 6ee67bd02f5adb949a679e102518eebe, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

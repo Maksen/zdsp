@@ -237,7 +237,7 @@ Light:
   m_Type: 2
   m_Color: {r: 0.9878297, g: 0.7794118, b: 1, a: 1}
   m_Intensity: 1
-  m_Range: 5
+  m_Range: 1
   m_SpotAngle: 30
   m_CookieSize: 10
   m_Shadows:
@@ -254,7 +254,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32768
   m_Lightmapping: 2
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -273,6 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 0}
   Refbone: 
@@ -284,8 +285,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 1868462554612286}
 --- !u!114 &114064796868190702
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -361,8 +360,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -190664275
+  scalingMode: 0
+  randomSeed: 545277437
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3722,8 +3721,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -1667188103
+  scalingMode: 0
+  randomSeed: -641314069
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7129,7 +7128,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -1216617934
+  randomSeed: -480027747
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10489,8 +10488,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -917285323
+  scalingMode: 0
+  randomSeed: 1291199086
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -13850,8 +13849,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -632306093
+  scalingMode: 0
+  randomSeed: -613719848
   InitialModule:
     serializedVersion: 3
     enabled: 1

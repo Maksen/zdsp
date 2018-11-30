@@ -11349,7 +11349,7 @@ Prefab:
     - target: {fileID: 224374836196507462, guid: a5e2c239cb31ebe40b700e79e51f2385,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 38
       objectReference: {fileID: 0}
     - target: {fileID: 114231880711120082, guid: a5e2c239cb31ebe40b700e79e51f2385,
         type: 2}
@@ -15365,7 +15365,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -28.999939, y: 14}
+  m_AnchoredPosition: {x: -29, y: 14}
   m_SizeDelta: {x: 462.57, y: 31}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &592495857
@@ -26553,6 +26553,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   expProgressBar: {fileID: 2082719968}
   levelText: {fileID: 1188161378}
+  levelUpEfxObj: {fileID: 1735949109}
   modelAvatar: {fileID: 682206505}
   dragSpinAvatar: {fileID: 682206504}
   uiDragEvent: {fileID: 594436848}
@@ -26568,9 +26569,9 @@ MonoBehaviour:
   - {fileID: 1371601694}
   - {fileID: 666220420}
   - {fileID: 1214355146}
-  - {fileID: 654484031}
   - {fileID: 2020260}
   - {fileID: 1717644102}
+  - {fileID: 654484031}
   achievementTypesProgress:
   - {fileID: 1889185807}
   - {fileID: 1465385044}
@@ -30939,7 +30940,7 @@ Prefab:
     - target: {fileID: 224374836196507462, guid: a5e2c239cb31ebe40b700e79e51f2385,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 38
       objectReference: {fileID: 0}
     - target: {fileID: 114231880711120082, guid: a5e2c239cb31ebe40b700e79e51f2385,
         type: 2}
@@ -36066,17 +36067,17 @@ Prefab:
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 101.783134
+      value: 102.4
       objectReference: {fileID: 0}
     - target: {fileID: 224507261482001066, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_SizeDelta.x
-      value: 166.78314
+      value: 167.4
       objectReference: {fileID: 0}
     - target: {fileID: 224067286245508420, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 115.89157
+      value: 116.2
       objectReference: {fileID: 0}
     - target: {fileID: 114826790433148870, guid: fcc1743901bb3a04b94d956467f047e3,
         type: 2}
@@ -37229,6 +37230,17 @@ MonoBehaviour:
       - m_Target: {fileID: 1188161376}
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1313517883}
+        m_MethodName: SetLevelText
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -42806,7 +42818,7 @@ Prefab:
     - target: {fileID: 224374836196507462, guid: a5e2c239cb31ebe40b700e79e51f2385,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 38
       objectReference: {fileID: 0}
     - target: {fileID: 114231880711120082, guid: a5e2c239cb31ebe40b700e79e51f2385,
         type: 2}

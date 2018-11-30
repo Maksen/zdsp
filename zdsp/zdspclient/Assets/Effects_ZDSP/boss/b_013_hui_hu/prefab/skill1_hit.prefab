@@ -225,6 +225,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 0}
   Refbone: 
@@ -236,8 +237,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 1333967785647204}
 --- !u!198 &198036540961103062
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -297,8 +296,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -1195788720
+  scalingMode: 0
+  randomSeed: 533711734
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3697,8 +3696,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -473318344
+  scalingMode: 0
+  randomSeed: 1900576821
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7098,7 +7097,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: 2099979018
+  randomSeed: -480978912
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -13819,8 +13818,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -1262262860
+  scalingMode: 0
+  randomSeed: 249885153
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -17174,8 +17173,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 1
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -941694920
+  scalingMode: 0
+  randomSeed: -1224376407
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -20710,8 +20709,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1719547451
+  m_SortingLayer: 6
   m_SortingOrder: 2
   m_RenderMode: 0
   m_SortMode: 0

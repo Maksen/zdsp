@@ -8,19 +8,34 @@ ModelImporter:
     100000: //RootNode
     100002: wp_dagger_nlv40_1
     100004: wp_dagger_nlv40_2
+    100006: wp_dagger_nlv40_01
+    100008: wp_dagger_nlv40_02
     400000: //RootNode
     400002: wp_dagger_nlv40_1
     400004: wp_dagger_nlv40_2
+    400006: wp_dagger_nlv40_01
+    400008: wp_dagger_nlv40_02
     2100000: wp_dagger_nlv40
     2300000: wp_dagger_nlv40_1
     2300002: wp_dagger_nlv40_2
+    2300004: wp_dagger_nlv40_01
+    2300006: wp_dagger_nlv40_02
     3300000: wp_dagger_nlv40_1
     3300002: wp_dagger_nlv40_2
+    3300004: wp_dagger_nlv40_01
+    3300006: wp_dagger_nlv40_02
     4300000: wp_dagger_nlv40_2
     4300002: wp_dagger_nlv40_1
+    4300004: wp_dagger_nlv40_01
+    4300006: wp_dagger_nlv40_02
     7400000: Take 001
     9500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wp_dagger_nlv40
+    second: {fileID: 2100000, guid: 95ff930c5a95b104e94f8c584f421e5a, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

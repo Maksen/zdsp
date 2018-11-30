@@ -7,8 +7,8 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: t3_swordMaster_female_head
-  m_Shader: {fileID: 4800000, guid: fd92bc6c66dfaed4aa7da8d85d6c6f1b, type: 3}
-  m_ShaderKeywords: _EMISSIONON_ON _EMISSIONXBASE_ON
+  m_Shader: {fileID: 4800000, guid: 7c2ea60ec34304d468c6a39eacb40349, type: 3}
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -43,7 +43,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 7c85468273160104f9a989efb5ed57bb, type: 3}
+        m_Texture: {fileID: 2800000, guid: 83f00c733d3ea5c44a75459245d9b7e0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -63,8 +63,8 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EmissionOn: 1
-    - _EmissionxBase: 1
+    - _EmissionOn: 0
+    - _EmissionxBase: 0
     - _Flash: 0
     - _Gloss: 1
     - _GlossMapScale: 1
@@ -85,5 +85,6 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _EmissionColor: {r: 1, g: 0.3, b: 0.3, a: 1}
-    - _SpecularColor: {r: 0.25, g: 0.35, b: 0.45, a: 1}
+    - _Discoloration: {r: 0.7058824, g: 0.7058824, b: 0.7058824, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _SpecularColor: {r: 0, g: 0, b: 0, a: 0}

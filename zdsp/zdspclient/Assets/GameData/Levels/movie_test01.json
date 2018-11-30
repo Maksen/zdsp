@@ -1,0 +1,176 @@
+{
+  "mEntities": {
+    "MonsterSpawnerJson": {
+      "-5046": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 10.0,
+        "combatRadius": 12.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "respawnTime": 5000,
+        "respawnCount": -1,
+        "forward": {
+          "x": 0.499999225,
+          "y": 0.0,
+          "z": 0.866025865
+        },
+        "EntityLinks_Server": {},
+        "archetype": "createlobby_test_b01",
+        "ObjectID": -5046,
+        "position": {
+          "x": 35.6980133,
+          "y": 0.1346392,
+          "z": 70.25485
+        },
+        "ShowInMap": true
+      },
+      "-5042": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 10.0,
+        "combatRadius": 12.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "respawnTime": 5000,
+        "respawnCount": -1,
+        "forward": {
+          "x": 0.499999225,
+          "y": 0.0,
+          "z": 0.866025865
+        },
+        "EntityLinks_Server": {},
+        "archetype": "createlobby_test_b01",
+        "ObjectID": -5042,
+        "position": {
+          "x": 45.6006851,
+          "y": 0.1346392,
+          "z": 76.026825
+        },
+        "ShowInMap": true
+      },
+      "-5044": {
+        "$type": "Zealot.Entities.MonsterSpawnerJson, Assembly-CSharp",
+        "archetypeGroup": "",
+        "aggroRadius": 10.0,
+        "combatRadius": 12.0,
+        "spawnRadius": 1.0,
+        "population": 1,
+        "respawnTime": 5000,
+        "respawnCount": -1,
+        "forward": {
+          "x": 0.499999225,
+          "y": 0.0,
+          "z": 0.866025865
+        },
+        "EntityLinks_Server": {},
+        "archetype": "createlobby_test_b01",
+        "ObjectID": -5044,
+        "position": {
+          "x": 45.09382,
+          "y": 0.1346392,
+          "z": 63.02887
+        },
+        "ShowInMap": true
+      }
+    },
+    "RealmControllerDungeonJson": {
+      "-4986": {
+        "$type": "Zealot.Entities.RealmControllerDungeonJson, Assembly-CSharp",
+        "forward": {
+          "x": 0.499999225,
+          "y": 0.0,
+          "z": 0.866025865
+        },
+        "EntityLinks_Server": {},
+        "ObjectID": -4986,
+        "position": {
+          "x": -48.814415,
+          "y": 0.0,
+          "z": 54.5349426
+        },
+        "ShowInMap": true
+      }
+    },
+    "MapInfoJson": {
+      "-4988": {
+        "$type": "Zealot.Entities.MapInfoJson, Assembly-CSharp",
+        "centerPoint": {
+          "x": 42.48678,
+          "y": 0.134635925,
+          "z": 70.87334
+        },
+        "mapScale": {
+          "x": 0.227995813,
+          "y": 0.227995828,
+          "z": 0.227995828
+        },
+        "width": 512.0,
+        "height": 512.0,
+        "ObjectID": -4988,
+        "position": {
+          "x": 42.48678,
+          "y": 0.134635925,
+          "z": 70.87334
+        }
+      }
+    },
+    "PlayerSpawnerJson": {
+      "-4990": {
+        "$type": "Zealot.Entities.PlayerSpawnerJson, Assembly-CSharp",
+        "forward": {
+          "x": -0.499999642,
+          "y": 0.0,
+          "z": -0.8660258
+        },
+        "ObjectID": -4990,
+        "position": {
+          "x": 39.3411331,
+          "y": 0.1346392,
+          "z": 64.44492
+        },
+        "ShowInMap": true
+      }
+    },
+    "InteractiveTriggerJson": {
+      "125296": {
+        "$type": "Zealot.Entities.InteractiveTriggerJson, Assembly-CSharp",
+        "EntityLinks_Server": {},
+        "npcArchetype": "prefab_test1",
+        "parentPath": "test/GameObject",
+        "interactiveTime": 3,
+        "counter": 3,
+        "min": 1,
+        "max": 1,
+        "interrupt": true,
+        "npcActiveOnStartup": true,
+        "ObjectID": 125296,
+        "position": {
+          "x": 68.56,
+          "y": 0.1346392,
+          "z": 49.85
+        },
+        "ShowInMap": true
+      },
+      "125694": {
+        "$type": "Zealot.Entities.InteractiveTriggerJson, Assembly-CSharp",
+        "EntityLinks_Server": {},
+        "npcArchetype": "prefab_test2",
+        "parentPath": "test/GameObject (1)",
+        "interactiveTime": 3,
+        "counter": 3,
+        "min": 1,
+        "max": 1,
+        "interrupt": true,
+        "npcActiveOnStartup": true,
+        "ObjectID": 125694,
+        "position": {
+          "x": 68.5600052,
+          "y": 0.1346392,
+          "z": 49.8500023
+        },
+        "ShowInMap": true
+      }
+    }
+  }
+}

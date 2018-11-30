@@ -226,6 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b81157b282c69c640bc93443276b506d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseRefCamera: 0
   SpawnAvatar: 0
   Refmodel: {fileID: 0}
   Refbone: 
@@ -237,8 +238,6 @@ MonoBehaviour:
   WeaponTrailStartDelay: 0
   WeaponTrailLifeTime: 1
   AudioClip: {fileID: 0}
-  Emitters:
-  - {fileID: 0}
 --- !u!198 &198033939006224204
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -298,8 +297,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -396230523
+  scalingMode: 0
+  randomSeed: -56074341
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3680,8 +3679,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: 2052572427
+  scalingMode: 0
+  randomSeed: 752787379
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -7042,7 +7041,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -1678057112
+  randomSeed: 1643051099
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -10402,8 +10401,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: -391911749
+  scalingMode: 0
+  randomSeed: -1645090110
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -13808,8 +13807,8 @@ ParticleSystem:
       m_RotationOrder: 4
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
-  scalingMode: 1
-  randomSeed: 921344648
+  scalingMode: 0
+  randomSeed: 2140442656
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -17191,7 +17190,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -293201382
+  randomSeed: -1672664518
   InitialModule:
     serializedVersion: 3
     enabled: 1

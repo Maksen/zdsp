@@ -8,17 +8,8 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 496840}
-  - component: {fileID: 114762459868594550}
-  - component: {fileID: 114367805139007398}
-  - component: {fileID: 114440336640121496}
-  - component: {fileID: 114004115535574114}
-  - component: {fileID: 114624150769403724}
-  - component: {fileID: 114755020868967890}
-  - component: {fileID: 114452342524707502}
-  - component: {fileID: 114701904684282692}
-  - component: {fileID: 114894013989694930}
-  - component: {fileID: 114561131343974088}
-  - component: {fileID: 114039565541084152}
+  - component: {fileID: 114091372640907652}
+  - component: {fileID: 114689146417321300}
   m_Layer: 0
   m_Name: SpriteFontSetup
   m_TagString: Untagged
@@ -50,7 +41,7 @@ Prefab:
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 131436}
   m_IsPrefabParent: 1
---- !u!114 &114004115535574114
+--- !u!114 &114091372640907652
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -61,14 +52,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: DamageLabel_Critical
-  sprite: {fileID: 2800000, guid: 281112baff16b0a42970d55303ea5ecf, type: 3}
+  name: Exp_super_ultra
+  sprite: {fileID: 2800000, guid: 349cefab5c221834cbc16b757540bfbc, type: 3}
   fontBase: 0
   fontSize: 1
   lineSpacing: 1
-  font: {fileID: 12800000, guid: 3bab94b5792597e4fa9dfdc9281428af, type: 2}
-  characters: 1234567890
---- !u!114 &114039565541084152
+  font: {fileID: 12800000, guid: 816a2989fa327934c9b42d32020748e0, type: 2}
+  characters: EXPx1234567890
+--- !u!114 &114689146417321300
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -79,172 +70,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: AchievementSubtype
-  sprite: {fileID: 2800000, guid: 90132431d1a5b6f4c82cfaa3c76908d9, type: 3}
+  name: EXP_normal
+  sprite: {fileID: 2800000, guid: 3d197ac24e7974a4b9c8ff2ab8847963, type: 3}
   fontBase: 0
   fontSize: 1
   lineSpacing: 1
-  font: {fileID: 12800000, guid: 566df3a71a6e9344ab5d8b96f14f7ad9, type: 2}
-  characters: 0123456789
---- !u!114 &114367805139007398
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: DamageLabel_DOT
-  sprite: {fileID: 2800000, guid: ef5066e89b5210542a160331c98a39e5, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: eee3e23a184e0f148b2b7f47b228b23c, type: 2}
-  characters: 1234567890
---- !u!114 &114440336640121496
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: DamageLabel_Heal
-  sprite: {fileID: 2800000, guid: e7509577d987e424092bbdba7843bd0d, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: 7276fee4900c85a438c71b9477f78ba6, type: 2}
-  characters: 1234567890
---- !u!114 &114452342524707502
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: DamageLabel_MissDodge
-  sprite: {fileID: 2800000, guid: 8ca54f05d010cdc468afb708dc4ebe10, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: d43a182967bd9ae47bce66a7b0d8c104, type: 2}
-  characters: ab
---- !u!114 &114561131343974088
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: roman_num_noOutline
-  sprite: {fileID: 2800000, guid: bada7c7519b34e645b1c34ec72b39f3e, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: 497df48d5ed332e4d9f58a2306ff3103, type: 2}
-  characters: 123456789
---- !u!114 &114624150769403724
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: DamageLabel_Total
-  sprite: {fileID: 2800000, guid: 4a6ff2d3b47896c4c9f6b4785d55e400, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: f835ff15603aad142ae8ff2fc1ca05a5, type: 2}
-  characters: 1234567890
---- !u!114 &114701904684282692
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: num_GlowText_22
-  sprite: {fileID: 2800000, guid: 20ad1c97e30785a4cb839362c3cbf58c, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: cd9f98950e6fb664cab51a4890d0f18f, type: 2}
-  characters: "1234567890\uFF0B\uFF0D%.,XP"
---- !u!114 &114755020868967890
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: num_GameIconText_20
-  sprite: {fileID: 2800000, guid: 435fb17c2e949ed43a71abea01289b6b, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: 3acfc854543e77f43ad212c886053591, type: 2}
-  characters: "0123456789+-/%,.\u842C\u5343\u79D2"
---- !u!114 &114762459868594550
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: DamageLabel_NormalDamage_E
-  sprite: {fileID: 2800000, guid: 88ab0d75de14a804bb03c38a847f6e1d, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: 8670920b81c7e3c468c3d04740365307, type: 2}
-  characters: 1234567890
---- !u!114 &114894013989694930
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 131436}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 999c7c28e874e894e9d411172e573e4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  name: roman_num
-  sprite: {fileID: 2800000, guid: 9f66ce00e2065e047880124800745fd3, type: 3}
-  fontBase: 0
-  fontSize: 1
-  lineSpacing: 1
-  font: {fileID: 12800000, guid: 81e91d17ea1e28c42942e7dae999e670, type: 2}
-  characters: 123456789
+  font: {fileID: 12800000, guid: 7d31230cf88b84947bbd8b19b0aa5882, type: 2}
+  characters: EXP+1234567890

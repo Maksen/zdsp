@@ -9,23 +9,51 @@ ModelImporter:
     100002: t2_swordMan_female_body
     100004: t2_swordMan_female_head
     100006: //RootNode
+    100008: t2_swordMan_female_view:pc_female_element_f
+    100010: t2_swordMan_female_view:t2_swordMan_female_body
+    100012: t2_swordMan_female_view:t2_swordMan_female_head
     400000: face_000_base_female
     400002: t2_swordMan_female_body
     400004: t2_swordMan_female_head
     400006: //RootNode
+    400008: t2_swordMan_female_view:pc_female_element_f
+    400010: t2_swordMan_female_view:t2_swordMan_female_body
+    400012: t2_swordMan_female_view:t2_swordMan_female_head
     2100000: t2_swordMan_female_body1
     2100002: t2_swordMan_female_head1
     2100004: face_000_base_female
+    2100006: t2_swordMan_female_body
+    2100008: t2_swordMan_female_head
+    2100010: pc_female_element_f
     2300000: face_000_base_female
     2300002: t2_swordMan_female_body
     2300004: t2_swordMan_female_head
+    2300006: t2_swordMan_female_view:pc_female_element_f
+    2300008: t2_swordMan_female_view:t2_swordMan_female_body
+    2300010: t2_swordMan_female_view:t2_swordMan_female_head
     3300000: face_000_base_female
     3300002: t2_swordMan_female_body
     3300004: t2_swordMan_female_head
+    3300006: t2_swordMan_female_view:pc_female_element_f
+    3300008: t2_swordMan_female_view:t2_swordMan_female_body
+    3300010: t2_swordMan_female_view:t2_swordMan_female_head
     4300000: t2_swordMan_female_body
     4300002: t2_swordMan_female_head
     4300004: face_000_base_female
-  externalObjects: {}
+    4300006: t2_swordMan_female_view:pc_female_element_f
+    4300008: t2_swordMan_female_view:t2_swordMan_female_body
+    4300010: t2_swordMan_female_view:t2_swordMan_female_head
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: t2_swordMan_female_body
+    second: {fileID: 2100000, guid: dc378ef3f64c3c14eaab16736c6806cb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: t2_swordMan_female_head
+    second: {fileID: 2100000, guid: 74e105c6418cda84fb10486effe931fe, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

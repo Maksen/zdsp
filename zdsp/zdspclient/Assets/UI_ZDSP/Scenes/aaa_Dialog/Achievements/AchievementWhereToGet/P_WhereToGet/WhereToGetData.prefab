@@ -168,7 +168,7 @@ GameObject:
   - component: {fileID: 114369879960905438}
   - component: {fileID: 114930758543066146}
   - component: {fileID: 114151377943536070}
-  - component: {fileID: 114532034757072780}
+  - component: {fileID: 114074128920881268}
   m_Layer: 5
   m_Name: WhereToGetData
   m_TagString: Untagged
@@ -242,6 +242,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &114074128920881268
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1725496686347448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3c9b22bc9306e24a92f78daec712b33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 114707778484024992}
+  nameText: {fileID: 114773964408533642}
+  levelText: {fileID: 114332313209193046}
+  mapNameText: {fileID: 114145551766734896}
+  button: {fileID: 114534783679057144}
 --- !u!114 &114076190772661028
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -494,22 +510,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
---- !u!114 &114532034757072780
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1725496686347448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01821adcf2fd9ca4189289ae4a4209e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mImg: {fileID: 114707778484024992}
-  mName: {fileID: 114773964408533642}
-  mLevelName: {fileID: 114332313209193046}
-  mMapName: {fileID: 114145551766734896}
-  mBtn: {fileID: 114534783679057144}
 --- !u!114 &114534783679057144
 MonoBehaviour:
   m_ObjectHideFlags: 1

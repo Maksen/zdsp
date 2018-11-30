@@ -8,18 +8,33 @@ ModelImporter:
     100000: //RootNode
     100002: wp_fan_nlv60_1
     100004: wp_fan_nlv60_2
+    100006: wp_fan_nlv60_01
+    100008: wp_fan_nlv60_02
     400000: //RootNode
     400002: wp_fan_nlv60_1
     400004: wp_fan_nlv60_2
+    400006: wp_fan_nlv60_01
+    400008: wp_fan_nlv60_02
     2100000: wp_fan_nlv60
     2300000: wp_fan_nlv60_1
     2300002: wp_fan_nlv60_2
+    2300004: wp_fan_nlv60_01
+    2300006: wp_fan_nlv60_02
     3300000: wp_fan_nlv60_1
     3300002: wp_fan_nlv60_2
+    3300004: wp_fan_nlv60_01
+    3300006: wp_fan_nlv60_02
     4300000: wp_fan_nlv60_1
     4300002: wp_fan_nlv60_2
+    4300004: wp_fan_nlv60_01
+    4300006: wp_fan_nlv60_02
     9500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wp_fan_nlv60
+    second: {fileID: 2100000, guid: 3374dad2372dcf1479b87ccee595dc93, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

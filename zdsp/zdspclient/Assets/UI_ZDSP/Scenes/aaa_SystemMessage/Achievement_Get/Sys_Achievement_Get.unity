@@ -3635,6 +3635,7 @@ GameObject:
   - component: {fileID: 388952788}
   - component: {fileID: 388952787}
   - component: {fileID: 388952786}
+  - component: {fileID: 388952789}
   m_Layer: 31
   m_Name: Sys_Achievement_Get
   m_TagString: Untagged
@@ -3672,7 +3673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa53c84994403747b4825ebd36337a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  messageType: 0
+  messageType: 5
 --- !u!114 &388952787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3721,6 +3722,18 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &388952789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 388952784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b942c86db35c71043bfbd621bf0b9e27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  messageText: {fileID: 1415349035}
 --- !u!1 &464517991
 GameObject:
   m_ObjectHideFlags: 0
@@ -7759,7 +7772,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 131.03615, y: 0}
+  m_AnchoredPosition: {x: 130.93333, y: 0}
   m_SizeDelta: {x: 0, y: 30}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1415349033
